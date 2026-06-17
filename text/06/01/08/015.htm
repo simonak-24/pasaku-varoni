@@ -1,0 +1,256 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>15</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vienacīte, Divacīte, Trijacīte.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">15. A. 511. R. Tabine. Naaizmierstule "Tautas posokas" 7. </p>
+
+<p align="JUSTIFY">Vīnam veiram nūmyra sīva um atstuoja mozu meiteni. Veirs, naspēdams
+vysu dorbu padarīt, pajēmja sev atraiti sīvu. Tai beja treis meitas: Vīnacīte,
+Divacīte un Trejacīte.</p>
+
+<p align="JUSTIFY">Vysas beja nyknas, bet jūs muote vēļ nyknuoka. Un kū dīna, tū
+vairuok jei tāva meitu syta, verdzynuoja, gribēja juos skaistumu beigt. Bet buorinīte
+klusu cītja un arvīnu palyka daiļuoka. Buorenītes daiļums grauzja pamuotei sirdi. Jei
+vysaidā ziņā gribēja meitini beigt. Golā sagudruoja taidu lītu: īdevja buorinei
+divdesmit saivu lynu un pīsacīja tūs par vīnu dīnu sasprēst, izaust un vēļ gonūs
+gūtiņas ganīt. Buorinīte pajēmja dorbu un, rauduodama izdzyna lūpus yonūs.</p>
+
+<p align="JUSTIFY">Dīna beja korsta, gūvs suoka byzuot. Kur te sprēst? kur aust? Nav
+kod vuorpstiņas rūkā pajemt. Atsasāda jei uz kryusniņas un suoka gauži rauduot. Tū
+iraudzīja juos gūtiņa raibalīte, kuru muote jai beja atstuojuse, pīguoja kluot un
+valcoj : "Kuo tu raudi, munu ganīt?"</p>
+
+<p align="JUSTIFY">Un buorinīte pīsamīdzja pi gūtiņas, kai pi eistuos muomuļiņas un
+žāluojas : "Mīļū gūtiņ, raibalīt, pamuote lyka maņ sasprēst divdesmit saivu
+lynu un izaust audaklu. Un saulītei rītūt, lyka dorbu muoju nest."</p>
+
+<p align="JUSTIFY">Un gūtiņa jai teicja: "Īlic lynu škipsniņu munā
+ausiņā!" Meitiņa pa klausīja, īlyka lynus raibales ausī - skotuos tovu
+breinumu! - nu ūtras austiņas stīpas skaists, bolts audakls, kai pats kēniņš
+nesakaunītu un taida audakla kraklu viļkt sev mugurā. Buorinīte satyna audaklu un
+vokorā nūnesja tū pamuotei. Tei tik skotuos vīn un breinuojas, bet nu sirds dusmu
+naizmat. Pyļna ļaunuo nyknuma, ūtrā dīnā dūd buorinei vēļ divdesmit saivu lynu un
+līk sasprēst un izaust. Uņ vēļ pasyuta meitu, Vīnacīti, lai tei sorgoj un
+nūsaverās, kai buorinīte sprēss un auss. Bet buorinīte Vīnacīti aizmidzēja un
+paša otkon buozja lynus raibalītes austiņā. Un otkon stīpjas bolts audakls, kaidu i
+kēniņš labpruot nosuotu.</p>
+
+<p align="JUSTIFY">Vokorā buorinīte pīcēļa Vīnacīti un soka: "Muosiņ,
+saulīte jau laižas, dzeisim gūtiņas muojuos!"</p>
+
+<p>Kad sadzyma muojuos, pamuote vaicoj nu sovas meitas: "Vai redzēji, kas un kai
+tūs lynus sprēdja, audaklu stīpja?" "Naredzēju, māmiņ," atteic
+Vīnacīte.</p>
+
+<p align="JUSTIFY">Pamuote aizadusmuoja uz sovas meitas, sapēŗa tū, bet uz reita otkon
+devja buorinei dorbu : treisdesmit saivu lynu sasprēst un audaklu izaust. Un vēj
+nūsyutīja Divacīti, lai tei skotuos, kai buorine struodoj. Buorinīte soka uz
+Divacīti: "Muosiņ, tev galviņa naīskuota, dūd es paīskuošu."</p>
+
+<p align="JUSTIFY">Pamuotes meitai tys beja pa proutam. Buorinīte īskoj golvu un klusu
+dzīd :</p>
+
+<p>"Aizmidz, aizmidz vīnactiņa, Migu, migu ūtractiņa, Aizmidz, guli,
+Divacīte."</p>
+
+<p align="JUSTIFY">Divacīte aizrnyga un nūgulēja leidz saules rītam. Pa tū laiku
+buorinīte pīguoja pi raibalītes, ībuozja lynus vīnā gūtiņas ausī un nu ūtras
+suoka stīptīs vēj boltuoks audakls. Buorinīte audaklu satyna un vokorā nesja uz
+muojom. Pamuotei audakls ļūti patyka, bet jei sovas sirds nasameikstynroja, tik vaicuoja
+nu eistuos meitas: "Vai redzēji, kai buorine sprēdja un audja?"</p>
+
+<p align="JUSTIFY">"Naredzēju," atbildēja Divacīte. Muote Divacīti sapēra
+un aizdzyna gulēt.</p>
+
+<p align="JUSTIFY">Ūtrā reitā, saulei lacūt, otkon syutīja buorini gonūs un devja
+jai četrudesmit saivu lynu un styngri pīsacīja tūs sasprēst un audaklu izaust. Kluot
+pi tuo syutīja jaunuokū meitu Trejacīti, sorguot, kai buorine struoduos.</p>
+
+<p align="JUSTIFY">Buorinīte, pamanījuse Trejacīti, soka: "Muosiņ, tev šūdīn
+galviņa naīskuota, dūd es paīskuošu."</p>
+
+<p align="JUSTIFY">Trejacītei tys pa pruotam. Buorine īskoj juos golvu un klusu dzīd :</p>
+
+<p>"Aizmidz, aizmidz vīnactiņa,</p>
+
+<p align="JUSTIFY">Migu, migu ūtractiņa, </p>
+
+<p align="JUSTIFY">Guli, aizmidz Trejacīte."</p>
+
+<p align="JUSTIFY">Divactiņas aizmyga, bet par tū trešū buorinīte aizmiersa. Un
+eistuo meita ar vīnu aci redzēja, kai buorinīte ībuozja lynus gūtiņas ausī, un kai
+nu ūtras ausis izguoja skaists, bolts audakls. Vokorā, kad buorinīte sadzyna lūpus
+muojā un atdevja pamuotei skaistu boltu audaklu, eistuo meita pastuostīja, kai tys tyka
+izgatavuots.</p>
+
+<p align="JUSTIFY">Pamuote pat malna palyka nu dusmes un tyuliņ lyka asynuot nažus un
+kaut raibalīti. Tū padzierda buorinīte un rauduodāma, īskrēja klāvā.</p>
+
+<p align="JUSTIFY">"Gūtiņ, manu muomuliņ," runuoja meitiņa, "reit tevi
+nūkaus un es palikšu vīna."</p>
+
+<p align="JUSTIFY">Bet gūtiņa mīrinuodama teicja: "Naraudi, meitiņ, tys tev izīs
+uz lobu. Kad mani nūkaus, tad tu pajem munu sirdi. Tur atrassi div sēkliņas un zalta
+gredzentiņu. Vysu aprūc zemē, lelceļa molā! Tuoļuok redzēsi paša, kas byus."</p>
+
+<p align="JUSTIFY">Meitine nūslaucīja osoras un guoja ustobā. Uz reita, saulītei
+lācūt, pamuote lyka izvest buorines gūtiņu un nūkaut. Buorinītei sirds pleisa nu
+žāluma, bet rauduot nedrīkstēja, jo pamuote tyuliņ syta ar dzeļža reiksti. Kad
+gūtiņai nūmaucja uodu un gaļi suoka grīzt gobolim, buorinīte teicja: "Mamiņ,
+atdūd maņ gūtiņas sirdi. Cyta nikuo es nagribu."</p>
+
+<p align="JUSTIFY">Pamuote tik pasasmējas vīn un nūsvīdja jai sirdi. Buorinīte
+iztecēja uorā, puorgrīzja raibales sirdi un, atraduse tur div sēkliņas un zalta
+gredzintiņu, aproka vysu lelceļa molā. Par nakti tur izauga div skaistas uobeļnīcas :
+vīna zalta, ūtra sudobra lopom. Uobeļnīcas pylnas beja skaistu, caurspeidīgu uobeļu.
+Kluot pi uobeļnīcas zora pakrēslī smaržuoja veina oka.</p>
+
+<p align="JUSTIFY">Buorinīte, kod vīn gribēja, plyucja tūs uobeļus un dzēra veinu,
+bet muotes meita ni uobelīša nanūruova, ni lāsītes tuo veina napadzēŗa. Kai tik
+kura snēdzjās pēc uobeļu, tai apaugļuoti zori cēļās augši, augši gaisā, ka ni
+pat augstuokuos trepes naleidzēja. Un otkon, juo kura īdūmuoja pasmeļt gorduo veina,
+tad uobeļnīcu zori tik stypri syta par muguru, ka pamuotes meitas pat beiduos kluot
+pīīt.</p>
+
+<p align="JUSTIFY">Reiz boguots, skaists un gudrs kēniņa dāls, braucja pa sovu kēmesti
+sev sīvas maklādams. Ceļš guoja car buorinītes kūkim un veina oku. Princis nikod
+nabeja taidu breinumu redzējis. Tuopēc nyu nūstuoja pi sātas un vaicuoja, kam pīdar
+šī augļu kūki un veina oka. Pamuote atbiļdēja, ka tys vyss ir juos monts. Buorinīti
+jei nūglobuoja zam siles. Kēniņa dālam gribējuos paraudzīt tūs uobeļus un
+atsadzert smaržīga veina. Pamuote syutīja sovu vacuokū meitu, bet kai tik tei pīguoja
+pi uobeles, snēdzja rūku pēc caurspīdīguo augļa, tai uobeles zori ar augļim
+pasacēļa augši gaisā. Princis tik stuov un breinuojas. Bet tūs auigļus jam gribis un
+veina gribis.</p>
+
+<p align="JUSTIFY">Un nivīna muotes meita, nivīns cylvāks navarēja dabuot ni augļu ni
+veina. Golā princis soka: "Vai tad jyusu muojā nav vairs nivīna cylvāka? Vai tad
+tī augļi palīk narauti un veins nadzarts?"</p>
+
+<p align="JUSTIFY">Un pamuote atbi]dēja: "Ir vīna moza ganīte, bet tei vysod taida
+nateira, taida bailīga, ka es jū nūslēpu."</p>
+
+<p align="JUSTIFY">Princis lyka atvest mozū gani. Un kai tik buorinīte pīguoja pi
+uobeļnīcu, zori ar caurspeidīgim augļim paši nūsalīcja un meitiņa pīplyucja
+uobeļu prinčam un juo ļaudim. Nyu prinčam gribējuos padzert tuo veina un tuopēc
+lyudzja, lai buorinīte jam īsme tuo. Un kai tik meitine pīguoja pi okas, veins
+pasacēļa leidz pošam viersam un jei vīgli smēla trauku pēc trauka un dzirdīja
+princi un juo lauds.</p>
+
+<p align="JUSTIFY">Prinčam buorinīte tai patyka, ka jis pajēmja jū sev par sīvu un
+aizvedja uz sovu spūdru pili. Obi augļu kūki un veina oka nūtecēja pēc sovas
+saimnīcas. Princis sataisīja ļūti boguotas kuozas, saaicynuoja vysus sovus
+pavalstnīkus un buorinīte smēļa veinu, dzirdīja ļaudis, ruovja breinīgus augļus un
+dalija tūs kuozinīkim. Ti vysi prīcuojuos un slavēja jaunuo prinča sīvu.</p>
+
+<p align="JUSTIFY">Un es ari tur beju, slavas dzīsmes dzīduoju, augļus ēžu, veinu
+dzēru, bet mutē maņ ni lāses natyka.</p>
+
+
+</body></html>

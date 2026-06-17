@@ -1,0 +1,195 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Jauneklis ellē.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 466. Teicējs O. Jaudzems Makašānu pa. Kultūras balss kr.</p>
+
+<p align="JUSTIFY">Dzeivuoja vīna atraitne ar septiņi godi vacu dālu. Dzeivuoja jī
+cīši nabadzīgi, turēja vīnu gūtiņu. Pīguoja laiks, atraitne cīši saslymuoja un
+runoj sovam dālam: "Dēliņ, pajem gūtiņu, ved uz mīstiņu un puordūd!"</p>
+
+<p align="JUSTIFY">Dāls pajēmja gūvi un vad. Ceļā jis satyka vīnu vacu veci. Vecs
+vaicoj puikam: "Kur tu ved gūtiņu?"</p>
+
+<p align="JUSTIFY">Puika jam atbildēja: "Uz mīstiņu puordūt."</p>
+
+<p align="JUSTIFY">Vecs runoj: "Puordūd man, es asmu cīši nabadzīgs, nikuo man
+nav, kai vīna sauja pupu."</p>
+
+<p align="JUSTIFY">Puika pasavēra un jam ituos pupas patyka. Puika pajēmja nu veča
+sauju pupu un atdevja jam gūvi. Atīt puika uz sātu un stuosta muotei, ka gūvi jis
+atdevja nabadzīgam večam par itont pupom. Muote suoka puiku buort un lomuot bet kū jau
+padarīsi? Puika izguoja nu ustobas uorā, pi ustobas pasadynuoja pupas zemē un muotei
+nikuo napastuostija. Reitā muote izīt uorā, veras - pi ustobas izauguši daudz lelu
+kūku un cīši smuki. Muote īīt ustobā un soka dālam: šūnakt pi myusu ustabiņ as
+izauga daudz ielu kūku!"</p>
+
+<p align="JUSTIFY">Puika soka muotei: "Es vakar vokorā pi sātas sadynuoju pupas,
+bet nu pūpu izauga par nakti leli kūki un vīns nu kūkim augstuoks par vysim."</p>
+
+<p align="JUSTIFY">Puika īkuopja itymā lelajā kūkā un nu turīnes jis redzēja nazkur
+tuoli tuoli cytu kēnesti. Kūks vys aug un dreiži izauga leidz tai kēnestei. Puika
+nūkopja nu ituo kūka un nūguoja tyma kēnestī. Veras puika, ka tymā kēnistī ļauds
+pavysam moziņi un ustabiņas tik mozas, ka jis navar tymās īleist. Veras puika, ka
+tuoluok stuov vīna lela ustoba un cīši smalka. Puika īguoja tymā ustobā. Tur
+dzeivuoja vīns lels cylvāks, bojars. Itys cylvāks suoka stuostīt puikai, ka tymā
+kēnestī ciši nalabi asūt dzeivuot par tū, ka te dzeivuojūt vīns lels, lels
+cvlvāks, kurs ādūt ļauds. "Tagad, kai jis tyka myusu kēnestī, jis apēdja daudz
+itū mozū cilvēciņu un munu sīvu. Vakar itys cylvākuāduojs nūnesja munu meitu, kura
+beja cīši smuka!"</p>
+
+<p align="JUSTIFY">Puika izaklausīja, nūsabreinuoja un soka: "Bet kur jis taids
+cylvākuāduojs dzeivoj, paruodīt man!"</p>
+
+<p align="JUSTIFY">Bojars atvedia puiku leidz tai muojai, kurā dzeivuoia cylvākuāduojs
+un pats nūguoja uz sovu sātu. Puika apsavēra apleik ituos muojas, kura beja cīši lela
+un augsta, kai juo nu pupas izaugušais kūks. Puika attaisīja durovas un veras, ka jam
+preti stuov lela un vaca rogona. Nyu vaicoj rogona: "Kū pasacīsi; jaunais
+cylvāks?"</p>
+
+<p align="JUSTIFY">Bet puika beja cīši smuks un atbildēja rogonai ar nazkaidu' bārna
+baili: "Es atguoju redzēt lelū cylvāku un ar jū parunuot!" Rogonai tyka
+žāl puikas un jei jam soka: "Ej tu lobuok nu šenis uorā, cytaidi atīs lelais
+cylvāks un jis tevi apēss uz reizes."</p>
+
+<p align="JUSTIFY">"Na", soka puika, "jis mani naapēss, jo tu vēļ man
+īduši sovu paleigu!"</p>
+
+<p align="JUSTIFY">Rogona, nikuo napascīdama, īvedja puiku lelā kambarī, kur dzeivuoja
+cvlvāku āduojs, iuo tymā laikā nabeja sātā. Rogona vysu izruodīja puikai un īvedja
+iū tur, kur jam vuorēja cylvāku galu; tur beja leli kotli. Puika īleida vīnā tukšā
+kotlā, sēd un gaida, kad atīs lelais cylvāks. Tymā stracī atguoja itys cylvāku
+āduois, īguoja sovā kambarī un suoka klīgt uz rogonas, ka jei dreižuok jam dūtu
+ēst. Rogona īdevja jam ēst daudz cylvāka gaļas. Jis suoka ēst, bet puika veras uz
+ituo cylvāka zvēra, kai jis ād. Kad iis paēdja, nūguoja uz sovu kambari. Rogona
+nūvedja puiku pogrobā. Tī beja daudz cylvāku kuri byutu savuorīti lelajam cylvākam
+par gaļu. Rogona puiku tur pametja, bet paša nūguoja uz sovu kambari. Puika pogrobā
+klusiņam izjēmja nu leluo cylvāka kambaŗa greidas dēli un suoka vērtīs kū dora
+lelais cylvāks. Tys cylvāks izjēmja no golda lelu stykla skreinīti ar vysaidim duorgim
+akmeņim, nūlyka sev zam spylvy na, ilūguoja gulātu un tyuleņ aizmyga. Puika
+klusiņām īleida caur tū caurumu juo kambarī, izjēmja nu karmana vīnu pupiņu un
+izlyka jam uz daguna. Napuorguoja pus stunde, kai uz juo daguna izauga lels kūks. Puika
+izvilka nts juo tū skreinīti, nūguoja uz rogonu un vaicoj: "Kas te ir?"</p>
+
+<p align="JUSTIFY">Rogona jam atbildēja: "Te ir duorgi akmeni un vysas atslagas, zam
+kurom ir pasādynuoti jaudis un vīna smuka myusu kēnests bojara eistuo meita. Puika
+pajēmja tuos atslāgas, atslēdzja vysus kambarus un iztaidja tūs ļauds, kuri jau beja
+sagatavuoti apēšonai lelajam cylvākam. Bojara meitu puika pajēmja sev leidza, taipat
+pajēmja rogonu un vysu zaitu, bet tū muoju jis aizdadzynuoja. Kad daga juo muoja, puika
+izkuopja uz pupas kūka un redzēja, kai sadaga tys lelais cylvāku āduojs. Puika ar
+smukū meitu un rogonu nūguoja uz meitas tāvu, bojaru, kur sataisija lelas kuozas. Pēc
+kuozu puika ar sovu sīvu un rogonu pa pupas kūku nūsalaidja uz sovu dzimteni, kur
+gaidīja jū juo muote. Atvedja puika uz sovu dzimteni sovu sīvu un rogonu un suoka jī
+dzeivuot vysi kūpā. Muote ar rogonu beja cīši vacas un dreiži nūmyra, bet puika ar
+sovu smukū sīvu tagad dzeivoj labi un baguoti, un kotru reizi pīmin tū gūtiņu, kuru
+puordevja večam par pupom.</p>
+
+
+</body></html>

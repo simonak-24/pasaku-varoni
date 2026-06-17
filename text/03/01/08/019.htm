@@ -1,0 +1,187 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>19</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Maģiskā bēgšana ar meitenes palīdzību.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">19. A. 313. A. J. Ozols Sēcē. LP, V, 116, 2.</p>
+
+<p align="JUSTIFY">Viens ķēniņš liek dēlam zemes darbus strādāt. Reiz dēls ardams
+uzsit kumeļam stiprāki ar pātagu. Kumeļš saka: "Nesit vis, gan rītu tev manis
+vajadzēs, tēvs sūtīs tevi apakšzemē ar ziņu."</p>
+
+<p align="JUSTIFY">"Kas tad tā par ziņu?" dēls nodomā; bet no rīta kumeļam
+taisnība. Ķēniņš pašā agrumā modina dēlu, lai aiznesot to un to ziņu
+apakšzemē! Labi. Dēls lec kumeļam mugurā un aizjāj kā pats viesulis - putekšļus
+vien noredz. Apakšzemē viņš kumeļu padzen āboliņu laukā un pats ieiet pie velna.</p>
+
+<p align="JUSTIFY">Velns saka: "Labi, labi, ka ziņu atnesi! Bet paliec tagad pie
+manis! Te tu visur varēsi staigāt, tikai tai istabā neej, kas ar lūku aizsieta."</p>
+
+<p align="JUSTIFY">Dēls domā: "Joki, kādi nav? Šis nelaidīs mani, kur es
+gribēšu! Īpašas istabas te turēs, ko nedomā!" un tā slēdz vaļā lūku</p>
+
+<p align="JUSTIFY">istabu. Un kas ir? Tanī istabā ierauga lielu vilku viņa paša
+kumeļa mugurā. Kas kumeļu tur ievedis, kas ne - nevar zināt.</p>
+
+<p align="JUSTIFY">Dēls sašūt: "Kad tevi nelaime! Tāds pazaglēns manu zirgu
+jādelēs!" un grib jau šo kaut; bet vilks lēnā garā nolec atpakaļ un sāk otrā
+kaktā gaļu ēst, kas tur nolikta. Kumeļam atkal pilna sile auzu iebērta, tas arī ēd.
+Dēls nodomā: "Kas tādam vilkam nedzīvot? Ēd gaļu, kā negausis!"</p>
+
+<p align="JUSTIFY">Bēt tīšu, vilku ķircinādams, viņš atņem tam gaļu noliek labāk
+savam kumeļam priekšā; auzu sili atkal aiznes vilkam, lai grauž, ja var. Te pašu
+laiku velns iekšā sadedzis. Kā to varot darīt, ēdienus mainīt? Bet dēls neatsaka ne
+ja, ne nē. Tā paliek.</p>
+
+<p align="JUSTIFY">Otrā dienā dēls atkal atslēdz lūku istabu un pārmaina ēdienus.
+Velns traks, bet šis neatsaka ne ja, ne nē. Trešā dienā, Līdz ko gaļu ar auzām
+pārmainījis, zirgs saka: "Klausies, nu ir laiks! Tepat būs sudrabs, zelts, dimants
+un trīs katli. Ieber sudrabu, zeltu un dimantu katrā katlā sevišķi un vāri, kamēr
+mutuļo. Tad iepildi no katra katla trijos trauciņos verdošo šķidrumu, atkal katru
+sevišķi un rītu uzpilini sev un man no visiem trim trauciņiem pa pilienam, tūdaļ
+spīguļosim skaidrā sudrabā, zeltā, dimantā."</p>
+
+<p align="JUSTIFY">Labi! Dēls tā izdara. Otrā rītā, līdz ko uzpilinājis no
+trauciņiem sev un kumeļam, tūlin - ak tu brīnumi, tavi brīnumi! -kādā spožumā abi
+mirdzēdami laistījās. Vilks, turpat grozīdamies, žēli skatās, it kā arī gribētu
+kādu pilieniņu. Dēls, šodien jautrs būdams, domā: "Liela laime! atmetīs tam
+vilkam lai," un tā uzpilina tādu tiesiņu. Bet re nu, līdz papilina - nievātais
+vilks paliek par tik daiļu meitu sudraba, zelta un dimanta apģērbā, ka šim sirds
+vairs ne vietā. Zināms, tagad no priekiem tūlin sēdina meitu kumeļā un jāj, ko
+māk, mājā. Tomēr, ne ilgi -- velns apmanījis un lobj pakaļ, ka zeme dimd. Bet dēls
+izlej no sudraba trauciņa drusku zemē - tūlin gadās biezs, biezs sudraba mežs. Velns
+dzīvo atspēries ar zobiem sudraba kokus grauzdams; kamēr tad mokām izēdas cauri un
+atkal dzenas pakaļ. Nu dēls izlej no zelta trauciņa mazu lietiņu - tūlin gadās zelta
+kalns. Velns aizskrien cirvim pakaļ un izcērt zelta kalnam cauri. Nu grib cirvi turpat
+apakš akmeņa paglabāt, bet pelēka vārna gaisā sauc: "Zagšu, zagšu!"</p>
+
+<p align="JUSTIFY">Neko darīt - velnam jānes cirvis mājā. Kamēr nu atskrien jājēji
+gabalā un velnam lielais stiepiens, iekams panāk. Bet tagad dēls izlej no dimanta
+trauciņa atkal drusku - tūlin gadās liela plata dimanta upe. Teitan velnam dažas
+dienas aizgāja, kamēr izgudrojis pāri tikt; bet jājēji par to laiku sen mājā pie
+meitas tēva - ķēniņa.</p>
+
+<p align="JUSTIFY">Meita tūlin iegāja istabā tēvu sveicināt, dēls turpretim palika
+ķēniņa dārzā, izlaistīdams šur tur no saviem trauciņiem. Īsā brīdī dārzā
+sudraba koki ar zelta, dimanta augļiem, vai cik. Ķēniņš iznāk priecādamies:
+"Mani koki sen nav nesuši augļus, lūk, tagad, cik pilni! Kur tas gadījies?"</p>
+
+<p align="JUSTIFY">Bet taisni šinī acumirklī velns arī klāt: lai atdodot savu meitu!
+citādi klāšoties nelabi.</p>
+
+<p align="JUSTIFY">"Ja, ja! - atturēties jau nespēju - ņem!"</p>
+
+<p align="JUSTIFY">Bet velns, meitu gaidīdams, apguļas sudraba dārzā un piemieg. Te
+dēls ar miega zālēm klāt un iepilina velnam degunā. Šis, zāles saodies, uzlēc gan
+dēlu maitāt, bet miegains būdams, nevarēja atturēties: dēls pārspēja neģēli. Nu
+varonis smiedamies ieskrien pie ķēniņa: Lai atdodot meitu labāk viņam - esot
+atpestījis no velna. Ķēniņš tencinādams atdeva savu meitu dēlam par sievu.</p>
+
+
+</body></html>

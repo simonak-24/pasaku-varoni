@@ -1,0 +1,182 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>22</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5">
+
+<p align="CENTER"><strong>Abi dzīvē un nāvē savienotie draugi.</strong></p>
+</font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">22. A. 470. Skolnieks J. Juoņins Pustiņas pag.N. Rancāna kr.</p>
+
+<p align="JUSTIFY">Dzeivuoja saiminīks ar saiminīci. Saiminīks beja ļūti gūdīgs un
+žēlsirdīgs, kotram nabogam jis deva lobas duovanas, kotru mīlēja un nikod nateica
+nikaida slykta vuorda. Bet saiminīca beja ūti dusmeiga un skūpa, nikad nadeva nabogim
+lobas duovanas, bet lomas vuordi vysod [vienādi] beja tai uz luopom. Seviški brīsmeigi
+jei tad lomuojās, kad saiminīks deva duovonu kaidam ubogam. Tikai vīnu reizi jei īdeva
+vīnam ubogam seipūlu.</p>
+
+<p align="JUSTIFY">Vīnu reizi īt saiminīks pa ceļu un radz, ka ceļa molā sēd
+vecīts, jam nava ni kuoju, ni rūku. Žāl palika saiminīkam tuo vecīša.</p>
+
+<p align="JUSTIFY">"Kū tu šeit dori?" prosa jam saiminīks. "Nikuo
+nadaru, sēžu", atbild vecīts. "Vai tu esi ēdis?" prosa otkon
+saiminīks.</p>
+
+<p align="JUSTIFY">"Sen naasmu ēdis. Vēl naatsaroda nivīns taids cylvāks, kurs
+mani pabaruotu."</p>
+
+<p align="JUSTIFY">Lēlsirdīgais saiminīks pajēmja vecīti, uzlika sev uz placim un
+atnesa uz muojom. Jis deva jam ēst un dzert vysu lobuokū. kas jam beja muojuos.
+Saiminīca zūbus vīn grīž nu dusmem un brīsmīgi lomuojas.</p>
+
+<p align="JUSTIFY">Pabaruojis un padzirdījis vecīti, saiminīks aiznesja jū otkon uz
+tū pošu vītu, kai pats vecīts vēlējuos. Vecīts soka uz saiminīku: "Nu, tagad
+tev vajadzēs ari pi manis atīt cīmuos. Pi tevis atskrīs bolts zyrgs, tu tikai sēstīs
+tam viersā, un jis tevi davess, kur vaiaga."</p>
+
+<p align="JUSTIFY">Saiminīks aizguoja otkon uz sovom muojom. Trešā dīnā atskrīn pi
+saiminīka muojas skaists bolts zyrgs un zvīdz. Saiminīks sēdās zyrgam mugurā un
+zyrgs aizskrēja prūjom kai vējs. Skrēja, skrēja zyrgs nazcik laika - pīskrēja pi
+nalelas muojiņas. ļīt jis tymā muojiņā un radz: tur sēd tys pats vec's.</p>
+
+<p align="JUSTIFY">"Vasals, dēliņ! Kai atguoji?" vecīts vaicoj.</p>
+
+<p align="JUSTIFY">Tad jis suoka jū baruot ar vysaidim ēdīnim un dzērīnim. Kad jis
+beja paēdis, soka jam vecīts : "Nu, dāls, īsim tagad un apsavērsim visas munas
+muojiņas!"</p>
+
+<p align="JUSTIFY">Vecīts paruoda jam cīši skaistu muoju un soka: "Šitamā
+muojiņā dzeivuosi tu." Tei beja dabasu vaisteiba.</p>
+
+<p align="JUSTIFY">Tad jī aizguoja uz nagleitu muoju un vecīts sacīja: "Tas ira
+slaucamais guns (Fegefeuer). Tur dzeivoj tovs tāvs. Ja tu gribi, vari izvilkt jū nu
+turīnes."</p>
+
+<p align="JUSTIFY">Jī īguoja tai muojā, tur daga guns un gunī mūcējuos ļaud's, visi
+vaidēja brīsmeiguos mūkuos. Šeit beja ari juo tāvs. Jis padeva sovam tāvam rūku un
+gribēja jū izvilkt nu turīnes. Ap tāvu apsaķēra vēl daudz cytu cylvāku; bet jis
+suoka atsakratēt nu citim un dāls juo navarēia izvilkt. Jis padeva rūku ūtru reizi un
+suoka vilkt, bet tāvs vairs naatsakratēja un dāls izvylka jū leidza ar cytim
+cylvākim.</p>
+
+<p align="JUSTIFY">Tad vecīts pīveda saiminīku pi trešuos muojas, kas beja cīši
+nagleita, tei beja elne. Vaini tur mūka grēcinīkus, un jī cīš brīsmeigas mūkas.
+Jis radz, ka šeit ir ar? juo sīva. Jis padeva sīvai rūku, jei kērās aiz rūkas, bet
+ap jū apsakēra daudz cytu grēciniku. Jei beja skaudīga. suoka atsakrateit nu cytim un
+saiminīks</p>
+
+<p align="JUSTIFY">navarēja juos izvilkt. Veirs gon muocīja, lai naatsakrota nu cytim,
+un vylka vēl divi reizes, bet jei napaklausēja un jei palyka myužeigi peklē.</p>
+
+<p align="JUSTIFY">Izstaiguojis vysas vītas, saiminīks gribēja otkon tikt virs zemes.
+Sāduos jis otkon tam boltam zyrgam mugurā un atjuoja pi sovas muojas. Un kū jis radz?
+Juo muojā dzeivoj kaidi sveši ļauds. Izzaruodīja, ka jis ira bejis pi vecīša cīmuos
+25 godi. Tī svešī ļaud's beja juo bārni, kas beja izauguši leli cylvāki. Ilgi jis
+vairs nadzeivuoja, dreiži nūmyra un aizguoja dzeivuot uz skaistū muoju, kū Dīvs jau
+beja jam paruodījis.</p>
+
+
+</body></html>

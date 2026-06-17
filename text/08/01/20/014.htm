@@ -1,0 +1,167 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>11</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font face="RimTimes" size="4">
+
+</font></b><p align="center"><b><font face="RimTimes" size="4"></font></b><font size="5"><strong>Žīds ērkšķu krūmā.</strong></font></p><font size="5">
+
+</font><p><font size="5"></font><font size="3">14. A. 592. 327. 301. L. Uļjāna Latgalē, Latvju kultūras kr.</font></p><font size="3">
+
+<p align="JUSTIFY">Dzeivuoja tāvs ar muoti un viņim beja dēliņš, kurs guoja gonūs.
+Reiz braucja tāvs ar muoti uz piļsātu un vaicuoja sovam dālam: "Kū tev
+atvest?"</p>
+
+<p align="JUSTIFY">Puika prasēja stabuļītes. Tāvs ar muoti ari atveda puikai treis
+stabuļītes. Kad ar vīnu spēlēja, vajadzēja rauduot, kad ar ūtru spēlēja,
+vajadzēja smītīs; kad ar trešū spēlēja, vajadzēja dancuot.</p>
+
+<p align="JUSTIFY">Reiz otkon puika ganēja lūpus un garumbraucja kēneņa dāls.
+Puisāns papyuta vīnā stabuļītē - kēneņa dāls suoka rauduot, papyute ūtrā -
+kēneņa dāls suoka smītīs, papyuta trešā - kēneņa dāls suoka doncuot ar vysim
+zyrgim. Tad kēneņa dāls lyudze, lai puordūd viņam tuos stabulītes, bet puika
+nagribēja puordūt. Kēneņa dāls soka: "Man ir sīva un viņas nikas navar
+īsmīdynuot, ar šuom stabuļītem es dūmuoju, ka varātu jū īsmīdynuot."</p>
+
+<p align="JUSTIFY">Puisāns īsāda pi kēneņa rotūs un aizbraucja pats uz kēneņa
+pili. Suoka spēlēt ar vīnu - kēneņa sīva rauduoja, suoka spēlēt ar ūtru -
+kēneņa sīva smējuos. Tai tik tagan pyrmū reizi redzēja kēneņa dāls, ka juo sīva
+smejas. Kai puisāns suoka spēlēt ar trešū - kēneņa sīva suoka doncuot. Tad
+kēneņa dāls īdeve puikai par sīvas īsmīdynuošonu trejus dalderus un puisāns
+aizguoja prūjom.</p>
+
+<p align="JUSTIFY">Jis guoja, guoja - īraudzēja meža molā ustobiņu, tamā dzeivuoja
+treis muosas rogonas. Puika īguoja un rogonas runuoja savā storpā: "Lobs veprīts,
+labi byus jū izgatavēt vokoriņom! "</p>
+
+<p align="JUSTIFY">Tad rogonas pīkurinuoja cepli un lika, lai puika sēstīs uz luopstas.
+Puika atsasāduos, izstatēja rūkas un kuojas, tai kai rogona navarēja jū ceplī
+īlikt. Rogona atsasāda paruodēt, kai vajaga sēstīs, lai varātu īlikt cepļī.
+Puisāns kai griude - rogona uz reizes beja cepļa dybynā. Atguoja rogonas muosas,
+izvylka cepeci un suoka ēst, bet jaunuokuos muosas veirs īraudzēja, ka ir apāduši
+rogonu, na puisīti.</p>
+
+<p align="JUSTIFY">Ūtrā dīnā izkurinuoja cepļi vyduskuo muosa. Puisāns tagan ari
+nasadeve, lai īšautu ceplī. Tod sāduos rogona, kai vajaga sēstīs, puika īgriude jū
+cepļa dybynā. Atguoja jaunuokuo muosa ar sovu veiru, suoce ēst cepeci un īraudzēja,
+ka ir apāduši rogonu, bet na puiku.</p>
+
+<p align="JUSTIFY">Trešā dīnā jaunuokuo muosa iskurinuoja cepli un gribēja puisānu
+cept, bet tys otkon nasadeve. Atsasāda rogana paša uz luopstas paruodēt puikai, kai
+vajaga sēdēt. Puika kai griude, tai rogona beja cepļa dybynā. Atguoja rogonas veirs un
+gribēja ēst cepeci, bet redzēja, ka tei ir viņa sīva. Tūreiz viņš sasadusmuoja um
+guoja puisāna systu. Puika kai suoce pyust sovu stabulīti, tod rogonas veirs tikai
+smējuos un doncuoja. Tai jis doncuoja, koleidz rūkas un kuojas apsyta. Pi rogonu ustobas
+beja nūlykti div kubuli jyudeņa: vīns stypruo un ūtrs nastypruo jyudeņa kubuls. Puika
+izguoj's puormeja un pastatīja stypruo jyudeņa vītaa nastypru. Rogonas veirs
+nūsadoncuoj's guoja pazadzartu un izdzēre nastypruo jvudeņa kubulu. Bet puisāns
+daguaja un padzēre stypruo jyudeņa. Tagan viņi guoja spākuotūs, kurs kuru nūsiss.
+Puika kai suocja syst, tai nūsyta rogonas veiru. Tagaņ jis pajēme pokolas un izveja
+garu viervi. Atskrēja vīns lels krauklis un puika pīsēja viervi kraukļam pi kuojas un
+krauklis aiznese puisānu uz muojam. Muojuos puika atdeve sovai muotei trejus dalderus,
+kurus beja dabuoj's par kēneņa dāla sīvas īsmīdynuošonu, un pastuostēja sovai
+muotei un tāvam par sovim pīdzeivuojumim.</p>
+</font>
+
+
+</body></html>

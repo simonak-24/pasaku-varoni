@@ -1,0 +1,141 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Velna līgava.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>&nbsp;</b></p>
+
+<p align="JUSTIFY">5. Ērgļos 1864. g. A. Bīlenšteina kr. LP, VI, 11, 2a. </p>
+
+<p align="JUSTIFY">Viens vīrs bijis par vagāru. Un viņa jaunā sieva dzīvojusi vienā
+mājā attālu no muižas. Vīrs katru vakaru nevarējis pārnākt, daudzreiz gulējis
+turpat muižā; bet sieva viņu gaidījusi katru vakaru un, kad nepārnācis, tad aizvien
+žēlojusies, bet, kad pārnācis, tad priecājusies un guldinājusi klētī.</p>
+
+<p align="JUSTIFY">Un vienu nakti, kad sieva domājusi vīru mājā esam, viena govs
+nelāgi bļāvusi. Sieva teikusi: "Jāiet tā govs apsvēpēt." Bet viņš
+sacījis: "Pati neeji! sūti kādu meitu!"</p>
+
+<p align="JUSTIFY">Sieva domājusi: "Ko gan sacīšu meitām - varu pati
+aiziet." Un tā aizgājusi, </p>
+
+<p align="JUSTIFY">to govi apsvēpējusi un atkal nākusi klētī at pakaļ; bet
+svēpējamās zāles drusku </p>
+
+<p align="JUSTIFY">vēl bijušas viņai rokā. Kā nu iegājusi klētī, tā šis atsitis
+durvis vaļā un, ko vien māk skrējis klupdams, krizdams laukā; tikai to vien attapis
+iesaukties:</p>
+
+<p align="JUSTIFY">"Guli nu, mauka, viena pati!"</p>
+
+<p align="JUSTIFY">Sestdienas vakarā pārnācis v īrs - nu šī dabūjusi zināt, ka tas
+nav viņas vīrs bijis, bet velns, kas no svēpējamām zālēm bēdzis.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

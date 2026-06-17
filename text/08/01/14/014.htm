@@ -1,0 +1,206 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>14</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Impampis.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">14. A. 571, 513.&nbsp; No J. Lautenbacha krājuma.</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam tēvam bija trīs dēli: divi gudri, trešais muļķis. Tēvs
+sūtīja gudros dēlus pa reizi iet mežā malku cirst. Papriekšu gāja vecākais, un
+māte iedeva viņam līdz baltmaizi, pienu un vīnu. Mežā viņš satika melnu vīriņu,
+kas arī lūdzās no viņa brokastu, bet tas viņam nekā nedeva, teikdams, ka viņam
+pašam tik tā būšot. Melnais vīriņš tam teica: gan tas savu laimi atradīšot. Kad
+tas paēdis gāja malku cirst, tad viņš iecirta sev rokā.</p>
+
+<p align="JUSTIFY">Nu gāja otrs brālis savu reizu cirst. Māte arī viņam tāpat iedeva
+līdz baltmaizi, pienu un vīnu. Mežā viņš atkal satika melno vīriņu, kas lūdzās
+viņam brokastu, bet arī tas viņam nekā nedeva, teikdams, ka tik pašam tā būšot.
+Melnais vīriņš arī tam teica: gan tas savu laimi atradīšot. Kad tas paēdis gāja
+malku cirst, tad tas iecirta sev kājā.</p>
+
+<p align="JUSTIFY">Nu lūdzās muļķītis, lai tēvs arī viņu laiž malku cirst, bet
+tēvs to negribēja laist, teikdams: "Tu, kā muļķītis, pavisam sakapāsies, tad
+tu man arī būsi jākopj."</p>
+
+<p align="JUSTIFY">Bet kad viņš dikti lūdzās, tad tēvs viņu arī beidzot palaida, un
+māte tam iedeva no pelniem izceptu rausi un skābu putru līdz. Mežā nāca pie viņa
+atkal melnais vīriņš, lūgdamies arī no viņa brokastu. Muļķītis teica: "Nāc
+nu, turēsim abi divi brokastu."</p>
+
+<p align="JUSTIFY">Kad nu viņš ņēma no savas kules to brokastu, tad tur atradās
+tāpat baltmaize, piens un vīns kā vecākiem brāļiem. Kad viņi bija paēduši, tad
+melnais vīriņš viņam pasacīja, lai viņš ejot cirst tur nokaltušo ozolu, tur viņš
+atradīšot savu laimi.</p>
+
+<p align="JUSTIFY">Kad muļķītis to ozolu nocirta, tad viņš tā saknē atrada zelta
+zosiņu. Viņš pajēma to zosiņu un gāja projām. Viņš iegāja vienā krogā un
+redzēja, ka tur rierī bija viena izcepta zosa. Viņš nu paskubināja vienu citu
+ceļa-gājēju, lai tas nozogot viņam to cepto zosu, tad būšot gards ēdiens. Kad tas
+otrs to zosu iznesa ārā, tad viņš tam to atjēma un ēda viens pats.</p>
+
+<p align="JUSTIFY">Ārā iziedams, viņš bija savu zosu krogā piemirsis. Krodzniekam
+bija trīs meitas, un vecākā ienākusi gribēja no tās zosas vienu spalvu izraut, bet
+viņa palika pie tās zosas klāt.</p>
+
+<p align="JUSTIFY">Te ienāca otra meita, kas arī gribēja raut, un teica: "Tev ir
+viena spalva." Taisīdamās vaļējo spalvu paraut, viņa nu palika pie māsas klāt.</p>
+
+<p align="JUSTIFY">Tad ienāca trešā masa un arī gribēja raut zosai spalvu; bet
+vecākās māsas pamācīja, lai viņa neraujot, tad tā tāpat palikšot klāt kā
+viņas.</p>
+
+<p align="JUSTIFY">Viņa tikai atbildēja: "Kālabad jūs raujat, un man nebūs
+brīvu raut?"</p>
+
+<p align="JUSTIFY">Kad viņa piegāja pie savām māsām, tad viņa arī palika klāt.
+Muļķītis ienācis iekšā, pajēma zosu padusē un gāja savu ceļu. Tad nāca viens
+mācītājs un teica: "Meitas, ko jūs skrejat tam jaunam puisim pakaļ?" un
+gribēja viņas atturēt; bet kad pie viņām pieķēras, viņš arī pielipa. Tad nāca
+baznīcas pērmenderis (ķesteris) un gribēja mācītāju atturēt, teikdams:
+"Mācītāj, mums vēl šodien viens bērns jākrusta, ko jūs skrejat pakaļ
+meitām?"</p>
+
+<p align="JUSTIFY">Kad viņš pie mācītāja pieķērās, viņš arī pielipa. Tad nāca
+trīs darbnieki no lauka, kuriem mācītājs un ķesteris lūdzās, lai viņus atvelkot
+nost, bet arī tie palika klāt.</p>
+
+<p align="JUSTIFY">Tai valstī bija ķēniņam viena meita, kas nekad nesmējās un ko
+neviens nevarēja iesmīdināt. Un ķēniņš bija izsolījis viņu tam dot par sievu, kas
+viņu iesmīdinās. Kad nu muļķītis tur pa ceļu gāja, tad viņa sēdēja pie loga un
+skatījās.</p>
+
+<p align="JUSTIFY">Redzēdama ejam tādus ļaudis, viņa sāka smieties. Ķēniņš, to
+dzirdēdams, sauca muļķīti pie sevis.</p>
+
+<p align="JUSTIFY">Kad ķēniņš dabūja zināt, ka tas esot no zemas kārtas un vēl
+muļķis, viņš negribēja tam savu meitu dot, un noteica, lai vai nu viņš pats, vai
+arī cits viņa vietā izdzer veselu pagrabu alus, tik tad viņš dabūs tā meitu.
+Muļķītis gāja meklēt, kas varētu tik daudz dzert, un satika vienu melnu vīriņu,
+kas joza ar jostu savu vēderu un teica ka viņam griboties dikti dzert, viņš esot gan
+jau septiņas mucas alus izdzēris, bet tas vēl neesot nekas. Muļķītis nu aicināja,
+lai tas nākot viņam līdz, tad dabūšot izdzert visu ķēniņa pagrabu.</p>
+
+<p align="JUSTIFY">Kad pagrabs bija izdzerts, tad ķēniņš vēl nedeva muļķītim
+meitu, bet paģērēja, lai viņš atvedot tādu cilvēku, kas varot apēst visu maizi,
+kas viņa zemē esot. Muļķītis arī gāja meklēt un uzgāja atkal vienu melnu
+vīriņu, kas, savu vēderu jozdams, žēlojās, ka viņam griboties dikti ēst. Viņš
+esot jau septiņus kukuļus maizes apēdis, bet vēl nekā nemanot. Muļķītis viņu
+aicināja, lai tas nākot viņam līdz, tad dabūšot labi saēsties. Ķēniņš nu bija
+visus miltus savedis vienā vietā un licis sacept lielu maizes kalnu.</p>
+
+<p align="JUSTIFY">Kad visa maize bija apēsta, tad ķēniņš tomēr vēl negribēja dot
+savu meitu, bet teica, lai viņam pagādājot tādu kuģi, kas ejot pa ūdeni un zemi.
+Muļķītis gāja un satika vienu melnu vīriņu, kas viņam izstāstīja, ka viņš pats
+tas esot, kas devis viņam to zelta zosiņu, par viņu izdzēris alus pagrabu un apēdis
+maizes kalnu, un nu gribot viņam dot vēl to kuģi. Tad no viņa arī vairs nekā vairāk
+neprasīšot. Kuģi dabūjis, viņš nu brauca pa jūŗu un pa zemi līdz pašai ķēniņa
+pilij. Kad ķēniņš to redzēja, tad viņš ļoti priecājās un atdeva muļķītim
+nevien savu meitu par sievu, bet atdāvināja tam arī vēl pus valsti.</p>
+</font>
+
+
+</body></html>

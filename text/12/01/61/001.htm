@@ -1,0 +1,155 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>61</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Ēna par cilvēku noturēta.</p>
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3"><strong>1.</strong> A. 1689. J. Bankins «Šis un tas» I, 1872,
+23.</font></p><font size="3">
+</font>
+
+<p align="JUSTIFY">Mātei bija trīs dēli: divi gudri, trešais dumjš. Reizu abi
+prātīgie dēli bija ganos, un māte stellēja dumjo dēlu pie tiem ar ēdienu. Tas
+iedams ierauga savu pakrēsli (ēnu) un domā, ka šis kāds burlaka esot. Viņš to grib
+apmierināt, un met pa klučam no trauka tam virsū; bet vēI netiek pie ganiem, kad jau
+kluči beigti; nu smeļ ar kaŗoti putru un lej pakrēsļam zemē. Protams, ganiem nebija
+diezgan ko ēst, un palika ar patukšu vēderu. Tie nu atstāja dumjo brāli pie aitām,
+piekodinādami, lai šis aitas labi sagriežot kopā, un paši aizgāja uz māju ēst.
+Dumjais nu nogriež bērzu klūgas, saliek altu pie aitas blāķī un sagriež ar tām.
+Gudrie brāļi atnākuši redz, kādu lērumu tas padarījis. Bīdamies no mātes, tie
+sanes visas aitas pa nakti kūtī; nesot gudrie bija ņēmuši ikreizes pa vienai aitai uz
+pleciem, bet dumjais pa divām stiepis uz māju; rītā atrod visas aitas kūtī nost.</p>
+
+<p align="JUSTIFY">Kad nu māte vārīja namā aitu gaļu, tad šī prātīgiem dēliem
+deva pa divi gabaliņiem gaļas smēķēt, bet dūmjajam tik vienu. Šis, par to
+saerrojies, sacīja: "Vai redzi! Es nesu pa divi aitām uz reizi mājā un man dod
+tik vienu gabaliņu gaļas, šie tik pa vienai; un viņiem dod divus!"</p>
+
+<p align="JUSTIFY">"Kas tas?" māte prasīja gudrajiem dēliem. Tie no bailēm
+sprūk pa durīm laukā; dumjais tiem no pakaļas; tas skriedams izceļ nama duris un ar
+tām pār pleciem uz mežu prom. Tie nu visi trīs sakāpa lielā eglē un gribēja tur
+palikt pa nakti. Vakarā tur atnāca divi burlakas un apmeta apakš egles savu lēģeri.
+Šie uzkāra katlu un sāka vārīt gaļu; liela naudas kule tiem bija nolikta sānos.
+Prātīgie brāļi sēdēja itin klusu eglē, bet nejēga iztīrījās vienādi un
+otrādi. Tāpēc burlakas sacīja: "Ai, ai, Dievs dod siltu lietutiņu! - -Ai, ai.
+klucīši krīt no gaisa!"</p>
+
+<p align="JUSTIFY">Tad dumjais svieda uzreizu nama duris zemē; tās krītot nosita vienam
+burlakam roku. Abi burlakas mežā iekšā bļaudami, ka debess duris tiem krītot virsū.
+Naudas kule un lielais dūcis vien palika stāvot pie ugunskura.</p>
+
+<p>Dumjais tūliņ nokāpa no egles, paņēma dūci un kasīja ar to</p>
+
+<p align="JUSTIFY">savu mēli. Veselais burlaka, tur danācis, prasīja, kāpēc šis tā
+darot. Tas atbildēja, ka gribot kādu padomu dabūt. Burlaka sacīja, lai šim arī kasot
+mēli. Viņš ne laisks pie tam, bet kasot nogriež šim mēli. Burlaka ,.lur lur"
+burbuļodams mežā iekšā. Nu prātīgie brāļi arī nokāpa no egles. Tie nu paņēma
+naudas kuli un aizgāja priecīgi uz mājām.</p>
+
+<p>Piezīme. Gluži tādu pašu pasaku esmu arī Raunā dzirdējis. P. Š.</p>
+
+
+</body></html>

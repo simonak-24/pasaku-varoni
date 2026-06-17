@@ -1,0 +1,279 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dvēsele olā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 302. A. Bīlenšteins 1863. no Lavīzes Šmēles Jaun Aucē. LP,
+VI, 77, II. AŠ, II, 100u.</p>
+
+<p align="JUSTIFY">Viens zvejnieks dzīvojis jūrmalā ar sievu un dēlu. - Dēls jau
+bijis izaudzis liels un labi izmācījies skolu - vāciskis mācījis lai. - Un šim
+zvejniekam bijis liels trūkums: nebijis ne maizes vairs - tik tās zivis vien.</p>
+
+<p align="JUSTIFY">Un vienu dienu braukuši uz jūŗu - tēvs ar dēlu - zvejot. Braukdami
+redzējuši laivu nākam un dzirdējuši no tālienes, ka rūc - un dikti ir rūcis un
+aurējis: hu hu uu! Ta(d) dēls aurējis pretim. Kā ataurējis, tā saskrējušas laivas
+kopā. Tai otrā laivā ir bijis melns sievišķis, melns ar visu vaigu, ar visām
+drānām. Tas sievišķis teicis, lai dēls kāp iekšā, otrā laivā, un lai brauc
+līdz. Dēls gan nav gribējis no tēva atstāt un tēvs arī negribējis dēlu atlaist;
+bet sievišķis teicis, ka jābrauc līdz. Kāpēc viņš ir</p>
+
+<p align="JUSTIFY">aurējis pretim un saucis? Un ja nenāks līdz - viņi abi divi
+palikšot nelaimīgi no ūdeņa netapšot laukā.</p>
+
+<p align="JUSTIFY">Tad abi divi palika uz šķiršanos, kad nu citādi nevarēja. Bet tas
+sievišķis deva tēvam vienu kastīti, lai ved uz mājām; bet lai netaisa vaļām,
+kamēr uz ūdeņa, lai tik(ai) mājās taisa vaļām.</p>
+
+<p align="JUSTIFY">Dēls nu iesēdās pie sievišķa un brauca projām. Bet tēvs iegājis
+istabā - taisīja kastīti vaļām: tā bija piebāzta pil(n)a ar dukātiem. Ko nu? Nu
+nopirka pilsētā namu un veco butku (istabu) izārdīja, noplēsa - jūrmalā - ka
+nepalikās it nekā.</p>
+
+<p align="JUSTIFY">Tad tā mel(n)ā sieva noveda dēlu savā māju vietā - tur bija
+muiža - un nolika, kur bij itin tumšs un kur cilvēki arī nebija nekādi. Bet pati
+nemaz nestā vēja mājās: katru dienu uz placi.</p>
+
+<p align="JUSTIFY">Dēlam bija gaŗš laiks tur tumsā - palika bēdīgs, jo gribēja
+labprāt savus vecas apraudzīt. Viņš sāka kaulēties, 1ai tā sieva palaiž uz
+mājām. Tā teica, ka laidīs gan, ja viņš nākšot atpakaļ; lai pazvēr, ka pa trīs
+dienām pārnāks, tad tūlin laidīs.</p>
+
+<p align="JUSTIFY">Viņš pazvērēja. 'Tad' tā sieva apģērba viņu ar smalkām,
+klārām drānām un pavadīja pie jūrmalas,</p>
+
+<p align="JUSTIFY">Šis nu sāka meklēt; bet nevarēja tēva mājas vairs uziet. Prasīja
+ļaudim - tie atbildēja: vecā zvejnieka vairs neesot; lielu naudu dabūjis - esot
+aizgājis uz pilsētu - namu nopircis.</p>
+
+<p align="JUSTIFY">Beidzot prasīdams, meklēdams, atradis gan tēvu. - Tēvs bija
+nopircis namu no viena kunga un tam bijusi viena princese.</p>
+
+<p align="JUSTIFY">Un tas pats kungs tēva dēlu ātri iemīlējis - negribējis dēlu
+nemaz vairs laist projām, gribējis paturēt par znotu.</p>
+
+<p align="JUSTIFY">Dēls domājis: viņš neies arī vairs atpakaļ - paliks.</p>
+
+<p align="JUSTIFY">Bet ceturtu dienu, ka(d) sēdējis patlaban pie galda - mel(n)a sieva
+nākusi un vedusi dēlu projām - ar laivu - ka nedabūjis ne pusdienu paēst.</p>
+
+<p align="JUSTIFY">Aizvedusi tur - šis iegājis savā gultā un atradis, ka iegulies
+balts sievišķis - itin balts un jauns cilvēks. Baltā sacījusi uz dēlu: "Jūs
+esat viens jaunskungs; te jums nebūs gulēt: tā vieta ir nelaimīga vieta. Es jums
+izteikšu: ka(d) jūs tā varētu izdarīt, tad tā vieta būtu laimīga kā vajaga. Te
+kādu gabalu ir kalns - tur vedīs vienu princesi un sies pie staba, un velns nāks ar
+deviņām galvām to apēst; kad jūs varētu tam tās deviņas galvas nocirst, tad
+devītā galvā būs balodis un balodī būs pauts, to pautu vajaga ātri nest šurp,
+uzlikt uz galda un pā(r)sist pušu, tad tā muiža atšķirsies, jo tā ir vel(n)a
+apstāta un tā mel(n)ā sieviete ir vel(n)a māte (tā, kas dēlam pakaļ brauca). Un tad
+kad visu to būsit padarījuši, radīsies (muižā) atkal tie cilvēki, kas senāk tur
+bija dzīvojuši."</p>
+
+<p align="JUSTIFY">Viņš atbildēja, to varēšot gan izdarīt. Un nu dēls gājis pie
+kalēja, licis zobenu - lielu - uzkalt, ka varētu vel(n)am tās galvas nocirst. Kad
+zobens bija nokalts, gājis uz kalnu. Ejot uzgājis trīs. kas kavušies pie&amp;127;
+zirga galvas: bijusi skudra. vanags un lauva. Viņš prasījis, ko kaujas? Atbildējuši,
+ka visi trīs uz reizu grib ēst, bet nevar saprast visi ēst uz reizu. "Jūs esat
+viens jaunskungs, pamāciet mums, kā varētum reizā ēst."</p>
+
+<p align="JUSTIFY">Viņš atbildējis: "To es jums lēti varēšu pateikt. Skudra,
+lieni tu iekšā, ēdi smadzenes, vanags, knābi tu acis un lauva, tu sagrauzi tos
+kaulus!"</p>
+
+<p align="JUSTIFY">Labi, sākuši ēst un visi trīs paēduši uz reizu. Tad šie trīs
+teikuši: "Kad varējām uz reizu paēst, tad mēs jums arī dosim labumu!"</p>
+
+<p align="JUSTIFY">Lauva teikusi: "Kad jūs eitat spēkoties, tad teicat: es gan esmu
+stiprs, bet kaut es būtu otru tik stiprs kā lauva!"</p>
+
+<p align="JUSTIFY">"Vanags teicis: "Kad jums kādu reizu jāsteidzas, tad
+teicat: es gan skreju čakli, bet kaut es varētu otru tik čakli paskriet kā
+vanags!"</p>
+
+<p align="JUSTIFY">Skudra teikusi : "Es gan lienu pa caurumiem, bet kaut varētu tā
+līst pa caurumiem kā skudra!"</p>
+
+<p align="JUSTIFY">Kad (nu dāls) nogājis uz to kalnu, cilvēki atveda to princesi un
+piesēja pie staba. Viņš gaidīja, lai nāk tas velns ar savām deviņām galvām. Bet
+princese sacīja: "Jūs esat viens jaunskungs, jums būs no tās vietas sargāties,
+tā vieta ir nelāga vieta."</p>
+
+<p align="JUSTIFY">Jaunskungs atteica: "Es jūs gribu laimīgas darīt, es no tās
+vietas zemē neiešu."</p>
+
+<p align="JUSTIFY">Un gaidījis, gaidījis -- velns atnācis. Un kā gribējis princesei
+krist klāt, tā viņš bijis pretim. Velns teicis, ka tā princese viņam pieder; šis
+teicis, ka viņam pieder. Un tad gāj(u)ši cīkstoties. Kā gāj(u)ši cīkstoties -
+jaunskungs uzsaucis: kaut viņš būtu otru tik stiprs kā lauva, lai var velnu vinnēt_.
+Un tāmēr nu cīkstojušies, kamēr piekusuši un dusēj(u)ši. Bet šim, tam jaunkungam,
+velns jau bij iedzinis ;kājas pa pēdu zemē - velns bijis stiprāks; bet kad
+apstājušies, tā šis pamanījies zobenu pacelt un nocirtis velnam trīs galvas uz vienu
+cirtienu. Papriekš nevarējis zobenu pacelt, kad bij sakrituši kopā; bet kad
+apstājušies, tad dabūjis vienu buteli, ko līdz bij paņēmis, un nodzēries, lai sirds
+atdziest.</p>
+
+<p align="JUSTIFY">Tad uz otru reizu nekā nevarēja velns padarīt, piekusa ātri, jo nu
+tikai bij palikušas sešas galvas. Un, kad nu apstājušies atpūsties, tad atkal cēlis
+zobenu un nocirtis vēl trīs galvas palikušas trīs vien.</p>
+
+<p align="JUSTIFY">Bet velns gājis vēl ar tām trājām cīkstaties. Šis pacēlis
+zobenu, nocirtis ir tās un nu ieraugus, ka no devītās galvas skrejus balodis laukā un
+projām. Tad uzsaucis : "Kaut otru tik varētu</p>
+
+<p align="JUSTIFY">skriet kā vanags!" un šaujas pakai tam balodim. Panācis balodi
+un saspēris lupu lupās. Tad izņēmis to pautu, gājis atpakaļ pie princeses un
+atlaidis no staba.</p>
+
+<p align="JUSTIFY">Šī nu gribēj(u)si (jaunkungu) vest uz mājām pie saviem vecākiem,
+lai viņu prec, ka viņš tādu labumu viņai darījis; bet viņš gribējis iet uz savu
+vietu, kā tā baltā sieva bija teikusi. Bet šķirdamies viņš to gan sacījis
+priņcesei, lai aptrūv gadu un seši nedēļas, par to, ka no lielās nelaimes tikusi
+vaļām, un lai pa to laiku neprecas; jo tad viņš nāks - ja nebūs precējies - viņu
+precēt; ja būs precējies, lai tad viņa citu prec - tad viņš vēlēs.</p>
+
+<p align="JUSTIFY">Bet šķirdamies princese iedevusi viņam savu gredzenu un zīdes
+drāniņu, kur viņas vārds bijis ierakstīts.</p>
+
+<p align="JUSTIFY">Beidzot viņš vēl izgriezis visām velna galvām mēles, sasējis
+drāniņā un aizgājis.</p>
+
+<p align="JUSTIFY">Un necik nebijis pagājis, nācis viens zaldāts, paņēmis vel(n)a
+galvas, nonesis ķēniņam - teicis, ka viņš to vel(n)u nokavis, lai dod viņam
+princesi. Labi, ķēniņš pieņēmis arī šo par znotu; jo neatminējis nemaz
+paraudzīt, vai mēles arī vel(n)a galvās ir jeb nav. Bet princese teikusi, ka jāgaida
+gadu un seši nedēļas ātrāk neprecēšoties. Skaidrāk negribējusi neko izteikt, jo
+bail ir bijis, ka zaldāts ar zobenu viņu nenokauj.</p>
+
+<p align="JUSTIFY">Pa tām starpām jaunskungs bij pā(r)gājis ar pautu, bet nevarējis
+vairs tai namā ietikt, tik mazs caurumtiņš bij palicis, nams bij sagŗu(v)is. Tad
+teicis: "Kaut varētu līst pa visiem caurumiem kā skudra!" Tūlin palicis par
+skudru, ielīdis ar to pautu, uzlicis uz galdu un pā(r)sitis pušu. Tad tā muiža
+atvērusies un palikusi skaidra - nebijusi vairs aptumšota un viņš - apņēmis balto
+sievu (kas padomu bij piedevusi) par cie(n)māti - palicis muižā par kungu.</p>
+
+<p align="JUSTIFY">Bet pēc gada un seši nedēļām viņš gājis izglābto princesi
+raudzīt. Gājis - saticis ceļā toreizējo skudru, vanagu un lauvu; bet tie tagad
+bijuši smuki puišeļi un prasījuši, vai viņš nevar viņiem ierādīt, viņi gribētu
+precēties. Atteicis: lai nāk līdz, viņš gādāšot. Un tā aizgāj(u)ši tur,
+patlaban princese un zaldāts temmējušies uz laulību, daudz bijuši sanākuši
+kāzinieku, daudz saaicinātu. Un šie (visi) cilājuši tās vel(n)a galvas ūn
+brīnīj(u)šies, ka nevienai galvai nebijusi mēle. Teikuši, ka būs falšība - viņš
+(zaldāts) nebūs nokavis vel(n)u - cits būs darījis?</p>
+
+<p align="JUSTIFY">Tā šis (īstais vel(n)a kavējs) piegājis ar mēlēm un teicis:
+"Tā nav viņa vaina!" un izstāstījis visu, kā noticis. Ķēniņš nu
+viltīgo zaldātu notiesājis, bet īsto glābēju gribējis par znotu pieņemt. Šis
+atteicis: "Paldies! nevaru par znotu būt, man jau ir sieva; bet te būs lauvas
+dēls, tas ir labs znots."</p>
+
+<p align="JUSTIFY">Lauvas dēls tad apņēmis princesi, vanaga un skudras dēli arī
+dabūjuši citur kur sievas un tad pats pā(r)gājis savā muižā un dzīvojis laimīgi.</p>
+
+
+</body></html>

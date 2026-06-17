@@ -1,0 +1,180 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Ragana zārkā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">l. A. 307. J. Bankins "Šis un tas" II, 1875., 5.</p>
+
+<p align="JUSTIFY">Vecos laikos, kad vēl raganas un pesteļi mājoja un dauzījās
+ļaužu starpā, tad kāds vīrs apprecēja raganas meitu par sievu. Reizu lūdza vīru
+nāburgos uz kāzām, bet pasaka tam, lai sievu neņemot līdza. Šis domādams, ka
+sieviešu tur pavisam nebūšot, aiziet viens pats, bet nonācis, uziet citus viesus ar
+savām sievām. Viņš nu prasa, kādēļ šim nav bijis brīv sievu līdza ņemt?</p>
+
+<p align="JUSTIFY">Tie atbild: "Tāpēc nevarējām tavu sievu lūgt kāzās, ka tā
+ir ragana. Ej uz māju un sukā to, kamēr viņa apņēmās atstāties no savas
+burvības."</p>
+
+<p align="JUSTIFY">Vīrs saskaities dodas uz mājām un nolauž krūmos labu šķesti, ar
+ko sievu miekšēt. Bet sieva jau tek līdz vārtiem pretī, tam uzsmaida, to mīlīgi
+apkampj un bučo, ka šim visas dusmas pāriet, un viņš vairs ne domāt nedomā uz
+pēršanu. Pēc gada laika ir kristības tai pašā mājā, kur kāzas bija, atkal lūdz
+tikai &amp;127; īru vien uz kristībām. Tas aiziet un redz, ka citiem vīriem visiem
+sievas ir līdza. Kad viņš prasa, kādēļ šā sieva vien neesot lūgta kristībās,
+tad viņam atbild: "Tāpēc, ka tā ir ragana."</p>
+
+<p align="JUSTIFY">Tas nu dodas atkal uz māju to sukāt. Sieva atkal gan nāk mīlīgi
+pretī, bet šis neko nerēķinādams, sāk to lāpīt. Pēc pāra cirtieniem tā pakrīt
+pie zemes un nomirst.</p>
+
+<p align="JUSTIFY">Par sodu tam sieva bija trīs naktis jāvaktē baznīcā. Vakarā turp
+iedams, viņš ierauga netālu no baznīcas uguni, iet turp un redz tur vecu vīriņu pie
+ugunskura sildoties. Tas arī daiet pie ugunskura un sāk sildīties. Vecis to jautā :
+"Kur tad Jūs tik vēlu vakarā?"</p>
+
+<p align="JUSTIFY">Vīrs atbild: "Man jāvaktē sieva, kas bija ragana."</p>
+
+<p align="JUSTIFY">Vecis pasniedz tam panniņu un saka: "Še tev tā! Kad tu ieej
+baznīcā, tad uzkāp uz Pestītāja krusta koka un gaidi tur. Ap pusnakti, kad sieva
+nāks no zārka ārā, tad berzē ar roku pa panniņu riņķī."</p>
+
+<p align="JUSTIFY">Vīrs aiziet uz baznīcu un nostājas uz krustakoka. Kad pulkstins ir
+vienpadsmit, tad sieva no zārka ārā un skraida pa baznīcu viņu meklēdama; virs to
+redzēdams, berž ar roku pa panniņu. Sieva to neatrod, un kad pulkstins divpadsmit
+pagalam, tad jau, zināms, sieva zārkā atpakaļ iekšā. Vīrs atstāj panniņu
+baznīcā un dodas priecīgs uz māju.</p>
+
+<p align="JUSTIFY">Nākošu vakaru tas atkal iet uz baznīcu, uzkāp uz krustakoku un dara
+tāpat kā pagājušu nakti.</p>
+
+<p align="JUSTIFY">Trešo nakti viņš atkal tāpat dara, sieva viņu meklē, meklē, bet
+nevar dabūt, tā nu spraužas pa durīm laukā. Virs domā, ka tā būs aizskrējusi,
+taisās kāpt zemē, bet uz reizu pa baznīcdurīm ienāk pulks raganu. Šās nu sāk
+meklēt, bet arī nevar viņu atrast. Tad sieva izsaucas: "Paga, paga! Iešu pēc
+resnās Ilzes," un izskrien pa durīm.</p>
+
+<p align="JUSTIFY">Pēc kāda brītiņa tur ienāk ši raganu ķēniņiene, kas bija
+dūšīga mātīte ar lieliem zobiem un gaŗiem baltiem matiem; viņa nosēžas pie
+krustakoka un skatās visapkārt. Citas raganas tāpat skraida apkārt meklēdamas. Te uz
+reizu vecene citām raganām uzsauc: "Ko tad jūs meklējat? Skataities uz augšu!
+raug', tur viņš sēž."</p>
+
+<p align="JUSTIFY">Bet kā tad nu viņu zemē dabūt? Vecenei ātri padoms iekrīt prātā
+un tā saka: "Skrejat uz mežu, salasat apdegušus celmus un atnesat tos!"</p>
+
+<p align="JUSTIFY">Tās nu visas aizskrien, tikai vecene vien paliek. Pēc kāda brītiņa
+ikkatra ragana nāk ar savu klēpīti un nokraun pie krusta. Tad vecene liek uguni klāt,
+celmi sāk degt un lieli dūmi iet vīram acīs, tā kā tam gandrīz jākrīt zemē. Par
+laimi pulkstins sita divpadsmit, raganas vairs ilgāki nedrīkst palikt, citas dodas pa
+durīm ārā un viņa sieva ieguļas zārkā. Vīrs apskatās, kā tikt zemē, bet nu
+vairs nav ne malkas, ne dūmu, ne arī panniņas. Tas nu kāp priecīgs zemē un dodas
+krustu ne metis uz māju.</p>
+
+
+</body></html>

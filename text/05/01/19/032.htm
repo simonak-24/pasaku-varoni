@@ -1,0 +1,182 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>32</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vīrs ceļo uz elli.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">32. A. 477. A. Lerchis- Puškaitis Vec - Zvārdē. LP, IV 193 (46, 3).</p>
+
+<p align="JUSTIFY">Citreiz valkājuši zilus svārkus. Reiz tāds zilsvārcis ienācis
+vienā pilsētā un piestājies pie kāda tirgotāja. Tas tirgotājs bijis jauns
+iesācējs un tādēļ vēl gluži nabags. Tomēr visā nabadzībā bijis ieskatījies
+bagātā virsnieka meitā. Meita arī būtu gājusi labprāt, bet tēvs spārdījies :
+"Pie tāda tirgotāja, kam nav godīgi ko paēst, es jau nelaidīšu savu meitu badā
+nomirt!"</p>
+
+<p align="JUSTIFY">Tā nu zilsvārcis ienācis pie šā tirgotāja un prasījis, vai esot
+precējies?</p>
+
+<p align="JUSTIFY">"Kur nu precējies? Man jau godīgas meitas nedod: es esot par
+nabagu!"</p>
+
+<p align="JUSTIFY">Nu, kas nabags, tas vēl var par bagātu tikt!" zilsvārcis "</p>
+
+<p align="JUSTIFY">ieteicies un tā sācis ar pirkstu tādus riņķīšus vilkt; cik
+riņķu uzvilcis, tik zelta rubļu tai vietā gadījušies. Tirgotājs, to redzēdams.
+sācis brīnīties. Bet zilsvārcis skubinājis: "Ko brīnies? Lasi tik nu maisā un
+nes savam nākamam sievas-tēvam, gan tad viņa meitu dabūsi, ja naudu ieraudzīs."</p>
+
+<p align="JUSTIFY">Tirgotājs nu lasījis naudu maisā, bet vēl arvienu brīnījies:
+"</p>
+
+<p align="JUSTIFY">Vai tik tu neesi velns, tā naudu kaisīdams?"</p>
+
+<p align="JUSTIFY">Zilsvārcis palicis dusmīgs par tādiem vārdiem un teicis: . Ikkatrs
+cilvēks ir velns, ja viņš nelabi dara!"</p>
+
+<p align="JUSTIFY">"Tas nevar būt!" tirgotājs pretojies, "kā nu katrs
+cilvēks varētu par velnu palikt?"</p>
+
+<p align="JUSTIFY">"Nu, netici - netici - gan pats piedzīvosi!" zilsvārcis
+atteicis un pazudis.</p>
+
+<p align="JUSTIFY">Bet tirgotājs, tas nu aizstiepis zelta maisu virsniekam parādīt.
+Virsnieks priecājies par tādu bagātību un tūdaļ atdevis savu meitu viņam par sievu.</p>
+
+<p align="JUSTIFY">Sadzīvojuši labu laiku mierā un laimē, nopirkuši vēl muižu un
+dzīvojuši tur. Te vienreiz tirgotāja sieva nezin ko gribējusi uztiept savam vīram.
+Vīrs gan turējies pretim, bet šī ne par ko: viņai esot taisnība! Vīrs beidzot
+palicis ļoti pikts un dusmās pagrūdis sievu; bet šī kā kritusi, tā bijusi pagalam.
+Nu senākais tirgotājs saķēris galvu un gudrojis, kas nu izdarāms, lai cilvēki
+nemanītu, ka pats savu sievu nositis. Beidzot, itkā apjukdams, pielaidis ēkai uguni un
+pats, asaras raudādams, bēdzis pasaulē. Bet otrā jūdzē saticis piepēži senāko
+zilsvārci; tas prasījis: "Brāl, kā iet?"</p>
+
+<p align="JUSTIFY">"Nelabi, nelabi! Nositu, lai gan ,netīši, pats, savu sievu.
+aizdedzināju muižu - nelabi,nelabi esmu izstrādājies!"</p>
+
+<p align="JUSTIFY">"Tad jau tu, kā pats velns esi strādājis?" zilsvārcis
+iesaucies. "Ja, ja! Nudien, ka pats velns!" šis atteicis un sācis atkal
+raudāt.</p>
+
+<p align="JUSTIFY">"Nu, redzi, vai nu tici, ka katrs cilvēks var gan par velnu
+palikt!"</p>
+
+<p align="JUSTIFY">"Ticu, ticu!"</p>
+
+<p align="JUSTIFY">"Labi, ej tad tik mājā - nekas nekaitēs!"</p>
+
+<p align="JUSTIFY">Tūliņ griezies atpakaļ uz māju. Pārgājis, - vai tie nav brīnumi,
+- ne sieva nosista, ne muiža nodegusi, - viss kā bijis. Sieva vēl iznākusi pretim:
+"Vīriņ, kur tad tu biji? Pusdiena gatava, nenāci nemaz ēst!"</p>
+
+<p align="JUSTIFY">Šis paraustījis plecus un neteicis nekā. Bet no tā laika tam jau no
+tālienes riebis, ka kaut kur redzējis, ka sieva ar vīru baŗas.</p>
+
+
+</body></html>

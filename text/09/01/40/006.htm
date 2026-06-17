@@ -1,0 +1,168 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Atgriezies laup?t?js</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Atgriezies laupītājs.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">6. A. 756. St. Uļanovska, Viļānos, "Zbior
+wiadomosci do antropologii krajowej," T.XVIII, Varšavā 1895, 344, 35</font><font size="4"></font></p><font size="4">
+</font>
+
+<p align="JUSTIFY">Bjeja cīši lels razbainīks lelā mežā. Jis - kas vīn guoja -kuova
+zjamjā. Jis nūkova sovu tāvu i muoti dzjeivuodams. Pjec tuo nūguoja jis iz mježu,
+dzjeivuoja cjeļa molā i napuorlaidja nivnna cylvāka.</p>
+
+<p align="JUSTIFY">Vajaga vīnam puikam īt muojā pa tū cjeļu. Jis zyna, ka jū
+nūkaus, jis tai īdams i dzīd: "Lobuok izjukt iz palnim, kai vysu myužu kolpuot
+valnim."</p>
+
+<p align="JUSTIFY">Jis izdzierd, tys razboiniks, aizīt prīškā tam puikam - aizguojis i
+vaicoj: "Kū tu dzīduoji īdams?"</p>
+
+<p align="JUSTIFY">Jis atsoka, šys dzīduojis tai, ka lobuok šam iz palnim izjukt, kal
+vysu myužu valnam kolpuot. Prosa razboinīks iz tū puiku, lai jdm atdūd sovus puotors.
+Tys puiss atdūd jam, a jis nakaun jū zjamjā i laiž jū īt sjev pa cjeļu.</p>
+
+<p align="JUSTIFY">I brauc baznīckungs, aizīt jis baznīkungam prīkškā, tys
+razboinīks, i soka: "lzspovjedjai [izklaušini grēkus] tu mani!"</p>
+
+<p align="JUSTIFY">Tys baznīckungs pajam sausu vāzu, īsprauž zjamjā i soka:
+"Tjev laistjāt itū vāzu, iz cjeļa ņast ar muti jiudini nu olūta, cikom tys
+kūks zaļš paliks ar lopom. Tūŗeiz es tjevi izspovjedjēšu <b>"</b></p><b>
+</b>
+
+<p align="JUSTIFY">A tam baznīckungam bais bjeja, kab jis jū nanūkautu, tai jis i
+pascēja jam, tai i nūbraucja pa cjeļu.</p>
+
+<p align="JUSTIFY">Vot jis vys nas iz cjeļu, tys razboinīks, jindini mutjā nu olūtā i
+laista vys tū kūcjeņu. Jam nūīt jau vysa uoda nu cjeļu, palīk bjednys kauls ar asni
+i navar vaira paīt. Cik godu puorguoja jau. Nu tuo kūcjeņa izauga lela uobeļnīca,
+vysa ar vīnim uobjeļim. A<b> </b>tī uobjeļi bjeja dvjāsjaļis tūs ļaužu, kur jis
+nūkova.</p>
+
+<p align="JUSTIFY">Atsasjēdjējis zam tuo kūcjeņa, raud jis cīši. I brauc otkait
+[atkal] tys pats baznīckungs tymā mježā. Vjāļ jis tuoļi, a cik lobs smords
+[smarža] īt! Jis cik ŗeižu tī braucja, a itaida smorda loba nabjeja kai tān [tagan,
+tagad]! Dabrauc jis da tuos vītys, īt jis pazavārtu i ŗadz, ka cīši šmuka
+uobjeļnīca ar vīnim uobjeļim, a zam tuos uobejeļnīcys sjād vacs vacs vjec's, raud i
+ar osorom laista kūku. Jis vaicoj: "Kuo ta tu raudi?"</p>
+
+<p align="JUSTIFY">Vjec's suok stuostjāt, ka braucja baznīckungs i nagribjēja
+izspovjedjāt šū, īspraudja sausu vāzu i pascēja laistjāt, cikom izaugs zaļš
+kūks. Jau šys navar paīt i naŗadz šys i može šam cik [tik daudz] osoru pītiks, kai
+tū kūcjeņu palaistjāt, a baznīckunga naŗadz vjāļ! Baznīckungs soka, šys pats i
+ess - i jem jū spovjedjāt. Kū jis tik pascjējs, ka jis kova cylvāku, tiuleņ vīns
+uobels kreit zjamjā. Is vysi uobjeļi apkrita, a div palyka pošā viersyuņā. Vaicoj
+tys baznīckungs: " Soki vjāļ, kū nabjejs!"</p>
+
+<p align="JUSTIFY">Jis atsoka: a - šys nūkova sovu tāvu ar muoti. Tūlaik nūkrita tī
+divi uobjeļeiši zjamjā. Baznīckungs atlaidja jam vys's agrāk's grāk's i Dīvs
+atsyuta engjeli, kab pajemtu juo dvjāsjali, a jis pats, tys vjecjeits, tys razboinīks,
+par palnim palyka. Uobjeļnīca izgaisa i uobjeļeiši izgaisa. Otkait tamā vītā
+gulēja sausa vāza, i mježs kai bjeja, tai bjeja mježs.</p>
+
+
+</body></html>

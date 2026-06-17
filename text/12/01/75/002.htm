@@ -1,0 +1,162 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>75</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Izsalkušais mācītājs.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>2. </strong>A. 1775. K. Krūziņš Veselavā. P. Birkerts,
+Latvju t. anekdotes. II, 542, 2565.</p>
+
+<p align="JUSTIFY">Cēsu apkārtnē dzīvojis viens mācītājs ar puisi Ansi. Reiz
+mācītājs gājis ar Ansi pastaigāties un mežā apmaldījušies. Nonākuši pie
+mežsarga mājas, Ansis pamācījis mācītāju, lai šis tūliņ pie galda neejot, kad
+viņu saukšot, jo citādi mežsargs redzēšot, ka šis esot izsalcis. "Un kad es
+tev uzmīšu uz kājas, tad tu vairāk neēd."</p>
+
+<p align="JUSTIFY">Labi, gājuši iekšā. Saimniece tūliņ aicinājusi pie galda. Ansis
+meties pie galda un sācis ēst, bet mācītājs aizbildinājies, ka negribot. Saimniece
+saukusi to otrreiz, bet mācītājs atkal aizbildinājies. Nabagam vāveres vien pa
+vēderu dancojušas, un viņš gaidījis, kad sauks trešo reizi. Saimniece jau gandrīz
+bijusi viņu aizmirsusi, kad beidzot lūgusi trešo reiz. Mācītājs kā kavēdamies
+gājis pie galda. Pašlaik norijis pirmo kumosu un otrais jau līdis mutē, kad pār kāju
+pārskrējis kaķis. Mācītājs domājis, ka Ansis viņam uzminis, un gājis no galda
+nost. Saimniece gan brīnījusies, ka mācītāja kungs tik maz ēdot. Mācītājs
+melojis, ka esot dūšīgi vien paēdis, bet nabadziņam sākušas vai asaras birt,
+redzot, ka Ansis ņemas ap gaļas bļodu. Ansis drīz paēdis, un saimniece sākusi
+novākt galdu. Mācītājs noskatījies, kur viņa noliek traukus ar atlikušo ēdienu.
+Gājuši gulēt.</p>
+
+<p align="JUSTIFY">Nakts vidū mācītājs pamodies. Viņam tā gribējies ēst, ka
+nezinājis kur sprukt. "Ei Ansi, kur &amp;127;saimniece lika cepešu bļodu?" </p>
+
+<p align="JUSTIFY">"Tur, abrā," Ansis atbildējis un solījis piesiet pie savas
+gultasaukliņu, lai mācītājs neapmaldītos.</p>
+
+<p align="JUSTIFY">Mācītājs iegājis ķēķī pie maizes abras, sācis lielā priekā
+ēst mīklu un abām rokām knapi jaudājis izsaklušo vēderu piepildīt. Pēdīgi
+domājis aiznest Ansim arī par labo sirdi. Gājis, pie auklas turēdamies, droši uz
+priekšu un piegājis pie gultas, nemaz neievērodams, ka tajā guļ divi cilvēki. Ansis
+aukliņu nebija piesējis vis pie savas, bet pie mežsarga gultas. "Ei, Ansi, še tev
+ar'!"</p>
+
+<p align="JUSTIFY">Ansis nekā neatbildējis. Noskaitie par to, mācītājs norāvis deķi
+un spēris mīklas piku virsū. Domātais Ansis gultā sakustējies, un mācītājs nu
+tikai ieraudzījis, ka tas mežsargs ar savu sievu. Ātri laidis no šīs istabas ārā uz
+Anša istabu un izstāstījis tam savu nelaimi. Jā, bet kur nu lai nomazgājot rokas.
+Ķēķī esot liela krūze ar ūdeni, tur varēšot nomazgāt. Mācītājs iebāzis vienu
+roku un ar lielām mokām otru. Mazgājis, mazgājis un gribējis jau vilkt laukā, bet
+nevar. Nu bijis atkal briesmās. Skrējis pie Anša.</p>
+
+<p align="JUSTIFY">"Ejiet vien, mācītāj' kungs, ārā, tur pie tā baltā staba un
+sitiet pa to, gan tad krūze saplīsīs." (Ārā mazgājusies mežsarga sieva, jo
+mācītājs to bijis notaisījis ar mīklu.)</p>
+
+<p align="JUSTIFY">Ātri mācītājs laidis ārā un priecīgi sitis pa balto stabu.
+Krūze saplīsusi. Bet kādas bijušas mācītāja briesmas, kad baltais stabs sācis
+kliegt: "Vai, vai, vīriņ, otrreiz gan vairs gultā netaisīšu!"</p>
+
+
+</body></html>

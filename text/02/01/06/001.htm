@@ -1,0 +1,364 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Stiprinieks ar saviem biedriem.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>l. </b>A. 301B. <b>A. </b>Ģēģeris Vec-Piebalgā, Brīvzemnieka
+Sborņik 99. LP, VII, II, 19, IV, 4.</p>
+
+<p align="JUSTIFY">Sen, vecos laikos pie saviem vecākiem dzīvoja viens dēls vārdā
+Īliņš. Viņš bija veselīgs un stiprs. Bet reiz viņš uzlīda rijas krāsns augšā
+un palika no tā brīža tik nespēcīgs un gaudens, ka nevarēja ne no vietas
+pakustēties, un sagulēja krāsns augšā vairāk gadu.</p>
+
+<p align="JUSTIFY">Reiz jaukā vasaras dienā, kad visi mājinieki bija aizgājuši pie
+siena un Īliņš viens pats sēdēja krāsns augšā, ienāca vecs nabags, sacīdams:
+"Dievs palīdz! Īliņ! Atmet no Dieva puses kautko nabadziņam!"</p>
+
+<p align="JUSTIFY">"Es tev, nabadziņ, labprāt dotu, kas tikai vien man ir; bet
+nespēju no krāsns augšas nokāpt; ej tādēļ pats kambarī, tur atradīsi gan raušus,
+gan gaļu, gan pienu, gan alu. Dzer un ēd, cik sirds vēlās!"</p>
+
+<p align="JUSTIFY">Nabags iegāja kambarī un labi noēdās; pēc tam ienāca atpakaļ
+rijā un sacīja Īliņam: "Pateicos, dēliņ. par tavu labo sirdi, ka paēdināji
+mani izsalkušu, ar ko Dievs bija svētījis. Paldies, paldies tev! Bet saki, dēliņ,
+kādēļ nekāpi no krāsns augšas zemē?"</p>
+
+<p align="JUSTIFY">"Ai, vectēv, sengadiem te jau sēžu - nejaudu nokāpt un neviens
+pats nespēj man palīdzēt."</p>
+
+<p align="JUSTIFY">"Nu mēģini jele! varbūt nokāpsi arī." "Ja tu liec,
+mēģināšu arī!"</p>
+
+<p align="JUSTIFY">Pamēģināja vienreiz, jau pacēlās uz ceļiem. Pamēģināja
+otrreiz, jau izcēlās kājup. Kā mēģināja trešreiz, tā no krāsns zemē un
+staigāja . . . Izgāja abi laukā, nabags sacīja: "Klausies, mans dēliņ, ko tev
+pateikšu. Uzcelsim te pagalmā lielu akmeņu stabu!"</p>
+
+<p align="JUSTIFY">"Kam gan mums tāds akmeņu stabs?" Īliņš vaicāja. Vecais
+atteica: "Cel tikai, gan vēlāk nojēgsi, kādēļ!"</p>
+
+<p align="JUSTIFY">Tad abi ņēmās un ātri jo ātri uzcēla stabu. Nu nabags sacīja
+Īliņam: "Saņem stabu un apgriez to riņķī!"</p>
+
+<p align="JUSTIFY">Īliņš kampa stabu, saņēma spēkus un apgrieza visu pasauli
+riņķī.</p>
+
+<p align="JUSTIFY">"Nē, manu dēliņ, tas ir par daudz!" vecais ieteicās,
+"tikai tādu spēku vien tev došu, ka pasaulē neviens tevi nepārspētu vairāk
+nē.</p>
+
+<p align="JUSTIFY">"Pateicos tev, vectēv, par tik lielu labdarību!" sacīja
+Īliņš. "Ne par ko nav jāpateic, mans dēliņ! Tas par to, ka na bagus neatstum.
+Lai gan par nabagu izlikos, tomēr neesmu na bags - Dievs mani sūtīja tev
+palīdzēt." To sacījis, vecais tūdaļ pazuda.</p>
+
+<p align="JUSTIFY">Nu Īliņš gāja pasauli apskatīties. Un kam atkal gan netiksies
+ieelpot tīru gaisu ja tik ilgu laiku mājā nosēdējis?</p>
+
+<p align="JUSTIFY">"Bet pag!" Īliņš iedomājās, "tukšām rokām pa
+pasau1i staigāt būtu kauns. Paldies Dievam, ka varu atkal staigāt un strādāt,
+tādēļ aiznesīšu siena pļāvējiem azaidu."</p>
+
+<p align="JUSTIFY">Domāts - darīts. Viņš saņēma vienā rokā alus mucu, otrā gaļu
+un pienu, apakš rokas atkal maizi, raušus un aizgāja pie siena pļāvējiem.
+Strādnieki ieraudzījuši Īliņu ar azaidu, tecēja viņam pretim un gavilēdami
+priecājās, ka Īliņš nu staigā un vēl tik smagu nesamo panes.</p>
+
+<p align="JUSTIFY">"Saki, jele, Īliņ, kā tu izveseļojies?" viens par otru
+apvaicājās.</p>
+
+<p align="JUSTIFY">Īliņš arī izstāstīja galu no gala, kā noticis; pēc tam sacīja:
+"Jūs tagad ēdat, bet es iešu apskatīties pa pasauli."</p>
+
+<p align="JUSTIFY">Viņš iet, iet nepiekusis - aiziet pie viena liela tēviņa. Šis
+milzis rāva priedes ar visām saknēm no zemes laukā. Zvērošām acim milzis
+paskatījās uz viņu un sacīja: "Ko tu te meklē, kas tava vajadzība un kā
+iedrošinies lielcilvēkiem tuvoties?"</p>
+
+<p align="JUSTIFY">"Es esmu Īliņš, nācu pasauli aplūkot un tīru gaisu
+ieelpot." "Nu labi, ka esi atnācis. Bet vai zini ko? Sviedīsim šo manu dzelzs
+zizli gaisā; kuŗš. no mums augstāki uzsviedīs, tas būs saimnieks, otrs būs atkal
+viņa kalps. Pats metīšu pirmais."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Labi - metīsim!" sacīja Īliņš," man vienalga, kas
+  pirmais "</p>
+</blockquote>
+
+<p align="JUSTIFY">met." Milzis svieda savu zizli gaisā - pēc pusstundas tas
+nokrita atpakaļ zemē un bija tikai saliecies; bet kad Īliņš savēcinājis drāza
+augšā - ziz1is tikai pēc veselas stundas nokrita atpakaļ un pārlūza pa vidu pušu,
+bet abi gali iemējās zemē. Milzis nu sūkājās pēc zižļa: "Kur lai ņemu
+kalēju, kas lai sakaļ man zizli? Te jau tuvumā nav neviena paša kalēja!"</p>
+
+<blockquote>
+  <p align="JUSTIFY">Kam mums kalēja vajaga!" Īliņš ieteicās. "Dod tikai podi
+  "</p>
+</blockquote>
+
+<p align="JUSTIFY">pieci dzelzs, ar ko sametināt. Tev jāzin arī, ka pēc mūsu līguma
+tu tagad esi mans kalps un tavs zizlis pieder man. Tad arī es pats to sakalšu."</p>
+
+<p align="JUSTIFY">Milzis pasniedza pieci podi dzelzs; bet Īliņš desmit birkavi smago
+zizli uzlika ar pieci podi dzelzs uz, savu celi un sakala abus galus (mitekļa vietā)
+tāpat aukstus ar dūri kopā - bez āmara. Pēc tam teica milzim: "Tu esi mans kalps
+- iesim tālāk!"</p>
+
+<p align="JUSTIFY">Abi aizgāja. Gāja, gāja - nonāca pie cita milža, kas ar krū tim
+kalnus gāza. </p>
+
+<p align="JUSTIFY">Šis gan briesmīgi skatījās uz Īliņu; bet Īliņš par to neko -
+tikai uzsauca: "Klausies! </p>
+
+<p align="JUSTIFY">Man kalps tu tikpat esi - iesim!</p>
+
+<p align="JUSTIFY">Kā tā? Es lai būtu tādam diedelniekam par kalpu? Pie"</p>
+
+<p align="JUSTIFY">raugi, ka neieej manos nagos.</p>
+
+<p align="JUSTIFY">"Lēnāki, lēnāki! Neuzpūties vis! Ar mani tiepties nesāc! Še
+mans dzelzs zizlis, met viņu gaisā. - Ja tev uzies augstāku, tad zini, tu būsi par
+saimnieku, es būšu tev par kalpu; bet ja man uzskries augstāku, tad es būšu
+saimnieks, tu atkal kalps."</p>
+
+<p align="JUSTIFY">Milzis paķēra dzelzs zizli un drāza gaisā. Pagāja pusotras stundas
+un tad tikai dzelzs zizlis nokrita zemē un saliecās. Pēc tam meta Īliņš. Tam palika
+veselas divi stundas gaisā un kad nokrita zemē - pārlūza pa vidu pušu. Nu atkal
+pielika pieci podi dzelzs, nolika uz celi un tāpat aukstu sametināja ar dūri vien.</p>
+
+<p align="JUSTIFY">"Nu tu esi mans kalps - iesim tālāk!"</p>
+
+<p align="JUSTIFY">Gāja, gāja visi trīs - beidzot nonāca jūŗas malā. Aiziet jūŗas
+malā, redz-tur guļ briesmīgs mi1zis. Viņš viscaur bija ūdenī. tikai galva vien uz
+sausuma, bet bārda bija sešdesmit asu gaŗumā. Briesmas bija redzēt tādu milzi ; bet
+Īliņš, atminēdamies veča vārdus, apņēmās taču viņu modināt. Viņš piegāja
+mi1zim k1āt, satvēra aiz bārdas un sauca: "Ē! milzi, ko tu guli! celies
+jele!"</p>
+
+<p align="JUSTIFY">Milzis atmožas, redz - tāds krupis viņu modinājis, viņš
+izberzēja acis un tad ierūcās kā lauva, līdzīgi pērkonam: "Kā tu, knisli,
+iedrošinājies pie manas bārdas ķerties un par manu miegu smieties? Es tevi, nelieti,
+mācīšu! Saberzīšu tavus kaulus miltos un vējā izkaisīšu!"</p>
+
+<p align="JUSTIFY">"Lēnāki, lēnāki, stiprinieks!" Īliņš ieteicās.
+"Papriekšu mēģini šo manu dze1zs zizli gaisā sviest, tad redzēsim, arī tu
+stiprāks "</p>
+
+<p align="JUSTIFY">būsi par mani.</p>
+
+<p align="JUSTIFY">Milzis meta - un zizlis nokrita atpakaļ pēc divām stundām; bet
+Īliņš drāza gaisā, tad nonāca tikai pēc trim stundām zemē, un divos gabalos. Bet
+šoreiz viņš - lai atkal sametinātu - paņēma desmit podu dzelzs, nolika abus galus uz
+celi un sakala tāpat ar aukstu dūri. Nu Īliņam bija trīs kalpi - ko lai tagad iesāk?
+Ies atkal tālāk un tālāk. Gāja, gāja - nonāca tādā vecā pilī. Te bija daudz
+vēršu pilī, un neviena paša cilvēka. Tad Īliņš lika savam kalpam azaidu
+paraudzīt.</p>
+
+<p align="JUSTIFY">"Tu," viņš teica," kas tās priedes tur raustīja,
+paliec mājā, nokauj vienu vērsi un izvāra mums azaidu, kamēr mēs būsim pa lauku.
+Milzis Priežurāvējs palika, nokāva vērsi, izvārīja to, sarīkoja, apklāja ga1du un
+gaidīja . . . Bet te izlien no zemes tāds vecītis ar gaŗu, sirmu bārdu,. sapel'
+Priežurāvēju un apēd visu azaidu. Pārnāk saimnieks ar kalpiem, vaicā: "Kas ir,
+vai azaids gatavs?"</p>
+
+<p align="JUSTIFY">Nekā! lai saimnieks nevainojot, ka nevarējis pavēli izpildīt esot
+briesmīgi galva sāpējusi, nejaudis ne augšu pace1t, vēl tagad bakstat.</p>
+
+<p align="JUSTIFY">Otrā dienā palika Kalnugāzējs mājā. Tam Īliņš pieteica:
+"Ka tu azaidu būtu izvārījis!"</p>
+
+<p align="JUSTIFY">Un padarīja arī šis visu, kā pienākās; bet tikko bija padarīts,
+atkal izlīda no zemes vecais ar sirmo bārdu, sapēra Kalngāzēju un apēda azaidu.</p>
+
+<p align="JUSTIFY">Trešā dienā palika Jūrmalas gulētājs mājā azaidu sarīkot. Tas
+sēdus vien strādāja, sēdus nogāza vērsi, sēdus gāja pēc ūdens itin visu sēdus
+vien padarīja, nemaz kājās nepaceldamies. Bet tiklīdz viss bija gatavs - izlien tas
+pats vecis ar sirmo bārdu sapēra Jūrmalas gulētāju, apēda azaidu un aizgāja.
+Pārnāk saimnieks -- domā: "Nu reiz taču būs pusdiena!"</p>
+
+<p align="JUSTIFY">Ieies - vaicās: "Kur ir pusdiena?"</p>
+
+<p align="JUSTIFY">Nekā! labo saimniek, arī man briesmīgi galva sāpēja - ir "
+"</p>
+
+<p align="JUSTIFY">palocīties aiz sāpēm nejaudāju.</p>
+
+<p align="JUSTIFY">Ta tad brīnumi! Visiem trim viena pati klizma. Nekā, "</p>
+
+<p align="JUSTIFY">lai tur ir kas, bet tā nav!" Īliņš prātoja, un ceturtā
+dienā palika pats mājā. Viņš nokāva vērsi, izvārīja to un apklāja galdu. Bet
+līdz ko viss, kā piederas, bija padarīts - te vecis klāt. . Ienāk grib saimnieku
+ku1t.</p>
+
+<p align="JUSTIFY">"Ak tā!" Īliņš uzsauca, "tu, vecais ķēms gan
+laikam esi tas kauslis, kas manus kalpus sakāvis un azaidus aprijis! Pagaidi, putniņ, tu
+mani pieminēsi!"</p>
+
+<p align="JUSTIFY">Un viņš paņēma veci, sadunckāja tam sānus, iznesa laukā, pacēla
+pili pie viena pakšķa uz augšu, ieslodzīja tam pakšķa apakšā bārdu un tad
+gaidīja savus kalpus pārnāķam, lai parādītu veco kausli arī tiem. Pārnāca kalpi,
+atrada azaidu sarīkotu. Nu paēda visi un tad saimnieks piecēlās, veda tos pagalmā
+rādīt, ko izdarījis. Iziet - redz, ka apakš viena pils pakšķa stāv bārda
+iespī1ēta, bet veča nekā - viņš iespīlēto bārdu bija norāvis. Un nu tikai kalpi
+izstāstīja, kā viņiem par mājpieraugiem bija gājis. Pēc tam viņi paņēma nokauta
+vēršu ādas un gāja tā1āk. Gāja, gāja nonāca pie vienas alas. Tai alai bija dzelzs
+durvis priekšā.</p>
+
+<p align="JUSTIFY">"Atveŗat, vīri, durvis!" sacīja Īliņš, "gribu
+redzēt, kas tur iekšā "</p>
+
+<p align="JUSTIFY">Kalpi mocījās, mocījās, bet atvērt nevarēja. Īliņš redz -
+nekas jau nebūs, jāņemas pašam gar durvim, un atvēra tās uz rāviena. Bet atkal
+nelaime - nekādā ziņā iekšā tikt - nav redeļu. Beidzot atminēsies - vēršu ādas
+taču esot paņemtas līdz.</p>
+
+<p align="JUSTIFY">"Ņemat, vīri, vēršu ādas," tā Īliņš ieteicas,
+"sagriežat tās siksnās un sašujat no tām labi gaŗu siksnu, ka varu alā
+nolaisties!"</p>
+
+<p align="JUSTIFY">Kalpi ņēmās strādāt, kā saimnieks bija pavēlējis. Kalnugāzējs
+ar Jūrmalas milzi grieza ādas siksnās, Priežurāvējs atkal šūstīja kopā, tāpēc
+ka tas bija pēc amata kurpnieks. Viens paņēmiens - gaŗa siksna gatava. Tiklīdz siksna
+gatava - saimnieks nolaidās ar viņu alā, pieteikdams kalpiem: "Nolaidīšos
+dibinā apskatīties, kas tur ir. Apskatījies, nākšu pie siksnas atpakaļ un tiklīdz
+siksnu kustināšu - velkat mani augšup."</p>
+
+<p align="JUSTIFY">Īliņš nolaidās alā, sāk staigāt, apskatīties. Te nomana, ka
+viņš apakšzemes valstī. Nu ies, ies - nonāk pie vienas mājas. Ieiet mājā - atron
+ļoti skaistu meitu. Tā paskatās uz svešnieku un viņai žēl metas par viņu.</p>
+
+<p align="JUSTIFY">"Ai, nožēlojamais cilvēks, kā tu teitan atkūlies? Šodien tev
+gals! Man ļoti žēl tavas dzīvības! Mans tēvs aplam stiprs, tiklīdz pārnāks, tevi
+nositīs. Bet klausi manam padomam,, mīļo svešiniek! Pārcilā tās divas mucas, kas
+tur pagalmā stāv, noliec labās puses mucu pa kreisi un kreisās - pa labi. Labās puses
+mucā ir stipruma ūdens, kreisās - nestipruma: Mans tēvs katrreiz dzeŗ no tās mucas
+pa labi roki. Tikko tēvs pieies pie mucas pa labi roki dzert, tad ej tu atkal nodzerties
+no mucas pa kreisi roki. Varbūt, tā savu dzīvību izglābsi."</p>
+
+<p align="JUSTIFY">Tiklīdz Īliņš bija attapis mucas pārmainīt, te pārnāca vecais,
+tas pats, kas viņa kalpus bija pēris un kuŗam viņš bārdu bija iespīlējis. Kā
+pārnāk, tā tūlin vecis mucai pa labi roki klāt un dzeŗ: bet Īliņš pa kreisi arī
+dzers. Sadzērās abi - tūlin iesāka kauties. Bet Īliņš bija stiprāks par viņu un
+nosita to uz cirtiena. Pēc tam paņēma visas dārgās lietas, arī veča skaisto meitu
+un gāja uz alas izeju. Aizgāja, iesēja dārgās lietas. siksnā un nu uzvilka augšā.
+Tad iesēja veča meitu, to arī uzvilka. Bet pašu saimnieku pameta alā. Gan Īliņš
+izgaidījās siksnu - nevarēja sagaidīt. Neko darīt - gāja atpakaļ pēc palīdzības
+apskatīties. Izmeklējās - sadabūja vienu baltu zosi un parunāja tai: "Vai
+nevari, mīļā zoss, man palīdzēt izkļūt no šīs alas?"</p>
+
+<p align="JUSTIFY">"Labprāt!" zoss atteica, "sēdies man mugurā!"</p>
+
+<p align="JUSTIFY">Īliņš uzsēdās zosij mugurā. Zoss pacēlās spārnos un izriesa
+Īliņu no alas. Bet Īliņš ierauga - ne vairs dārgo lietu, ne veča meitas. Kalpi
+paņēmuši visu līdz un aizmukuši. Neko darīt ~steidzās, ko mācēdams, tiem pakal.
+Tikmēr steidzās - panāca tos. Nu Īliņš visus trīs kalpus nosita un ar visiem
+dārgumiem, ar skaisto meitu nometās tai veča pili, kur vēršus bija kāvuši. Tur
+viņš vēl šodien dzīvo, ja nav miris.</p>
+
+
+</body></html>

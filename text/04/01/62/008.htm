@@ -1,0 +1,244 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Meitene, kas savus brāļus meklē.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">8. A. 41. E. Birznieks no E. Lasmaņa Dzirciemā. Jkr. III, 53 (19).</p>
+
+<p align="JUSTIFY">Mātei ir septiņi dēli, bet nav nevienas meitas. Māte sāk
+gūģoties: "Dēli vien, dēli. vien, kad tu vienu meitiņu redzētu. Tie visi
+varētu palikt par vilkiem, kad es dabūtu meitiņu."</p>
+
+<p align="JUSTIFY">Pēc gada mātei piedzimst meitiņa un dēli visi prom mežā par
+vilkiem. Meitene nu aug viena pati, kamēr sasniedz septīto gadu. Māte auž stellēs,
+meitene turpat sēž un raud. Māte prasa, kādēļ viņa raudot? Meitene brēkdama
+atbild: "Man bail, ka jūs mani ar' tāpat nenolādat, kā manus septiņus
+brāļus."</p>
+
+<p align="JUSTIFY">"Kas tev tādus niekus teica?" māte dusmīgi prasa.
+"Citi cilvēki jau tā runā," meitene atteic.</p>
+
+<p align="JUSTIFY">Māte nekā vairs neatsaka, un tā nu tas paliek. Bet meitene neliekas
+vis ar to mierā, viņa ir nodomājusi iet savus brāļus meklēt, bet tagad tikai
+mierīgi gaida, kamēr cik necik paaugs lielāka. Viņa slepeni pašuj septiņus kreklus,
+septiņus dvieļus un septiņus palagus, sasien tos visus vienā pauniņā un raudādama
+iet meklēt savus brāļus. Ceļā viņa satiek vecu vīriņu, tas prasa, kādēļ viņa
+raudot?</p>
+
+<p align="JUSTIFY">Meitiņa stāsta: "Mani septiņi brāļi ir mežā par vilkiem: es
+tagad eimu viņus meklēt."</p>
+
+<p align="JUSTIFY">"Tos, meitiņ, ir ļoti grūti atrast," vecītis teica.</p>
+
+<p align="JUSTIFY">"Kad jūs zinat, ka tos grūti atrast, tad jūs arī zināsit, kur
+viņi ir. Mīļo vectētiņ, pasakait man arī, kur viņi ir?" meitiņa lūdzas.</p>
+
+<p align="JUSTIFY">Vecais vīriņš iedod meitiņai baltu stibiņu un pamāca: "Ej
+vien <b>te </b>tiešām projām, tur būs ezers un ezera vidū sala. Iesvied balto
+stibiņu ūdenī un kāp pati stibiņai virsū, tad tā būs laiviņa. Kad aizbrauksi pie
+saliņas un izkāpsi no laiviņas. tad tā paliks atkal par stibu. Uz saliņas būs
+būdiņa, tur dzīvo tavi brāli; par dienu viņi ir vilki, par nakti cilvēki, tādēļ
+rādies viņiem tik vakarā."</p>
+
+<p align="JUSTIFY">Vecais vīriņš pazuda un meitiņa gāja, kā mācīts. taisni vien uz
+priekšu, kamēr nonāca pie ezera un pārkļuva saliņā. Tur viņa atrod septiņas
+gultas piekrautas sūnām. Meitiņa pārklāj katru gultiņu ar baltu paladziņu, piekaŗ
+katrai dvieli klāt un paliek kreklu pagalvī, tad pati paslēpjas aizkrāsnē.</p>
+
+<p align="JUSTIFY">Vakarā pārnāk brāļi, atrod gultas apklātas, dvieļus piekārtus
+un .baltos kreklus. Viņi brīnās, kas to varētu būt darījis.</p>
+
+<p align="JUSTIFY">"Tā jau būs mūsu māsa " citi ieteicās. "Laikam gan
+mūsu māsa," citi piebilda.,</p>
+
+<p align="JUSTIFY">Visi septiņi sāk meklēt un atrod māsu aizkrāsnē. Ak cik visi bija
+priecīgi! Katrs grib apkampt savu māsu, katrs pa reizām spiežas viņai klāt. Pēc
+pirmiem satikšanās priekiem māsa prasa saviem brāļiem, kā tos varētu atkal atdabūt
+par cilvēkiem?</p>
+
+<p align="JUSTIFY">"Tas, māsiņ, par daudz gŗūts darbs," brāļi viņai
+atteic. "Kas mūs grib atpestīt, tam septiņi gadi jāsēž mežā uz stumbura un pa
+to laiku viņam nav brīv ne runāt, ne smieties, ne raudāt, ne arī cieti aizmigt, ka
+viņš no stumbura nenokrīt. Ja to neizpilda, tad mēs esam pavisam pagalam. Ēdienu mums
+gan ir brīv tam piegādāt."</p>
+
+<p align="JUSTIFY">Māsa ir ar mieru uzņemties gŗūto darbu un atpestīt brāļus. Tie
+gan viņu grib no tam atrunāt, bet viņa neatlaižas ne par ko no savas apņemšanās. No
+rīta septiņi vilki aizved māsu uz mežu un uzceļ uz stumbura.</p>
+
+<p align="JUSTIFY">Māsa nu panes tur savu brāļu dēļ visādus gŗūtumus: aukstumu un
+karstumu, sniegu un lietu un visu citu veselus sešus gadus. Pa to laiku viņa ir
+pieaugusi un palikusi ļoti skaista.</p>
+
+<p align="JUSTIFY">Tās pašas zemes ķēniņš izgāja tai mežā uz medībām. Pa vilka
+pēdām ejot, viņš nonāca pie stumbura un ieraudzīja vilku māsu sēžam uz stumbura.
+Ķēniņš prasīja, kas viņa tāda esot un kādēļ tur sēžot? Viņa neatbildēja ne
+pušplēsta vārda. Ķēniņš solījās šaut, ja viņa neatbildēšot, bet arī tas neko
+nelīdzēja, viņa palika un palika mēma. Ķēniņš pūš ragā un nu sanāk mednieki no
+visām pusēm pie stumbura un stāj viņai virsū, kas viņa tāda esot un ko te darot?
+Viņa kā neatbild, tā neatbild. Daži no medniekiem grib jau patiesi jaunavu šaut, bet
+ķēniņš neļauj, viņam tā ļoti patīk. Viņš liek noņemt jaunavu no stumbura un
+aizvest uz savu pili.</p>
+
+<p align="JUSTIFY">Nabaga māsa jau tik ilgi nosēdējusi, vēl tikai viens gadiņš būtu
+bijis jāiztur.; un brāļi būtu izpestīti, bet te ļaunie cilvēki ceļ viņu zemē un
+vedīs projām. Viņai paliek tik žēli, tik žēli, ka norit viena asara, bet runāt
+viņa nerunā.</p>
+
+<p align="JUSTIFY">Ķēniņš pārved jaunavu mājās: viņam tā tā patīk, ka viņš
+liekas ar viņu salaulāties. Pēc kāzām ķēniņš gan viņai visādi grib pa prātam
+iztikt un to uzjautrināt, bet ne viņa smejas, ne runā. Ķēniņa māte ļoti dusmīga,
+ka viņas dēls tādu mēmu, mežā atrastu sievieti prec. Bet ķēniņš uz to daudz
+neklausās; māte nozvērējās, lai būtu, kā būdams, viņus izšķirt.</p>
+
+<p align="JUSTIFY">Ķēniņš aizgāja tālā kaŗā, viņa sievai mājās piedzima dēls.
+Ķēniņa māte raksta ķēniņam uz kaŗa lauku grāmatu un ieraksta, ka dēls neesot ne
+pēc suņa, ne pēc kaķa. Ķēniņš atraksta atpakaļ, (ai tik audzinot, kādu jau Dievs
+devis. Ķēniņa māte ir ļoti dusmīga par tādu dēla atbildi un liek no savas galvas
+ķēniņienei dēliņu atņemt un nokaut. Tad viņa raksta ķēniņam, ka ķēniņiene
+pati savu dēlu apēdusi.</p>
+
+<p align="JUSTIFY">Ķēniņš nu ir ļoti dusmīgs, nāk tūlin no kara lauka mājās un
+liek savu sievu sadedzināt.</p>
+
+<p align="JUSTIFY">Ne tālu no pils mežmalā uztaisa sārtu un ķēniņieni ved turp
+dedzināt. Ķēniņa māte, ķēniņš pats, citi lieli kaŗa kungi un daudzi no
+pavalstniekiem iet līdzi skatīties sadedzināšanu. Ceļā laižas septiņi putniņi un
+sauc: "Ķēniņ, ķēniņ, pagaidi, pagaidi!"</p>
+
+<p align="JUSTIFY">Ķēniņš grib apstāties un gaidīt, bet māte sauc: "Ko tu
+niekus te uz putniņiem klausīsies, steigsimies labāki uz priekšu!" Ķēniņš
+paklausa māti un steidzas uz priekšu. Pēc brīža</p>
+
+<p align="JUSTIFY">putniņi sauc atkal tāpat: "Ķēniņ, ķēniņ, pagaidi,
+pagaidi!"</p>
+
+<p align="JUSTIFY">Bet māte viņi atkal pierunāja iet tālāk, kamēr jau nonāk pie
+paša kalna, Tagad septiņi bruņoti vīri sauc, lai ķēniņš pagaidot. Ķēniņš nu
+arī gaida.</p>
+
+<p align="JUSTIFY">Pienāk visi septiņi, tie ir ķēniņienes brāļi, kuŗi tagad
+palikuši par cilvēkiem. Vienam no viņiem ir mazs puika uz rokas, tas saka ķēniņam :
+"Še tev tavs dēls un atdod mums mūsu nevainīgo māsu. Tava paša māte atņēma
+viņai bērnu un lika to mežā nokaut, bet vilks bendem viņu atņēma. Mūsu māsa tikai
+tev to visu neatklāja, tādēļ ka viņa. mūs glābdama, nedrīkstēja runāt,"</p>
+
+<p align="JUSTIFY">Brāļi viens pēc otra steidzās māsu apkampt un patencināt par
+izglābšanu. Visi bija laimīgi izglābti, tikai vienam no brāļiem trūka vienas acs;
+to bija izmaitājusi māsas nokritušā asara, kad ķēniņš viņu lika noņemt no
+stumbura.</p>
+
+<p align="JUSTIFY">Ķēniņš ļoti saskaitās par savas mātes neģēlīgo krāpšanu un
+lika to tūlin uz sārta sadedzināt.</p>
+
+<p align="JUSTIFY">Nevainīgo ķēniņieni ar lielu godu veda atpakaļ uz pili un viņas
+brāļi palika pie ķēniņa par bruņiniekiem.</p>
+
+
+</body></html>

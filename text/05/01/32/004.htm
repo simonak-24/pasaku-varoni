@@ -1,0 +1,160 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Mežonīgais vīrs.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">4. A. 502. P. Š. no Dankas Raunā.</p>
+
+<p align="JUSTIFY">Vienam ķēniņam bija ļoti skaists ābeļu dārzs, kur pašā vidū
+auga viena ābele ar zelta āboliem. Bet tur katru nakti sāka tur zust pa vienam zelta
+ābolam. Gan izsargājās visādi sargi, bet nevienam neizdevās zagli noķert. Pēdīgi
+tomēr viens gudrinieks bija izdomājis kādu slazdu, kurā manīgais zaglis ieķērās.
+Tas bija mazs mazs vīriņš ar misiņa bārdu. Misiņbārdi nu ieslodzīja pils pagrabā.</p>
+
+<p align="JUSTIFY">Ķēniņš grib rādīt saķerto Misiņbārdi arī citiem kungiem, liek
+taisīt lielu godu un izbrauc pats viesus aicināt. Pagraba atslēgu viņš nodod
+ķēniņienei glabāšanā. Ķēniņā dēlam, pa pagalmu dzīvājot, iekrīt zelta bumba
+pie Misiņbārža pagrabā. Viņš nu lūdz, lai atdodot šā bumbu. Misiņbārdis saka,
+lai izlaižot šo no pagraba ārā, tad atdošot bumbu. Gan ķēniņa dēls stāsta, ka
+viņš nedrīkstot laist un nezinot arī, kur esot pagraba atslēga, bet Misiņbārdis
+tikmēr lūdzas un mānās, kamēr pierunā ķēniņa dēlu. Tas nu paņemt zagšus no
+mātes atslēgu un izlaiž Misiņbārdi no pagraba.</p>
+
+<p align="JUSTIFY">Atbrauc ķēniņš ar daudz viesiem mājā un grib tiem rādīt
+ieslodzīto vīriņu. Izrādās, ka pagrabs jau tukšs. Ķēniņš nu ir ļoti dusmīgs uz
+ķēniņieni, kam tā izlaidusi Misiņbārdi laukā. Ķēniņa dēls, žēlodams māti,
+izstāsta visu, ko viņš izdarījis. Ātrās dusmās ķēniņš tūlin aizdzen savu dēlu
+no pils projām. Tas aiziet bēdīgs uz mežu un neviens vairs nezina, kas ar viņu
+noticis:</p>
+
+<p align="JUSTIFY">Bet nu ķēniņam izceļas drīz kaŗš ar savu kaimiņu, kas tam
+uzbrūk ar lielu kaŗa spēku. Mūsu ķēniņš jau pazaudējis lielāko daļu no saviem
+kaŗavīriem un nevar vairs turēties ienaidniekam pretī. Tai brīdī atjāj viens svešs
+jātnieks ar sidraba zirgu un zelta zobenu rokā. Kur vien tas jāj, tur neviens tam nevar
+pretī turēties. Drīz vien viņš sakauj pavisam stipro ienaidnieku, tā kā kaimiņu
+ķēniņš<b> </b>aizbēg tik ar kādiem retiem kaŗavīriem, bet pats jātnieks aizjāj
+un pazūd. Uzvārētais ķēniņš nav ar to mierā, salasa drīz jaunu kara spēku un
+uzbrūk atkal savam pretiniekam.</p>
+
+<p align="JUSTIFY">Laime pāriet uzbrucēja pusē un padzītā dēla tēvam ir arvien
+jāatkāpjas. Te nu atkal ierodas svešais jātnieks ar sidraba zirgu, sakauj uzmācīgo
+ienaidnieku un, nevienam nezinot, aizjāj pats projām.</p>
+
+<p align="JUSTIFY">Kaimiņu ķēniņš ir salasījis vēl trešo kara spēku un iesāk
+atkal kaŗu. Pirmajam ķēniņam klājas slikti un tam ir kaŗš jāpazaudē. Bet te
+piesteidzas atkal svešais jātnieks ar sidraba zirgu un atdzen kaimiņu ķēniņu
+atpakaļ. Tam nu izdodas ar savu zobenu ievainot jātniekam kāju. Pats ķēniņš tūlin
+piesteidzas savam glābējam un apsien viņam brūci ar savu mutslauci. Nu ķēniņš arī
+pazīst, ka tas jātnieks ir viņa paša padzītais dēls. Izrādās, ka par viņu bija
+gādājis tto pagraba izlaistais Misiņbārdis.</p>
+
+<p align="JUSTIFY">Nu tēvs ar dēlu dzīvo saticīgi un laimīgi.</p>
+
+
+</body></html>

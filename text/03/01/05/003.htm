@@ -1,0 +1,160 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Velns zārkā.</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+
+<p align="center"><strong><big><big><big>Velns zārkā. </big></big></big></strong></p>
+
+<p>3. Lapas Mārtiņš Rūjienā, "Dievs un velns", Smiltenē 1904., 10. </p>
+
+<p>Kāds vīrs savu mūžu nodzīvojis ļoti bezdievīgi. Viņš neapmeklējis baznīcu,
+nekad mājā nelūdzis Dievu, ar saviem kaimiņiem un savu saimi dzīvojis ļoti
+nesaticīgi, bieži lamājies un lādējies, pieminēdams velna vārdu, plītējis pa
+krogiem un padarījis dažus grēku darbus, tā kā katrs zinājis, ka viņš pilnīgi
+padevies velnam un no tā nagiem vairs nekad nevarējis izsprukt. Šim vīram bijis viens
+dēls, un arī tas sācis dzīvot pēc tēva ļaunās priekšzīmes. Bet Dievs to
+gribējis izglābt no velna varas, un tas arī noticis. Reiz kad negantā vīra dēls
+pļavā viens pats pļāvis sienu, kāds vecs vīrs viņam pienācis un to uzrunājis:
+"Mīļais krustdēls, tu esi iesācis dzīvot tikpat bezdievīgi kā tavs tēvs un
+gribi savu dvēseli atdot velnam. Bet kad tu zinātu, kā tavam tēvam pēc viņa nāves
+klāsies, tev uzietu lielas izbailes un tu nestaigātu tēva pēdās." "Kā tad
+tu to zini, kā manam tēvam pēc viņa nāves klāsies?" "To es skaidri zinu,
+un tādēļ atnācu tevi pamācīt un biedināt," vecis atbildējis. "Ja vēlies
+redzēt, kādā nāvē tavs tēvs mirs, tad steidzies uz māju, uzkāp uz kambara
+griestiem, izurb ar svārpstu grieztos caurumu un ieskaties pa to kambarī. Caurumu izurb
+tēva gultas vietā, kurā viņš tagad atrodas, un pēc kāda brīža nomirs. Noskaties
+tēva miršanu, un ko tu tur redzēsi, tas tevi tā sabaidīs, ka tu sāksi citādi
+dzīvot, nekā tavs tēvs dzīvoja, lai tev reiz nebūtu tikpat briesmīgi jāmirst."
+Dēls paklausījis vecīša padomam, gājis uz māju, uzkāpis pa redeli uz kambara
+griestiem un tēva gultas vietā ar svārpstu izurbis griestos caurumu. Ko viņš pa
+caurumu, kambarī ieskatoties, redzējis, tas viņu tiešām briesmīgi izbiedējis. Viņa
+tēvs gulējis gultā un pie gultas trīs velni ar izstieptām ķetnām stāvējuši,
+gaidīdami tēva miršanu, lai varētu grābt viņa dvēseli. Uz reiz tēvs sācis
+vaimanāt: "Es paredzu, kādas mūžīgas mokas manai dvēselei sagaidāmas! Esmu
+dzīvojis ļoti bezdievīgi, atgriešanās ir par vēlu, jo Dievs mani vairs nepieņem,
+tādēļ ka es dzīvoju velnam un man jāmirst velnam! Kaut jel es savam dēlam mirstot
+varētu dot padomu, lai viņš top par labāku cilvēku, nekā es biju, lai viņam nebūtu
+tikpat briesmīga miršana, kā man tapad. Bet viņš pārnākot mani vairs neredzēs
+dzīvu. Lai Dievs viņam ir žēlīgs." Velni nejauki ņirgājušies un ar savām
+ķetnām vienmēr sniegušies mirējam tuvāk. Tad mirējs dikti iekrācies un viņa
+dvēsele pa muti izskrējusi laukā, kuru viens velns tūlin sagrābis un ar to izskrējis
+no kambara. Otrs velns paķēris mirēja miesas un ar tām steidzies pirmajam velnam
+pakaļ; bet trešais velns iegulies mirona gultā un pārvērties nomirušā vīra
+izskatā. Mirušā dēls to visu noskatījies un, lielās izbailēs trīcēdams, nokāpis
+no kambara augšas un steidzies projām uz pļavu, kur vecītis viņu sagaidījis, kuram
+viņš pastāstījis visu, ko bija redzējis, un ļoti žēlojās par to, ka viņam velns
+būšot jāpaglabā tēva vietā. "Lai tev tas nebūtu jādara, tajā ziņā varu dot
+tev padomu", vecītis sacījis. "Kad vakarā iesi uz māju, tad no kāda
+sērmokša nogriez krietnu nūju un sāc ar to velnu gultā pērt, un lai viņš vai kā
+lūdzas, pirms nemitējies, līdz viņš apsola atnest tava mirušā tēva miesas."
+Mirušā vīra dēls izpildījis vecīša padomu un vakarā ar sērmokša koka nūju
+sācis sloksnēt gultā gulošo velnu, kurš neganti brēcis un lūdzies, lai viņam ļauj
+aiziet. "Pirms ne, līdz būsi apsolījis atnest mana tēva līķi, ko tavs biedrs
+pirmīt aiznesa." "Atnesīšu! Atnesīšu! Tikai lūdzams mitējies mani
+sist!" Tad viņš nostājies pērt un velns kā viesulis izmucis pa durvim laukā.
+Pēc maza brīža viņš ar mironu bijis atpakaļ, iemetis to gultā un tad tūlin atkal
+aizmucis. Dēls pienācīgi paglabājis tēvu. Bet ko viņš bija redzējis, tēvam
+mirstot, tas viņu padarījis par dievbijīgu un godīgu cilvēku.</p>
+
+
+</body></html>

@@ -1,0 +1,201 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>25</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Stiprais Ansis.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">1. A. 650 A. A. Bīlenšteins 1862 g. no teicējas Lavīzes Veises
+Jaunaucē. LP, VI, 112, XXXVII.</p>
+
+<p align="JUSTIFY">Viens kungs bijis pā(r)lieku nikns: nedevis cilvēkiem ne labi paēst,
+ne arī diensvidū apgulties, ne arī nakti riktīgi izgulēties.</p>
+
+<p align="JUSTIFY">Reiz tas braucis pa lauku un ieraudzījis pelēku vīru grāvī guļam.
+Tas ir bijis eņģelis. Kungs prasījis: "Ko tu guli grāvī, kam tu neej(i)
+art?"</p>
+
+<p align="JUSTIFY">Viņš teicis: "Ka(d) man būtu jāaŗ, ta(d) es ietu art; ka(d)
+man jāguļ grāvī, ta(d) es guļu grāvī."</p>
+
+<p>Tad tas kungs prasījis: "Kas tu tāds esi?"</p>
+
+<p align="JUSTIFY">Viņš atteicis: "Es esmu viss kas: esmu arājs, esmu
+arendāteris, esmu bū(v)meisters un slakteris arī es esmu."</p>
+
+<p align="JUSTIFY">"Vai tu nevari pie man(i)s nākt pa(r) arendātori?"</p>
+
+<p align="JUSTIFY">"Kālab ne?"</p>
+
+<p align="JUSTIFY">" Un nu viņi taisījuši kontrakti un pilsētā norakstījuši.
+Rakstot kungs teicis: "Jūs nu man būsit pa(r) arendāteri, bet kādu loni jūs
+gribēsit?"</p>
+
+<p align="JUSTIFY">"Es vairāk lones negribu!" viņš teicis, "ka ar tukšu
+maķeli trīs reiz sist jums pa pieri."</p>
+
+<p align="JUSTIFY">Tad kungs paprasot to maķeli provēt un sit savam muižkungam. Sit,
+sit - nesāp. Sit tas muižkungs tam kungam - arī nesāp. Kā tad sāpēs - ar tukšu
+maķeli? Brīnis (kungs), ka tādu loni prasījis. Tas nu tas.</p>
+
+<p align="JUSTIFY">Bet jaunais arendāteris vēlē nu gulēt tiem cilvēkiem līdz
+pieciem. Tad kungs sadusmojies: ka(d) tik ilgi vēl gulēt - paliks darbi nedarīti! Un
+kā to gadu vēl: laikā lietus līst, laikā jauks - labība papil(n)am. Viņam tik daudz
+bijis, ka devis pa mājām glabāt - muižā nebijis rūmes; un siena bijis - skaidri
+brīnums bijis.</p>
+
+<p align="JUSTIFY">Kad nu viss (tomēr) savākts - jau rudens bijis - kungs teicis:
+"Man ir viens vērsis, astoņu gadu vecs; un kad tu slakteris esi, tad tu mums vari
+to nokaut - mums būs tās lauk(a) apvākas."</p>
+
+<p align="JUSTIFY">Un tas kungs liek to vērsi nokaut un lai pieņem kādus vīrus
+palīgā. Bet tas vērsis bijis stiprs - ilgi turēts. Šis atteicis kungam:
+"Pagaidiet, cienīgs kungs, parādiet tik(ai), ku(r) tas vērsis - es viņu viens
+pats nokaušu kā jēru." Labi.</p>
+
+<p align="JUSTIFY">Un šis muižas kungs ies skatīties, kā tad viens nokaus tādu lielu
+lopu? Redz: viņš sit ar tukšo maķeli vērsim trīsreiz pa pieri un vērsis tūlīt
+pagalam; vēl ieduŗ nazi rīklē - nu ir nokavis.</p>
+
+<p align="JUSTIFY">Tad muižas kungs noskrien pie tā kunga: "Vai, cienīgs kungs;
+kad<b> </b>jums tā sitīs pa pieri, tad jūs tāpat nosprāgsit kā tas vērsis!"</p>
+
+<p align="JUSTIFY">Tad kungs izraksta tādas falšas grāmatas pie tiem ķeizariem un
+citiem kungiem, lai tas arendāteris iet sameklēt to parāda naudu. Labi.</p>
+
+<p align="JUSTIFY">Bet arendāteris teicis: "Es esmu vecīgs vīrs - dodiet man
+zirgu, tad es ātrāki pā(r)jāšu."</p>
+
+<p align="JUSTIFY">Un tad kungs lūdzis tam arendāterim, ka(d) viņš desmit jūdzu uz
+māju pusi, lai sūta grāmatu.</p>
+
+<p align="JUSTIFY">Nu aizjājis, izdarījis un, atpakaļ jādams, laiž kungam apsolīto
+grāmatu. Kungs, grāmatu dabūjis, tūlīt liek taisīt kapsētā skulti (kapu kambari)
+un taisās pats par nomirušu, baidīdamies no tā maķeļa. Rok kapu un liek pierakt
+atkal pil(n)u, it kā nu pats tur būtu guldīts; bet pats pa skulti dzīvo. Un nu visi
+raud, cie(n)māte raud, sulaiņi raud.</p>
+
+<p align="JUSTIFY">Pārjāj arendāteris - prasa: "Ko jūs raudat, kas jums par
+vainu?"</p>
+
+<p>Visi saka: "Jā, kungs i(r) miris!"</p>
+
+<p align="JUSTIFY">Parādiet man to kapu, ku(r) viņš ir nomiris!" "</p>
+
+<p align="JUSTIFY">Parāda; bet šis saka: "Te negul nekāds kungs iekšā - te, te
+gul!"</p>
+
+<p align="JUSTIFY">Un kā nu sitis a(r) to maķeli pa skultes sienmali, tā izgruvis. Nu
+viņš teicis kungam: "Es arī varētu vīnu dzert, cigāru smēķēt, krēslā
+sēdēt, bet man jāiet tev naudu meklēt - es gribu savu loni!"</p>
+
+<p align="JUSTIFY">Un taisījies ar to maķeli sist viņam pa pieri. Tad kungs, ceļos
+izmeties, lūdzās arendāterim, lai atņem visu savu naudu, ko pā(r)nesis, bet lai nesit
+pa pieri. Viņš teicis: "Vai tu zini, kas es esmu? Es esmu viens arendāteris un
+esmu tavs eņģelis!" un pazudis - diezin, kur palicis.</p>
+</font>
+
+
+</body></html>

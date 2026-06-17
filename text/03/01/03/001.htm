@@ -1,0 +1,166 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Burvis zārkā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 307. J. Bankins "Šis un tas" II, 1875., 4. </p>
+
+<p align="JUSTIFY">Reiz dzīvoja tēvs ar saviem trīs dēliem mazā būdiņā. Tēvs ar
+abiem vecākiem dēliem bija lieli buri un vella kalpi. Pēc kādiem gadiem abi vellam
+padevušies dēli nomira; tēvs no žēlabām arī pēc kādas nedēļas atstāja šo
+pasauli.</p>
+
+<p align="JUSTIFY">Tanī vidū bijis tāds ieradums, ka ja tēvs vai māte miris, tad cik
+tam bērnu bijuši, tik naktis nomirējs bijis jāvaktē baznīcā. Kad nu šim tēvam gan
+trīs bērni bijuši, bet divi jau bijuši nomiruši, tad dzīvajam visas trīs naktis
+vienam pašam bijis jāvaktē.</p>
+
+<p align="JUSTIFY">Dēls zināja, ka tēvs viņu nožņaugs, tādēļ ka viņš tam pašam
+kungam nebija kalpojis, kuram tas bija padevies. - Vakarā uz baznīcu iedams tas ir
+gluži bēdīgs un iet pie viena avotiņa nodzerties. Tur dzeŗot, viņam vecs vīrs
+danāk un prasa: "Kam tu tā raudi?"</p>
+
+<p align="JUSTIFY">Šis vēl stiprāk raudādams atbild: "Kā es neraudāšu? Man ir
+jāiet uz baznīcu tēva vaktēt un ir gluži bailes."</p>
+
+<p align="JUSTIFY">Vecis to iedrošinādams saka: "Ej tik droši, bet nogulies
+zārkam labajā pusē."</p>
+
+<p align="JUSTIFY">Šis paklausa veča padomu un dara tā. Pēc pulksten vienpadsmitiem
+tēvs ir no zārka laukā, bet zārka vāks tik skunstīgi bija uzkritis dēlam, ka tēvs
+to gan meklēja, bet neatrada. Viņš tā nu jau vienu nakti briesmas laimīgi bija
+pārcietis.</p>
+
+<p align="JUSTIFY">Otru vakaru vēl bailīgāks dodas uz baznīcu, un iet tāpat kā vakar
+pie avotiņa nodzerties. Vecis atkal tam piestājas un teic: "Apvelc ar krītu
+baznīcā trīs riņķus uz grīdas apkārt, un sēdies pats vidū iekšā!"</p>
+
+<p align="JUSTIFY">Viņš nu ir it priecīgs un arī dara tā. Uz reizu ap pulksten
+divpadsmitiem tēvs no zārka ārā, skrien tam virsū un saka: "Paga, paga, putniņ!
+Nu tu esi manās rokās!"</p>
+
+<p align="JUSTIFY">Bet pie riņķa daskrējis, atsitas kā pret mūrī un paliek tur
+stāvot. Viņš ilgu laiku nopūlējies, bet nevar un nevar tikt riņķam pāri. Pulkstens
+jau sit divpadsmit un tam nu jāsteidzas zārkā atpakaļ. Tā nu otra nakts laimīgi bija
+pagājusi.</p>
+
+<p align="JUSTIFY">Bet Dievs, mīļais Tēvs, zina, kā nu trešo nakti izdosies? Dēls
+arī šoreiz, uz baznīcu iedams, iet pie avotiņa nodzerties; bet no veča nav ko manīt.
+Baiļu pilns iet uz baznīcu un nostājas pie pašām durvim. Ap pulksten vienpadsmitiem
+tēvs, tāpat kā pagājušās reizes, speŗas no zārka laukā un dodas tam virsū. Šis
+nu sprūk no baznīcas ārā un - par laimi turpat bija liela priede - priedē augšā.
+Tēvs mēģina kāpt; bet nevar, viņš tādēļ sāk kost priedi ar zobiem. Tas gan
+grauž, un grauž, kamēr priede sāk locīties, bet par laimi pulkstens tikmēr jau ir
+divpadsmit, un tēvs, ilgāk nevarēdams palikt, ieskrien baznīcā un ir zārkā iekšā.</p>
+
+<p align="JUSTIFY">Dēls nu kāp priecīgs no priedes zemē un pateic mīļam Dievam par
+laimīgo izglābšanos.</p>
+
+
+</body></html>

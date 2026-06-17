@@ -1,0 +1,172 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>l2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Lāča dēls.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>&nbsp;</b></p>
+
+<p align="JUSTIFY"><b>1. </b>A.30lB. E. Lindemanis Audruvā, <b>A. </b>Bilenšteina kr.
+LP, VI, 115, 35. AŠ, II, 90a.</p>
+
+<p align="JUSTIFY">Vienā svētdienā viens mācītājs gājis ar savu cienīgu māti uz
+baznīcu. Te izskrējis lācis no meža un ierāvis mācītājieni savā alā. Tur viņai
+piedzimis dēls, to iesaukusi par Mežaucku. Kad<b> </b>Mežauckus bijis desmītā gadā,
+tas ķēries pie resniem ozolietu un izrāvis ar visu sakni.</p>
+
+<p align="JUSTIFY">Vienu dienu Mežauckus teicis mātei: "Mēs jau neesam meža
+zvēri - esam cilvēki. Iesim no šis alas projām!"</p>
+
+<p align="JUSTIFY">Gājuši. Bet lācis to pamanījis, skrējis abiem pakaļ un atnesis
+bēgļus alā atpakaļ.</p>
+
+<p align="JUSTIFY">Pēc viena gada Mežauckus atkal sacījis mātei: "Mēs jau neesam
+meža zvēri - esam cilvēki. Iesim no šīs alas prom!" Gājuši. Bet lācis atkal
+dzinies pakaļ. Tad Mežauckus sacījis: "Stāvi, māte, man aiz muguras!"</p>
+
+<p align="JUSTIFY">Un kā nu pieskrējis klāt, tā Mežauckus satvēris lāci un
+izkratījis viņam kaulus no ādas.</p>
+
+<p align="JUSTIFY">Nu aizgājuši pie mācītāja, mācītājs gandrīz savu sievu vairs
+nepazinis, arī brīnījies, kas tas viņai par varenu dēlu. Bet Mežauckus ilgi pie
+mācītāja nepalicis, gājis pasaulē. Gājis, gājis saticis Egļuvijēju. Vaicājis:
+"Kas tu tāds esi?"</p>
+
+<p align="JUSTIFY">"Esmu stiprais Egļuvijējs! Tikai viens vienīgs pasaulē par
+mani stiprāks, tas ir Mežauckus."</p>
+
+<p align="JUSTIFY">"Es esmu tas pats!" Mežauckus pateicis. Tad Egļuvijējs
+gājis līdz. Gājuši, gājuši - satikuši Kalnugrūdēju, tas ar krūtim kalnus
+apgāzis. Un tas arī nu gājis līdz.</p>
+
+<p align="JUSTIFY">Un nu visi trīs nogājuši vienā mājiņā, kur apmetušies pusdienu
+vārīt. Pirmo reizi Egļuvijējs palicis mājā par vārītāju. Bet kā izvārījis,
+gribējis katlu nocelt, tos abus saukt ēst, tā - kur gadījies, kur ne -
+Dzelzsčauksture no krāsns zemē, pie katla klāt un nu grib ēst. Egļuvijējs, zināms,
+neļauj. Kā neļauj, tā Dzelzsčauksture šo ar asti gandrīz nosit un ēd, cik patīk.
+Pārnāk tie - ēdiens izēsts. Otrā dienā Kalnugrūdējam tāpat.</p>
+
+<p align="JUSTIFY">Trešo dienu Mežauckus gan neļaujas, tas kā dod ar koku
+Dzelzsčauksturim, padara slābanu un iespīlē šo vienā istabā klucī. Nu steidz
+biedrus pasaukt - rādīt. Bet kamēr tie pārronas, Dzelzsčauksture nozūd caurumā.</p>
+
+<p align="JUSTIFY">Pa šo caurumu Mežauckus dzenas pakaļ un atrod apakšā meitu vienā
+pilī. Tā saka, lai pārmainot kausus, un lai viņš dzeŗot no tā kausa, kas viņai pa
+labi roki stāvējis. Labi. To padarījis, Mežauckus spējis lielo zobinu cilāt, kas
+pili atradies, un nonāvējis ar šo ieroci lielo ērgli, kas gultā gulējis.</p>
+
+<p align="JUSTIFY">Nu biedri uzvilkuši meitu augšā, bet Mežaucku atstājuši apakšā.
+Tad Mežauckus, pa apakšu staigādams, uzgājis Dzelzsčauksturi un teicis tā: "Ja
+tu mani neiznesīsi ārā, es tevi nositīšu!"</p>
+
+<p align="JUSTIFY">Dzelzsčauksture tūdaļ nesis. Uznesis - ieraudzījis: abi biedri ar
+meitu patlaban steigušies prom, uz māju. Skrējis pakaļ, un kā licis katram biedram
+vienreiz par ausi - tie pagalam.</p>
+
+<p align="JUSTIFY">Nu apprecējis atrasto meitu un dzīvojis laimīgi.</p>
+
+
+</body></html>

@@ -1,0 +1,201 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>36</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Muļķis par slepkavu.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b><strong>l. </strong>A. 1600. Skolnieks J. Bernāts no A.
+Jušķevices Nicā, K. Lielozola kr.</p>
+
+<p align="JUSTIFY">Vienam tēvam bija trīs dēli: divi gudri un viens muļķis. Tas tēvs
+izraidīja vienu gudro dēlu govis ganīt, bet viņš nevarēja govis noganīt un ielaida
+mežā.</p>
+
+<p align="JUSTIFY">Otru dienu tēvs raidīja otru gudro dēlu govis ganīt, bet tas
+nevarēja vēi ne tik labi noganīt kā pirmais.</p>
+
+<p>Trešo dienu muļķis teica: "Es iešu govis ganīt."</p>
+
+<p align="JUSTIFY">Tēvs sacīja: "Ja tie divi nenoganīja, tad tu ne tik
+nenoganīsi." Muļķis paņēma lāpstu un gāja lopus ganīt. Muļķis ganīja lopus
+mežā un rakšņāja. Rakšņāja tikmēr, kamēr uzraka naudu. Muļķis pāriet mājā
+un saka saviem diviem gudriem brāļiem, ka viņš atradis naudu. Gudrie brāli iejūdz
+zirgu un brauc naudai pakaļ. Nobrauc naudai paka&amp;127; un piekŗauj pilnu vezumu.</p>
+
+<p align="JUSTIFY">Naudu vedot mājā, satiek mācītāju. Mācītājs prasa: "Ko
+jūs tur vedat?"</p>
+
+<p>"Ķieģeļus vedam," atteikuši gudrie.</p>
+
+<p align="JUSTIFY">Mācītājs neklausa un iet skatīt. Redzēdams naudu, viņš prasa,
+lai dodot arī viņam no naudas.</p>
+
+<p align="JUSTIFY">Gudrie teica: "Pēc, kad brauc atpakaļ, piebrauc pie mums, tad
+ceturto daļu dabūsi."</p>
+
+<p align="JUSTIFY">Naudu pārveda mājā. Divi gudrie iegāja iekšā naudu skaitīt;
+muļķi nostellēja vārtos ar mietu, iai uzskata, kamēr mācītājs brauks, un kad
+braucot, tad lai svelpjot.</p>
+
+<p align="JUSTIFY">Mācītājs atbrauc vārtos, bet muļķis paņem mietu un to nosit. Kad
+muļķis ienāk iekšā, gudrie prasa: "Vai brauc?"</p>
+
+<p align="JUSTIFY">"Jā!"</p>
+
+<p>"Kāpēc tu nesvilpi?" </p>
+
+<p>"Es jau svilpu." </p>
+
+<p>"Kur ir, kad svilpi?"</p>
+
+<p>"Rau, tur vārtos viņš guļ!"</p>
+
+<p align="JUSTIFY">Gudrie iet skatīt un redz, ka muļķis mācītāju nositīs. Viņi
+domāja: slikti nu būšot, muļķis jau nu pateikšot tā kā tā, ka nositis
+mācītāju.</p>
+
+<p align="JUSTIFY">Gudrie nokauj kazu, ieliek pagrabā tur, kur jau mācītāju agrāk
+bija paslēpuši, iznes mācītāju un parok aiz staļļa, lai muļķis nezin, kur
+palicis.</p>
+
+<p align="JUSTIFY">Otru dienu atnāk policija un meklē mācītāju. </p>
+
+<p align="JUSTIFY">Muļķis teic: "Tur jau viņš pagrabā guļ!"</p>
+
+<p align="JUSTIFY">Policija liek muļķim, lai iet mācītāju nest laukā. Muļķis ieiet
+pagrabā, lai nestu mācītāju laukā.</p>
+
+<p align="JUSTIFY">"Lūk, cienīgi kungi, vai tam mācītājam ragi ar ir?" </p>
+
+<p align="JUSTIFY">"Ē, muļķi, ko tu tur runā, nes laukā!"</p>
+
+<p align="JUSTIFY">"Lūk, cienīgi kungi, vai tam mācītājam bārda ar ir?" </p>
+
+<p align="JUSTIFY">"Ē, muļķi, ko tu tur runā, nes laukā!"</p>
+
+<p align="JUSTIFY">"Lūk, cienīgi kungi, vai tam mācītājam spalva ar ir?" </p>
+
+<p align="JUSTIFY">"Ē, muļķi, ko tu tur runā, nes laukā!"</p>
+
+<p align="JUSTIFY">"Lūk, cienīgi kungi, vai tam mācītājam lipa ar ir?" </p>
+
+<p align="JUSTIFY">"Ē, muļķi, ko tu tur runā, nes laukā!"</p>
+
+<p>"Lūk, cienīgi kungi, vai tam mācītājam nagi ar ir?"</p>
+
+<p>"Ē, muļķi, ko tu tur runā, nes laukā!"</p>
+
+<p align="JUSTIFY">"Lūk, cienīgi kungi, vai tam mācītājam pupi ar ir?" </p>
+
+<p align="JUSTIFY">"Ē, muļķi, ko tu tur runā, nes laukā?"</p>
+
+<p align="JUSTIFY">Muļķis paņēma kazu, nes laukā un nosviež kungiem priekšā. Kungi
+teic:</p>
+
+<p>"Muļķis tu esi, muļķis tu paliksi!" sašauj zirgiem un aizbrauc.</p>
+
+
+</body></html>

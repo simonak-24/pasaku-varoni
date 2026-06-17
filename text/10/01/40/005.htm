@@ -1,0 +1,192 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>1004005</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Ķēniņš Brusubārda.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">5. A.<b> </b>900. H. Skujiņa, Andrs Ziemelis, no
+Emmas Briedes Aumeisteŗos.</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam ķērnīnam bīsi viena pati meita un tā bīsi skaudīgi smuka
+un lepna. Viņa nevarēsi vie sev vīra izmeklēt. Tam tāda vaina, tam tāda. Tas esot
+par daudz runīgs, tam lielas ausis tā princese visus izzākāsi un ne pie viena negāsi.
+Vecam ķēnīnam gan tas nebīš pa prātam, bet šis darīt ar nekā nav varēš.</p>
+
+<p align="JUSTIFY">Aiz septiņām valstim dzīvāš tāds ķērnīc ar nesmuku bārdu, bet
+dikti labsirdīgs un bagāts. To ķērnīnu saukuši par Strazdabārdu. Strazdabārda
+gribēš precēties. Šie nu abi - Strazdabārda un vecais ķērnīc - norunāši, ka šim
+(Strazdabārdam) jāņem lepnā princese par sievu. Vecais kērnīc bīš traki priecīgs
+un sacīš, lei tik Strazdabārda brauc precībās.</p>
+
+<p align="JUSTIFY">Nu Strazdabārda sapucējies un braucis pie lepnās princeses
+precībās. Bet kā princese redzējusi Strazdabārdu, tā tam uz rāvienu atsacīsi, jo
+tam esot traki nesmuka bārda. Neko darīt, Strazdabārdas ķērnīc braucis prom.</p>
+
+<p align="JUSTIFY">Bet nu vecais ķērnīc ar tā noskaities, ka bailes, un sacīš lepnai
+princesei, lei sataisās, ka viņč izdošot tam, kas tai un tai diena pirmais no rīta
+pie pils atnākšot. Gan nu lepnā princese lūgusies un raudāsi, lei tā nedara, bet
+vecais ķērnīc palicis pie sava. Nu vecais ķērnīc sūtīš slepēnu ziņu
+Strazdabārdas ķērnīnam un tam visu paziņoš, kā lei dara un kā būs.</p>
+
+<p align="JUSTIFY">Kā nu pienākusi tā diena, ka vecais ķērnīc bīš nolicis lepno
+princesi atdot tam, kas pirmais pils pagalmā ienāks, tā nu Strazdabārdas ķērnīc
+pārģērbies par nabagu, atnācis pie ķērnīna pils pats pirmais un lūdzis dāvānas.
+Vecais ķērnīc cēlies augšā un redzēš. ka nabags ir jau klā. Viņč cēlis lepno
+princesi augšā un sacīš, lei sataisās, ka var iet nabagam līdza, jo šis esot
+pirmais, kas šorīt pie pils pienācis. Nu princese sākusi traki raudāt un vaimanāt,
+ka šai jāejot pie nabaga. Nekas nelīdzēš, vecais ķērnīc turēš doto vārdu un
+atdevis lepno princesi nabagam par sievu,</p>
+
+<p align="JUSTIFY">Nabags aizvedis lepno princesi uz pirti un tur nu abi dzīvāši. Pa
+dienām nabags gāš apkārt diedelēdams un princese tam vārīsi putru un lāpīsi
+drēbes. Bet nabagam ar diedelēšanu gāš arvien švakāki un švakāki un pēdīgi tas
+vais nekā nav varēš sadiedelēt. Tā nu šis sacīš uz šo, ka tā ilgāki nevar
+dzīvāt, šai ar esot kas jāpelna. Lei šī sataisoties, ka varot ar mālu traukim uz
+tirgu braukt. Nu Strazdbārda sapircis mālu bļodas un krūzes un sūtīš princesi uj
+tirgu. Princese sakrāvusi traukus mazos rokas vāģīšos un aizvilkusi uz tirgu.</p>
+
+<p align="JUSTIFY">Kā nu princese uz tirgu aizbraukusi, tā Strazdabārda tūlī skrēš
+uz savu pili un saģērbies lepnās ķērnīna drēbēs, sēdies varēnam zirgam mugurā
+un uz tirgu prom. Tur nu viņč lēkšu lēkšim iedrāzies princeses traukos, salauzis un
+sabradāš visu līdz pēdīgam un tūlī aka no tirgus prom. Gan princese kliegusi un
+vaimanāsi, bet ko nu vais - lepnais ķērnīc bīš jau lielā gabalā.</p>
+
+<p align="JUSTIFY">Princese gāsi raudādama uz māju. Vakarā aka pirtīnā atnācis
+Strazdabārda, par nabagu pārģērbies, un princese tam raudādama stāstīsi, kā svešs
+lepns ķērnīc sabradāš viņas traukus un aka tūlī aizjāš. Abi izbēdāšies un ta
+Strazdabārda sacīš: "Ej nu rītā uz Strazdabārdas ķērnīna pili, tur būšot
+viesības, lūkā tikt par ķēķa meitu. Ta tev ies labāki un man ar varēsi ko
+atnest."</p>
+
+<p align="JUSTIFY">Rītā princese gāsi uz Strazdabārdas ķērnīna pili un viņa tur
+dabūsi ķēķšas vietu. Pa dienu princese sazebīsi dažādus gardumus un saldumus un
+vakarā nesusi uz māju. Abi nu bīši traki laimīgi. Pēc nedēļas Strazdabārdas
+ķērnīna pilī bīšas viesības. Pats Strazdabārda bīš varēn lepni sapucējies un
+ciemīnu bīsi pilla pils. Princese nu aka sazebīsi dau gardumu un saldumu un sabērusi
+kulītē, kas bīsi apakš brunčiem ietaisīta. Vakarā viņai ar iegribējies
+paskatīties, kā zālē denco, un tā gāsi iekšā. Te uzreiz Strazdabārdas ķērnīc
+pienācis klā un sācis to griezt pa zāli, kā negudrais. Gan princese pretosies un
+sacīsi, lei laiž vaļā, bet nekas nelīdzēš un Strazdabārda griezis princesi vē
+ātrāki. Kulīte no brunču apakšas atraisīsies un princeses sazebītie gardumi un
+saldumi šķīduši uz visām pusēm. Princese nu nezināsi no kauna, ko iesākt, ko
+darīt. Citi ciemīni pamanīši izbirušos gardumus sākuši smiet. Bet tad
+Strazdabārdas ķērnīc uzreiz sacīš: "Tā ir mana brūte!" un devies
+princesei pazīstams.</p>
+
+<p align="JUSTIFY">Abi nu bīši traki laimīgi un dzēruši varēn priecīgas kāzas.
+Pēc šitā visa arī lepnā princese bīsi labosies. Viņa vais nebīsi tik lepna un
+uzpūtīga, kā agrāk. Tā nu abi dzīvājuši laimīgi.</p>
+
+</font><blockquote><font size="3">
+  </font><blockquote><font size="3">
+    <p>P i e z. Sal piezīmes pie iepriekšējiem variantiem. P. Š.</p>
+    </font><font size="1">
+  </font></blockquote><font size="1">
+</font></blockquote><font size="1">
+</font>
+
+
+</body></html>

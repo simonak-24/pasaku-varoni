@@ -1,0 +1,170 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Impampis.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">2. A. 571. Ūdris Jaun-Brenguļu pag. L. P. V,
+370 (162, 2).</font></p><font size="3">
+
+<p align="JUSTIFY">Pie kāda muižnieka dzīvoja puisēns. Tam bija balta kaziņa jāgana,
+bet viņš negribēja ganīt. Kungs nokūla puisēnu un aizdzina tīrumā kaziņu ganīt.
+Puika tīrumā stāvēja pie kaziņas un raudāja. Pienāca vecītis, vaicādams:
+"Dēliņ, ko raudi?"</p>
+
+<p>"Kungs mani kūla, ka kaziņu neganot."</p>
+
+<p align="JUSTIFY">"Neraudi vis, dēliņ; še tev šī kūja, iespraud tīrumā, tad
+kaziņa paliks pie kūjas un neies nekur."</p>
+
+<p align="JUSTIFY">Puika iesprauda tīrumā kūju un pārgāja mājā; bet kaziņa palika
+pie kūjas un negāja nekur. Bet nu atkal nokūla muižkungs puisēnu un aizdzina tīrumā
+kaziņu ganīt. Puisēns saskaitās kūliena dēļ, aizgāja tīrumā, izrāva kūju un
+steidzās prom; bet kaziņa kā piesieta staigāja kūjai pakaļ. Gāja, gāja - iegāja
+ciemā; bija sestdienas vakars. Pašu laiku vīrieši bija noģērbušies, vēl meitas
+tikai pērās. Puisēns iedūra kūju pirts priekšā un pats ielīda pirtī nopērties
+balts. Bet meitas, puisēnu pirtī ieraudzīdamas, tā nobijās, tā nobijās. Tūliņ
+visas kliegdamas izskrēja ārā; bet skrienot viena piedūrās netīši kaziņai: tā
+palika pie kaziņas un netika vairs nost. Nu steidzās otra meita pirmo pestīt; bet līdz
+pirmai pirkstus pielika, netika vairs nost. Puisēns nopērās, paņēma kūju un griezās
+mājā; bet kūjai sekoja kaziņa un kaziņai sekoja meitas. Pārgāja mājā - muižkungs
+pretim: kur viņš tās meitas vadājot?</p>
+
+<p>"Es jau viņas nevadāju - kaziņa vadā, es vadāju kūju."</p>
+
+<p align="JUSTIFY">Muižkungs sašutis pieskrēja meitas pestīt; bet līdz pirkstus
+piedūra, palika pie meitām. Bija jāiet gar kunga pili, kungs pretim: kur viņš to
+muižkungu vadājot?</p>
+
+<p align="JUSTIFY">"Es jau nevadāju - meitas vadā viņu, kaziņa vadā meitas, es
+vadāju kūju."</p>
+
+<p align="JUSTIFY">Kungs sašutis pieskrēja muižkungu pestīt; bet līdz pirkstus
+piedūra, palika pie muižkunga. Nu puisēns taisni gāja uz pilsētu ar visu baru.</p>
+
+<p align="JUSTIFY">Bet tai pilsētā dzīvoja vecs ķēniņš un tam bija neiesmīdināma
+meita. Ķēniņš tanīs dienas bija izziņojis pilsētā: "Kas manu meitu
+iesmīdinās, tam atdošu viņu par sievu un iecelšu par jauno ķēniņu."</p>
+
+<p align="JUSTIFY">Nu, zināms, nāca šādi, nāca tādi ķēniņa meitu smīdināt, bet
+velti: meitai lūpas ne vīpsnāt nepavīpsnāja. Tomēr it neviļot tagad puisēnam
+gadījās ķēniņa pilij garām iet. Ķēniņa meita, pie loga adīdama, pacēla acis un
+ieraudzīja neredzētus brīnumus: kūja pie puikas, kaza pie kūjas, meitas pie kazas,
+muižkungs pie meitām, kungs pie muižkunga. Viņa skaļi iesmējās un sauca ķēniņu:
+"Tēt, tēt, nāc skatīties, kādi te joki! Te jau smiekli bez gala."</p>
+
+<p align="JUSTIFY">Bet ķēniņš tūliņ iesauca puisēnu, sacīdams: "Tu esi mans
+znots! rītu būs kāzas un parītu būsi manā vietā ķēniņš."</p>
+
+<p align="JUSTIFY">Nu puisēns taisījās pats savās kāzās un iesita ar kūju kaziņai
+- kaziņa atgāja no kūjas, iesita ar kūju meitām - meitas atgāja no kaziņas, iesita
+ar kūju muižkungam - muižkungs atgāja no meitām, iesita ar kūju kungam - kungs
+atgāja no muižkunga. Visi pārgāja mājā; bet puisēns palika ķēniņa pilī par
+jauno ķēniņu un turēja kaziņu labi.</p>
+</font>
+
+
+</body></html>

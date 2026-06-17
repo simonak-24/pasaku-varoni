@@ -1,0 +1,186 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Velna vārds.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>&nbsp;</b></p>
+
+<p align="JUSTIFY">2.A. 500. Z. Sēle Smārdē. A. Bērzkalnes krājumā. </p>
+
+<p align="JUSTIFY">Vienai mātei meita bija ļoti slinka. Māte bija tīri apnikusi, ka
+nevarējusi meitu pie darba piespiest. Bet reiz norakstījusi tādu uzrakstu un uzlikusi
+pie savas mājas, ka viņas meita mākot vērpt no salmiem dzeltānu zīdu, un no siena
+zaļu zīdu.</p>
+
+<p align="JUSTIFY">Otrā dienā braucis gāŗām ķēniņš, un tas gājis iekšā un
+prasījis mātei, lai dodot viņam to meitu. Viņš teica, ja viņa tā mācēšot vērpt,
+tad viņš to precēšot, bet ja nemācēšot, tad abām galvas nocirtīšot. Māte atdod
+ķēniņam meitu, un tas to ved sev līdzi.</p>
+
+<p align="JUSTIFY">Vakarā ķēniņš viņu ieved lielā kambarī tur bija liels vezums
+salmu, un ķēniņš viņai to liek savērpt. Meitene vakarā ieiet kambarī un raud.
+Viņa tā raud līdz divpadsmitiem un žēlojās, ko nu iesākšot.</p>
+
+<p align="JUSTIFY">Kad pulkstens sit divpadsmit, pa logu ielec mazs vīriņš kā
+īkšķis, tas saka: "Es tev palīdzēšu savērpt, bet tev tavā kāzu naktī
+jāuzmin mans vārds, ja neuzminēsi, tad es tevi pašu paņemšu."</p>
+
+<p align="JUSTIFY">Viņa apsolās uzminēt, lai viņš tik savērpjot. Viņai tūlin
+uznāk miegs, viņa aizmieg un mazais īkšķītis vērpj, ka čab vien. No rīta viņa
+uzmostas, apskatās: visi salmi savērpti un pilna istaba dzeltānu zīda dziju. Velāk
+ienāk ķēniņš un ļoti priecājās, redzēdams, ka visi salmi savērpti zīdā!</p>
+
+<p align="JUSTIFY">Otrā vakarā tai pašā istabā ieliek veselu vezumu siena. Meitene nu
+raud atkal. Pulksten divpadsimtos atnāk atkal īkšķītis un viņa atkal iemieg. Viņa
+gan bija nodomājusi neiemigt un noskatīties, kā īkšķītis to dara, bet nevarējusi
+noturēties un aizmigusi.</p>
+
+<p align="JUSTIFY">No rīta viņa uzcēlusies: siena vairs nav, bet tai vietā istaba
+pilna zaļa zīda. Kad ķēniņš ienācis, viņš ļoti priecājies, ka atradis sev tādu
+sievu; nav licis viņai vairs vērpt un noteicis, ka pēc trīs dienām būšot kāzas.
+Bet viņa vienumēr bijusi joti bēdīga, nav ne odusi, ne dzērusi, vienumēr tik
+domājusi, ka tik varētu uzminēt īkšķīša vārdu. Viņa no lielām bēdām bijusi
+pavisam slima, un arī ķēniņš sācis bēdāties, jo nekādi nav varējis viņu
+apmierināt. Ķēniņš nezināja iemeslu, kādēļ tas notiek, jo viņa tak nedrīkstēja
+stāstīt patiesību.</p>
+
+<p align="JUSTIFY">Ķēniņš sūtījis sulaini uz mežu nošaut kaut kādu zaķi, varbūt
+ar to viņu iepriecināšot. Sulainis mežā uzgājis mazu mājiņu, pavisam kā
+riekužiņu. Lodziņš bijis tik maziņš un zems, ka sulainis nav varējis iekšā
+ieskatīties. Kad viņš nogulies zemē, tad tik varējis iekšā redzēt. Iekšā bijuši
+divi mazi vaŗa katliņi, un mazs vīriņš kā īkšķītis lēcis no viena uz otru un
+saucis: "Kad tu to zinātu, ķēniņa brūte, ka man ir vārda Vitingtrūts, tad tu
+gardi smietos."</p>
+
+<p align="JUSTIFY">Sulainis nodomāja, ka tas ir kaut kas svarīgs ķēniņa brūtei. un,
+lai neaizmirstu, viņš uzrakstījis šo vārdu un aizspraudis aiz cepures.</p>
+
+<p align="JUSTIFY">Mājās ejot, viņam arī izdevies nošaut zaķi. Ķēniņa brūte,
+redzēdama sulaini nākam ar zaķi, skrēja viņam pretī, izrāva zaķi no rokām un,
+ieraudzījusi zīmīti, arī to paķēra un aizskrēja uz savu istabu. Izlasījusi
+zīmīti, viņa palika ļoti priecīga, bet ķēniņš domāja, ka viņa priecājas par
+zaķi.</p>
+
+<p align="JUSTIFY">Kāzu vakars bija klāt, pulksten divpadsmitos pa logu pie ķēniņa
+brūtes iekāpis īkšķītis un teicis: "Uzmini nu!"</p>
+
+<p align="JUSTIFY">Viņa teikusi: "Miķelītis." Viņš teicis:
+"Nekā!" Viņa teikusi: "Jānītis". Atkal nekā.</p>
+
+<p align="JUSTIFY">Tad viņa teikusi? "Vit...", bet tālāk nav tikusi un tūlin
+īkšķītis izlēcis pa logu ārā, uzkritis uz kāposta galviņas un nosities.</p>
+
+<p align="JUSTIFY">Kad kāzas bija nosvinētas, jaunais pārs gāja pa dārzu
+pastaigāties. Iedami caur kāpostu dārzu. viņi ieraudzīja īkšķīti beigtu.
+Ķēniņiene teikusi: "Tas mums jāņem un jāapglabā, viņš jau būs kādreiz
+kādam labu darījis."</p>
+
+<p align="JUSTIFY">Ķēniņš licis izliet zelta zārku un nu paglabājuši ar lielu godu
+mazo īkšķīti.</p>
+
+
+</body></html>

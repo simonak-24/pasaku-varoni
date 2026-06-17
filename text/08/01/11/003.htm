@@ -1,0 +1,175 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Ar vienu burvju lietu iekaŗo otru.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">3. A. 569. B. Oltiņš, Kr. Elksniešu izloksnē.
+Jkr. II, 132. l. p. LP. VII, II, 21, l, 5.</font></p><font size="3">
+
+<p align="JUSTIFY">Kādam nabogam tāvam beija vīns vīneigs dāls. Kad tāvs beija jau
+nūmirs, tad muļķais dāls nū bāduom guoja meklēt upei gola. Pī upes gola pīguojs,
+atrads vīnu rīkstiņu, nū kura oudins tecējs. Rīkstiņu aizbuozs un leidze pajēms,
+guojs pa pasauli vanderēt, leidz komēr pīguojs pī vīnas pils, kur tuos zemes
+ķēniņš dzeivūja, un kur zemē nimoz oudiņa nabejs. Pī ķēniņa nūguojs, loudz nū
+tuo nakts muojas vītu. Ķēniņš touleit suocs jautuot, nū kurīnes tis asuot, un savu
+nalaimi izstuostējs, ko šā zemē naasūt nimoz oudiņa. Muļķis atteics, ko šam it
+nimoz oudiņa navajagūt, bet lai dūdūt tikai nakts muojas vītu, kū ari ķēniņš
+deve.</p>
+
+<p align="JUSTIFY">Reitā, kad muļķis jau beija izsagulējs un brūkasti paēds,
+īsagribējās ari viņam dzert. Touleit nū kules rīkstiņu izjēms, izguojs uorā un
+kad dūbeitē rīkstiņu vaļā attaisījs ītacinājs oudentiņu.</p>
+
+<p align="JUSTIFY">Ķēniņš, tū radzādams, īsaucs muļķi ustabā un prasējs, kur
+asūt tuodu rīkstiņu jēms, nū kuo oudentiņš tak. Muļķis ari izstuostējs, ko upes
+golā tuodu rīkstiņu atrads.</p>
+
+<p align="JUSTIFY">Touleit ķēniņš pavālējs daudz okas un deiķus izrakt, kuŗus
+visus nū rīkstiņa pītacīnaja pilnus ar oudeni. Par tuodu lelu lobumu muļķais dāls
+sajāms stipri daudz naudas un caur tam palics pavisam boguots.</p>
+
+<p align="JUSTIFY">Pēc tam, naudas kuli sajāms, guojs tuoluok, pīguojs pī kuoduom
+prīdeitēm, kas stipri louzušas: tivuoks apskateidamīs īraudzējs, ko kuods mozs
+zūbeniņš tuos zemē ciert.</p>
+
+<p align="JUSTIFY">Tuodu pajamdams, guojs tuolnok, leidzi pīguojs pī kuodim lelim
+calmim, ap kurim kuods zūbs skraidīja.</p>
+
+<p align="JUSTIFY">Zūbu leidzi pojamdams, guojs po ceļu tuoluok, leidz pīguoja pī
+kuodas pils, kur beija itin daudz ļaudis ap kuodu lelu ūzūlu sasapulcējušīs. Ļaudis
+radzādams, muļķais dāls breinādamīs īguoja pilī apsavaicuotīs, par kū šī
+ļauds, kas beija nū augstas cilts, šite gaidūt. Pils pogolma sulains izstuostējs, ka
+asūt šituos pils īpašnīkam stipri smuka meita, kū visi šitī sasapulcējušīs
+prinči un visuodi leimaņi gribūt precēt, bet jaunava naeimūt pī it nivīna, gribūt
+tikai pī tuoda īt, kurs šū ūzūlu ar 10 ciertīeņim nūcierstu. Bet nū lelmaņim
+tuoda nuvīna naatsarūdas. Tū dzierdādams, muļķais dāls touleit izvilcs savu
+zūbintiņu, un ar treis cirtīeņim ūzūlu<b> </b>nūcierts. Ķēniņa meita, radzādama
+tuodu nūpleisušu veiru, nagribēja pī tuoda īt, bet par kavēkli teikuse: Lai tū
+ūzūla calmu nū zemes izraunūt un lai puorsvīžūt par pili. Muļķais dāls tū ar
+savu zūbu izdarēja. Pēc tam touleit tics skaistuos drēbēs apģērbts un ar ķēniņa
+meitu salauluots, bez ķēniņa atļaušanas, slapani. Par tuodu brouguonu ķēniņš
+dusmeigs boudams, sasavīnavīs ar citim prinčim un suokuši karu celt pret muļķa
+dālu. Muļķais dāls, tuodu kaŗa reikūšanūs radzādams, sācs bāduotīs, kū lai
+nou dorūt. Bāduodamīs īraudzējs, ka kuods bolts<b> </b>zirgs, pa gaisu skrīdams,
+taisni iz viņa laižuos un tivuok nūnuocs ari nūsalaidīs pī viņa dzeivūkļa. Tuodu
+zirgu radzādams, suocs prīcuotīs, ka nou boušūt zirgs lobs, ar kū viņam pošam
+karā juot.</p>
+
+<p align="JUSTIFY">Nūteikta kara dīna jau beija kluot. Apsabruņūdamīs un, pajemdams
+leidze savu zūbinu, juojs ar boltū zirgu iz karu. Kara loukā nūnuocs, suocs ar savu
+zūbinu kautīs un ar boltū zirgu pa gaisu skrīdams, visu īnaidnīka kara spāku
+nūkavs. Caur visu kara spāku nūkaušanu bejs muļķais dāls par izvinnātuoju palics.</p>
+
+<p align="JUSTIFY">Ķēniņš un visi citi prinči, tū radzādami, pasadavušīs
+muļķajam dālam um pēc tam dzāruši kuozas muļķajam dālam ar ķēniņa meitu. Caur
+tam ari muļķais dāls palicis par lelu zemes valdinīku, kam visi prinči palikuši
+apakšnīki un dzeivuo vēl leidz šam krašnumā um graznumā, par savu zemi taisni caur
+gudrim padūma devējim valdeidams.</p>
+</font>
+
+
+</body></html>

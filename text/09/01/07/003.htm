@@ -1,0 +1,167 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font face="RimTimes" size="3">
+
+</font><p align="center"><font face="RimTimes" size="3"></font><font size="5"><strong>Čūsku ķēniņa kronis. </strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">3. A. 672. Krēsliņu Jānis Alsviķu pag.,
+"Latviešu teikas iz Malienas". I, 1888, 8, 3. LP, VII, I, 1262, 1.</font></p><font size="3">
+
+<p align="JUSTIFY">Jau senlaikos ļaudis zināja, ka Dzeņu lielajā purvā neizmēvecs,
+ar sūnam un zāli apaudzis, melns kā nakts, deviņām ugunīrojamā bezdibenī mājo
+čūsku ķēniņš. Čūsku ķēniņš izskatījās ļoti gām strīpām pār muguru. Bet
+galvā čūsku ķēniņam zelta vaiņags ar pērlēm un dārgiem akmeņiem, kas saulē
+mirdzēja neskaitāmās krāsās, Čūsku ķēniņa vaiņags bija daudz dārgāks, nekā
+vesela ķēniņa valsts. Tāds, kas vaiņagu spētu iemantot, nekad nemirtu, bet dzīvotu
+mūžīgi un 'būtu gudrs.</p>
+
+<p align="JUSTIFY">Par simtu gadiem reiz čūsku ķēniņš atstāja savu tumšo midzeni
+un nāca virs zemes saules staros sildīties un citām čūskām padomu dot, lai tās ar
+cilvēkiem nemitēdamās ved kaŗu.</p>
+
+<p align="JUSTIFY">Zelta vaiņags ar savu burvja spēku gan dažu vilināja; bet neviens
+nekad neiedrošinājās čūsku ķēniņam tuvoties; jo zināja, ka viņa acu skatienam
+tāds brīnuma spēks, ko tas uzskata, acumirklī jāmirst.</p>
+
+<p align="JUSTIFY">Reiz Zagadu ciema ļaudis Dzeņu purvā ,izdzirda briesmīgu
+šņāškanu un spiegšanu un tūliņ saprata, ka čūsku ķēniņš pēc simtu gadiem
+iznācis dienas gaismā. Viss lielais purvs ņudzēja un mudžēja no tūkstošu
+tūkstošām čūskām, kas no visām malām bija sapulcējušās Dzeņu purvā čūsku
+ķēniņu sagaidīt atnākam. Ļaudis bija ļoti izmisuši, ka čūsku ķēniņš padarīs
+viņiem ko ļaunu. Vēsts par čūsku ķēniņa parādīšanos drīzi vien izpaudās visā
+apgabalā un jau trešā dienā pie Dzeņu purva atjāja daiļš jauneklis baltā zirgā
+ar kailu zobenu rokā. Jauneklis bija svešs, bija jājis caur triju ķēniņu zemēm, lai
+tikai iemantotu čūsku ķēniņa vaiņagu. Zagadu ciema ļaudis dzirdēdami, kas
+jauneklim nodomā, viņu gauži lūdza čūskas mierā likt; bet jauneklis nebija
+atrunājams. Kā zibens viņš iešāvās ar balto zirgu purvā, zobenu augstu gaisā
+turēdams. Bija pati pusdiena un čūskas gulēja saritinājušās saulē. Jātnieks
+laimīgi sasniedza cini, uz kā pats čūsku ķēniņš snauda, un apkārt viņam gulēja
+saritinājušās daudz tūkstošu citu čūsku. Ātri zobens gaisā nospīdēja un čūsku
+ķēniņa vaiņags ar vienu cirtienu bija nocirsts, iekām čūsku ķēniņš jātnieku
+spēja ar savu skatienu apburt. Čūsku ķēniņa vaiņagu zobena galā uzdūris,</p>
+
+<p align="JUSTIFY">viņš steidzās projām; bet čūskas tam metās virsū no visām
+pusēm. Jauneklis cirta ar zobenu čūskām, ko tikai jaudaja; bet cērtot čūsku
+ķēniņa vaiņags no zobena gala nokrita zemē. Čūskas, vaiņagu atdabūjušas, bija
+apmierinātas un aiznesa vaiņagu čūsku ķēniņam atpakaļ un to tam uzlika galvā.</p>
+
+<p align="JUSTIFY">Jauneklis gan domāja laimīgi no čūsku vidus laukā ticis, kad
+čūskas, ķēniņa uzmudinātas, sāka tam pakaļ dzīties. Čūskas, uz vēdera lienot,
+nevarēdamas jaunekļa panākt, sametās ritenī un, astes zobos iekodušas, lielā
+ātrumā devās jauneklim pakaļ. Gan jaunekļa zirgs skrēja kā zibens, bet čūsku
+riteņi nāca arvien tuvāk. Ļaudis, redzēdami jaunekli tādās briesmās, ātri
+sakrāva lielu sārtu čūskām ceļā un to aizdedzināja; bet čūskas pārlēc par
+sārtu pāri. Jau čūskas bija jātniekam gluži klāt, jau sāka tīties zirgam ap
+kājām. Jauneklis, redzēdams, ka jāšus nevar glābties, nolēca no zirga un devās
+kājām skriet, ko jaudāja. Čūskas pa tam aprija zirgu, tā ka tikai kauli vien
+atlikās. Arī jauneklis nebūtu izmucis čūskam, ja tuvumā nebūtu pagrabs ar dzelzu
+durvim. Viņš tik ko paspēja tur iesprukt un durvis aizšaut, tad čūskas kā riteņi
+viena pēc otras atsitās pret durvim. Viņas mēģināja caur durvim vai mūri cauri
+tikt, bet siena bija biezas un durvis cietas. Trīs dienas čūskas krimta un ložņaja ap
+pagraba durvim un tad tik aizvilkās projām.</p>
+</font>
+
+
+</body></html>

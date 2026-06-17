@@ -1,0 +1,197 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>23</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vienacīte, Divacīte, Trijacīte.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">23. A. 511.510. J. Lautenbachs no K. Lautenbachas. </p>
+
+<p align="JUSTIFY">Vienreiz bijusi sērdienīte, kuŗai saimniece devusi ganos jo daudz
+vērpjamā līdz, tā ka nevarējusi savērpt, un bīdamās no saimnieces niknas
+rāšanas, tā gauži raudājusi. Te pienācis pie viņas vecs vīriņš un prasījis, ko
+viņa raud. Kad tā viņam izteikusi savu likteni, tad vecais vīriņš sacījis, lai
+viņa tās vērpjamās pakulas dod sarkanai govsniņai ēst, tad pa ausim nāks smalkas
+dzijas ārā un tīsies uz govsniņas ragiem.</p>
+
+<p align="JUSTIFY">Sērdienīte tā darīja un tapa ar darbu drīz galā. Saimniece
+sūtīja otrā dienā sērdienītei savu meitu ganos līdz, lai tā noskatās, kā viņa
+var tik daudz darba padarīt. Mātes meita, bez darba būdama, lika, lai sērdienīte
+viņai paieskā galvu. Sērdienīte, tai galvu ieskādama, dziedāja: "Migu, migu,
+vien' actiņa, līdz aizmiga otr' actiņ'!" Kad mātei meita bija aizmigusi, tad
+sērdienei līdzēja atkal sarkanā govsniņa to darbu padarīt.</p>
+
+<p align="JUSTIFY">Otrā dienā sūtīja saimniece savu otru meitu, kurai bija maza
+trešā actiņa pakausī, ko neviens nevarēja redzēt. Arī tā lika sērdienītei galvu
+ieskāt. Sērdiene, tai galvu ieskādama, atkal dziedāja: "Migu, migu, vien'
+actiņa, līdz aizmiga otr' actiņa!" atkal līdzēja sarķīte sērdienītei tās
+darbu padarīt.</p>
+
+<p align="JUSTIFY">Bet mātes meita, kas ar savu trešo aci bija redzējusi, ka sarķe
+sērdienei līdz vērpt, to pateica savai mātei. Tā lika tūliņ govsniņu sarķīti
+nokaut. Nu raudāja sērdienīte gauži, gauži. Atkal pienāca tai klāt vecais vīriņš
+un mācīja tai, lai aprok tā savas mīļās sarķītes kaulus apakš tā istabas loga,
+kur viņa pati guļ. Kad sērdiene tā bija darījusi, tad no tiem kauliem izauga ābele
+ar zelta āboliem. Kad saimniece ar savām meitām pie ābeles gāja raut kādu ābolu,
+tad ābele pacēlās uz augšu, ka nevarēja ābolus sasniegt; bet kad tai sērdienīte
+piegāja, tad tā zemu zemu noliecās.</p>
+
+<p align="JUSTIFY">Pēc tam gāja mātes meitas baznīcā un nejēma sērdienīti līdz,
+bet piebēra sieku ar linsēklām un pelniem un lika tās sērdienītei izlasīt.
+Sērdiene raudāja gauži.</p>
+
+<p align="JUSTIFY">Te atnāca vecais vīriņš un iedeva viņai baltu nūjiņu. Kad ar to
+piesita pie sieka, tad tūliņ nošķīrās savrūp linsēklas, savrūp pelni. Kad piesita
+ar to pašu balto nūjiņu pie tā akmeņa, kas bija pie tās zelta ābeles, tad iznāca
+sudraba zirgi ar sudraba ratiem un vēl pašai sērdienei sudraba drēbes. Sērdiene
+tanīs apģērbās, iesēdās tos sudraba ratos un brauca arī uz baznīcu. Saule tai
+gāja priekšā, mēnesis pakaļā un sudraba ābele tecēja līdz. Pēc baznīcas
+sērdienīte pārbrauca ātri mājās, piesita ar nūjiņu pie akmeņa un viss tūliņ
+nozuda.</p>
+
+<p align="JUSTIFY">Mātes meitas pārnākušas, stāstīja sērdienītei: "Ak,
+pelnrušķīti, ka tu zinātu, ko mēs redzējām? Mēs redzējām sudraba zirgus, ratus
+un sudraba princesi."</p>
+
+<p align="JUSTIFY">Sērdienīte atteica: "Es ar' redzēju." Mātes meitas
+prasīja: "Kur tu redzēji?"</p>
+
+<p>Tā sacīja: "Es uzkāpu uz mēslu čupu un tur redzēju."</p>
+
+<p align="JUSTIFY">Mātes meitas tūliņ to mēslu čupu izārdīja. Atkal mātes meitas
+sajauca sieku linsēklu ar pelniem un lika tās sērdienītei lasīt, kamēr pašas gāja
+baznīcā. Bet sērdienīte piesita atkal ar balto nūjiņu pie sieka: un tūliņ
+izšķīrās savrūp linsēklas, savrūp pelni. Tad viņa vēl reiz piesita pie akmeņa.
+Šoreiz gadījās zelta zirgi, zelta rati un zelta drēbes. Sērdiene, jauki
+apģērbusies, brauca uz baznīcu; tai gāja saule papriekšu, mēnesis no pakaļas un
+zelta ābele tecēja līdz.</p>
+
+<p align="JUSTIFY">Kad sērdiene bija atkal pie savām linsēklām atgriezusies atpakaļ,
+tad arī pārnāca mātes meitas un sacīja: "Ak, pelnrušķīti, ka tu zinātu, ko
+mēs šoreiz redzējām? Mēs redzējām zelta zirgus un ratus un zeltā ģērbušos
+daiļu meitu."</p>
+
+<p align="JUSTIFY">Sērdiene atteica: "Es uzkāpu uz cūkkūts un ar' redzēju."
+Mātes meitas lika cūkkūti noārdīt. Atkal tās brauca baznīcā un atstāja atkal
+sērdieni linsēklas lasīt. Bet tā darīja atkal tāpat, kā citām reizām, un šoreiz
+tā brauca ar dimanta zirgiem, dimanta ratos, pati dimantā vien ģērbusies. Saule tai
+gāja papriekšu, mēnesis no pakaļas un dimanta ābele tecēja līdz.</p>
+
+<p align="JUSTIFY">Visi ļaudis bija izbrīnījušies par skaisto braucēju. Ķēniņa
+dēls, kas gribēja dabūt .skaisto braucēju, arvienu līdz šim bija par velti tai
+pakaļ dzinies, nu uzlēja piķi uz durvju sliekšņa. Kad sērdiene steidzās no
+baznīcas ārā, tad piķis tai norāva vienu kurpi. Ķēniņa dēls tai tik ātri devās
+šoreiz pakaļ, ka tā nedabūja savus dimanta svārkus noģērbt, bet pamuka ar visiem
+dimanta svārkiem apakš baļļas. Ķēniņa dēls ienāca ar to dimanta kurpi, meklēt
+pēc tās jaunavas, kurai tā ietu kājā. Viena mātes meita nodrāza savu kāju, uzmauca
+to kurpi un ķēniņa dēls to veda savos ratos projām. Bet krauklis sauca: "Krauk,
+krauk, pilna kurpe asiņu! Krauk, krauk, pilna karīte asiņu!" Nu ķēniņa dēls
+veda mātes meitu atpakaļ un uzgāja sērdienīti, kuŗas spožie svārki apakš baļļas
+paspīdēja, un sērdienīte tapa par ķēniņieni.</p>
+
+
+</body></html>

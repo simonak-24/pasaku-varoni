@@ -1,0 +1,236 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Maģiskā bēgšana ar meitenes palīdzību.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">9. A. 313 A. K. Žiema Ozolniekos pie Jelgavas. LP, 111, 4. AŠ, 111, 4c. </p>
+
+<p align="JUSTIFY">Kādam vīram nebija neviena bērna. Reiz šis vīrs, mājā nākdams, apmaldās mežā. Te nejauši tam piestājas svešs cilvēks un saka: "Atrāki no meža neiztiksi, kamēr tu man apsolīsies to pēc deviņiem gadiem atdot, ko šovakar, mājā pāriedams, pirmo reizi redzēsi. Ja tā ir, tad parādīšu teku!"</p>
+
+<p align="JUSTIFY">Vīrs doma: "Ko taču tik svarīgu nu redzēšu pirmo reizi? Apsolīšos, lai tieku reiz no meža ārā!"</p>
+
+<p align="JUSTIFY">Labi. Pāriet mājā — sieva tam rāda jaunu dēlu. Nu gan žēlojas, ka tīšā prātā atdevis dēlu citam, bet vairs nekā darīt. Tā nu paiet deviņi gadi. Devītā gadā vīram atkal gadās apmaldīties tai pašā mežā. Pret vakaru tam piestājas tas pats toreizējais cilvēks sacīdams: "Deviņi gadi jau pagājuši. Vai citurīt sūtīsi man savu dēlu šurp, tad parādīšu teku, ja ne — tad paliksi dēla vietā. Bet to tev saku: pēc otriem deviņiem gadiem ir tavu dēlu dabūšu!"</p>
+
+<p align="JUSTIFY">"Sūtīšu, sūtīšu, jo kamēr abi ejam, tad labāki lai dēls viens pats iet."</p>
+
+<p align="JUSTIFY">No rīta dēls ieiet mežā. Necik ilgi, te svešais klāt, paņem dēlu pie rokas un nu vadā pa biezumiem, pa čikstiem, pa purviem, muklājiem lielu laiku, kamēr beidzot ieved dziļā dziļā alā.</p>
+
+<p align="JUSTIFY">Vairāk alā neredz kā deviņas gultas un vienu galdu; arī cilvēka neviena nav iekšā. Vedējs iedod dēlam kaut ko uzkost un tad saka, lai liekoties turpat kaktiņā gulēt. Dēlsapguļas gan, bet nevar aizmigt, viņam loti drūmīgi ap sirdi. Tā aiztek labs brīdis. Te uz reizi nāks tik vēl kādi astoņi tēviņi iekšā. Nu šie ir deviņi un dēls viens pats. Visi deviņi tūdaļ nosēžas gar galdu un sāk dzīŗot. Beigās, kad jau labi iesutuši, viens iesauksies: "Vadzi, vai zēnu pārvedi?"</p>
+
+<p align="JUSTIFY">"Pārvedu!"</p>
+
+<p align="JUSTIFY">"Kur viņš ir? Lai nāk šurp!"</p>
+
+<p align="JUSTIFY">Dēlam nu jāiet viņu pulkā; bet viņš liekas aizmidzis un neiet. </p>
+
+<p align="JUSTIFY">"Ak tā, nenāksi; tādam knauķim tik deguns nogriežams!" viens iesaucas.</p>
+
+<p align="JUSTIFY">"Tas neiet," otrs atbild, "mēs nogriezīsim viņam degunu un ja rītu kungs tādu apspokotu neņem pretim, ko tad darīsim?"</p>
+
+<p align="JUSTIFY">"Ja, ja — riktīgi gan!" citi atbild. Un tā nu paliek.</p>
+
+<p align="JUSTIFY">No rīta vedējs paņem dēlu pie rokas un atkal vadā pa čikstiem, biezumiem, purviem, muklājiem lielu laiku, kamēr tad beidzot aizved skaistā, skaistā pilī.</p>
+
+<p align="JUSTIFY">Pils durvīs iznāk briesmīgs kungs pretim un prasa: "Vai tas ir tas deviņu gadu gaidītais?"</p>
+
+<p align="JUSTIFY">"Tas tas ir, kungs!" vedējs atbild.</p>
+
+<p align="JUSTIFY">"Nu tad labi, ved viņu iekšā!"</p>
+
+<p align="JUSTIFY">Istabā briesmīgais kungs saka tā uz dēlu: "Tur mežmalā ir vecs resns, resns ozols; to tev nākošu nakti vajaga bez cirvja smalkās drumslās sacirst un kaudzē sakraut, ka nevienas skaidiņas, nevienas miziņas nebūtu īpaši. Tagad vari iet!"</p>
+
+<p align="JUSTIFY">To dzirdējis dēls iziet mežmalā pie resnā ozola, raud un raud. Un kā arī neraudāt? Tādu darbu bez kāda ieroča izdarīt gluži neiespējams. Bet tā jau nu mūžam ir: jo bēdas vislielākās, jo palīdzība vistuvākā. Tā arī te.</p>
+
+<p align="JUSTIFY">Briesmīgā kunga jaunākā meita, tēva pavēli izdzirdusi, steidzas dēlam palīgā. Viņa iznāk pie ozola un mīlīgi vaicā: "Puisīt, kādēļ tik sūri raudi?"</p>
+
+<p align="JUSTIFY">"Ja, kā neraudāt? Man šis ozols nākošā naktī bez cirvja jāsadabū smalkās drumslās un jāsakŗauj kaudzē, ka nevienas šķēpelītes neiztrūktu." </p>
+
+<p align="JUSTIFY">"Neraudi vis puisīt! Es tev palīdzēšu. Ko tur lai dara? Mans tēvs nu reiz tāds briesmīgi ļauns ir un arī paliks. Arī mani viņš acu galā neieredz; viņš mani ienīst līdz nāvei tādēļ vien, ka esmu laba un neklausu viņa ļaunumam. Mēs esam deviņas māsas, astoņas tādas pašas kā tēvs; bet es tā nevaru. Tēvam ir pavisam divējādi sulaiņi: vieni dzīvo mežā, alā, un otri tepat pilī. Tie, kas mežā, palīdz tēvam cilvēkus ieviļināt; tie, kas pilī, palīdz pakal dzīties, ja kāds nodomātu bēgt. Ak, cikiem te jau nav nelabi klājies. Esi tik itin mierīgs! Līdz ko tumšs metīsies, nākšu palīgā."</p>
+
+<p align="JUSTIFY">Labi. Dēls nu paliek mierīgs un gaida tik tumsas. Pienāk nakts — jaunākā meita klāt. Rokā tai vairāk nav kā dziju kamoltiņš. Bet tavu brīnumu! Līdz ko dziju aptin gar ozola celmu, tā ozols slaukt! gar zemi un sašķīst tik smalkās drumslās kā zirnīši, un sakraujas tik lielā čupā kā vislielākā siena kaudze.</p>
+
+<p align="JUSTIFY">"Tā, nu esam padarījuši! Bet tagad man jāsteidzas atpakaļ, lai tēvs nepamanītu, ka esmu paņēmusi viņa dziju."</p>
+
+<p align="JUSTIFY">No rīta briesmīgais kungs sauc dālu iekšā.</p>
+
+<p align="JUSTIFY">"Vai izdarīji?"</p>
+
+<p align="JUSTIFY">"Izdarīju."</p>
+
+<p align="JUSTIFY">"To nebūtu domājis, bet kas izdarīts, tas izdarīts. Nu, klausies, nākošā naktī tev cits darbs. Tev viņš mežs, kas septiņas verstis gaŗš, septiņas plats, jānocērt, jānoved, jāuzaŗ, jānoecē, jāapsēj."</p>
+
+<p align="JUSTIFY">Dēls iziet mežmalā un raud atkal. Te jaunāka meita klāt: "Nu, ko tu raudi? Gaidi tik mani, kad tumšs metīsies!"</p>
+
+<p align="JUSTIFY">Pienāk nakts — jaunākā meita klāt. Rokā tai vairāk nav kā galdiņš. Šo galdiņu tā noliek mežmalā, uzkāpj virsū un iesaucas: "Viens, divi, trīs!"</p>
+
+<p align="JUSTIFY">Tūdaļ viss mežs ka spārnos, koki visiem celmiem aizskrien projām, zeme pati uzaŗas, noecējas, apsējas.</p>
+
+<p align="JUSTIFY">"Tā, nu esam padarījuši! Bet tagad man jāsteidzas atpakaļ, lai tēvs nepamanītu, ka esmu paņēmusi viņa galdiņu."</p>
+
+<p align="JUSTIFY">No rīta briesmīgais kungs sauc dālu iekšā.</p>
+
+<p align="JUSTIFY">"Vai izdarīji?"</p>
+
+<p align="JUSTIFY">"Izdarīju!"</p>
+
+<p align="JUSTIFY">To nebūtu domājis, bet kas izdarīts — izdarīts. Nu, klausies, trešo darbu tev iedošu pašā vakarā. Ja tu man vēl ir to izdarīsi, tad citu rīt salaulāšu tevi pats savām rokām ar savu jaunāko meitu."</p>
+
+<p align="JUSTIFY">Dēls iziet lauka un nezin, kas nu bus, kas nebūs. Mežmalā tas nosēžas un pārdomā visādi. Te, necik ilgi, jaunāka meita klāt.</p>
+
+<p align="JUSTIFY">"Nezinu; būšot tik vakarā uzdot. Un ja spēšot to izdarīt, tad citurīt mūs abus pats savam rokam salaulāšot."</p>
+
+<p align="JUSTIFY">"Puisīt!" meita to dzirdēdama bailīgi iesaucas, "kas tik jaunus ļaudis, kā mēs esam, gan laulā? Bet es saprotu, ko tēva laulība nozīmē. Viņš mūs abus nomaitās un asinis salies vienā traukā kopā, tā tēvs laulā. Mums jābēg. Pagaidi mani te, es aizskriešu uz pili, kaut ko paņemšu līdzi un tad laidīsimies, kamēr tēvs nesāk tevi meklēt."</p>
+
+<p align="JUSTIFY">Labi. Pēc maza brīža meita atpakaļ un nu abi poš, ko māk. Līdz vakaram gāja labi, bet tad uz reizi sāk zeme dimdēt. To dzirdēdama meita iesaucās: "Tēvs sūta savus sulaiņus mums pakaļ! Tagad izbērsim šo smilšu sauju, kas šinī cepurē. Redzēs, kas tad būs."</p>
+
+<p align="JUSTIFY">Meita izbeŗ smilšu sauju un tūdaļ izceļas liels smilšu kalns. Pakaļdzinējies atjož līdz smilšu kalnam, nevar pāri tikt. Nu kāpj, nu rāpjas, kamēr taču uzrāpjas galā.</p>
+
+<p align="JUSTIFY">Tagad meita izvelk susekli, nosviež to zemē — tūdaļ izaug biezs, biezs ērkšķu mežs. Pakaldzinējies atjož līdz ērkšķiem, nevar cauri tikt. Nu lien, nu plēšas, kamēr taču izmocās cauri.</p>
+
+<p align="JUSTIFY">Tagad meita izvelk cepuri, nosviež to zemē—tūdaļ ronas maza mājiņa un šie abi gadās mājiņas istabiņā. "Vadzi," meita saka, "es palikšu par vistu un tu par kaņepēm. Ja sulaiņi ienāks meklēt, tad kašņāšos pa kaņepēm."</p>
+
+<p align="JUSTIFY">Labi, tā notiek. Ienāk sulaiņi — nav neviena. Tik ir, kā vista un kaņepes. To redzēdami, sulaiņi jož atpakaļ pie kunga.</p>
+
+<p align="JUSTIFY">"Vai redzējāt kādu?" kungs uzprasa.</p>
+
+<p align="JUSTIFY">"Neredzējām nekā. Tik bij kā viena vista un kaņepes."</p>
+
+<p align="JUSTIFY">"Ak tu lopi! Tie jau bij tie īstie, kādēļ nevedāt atpakaļ? Dzenieties pakaļ un vediet tos šurp!"</p>
+
+<p align="JUSTIFY">Sulaiņi dzenas no jauna pakaļ, ko tik māk.</p>
+
+<p align="JUSTIFY">Bet līdz ko meita to mana, tā saka: "Es palikšu par vecu sieviņu, tu atkal par govi."</p>
+
+<p align="JUSTIFY">Sulaiņi aizskrien: Vai neesot divus jaunus cilvēkus redzējuši?</p>
+
+<p align="JUSTIFY">"Neesmu redzējusi," sieviņa atbild. "Kur nu jaunie te par šo ceļu varēja iet? Te jau viņpus šā meža, tik nelāga vieta, ka pat putns pārskrejot vien, tūlīt pagalam. Ja jaunie ļaudis tur gājuši, tad tie arī sen jau beigti."</p>
+
+<p align="JUSTIFY">Dzirdēdami par tik nelāgu vietu, sulaiņi sabīstas un jož atpakaļ pie kunga.</p>
+
+<p align="JUSTIFY">"Vai redzējāt kādu?" kungs uzprasa.</p>
+
+<p align="JUSTIFY">"Aizskrējam pat līdz nelāgajai vietai, kur ne putns nedrīkst pāri laisties, bet vairāk neredzējām, kā vecu sieviņu ar govi."</p>
+
+<p align="JUSTIFY">"Jūs lopi! Ko gribat man te par nelāgo vietu stāstīt? Paši esat nelāgi! Tie jau bija tie. Kāpēc neņēmāt rokā veco sieviņu un govi? Tas nieki! Tagad laidīšos pats pakaļ."</p>
+
+<p align="JUSTIFY">Briesmīgais kungs nu dzenas pakal, ka dimd vien. Bet līdz ko meita to mana, tā saka: "Es palikšu par mazu mazu odiņu augstās egles galotnē un tu par mazu puteklīti gaisā, tad vecais mūs neieraudzīs."</p>
+
+<p align="JUSTIFY">Tā notiek. Atskrien briesmīgais kungs, izmeklējas, izmeklējas — nekā, jādodas atpakaļ.</p>
+
+<p align="JUSTIFY">Tagad dēls ar jaunāko meitu pāriet netraucēti pie tēva un izstāsta visu, kā viens otram palīdzējušies, kā bēguši, kā nākuši.</p>
+
+<p align="JUSTIFY">Tēvs noslauka prieka asaras un tad saka: "Kopā esat bēguši, kopā jums jāpaliek. Tad, kad būsit pieauguši, pateikšu, ko esmu nodomājis. Tagad turaties kopā, kā brālis ar māsu."</p>
+
+<p align="JUSTIFY">Un vēlāk, kad dēls bij pieaudzis puiša kārtā, tad tēvs piesauca abus klāt, sacīdams: "Nākat šurp, tad pateikšu, ko toreiz neteicu. No šā brīža vairs neesat brālis un māsa, bet vīrs un sieva. Likšu jūs salaulāt."</p>
+
+<p align="JUSTIFY">Tā notiek.</p>
+
+<p align="JUSTIFY">Abi jaunie ļaudis dzīvoja tik laimīgi, kā reti kur redzēts.</p>
+
+</body></html>

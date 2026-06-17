@@ -1,0 +1,191 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>17</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Brīnuma mālderis.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">1. A. 577. J. Henniņš no Valteŗa Sasmakā,
+1879. gadā.</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam tēvam bija viens dēls. Tāpēc ka tēvs bija nabags, tam
+vajadzēja to jau it maziņu nodot pie saimnieka par aitu ganu. Bet šis nevarēja savas
+aitas noganīt, ik dienas tam pazuda viena aita, par ko saimnieks to katru reiz gauži
+pēra. Vienreiz saimnieks noteica, ja vēl pazaudēšot kādu aitu, tad to tā sitīšot,
+ka tik maz dzīvs palikšot. Bet otrā dienā pēc tam viņam bija pazudušas trīs aitas
+uz reizu. Gans nu gāja tās brēkdams meklēt. Te uz reiz piestājas vecs vīriņš un
+jautā zēnu: "Kādēļ tu raudi un esi gauži noskumis?"</p>
+
+<p align="JUSTIFY">Puika nu visu izstāstīja, kas viņam arvienu noticis. Vecītis
+apmierinādams iedeva puikam stabulīti, kuru pūšot tāpat skanēja, it kā desmit
+muzikanti spēlētu. Pēc tam vecītis pazuda, kas bija pats Dievs.</p>
+
+<p align="JUSTIFY">Pa mežu maldīdamies, tas izgāja jūrmalā, tur uzkāpis uz kādu
+augstu klinti, tas sāka stabulēt. Otrā rītā viņš redz lielu kuģi par jūŗu
+peldam, un tas brauc taisni uz to vietu malā, kur zēns stabulē. Kapteins to ņem uz
+savu kuģi un aizved uz to pilsētu, kur viņam jābrauc. Šinī pilsētā puika spēlēja
+ar savu stabuli un drīzi viņš tapa par labāko muzikantu izslavēts. Pēcāk tās zemes
+ķēniņam ir kāzas, un tas nu meklē vislabākos muzikantus, mūsu puika arī pieder pie
+tiem, un salīgst par 50 rubļiem. Starp tiem spēlmaņiem puika vislabāki spēlē, tā
+ka viņa jaukās mūzikas skaņas izspiež ķēniņam asaras no acīm.</p>
+
+<p align="JUSTIFY">Ķēniņam bija liels jauks dārzs ar visādiem zvēriem, kur stāvēja
+daudz vergu, kad ķēniņš pa vaļas brīžiem atvēlēja zvērus apskatīt. Tai dārzā
+bija arī viena smuka zaļa būdiņa, kurai klāt piegājis, puika ierauga tur smuku
+princesi gauži raudam. Viņam sirds iežēlojās par to, bet nu laiks bija atkal
+spēlēt, tāpēc šis steidzās pie sava darba. Ķēniņš ļoti brīnījās par viņa
+spēlēšanu<b>. </b>Kad kāzas beidzās, ķēniņš aizmaksāja muzikantiem, bet puika
+maksu neņēma, lūgdams par algu to smuko princesi. Ķēniņš atbild: "Labi, es
+likšu div kuģus uz jūŗas braukt. Ja tas viens kuģis, kur es būšu, tavu otru kuģi
+ar princesi noķers, tad jūs abi būsit man par vergiem."</p>
+
+<p align="JUSTIFY">Ķēniņa kuģis bija gŗūts, bet puikas kuģis viegls peldēšanā.
+Puika, nekā nezinādams par kompasu, brauc tik, lai var izmukt, un tāpēc nomaldās.
+Otrā rītā viņi ierauga lielu pilsētu, un grib tur klāt piebraukt, bet tas gŗūti
+nākas. Tās pils ķēniņa sulainis brauc pretī ar laivu, gribēdams palīdzēt, un
+pazīst to princesi par sava ķēniņa meitu. Tai laivā bija koka bluķis un zobens.
+Sulainis nu prasa muzikantam: "Vai tu gribi, lai tev kaklu nocērt, jeb jūŗā
+iemet?"</p>
+
+<p align="JUSTIFY">Šis teica, lai labāk uz kāda dēļa piesien un jūŗā iemet. Tā
+arī notika. Puika, uz dēļa peldēdams, bija izmests vienā salā. Par zīmi tam bija
+vēl princese iedevusi savu mutslauci, kur bija viņas vārds ierakstīts.</p>
+
+<p align="JUSTIFY">Puikam salā piestājās vecs vīriņš un iedeva tam vienu lādīti,
+kur bija visādas skaistas krāsas iekšā. Kad ar to kastīti piesita pie sienas, tad
+kādu krāsu vien tur vēlējās, tāda tur arī tūlīt bija. Vecītis iedeva tam arī
+vienu nūju, kad ar to uzsita uz ūdens, tad varēja iet pa ūdens virsu. Tā nu puika
+aizgāja atkal uz to pašu pilsētu, kur bija viņa princese, un dabūja dzirdēt, ka tai
+būšot kāzas ar ķēniņa sulaini, kas viņu esot izglābis.</p>
+
+<p align="JUSTIFY">Bet ķēniņš gribēja papriekšu savas istabas izmālēt un meklēja
+mālderi. Puika izdevās par mālderi un salīga par 200 rubļiem. Viņš nu pieņem vēl
+trīs zeļļus klāt un tie tik dzīvo vien. Kad puika dabūja zināt, ka ķēniņš drīz
+nāks skatīties, vai viss gatavs, tad tas gāja ar saviem biedriem un krāsu lādīti un
+izmālēja pirmā istabā to pilsētu, kur tam ķēniņam kāzas spēlēja. Otrā istabā
+viņš izmālē, ka viņš to kuģi liek taisīt un brauc ar to princesi par jūŗu.
+Trešā istabā viņš izmālē, ka viņš ar to princesi piebrauc viņas tēva pilsētai,
+un ka tas sulainis viņu izsviež no laivas jūŗā. Un tā katrā istabā bija citādas
+bildes. Kad nu visas istabas bija izmālētas, tad tas ķēniņš atbrauca ar princesi
+pārskatīt to darbu. Ķēniņam gauži patika tās istabas, bet princese visu
+apskatījusi un ieraudzījusi māldeŗa parakstu, gauži nosarka, bet ķēniņš tomēr
+nekā nemanīja, par ko viņa tā nosarkusi.</p>
+
+<p align="JUSTIFY">Kāzu dienā arī mālderis tapa lūgts pie galda, ēdot viņš izvilka
+to mutslauci, ko princese tam bija devusi. Princese, to apskatījusi, sacīja uz viesiem:
+"Man pazuda atslēga un es liku nokalt jaunu. Bet nu es atradu atkal veco atslēgu.
+Kuŗu nu lai es paturu?"</p>
+
+<p align="JUSTIFY">Tad iesaucās princeses brūtgāns, ka tā vecā atslēga gan būtu
+labāka.</p>
+
+<p align="JUSTIFY">Princese atbildēja: "Tu esi sev nāvi parakstījis." Un nu
+viņa visu izstāstīja ķēniņam. Ķēniņš lika iebāzt to sulaini ar naglām izsistā
+mucā un laist to mucu no augsta kalna zemē. Bet avju gans dabūja to princesi par sievu
+un dzīvo vēl šodien it laimīgi, ja nav miruši.</p>
+</font>
+
+
+</body></html>

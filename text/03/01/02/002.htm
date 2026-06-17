@@ -1,0 +1,161 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Ragana zārkā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 307. D. Ozoliņš Jaun - Rozē. LP, V, l, 44. AŠ, III, 2c. </p>
+
+<p align="JUSTIFY">Kuods veirs apprecēja roganas maitu. Un tis godījās, ka tū veiru
+oicināja iz vīnām kuozām, bet pīsacīja, lai sīvas (sievas) leidza navadūt. Veirs
+dūmāja: citīm veirim arī sīvu leidzi natīkūt un tuopēc oizguoja vīns pats. Bet
+kuozās redzāja, citīm vusīm sīvas leidz - viņam nav.</p>
+
+<p align="JUSTIFY">Nu citi prasīja, kuopēc sīvas naašūt leidza vedis? "Voi tava
+sīva rogana? Ja rogana - ej iz muojām un labi nūper!"</p>
+
+<p align="JUSTIFY">Veirs guoja iz muojām un dūmāja pērt; bet sīva nuoca pretī un
+apkampa tū meilīgi. Veiram sirds puorguoja un viņš sīvai pīdeva.</p>
+
+<p align="JUSTIFY">Pēc kuoda loika veiru oicināja kristabās, bet pīsacīja, lai sīvas
+leidza navadūt. Veirs dūmāja: citīm veirim arī sīvu leidzi natīkūt un tuopēc
+oizguoja vīns pats. Bet kristabās redzāja: citīm vusīm sīvas leidz - viņam nav.</p>
+
+<p align="JUSTIFY">Nu citi sacīja: "Tava sīva rogana --- nūsit viņu!"</p>
+
+<p align="JUSTIFY">Tad veirs apskaitās, puorguoja muojā un tik kū treis raizes īsita -
+sīva nūmira. Bet tad beja tuods īradums: kad sīva nūmirusa, tad veiram 3 naktis
+baznīcā juovaktē. Veirs bēdīgs nūguoja baznīcā pī sīvas zuorka un redzāja guni.</p>
+
+<p align="JUSTIFY">Bet pī baznīčas bej vecīts; tis prasīja: "Kur nu
+īdams?" Mana sīva bej rogona; bet nu nūmira un man juovaktē." Tad vecīts
+īdeva panniņu sacīdams: "Kad tava sīva pusnaktī nū zuorka nuok laukā, tad
+izkuop iz pestītāja krusta un berzā rūkū tū panniņu."</p>
+
+<p align="JUSTIFY">Labi. Ap pusnakti sīva suoka pa baznīcu skraidīt, bet tei
+naredzāja, kur veirs iz krusta beja. Pēc pusnakts sīvai bej atkal jāīt īškā
+zuorkā.</p>
+
+<p align="JUSTIFY">Ūtrā naktī tuopat. Bet trešā naktī, kuo sīva iznuoca nū zuor
+ka, tuo pa durvim luokā un veirs dūmāja: "Nu viņa prūjām kuopšu zemē!"</p>
+
+<p align="JUSTIFY">Bet te uz raiz īnuoca sīva ar daudz daudz roganām un vusas
+skraidīja pa baznīcu apkuort, bet viņu naredzāja. Beidzūt sīva sacīja: "Īšu
+pēc rasnās Ilzes."</p>
+
+<p align="JUSTIFY">Labi. Nu atnuoca vīna vecana, skatījās vusapkuort un sacīja:
+"Kas juos dumas asat! Redzat tur viņš ir! Bet kuo lai zemē dabū? Pag, pag, aita
+iz mežu, atnasat calmus!"</p>
+
+<p align="JUSTIFY">Vusas roganas nūguoja un atnesa ikkotra savu calmu, nūlikdama pī
+krusta. Tad vecana īkūra tādus doumus, ka veirs vai zemē gribāja nūkrist. Bet par
+laimi pusnakts beidzās un sīvai bej juoīt zuorkā. Nu vusas nakts bej laimīgi
+pavadītas.</p>
+
+
+</body></html>

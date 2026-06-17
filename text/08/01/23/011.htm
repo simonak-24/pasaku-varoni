@@ -1,0 +1,206 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>11</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Divi ceļotāji.</font><font size="4"></font></p><font size="4">
+</font></b><font size="3">
+
+<p align="JUSTIFY">11. A. 613. J. Sproģis Koknesē. Brīvzemnieka "Sborņik"
+128 (90). L. P. VII, II, 25, 5, 7. Andrejanoff, Lettische Marchen 41 - 47.</p>
+
+<p align="JUSTIFY">Bija divi brāļi, tie sadomāja pasaulē iet mantu iepelnīt. Nogāja
+abi pie kuplas liepas, iedūra katrs savu nazi, norunādami tā: "Kurš no abiem
+ātrāk pārnāktu, tam jāiet otra nazis aplūkot. Ja nazis spožš - tad brālis
+dzīvs."</p>
+
+<p align="JUSTIFY">Labi. Nu aizgāja katrs pa savu ceļu. Jaunākais brālis, iet, iet pa
+svešu apgabalu, nevar neko nopelnīt dabūt, nāks pēc gada uz tēva zemi atpakaļ.
+Aiziet pie naža, abi naži spoži, brālis, zināms, tad ir dzīvs. Bet tas bija jau pret
+vakaru, un tā ka tālu<b> </b>bija jāiet, tad viņš nolikās turpat koka apakšā
+pārgulēt nakti. Šī nakts bija taisni paša Jāņa nakts. Šis guļ, te ap pusnakti
+dzird: atlaižas bars žagatu, nometas egles virsotnē, ka spārni nožvakst vien. Tup,
+tup šis egles galā - sāks sarunāties: "Vai zinat, māsiņas, arī ko jaunu?"
+tā viena žagata ieteiksies, "es zinu lielu, skaistu pilsētu, tanī pilsētā viss
+papilnam, tikai ūdens vien tur nava. Tomēr tai ligai lēti līdzams. Aiz pilsētas, uz
+lauka, aug kupla liepa; ja liepas tuvumā parakņātu, tad vesela upe ūdens tur
+tecētu."</p>
+
+<p align="JUSTIFY">Bet otra žagata sacīja: "Vai, jūs, māsiņas zinat, ko es zinu?
+Es zinu vienu kalnu, tai kalnā ir visvisādi dārgumi; tomēr piekļūt tur neviens
+nevar. Bet ja Jurģu rītā, gaismai svīstot, kāds kalnam trīs vagas apdzītu apkārt,
+tad kalns<b> </b>atvērtos un dārgumus iemantotu tas, kas aris."</p>
+
+<p align="JUSTIFY">Tā katra žagata pastāstīja citām savas jaunās ziņas.
+Pastāstīja ziņas, izcēlās gaisā, spārnus sacirzdamas, un aizlaidās. Tomēr
+gulētājs tur egles apakšā tūdaļ noskārta; šīs runātājas nebijušas vis
+vienkāršas žagatas, bet gan raganas, kas Jāņu naktīs apkārt skraidīdamas, viena
+otrai pastāsta piedzīvojumus.</p>
+
+<p align="JUSTIFY">Rītā jaunais brālis kā cēlās, tā projam uz to pilsētu, par ko
+ragana bija stāstījusi. Jā - aiziet, ierauga lielu, skaistu pilsētu. Ieiet pilsētā,
+prasa: "Dodiet man nodzerties!"</p>
+
+<p align="JUSTIFY">Bet pilsētnieki atsaka: "Ai, svešniek, būtu mums ēst
+prasījis, dotum labprāt, bet dzēriena mums pašiem nav. Viss mums pa pilnam, bet ūdens
+- ja gribi mirsti nost - arī nava."</p>
+
+<p align="JUSTIFY">Šis saka pilsētniekiem: "Ko dosit man, es ūdeni
+parādīšu?"</p>
+
+<p align="JUSTIFY">Pilsētnieki teic: "Dosim maksu lielu lielo."</p>
+
+<p align="JUSTIFY">Labi. Kad bija norunājuši, tad viņš paņēma pilsētniekus, izveda
+aiz pilsētas pie kuplas liepas un lika rakt. Izraka padziļu bedri - te jaunais brālis
+liek apstāties un, pielicis ausi pie zemes, klausās. Dzird - ūdens krāc. Nu viņš
+saka strādniekiem: "Diezgan ir! Atnesiet tikai krietnu akmeni." Paņēma akmeni
+un kā svieda bedrē, piepēži izšāvās vesela ūdens straume. Ūdens tecēja uz
+pilsētas pusi, aizraudams veselus dārzus un namus sev līdz. Tā radījās pilsētas
+vidū pilnīga upe skaidra ūdens. Visa pilsēta gavilēja. Pilsētnieki aizmaksāja visu
+apsolīto algu ūdens atradējam un pavadīja to godinādami uz mājām.</p>
+
+<p align="JUSTIFY">Pirmais darbs jaunajam brālim bija izdevies - nu devās pie otra, pie
+tā kalna, kur dārgumi esot. Bija Jurģa diena. Viņš ņēma zirgu, izara trīs vagas
+kalnam riņķī. Kā izara - kalns tūdaliņ sagruva. Ieies kalna iekšienē - ai manu
+dieniņu! - Kas tur dārgumu! Zelts, sudrabs dimanti - viss pārpilnam. Ko nu raizēties
+vairs? Stāvus bagāts. Nu sapirka dārgus zirgus, dzīvoja kā lielskungs.</p>
+
+<p align="JUSTIFY">Bet reizi pa lielceļu sešiem zirgiem braukdams, satiks savu veco
+brāli no svešatnes kājām nākam un mazu kumeļu rokā vedam - tik bija varējis
+iedzīvoties svešā zemē. Šis redz tādu ievērojamu kungu pretim braucam,
+pagriezīsies jau notālēm sāņus ar savu kumeliņu. Bet tiklīdz bija viens otram
+klāt, tūdaļ jaunais brālis pazina veco, lika zirgus apturēt. Sasveicinājās abi
+brāļi un nu jaunais apvaicājās: "Kur tad tu, brālīti, biji? Ko redzēji? Ko
+piedzīvoji?"</p>
+
+<p align="JUSTIFY">Veco brāli saņēma stipras žēlabas - viņš rādīja uz savu
+kumeļu: "Te, lūk, ir viss, ko svešatnē iemantoju."</p>
+
+<p align="JUSTIFY">Tad jaunais brālis izstāstīja: "Tā un tā arī es pārrados
+tukšām rokām no svešuma; bet Jāņu naktī pārgulēdams apakš tās egles, kur mūsu
+naži iedurti, dzirdu raganas sarunājamies, apgādāju vienai lielpilsētai ūdeni,
+nopelnīju lielu algu, atradu vienu kalnu ar dārgumiem un paliku par lielu, bagātu
+kungu."</p>
+
+<p align="JUSTIFY">Vecais brālis klausās, klausās - sāks šim vareni žēl palikt, ka
+tik ilgi pa pasauli nodauzījies un vienā kumeļā tikai iedzīvojies. Palūk, jaunajam
+brālim, kas tam viss nava? Dusmās viņš ņēmās - nosita labāk to pašu kumeļu.</p>
+
+<p align="JUSTIFY">"Pagaidi," viņš domāja, "ja jaunais brālis mācēja
+tādā bagātībā iedzīvoties, tad, es, vecāks būdams, iedzīvošos vēl jo
+lielākā."</p>
+
+<p align="JUSTIFY">Viņš aizgāja Jāņu nakti pie tās pašas egles un guļ. Pienāk
+pusnakts, atskries atkal bars žagatu, spārni vien nožvākst kā egles galā sametas.
+Sametas, iesāka runāt. Viena saka: "Māsiņas, vai zināt ko jauna? To, ko pērn te
+runājām par ūdens trūkumu, par dārgumiem kalna iekšienē, to visu viens ir
+izdibinājis un izdarījis. Tagad jāapskatās, kad tikai kāds te egles apakšā
+nenoklausās?"</p>
+
+<p align="JUSTIFY">Šīs kā nonāks zemē, atron veco brāli. Raganas nu viņu apēda un
+manai pasakai ir beigas.</p>
+</font>
+
+
+</body></html>

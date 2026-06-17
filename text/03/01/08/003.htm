@@ -1,0 +1,165 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Maģiskā bēgšana ar meitenes palīdzību.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 313 A. C. Vidzemē, Brīvzemnieka kr. LP, VI, 119, 1 piez. AŠ,
+III, 4a.</p>
+
+<p align="JUSTIFY">Viens tirgotājs samaldījies seši mēneši ceļā. Pēdīgi danācis
+viens tētiņš, teikdams, ja došot to, kas mājā esot jauns, tad ceļu parādīšot.
+Ap:solījis. Pārbraucis - mājā bijis jauns dēls.</p>
+
+<p align="JUSTIFY">Astotā gadā tētiņš dastājies pie tirgotāja loga, lai nu dodot
+to, ko apsolījis. Tad tirgotājs iesēdinājis dēlu tētiņa vāģos (ratos), iejūdzis
+tētiņa divi varenos zirgus un raudādams izvadījis no pilsēta. Ārpus pilsēta dēls
+atdievojies un nu tētiņa zirgi aizgājuši kā vējš.</p>
+
+<p align="JUSTIFY">Skrējuši, skrējuši - noskrējuši pie viena nama un apstājušies.
+Dēls iegājis namā un tur nākusi pretim viena meita, to šIs iemīlējis. Tai meitai
+vēl bijušas 4 māsas, tās visas bijušas tētiņa meitas.</p>
+
+<p align="JUSTIFY">Kad nu tētiņš dabūjis zināt, ka dēls viņa jaunāko meitu
+iemīlējis, tad pārvērtis visas 5 meitas par sarkaniem vaiņagiem un vaiņagu pulkā
+licis dēlam brūti uzminēt. Bet brūte jau iepriekš dēlam bija pateikusi īpašu
+zīmi. Dēls pēc pateiktās zīmes tad uzminējis brūti (vaiņagu).</p>
+
+<p align="JUSTIFY">Tad pārvērtis meitas par dūdām (dūjām) - atkal uzminējis, jo
+jaunākā pacēlusi kāju apakš spārna. Tad pārvērtis par 5 adatām - atkal
+uzminējis. Pēdīgi pārvērtis par sarkaniem diedziņiem - atkal uzminējis.</p>
+
+<p align="JUSTIFY">Nu, kad visas reizes bija atminējis (uzminējis) brūti, tad devis
+dēlam darbu: par nakti nocirst līdumu, nodedzināt, apart, apecēt, iesēt, izaudzēt,
+nopļaut, izkult, samalt un šam rītā danest ko ēst. Dēlam gan palicis bail par tik
+lieliem darbiem; bet meita izgājusi laukā un sasvilpusi pulka, pulka strādnieku.
+Sanācis pilns mežs un līdz rītam darbs bijis darīts.</p>
+
+<p align="JUSTIFY">Otrā naktī tētiņš licis dēlam no lielā purva sanest akmeņus un
+uzcelt torni. Atkal meita (brūte) sasvilpusi strādniekus un tornis bijis gatavs. Trešā
+naktī licis pašu baznīcu celt. Tas arī padarīts. Bet baznīcai bijušas zemas, zemas
+durvis un meita pamācījusi: "Ja rītu tētiņš (tēvs) nāks baznīcā, tam būs
+jēra cepure galvā; tā aizķersies pie palodes un nokritīs zemē. Ja viņš liek cepuri
+tev augšā celt, tad necel - atbildi: "Tu neesi nekāds kungs!"</p>
+
+<p align="JUSTIFY">Tā noticis. Un tiklīdz to izteicis: "Tu neesi nekāds
+kungs!" tētiņš atdevis dēlam brūti.</p>
+
+<p align="JUSTIFY">Nu padzīvojis tādu laiciņu turpat un tad aicinājis brūti
+līdznākt uz šā tēvu zemi. Gājuši. Bet tētiņš, manīdams, ka šie aizgājuši,
+sūtījis puišus pakal. Šie tad palikuši pirmo reiz par ābeli un zemes čupu, otreiz
+par ūdeni un pīli un izbēguši no puišiem. Bet nu meita noteikusi dēlam: "Ja
+ieej pie tēva un mātes, nedodi mutes, citādi aizmirsīsi mani!"</p>
+
+<p align="JUSTIFY">Šis iegājis un tomēr mutējis vecākus un aizmirsis brūti. Tad
+brūte ietaisījusi turpat pie dēla mājām lielu dārzu, uzcēlusi pili dārzā un
+izaicinājusi šo dārzu skatīties. Atnācis, ieraudzījis dārzu, pili un nu atminējies
+brūtes. Saprecējušies un dzīvojuši laimīgi.</p>
+
+
+</body></html>

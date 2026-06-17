@@ -1,0 +1,177 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pārdabīgais palīgs.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 504. E. Birznieks no Fr. Baumaņa Dzirciemā. Jkr. III, 62 (25).
+LP, VII, I, 935 (4).</p>
+
+<p align="JUSTIFY">Dēlam bija mežmalā jāgana mātei aitas. Iesākumā viņam bija
+lielu lielais bars, bet ar laiku zuda, zuda, tā ka beigās viņam bija palikusi tik viena
+vienīga aita. Arī tā vienā dienā pazuda. Aitu gans nu vairs nedrīkstēja iet uz
+mājām pie mātes. Viņš sāka meklēt savas pazudušās avis. Visas maliņas
+izklejojis, izmeklējis, viņš beidzot lielā biezā mežā atrod nevien savas, bet vēl
+lielu baru svešu aitu. Kāds melns jaunskungs tās ganīja.</p>
+
+<p align="JUSTIFY">"Nu es atnācu pēc savām aitiņām," mūsu aitu gans teica
+melnajam jaunkungam.</p>
+
+<p align="JUSTIFY">"Atnāci gan, bet es tev viņas nedošu," jaunskungs atteica
+viņam pretī.</p>
+
+<p align="JUSTIFY">"Dod, dod! Es bez aitām nemaz nedrīkstu mātei rādīties!"
+Kad tu man izdari trīs darbiņus, tad atdošu tev nevien tavas, bet visas aitas, cik tu
+te redzi; bet ja neizdarīsi, nedabūsi nevienas."</p>
+
+<p align="JUSTIFY">Aitu gans gatavs darīt visu ko, lai tikai atdabūtu aitas. Pirmo nakti
+viņam jāizrok ezers tik un tik verstes gaŗš un tik un tik plats. Aitu gans nonāk
+ierādītā vietā un sāk raudāt. Tādu darbu viņš ne visā savā mūžā nevarētu
+pastrādāt, un tagad tas viņam uzdots vienā naktī. Viņš noliek lāpstu un raud
+vienā raudāšanā. Uz reizi pienāk vecs vīriņš un prasa, par ko šis raudot.</p>
+
+<p align="JUSTIFY">"Kā tad lai neraudu? Aitas man visas pazuda un tagad man viņas
+ātrāki neatdod, kamēr es izroku vienā naktī tik un tik lielu ezeru. Kas to var?"</p>
+
+<p align="JUSTIFY">"Ko tu, dēliņ, par tādiem niekiem raudi? Liecies labāki pie
+zemes un guli tikai!" teic vecais vīriņš, un aitu gans apgulstas. Otrā rītā
+viņš pamostas un brīnās: par nakti izrakts tāds ezers, ka viņam tīri bailes metas.
+Tik dziļš, kā viņam uzdots, tik plats, tik garš. Aitu gans it priecīgi paziņo
+melnajam jaunkungam, ka ezers izrakts. Jaunskungs gan negrib īsti ticēt, bet iet
+skatīties - nu redz un ir jātic. Otrā naktī aitu ganam ezers jāpiegādā ar ūdeni.
+Viņš atnāk vakarā pie ezera un vaimanā atkal. Pienāk vecais vīriņš un aitu gans
+ņemas stāstīt savas bēdas.</p>
+
+<p align="JUSTIFY">"Ko tu, dēliņ, par niekiem raudi? Liecies tikai gar zemi un
+izgulies!" vecais vīriņš to mierina. Viņš paklausa un apgulstas.</p>
+
+<p align="JUSTIFY">Kur pa nakti ūdens gadījies, kur ne; bet otrā rītā pamodies, aitu
+gans ierauga ezeru pilnu ar ūdeni. Trešā naktī viņam jāsalaiž jaunā ezerā
+visādas zivis un citi ūdens kustoņi. Nu viņam vēl lielākas bēdas un galvas
+grozīšana, nekā abās pirmās reizēs. Bet arī tagad vecais vīriņš to apmierina:
+"Nemaz nebēdājies, gan to arī izdarīsim. Tikai rītā neņem neviena palīgā,
+aitas mājā dzīdams." Aitu gans guļ visu nakti un, otrā rītā uzcēlies, atrod
+visu izdarītu. Melnais jaunskungs atnāk, apskatās darbu un atdod viņam visas aitas.
+Aitu gans nu it priecīgs dzen savu bariņu uz mājām. Viņa paša aitas gan tek taisni
+pa ceļu, bet svešās skrej drīzi vienā pusē ceļam mežā iekšā, drīzi otrā
+pusē, pa ceļu it nemaz.</p>
+
+<p align="JUSTIFY">"Nevajadzēja man nemaz aitas te ņemt, lai viņš tās būtu pats
+atdzinis mājās!" aitu gans pukojās.</p>
+
+<p align="JUSTIFY">Tikko to izteicis, te melnais jaunskungs klāt palīdzēt dzīt. Nu
+aitas iet brangi pa ceļu. Drīzi viņi ir no meža ārā un gandrīz jau pie mātes
+būdiņas. Melnais jaunskungs sasit plaukstos un uzsauc: "Tiš, vilki, mežā!"</p>
+
+<p align="JUSTIFY">Svešās aitas acumirklī paliek par vilkiem, sagrābj gana aitiņas
+pie rīklēm un pazūd mežā. Gan aitu gans izmeklējās vēl lāgu lāgiem savas
+aitiņas, bet tās neatrada. Arī izrakto ezeru viņš vairs nevarēja uziet Tikai ziemas
+vakaros dzirdēja mežā vilkus kaucam.</p>
+
+
+</body></html>

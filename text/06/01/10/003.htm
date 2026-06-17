@@ -1,0 +1,190 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pieci savādie stiprinieki.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 513 A. Kreicberģis Dzirciemā. LP, VI, 65 (122, 3). </p>
+
+<p align="JUSTIFY">Kāds pasaules gājējs nodomāja visu pasauli apstaigāt. Bet iegājis
+mežā, ieraudzīja vīru, kas kokus ar visu sakni no zemes rāva un čupā krāva. Viņš
+prasīja; "Draugs, ko tu te dari?" Lauzējs atbildēja, ka laužot mātei
+žagarus. Tad pasaules gājējs aicināja lauzēju līdz nākt. Labi. Gabalu gājuši,
+ieraudzīja vīru uz vienu kāju lecam. Šie apvaicājās: vai klibs esot? kas par
+nelaimi, ka klibojot? Lēcējs atbildēja: "Ja es uz abām kājām staigātu, kur tad
+neaizietu? Vēl jau uz vienu par daudz ātri sekas."</p>
+
+<p align="JUSTIFY">Tad pasaules gājējs aicināja lēcēju līdz nākt. Labi. Gabalu
+gājuši, ieraudzīja vīru, kam cepure gulēja uz galvas vienu pusi. Šie apvaicājās,
+kādēļ tā cepuri turot.</p>
+
+<p align="JUSTIFY">"Jā, citādi nedrīkstu. Es esmu pats Ziemelis; ja cepuri taisni
+uzlieku, tad salst tā, ka zaķim acis sprāgst ārā."</p>
+
+<p align="JUSTIFY">Tad pasaules gājējs aicināja Ziemeli līdz nākt. Labi. Gabalu
+pagājuši, ieraudzīja resnu, resnu vīru, kam abas nāsis bij aizbāztas. Šie
+brīnījās: "Kas tu tāds esi? Kādēļ nāsis aizbāzi?"</p>
+
+<p align="JUSTIFY">"Jā, esmu pats Vējš! Kad vienu nāsi attaisu vaļām, tad ļoti
+stiprs vējš pūš; bet kad abas attaisu, tad ir vētras, aukas, viesuļi."</p>
+
+<p>Tad pasaules gājējs aicināja Vēju līdz nākt. Labi.</p>
+
+<p>Un visi pieci gāja, gāja - aizgāja pie liela ezera. Ezera malā</p>
+
+<p align="JUSTIFY">uz liela akmeņa tupēja vīrs ar bisi rokā un tēmēja pāri par 7
+verstes gaŗo ezera gaŗumu.</p>
+
+<p>"Ko te dari?" šie vaicāja.</p>
+
+<p align="JUSTIFY">Tēmētājs atbildēja, ka ezera otrā galā esot liels ozols; pa ozolu
+staigājot muša un viņš gribot mušai kreiso aci izšaut.</p>
+
+<p>Tad pasaules gājējs aicināja šāvēju līdz nākt. Labi.</p>
+
+<p align="JUSTIFY">Gāja visi seši un nonāca pie ķēniņa. Ķēniņš, izdzirdis, ka
+viens no šiem liels skrējējs, sacīja: "Ja tu vari manu meitu izskriet, tad es tev
+to dodu par sievu. jeb tikdaudz naudas, cik viens no jums var panest."</p>
+
+<p align="JUSTIFY">Labi. Otrā rītā ķēniņš iedeva savai meitai vienu krūzi,
+vienkājas lēcējam otru krūzi, un noteica, lai skrienot līdz 7 jūdzes attālam avotam
+un atnesot ūdeni, cik ātri katrs varot. Un kamēr lēcējs savu otru kāju
+atsprādzēja, pagāja labs laiks, bet meita tamēr aizgāja, ka nozibēja vien. Nu
+skrēja lēcējs, bet gabalu paskrējis - uznāca miegs; tas likās uz ausi un aizmiga,
+pīpi zobos. Pasaules gājējs ar biedriem par laimi bija pakāpis jumtā skatīties, vai
+drīzi ūdens nesēji nenāks. Te tēmētājs ierauga: lēcējs guļ. Ko nu? Tā paķēra
+bisi un izšāva gulētājam pīpi no zobiem. Gulētājs atmodās, paskatījās: vai
+aklis! - meita jau ar ūdeni - kamēr gulējis -- pagājusi garām, šis vēl ne avota
+redzējis, ne smēlis. Bet tad arī nu lēcējs saspērās un zibiņa ātrumā, jāsaka,
+bij projām un pirmais atkal atpakaļ mājā, meitai pa gabalam garām.</p>
+
+<p align="JUSTIFY">Nu lēcējs, kā uzvarētājs, varēja ķēniņa meitu dabūt, ja
+gribēja; labāk naudu prasīja, cik koku rāvējs iespēšot panest. Labi, ķēniņam kas
+jādod, tas jādod.</p>
+
+<p align="JUSTIFY">Un tad nu šie sapirka audekla, cik visā pilsētā vien bija, un
+pašuva triju dienu laikā lielu, lielu, platu, platu maisu. Šai maisā sabēra visu
+ķēniņa mantu, bet vēl nebija pilns. Neko darīt, pilnam vajaga būt! Koku rāvējs tad
+iesvieda vēl maisā 7 karītes ar zirgiem, ar kučieriem un paņēma viegli jo viegli
+maisu pa muguru, aizgāja projām. Bet ķēniņš gudrībā vēl nesēju ar biedriem
+aicināja atpakaļ, lai nākot viņa dzelza istabā tējas sadzerties!</p>
+
+<p align="JUSTIFY">Jā, jā - šiem nekas pretim. Bet līdz sāka tējot, ķēniņš
+pavēlēja istabu sarkanu dedzināt. Nu bija Ziemelim laiks savu spēku rādīt, viņš
+sagrieza cepura taisni un tāda sala, tāda sala, ka krakšķēja vien. Ķēniņš
+izgaidījās šos nosvilstam, bet velti - visi, pēc tējas, aizgāja sveiki uz mājām.</p>
+
+<p align="JUSTIFY">Tagad ķēniņam lielais maiss ar mantu īsti palika žēl, viņš
+sūtīja visu savu kaŗa spēku pakaļ, lai maisu atņemtu, naudu glābtu. Bet nu bija
+Vējam laiks, tas attaisīja abas nāsis, atgriezās pret kaŗa spēku un sāka pūst -
+viss kara spēks, gan kājenieki, gan jātnieki, no pūtiena aizgāja kā spaļi pa kaklu,
+pa galvu atpakaļ; bet šie pārnāca laimīgi mājās un dzīvo vēl tagad - kā jādomā
+no ķēniņa naudas.</p>
+
+
+</body></html>

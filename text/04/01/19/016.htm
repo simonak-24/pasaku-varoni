@@ -1,0 +1,152 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Velna kāzas.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">16. F. Pinne Stūreniekos. Zin. Kom. kr. LP, VII, I, 018 (7).</p>
+
+<p align="JUSTIFY">Viens saimnieks nakts laikā braucis uz Vec-Auci. Ceļā to satikuši
+divi vīri, ar muzikas daikiem rokās, un lūguši, lai viņš viņus pavedat līdz tai un
+tai muižai, kur saimniekam bijis jābrauc gaŗām; tur tai muižā esot dzīres un
+viņiem tur jāejot spēlēt.</p>
+
+<p align="JUSTIFY">Labi. Salīguši par rubli vedamās naudas un nu braukuši Nobraukuši
+tur, saimnieks manījis, ka patiešām dzīŗe : pilni logi mirdzējuši ar ugunim un
+runājuši un dejuši lai. Abi spēlmaņi tad likuši saimniekam pagalmā iebraukt un
+istabā ienākt, tur būšot līgto rubli samaksāt. Iegājis istabā - ak tavu brīnumu!
+Kas tā nu par istabu - tā jau kungu istaba, tik izgreznota, izpuškota. Kungi, kungu
+sievas, kungu meitas ēduši, dzēruši to labāko, diedami un priecādamies. Nu
+samaksājuši saimnieka m to rubli un devuši dzert, bet uzkožamiem pasnieguši desu.
+Šis nodzēries labu malku, ātri vien apreibis; bet spēlmaņi tagad ierunājuši tam,
+lai paliekat nakti cauri pie viņiem, esot apkopuši viņa zirgu ari, āboliņu iedevuši.
+Palicis, dzēris vēl kādu malku, uzkozdams pasniegto desu. Bet kā tad nodzēries,
+tūlin apreibis pavisam un sācis miegoties. Nu iebāzis atlikušo desas gabalu kabatā un
+laidies miegā.</p>
+
+<p align="JUSTIFY">Vēlāk atmodies - kas tas? Viss tumšs - nemaz nezin, kur atrodoties,
+kur ne. Grābstījies, grābstījies kādu laiku - citu neko neatradis, ka tikai čužas
+un grīdu no apaļiem bomjiem. Beidzot: šķīlis uguni, ieraudzījis, ka atrodoties rijas
+augšā, bet nemaz nezinājis kā tur uzticis. - To gan atminējis, ka vedis divi
+muzikantus, ka ēdis, dzēris, bet kad rijas augšā būtu līdis - ne prātā. Nu kāpis
+zemē un dauzījis pie durvim stipri jo stipri, lai laiž ārā.</p>
+
+<p align="JUSTIFY">Vagārs sadzirdējis klauvējamies, nācis laist ārā un vaicājis,
+kā šis ieticis rijā? Izstāstījis savu ķezu galu no gala, ka esot tos vedis, rubli
+nopelnījis, desu ēdis, dzīŗojis - itin visu. Vagārs tad vaicājis, vai nevarot
+parādīt to rubli? Kālab ne -- Vilcis<b> </b>ārā no kabatas gan rubli, gan atlikušo
+desas galu. Izvilcis -- tas rublis bijis kā katra nauda, bet tas desas gabals bijis
+čūskas gabals. Brīnījies kā varējis tik lepnās dzīŗēs čūskas saēsties; bet
+vagārs apgalvojis, ka te nevienas dzīŗes nebijušas.</p>
+
+<p align="JUSTIFY">Priekš gadiem šai rijā viens esot nokāries un tādēļ te bieži
+vien spokojoties - tās tās dzīŗes esot. Nu meklējis savu zirgu un atradis pie spaļu
+čupas piesietu. Tas tas āboliņš, ko zirgiem devuši -- spali.</p>
+
+
+</body></html>

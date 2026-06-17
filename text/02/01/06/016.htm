@@ -1,0 +1,157 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Stiprinieks ar saviem biedriem.</p>
+</b></font>
+
+<p align="JUSTIFY">16. A. 301B. L. Makevica Nogalē. LP, VI, 115, 24 t u r p. AŠ, II, 87
+d.</p>
+
+<p align="JUSTIFY">Gudrs puisis atradis tādu avotu, kas gaiši dedzis. Piegājis klāt:
+ne tur kāda paagale bijusi, ne ogles - un tomēr dedzis. Viņš pamaisījis uguni ar
+pirkstu - tūdaļ palicis auksts un stīvs, bet pašam gadījušies tik stipri kauli, ka
+spējis lielākos kokus izraut.</p>
+
+<p align="JUSTIFY">Nu gājis pasaulē un ceļa malā, grāvī, ieraudzījis tādu akmeni,
+kā siena tupesi. To paņēmis kā mazu oliņu, izmetis uz ceļa un apsēdies grāvī.
+Braukuši divpadsmit braucēji gaŗām, tie nevarējuši gaŗām tikt akmenim un
+gribējuši pavelt sāņus, bet nespējuši. Tad pacēlies stiprais puisis un vieg1i jo
+viegli iemetis Iie1o akmeni grāvi atpakaļ. Tie divpadsmit braucēji pabrīnījušies par
+tādu stirpinieku un aizbraukuši savu ceļu.</p>
+
+<p align="JUSTIFY">Stiprais puisis gājis tālāk un saticis Ozolustādītāju un
+Kalnuvēlēju. Vaicājis tiem, cik viņi pelnot par dienu? "Mūsu kungs mums atmet
+tikai melnu putru - tas viss!" šie atbildējuši.</p>
+
+<p align="JUSTIFY">"Nu tad nāciet man līdz, es jums piesolu baltu putru."</p>
+
+<p align="JUSTIFY">Ši&amp;127;e gājuši līdz un visi iegriezušies mežā, kur
+ieraudzījuši lielu briedi nākam. Stiprais puisis sviedis briedim ar lielu akmeni un
+nositis. Savicojuši briedim kājas, izbāzuši bomi cauri un ienesuši vienā pilī cept
+un vārīt briedi. Vārot ielīdis sprīdītis ar olektes gaŗu bārzdu. [Tas pirmā
+dienā sakāvis Ozolustādītāju, otrā dienā Kalnuvēlēju, bet trešā dienā stiprais
+puisis sagrābis sprīdīti un iedzinis viņa bārzdu ar vadzi kokā. Sprīdītis izrāvis
+koku un aizbēdzis ar visu koku vienā alā. Ozolustādītājs ar Kalnuvēlēju nolaiž
+stipro puisi ar gaŗu virvi tai alā.]</p>
+
+<p align="JUSTIFY">Šis nu atradis apakšzemē vienu ķēniņa meitu velna pilī, un tai
+bize bijusi piedzīta pie sienas. Velns nebijis tai brīdī mājā un meita izmācījusi
+stipro puisi, lai rauga aizdurvē to akmeni pacelt, kas siena kaudzes lielumā ; ja
+spēšot, tad droši vien velnus nogalināšot. Šis cēlis, cēlis akmeni - nejaudājis
+pacelt. Nu teikusi, lai ejot otrā aizdurvē, tur būšot avots, lai nodzeŗoties pie šā
+avota. Nodzēries un nu pacēlis akmeni.</p>
+
+<p align="JUSTIFY">Tad pārnācis velns ar trim galvā un - nositis to. Tad nācis otrs ar
+sešām galvām -- nositis to. Beidzot nācis velns ar deviņām galvām - to arī
+nositis.</p>
+
+<p align="JUSTIFY">[Kalnuvēlējs ar Ozolstādītāju gan uzvilkuši izglābto ķēniņa
+meitu, bet stipro puisi atstāj alas dibenā. Tas ar liela putna palīdzību nonāk
+virszemē, aiziet pie ķēniņa un apprecē izglābto meitu. Abi neīstie glābēji dabū
+savu sodu.]</p>
+
+
+</body></html>

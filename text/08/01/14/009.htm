@@ -1,0 +1,205 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Impampis.</font><font size="4"></font></p><font size="4">
+</font></b><font size="3">
+
+<p align="JUSTIFY">9. A. 571. D. Bochons Asūnes Peilānos. J. Rupjā krājumā.</p>
+
+<p align="JUSTIFY">Vīnam kēneņam beja meita, taida skaista, ka jai precinīku nikod
+natryuka, vysod beja pylns. Bet jei beja cīši skumeiga, nikod nasmējuos; kēniņs
+sacēja, ka tam jis atdūs sovu meitu, kuris jū īsmīdēs. Vīnam ļesņīkam [kr.
+mežsargam] beja dāls, toža [kr. arī] skaists kai kēneņa meita. Jis nūbrauce
+svātūs da kēneņa meitai, bet jej naīt aiz [kr. pie] ļesņīka dāla, kam tāvs
+pascēja: "Kas īsmīdēs munu meitu, tam atdūšu."</p>
+
+<p align="JUSTIFY">Reizi gadejuos ļesņīka dālam īt pa mežu. Jis īrauga kozu, bet
+koza taida skaista, ka vīna spolva zalta, ūtra sudobra, a radzeņi nū suokuma zalta da
+pusei, a tuoļuok sudobra. Jis aizzaruove aiz raksna kūka, bet koza napamanēja, ka tī
+ir cylvāks. Jej daīt pī tuo poša kīka, aiz kuruo stuov ļesņīka dāls, i suok
+berztīs. Ļesņīka dāls kozu nūgyva aiz rogu, i nūturēja, apmauce apaušus aiz rogu
+un purna un vede da sātai.</p>
+
+<p align="JUSTIFY">Ļesņīka dālu apspēja uz vītas nakts, jis nazynova, kur izīt nū
+meža. Maļdēdamīs pa mežu, jis atroda ceļu da popa [kr. priesteris] piļei, kur vysod
+da juobrauc ļaud's. Par nalelu laiceņu jis daīt kluot da pilei. Itei nūtikšana beja
+vosor, sastdīnas dīnā. Pops kai reize [kr. taisni] beja izguoj's uorā pastaiguotīs.
+Ceļaveirs lyudzēs, lai jū īlaiž puorgulēt, pops ar lobu patykšanu laiž gulēt. Bet
+vīn kaziņai vītas nav. Ļesņīka dāls soka, ka varēs jū pīsīt pļaviņā, kur pī
+piertis, pops i atļuove. Kaziņu pīsēja pļovā un guoja abadiv ustobā.</p>
+
+<p align="JUSTIFY">Par nalelu laiku izakurējuos pierts un sacēja īt uz pierti. Pops ar
+sovim divējim dālim lyudz ceļaveiru īt ar jūs uz pierti. Ceļaveirs i nūguoja ar
+jīm, par nalelu laiciņu atīt vysi četri nū piertis izamozgovušīs. Pēc tuo īt
+popīne ar treis meitys uz pierti. Juom pītryuka yudiņa. Tad muote syuta vīnu meitu
+pēc yudiņa, meita pajēme spaņus i īt pēc yudiņa. Jei aizguoja aiz piertis, kur beja
+oka, i īrauga kozu, kurai vīna spolva zalta, ūtra sudobra. Jei dūmoj poša sev:
+"Kur tei koza roduos aiz piertis, varbyut, ka maņ laime."</p>
+
+<p align="JUSTIFY">Jei pīskrīn pī kozas izraut spolvu, lai byutu kū aizspraust aiz
+capures. Kai ruove spolvu, tai dālypa pī kozas i navar atsarautīs. Muosas i muote
+gaida, kad atness yudini, a navar sagaidēt. Tad muote syuta ūtru meitu: "Ej tu,
+meitiņ, jei taida ir napaklauseiga rogona, ka maņis nikod naklausa."</p>
+
+<p align="JUSTIFY">Jei izīt nū piertis i īrauga, ka juos muosa stuov pīlypuse pī
+kozas un klīdz: "Muoseņ, atraun tu mani nū kozas."</p>
+
+<p align="JUSTIFY">Jei kai ruove, i poša pīlypa. Tai izguoja trešai meitai i muotei,
+kai tuom divējom muosom.</p>
+
+<p align="JUSTIFY">Pops ar sovim dālym gaida, gaida, bet nikai navar sagaidēt, kad atīs
+meitas nū piertis. Tad pops syuta vīnu dālu uz pierti pasavārtu, kas tī taids ir, ka
+naatīt nū piertis. Jis izguoja nu ustobas i īraudzēja, ka vysas muosas un muote
+pīlypušas pī kozas. Jis dūmoj: "Kas tī par valna goru ir?"</p>
+
+<p align="JUSTIFY">Jis kai rozaskrējuos nū vysa placa un dūmoj, ka atraušu - ni valna!
+pots pīlypa pī jūs. Cytim bruoļim izguoja taipat, kai pirmajam. Tad īs pats pops
+vārtūs, kas tī ir par valnu. Jis pajēme krapidlu [poļu kropidlo, ūdens svētījamā
+pindzeile] un īt puoterus skatēdams. Kai daguoja kluot un īraudzēja, kas tī par
+jūkim, vysi suoka klīgt: "Tēt’, atraun myus nū kozas!"</p>
+
+<p align="JUSTIFY">Jis paprīšku suoka svētēt un puoterus skaitēt. Jau jis svētēja,
+svētēja un puoterus skaitēja, skaitēja, tad suoka raut. Kai ruove, i pots dalypa pī
+jūs. Jau ir pīlypuši pī kozas: treis muosas, div bruoļi i pops ar popīni.</p>
+
+<p align="JUSTIFY">Ļesņīka dāils pa nakti puorgulēja, uz reita cēlīs paēde un
+taisuos ceļā. Jis jem kozu un vad prūjom da sovai sātai, a popa vysa saime īt raizē
+ar kozu nū pakaļes. Ļesņīkam vajadzēja īt pa mežu. Tymā laikā - kur bejs, nabejs
+- izskrīn valns. Jis dūmoj : "Kas te ir par jūkim, ka pī vīnas kozas septiņi
+cylvāki dalypuši."</p>
+
+<p align="JUSTIFY">Valns īsakērēs raut i dūmova: "Kai atraušu itūs cylvākus,
+tai raušu uz elni, man byus daudz prīka."</p>
+
+<p align="JUSTIFY">Valns kai ruove, tai pats dalypa pī jūs un navar vairis atsarautīs.</p>
+
+<p align="JUSTIFY">Ļesņīka dāls vad tuoļuok i jam laimējuos vest par vīnu suodžu.
+Jau jis puorvede par vysu suodžu, te - kur bejs, nabejs - izīt nū rejas rejnīks un
+īrauga, ka taida uz jīm smīkleiga vieršanuos. Tad pasavierēs nū pakaļes, redz:
+valns! Tyulen kar šyupli, skrīn da valna un suok valnam ar šynpli pērt pa pūdinīku.
+Jau pēra, pēra valnu, cykam pots dalypa pī valna. Jau ir vysa navysa dalypuši pī
+kozas ostoiņi cilvāki i deveits valns. Ļesņīks vad tuoļuok i davad da ķēneņa
+piļei.</p>
+
+<p align="JUSTIFY">Pī lūga sēdēja ķēniņa meita. Jis kai padvede itū armeju,
+ķēniņa meita aizzasmējuos: "A, ha, ha!"</p>
+
+<p align="JUSTIFY">Tad ļesņīka dāls paprasēja nū ķēneņa puotogas un suoka vysus
+nū ailes cierst. Kam tyka ar puotogu; bet valnmm par vysim cīšuok tyka. Ļesņīks
+soka: "Kuo tu ķērīs un kuo tev vajadzēja?"</p>
+
+<p align="JUSTIFY">Tad valns pastuosta ļesņīkam, kuo jam vajadzēja, kab byutum itūs
+cylvākus nūness uz elni, jam byutu lels pakvaļnys (uzslavas) vuords nū vacuo valna.
+Tad ļesņīka dāls vysus palaide nū kozas. Valns nūskrēja uz elni, rejnīks uz sovu
+sātu. Bet popa saime, skrīdama uz sātu, cyts uz cyta klīdz: "Nesaleipat,
+nesaleipat, kas myus tūlaik izšķiers!"</p>
+
+<p align="JUSTIFY">Tad ļesņīka dāls ar ķēneņa meitu apsaženējuos. Kai nūmyra
+kēneņš, jus suoka valdeit par vysu kēnesti.</p>
+</font>
+
+
+</body></html>

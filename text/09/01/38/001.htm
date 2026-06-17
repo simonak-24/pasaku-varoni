@@ -1,0 +1,142 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>38</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5"> Brīnuma kalējs</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">l. A. 753. II. S k u j i ņ a, A n d r s Z i e m
+e l i s, n o 72 g. v e c a J ē k a b a B a l t i ņ a B i l s k a s p a g.</font></p><font size="3">
+</font>
+
+<p align="JUSTIFY">Vienā muižā dzīvāš varēn nikns kalēš. Ka vie kāds atbraucis
+pie šā vai nu zirgu kalt, vai ko citu, tā kalēš tūlī šo saņēmis, kā baltu
+villu: "Man nav vaļas, tev, tādam ļēvaram zirga kalt! Brauc rītu." Un tā
+visādīgi ķēzīš no panckām ārā.</p>
+
+<p align="JUSTIFY">Reiz pie kalēja piebraucis vecs vecīts un lūdzies, lei apkaļot šim
+zirgu. Nu kalēš atkal klupis vecīšam kuprā un ķēzīš šo, ka lei sunc vais no šā
+nagim maizes neņem. Bet vecīts nesacīš nekā kalējam pretī un lūdzies, lei to
+laižot šo pašu smēdē, šis pats apkalšot savu zirdziņu. Pēdīgi kalēš bīš ar
+mieru un kliedzis uz vecīša: "Nu ej, redzēs, ko tu izdarīsi!"</p>
+
+<p align="JUSTIFY">Vecīts iegāš smēdē, paņēmis ciri un nocirtis zirgam kādas. Ta
+salicis ugunī, papūtis un licis uz laktas, drusku padauzīš ar ēmuru un nu katrai
+kājai bīš jaunc pakavs klā. Ta vecīts piegāš pie zirga, katru kāju atlicis savā
+vietā, piedauzīš ar ēmuru un kājas visas bīšas savās vietās. Nu vecītis
+pasacīš kalējam ar labu dienu un aizbraucis.</p>
+
+<p align="JUSTIFY">Kalēš brīnējies, muti izplētis, ka tik viegli varot zirgu apkalt
+un nodomāš, ka šim ar būšot tā jāprovējot.</p>
+
+<p align="JUSTIFY">Otrā dienā lielckungs stellēš no muižas vesalu pulku zirgu uz
+kalšanu. Nu kalēš visim kājas no un ugunī iekšā. Bet kā nocirtis zirgim kājas,
+tā ar palicis un visi zirgi bīši pagalam.</p>
+
+<p align="JUSTIFY">Ka nu atnacis lielckungs, ta tuli licis kaleju iebazt naglu muca un
+laist no kalna leja</p>
+
+
+</body></html>

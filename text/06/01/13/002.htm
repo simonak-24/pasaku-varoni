@@ -1,0 +1,222 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>13</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ganu zēns apprecē ķēniņa meitu.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A 515. Birznieks no Fr. Pabērža Dzirciemā. Jkr. III, 47 (17). LP,
+VII, II, 20, 11, 4.</p>
+
+<p align="JUSTIFY">Mazs puisēns reiz ganījis cūkas un maucis no vītoliem stabules,
+nevis šādas, tādas stabulītes, bet tādas stabules, kad tās papūš, tad visi tūlin
+danco. Citi ieteic puikam, lai viņš ejot apkārt pie ķēniņiem pūzdams, tad viņš
+dabūšot daudz, daudz naudas. Puika arī iet.</p>
+
+<p align="JUSTIFY">Viņš nonāk pie ķēniņa un sāk pūst. Ķēniņam tā patīk viņa
+pūšana, ka viņš apsola puikam it visu, ko tik viņš lūgšot, ja pat pusvalsti. Puika
+nezin, ko lūgt. Viņš lūdz ķēniņam, lai tam auj divi dienas apskatīties un
+apdomāt, ko lai viņš lūdz. Ķēniņš ir ar mieru, auj, lai viņš iet visur un
+skatās, kur un ko grib. Puika iet pa dārzu un redz tur pliku sievieti, pieķēdētu pie
+koka. Puika grib jau sākt mukt, bet sieviete lūdz, lai viņu atsvabinot.</p>
+
+<p align="JUSTIFY">Puika aiziet pie ķēniņa un lūdz, lai tas viņam dodot dārzā
+pieķēdēto sievieti.</p>
+
+<p align="JUSTIFY">"Es tev desmitreizes labāki dotu pusvalsti, nekā to sievieti,
+bet tā kā es tev reiz sacījis, ka došu, ko vien prasīsi, tad ņem arī!"
+Ķēniņš lika atķēdēt sievieti un atdeva to puikam. Tas ar sievieti aiziet uz kuģi
+un brauc pāri jūrai projām. Sieviete sāk puikam par sevi stāstīt. "Mans tēvs
+aiz jūŗas ir par ķēniņu. Mani no viņa nozaga un atveda pie šī ķēniņa, kas mani
+gribēja precēt, bet es pie viņa negāju. Tāpēc viņš mani lika pieķēdēt dārzā
+pie koka. Par manu izglābšanu mans tēvs izsolīja pusvalsti un mani pašu."</p>
+
+<p align="JUSTIFY">Princese pārplēš mutes autiņu un iedod vienu pusi savam glābējam,
+otru patura pati.</p>
+
+<p align="JUSTIFY">Kuģa kapteinis, noklausījies princeses stāstu, arī sāk iekārot
+pusvalsti un precēt princesi. Viņš nodomā viņas īsto glābēju, stabulnieku,
+nomaitāt un tad pats uzdoties par princeses glābēju. Kā domājis, tā darīja. Viņš
+aiziet pie stabulnieka, tura viņam pistoli uz krūtim un prasa, kādu nāvi labāki
+vēlaties: vai kad nošauj, jeb bez airēm palaiž jūŗā. Stabulnieks redz: nāve tik <b>tā
+</b>kā tā, labāki jau mirt plašajā jūrā nekā šaurajā kuģītī. Viņš ir
+labāki ar mieru, ka to ielaiž jūŗā. Kapteinis to tūliņ izdara. Tad viņš
+apzvērina princesi, ka tai jāuzdod viņš par savu glābēju. Tā nu viņi nobrauca
+ķēniņa pilī.</p>
+
+<p align="JUSTIFY">Ķēniņš priecīgs, ka viņa meita atkal pārradusies. Viņš nezin
+kā diezgan pateikties viņas glābējam un pārvedējam. Ķēniņš liek taisīt jaunam
+pārim jaunu pili, un pēc gada būs kāzas.</p>
+
+<p align="JUSTIFY">Stabulnieku laivā vējš aizdzina tāli, tāli jūŗā. Sacēlās
+vētra un apgāza viņa laivu. Viņš uzrāpās uz laivas dibena un nu viņu dzen atkal uz
+priekšu, uz priekšu, kamēr izdzina pavisam malā pie kāda bieza meža. Stabulnieks iet
+gar jūrmalu arvienu tālāk uz priekšu un pienāk pie upes. Pār upi pārkritis nolūzis
+koks, viņš lien tam pāri. Jau līdz pusei palīdis, ierauga upes otrā pusē lāci, kas
+to gaida, rīkli atplētis. Nu viņš grib līst atpakaļ, bet tur atkal ierauga vilku.
+Stabulnieks paliek vidū un sāk lūgt Dievu nožēlodams, ka nav labāki jūrā
+noslīcis.</p>
+
+<p align="JUSTIFY">No lāča puses nāk vecs vīriņš, iegrūž lāci upē, tā ka
+viļņi to aiznes uz jūru, um sauc, lai viņš iet pāri. Nu vecais vīriņš izprasa
+stabulniekam, no kurienes viņš nākot, kurp ejot un kas viņš esot? Stabulnieks izteic
+visu smalki: ka ganījis papriekš cūkas, maucis stabules un kad uz tā pūtis, tad visi
+dancojuši. Tad citi viņam ierunājuši, lai viņš ejot pie ķēniņa pastabulēt.
+Aizgājis un dabūjis par stabulēšanu kādu princesi. Bet kapteinis to atņēmis, viņu
+vēl ielaidis jūrā. Vairāk viņš nekā nezinot.</p>
+
+<p align="JUSTIFY">Vecais vīriņš saka: "Nu tad es tev teikšu vairāk: kapteinis
+pārveda princesi pie ķēniņa un uzdevās par viņas glābēju. Tagad ķēniņš liek
+jaunam pārim taisīt pili un pēc gada laika viņi svinēs kāzas. Še tev podiņš un
+pindzele, ej un piedodies tur par mālderi. Tikko tu pindzeli iemērksi podiņā un
+sviedīsi pret sienu, tad viss, ko tu vien domāsi, būs uz sienas redzams. Ej vien gar
+jūrmalu uz priekšu, kamēr tu nonāksi pie jaunās pils, tur tad tu piedodies par
+mālderi. Še tev vēl viens vērdiņš, to iebāz kabatā, tas tev tad tur paliks uz
+visiem laikiem. Varēsi vilkt pa vērdiņam ārā, cik vien gribēsi, bet kā viens
+paliks, tā paliks kulē."</p>
+
+<p align="JUSTIFY">Stabulmieks pateicās vecajam vīriņam un sāk iet gar jūrmalu uz
+priekšu. Viņš gan iet, gan iet sukri, bet nemaz vēl nevar sasniegt pilsētu. Vēl tik
+ir viens mēnesis līdz princeses kāzām, kad viņš nonāk pilsētā. Jaunā pils jau
+gatava, vēl tikai vajaga izmālēt. Mālderi gan pieteikušies vairāki, bet ķēniņš
+meklē īstu mākslinieku un tādu, kas varētu tūkstošu vērdiņu ielikt drošībai.</p>
+
+<p align="JUSTIFY">Te ieradās stabulnieks. Ķēniņš to tūlin salīgst, viņam ir arī
+tūkstošs vērdiņu drošības naudas.</p>
+
+<p align="JUSTIFY">Stabulnieks salīgst, iet atpakaļ uz vīnuzi un sāk uzdzīvot. Dzer
+dienu, dzeŗ nakti un tik maksā ar vērdiņiem. Par salīgto darbu viņš neliekas ne
+zinot. Gan ķēniņš viņam sūta ziņu uz ziņas, lai nāk mālēt, bet šis tik:
+"Kas ķēniņam par daļu, gan es pastrādāšu, vai viņam nav tūkstošs vērdiņu
+par drošību?"</p>
+
+<p align="JUSTIFY">Ir jau beidzamā nedēļa priekš kāzām, viņš vēl neiet. Atnāk
+beidzamā sestdiena - nu ies gan. Ieiet pirmā kambarī, apslapina pindezli podiņā -
+gadās lauks, dīķmalā, vītoli, cūkas rakņā lauku, cūku puika iekāpis vītolā,
+mauc svilpjus un pūš. Cūkas, sivēni, citi gani, visi, visi danco, griežas ka put
+vien. Otrā kambarī gadās, kā ķēniņš par stabulēšanu apsola vai pusvalsti.
+Trešā kambarī gadās, kā princese pārplēš mutes autiņu, vienu pusi iedod viņam,
+savam glābējam, otru pati patura, un kā kapteinis viņu iemet jūŗā. Ceturtā
+kambarī gadās, kā viņš no viļņiem izglābjas, kā vecais vīriņš iedod podiņu.
+Piektajā kambarī gadās, kā kapteinis pārved princesi un teicas par viņas glābēju,
+bet nevar uzrādīt pusi no ķēniņa meitas lakatiņa.</p>
+
+<p align="JUSTIFY">Tad ķēniņš liek atvest kapteini un prasa, vai viņam esot puse no
+viņa meitas kabatas lakatiņa? Kapteinim nava - sāk lūgties. Bet ķēniņš nav
+pielūdzams. "Kāds sods manas meitas glābējam bija jācieš nevainīgam, tāds tev
+tagad jādabū vainīgam!"</p>
+
+<p>Ķēniņš lika tūliņ ielikt kapteini laivā un palaist bez airiem jūrā. Vētra
+acumirklī apsvieda laivu un kapteinis noslīka. Otrā dienā svin kāzas īstais meitas
+glābējs.</p>
+
+<p align="JUSTIFY">Piezīme. Pasakas beigu dala ir ņemta no <b>A. </b>Lercha -Puškaiša
+saīsinājuma, kur ir atmesti daži gluži lieki sīkumi, kādus gan laikam bija
+uzrakstītājs pats pielicis. P. Š. </p>
+
+
+</body></html>

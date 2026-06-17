@@ -1,0 +1,227 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Baltā un melnā līgava. A.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">10. A. 403 A. Štrauss Ērbērģniekos. LP, III, 37.</p>
+
+<p align="JUSTIFY">Kādam vīram nomirusi sieva, atstādama mazu meitiņu. Pēc tāda
+laika vīrs apņēmis raganu par sievu. Tā maz, ļoti maz mīlējusi pabērnu. Bet
+vēlāk, kad pašai piedzimusi īsta meita, tad ragana nevarējusi pabērnu ne acu galā
+ieredzēt</p>
+
+<p align="JUSTIFY">Reiz ragana sadomājusi sērdienīti nobendēt. Viņa ielējusi
+podiņā taukus, apsējusi to ar baltu drānu un noteikusi: "Nes podiņu tēvam uz
+lauku! Bet to tev saku: ja viena tauku pilīte būs piegājusi pie drāniņas, tad kakls
+tev nost!"</p>
+
+<p align="JUSTIFY">Sērdienīte gan nesusi rāmi, gan nesusi, bet neko darīt, drāniņa
+tomēr nošļacījusies. Sērdienīte gauži raudājusi. Tēvs prasījis: "Kādēļ,
+bērniņ, raudi?"</p>
+
+<p align="JUSTIFY">Tā un tā - šī izstāstījusi. "Vakarā vairs nebūšu
+dzīvotāja pamāte solīja man kaklu noraut." " "Nu, nu, tik traki jau
+nebūs! Mājā iedama, izmazgā drāniņu. Sērdienīte gan mazgājusi, bet tik tīra
+drāniņa tomēr vairs</p>
+
+<p align="JUSTIFY">nebijusi. Nu sākusi atkal gauži raudāt. Uz reizi izlīdusi čūska
+un sacījusi: "Ko nu raudi? Nopin man labāk vaiņadziņu, jo rītu būs manai māsai
+kāzas!"</p>
+
+<p align="JUSTIFY">Viņa salasījusi puķītes un ātri, ātri nopinusi vaiņadziņu. Pēc
+tāda brītiņa izlīdusi otra čūska sacīdama: "Ko nu raudi? Nopini man labāk
+vaiņadziņu, jo rītu būs manai māsai kāzas!"</p>
+
+<p align="JUSTIFY">Viņa salasījusi puķītes un ātri, ātri nopinusi vaiņadziņu. Pēc
+tāda brītiņa izlīdusi trešā čūska sacīdama: "Ko nu, māsiņ, raudi? Es esmu
+brūte, rītu man kāzas, nopin man vaiņadziņu!"</p>
+
+<p align="JUSTIFY">Nu sērdienīte salasījusi tās jaukākās puķītes, ko vien
+atradusi, un nopinusi jauku, jauku vaiņadziņu. Līdz ko vainadziņu čūskai, brūtei,
+pasniegusi, tā uz reizi iegadījušās visas trīs čūskas ar vaiņadziņiem galvā un
+prasījušas: "Māsiņ, kādu laimi par to labumu lai tevim vēlam?"</p>
+
+<p align="JUSTIFY">Citas laimes negribu: kad tik mana taukainā drāniņa paliktu "</p>
+
+<p align="JUSTIFY">balta." Tā viena čūska sacīja: "Lai tava drāniņa paliek
+otrtik balta, nekā viņa bija!"</p>
+
+<p align="JUSTIFY">Tā otra čūska sacīja: "Paliec pati tik daiļa kā saule</p>
+
+<p align="JUSTIFY">Tā trešā čūska sacīja: "Kad tu raudāsi, tad tev pērles no
+acim birs, un kad tu runāsi tad tava balss tik jauki skanēs kā kokle Sērdienīte
+pārnesusi no savām asarām pilnu podiņu ar pērlēm</p>
+
+<p align="JUSTIFY">un atdevusi drāniņu tik baltu kā sniegu.</p>
+
+<p align="JUSTIFY">Ragana brīnījusies, kur meitene tik baltu drāniņu dabūjusi, kur
+tik daudz pērļu rāvusi, kur tādu daiļumu, kur tik mīlīgu valodu ņēmusi. Nu otrā
+dienā tīšu sūtījusi ar tauku podiņu savu īsto meitu uz lauku. Īstā meita labi
+sašļacinājusi drāniņu ar taukiem. Tēvs sacījis: "Vai, meitiņ, vai tev nu
+māte nerāsies, ka drāniņa tik taukaiņa :?"</p>
+
+<p align="JUSTIFY">Kur tad nu rāsies? Kad tik es zinātu, kurā v ietā sērdienīte
+" " vakar izmazgājusi drāniņu tik baltu, tad nebēdātu nekā.</p>
+
+<p align="JUSTIFY">"Ai, meitiņ, viņa būs ar asarām izmazgājusi; tu nezini, cik
+tā gauži raudāja."</p>
+
+<p align="JUSTIFY">To dzirdēdama, īstā meita, uz mājām iedama, tīšu šņukstējusi
+un ar varu izspiedusi asaras, lai varētu tikdaudz podiņā izspiest, ka drāniņu
+izmazgāt. Uz reizi izlīdusi čūska un sacījusi:</p>
+
+<p align="JUSTIFY">Ko nu raudi? Nopin man labāk vaiņadziņu, jo rītu manai māsai
+"</p>
+
+<p align="JUSTIFY">kāzas."</p>
+
+<p align="JUSTIFY">Bet īstā māsa aizspērusi čūsku ar kāju projām un gājusi
+tālāk.</p>
+
+<p align="JUSTIFY">Pēc brītiņa iznākusi otra čūska sacīdama: "Ko nu raudi?
+Nopin man labāk vaiņadziņu, jo rītu manai māsai kāzas."</p>
+
+<p align="JUSTIFY">Bet īstā meita aizspērusi čūsku ar kāju projām un gājusi
+tālāk. Pēc brītiņa iznākusi trešā čūska sacīdama: "Ko nu, māsiņ, raudi?
+Es esmu brūte, rītu man kāzas, nopini man vaiņadziņu!"</p>
+
+<p align="JUSTIFY">Īstā meita aizspērusi čūsku ar kāju projām un patlaban
+gribējusi tālāk iet; bet tai pašā acumirklī iegadījušās visas trīs čūskas un
+sacījušas: "Nu kādu laimi lai tev vēlam? Mēs tevim vēlam, lai tava drāniņa
+būtu tik melna. kā darva, lai raudot tev no acim kristu rupuči ārā, lai tavs vaigs
+taptu tik nejauks kā nakts, un lai tava valoda būtu līdzīga zvēru rējienam."</p>
+
+<p align="JUSTIFY">Mājā ragana brīnījusies un pārbijusies, kur meita tik melnu
+drāniņu dabūjusi, kur podiņā tikdaudz rupuču sagadījušies, kur tādu briesmīgu
+vaigu un briesmīgu valodu ņēmusi.</p>
+
+<p align="JUSTIFY">To dzirdēdama un redzēdama, ragana vēl vairāk sadusmojusies uz
+sērdienīti; viņa nedevusi tai nemaz vairs ēst. Bet jo nedevusi ēst, jo sērdienīte
+daiļumā pieņēmusies.</p>
+
+<p align="JUSTIFY">Dažas nedēļas vēlāk gadījies kādam. ķēniņa dēlam gar raganas
+māju braukt. Gaŗām braucot, tas izdzirdējis tik jauku valodu, it kā kokles skaņas.
+Viņš apturējis zirgus un prasījis, kam tik jauka valoda šinī mājai- Ragana .tūlīt
+izskrējusi pretim sacīdama: "Manai meitai, manai meitai! Pag, pag, tūlīt
+izvedīšu!"</p>
+
+<p align="JUSTIFY">Ragana nu paslēpusi sērdienīti apakš kubla un noteikusi pie dzīvas
+nāves, lai stāvētu kā sasalusi un ne pušplēsta vārdiņa neiepīkstētos. To
+padarījusi, tā steigšus vien rāvusi īsto meitu laukā pie ķēniņa dēla.</p>
+
+<p align="JUSTIFY">Bet kas nu noticis? No meitas tumšā vaiga ķēniņa dēls nobijies un
+no meitas valodas rējiena ķēniņa dēla zirgi sākuši trakot. Viņš atsūtījis īsto
+meitu atpakaļ un prasījis pēc tās ar jauko valodu. Bet kad ragana atteikusi, ka citas
+nevienas neesot, tad ķēniņa dēls sācis visas malu maliņas pārmeklēt, kamēr
+atradis sērdienīti apakš kubla.</p>
+
+<p align="JUSTIFY">Nu aizvedis sērdienīti uz savu pili un to apprecējis.</p>
+
+
+</body></html>

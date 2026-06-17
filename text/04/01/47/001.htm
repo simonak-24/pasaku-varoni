@@ -1,0 +1,272 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>47</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Lācis par precinieku.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 425 C. A.<b> </b>Bīlenšteins no Jāņa Gusta Ķenziņu muižā.
+LP, VII, II, 19, 3, 1.</p>
+
+<p align="JUSTIFY">Vienam ķēniņam trīs meitas, visas viņam bija mīļas. Tad viņš
+sataisījās braukt uz pilsētu un prasīja meitām, ko katra vēloties`? Būšot to
+nopirkt pilsētā. Viena saka: "Zīdes svārkus", otra : "Sakti" :
+trešā, jaunākā : "Tādu putniņu, kas pats koklē, tādu ratiņu, kas pats
+vērpjas, tādas tītavas, kas pašas tinas."</p>
+
+<p align="JUSTIFY">Labi. Aizbrauc uz pilsētu, nopērk tām divām svārkus un sakti, bet
+nevar dabūt to, ko jaunākā vēlējusies. Bēdīgs, nabadziņš, griežas uz mājām.
+Brauc caur mežu - jau labi tumšs -redz, ka meža vidū spīd viena svecīte. Viņš saka
+kučierim: "Aizej paskaties, kas tur ir!"</p>
+
+<p align="JUSTIFY">Aiziet -- redz: putniņš koklē pats no sevis, ratiņš vērpjas pats'
+no sevis, tītavas tinas pašas no sevis. Nu skrien uz kungu, pasaka tam. Kungam paliekas
+labāki ap dūšu, viņš saka, lai iet paņemt tos visus trīs. Kučieris paņem - atnāk
+pie kunga lācis: "Es tās lietas nedošu, ja neapsoli man to dot, kas tev pirmais
+mājās pretī skries."</p>
+
+<p align="JUSTIFY">Ķēniņš domā: "Kas gan man pirmais skries pretim? - Varbūt
+jakts suns." Viņš apsola arī, ka došot, un paņem putniņu, ratiņu, tītavas un
+brauc priecīgs uz mājām.</p>
+
+<p align="JUSTIFY">Vēl kādu versti no pils sūta savu kučieri, lai piekodina visiem,
+lai neviens pretim nenāk. Labi. Pārbrauc. Ķēniņš iet savā kambarī, ģērbjas zemē
+- tā uzreiz atskrien viņa jaunākā meita, apķeŗas ap kaklu. Viņa vēl nezin itin
+neko par tām bēdām, bet tēvam sirds grauztin graužas, ka nu lācis nāks drīz pēc
+jaunākās meitas un vedīs projām.</p>
+
+<p align="JUSTIFY">Otras dienas vakarā lācis klāt: lai dod jaunāko ķēniņa meitu; ja
+ne, tad pils nogrims uz vietas. Domā ķēniņš: "Dos vienu kalponi, lai nes
+projām."</p>
+
+<p align="JUSTIFY">Lācis paņem kalponi pa muguru un aiznes. Meita nemaz nezin, vai viņa
+pa gaisu iet, vai kājām, vai jāšus. Ienes mežā, pašā<b> </b>meža vidū, lācis
+noliek nesamo zemē, liek viņai ieskāt savu ādu. Ieskā - lācis ievaicājas, ja viņas
+, tēvam tas mežs piederētu, ko viņš darītu? Meita atbild: "Cirstu kokus,
+iztaisītu laukus!"</p>
+
+<p align="JUSTIFY">Tad lācis atsaka: "Tu neesi īstā!"</p>
+
+<p align="JUSTIFY">Un tūdaļ ņem pa muguru, nes atpakaļ. Aiznes pie pils un sauc, lai
+dodot, ko ķēniņš apsolījis. Ķēniņš iedod otru kalponi. Ņem lācis atkal pa
+muguru, nes projām. Atkal meža vidū ticis, liek zemē un saka, lai ieskā muguru. Šī
+ieskā arī šim. Tā viņš prasa: "Ja tavam tēvam tas mežs piederētu, ko viņš
+darītu?"</p>
+
+<p align="JUSTIFY">"Ko darītu? Cirstu kokus, ietaisītu laukus!" Lācis atsaka:
+"Tu arī neesi īstā!"</p>
+
+<p align="JUSTIFY">Un nes meitu atpakaļ. Aiznes, prasa ķēniņam, lai dod, ko solījis;
+ja ne, tad nelabi būs. Neko iesākt - dos ķēniņš, jaunāko meitu. Paņem lācis pa
+muguru, nes projām. Aiznes meža vidū, noliek zemē, liek lai ieskā galvu. Viņa ieskā
+arī. Tā viņš prasa:</p>
+
+<p align="JUSTIFY">Ja tavam tēvam tas mežs piederētu, ko viņš darītu?" "</p>
+
+<p align="JUSTIFY">Viņa atbild: "Liktu kokus cirst zemē, celtu no viņiem pilsētu,
+bet nocirsto vietu pārvērstu par laukiem."</p>
+
+<p align="JUSTIFY">Lācis saka: "Tā ir īstā!" un aiznes meitu uz vienu alu.
+Redz šī itin gaiši, ka tanī vietā pilsēta nogrimusi. Atnāk vakars, visādi ēdieni
+gadās uz galda. sēž lācis klāt ēst, sauc ķēniņa meitu arī, lai nāk ēst. Šī
+ēd no visādām kārtām un paēd labi, lācis lai. Kā nu paēduši, ies lācis gulēt.
+Ies gult, norauj lāča ādu, paliek par skaistu jaunkungu. Šai nu prieks. Bet tur bija
+divas gultas, tai vienā gultā apgulās jaunskungs, šai. paliek tā otra. Rītā, kā
+celsies jaunskungs augšā, velk atkal lāča ādu mugurā. Šī prasa: "Kāpēc
+tā?"</p>
+
+<p align="JUSTIFY">Tas viņam tā esot nolikts. Ja, un kā nu uzvilcis ādu, āda pieaug
+klāt miesām, vakarā tikai atlec nost. </p>
+
+<p align="JUSTIFY">Tā nu dzīvojuši labu laiku kopā abi divi saderīgi. Bet pēc labi
+ilga laika lācis ieteiksies ķēniņa meitai: "Vai negribi uz kāzām iet? Tavai
+māsai kāzas esot."</p>
+
+<p align="JUSTIFY">Viņa sasit rokas: "Labprāt!" . Labi! Rītā lācis paņem
+viņu pa muguru aiznes uz kāzām , bet piesaka, lai nevienam cilvēkam neteiktu, ka
+viņš cilvēks esot. Ieiet kāzu namā abi divi - kur šī griežas, tur lācis pakaļ.
+Šī sēž aiz galda ēst -- lācis šai pie kājām apakš galda. Nobeidzas kāzas, ņem
+savu ķēniņa meitu atkal pa. muguru, nes projām. Padzīvo kādu gadu, lācis prasa:
+"Vai negribi uz krustībām iet?" ,,Labprāt!"</p>
+
+<p align="JUSTIFY">Nu ja labprāt, nes arī uz māsas krustībām, bet to piesaka, lai
+nevienam neteiktu, ka viņš cilvēks esot. Ieiet krustībnieku pulkā, šī runā ar
+vienu. otru, lācim laiks gaŗāks, tas apgulsies pabeņķī. Apguļas pabeņķī un
+piemieg. Kamēr šis aizsnaudies, ķēniņa meitas māte izprasa meitai smalki, jo smalki
+par lāci pašu, par lāča dzīvi, un šī aizmirzdama izsaka, ka tas nekāds lācis
+neesot, esot skaists jaunskungs, vakaros lāča ādu velkot nost.</p>
+
+<p align="JUSTIFY">Tā mana māte neko vairāk, liek sulainim vienā kambarī krāsni
+sakurināt, otram sulainim pagultē paslēpties. Labi! sakurina krāsni, tas paslēpjas,
+vakars arī klāt, lācim ar jaunāko ķēniņa meitu jānāk gulēt. Kā ies gulēt, velk
+atkal lāča kažoku zemē un pasviež pagultē. Guļ, guļ -- sāk krākt, te sulainis no
+pagultes ārā, paķeŗ lāča ādu, krāsnī iekšā, sadedzina. Rītā agri stāv tēvs,
+māte, māsas, krustībnieki aiz durvim, kas tur iznāks. Šis ceļas augšā, ķeŗ pēc
+ādas - nav vairs. Kā nav vairs, tā šis ķēniņa jaunākai meitai uzsviež dzelzs
+kurpes kājās un saka: "Ātrāk tu tās kurpes nenoņemsi, kamēr es tev pats
+nenoņemšu."</p>
+
+<p align="JUSTIFY">To sacījis skaistais ķēniņa dēls piepēži pazuda kā miglā.</p>
+
+<p align="JUSTIFY">Ko nu? Neko vairāk, paņem jaunākā ķēniņa meita putniņu,
+ratiņu, tītavas un iet savu zudušo ķēniņa dēlu meklēt. Pēc gada laika viņa
+ierauga lielā mežā, kalna galā greznu pili. Ieies aprunāties -- padzird: tai pilī
+esot par ķēniņu. tas, kam senāk lāča āda bijusi valkājama, un kam tā āda tur un
+tur esot sadedzināta. Tā šī tūlin nesaka ne vārda vairāk, līgst pie ķēniņienes
+par istabas meitu. Dzīvo tur kādu nedēļu, dabūn ķēniņiene zināt, ka istabas
+meitai tāds putns, tāds ratiņš un tādas tītavas. Ķēniņiene uzplijas, lai viņai
+dod to putnu. Istabas meita atbild: "Dotu gan, bet laižiet mani vienu nakti ar
+ķēniņu izrunāties."</p>
+
+<p align="JUSTIFY">Ja, ja, lai runājot vesela! Bet ko ķēniņiene? Tā slepus pret
+vakaru iedod ķēniņam miega zāles. Ieiet istabas meita runāt, ķēniņš guļ kā
+pamiris. Gan šī izsaucas, izmodinās: "Ķēniņ, ķēniņ, apžēlojies par mani,
+noņem man tās<b> </b>dzelzu kurpes!" bet ķēniņš ne vārda neatbild.</p>
+
+<p align="JUSTIFY">Otrā dienā ķēniņiene uzplijas istabas meitai, lai dodot to
+ratiņu.</p>
+
+<p align="JUSTIFY">"Dotu gan, bet laižiet mani vienu nakti ar ķēniņu
+izrunāties." </p>
+
+<p align="JUSTIFY">Ja, ja, lai runājot vesela. Bet ķēniņiene atkal miega zāles
+iedevusi ķēniņam. Šī gan izsaucās, izmodinās: "Ķēniņ, ķēniņ apžēlojies
+par mani, noņem man tās dzelzu kurpes!"</p>
+
+<p align="JUSTIFY">Ķēniņš ne vārda nedzird. Bet par laimi, viens sulainis noklausās
+visu to saucienu pie atslēgas cauruma un no rīta pasaka to ķēniņam : tā un tā.
+Ķēniņš tad izmāca sulaini : "Kad ķēniņiene man šovakar miega zāles ienes,
+tad tu ātri, ātri izpūt uguni. Viņa par to piktosies, zināms, cirtīs tev pliķi par
+ausi, bet paciet to. Kamēr citu uguni sameklēs, es miega zāles aizliešu aiz
+zābaka."</p>
+
+<p align="JUSTIFY">Trešā dienā ķēniņiene uzplijas istabas meitai, lai dodot tās
+tītavas.</p>
+
+<p align="JUSTIFY">"Dotu gan, bet laižiet mani vienu nakti ar ķēniņu
+izrunāties." Lai runājot vesela. Nu nesīs ķēniņiene trešreiz miega zāles
+ķēniņam; bet līdz ko trauciņu ķēniņam pasniegusi, sulainis izpūš uguni un
+ķēniņš aizlej miega zāles aiz zābaka. Gan šī sapliķē sulaini, bet tas, cilvēks,
+nepīkst ne vārda, meklē tikai citu uguni. Aiziet ķēniņiene pie miera, istabas meita
+poš iekšā pie ķēniņa izrunāties. Ieiet -- tūlin pirmais vārds: "Ķēniņ,
+ķēniņ, apžēlojies par mani, noņem man tās dzelzu kurpes!"</p>
+
+<p align="JUSTIFY">Nu ķēniņš atmožas kā no sapņa, kas šī tāda, un, tūdaļ
+noņem dzelzs kurpes. Bet ar to vēl nekas - viņš vēl pateica arī to, ka šī pils
+kalna galā senāk bijusi zemes apakšā un ka tai brīdī, kad viņa lāča āda
+sadegusi, tā pacēlusies kalna galā, zemes virsū.</p>
+
+<p align="JUSTIFY">Pēc tam ķēniņš iegāja pie miega zāļu nesējas, vaicādams:
+"Pazaudēju savu atslēgu, liku citu nokalt, bet tā tik labi neslēdz kā vecā.
+Tagad atradu veco. Kuŗa nu būtu 1abāki paturama, vai tā jaunā, vai tā vecā?"</p>
+
+<p>Šī uz pēdām atbild: "Vecā, vecā - jauno svied projām!" "Labi! tad
+tev jāiet projām, lūk, tur atnāca mana pirmā sieva, mana vecā atslēga; arī
+putniņš, ratiņš un tītavas paliek te pie manis, tās viņas pūrā bija.</p>
+
+
+</body></html>

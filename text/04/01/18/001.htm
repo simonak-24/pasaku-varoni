@@ -1,0 +1,187 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title> Velna l?gava</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Velna līgava.</font></p><font size="5">
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">l. Treimaņu Jānis no Lūcijas Švānes Kurzemes Bērzmuižā. Jkr.
+IV, 51 (44). LP, VII, I, 154-6.</p>
+
+<p align="JUSTIFY">Vecos laikos dzīvojuši kopā vienās mājās puisis un meita. Tie
+nemaz nevarējuši satikt; plēsušies kā suns ar kaķi. Citi ļaudis noskatījušies,
+teikuši: "Gan jūs abi apprecēsities. Vecais Kušķu Janka ar Ilzi, kuŗi tagad
+tepat pušelniekos dzīvo, tie jau<b> </b>arī viens otram ne virsū neskatījās; bet ne
+rudens nevarējuši sagaidīt -- tā miežu pļaujas laikā - ļaudis dzirdējuši, ka
+mācītājs viņus pārsviedis pār kanceli, un pēc trim nedēļām tiem kāzas gatavas.
+Tagad viņiem jau lieli bērni, kuŗi atkal var precēties. Tā arī jūs gan saiesit
+kopā."</p>
+
+<p align="JUSTIFY">Puisis bijis varens, stipri bagāts, un turklāt muižas rijkuris,
+turējis pats savu zirgu. Tā puisi teicis: "Kad es viņu ņemu, tad lai zaglis nozog
+manu zirgu."</p>
+
+<p align="JUSTIFY">Un meita. teikusi: "Ja es pie viņa iemu, tad lai velns ņem manu
+dvēseli."</p>
+
+<p align="JUSTIFY">Un tiešām! pēc neilga laika apprecējās abi un noturēja kāzas.
+Kāzu vakarā, kad brūte<b> </b>no baznīcas pārbrauc, velns nāk pēc viņas dvēseles
+un zaglis atkal nāk pēc puiša zirga. Abi satiekas aiz dārza sētas. Velns uzprasa
+zaglim: "Kur tad tu iesi?``</p>
+
+<p align="JUSTIFY">"Es iešu to zirgu zagt," atbild zaglis.</p>
+
+<p align="JUSTIFY">"A, kur tad tu iesi?" prasa nu zaglis pretim.</p>
+
+<p align="JUSTIFY">Velns atbild: "Es iešu to dvēseli ņemt; bet viens pats es viņu
+nevaru dabūt, nāc man palīgā. Kad ieiesim iekšā, tad es palīdīšu pabeņķī un tu
+aizlien aizkrāsnē; brūte apsēdīsies galda galā uz beņķi, es viņai uzmīšu uz
+kāju, kur tad viņa tūlinas šķaudīs un tu saki: "Velns, ņem brūtes
+dvēseli!" Kad nu trīs reizes tu tā teiksi, tad brūte mirs, es varēšu paņemt
+viņas dvēseli, un nu izcelsies liela juka. Visi skries un vaimanās bez gala. Pa to
+starpu tu varēsi zirgu it viegli nozagt."</p>
+
+<p align="JUSTIFY">Iekšā ejot, velns ierauga pie durvim pīlādzes bozi un teic uz
+zagli: "No tās man bail; kad ar to man sit, tad var manus kaulus miltu miltos
+sadauzīt."</p>
+
+<p align="JUSTIFY">Iegājuši nostājas katrs savā vietā. Pašulaik iznāk brūte no
+kambaŗa un apsēžas galda galā. Velns tūlin viņai uzmin uz kāju; brūte tik dikti
+šķauda, ka visa istaba atskan. Visi stāv kā apburti un mēmi, un neviens nezin teikt:
+"Dievs palīdz!" Tik zaglis, aizkrāsnē, iesaucas skaļā balsī: "Dievs
+palīdz!"</p>
+
+<p align="JUSTIFY">Velns saskaistas, bet domā: "Lai, lai, kad tik trešo reiz
+teikts: "Velns, ņem brūtes dvēseli!" tad ar pietiks," un uzmin brūtei
+otru reiz uz kāju. Brūte atkal šķauda visā balsī, bet kā neviens, tā neviens
+neteic: "Dievs palīdz!" Tikai atkal zaglis, aizkrāsnē tupēdams, saka:
+"Dievs palīdz!"</p>
+
+<p align="JUSTIFY">Velns paliek tik nikns, ka vēlas zagli vai ar zobiem&amp;127; saēst.
+Nu trešo un beidzamo reizi velns uzmin brūtei it cieti uz kāju, un viņa tā šķauda,
+ka visa istaba notrīc: bet tavu brīnumu! neviens cālītis, neviens viesis nejēdz
+teikt: "Dievs palīdz!" un brūte jau sāk bāla mesties. Te zaglis, galvu
+pabāzis gar krāsns stūri, iesaucas visā balsī: "Dievs palīdz!" un brūte
+atspirgst, cenas augšā un iet dancot. Velns paliek tīri zils un melns un nevar no
+dusmām vairs izturēt, iesaucas: ..Ļaudis, ļaudis, zaglis aizkrāsnē!"</p>
+
+<p align="JUSTIFY">Zaglis brēc tam pretim: "Velns pabeņķī!"</p>
+
+<p align="JUSTIFY">Nu neviens neskatās pēc zagļa, turpretim visas acis griežas uz
+pabeņķi; bet neviens nevar velnu redzēt, tik zaglis viņu redz. Tas atminas, ko velns
+par pīlādzes bozi teicis, pakampj to un dod ar viņu, cik tik var pa acim, pa galvu, tā
+ka put vien, kamēr velnu izdzen pa durvju durvim un viņu aizdzen projām.</p>
+
+<p align="JUSTIFY">Nu visi apstāj zagli un prasa viņam, kā tad viņš ar velnu tā
+sagājies. Zaglis atgādina tiem, ka tā tam vajadzējis notikt; jo kad puisis un meita
+vēl nebijuši precējušies, tad puisis teicis, lai tam viņa zirgu nozogot, ja viņš
+meitu ņemot, un meita teikusi, lai velns viņas dvēseli ņemot, ja viņa pie Puiša
+aiziešot. Jaunais pāris bijis ļoti iepriecināts, ka viņu neapdomība tik labu galu
+ņēmusi, un šķinķoji5 zaglim zirgu.</p>
+
+
+</body></html>

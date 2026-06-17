@@ -1,0 +1,373 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Zemgales ķēniņa meita Skaistīte.</p>
+</b></font>
+
+<p align="JUSTIFY">1.A. 30lA. , A. Kurzemnieks, "Skolas maize" II, 12. </p>
+
+<p align="JUSTIFY">Priekš daudz gadu simteņiem Daugavmalā stāvēja it grezni</p>
+
+<p align="JUSTIFY">būvēta pils. šinī pilī dzīvoja varens ķēniņš, kam piederēja
+liela valstība. Viņš bija saviem pavalstniekiem nevien varens apsargātājs, bet arī
+labs un mīlīgs apgādnieks. Par savu apakšnieku labklājību viņš rūpējās kā
+tēvs par saviem bērniem. Pava1stnieki arī viņam tādēļ bija paklausīgi un
+uzticīgi. </p>
+
+<p align="JUSTIFY">Šim pašam ķēniņam bija viena vienīga meita, ko viņas smukuma
+dēļ sauca par Skaistīti. Ķēniņš ļoti mīlēja šo savu lielāko greznumu un
+sargāja to kā savu dārgāko mantu.</p>
+
+<p align="JUSTIFY">Skaistītei dažu labu reiz gribējās apmeklēt pils apkārtni un
+apbrīnot viņas jaukumu un greznumu, arī paklausīties jaukās putniņu dziesmās. Bet
+viņas tēvs, varenais ķēniņš, ne uz kādu vīzi viņai neatļāva baudīt šā
+prieka, gan ne no cietsirdības, bet no lielas mīlestības, jo viņš gauži bijās, ka
+viņa bērnam nenotiek kāda nelaime. Skaistītei tomēr sava tēva pavēle bija
+jāklausa, kaut gan ar žēlabām. Tā apsargāta, viņa bija izaugusi par lielu un daiļu
+princesi.</p>
+
+<p align="JUSTIFY">Bija jauka vasaras diena. Saulīte it gaiši spīdēja un laipni
+sildīja. Puķes pašā lielākā greznumā aptērpušās, piepildīja visu gaisu ar savu
+patīkamo smaržu. Skaistīte gan daudz maz dabūja sajust arī caur atvērtu logu šo
+dabas greznumu, bet viņas sirsniņa par to vēl netika apmierināta. Viņa lūdza tēvam;
+lai viņai tak pilsdārzā ļaujot pastaigāties, ja arī ne tālāk. Tēvs no iesākuma
+gan negribēja atļaut, bet pēcāk tak paļāva.</p>
+
+<p align="JUSTIFY">Skaistīte par to nevarēja vien tēvam diezgan pateikties, juzdamās
+ļoti laimīga. Iegājusi dārzā ar savām pavadonēm, viņa apsēdās uz skaista velēnu
+benķa. Skaistīte, gribēdama labāki redzēt jaukos, mazos putniņus, kas upmalā aiz
+dārza sētas skandināja savas dziesmiņas, sacīja uz savām pavadonēm: "Palieciet
+jūs te! Es iešu uz kādu brītiņu tur lejā jauko dziedātāju apskatīt."</p>
+
+<p align="JUSTIFY">Pavadones viņai arī to labprāt atļāva. Skaistīte viegliem soļiem
+devās pa mazajiem dārza vārtiņiem uz upmalu, cerēdama tur panākt savu mērķi.</p>
+
+<p align="JUSTIFY">Upmalā tikusi, viņa bez kādas apdomāšanās devās uz priekšu.
+Nogājusi isā laikā tik tālu, ka vairs pils nevarēja redzēt, Skaistīte gan
+atjēdzās, ka nu būtu laiks uz māju doties; bet nabadzīte, nezinādama, uz kuŗu pusi
+pils atrodas, maldīdamās aizgāja pavisam uz citu pusi un arvien tālāk no pils.</p>
+
+<p align="JUSTIFY">Princeses pavadones, nevarēdamas savas luteklītes sagaidīt, gāja
+viņas mek1ēt. Bet ak! cik gauži viņas izbijās, kad Skaistītes pie upmalas neatrada!
+Gan kliedza, gan sauca, bet uz viņu saukumiem atbildēja tik smagais vējš, kokus
+locīdams. Pēc ilgas mek1ēšanas pavadones, aizgājušas uz pili, pastāstīja šo bēdu
+vēsti arī ķēniņam.</p>
+
+<p align="JUSTIFY">Ķēniņš, to sadzirdējis, gribēja no žēlabām un bailēm vai
+nomirt. Acumirklī visi ļaudis tika izsūtīti uz meklēšanu.</p>
+
+<p align="JUSTIFY">Pa tām starpām tālu, tālu no pils aizgājusi, Skaistīte jau bija
+lielās izbailēs, ka pils nevarēja atrast; bet viņas izbailes palika jo lielākas,
+ieraugot briesmīgu mākoni, kas ar lielu ātrumu, kokus lauzdams un ēku jumtus
+postīdams, viņai tuvojās. Gribēdama paglābties no aukas, viņa iegāja kādā
+būrīti, kas bija taisīts no egles mizām. Bet aukai uznākot, Skaistīte tika aiznesta
+ar visu būrīti uz svešu, nepazīstamu vidu.</p>
+
+<p align="JUSTIFY">Pils]audis ar princeses meklēšanu velti vien nodarbojās; jo nevienam
+nelaimējās Skaistītes atrast.</p>
+
+<p align="JUSTIFY">Ķēniņš, būdams tādās lielās bēdās, izsolīja atradējam lielu
+maksu un arī pašu Skaistīti par sievu. Šo sludinājumu dzirdēdami, visi Zemgales
+jaunekļi gribēja iet uz meklēšanu; jo katrs gribēja iemantot ķēniņa goda maksu,
+bet par visiem vairāk to vēlējās sev skaistais ķēniņa kambarjunkurs. Pie ķēniņa
+nogājis,</p>
+
+<p align="JUSTIFY">viņš lūdza, lai ar pāra pavadoņiem jaujot tam princesi meklēt,
+dabūt jau dabūšot gan. Ķēniņš arī to labprāt paļāva.</p>
+
+<p align="JUSTIFY">Kambarjunkurs devās ar trim ceļa biedriem uz meklēšanu. Dažas
+jūdzes gājuši, viņi apmetās meža vidū tukšā mājiņā, jo kambarjunkurs gribēja
+it īpaši šo apgabalu pārmeklēt. Viņi iegāja mājiņā, saulītei noejot.</p>
+
+<p align="JUSTIFY">Otrā dienā vienu biedru mājā atstājis ēdienu vārīt un mantu
+apsargāt, kambarjunkurs ar saviem diviem biedriem devās uz meklēšanu. Mājā
+palikušam pavadonim ap pusdienas laiku ēdienu vārot, ienāk nabags ar sirmu bārdu,
+lūgdamies gauži pēc kāda maizes kumosiņa. Vecais nabags, atspiedies uz resna, zaraina
+spieķa, likās būt gauži nespēcīgs. Pavārs par to apžēlojās un pasniedza viņam
+gabaliņu maizes un gaļas. Bet nabags, škelmis, pavāram nemanot, nomezdams maizes
+gabaliņu zemē, žēlojās, ka esot izkritis un ka pats nespējot pieliekties un saņemt.
+Pavārs noliecās un gribēja tam atkal pasniegt maizi. Bet tikko bija rokas pie maizes
+gabaliņa pielicis, te nespēcīgais nabags sāk viņu mizot ar savu zaraino spieķi.
+Pavārs, nāvīgi sakauts, palika zemē guļot, bet ubags pa to laiku bija jau pazudis.
+Kad pavārs atjēdzās, tad viņš ieraudzīja savus biedrus, kas no meklēšanas jau bija
+atnākuši. Pavārs nu sūdzējās, kas esot vājš Palicis, slēpdams, ka to nabags
+sakāvis.</p>
+
+<p align="JUSTIFY">Otrā dienā atstāja mājā otru biedru par pavāru, un tam ar
+bārdaino nabagu negāja nebūt labāk kā pirmajam. Bet arī šis nesacīja vis biedriem,
+ka to nabags sakāvis, tik atkal sūdzējās, ka esot vājš.</p>
+
+<p align="JUSTIFY">Trešā dienā trešais biedrs palika par pavāru mazajā mājiņā.
+Bet arī tam neklājās labāk; jo dabūja vēl vairāk iepazīties ar zaraino spieķi,
+kā abi pirmie.</p>
+
+<p align="JUSTIFY">Kambarjunkurs, mājā pārnācis, nevarēja nekā izgudrot, kas tā ir
+par lietu, ka viņa pavadoņi, mājā atstāti, paliek slimi. Ceturtā dienā apņemdamies
+pats mājā palikt, sūtīja tik savus slimos biedrus Skaistītes meklēt.</p>
+
+<p align="JUSTIFY">Kambarjunkurs ap pusdienas laiku sāka it nopietni vārīt ēdienu.
+Sirmais nabags arī šodien ievilkās mazajā mājiņā, domādams, ka. ar vadoni pašu
+vēl labāk izdosies, nekā ar viņa palīgiem. No iesākuma viss gāja pa vecam. Arī
+šodien nabags dabūja gabaliņu maizes un gaļas. Bet tiklīdz ko nabags meta maizi
+zemē, kambarjunkurs, nabaga niķus nomanījis, sāka tam dot labu mācību. Gan vecis
+gauži lūdzās, bet kambarjunkurs nelikās vis pielūgties. Izmaksājis nabagam pelnīto
+algu, atstāja to tikko vairs dzīvu.</p>
+
+<p align="JUSTIFY">Viņš negribēja nabagu agrāk projām laist, kamēr biedri būs
+atnākuši. Bet kā lai to tikām savalda? Pašam klāt stāvēt nebija vaļas, jo ēdienu
+vārot, daudzreiz vajadzēja iet ārā un iekšā, un par nelaimi nebija arī nekāda
+valga, ar ko nabagu varētu piesiet. Beidzot tam labs padoms nāca prātā. Pataisījis
+lielu vadzi, viņš nabagam gribot, negribot, iedzina bārdu tai bluķī, uz kā patlaban
+bija gaļu kapājis. Nabagu piestiprinājis, nu arī pats varēja pēc patikšanas iet
+ārā. Kādu brīdi ārā pakavējies, nāk iekšā, bet no nabaga vairs ne ziņas, tik
+viņa garā, sirmā bārda bija palikusi bluķī. Kambarjunkurs, paglabājis nabaga bārdu
+rūpīgi savā ceļa somā, cieta par visu savu piedzīvojumu klusu, tāpat kā viņa
+biedri.</p>
+
+<p align="JUSTIFY">Negribēdams šinī apgabalā vairs ilgāk palikt, viņš otrā rītā
+aizgāja ar saviem pavadoņiem uz citu vietu, un sāka to pārmeklēt. Tur nu liela meža
+vidū viņi uzgāja dziļu, dziļu alu. Kārodami zināt, kas atrodas alas dibinā, un
+neilgi gudrodami, viņi norunāja ielaisties tai alā un to sīki apskatīt.</p>
+
+<p align="JUSTIFY">Nopinuši no lūkiem gaŗu virvi, un no kārkla rīkstītēm lielu
+grozu, viņi nu piesēja virvi pie groza. Viens pavadonis nu iesēdās grozā un citi
+viņu laida alā iekšā. Vēl neticis līdz pusei, tas jau kliedza, lai velkot drīz
+ārā; jo alā ilgāku laiku nevarot izturēt. Tāpat klājās arī citiem pavadoņiem,
+kad tos nolaida alā.</p>
+
+<p align="JUSTIFY">Pēdīgi kambarjunkurs pats ielaidās alā, un viņam laimējās
+nonākt gluži veselam alas dibenā. Pa tumsu grābstīdams, viņš uzgāja durvju
+kliņķi. To atspiežot, viņam piepēži iespīdēja acīs dienas gaisma, jo durvis bija
+atvērušās un viņš redzēja smuki iztaisītu kambari. Par to viņš gauži
+brīnījās; bet jo lielāks brīnums un prieka izbailes viņam uzgāja, kad ieraudzīja
+meklējamo Skaistīti, pie loga sēžam. Kambarjunkuru ieraudzījusi, viņa gluži bāla
+palikdama, sacīja: "Ak, mīļais kambarjunkur, bēdz jel drīz prom! Kad mans
+apsargātājs nāks, tad tas tevi acumirklī nogalinās." Bet viņš, zobenu
+izvilcis, sacīja: "Lai tik nāk! Es ar to tēviņu labprāt gribu iepazīties."</p>
+
+<p align="JUSTIFY">Nebija arī ilgi, kad parādījās varens milzis, ar divām galvām,
+vairāk zvēram, nekā cilvēkam līdzinājams. Acumirklī kambarjunkuram virsū krizdams,
+to gribēja vai aprīt; bet kambarjunkurs deva ar savu vareno zobenu tik stipru cirtienu,
+ka tam nokrita abas galvas kā pogas. Pirmais varoņa darbs bija brangi izdevies, un tā
+viņš bija dabūjis drošu sirdi. Izgriezis abām galvām mēles, viņš tās paglabāja
+savā ceļa somā.</p>
+
+<p align="JUSTIFY">Skaistīte nu lūdza kambarjunkuram, lai ejot prom, sacīdama :
+"Nu nāks tēviņš ar piecām galvām. No tā tu tiešām vajā netiksi. Viņš tevi
+nežēlīgi saplosīs."</p>
+
+<p align="JUSTIFY">Bet kambarjunkurs neļāvās vis izbaidīties. Nebija arī ilgi
+jāgaida, kad jau minētais piecgalvis ienāca, uguni spļaudams. Kambarjunkurs tūlin
+iesāka kaŗu, pārspēja arī šoreiz briesmīgo piecgalvi, un visām piecām galvām
+izgriezis mēles, paglabāja tās rūpīgi somā.</p>
+
+<p align="JUSTIFY">Bet nu Skaistīte sāka, raudādama un rokas žņaugdama, kambarjunkuru
+lūgtin lūgt, lai bēgot, jo nu nākšot varens milzis ar divpadsmit galvām.
+Kambarjunkurs atbildēja: "Lai tik nāk! Es esmu gatavs viņu apsveicināt."</p>
+
+<p align="JUSTIFY">Tikko viņš šos vārdus bija izsacījis, tad galvainis klupa pa
+durvim iekšā. Šoreiz kaušanās bija daudz spēcīgāka un kambarjunkurs briesmīgo
+milzi tikko pārspēja. Skaistīte, to redzēdama, no liela prieka izsaucās: "Nu es
+esmu glābta! Nu mums vairs nav ne no kā ko bīties!"</p>
+
+<p align="JUSTIFY">Kambarjunkurs arī šim galvainim izgrieza mēles un paglabāja visas
+par piemiņu.</p>
+
+<p align="JUSTIFY">Viņš nu bez kavēšanās iecēla princesi grozā un deva, virvi
+pavelkot, biedriem zīmi, lai velk uz augšu. Skaistīte arī laimīgi tika uzvilkta. Nu
+vajadzēja pašam kambarjunkuram sēsties grozā. bet viņš tā tūlin nedarīja.
+Gribēdams savus pavadoņus izprovēt, vai tie nav iedomājušies viņu nonāvēt un tad
+paši izdoties par Skaistītes glābējiem, viņš savā vietā ielika grozā akmeni. Un
+redzi! nebija maldījies, jo grozs tik līdz pusei uzvilkts, tūlin nokrita zemē. Ja nu
+pats būtu grozā sēdējis, tad būtu nosities; bet nu viņš bija sveiks un vesels.</p>
+
+<p align="JUSTIFY">Kambarjunkuru sagrāba neizsakāmas izbailes, iedomājoties, ka nu
+viņam šai cietumā būs briesmīgā nāvē jāmirst. Vēl jo lielākas izbailes un
+žēlabas viņam uznāca redzot, ka sirsnīgi mīlētā princese viņam nu atkal bija
+atrauta.</p>
+
+<p align="JUSTIFY">Pavadoņi, pilnīgi ticēdami, ka kambarjunkurs alas dibenā sasities
+pabeigšot arī savas dienas, devās gavilēdami uz priekšu, kaut gan Skaistīte
+raudādama lūdzās, lai viņas glābēju tur neatstājot.</p>
+
+<p align="JUSTIFY">Bet pavadoņiem ar to vien vēl nebija diezgan. Viņi cits par citu
+domāja viens pats ķēniņa goda maksu dabūt, lai gan neviens no viņiem tās nebija
+pelnījis. Kādu gabalu gājuši, viņi apmetās par nakti pārgulēt. Katrs no viņiem,
+gulēt iedams, domāja nakti uzcelties un aizvadīt savus biedrus no šās pasaules. Viens
+no viņiem to tiešām arī izdarīja. Šis nu, viens pats ar Skaistīti palicis, devās
+knaši vien uz priekšu, lai drīzumā varētu sasniegt ķēniņa pili.</p>
+
+<p align="JUSTIFY">Ak prieks! ak līksmība! ķēniņa pilī un visā valstībā, kad tā
+ziņa izpaudās, ka Skaistīte atkal esot mājā. Viņas glābēju visi augstu cienīja un
+godāja, lai gan Skaistīte vaimanādama stāstīja, ka viņš esot tik blēdis un tīrais
+slepkava. Kad viņam prasīja, kur biedri palikuši, tad zināja dot atbildes, dažādi
+grozīdamies. Par kambarjunkuru viņš stāstīja, ka tas plitēdams un zagdams apkārt
+blandoties.</p>
+
+<p align="JUSTIFY">Ķēniņš, lielu balli izrīkodams, jau to dienu bija nospriedis, kad
+Skaistītei ar savu glābēju vajadzēja savienoties. Skaistīte par šo ziņu palika tik
+bēdīga, ka labāk gribēja mirt, nekā savas godadienas piedzīvot.</p>
+
+<p align="JUSTIFY">Kambarjunkurs, īstais Skaistītes glābējs, turpat alā no izmisuma
+it kā atmodies, iegāja tai pašā kambarī, kur bija atradis Skaistīti. Te labi
+apskatījies, viņš ieraudzīja slepenas sānu durvis. Tās atvēris, viņš redzēja
+vecu vīru uz krēsla sēdam. Labi aplūkojis, viņš veci pazina par to pašu nabagu, kas
+tai mājiņā bija iegājis, kur bārdu atstājot, bija aizbēdzis. Zobenu izvilcis,
+kambarjunkurs veci biedināja, lai laižot viņu laukā. Vecis to apņēmies, solīja
+viņam vēl pulka naudas, ja tik viņu dzīvu atstājot. Viņš deva gan zelta, gan
+sudraba naudu, tā ka kambarjunkurs to tikko spēja panest. Vecis&amp;127; bīdamies no
+spožā zobena, iz1aida viņu laukā.</p>
+
+<p align="JUSTIFY">Kambarjunkurs atnāca ķēniņa pilī tai pašā brīdī, kad iesākās
+Skaistītes kāzas. Bet pilī cits neviens viņa vairs nepazina, kā tik Skaistīte. Ar
+bēdām nonīcis, viņš tik drīz par Skiastītes glābēju nevarēja izrādīties.
+Beidzot ķēniņš viņu gan pazina, bet pēc viltīgā pavadoņa vārdiem turēja viņu
+par vazaņķi un blēdi.</p>
+
+<p align="JUSTIFY">Bet Skaistīte nelikās mierā, un tēvam pie kājām krizdama, lūgtin
+lūdza, lai prasot no abiem glābējiem kādas zīmes, no kā varētu pārliecināties,
+kuŗš esot īstais glābējs. Ķēniņš, viņas domām piekrizdams, nu arī prasīja
+pēc pierādījumiem. Viltnieks, to dzirdēdams, palika bāls, jo viņam nebija nekādu
+zīmju. Ķēniņš to redzēja un sāka jau šaubīties.</p>
+
+<p align="JUSTIFY">Nu vajadzēja kambarjunkuram rādīt kādas zīmes. Ķēniņam un
+visiem pilsļaudim priekšā stājies, viņš. izstāstīja visu notikumu ar skaidriem,
+vientiesīgiem vārdiem; bet lai savu stāstu varētu apstiprināt un pierādīt, ka
+runājis tik dzīvu patiesību, viņš izvilka no savas ceļakules sirmo bārdu,
+deviņpadsmit mēles un arī zelta un sudraba naudu, ko beidzot vēl no sirmā tēviņa
+bija izdabūjis.</p>
+
+<p align="JUSTIFY">Skaistīte arī to visu jau smalki jo smalki bija stāstījusi. I1n kad
+nu kambarjunkura izteikums ar Skaistītes stāstu bija vienāds, tad ķēniņš, vairs
+nešaubīdamies, atzina kambarjunkuru par īsto glābēju. Skaistīte, to redzēdama,
+ķērās savam glābējam ap kaklu, jo līdz šim viņa tā nebija drīkstējusi darīt.
+Kēniņ5 raudāja prieka asaras, jaunajam pāram savu svētību dodams uu visu labu
+novēlēdams.</p>
+
+<p align="JUSTIFY">Viltīgo glābēju savas blēdības un slepkavības dēļ ķēniņš
+notiesāja uz nāvi, bet uz Skaistītes lūgšanu viņam atlaida nāves sodu un iemeta to
+uz visu mūžu cietumā.</p>
+
+<p align="JUSTIFY">Ķēniņš, juzdamies pavisam laimīgs, izrīkoja meitas kāzas vēl<b>,jo
+</b>lieliskāki, par ko arī visi viņa apakšnieki priecājās.</p>
+
+<p align="JUSTIFY">Tā kā nu Zemgales ķēniņam' nebija neviena cita bērna, kā tik
+šī viena vienīgā meita, tad kambarjunkurs beidzot palika par varenās Zemgales
+valdnieku. Pavalstnieki daudzināja to vēl pēc viņa nāves, un raudādami stāstīja
+saviem bērniem to notikumu par Skaistītes pazušanu un izglābšanu.</p>
+
+<p align="JUSTIFY">Piezīme. Šī pasaka ir tīšam par vietu teiku pārvērsta un
+uzņemta šeit sevišķi tādēļ ka viņa ir visagrāki (no 1874. g.) uzrakstītais
+variants. Tautas tradīcijās mēs nesastopam zemgaļus, kādēļ nevaram gaidīt arī
+nekādas Zemgales. Svešāds še izklausās arī kambārijūņkurs varoņa lomā, kas
+cīnās ar milžiem parasto velnu vietā. Nevis milžiem kā šeit, bet gan velniem un
+pūķiem mēdz būt vairāk galvas. Īstas pasakas arī nekā nestāsta par paša varoņa
+nāvi ka šis mūsu variants. Nevaram arī uzticēties Skaistītes vārdam, par ko jau ir
+rakstīts mūsu ievada 32. lap. p. Citādi šī pasaka neliekas būt grozīta, kādēļ
+var tomēr tikt izlietota pasaku pētīšanai. P. Š.</p>
+
+
+</body></html>

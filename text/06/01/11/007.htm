@@ -1,0 +1,221 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="center">Stiprinieks gaisa kuģī.</p>
+</font></b>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">7. A. 513 B. Skolniece A. Patmalnice Eglūnā. N. Rancāna krājumā.</p>
+
+<p align="JUSTIFY">Beja vīns kēneņč, kas vīnreiz sacēja: "Kas uztaisīs vēja
+kugi, tam atdūšu sovu meitu por sīvu."</p>
+
+<p align="JUSTIFY">Tur dzeivuoja ar vīns tāvs ar trim dālim, divi beja gudri, trešais
+muļkis. Tāvs palaide savus gudrūs dālus uz ceļu, īdeva jīm labus zuobokus, boltas
+maizes, pīna, un palaide. Muļkis ari veras un prosas nu tēva, lai palaiž jū ari.
+Tāvs īdūd jam palavu maizes, malnas malzes, buteli yudiņa, naasu ciervi i palaiž jū
+prūjam. Jis īt - ceļā sateik vacu veceiti. Veceits prosa: "Mož ir kas kū
+ēst?"</p>
+
+<p align="JUSTIFY">Jis soka: "lr gon, bet man kauns ruodeit, ka man ir malna maize un
+tik yudens butele."</p>
+
+<p align="JUSTIFY">Veceits soka : "Kas byuškys, ty s labs. Tikai īdūd paēst -man
+gribīs ēst."</p>
+
+<p align="JUSTIFY">Jis izvalk nu kules - veras: bolta maize un pīna butele. Tī sāst
+zernē un ād. Tod veceits vaicoj: "Kur tu īsi?"</p>
+
+<p align="JUSTIFY">Jis soka: "Es īšu taiseit gaisa kugi."</p>
+
+<p align="JUSTIFY">Veceits soka: "Ej pi meža molas, pi pyrmuo kūka īsit ar ciera
+pīšu, atsagulst un īguļ. Tevi pīcels un tev byus gotovs kugis. A tu, ka brauksi pa
+ceļam, tod pajem vysus, vysus, kū tikai satiksi uz ceļa."</p>
+
+<p align="JUSTIFY">Jis aizīt da mežam, īsyt a cieri par pyrmū kūku, uzzagulst un
+īguļ. Por šalteņi nazkas suok celt, jis pīsaceļas - veras: skaists kugis. Jis
+īsāst un brauc da kēneņa - veras: uz ceļa īt cylvāks, vīnu kuoju pacēlis i
+dasējis pi placu. Jis vaicoj : "Kam tu tū kuoju dasēji?"</p>
+
+<p align="JUSTIFY">Jis soka: "Ka es palaiššu kuoju vaļē, tod es ar vīnu sūli
+pus pasauļi puorskrīšu."</p>
+
+<p align="JUSTIFY">Jis soka: "Sēst, brauksim reizē ar manim!"</p>
+
+<p align="JUSTIFY">Jis sāst un brauc. Brauc, brauc - ceļā veras, ka cylvāks taisas
+šaut, bet nikur naskrīn ni putnis ni zakis. Jis vaicoj: "Kam tu tur saun?"</p>
+
+<p align="JUSTIFY">"Es saunu putnam, es redzu par pus pasauli." Jis soka:
+"Sēst, brauksim reizē!"</p>
+
+<p align="JUSTIFY">Jis sāst un brauc. Brauc - veras : cylvāks staigoj ap azaru un meklej
+dzert. Jis vaicoj: "Kuo tu tur meklej?"</p>
+
+<p align="JUSTIFY">"Dzert meklēju!"</p>
+
+<p align="JUSTIFY">"Kuo ta tu verīs? Azars prīškā, gulīs un īdzer!" Jis
+soka: "Man te tik vīns guldzis."</p>
+
+<p align="JUSTIFY">"Nu tad sēst, brauksim reizē!"</p>
+
+<p align="JUSTIFY">Jis sāst. Brauc, brauc - veras: cylvāks īt nu sātas, nas uz mežu
+molku.</p>
+
+<p align="JUSTIFY">"Kū tu tur dori? Nu sātas nes uz mežu molku." Jis soka:
+"Itai molka nav sprosta."</p>
+
+<p align="JUSTIFY">"Nu tad sēst ar manim, brauksim!"</p>
+
+<p align="JUSTIFY">Jis sāst vydā un brauc. Veras: īt cylvāks, nas maizes kukuļus un
+prosa ēst. Jis soka: Pats tik daudz maizes nas uz sātu, un ēst prosa."</p>
+
+<p align="JUSTIFY">Jis soka: "Man te tik ir vīns guldzis, man vaiga vairuok."
+"Nu sēst, brauksim reizē!"</p>
+
+<p align="JUSTIFY">Brauc, brauc - veras: cylvāks īt uz sātu, nas cysu veikši. Jis
+vaicoj: "Kam tu nesi cysas uz sātu?"</p>
+
+<p align="JUSTIFY">Jis soka: "Šytuos cysas nav sprostas." "Nu sēst,
+brauksim reizē!"</p>
+
+<p align="JUSTIFY">Jis sāst un mudri aizbrauc da kēneņam. Kēneņš pasyuta, lai
+poskotuos, kaidi tur kungi ira. Sulaiņi aizīt - veras: svuoti atbraukusi ar vēja kugi.
+Kēneņš soka, ka lai dabuoj dzeivuo un myrušuo yudiņa, tad tyuleņ byus kuozas. Tys
+veirs ar dasītuo kuoju atraisa sovu kuoju un mudri kluot pi yudina, pīsmēle dzeivuo un
+myrušuo yudiņa un mudri pusceļā atsagula pi vīnu patmalu un aizmyga. A te jau vysi
+runoj : "Kab byutu kluotu, nav vys mudri."</p>
+
+<p align="JUSTIFY">Tys suovējs mudri pasaveras, kur jis ir. Veras: ir pusceļā, tyuleņ
+pajam plinti īsaun taišņi tamuos patmalēs; jis mudri pīsaccļas un ar pussūli beja
+jau kluotu. Muļka bruolis atnas tū yudini kēneņam. Kēneņš soka: "Ka tev byutu
+tik daudz kara spāka kai pi manis."</p>
+
+<p align="JUSTIFY">Jis pavaicoj: "Vai var īt ar visim draugim?" Kēneņš soka:
+"Var, kai grib."</p>
+
+<p align="JUSTIFY">Tyuleņ sāst gaisa kugī un brauc, puor brauc gobolu, nūsvīž
+pagali, pabrauc vēl gobolu un nūsvīž otkon. Tai izsvaida vysas pagales pa visim
+teirumim un vysom molom. Pīīt tik daudz kara spāka, ka navar apskaiteit. Ļaud's grajoj
+(baltkr. grac' spēlēt] un doncoj. Kēneņš reitā ceļas, dzierd daudz muzykas un soka,
+ka vajaga izkurynuoh pierti. Nīrkurynoj dzelža pierti sorkonu, ka par gobolu navar daīt
+kluot. Muļkis vaicoj kēneņarn: "Voi var man ar draugim īt uz pierti?"</p>
+
+<p align="JUSTIFY">Jis pajam leidza cysas un aizīt uz pierti, vys svīž pa drusceņei
+cysu. Ka tyvuok pi pierts daguoja - pa vysam solta: i jau silēs beja lads. Kēneņš
+padarēja četradesmit bucu als, četradesmit vēršu un cytaidu vysaidu ēdīnu daudz
+daudz. Kēneņš pasacēja, kab vvsus ēdīnus varātu apēst. Jis pavoicoj: "Vai
+varēs ar visim draugim ēst?"</p>
+
+<p align="JUSTIFY">Kēneņš pasacēja: "Var ar visim draugim."</p>
+
+<p align="JUSTIFY">Veirs, kurs prasēja ēst, tys apēda vysus vēršus vīns pats,
+nivīnam nikuo napamete. Uotrais, kurs ap azaru staiguoja, dzert maklādams, tys vysas
+bucas izdzēre, citi nikuo nadabuoja. Muļkis aprecēja kēneņa meitu un nyu beja
+boguotas kuozas, bet gudrī bruoļi palyka tāva muojā par struodnīkim.</p>
+
+
+</body></html>

@@ -1,0 +1,146 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ansītis un Grietiņa.</p>
+</b></font>
+
+<p align="CENTER">&nbsp;</p>
+
+<p align="JUSTIFY">4. A. 327 A. Vasilnieks. Nogalniekos, pie Talsiem. LP, V, 3, 10.</p>
+
+<p align="JUSTIFY">Vienam tēvam bij dēlēns, Ansiņš vārdā. Tas ganīja avis. Bet tur
+atnāca raganas meita un prasīja: "Ansiņ, atdod man vienu jēriņu."</p>
+
+<p align="JUSTIFY">Ansiņš nedeva. Tad raganas meita iebāza Ansiņu maisā un nesa
+mājā. Bet Ansiņš bija gudrs, izvilka nazi no kabatas, pārgrieza maisu un izlīda
+laukā. Raganas meita nes, nes maisu un nemaz nesajēdz, ka maiss vieglāks palicis
+Ansiņš laukā. Pāriet mājā, un apskatās gan, bet jau par vēlu. Nu raganas meita
+otrreiz gāja Ansiņam jēriņu prasīt. Ansiņš atkal nedeva. Tad tā sasēja Ansiņam
+rokas un kājas, iebāza maisā un pārnesa mājā. Otrā dienā vecā ragana ar meitu
+taisījās ciemā, vai kur, un ielika Ansiņu katlā, lai kamēr šīs nebūs mājā
+Ansiņš izvārītos vakariņām. Bet vecai raganai bija palicis mazs bērns šūpulī. Un
+ko nu Ansiņš darīs? Viņš nav vis muļķis līdz abas raganas aizgājušas, tā mans
+Ansiņš no katla ārā, paņem raganas bērnu no šūpaļa un ieliek to savā vietā, lai
+vārās vakariņām; bet pats atkal uzkāpj liepā un gaida, kas nu īsti notiks. Vakarā
+pārradīsies abas raganas un pirmais solis tūliņ pie katla vakariņas raudzīt.
+Aprauga, mīksts, kas mīksts un sāk ēst. d, ēd beidzot meita iesaukusies, durvīs
+stāvēdama: "Kripš, kripš sveša bērna kauliņš!"</p>
+
+<p align="JUSTIFY">"Nekā! kripš. kripš paša bērna kaulinš!" Ansiņš
+liepā pasmējās. Nu raganas meita apmanīja, ka nav vairs labi. Tūda ieskrēja pie
+tēva: "Nāc, nāc Ansiņš mūs piekrāpis, Ansiņš tup liepā!"</p>
+
+<p align="JUSTIFY">Tēvs paķēra cirvi un cirta liepu nost. Tagad Ansiņš redzēja joki
+vairs nebūs. Bet Ansiņam bij teicams auniņš : ko vien vēlējās, to viņš izdarīja.
+Un kā pa laimi auniņš bija atkūlies, Ansiņu meklēdams, liepas tuvumā un brēca pēc
+Ansīša. Patlaban liepa krita ar visu Ansiņu; bet Ansiņš iesaucās: "Auniņ,
+auniņ, kur tu esi?"</p>
+
+<p align="JUSTIFY">Tā auniņš, vēl ātrāk gandrīz par zibinu, pakampa savu Ansiņu uz
+ragiem un aiznesa mājā.</p>
+
+
+</body></html>

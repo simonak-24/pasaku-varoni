@@ -1,0 +1,907 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="center">Ķēves dēls Kurbads.</p>
+</b></font>
+
+<p align="JUSTIFY">2. A.<b> </b>303. 301A. 1000. 570. 1007. 1003. 1088. 1063. 1072, 1052,
+1006, 1115, 1120, 1133, A. Lerchis-Puškaitis Džūkstē-Pienavā. LP, I, l. AŠ, II, 92d.
+Vācu valodā tulkota V. von Andrejanoff, Lettische Mārchen, 1. un M. Boehm,
+Lettisch-litauische Marchen, 1.</p>
+
+<p align="JUSTIFY">Viņos laikos dzīvoja saimnieks, kam nebija bērnu. Saimnieks vēl
+neko tamdēļ neguģējās, bet saimniece varēja dienu mūžu nogremsties, nobēdāties.
+Un kad nu vēl par nelaimi pēc septiņiem gadiem saimnieks nomira, tad saimnieces bēdām
+vairs nebija gala.</p>
+
+<p align="JUSTIFY">"Kaut nu arī vīrs miris - jāpacieš; bet ja tik man bērniņš
+būtu, ko pačunčināt."</p>
+
+<p align="JUSTIFY">Te atraitne kādu dienu izdzird, ka pilsētā nabags vīrs, šauras
+pārtikas labad, nodomājis no saviem deviņiem bērniem vienu atdot citam audzināt.
+Saimniece uz pēdām liek kumeļu aizjūgt un brauc uz pilsētu. Tomēr kā neiet, tā
+neiet: vīrs patlaban aizdevis jau bērnu.</p>
+
+<p align="JUSTIFY">"Kad tu izčibētu!" puisis iesaucās, "izbraukājāmies
+par velti, "</p>
+
+<p align="JUSTIFY">saimniece. Saimniece savās nedienās neatbild ne pušplēsta
+vārdiņa. Atpakaļ laižot braucēji ierauga netālu no mājām pār upi</p>
+
+<p align="JUSTIFY">braukdami, lielu zivi uz krastu izlecam. Zivs tā ķeparājās, it kā
+nespētu atpakaļ tikt. Puisis knaši izlec no ratiem un domā zivi noķert, bet zivs
+atlec ūdenī atpakaļ sacīdama: "Lai nāk pate saimniece, tad ļaušos!"</p>
+
+<p align="JUSTIFY">Ies saimniece, ja: zivs atkal izlec uz krastu un nu saka:
+"Klausies, saimniece, paņem mani, nokauji, izvāri un apēdi, tad kaimiņa dēlu
+dos: tik pieraugi, ka neviens cits no manis ne kumosa nebaudītu!"</p>
+
+<p align="JUSTIFY">Saimniece tā dara, piesacīdama meitai, lai no zivs viruma un gaļas
+nebaudītu. Bet meita tev klausīs. Esot taču jāzin, kā pa sāli, un vai tad gan citām
+dienām saimniece katrreiz nākuse pavārnīcu laizīt. Ko tur tikdaudz: nokniebj kumosu
+no zivs - labs, pavardā pie pavārnīcas -- labs; zvīņas, ķidas turpretim pavarda
+malā labi neizskatās, tās pa durvim ārā mēslenīcā. Bet ķēve, sētsvidū cauru
+dienu tik mauru grauzdama, iečāpo mēslenīcā un apēd zvīņas, apēd ķidas.</p>
+
+<p align="JUSTIFY">Ko tur arī teikt, kur bads, tur pat ķidas gardas! Saimnieks miris --
+tā nav, puiša cauru dienu arī neredz mājās : nabaga ķēvītes vēderam svētdiena,
+kurkst vien.</p>
+
+<p align="JUSTIFY">Bet kas nu notika nākošā naktī? Nākošā naktī saimniecei
+piedzimst dēls, meitai piedzimst dēls un ķēvei arī dēls. Ļaudis iesauca ķēves
+dēlu par Kurbadu.</p>
+
+<p align="JUSTIFY">Zēni visi trīs uzaug kopā; tik Kurbads par abiem drošāks,
+dūšīgāks. Viņa mīļākais ēdiens ir riekstu kodoli, dzēriens ķēves</p>
+
+<p align="JUSTIFY">piens un mīļākā guļas vieta uz mūrīša pie krāsns. Piektajā
+gadā Kurbads, pa mežu lēkādams, jau negriež ceļa mazākiem kociņiem, sestajā gadā
+nav vairs neviens koks pa lielu un septītajā tas nebaidās ne no vilka, ne no lāča.</p>
+
+<p align="JUSTIFY">Tā nu Kurbads pēc gadiem pieaug par tik lielu stiprinieku, ka visi
+māju darbi tam - pat tie visgrūtākie - tīri nekas. Sviedrus uz pieres, kā citiem
+cilvēkiem, viņš vēl nav dabūjis redzēt. Tam iekrīt prātā kautkādu vērīgāku
+darbu uzsākt, mazākais tādu. kur dabūt sviedrus noslaucīt.</p>
+
+<p align="JUSTIFY">Kādu dienu stiprinieks saka abiem pusbrāļiem, saimnieces dēlam un
+meitas dēlam, ka vakarā nodomājis jauno istabu iztīrīt. Šo jauno dzīvojamo ēku
+bija uzcēlis nelaiķa saimnieks, bet viena liga: saimnieks nodomājis, kā šodien
+ievadāties, bet jaunais, kā vakar jau priekšā. Nelīdzēja nekas, dzīvot tur nebija
+iespējams un ļaunos izķuidīt ne tik. Pusbrāļi gan pretojās, ka pa trim nebūšot
+taču iespēt to, ko visi mājinieki nepaspējuši kopā; bet Kurbads atbild: "Tas,
+kas vārīts un cepts, tas tai gudrībā nevar nākt, kā tas, kas zaļš apēsts."</p>
+
+<p align="JUSTIFY">Beidzot pusbrāļi arī paklausa un iet uz apsēsto istabu līdz.
+Tumsai metoties, istabas sienu šķirbās sāk kukainīši, mušas, šitā runāt:
+"Nu redzēs gan, vai šie neizspruks kā spaļi laukā! Lai tik mūsu trīsgalvju
+kungs tiks pār upes tiltu pāri."</p>
+
+<p align="JUSTIFY">Kurbads šo sarunu dzird, bet pusbrāļi ne. Priekš pusnakts Kurbads
+saka uz meitas dēlu: "Tu esi tas vājākais no mums, paņemi savu zobinu un ej upes
+tiltu sargāt. Tur nāks milzis trijām galvām,, nelaid viņu pāri. Šis par tiem citiem
+milžiem tas vājākais, tādēļ izdaries tu ar to!"</p>
+
+<p align="JUSTIFY">Bet meitas dēls strupi atbild: "Man nekādas daļas! manis dēļ
+lai tur nāk, kas nākdams!"</p>
+
+<p align="JUSTIFY">"Nu, ja tu baidies, tad man pašam jāiet. To nevar darīt, pār
+tiltu nevar laist, citādi viņš spēkā. Bet drošības labad, nolikšu te uz logu
+ūdens kausu: ja viņā ronas piens, tad man cīnoties labi klājas, bet ja asinis, tad
+skrieniet pie manas mātes, 1ai tā nāktu palīgā. Esiet modri, nepiemirstiet, kā
+noteicu!"</p>
+
+<p align="JUSTIFY">Kurbads nu apjož zobinu, aiziet upmalē, nosēžas tilta priekšā un
+gaida. Līdz pusnaktij viss klusu, tik vardes upē, mežazosis gaisā un bezdelīgas
+patiltē savā starpā sarunājas. Vienas upē sauc: "Kurbads! Kurbads!" otras
+gaisā: "Aizdzīs! aizdzīs!" un trešās patiltē: "Lielam milzim trijas
+galvas, visas čorks!"</p>
+
+<p align="JUSTIFY">Te pašā pusnaktī dzird, ka nāk milža ziņu nesēji: suns kvelkdams
+pa laukiem un vanags svelpdams pa gaisu. Kurbads atjož savu zobinu, pieceļas un tura
+zobinu tiltam priekšā. Visa zeme nodimd, milzis trijām galvām klāt, bet atduŗas pret
+Kurbada zobinu un paliek kā pret sienu. Gan milzis sauc: "Kurbad, maitas gabals,
+laid mani pāri!" Bet Kurbads tura zobinu, kā turēdams un atbild:
+"Nelaidīšu!"</p>
+
+<p align="JUSTIFY">Trīs reiz milzis uzaicina savu pretinieku, lai atkāptos, bet, kad
+tomēr neko nelīdz, tad dusmīgi Kurbadam uzsauc: "Pūt klajumā, lai redzu, cik
+naudas vari no patiltes, mana naudas maka, izpūst!"</p>
+
+<p align="JUSTIFY">Kurbads pūš un nopūš veselu siekavietu ar zelta naudu; trijgalvis
+turpretim tik pussietkavitetu ar kapara. To redzot, milzis jau grib atpakaļ iet, bet
+Kurbads nelaiž, lai salasa viņam naudu. Milzis neklausa. Nu, kad neklausa, tad jāiet
+cīkstoties zobiņiem. Tas tik bija cīniņš: tilts nodrebēja, zeme dimdēja, zobini
+džintkstēja, bet milža galvas, beidzot no rumpja krizdamas, žļakstēt žļakstēja,</p>
+
+<p align="JUSTIFY">No uzvaras priekiem Kurbads sadzīvo līksmi ar saviem pusbrāļiem
+līdz otram vakaram. Krēslai metoties, tie atstāj priekus un steidzas uz istabu. Te
+istabas sienu šķirbās kukainīši, mušas runā: "Nu, pagaidi, trijgalvi gan
+pārspēji., bet ko ,iesāksi ar sešgalvi?"</p>
+
+<p align="JUSTIFY">Kurbads šo sarunu dzird, pusbrāļi ne. Priekš pusnakts Kurbads saka
+uz saimnieces dēlu: "Ej šonakt tiltu sargāt!" Bet šim tāpat bail, kā otram
+un tādēļ atbild: "Kas man daļas, manis dēļ lai nāk, kas nākdams!"</p>
+
+<p align="JUSTIFY">"Nu, ja abi esat bailīgi, tad man atkal pašam jāiet. To nevar
+darīt, pār tiltu tik laist ne, citādi viņš spēkā. Drošības labad nolikšu ūdens
+kausu: ja viņā ronas piens, tad labi, ja asinis, tad skrieniet pēc mātes."</p>
+
+<p align="JUSTIFY">Kurbads aiziet upmalē. Viss klusu, tik vardes kurkšķ :
+"Kurbads! Kurbads!" mežazosis klaigā: ,.Aizdzīs, aizdzīs!" un
+bezdelīgas patiltē čivina: "Lielam milzim sešas galvas, visas čorks!"</p>
+
+<p align="JUSTIFY">Te pašā pusnaktī dzird, ka nāk milža ziņu nesēji: suns kvelkdams
+pa laukiem un vana:gs svelpdams pa gaisu. Kurbads pieceļas un aizliek zobinu tiltam
+priekšā. Nāk milzis sešām galvām, zeme dimd, bet nekur tikt, zobins priekšā. Gan
+milzis bļauj: "Kurbad, maitas gabals, laid mani pāri!" Bet Kurbads tura zobinu
+kā turēdams un atbild: "Nelaidīšu ne par ko!" Trīs neiz milzis uzaicina
+savu pretinieku, lai atkāpjas, bet, kad neko tomēr nelīdz, tad beidzot Kurbadam uzsauc:
+"Pūt klajumā, lai redzu, cik naudas vari no patiltes, mana naudas maka,
+izpūst!"</p>
+
+<p align="JUSTIFY">Kurbads pūš un nopūš veselu pūravietu ar zelta naudu; sešgalvis
+turpretim tik puspūrvietu ar kapara. To redzot, milzis grib jau atpakaļ iet, bet Kurbads
+nelaiž, lai salasot viņam naudu. Milzis nelasa. Nu, kad neklausa, tad jāiet zobiniem
+cīkstoties. Tas tik nu bija cīniņš : tilts nodrebēja, zeme dimdēja, zobini
+džinkstēja, bet milža galvas, beidzot no rumpja krizdamas, žļakstēt ž[akstēja.</p>
+
+<p align="JUSTIFY">Nu Kurbads pāriet līksms mājā, bet tūlīt liekas arī gulēt, 1ai
+stiprinātos uz rītdienas cīņu.</p>
+
+<p align="JUSTIFY">Trešā vakarā istabas sienu šķirbās kukainīši, mušas, ļoti
+nemierīgi triec: "Kad tu izčibētu! tas divus taču pārspējis. Nu, lai nu lai, ar
+mūsu devingalvi tāds knēvelis nu gan neiesāks:"</p>
+
+<p align="JUSTIFY">Kurbads šo sarunu dzird, pusbrāļi ne. Viņš noliek ūdens kausu uz
+loga, pateic stingri, stingri pusbrāļiem, lai šonakt kausu no acim neizlaiž, un tad
+steidzas pie tilta. Viss tāpat klusu, kā citiem vakariem, tik vardes nemitoši kurkšķ:
+"Kurbads! Kurbads!" mežazosis klaigā: "Aizdzīs, aizdzīs!" un
+bezdelīgas sadegdamas čivina: "Deviņgalvim galvu galvas, šonakt visas
+čorks!"</p>
+
+<p align="JUSTIFY">Te ap pašu pusnakti dzird, ka nāk milža ziņu nesēji: deviņi suņi
+kvelkdami pa laukiem, deviņi vanagi svelpdami pa gaisu. Kurbads nostājas tilta vidū.
+Milzis pienāk un uzbļauj : "Kurbad, maitas gabals, laid mani pāri!" Kurbads
+atbild: "Ko nu, ķekargalva, vaiksties, ko dziedi, nāc spēkoties!"</p>
+
+<p align="JUSTIFY">Labi. Kurbads cērt, cik jaudas. Nokrīt jau viena galva, bet tūlīt
+trīs galvas ataug vietā; nokrīt otra galva - trīs vietā; nokrīt trešā galva --
+trīs vietā. Redzēdams, ka tā galā netiks, tas atsviež zobinu un ieķeras kailām
+rokām milzim sprandā. Tomēr milzis uz pirmo ķērienu iedzen pretinieku līdz ceļiem
+zemē un otrreiz līdz padusēm. Kurbads, to redzēdams, saka: "Visi kaŗotāji
+brītiņu atpūšas, atpūtīsimies arī mēs." Labi. Milzis apsēžas, atpūšas;
+bet Kurbadam tik rūp mātes palīdzība.</p>
+
+<p align="JUSTIFY">Ja nu, vai māte zin nākt, kad pusbrāļi aiz miega bada ne kausa
+redz, ne ziņas laiž. Viņš norauj pastalu no kājas un sviež taisni istabas logā, kur
+brāļi iemiguši. Šie atmožas, paskatās : kauss asinim pilns. Nu skrien, kā
+sadeguši, ar ziņu pie ķēves, un ši viens divi Kurbadam palīgā. Tagad gāja smagi:
+kuŗu galvu dēls nocirta, tur māte spēra tik stipri, ka baltas dzirksteles šķīda, un
+nocirsto vietu izdedzināja, tā ka jaunas galvas vairs nespēja pieaugt. Maz acumirkļos
+milzis guļ kā bluķis.</p>
+
+<p align="JUSTIFY">Pēc cīniņa Kurbads iet iztīrītā istabā pārgulēt. Miegs taču
+tik ātri neuzbāžas un gulētājs sadzird, ko sienu šķirbās mušas, kukainīši
+pārrunā: "Tāds negantnieks, apkava mūsu vīrus! Lai nu vīrus apkava, Lai, bet
+nokauto sievas, raganas, atriebsies tiem knauķiem. Kad viņi rītu visi trīs ies pa
+ceļu, tad tu, trīsgalvja sieva, paliksi par gultiņu. Gultiņu ieraugot, tam vienam
+uzies tāds miegs, ka tūlīt iegulsies, un tad, zināms, tas mūsu nagos. Tu, sešgalvja
+sieva, paliksi par avotiņu, jo avotiņu ieraugot, tas otrs tūlīt būs gauži noslāpis,
+viņš dzens, bet tad, zināms, tas mūsu nagos. Bet deviņgalvja sieva paliks gan par
+čūsku, gan sumpurni un māksies tikmēr tam stiprajam negantniekam virsū, kamēr vīru
+atriebs."</p>
+
+<p align="JUSTIFY">No rīta Kurbads atdod sapūsto naudu mātēm, lai tām būtu pārtikas
+papilnam, un tad dodas ar abiem pusbrāļiem ceļā. Ceļmalā tas ierauga jauku gultiņu.
+Meitas dēlam tūlīt uznāk tik salds miegs, ka nemaz atturāms no gulēt iešanas. Bet
+Kurbads to neatļauj. Viņš atjož zobinu un pārcērt krustu pār gultiņu. Gultas
+vietā paliek tik asiņu peļķe un miegs arī pagalam.</p>
+
+<p align="JUSTIFY">Tālāk iedami, ierauga dzidru avotiņu. Saimnieces dēlam tūlīt
+tādas slāpes, ka par varu pie avotiņa dzert. Kurbads to neatļauj. Viņš atjož zobinu
+un pārcērt krustu pār avotu. Avota vietā paliek asiņu peļķe un slāpes arī tūdaļ
+pagalam.</p>
+
+<p align="JUSTIFY">Pēc triju dienu gājuma pusbrāli nonāk svešā, svešā zemē, kur
+valdniekam trīs meitas, kamēr pirtī mazgājušās, nozadzis velns. Valdnieks apsolījis
+jaunāko meitu un valdību tam atdot, kas spēšot viņas atrast. Kurbads tūlīt
+piedāvājas par meklētāju.</p>
+
+<p align="JUSTIFY">Pusbrāļi grib iet pa pasauli meklēt, bet Kurbads saka: "Ne tā,
+kur zudušas, tur jāiesāk meklēt: pirtī zudušas, pirtī jāiesāk." Vakarā
+Kurbads paņem vāli, zobinu, putraimus un katlu.</p>
+
+<p align="JUSTIFY">Pirtī tas iekuŗ uguni un vāra putru; pusbrāļi nevar tik ilgi
+sagaidīt, ti;e aizmieg. Ap pusnakti sāk nirts durvis cīkstēt. Velns ielien pirtī un
+beŗ pelnus putrā. Bet Kurbads noķer velnu, iever durvīs un tik mietē (veķē) ar
+vāli pa muguru. Velns sāpēs apsola visu ko dot: došot tādu stabulīti, kuŗu
+papūšot, desmit mazi rūķīši no zemes izlīdīšot un katru darbu iespēšot. Kurbads
+paņem gan stabulīti, bet mietē no jauna, kamēr teikšot, kur trīs meitas iegrūdis.
+Velns, redzēdams, ka nieki būs, sāk beigās stāstīt: "Tur viņa lauka galā ir
+purvs. Purva vidū uz roziņas liels, liels akmens. Ja akmeni noveltu, tad ietiktu
+dziļā, dziļā apakšzemes caurumā. Pa šo caurumu jālaižas lejup, tur meitas
+būs."</p>
+
+<p align="JUSTIFY">Kurbadam ar tām ziņām pietiek. Viņš palaiž velnu, pamodina
+pusbrāļus un iet purvu meklēt. ,ja, itin pareizi: lauka ga1ā purvs, purva vidū
+roziņa un uz roziņas tik liels akmens kā siena kaudze. Kurbads piepūš vaigus un
+ieveļ akmeni purvā, kā nočūkst vien. Bet ko nu? Kā tiksi pa caurumu lejā? Te tam
+iešaujas prātā stabulīti papūst. Kā pūtis labi stipri, tā desmit rūķīši klāt.
+Ko pavēlot?</p>
+
+<p align="JUSTIFY">"Pavēlu tik gaŗu virvi atnest, ka varu šā cauruma dibenu
+sasniegt. Viens, divi - rūķīši ar virvi klāt. Kurbads nu iesien meitas dēlu virvē
+un laidīs iekšā, bet šis, ne līdzi pusei aizticis, bļauj, lai velkot augšā, esot
+bail. Tāpat izgājis arī saimnieces dēlam. Nu Kurbads laidīsies pats lejup. Bet, lai
+pusbrāļiem nebūtu purvā jāmirst, tad piekodina rūķīšiem uzcelt šiem abiem istabu
+un ap</p>
+
+<p align="JUSTIFY">gādāt ēdienu. Acumirklī baļķi savilkti, spāres uzceltas, jumts
+apjumts un galds istabas vidū klāts. Rūķīši pazūd un Kurbads ar savu vāli
+nolaižas apakšzemē. Pusceļā velns jau rēgojas savam viņdienas pērējam pretim
+sacīdams: "Laidies, tu laidies, gan es tevi notriekšu!"</p>
+
+<p align="JUSTIFY">Bet Kurbads vēl nedabūja ne vāles pacelt, kad velns, zvejamo
+pamanījis, pazūd, Beidzot virve atsniedz cauruma dibenu un atduŗas lielā klajumā.
+Klajumam otrā malā redz māju un dūmus. Kurbads nu sukā iet, kamēr sasniedz māju.
+Šī māja paša velna miteklis. Iekšā trīs pavāri vāra patlaban lielā katlā velnam
+pusdienu. Ieraudzījuši svešnieku, pavāri it kā iztrūkušies vaicā: "Vai, kur
+tad tu esi iekūlies? Pārnāks mūsu kungs, tas tevi ar vienu pirkstiņu notrieks!"</p>
+
+<p align="JUSTIFY">"Eita, sēnalu ,zaķi, eita!" Kurbads atbild un nosēžas
+katlam blakus. Tomēr pavāri viņu pierunā, lai labāk paslēpjoties aizkrāsnē, jo
+citādi varot arī viņiem nelabi klāties, tādēļ ka svešnieku ielaiduši. Kurbads
+paklausa.</p>
+
+<p align="JUSTIFY">Necik ilgi, te velns arī pārnāk un sāk tūlīt ošņāt,
+prašināt, kas tā par tādu svešu smaku tik esot. Pavāri izmelojas, ka nule pat vārna
+pāri skrējuse. Šis arī apmierinās un iet pie katla raudzīt, kāds ēdiens pa sāli,
+vai labs. Tikko nu velns pieliec galvu pie pavārnīcas, te Kurbads no aizkrāsnes ārā
+un zveļ ar zobinu tā pa galvu, ka galva un rumpis katlā iekšā. Kamēr velns nu
+vārās, tikmēr pavāriem jāizstāsta par pazudušām meitām. Šie pateic, ka viena
+dzīvojot sudraba pilī un piederējuse tam, kuru nule pat nokavis, otra dzīvojot zelta
+pilī un piederot trijgalvim.;- trešā jaunākā, dzīvojot dimanta pilī un piederot
+sešgalvim. Kurbads, to izdzirdējis, piejož savu zobinu un dodas uz sudraba pili. No
+pils iznāk jauna meiča un sacērt rokas brīnīdamās : "Vai puisīt, kur tad tu
+esi iekūlies! Atnāks mans kakla kungs, tas tevi ar mazo pirkstiņu nositīs."</p>
+
+<p align="JUSTIFY">"Nu, nu, meitiņ, vai tad viņš tik briesmīgs nu ir? Labāk
+saki, tavs kungs jau beigts un es atnācu tevi atpestīt."</p>
+
+<p align="JUSTIFY">Meita, to dzirdot, nokrīt Kurbadam pie kājām un raud no prieka
+slimāk par mazu bērnu. Nu Kurbads labi apskatās sudraba pilī, paēd, padzeŗ un tad
+izprašina meitai šo un to par māsām. Viņa izstāsta, pamāca, kā tik jau labāki
+zin, un tad beidzot atnes savādu zāļu trauciņu, kuru viņas kakla kungs tai rītā uz
+loga aizmirsis. Trauciņā divējādas zāles: labajā pusē stipruma zāles un kreisajā
+nestipruma. Ja iedzeŗ no labās puses zālēm, tad spēka bez gala, ja no kreisās, tad
+spēka uz veselu gadu pagalam. Kurbads iedzeŗ no labās puses un nu tik stiprs, ka pašam
+brīnumi.</p>
+
+<p align="JUSTIFY">No rīta Kurbads steidzas uz otru velna mitekli, kam trijas galvas, un
+nokauj arī to. Nu jau divas māsas atpestītas. Trešo</p>
+
+<p align="JUSTIFY">dienu sešgalvim kārta. Tomēr te Kurbadam tā vairs neizdodas:
+sešgalvis ēdienu jau nosmeķējis, paēdis un patlaban aizgājis pie trešās māsas uz
+dimanta pili.</p>
+
+<p align="JUSTIFY">"Nu, nekas! Gan jau tur viņu dabūšu." Kurbads noņurd un
+steidzas uz pili.. Pilī zāļu trauciņš nolikts uz loga un sešgalvis guļ dienasvidu,
+ka kŗāc vien. Kurbads apgriež zāļu trauciņu otrādi: stipruma zāles uz kreiso pusi,
+nestipruma uz labo, un tad iet meklēt, ko jaunākā māsa labu dara. Atron arī skaistu
+meiču, bet pie beigām noskumušu. Svešnieku ieraugot, tā klusu brīnās: "Vai,
+puisīt, kur tu esi iekūlies! Uzcelsies mans kakla kungs, tas tevi ar mazo pirkstiņu
+notrieks."</p>
+
+<p align="JUSTIFY">"Nu, nu, tik stiprs jau nebūs. Labāk modini viņu augšā, lai
+varētu mans zobins neģēlim kukaiņu valstī rūmes ierādīt. Tur tādiem bendes
+maisiem esot saldāka izguļa nekā dimanta pilīs."</p>
+
+<p align="JUSTIFY">Kamēr šie tā runā, sešgalvis atmodies, pie kam gulta, uz otriem
+sāniem griežoties, tik dikti krakst, ka pat trešajā istabā ausis aizkrīt. Meita
+ietek pie sešgalvja un mierina, lai tik guļot. Bet šis ošņā, prašina, kas tā tik
+par svešu smaku. Meita iestāsta, ka pelīte nule pat pa grīdu tecējusi, lai tik guļot
+mierīgi. Sešgalvis tic un iemieg no jauna. Tagad Kurbads ilgāk negaida, atjož zobinu,
+atdara durvis un cērt tik sparīgi, ka trijas galvas uz reizi nost. Velns uzlec zibiņa
+ātrumā un grib stipruma zāles iedzert, bet stipruma vietā iedzeī' nestiprumu. Kurbads
+vēl nocērt tās trīs galvas un tad iedrāž rumpi ar galvām peļķes žurgā.</p>
+
+<p align="JUSTIFY">Jaunākā māsa apķeŗas Kurbadam gar kaklu, raud prieka asaras un
+nezin, kā pateikties. Bet Kurbads izskaidro īsi un strupi, ka neesot vis nācis tādēļ
+pestīt, lai pateicības dabūtu, bet tikai tādēļ, lai jaunākā nāktu pie viņa par
+sievu, un abas otras māsas pie pusbrāļiem, kuri virszemē pie cauruma palikuši.</p>
+
+<p align="JUSTIFY">"Nu, tad labi, paņemsim māsas un steigsimies pie tēva virszemē
+kāzas turēt. Jo, to tici droši, tik drīz, ka apkauto velnu radagabali saodīs, ko tu
+ar mūsu kakla kungiem esi izdarījis, tad tie tev kā siseni no visām pusēm
+uzmāksies."</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Labi, labi, steigsimies!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Aiz vārtiem Kurbads vēl noskatās uz dimanta pili. Jaunākā māsa,
+to pamanīdama, prasa: "Ko, puisīt, tik žēli skaties</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Kaut jele par savu pūliņu dabūtu šo dimanta pili līdz."</p>
+</blockquote>
+
+<p align="JUSTIFY">"To varam lēti. Še mans vaiņags, apnes to trīs reizes ap pili,
+tad dimanta pils paliks par dimanta pautu."</p>
+
+<p align="JUSTIFY">Tā notiek. Viņš paņem dimanta pautu un tad steidzas pie viduvējās
+māsas uz zelta pili.</p>
+
+<p align="JUSTIFY">Aiz vārtiem Kurbads atkal skatās atpakaļ. Viduvējā māsa prasa:
+"Ko, puisīti, tik žēli skaties?"</p>
+
+<p align="JUSTIFY">"Kaut jele par savu pūliņu dabūtu šo zelta pili līdz!"</p>
+
+<p align="JUSTIFY">To varam lēti. <b>Še </b>mans vaiņags, apnes to trīs reiz ap pili,
+"</p>
+
+<p align="JUSTIFY">tad zelta pils paliks par zelta pautu."</p>
+
+<p align="JUSTIFY">Tā notiek. Tagad visi trīs steidzas uz sudraba pili pie trešās
+māsas.</p>
+
+<p align="JUSTIFY">Aiz vārtiem Kurbads atkal skatās atpakaļ. Vecākā māsa prasa:
+"Ko, puisīt, tik žēli skaties?"</p>
+
+<p align="JUSTIFY">"Kaut jele par savu pūliņu dabūtu ir šo sudraba pili
+līdz!"</p>
+
+<p align="JUSTIFY">"To varam lēti. Še mans vaiņags, apnes to trīs reiz ap pili,
+tad sudraba pils paliks par sudraba pautu."</p>
+
+<p align="JUSTIFY">Tā notiek. Tagad visi četri steidzas pie apakšzemes cauruma. lai
+uztiktu virszemē. Kurbads iesien virvē vecāko māsu un pakustina virvi, lai pusbrāļi
+vilktu augšā. Tie uzvelk vecāko māsu, uzvelk vidējo, uzvelk jaunāko un patlaban
+nolaiž virvi, lai ir Kurbadu uzvilktu.</p>
+
+<p align="JUSTIFY">Te milža sieva, ragana, par vilkaci pārvērtusies klāt: šņaks!
+virve pārkosta, tā noveļas žvāks! apakšzemē; turpretim lielais kaudžu akmens
+žļāks! izveļas no purva un apsedz caurumu. Beidzot nozūd ir rūķīšu taisītais
+namiņš un šie pieci vēl laimīgi, ka veselu ādu var uz mājām griezties.</p>
+
+<p align="JUSTIFY">Kurbads nu paliek apakšzemē. Nekā darīt! jāņem vāle, jājož
+zobins un jāiet padoms meklēt. Būtu vēl jele savas rūlīšu stabulītes atminējies,
+kas zin, vai tie neizlīdzētu. Bet tā jau iet: vajadzīgā brīdī esi kā aizgrūsts.</p>
+
+<p align="JUSTIFY">'Tā nu iet, iet, kamēr saiet mājiņu, kur durvju priekšā
+neredzīgs vecītis turpat sētas vidū lopus gana.</p>
+
+<p align="JUSTIFY">"Kāpēc tad te sētas priekšā lopus mērdēt? Tālāku ganības
+treknas jo treknas."</p>
+
+<p align="JUSTIFY">"Ja, ir gan treknas, bet tās pļavas pieder sumpurnim,
+nedrīkstu."</p>
+
+<p align="JUSTIFY">"Kur tad sumpurnis dzīvo, vai tagad mājā?"</p>
+
+<p align="JUSTIFY">"Acumirklī gan mājā nebūs; bet tas vienalga, ir tad nedrīkstu
+viņa pļavās ganīt, jo tur mežā sumpurnim pļavas sargs, varens putns."<b></b></p><b>
+</b>
+
+<p align="JUSTIFY">"Vai tad tas tik briesmīgs ir?"</p>
+
+<p align="JUSTIFY">,.Nebūtu nemaz briesmīgs, bet - ko tur teikt? - vīrs pats spīlēs:
+ja nenosargā, sumpurnis atriebjas. Tā labi aizpērn sumpurņa putns man mazliet atvēl
+sava kunga pļavās paganīt, bet reče nu - sumpurnis klāt, izzīž man acis un nosit ar
+krusu tagad gadu no gada putnam bērnus. Sumpurnim gan esot zāļu trauciņš, kā acis
+atdabūt, tomēr, kā tiksi pie zālēm?"</p>
+
+<p align="JUSTIFY">"Sirmgalvi, gribu tevi no sumpurņa atsvabināt, ja tik tu zinātu
+man pateikt, kā no šīs apakšzemes laukā tikt."</p>
+
+<p align="JUSTIFY">"Ja tu sumpurni pārvarētu, tad sumpurņa putns aiz pateicības
+tevi aiznestu uz virszemi."</p>
+
+<p align="JUSTIFY">"Tā, tad labi! Laidi tūdaļ lopus viņa pļavās, lai tieku pie
+kaušanās." Lopi pļavās, sumpurnis klāt, dumpis gatavs. Kurbads grābj sumpurni
+aiz suņa rīkles, piesper ar kāju pie zemes un velē ar vāli tik briesmīgi, kamēr
+suņa gabals sāpēs pateic, kur veselības zāļu trauciņu nolicis. Kurbads pieduŗ
+sumpurni ar zobinu pie zemes, aiziet pēc zāļu trauciņa un aptraipa ar zālēm vecīša
+acis. Vecītis atdabū savu acu gaišumu. Bet par to laiku sumpurnis izrāvies no zobiņa
+asmeņa un krīt Kurbadam virsū. Kurbads liek vienreiz ar vāli -- nekas, liek otrreiz -
+nekas, tik pakrīt; liek trešreiz - sumpurnis nostirina kāju un atstiepjas. vecītis
+prieka pilns ved mudīgi vien savu glābēju pie putna ligzdas jo viņš zin, ka tagad
+putna bērniem kusa gaidāma. Noiet pie ligzdas: putnēni, kā labi tupeži, guļ ligzdā;
+bet vēl pliki. Kamēr šie tur skatās, nāk krusa šņākdama, kŗākdama. Bet Kurbads
+apsedz kailos putnēnus, kā varēdams, un izglābj no krusas sitieniem. Tikko krusa
+pāriet, sumpurņa putns arī pārskrien un nostājas zirga lielumā Kurbadam iepretim
+sacīdams: "Caur tevi nu vienreiz mani bērni pieaugs. Kā lai tevim
+atmaksāju?"</p>
+
+<p align="JUSTIFY">"Es citas maksas nevēlos, kā tikai virszemē tikt!"</p>
+
+<p align="JUSTIFY">"Labi, es tevi aiznesīšu. Bet ceļš tāls, jūŗa plata, ej
+tādēļ samedīt trīs apakšzemes vēršus un sakapā tos gabaliņos, jo kad uz ceļa
+knābļi atgriezīšu, tad iemetīsi man katrreiz pa gabalam."</p>
+
+<p align="JUSTIFY">Kurbads aiziet vēršus medīt. Ak tavus vēršus: maurojot vāle
+trīcēja un kārpoties zeme dārdēja. Tomēr Kuribads saķeŗ vienu aiz ragiem - nocērt
+ga1vu, saķeŗ otru - nocērt galvu, saķeŗ trešo -- nocērt galvu.</p>
+
+<p align="JUSTIFY">Otrā rītā Kurbads paņem vēršu gaļu, kāpj putnam mugurā un
+laiž pār jūŗu deviņas dienas un deviņas naktis. Devītā dienā var jau virszemes
+malu saredzēt. Te Kurbads apskatās: vēršu gaļa pagalam. Ko nu? Ja nav gaļas, tad
+putns nespēj nest. Nekā darīt! Kurbadam jāizgriež ar zobinu sev pašam kreisajai
+kājai ikri un jābaro ar tiem, kamēr sasniedz malu.</p>
+
+<p align="JUSTIFY">Pret vakaru Kurbads laimīgi pārnāk un atron savu līgaviņu un
+pusbrāļus, pie vecā valdnieka. Šie nu izstāsta savu notikumu ar virvi un Kurbads savu
+atgadījumu apakšzemē. Tā stāstot, tas atminas dimanta, zelta un sudraba pautus.
+Viņš paņem . no jaunākās māsas vaiņagu, apnes trīsreiz ap to vietu, kur nodomājis
+dimanta pili celt, nosviež dimanta pautu zemē - dimanta pils gatava. Tad paņem no
+viduvējās māsas vaiņagu, apnes trīsreiz apkārt, nosviež zelta pautu zemē - zelta
+pils gatava. Beidzot paņem no vecākās māsas vaiņagu., apnes trīsreiz apkārt,
+nosviež sudraba pautu zemē - sudraba pils gatava. Nu atdod saimnieces dēlam un viņa
+līgavai zelta pili, meitas dēlam un viņa līgavai sudraba pili un pats sevim un savai
+līgavai patura dimanta pili.</p>
+
+<p align="JUSTIFY">Pēc kāzām Kurbads domā mierīgi dzīvot savā pilī un no darbiem
+atpūsties. Tomēr raganas, laumas, nedod miera, ne dienu, ne nakti: te gan mīļie
+lopiņi maitāti, gan druvām kaitēts, gan pavalstnieki, apakšnieki vārdzināti.
+Kurbads noprot, ka te deviņgalvja ragana vainīga un apņemas savu valsti tīrīt.
+Paņēmis trīs birkavas sāls un trīs birkavas sālījuma uz pleciem, tas iet čūskai,
+raganai, pretim un domā tā: "Ja iebēršu sāli tai rīklē, tad tā skries ūdeni
+lakt; bet kamēr šī ūdeni laks, es tecēšu ātri, panākšu ūdens malā un tad
+nogalināšu."</p>
+
+<p align="JUSTIFY">Pēc triju dienu iešanas nāk pa gaisu čūska šņākdama, spārnus
+klabinādama, ar atplēstu rīkli. Kurbads nostājas un drāž trīs birkavas sāls
+rīklē. Šī nošķaudās vien un skrien uz jūŗu slāpes dzesēt. Kurbads steidzas
+pakaļ, bet vēl nevarēja jūŗu saredzēt, kad čūska salakusies laiž atpakaļ.
+Kurbads nostājas un drāž trīs birkavas sālījuma rīklē. Šī nošķaudās vien un
+skrien, tagad atkal citu ceļu ņemdama, uz jūŗu slāpes dzesēt. Kurbadam nozūd
+pēdas. Nu meklē, meklē, kamēr sasniedz jūrmalu, kur ierauga smēdi. Smēdē
+Debesskalējs kaļ. Šis dod Kurbadam padomu, ka kājām velti čūskai pakaļ doties.
+Viņš nokalšot tādu zirgu, ar kuŗu, kamēr linu sauja izdeg, varēšot trīsreiz
+pasaulei pāri tikt, pie kam tik ļoti jāsargājoties, ka jājējs atpakaļ neskatītos.</p>
+
+<p align="JUSTIFY">Kamēr Kurbads ar Debesskalēju sarunājas, tamēr čūska salakusies
+un laiž smēdei pāri. Šis gan paķeŗ karstas dzirksteles un sviež čūskai rīklē,
+bet apsvilina tik mēles galu.</p>
+
+<p align="JUSTIFY">Nu Dehesskalējs nokaļ zirgu tik spožu kā zvaigznes. Kurbads sēžas
+zirgam muguŗā un laižas čūskai pakaļ. Zirgs skrien vējam blakus pār jūŗu
+jūŗām, mežu mežiem. Te, k1au! kas tas? Troksnis aiz muguras nejauks: koki gāžas
+briks un braks! ūdens bango žvīks un žvāks! Kurbads paskatās atpakaļ, bet tai
+pašā acumirklī pērkoņi dūc, zibiņi šaudās un zirgs nozūd. Gan nu ļoti nožēlo,
+ka atpakaļ skatījies, aizmirsdams Debesskalēja noteikumu, gan arī tūdaļ noprot, ka
+trokšņotāji viņa paša ienaidnieki bijuši; tomēr izlieto vairs nesasmelsi.</p>
+
+<p align="JUSTIFY">Kurbads apguļas strautiņa malā un noliek stipruma zāles sev blakus.
+Pēc dienasvidus tas domā stipruma zāles ieņemt un tad raudzīt visiem spēkiem vēl
+reiz čūskai pakal dzīties. Tomēr nodoms atkal izdodas otrādi, jo čūska, ragana, pa
+dienvidus laiku norunājusi ar velnu, Kurbadu pievilt un tad nomākt.</p>
+
+<p align="JUSTIFY">Kamēr šis snauž, ragana pārvēršas par krupi, pielec pie zāļu
+trauciņa un apgriež stipruma zāles uz kreiso pusi, nestipruma uz labo. Kurbads
+atmožas, grib stipruma zāles iedzert, bet iedzeŗ :nestipruma. Nabadziņš tūda gan
+mana, kas noticis, bet par vēlu: spēks uz gada laiku pagalam. Nu velns vairs nekavējas,
+knaši klāt; lai līgstot uz gadu par puisi; ja ne, tad lai nākot spēkoties.</p>
+
+<p align="JUSTIFY">Ļaunais domā: "Gan tevi tagad, tēviņu, ar darbiem nomākšu,
+dzīvs jau nepaliksi."</p>
+
+<p align="JUSTIFY">Kurbads līgst, bet ar tādu norunu ja darba dēļ kuŗš katrs no
+abiem dusmotos, tad tam trīs sloksnes gaļas no muguras ārā. Velnam tāds līgums
+brīnum pa prātam.</p>
+
+<p align="JUSTIFY">No rīta velns liek Kurbadam zaķus ganīt. Bet, kas tie tādi par
+zaķiem, to gans tūdaļ noprot: kā izdzen, tā visi izklīst pa malu malām. Pret vakaru
+gans viens pats ganībās - zaķa neviena. Nekas, saulei rietot, Kurbads tik papūš savu
+rūķīšu stabulīti, un tūlīt desmit rūķīši klāt: un meklē un ložņā un
+gaiņā un dzenā, kamēr visi zaķi kā spaļi mājā.</p>
+
+<p align="JUSTIFY">Velns, to redzot, domā: <b>"Ar </b>to nav joki, tam nestipruma
+zāles bijušas, nebijušas."</p>
+
+<p align="JUSTIFY">No rīta velns liek govis ganīt un nosaka, lai tā pieganot, ka
+vakarā no treknuma lēktin lec. Govis izklīst, nozūd tāpat, kā vakar zaķi. Tomēr ar
+stabulīti desmit rūķīši atkal k1āt: un meklē un ložņā un gaiņā un dzenā,
+kamēr visas govis čupā. Kurbads nu nosit ar vāli vēl katrai govij vienu kāju un tad
+dzen mājā, ka lēktin lec.</p>
+
+<p align="JUSTIFY">"Vadzi, tu jau govim kājas nositis?" velns zils no dusmām
+uzbļauj.</p>
+
+<p align="JUSTIFY">"Pats šorīt saka, lai tā pieganot, ka vakarā lēktin lec un nu
+par to vēl dusmīgs."</p>
+
+<p align="JUSTIFY">"Ne, ne, Kurbad, dusmīgs neesmu!"</p>
+
+<p align="JUSTIFY">"Nu, tad labuma diezgan, dodi citu darbu!"</p>
+
+<p align="JUSTIFY">No rīta velns liek zirgus ganīt un nosaka, lai tā pieganot, ka
+vakarā visi smejas. Zirgi atkal nozūd tāpat, kā vakar govis. Tomēr ar stabulīti
+vakarā desmit rūķīši klāt: un meklē un 1ožņā un gaiņā un dzenā, kamēr visi
+čupā. Kurbads atgriež ar zobinu katram zirgam virslūpu un tad dzen mājā, kā smej
+vien.</p>
+
+<p align="JUSTIFY">"Vadzi, tu jau zirgiem virslūpu esi atgriezis?"</p>
+
+<p align="JUSTIFY">"Pats šorīt saka, lai tā pieganot, ka vakarā visi smietos, un
+nu par to vē1 dusmīgs."</p>
+
+<p align="JUSTIFY">"Ne, ne, Kurbad, dusmīgs neesmu."</p>
+
+<p align="JUSTIFY">"Nu, tad lahuma diezgan, dodi citu darbu!_"</p>
+
+<p align="JUSTIFY">No rīta velns liek ķēvi iejūgt un tikdaudz pa dienu uzart, cik
+baltā kuņa noskrien. Kurbads iejūdz ķēvi tik īsi arklā., ka šī nemaz nevar paiet;
+noķeŗ balto kuņu, savelē ar vāli viņas sānus mīkstus, ietriec paklētē un tad
+pats nosēžas uz arkla vakaru gaidīdams. Velns vakarā iznāks skatīties.</p>
+
+<p align="JUSTIFY">,"Kāpēc neari?"</p>
+
+<p align="JUSTIFY">"Kapēc neari? Kuņa netiek, ķēve nekāpj un tad vēl par to
+dusmoties."</p>
+
+<p align="JUSTIFY">"Ne, ne, dusmīgs neesmu."</p>
+
+<p align="JUSTIFY">"Nu, tad labuma diezgan, dodi citu darbu!"</p>
+
+<p align="JUSTIFY">No rīta velns liek zirgu stalli mēst, kuŗš gadu gadiem nav sekumu
+redzējis. Kurbads papūš stabulīti, rūķīši klāt: un grūž un sviež un met un
+ved, kamēr stallis viens, divi tukšs. Vakarā velns nāk skatīties, ja : nekā darīt.</p>
+
+<p align="JUSTIFY">No rīta velns liek ar ķēvi, velnamāti, veselu asi malkas meža
+pārvest. Iekŗauj asi malkas - ķēve nevelk. Kā nevelk, tā Kurbads ar vāli klāt un
+mēŗo un mēŗo.</p>
+
+<p align="JUSTIFY">"Ko tu gar maniem sāniem gribi taču izmēŗot?" ķēve
+jautā. "Lai, lai, ķēvīte, gribu no taviem sāniem pastalām ādu slejas izgriezt,
+lai vari vieglāk vezumu pārvilkt!"</p>
+
+<p align="JUSTIFY">"Negriezi, negriezi, varēšu tāpat pavibkt!"</p>
+
+<p align="JUSTIFY">Ķēve velk un pārvelk. Mājā velns uz ķēvi traks; bet ķēve
+atbild: "Tev branga mute! ej velci tu, tad redzēsi, ko ar Kurbadu iesāksi!"</p>
+
+<p align="JUSTIFY">"Vai esi dusmīgs?" Kurbads jautā. "Ne, ne, dusmīgs
+neesmu."</p>
+
+<p align="JUSTIFY">"Nu, tad labuma diezgan, dodi citu darbu!"</p>
+
+<p align="JUSTIFY">No rīta velns liek pusdienas maltītei vienu aitu nokaut. Kurbads
+uzstāj, lai parādot kuŗu būšot kaut, bet velns atbild: "Kauji to, kas virsū
+skatās."</p>
+
+<p align="JUSTIFY">Nu aiziet uz kūti kaujamo meklēt, bet tā kā visas virsū skatās,
+tad ņemas arī visas apkaut. Velns traks, bet Kurbads uzprasa: "Vai esi
+dusmīgs?"</p>
+
+<p align="JUSTIFY">"Ne, ne, dusmīgs neesmu!"</p>
+
+<p align="JUSTIFY">"Nu., tad labuma diezgan, dodi citu darbu!"</p>
+
+<p align="JUSTIFY">No rīta velns liek atnest divi siekus miltu, no kuŗiem ķiļķeni
+jāvāra: viens sieks ķiļķenu jāapēd Kurbadam, otru ēdīs ve1ns. Kurbads nosēžas
+velnam aiz muguras un sabāž ķiiķenus aizkreklī. Velns ēd, ēd, bet pārēdas un
+mocās cauru nakti.</p>
+
+<p align="JUSTIFY">No rīta velns liek pirti kurināt - iešot pērties, dziedināties.
+Pirtī nabadziņš kunkst un sten: "Vai zini, Kurbad, esmu drusku pārēdies. Kā
+tev?"</p>
+
+<p align="JUSTIFY">"Man arī tā nelabi, bet es zinu zāles: pārgriezīšu ar zobinu
+vēderu, lai ķiļķeni izkrīt."</p>
+
+<p align="JUSTIFY">Kurbads iziet priekšnamiņā, izbeŗ ķiļķenus plānī un tad saka
+uz velnu: "Tagad esmu vesels, kā rutks!" Velns rauga arī griezt vēderu pušu,
+bet nevar, nejauki sāp. Kurbads smejas, pie zemes liekdamies, bet velns neatsaka ne
+vārdiņa, tik dusmās noņurd: "Tam jau nestipruma zāles bijušas, nebijušas. Tam
+knauķim savāda daba, savāds spēks."</p>
+
+<p align="JUSTIFY">Abi nu peŗas mēnesnīcā līdz pusnaktij. Te uz reizi velns pakampj
+savu desmit birkavu smago cirvi un saka uz Kurbadu: "Še cirvis, iesim uz mežu pēc
+ozola."</p>
+
+<p align="JUSTIFY">Kurbads paņem cirvi aiz kāta un skatās ilgi mēnesī. "Ko nu
+skaties, iesim!"</p>
+
+<p align="JUSTIFY">"Iesim, iesim! Bet vai zini ko? Man tik prāts laist vectēva
+lodziņā."</p>
+
+<p align="JUSTIFY">"Vai traks! man viens pats cirvis un to vēl gribi pazaudēt. Dod
+cirvi, iesim!"</p>
+
+<p align="JUSTIFY">"Iesim, iesim!"</p>
+
+<p align="JUSTIFY">Aiziet mežā. Velns uzkāpj ozolā, pieliec pie zemes kā kņutu un
+uzsauc Kurbadam, lai cērtot; bet Kurbads atzveļas pret resno ozolu un skatās mēnesī.</p>
+
+<p align="JUSTIFY">"Ko skaties, cērti!"</p>
+
+<p align="JUSTIFY">"Cirtīšu, cirtīšu, tomēr pa priekšu man prāts laist cirvi
+vectēva lodziņā, jo neesmu viņu dzirdējis ilgi gremjamies."</p>
+
+<p align="JUSTIFY">"Vai prāts, neaiztiec vectēvu. Dod labāki cirvi man, es
+cirtīšu, kāpi tu ozolu liekt."</p>
+
+<p align="JUSTIFY">Kurbads nu uzlec ozola galotnē, bet ozols žvīks! ceļas gaisā un
+pārsviež Kurbadu pāri, taisni zaķītim virsū. Viņš saķeŗ zaķi un gaida, kamēr
+ozols nokritīs. Velns met, met, kamēr krīt arī, bet ačgārni: galotne uz māju pusi,
+rezgalis uz meža. Kurbads <b>nu </b>paņem zaķi un iet pie velna.</p>
+
+<p align="JUSTIFY">"Kur tu maisies, kapēc ozolu nelieci?"</p>
+
+<p align="JUSTIFY">"Kur tad nu maisos, satikos ar savu jaunāko brā1i,
+izrunājamies, jo nebijām ilgi sagājušies."</p>
+
+<p align="JUSTIFY">Kāds amats tad tavam brālim?" "</p>
+
+<p align="JUSTIFY">"Pēc amata tas skrējējs." Lai nāk skrieties!"</p>
+
+<p align="JUSTIFY">" Labi. Kā nu Kurbads zaķi palaiž, tā šis iet, ļipu mezdams.
+Velns skrien, skrien, nekā panākt.</p>
+
+<p align="JUSTIFY">"Tu tik manu brāli piejoko: visu grib, nekā nevar. Nu, kas būs
+ar ozolu? Ņem tu tievgali, es ņemšu rezgali. Bet, zināms, kad saņemsim, tad arī
+nekādas apstāšanās, kamēr, ozols mājā."</p>
+
+<p align="JUSTIFY">Velns ņem tievgali un rauj ozo1u ačgārni caur mežu, ka krakst vien;
+bet Kurbads uzsēžas uz rezgaļa un brauc līdz. Mājā velns slauka šūnas (putas) no
+pieres, bet Kurbads zobojas: "Tu esi vājš kukainis, kad tik ātri šūnas
+ronas."</p>
+
+<p align="JUSTIFY">No rīta velns liek bērnus pārvest un labi paēdināt. Kurbads
+aizjūdz velna ķēvi, aizbrauc bērniem pakaļ, sakŗauj ratos, pārliek labu svirti,
+nosien vezumu un brauc mājā. Bet braucot velna bērni krīt pa vienam vien ārā,
+saukdami: "Kurbad, es izkritu!" Nu Kurbads ņemas citādi strādāt: kuŗš
+izkrīt, tas knauks! gar riteni nost, kuŗš izkrīt, tas knauks! gar riteni nost. Mājās
+tas nosistos bērnus sasēdina rindā gar galdu, sabāž barību mutēs, noliek barības
+trauku katram klēpi un tad iet ķēvi nojūgt. Ne ilgi, velns iekšā un bļauj nelabā
+balsī.</p>
+
+<p align="JUSTIFY">"Kurbad, tu jau bērnus esi nositis!"</p>
+
+<p align="JUSTIFY">"Neesmu nositis. Labi redzi, ka viņi badā aizmiruši: visiem
+mutes pilnas un rokas barības traukā. Tici droši, tie bada kāsīši
+aizrijušies."</p>
+
+<p align="JUSTIFY">"Ko nu saki, tu esi nositis!" "Kā, vai esi
+dusmīgs?"</p>
+
+<p align="JUSTIFY">"Ne, ne, dusmīgs neesmu."</p>
+
+<p align="JUSTIFY">"Nu tad labuma diezgan, dodi citu darbu!"</p>
+
+<p align="JUSTIFY">No rīta velns saka uz Kurbadu: "Klausies, vakarā iešu uz
+kāzām. Apkopi ķēvi, sataisies un atnāci tu arī; bet, kad redzi, ka es starp brūti
+un brūtgānu sēžu, tad pameti man ar acim."</p>
+
+<p align="JUSTIFY">Kurbads izsit ķēvei acis un aiziet uz kāzām. Tikko velns starp
+brūti un brūtgānu nosēžas, Kurbads met ar vienu ķēves aci : velns jau paskatās.
+Pēc brīža met otru ķēves aci : velns stāvus un ārā pa durvim uz mājām. Mājā
+velns traks: "Kāpēc izsiti ķēvei acis?"</p>
+
+<p align="JUSTIFY">Pats man liki ar acim mest." "</p>
+
+<p align="JUSTIFY">, Kas tā runās?" ,</p>
+
+<p align="JUSTIFY">"Kā, vai dusmīgs esi?" "Ne, ne, dusmīgs neesmu."</p>
+
+<p align="JUSTIFY">..Nu, tad labuma diezgan, dodi citu darbu!" "Dabūsi,
+dabūsi!"</p>
+
+<p align="JUSTIFY">Naktī Kurbads apguļas, bet dzird, ko velns ar velna māti runa. Tagad
+būšot Kurbadam klusu pa nakti pielīst un ar cirvi nosist. Jo, kad nepasteigšoties, tad
+Kurbads beigās viņu nositīšot. Gada gals arī neesot vairs tālu, kur nestipruma
+zālēm spēks pagalam. Kurbads to noklausījies, uzlec no savas guļas vietas; paliek
+pagalvi ķērni, apsedz, lai izskatītos kā cilvēka galva un tad pats paslēpjas
+aizkrāsnē. <b>Ap </b>pusnakti velns lien uz pirkstu galiem un krauj pa bērni, lai izput
+gabalu gabalos. Smiedamies tas ieskrien pie velna mātes un stāsta? "'Tad to liku,
+kā liku, smadzenes vien pa pakausi izskrēja."</p>
+
+<p align="JUSTIFY">Bet Kurbads skrien velnam pakaļ, prasīdams, kāpēc ķērni sasitis?
+Tagad velnam, Kurbadu ieraugot, sāk tīri kājas trīcēt: ne nosist nevar. Viņš paņem
+savas mantas vienā padusē, sievu, velna māti, otrā padusē un bēg pie raganas,
+Kurbada ienaidnieces. Tomēr Kurbads pēdu no pēdas velnam pakaļ. Pēc kāda laika velns
+saka uz sievu: "Nu varam drusku atpūsties, jo nesamais brangi smags."</p>
+
+<p align="JUSTIFY">"Kā tad, jāatpūšas jau būtu gan!" Kurbads atbild velnam
+aiz muguras.</p>
+
+<p align="JUSTIFY">"Kurbad, vai tu arī te esi?" "Kā tad, kur tu, tur arī
+es!"</p>
+
+<p align="JUSTIFY">Velns atkal paņem mantas, sievu un bēg līdz kādai upmalai, kur
+domā pagulēties, atpūsties. Līdz ko šis apsēžas, te Kurbads atkal klāt.</p>
+
+<p align="JUSTIFY">"Kurbad, vai tu arī te esi?" "Kā tad, kur tu, tur arī
+es!"</p>
+
+<p align="JUSTIFY">Tādās sprukās, tādos spostos velns vēl nebija bijis : skaidri gals
+klāt, ne nosist, ne izbēgt. Beidzot tas sadomā tā: noguldināt sievu sev blakus. bet
+Kurbadu pašā upmalē, lai varētu to aizmigušu upē iegrūst. Tomēr Kurbads tev ies,
+pašam velnam blakus aizmigt. Viņš labāki pakaujas ar miegu, kā varēdams: nogaida
+šos abus aizmiegam, paveļ velna mātīti savā vietā, pie kam pats ieguļas viņas
+vietā, un tad gaida, kas nu labs tālāk notiks. Velns, kā nu možas, tā grūdīs
+krastā gulētāju upē. Bet drīzi pamanīdams, ka pats savu veceni iegrūdis, tas palec
+pie krasta, mīda zemi un lauza rokas. Tagad Kurbads paķeŗ vāli un dod velnam tā pa
+pakausi, ka šis muru murumis noiet dibinā.</p>
+
+<p align="JUSTIFY">Kurbads, reizi no velna kalpības vaļā ticis, griežas uz mājām un
+uz ceļa, savu vāli cilādams, pamana, ka senākajie spēki atpakaļ. Iet, iet, kamēr
+nonāk lielā mežā. Meža malā sēd sirms vīrs un vij pātagas.</p>
+
+<p align="JUSTIFY">"Sirmgalvi, kam tu pātagas vij?"</p>
+
+<p align="JUSTIFY">Tās raganu pātagas, jo šis mežs ir tā raganu apsēsts, ka katram
+ceļiniekam īsti naga darbi ar nezvēriem. Nezvērus var tik šīm pātagām savaldīt.
+Tomēr, ja kāds gadītos, kas spēcīgu roku nezvēru mitekļi izpostītu, tad mežs uz
+laiku laikiem būtu tīrs. Kurbads to apņemas. Viņš nogaida vakaru, kur nezvēri savā
+miteklī salasījušies un tad aizveļ lielu akmeni mitekļa caurumam priekšā. Nu tas
+sagrābj savu vāli, paveļ akmeni mazliet no cauruma, izlaiž vienu nezvēru - nosit,
+paveļ akmeni, izlaiž otru nezvēru - nosit. paveļ akmeni, izlaiž trešo nezvēru -
+nosit. 'Tā Kurbads strādāja cauru nakti, kamēr visi pagalam un mežs no tā laika
+tīrs.</p>
+
+<p align="JUSTIFY">Otrā dienā Kurbads uziet otrpus meža vienu cilvēku, kas lielu uguni
+kurdams,</p>
+
+<p align="JUSTIFY">bļauj neapstādamies: "Man salst, man salst!" "Kādēļ
+nesasildies, ja salsti?"</p>
+
+<p align="JUSTIFY">Ja, tikdrīz kā gribētu sildīties, tad mans mocītājs, vilkacis
+klāt un mani uz pēdām norītu.</p>
+
+<p align="JUSTIFY">"Sildies droši, gan vilkaci pamācīšu!"</p>
+
+<p align="JUSTIFY">Tā arī bija: līdz ko labi rokas apsildījis, te vilkacis nāk, zobus
+griezdams, nabadziņam virsū. Kurbads paņem vilkaci aiz rīkles, pārplēš un iemet
+ugunī, lai paceptu citām raganām uz brokastu. Vilkacis sadeg gruzdēdams, uguns
+apdziest un vīram vairs nesalst.</p>
+
+<p align="JUSTIFY">Gabalu gājis, tas ierauga citu cilvēku, kuŗš, ezeriņa malā
+sēdēdams, nemitoši brēc: "Man slāpst, man slāpst!"</p>
+
+<p align="JUSTIFY">"Kādēļ nenodzeries, ja slāpst?"</p>
+
+<p align="JUSTIFY">",Ja, tikdrīz ka gribētu dzert, tad mans mocītājs, ērglis,
+klāt un mani uz pēdām norij."</p>
+
+<p align="JUSTIFY">"Dzeri droši, gan ērgli pamācīšu."</p>
+
+<p align="JUSTIFY">Tā arī bija: līdz ko labi padzēries, te ērglis laižas, knābli
+knakšķinādams un spārnus klabinādams, nabadziņam virsū. Bet Kurbads nocērt tam
+kak1u un iegāž negantnieku ezerā. Ezers tūlin izžūst un vīram vairs neslāpst.</p>
+
+<p align="JUSTIFY">Beidzot Kurbads pārronas mājā. Bet te citas ķibeles viņu sagaida:
+sieva raganas, čūskas, noburta, pie miršanas slima. Nabadzīte savās mokās tā
+piebeigta, ka nespēj ne vīra pazīt. Tomēr Kurbadam visur padomi un vara pie rokas, tā
+arī te. Viņš paņem savas sumpurņa zāles, ar kuŗām vecīša acis izdziedējis, un
+izdziedē ar tām pašām arī savu sievu.</p>
+
+<p align="JUSTIFY">Nu Kurbads dzīvo dažus gadus mierā un laimē, jo čūska, ragana,
+vairs nedrīkst viņa valstī rādīties. Tomēr atriebšanās domas tai vēl pēc gadiem
+stāv prātā. Nevarēdama citādi Kurbadam vairs piekļūt, čūska. ragana, aizskrien
+pār deviņām valstim un uzkūda deviņus valdniekus ar kaŗaspēku, Kurbadu pārvarēt.
+Kaŗaspēks salasās lielu lielais un trešās valsts dēls, milzis nepārvaramais, ved
+kaŗaspēku taisni Kurbada valstī. Kurbads arī salasa savus kaŗavīrus un noiet
+ienaidniekam pretim. Nu izceļas briesmīgs cīniņš: zobeni žvīkstēdami žvīkstēja,
+vāles krakstēdamas krakstēja. Kurbads jau nosita milzi ar vāli gar zemi, bet, kamēr
+domā zobinu vilkt, lai milzim galvu šķeltu, tamēr milzis ievaino to ar zobina asmeni
+kreisajā plecā. Čūska, ragana, to redzēdama, uzlaižas spārnus klabinādama, uz
+Kurbada galvu un iespļauj savu nāvīgo žulti viņa ievainotā plecā. Kurbads paceļ
+kreiso roku un nospiež čūsku, raganu, paceļ labo roku un pāršķeļ milzim galvu un
+tad, nāvīgās žults nonāvēts, krīt uz savu vāli un mirst.</p>
+
+<p align="JUSTIFY">Piezīme. Šī pasaka liekas būt mākslīgi savērta no vairāk pasaku
+motīviem. Tautas dziesmās gan ir runa, ka "kalējs kala debesīs", bet kāds
+"Debess-kalējs" vēl nav īstās tautas tradīcijās konstatēts. Vai īsto
+pasaku "mazie vīriņi" saukt arī par rūķīšiem, ka šeit, tas arī vēl
+būtu jāpierāda. Beidzot tas arī nesaskan ar tautas tradīciju vispārējo optimismu,
+ka 1aunā ragana galīgi nonāvē varoni. Citādi pasakas motīvi tomēr paliek negrozīti
+un nav apšaubāmi. Pēc T. Zeiferta aizrādījuma šo pasaku esot stāstījis Kaspars
+Čipinš, kas savus stāstus esot labprāt izpušķojis. P. Š.</p>
+
+
+</body></html>

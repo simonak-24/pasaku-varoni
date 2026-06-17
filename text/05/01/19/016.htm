@@ -1,0 +1,193 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vīrs ceļo uz elli.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">16. A. 477. K. Ļuta Asūnes Plupovā. J.<b> </b>Rupjā krājumā. </p>
+
+<p align="JUSTIFY">Dzeivova dāds ar buobu. Beja pi jūs dāls. Un jūs dāls raizi
+padarēja lelu škuodu. Muote aizsasierdējuse uz dāla, i sacēja: , Kai tu ženēsīs,
+kab tevi valns nūrautu.</p>
+
+<p align="JUSTIFY">Paguoja vairuoki godi. Jūs dāls sasalauluojuos, i kai tikai atsasāda
+aiz golda, tyuleņ izgaisa. Muote beja i aizsamiersuse, ka tai beja uz dāla sacējuse.
+Vadakla cīši nūskuma. Muote, radzādama, ka vadakla cīši žāloj sovu dādu i juos
+dālu, nūdūmuoja īt juo maklātu. Guoja, guoja pa ceļu un daguoja, kur ceļš
+sašķēluos trejuos daļuos: vīns ceļš guoja pa labi, ūtrs pa kreisi, bet trešs pa
+vydu. Sadūmuoja jei īt pa vidējū ceļu. Guoja, guoja, koļč daguoja da meža. Pi
+meža molys stuovēja moza ustobeņa. Īguoja ustobeņā - radz: stuov golds, uz golda
+gruomota, svece, a pretim gu malns suņs. Atnuace pušnakts. Jei īleida kacarāgūs
+[šaura aizkrāsne], sād i klausuos, kas byus. Atīt juos dāls un soka: "Dīven,
+Dīven. muote mani mozu proluodēja."</p>
+
+<p align="JUSTIFY">Juo muote tyuleņ līn nu kacarāgu uorā nu tyudz dāla, lai jis ītu
+ar jū uz muojom. Dāls soka: "Labi, es īšu, bet mes cytaiduoki navarēsin nūīt
+uz sātu, kai caur eļni. Bet caur eļni īt īši korsts."</p>
+
+<p align="JUSTIFY">Muote soka: "Var byut, ka varēšu", un jī īt. It, īt -
+dāls soka: "Vēļ tu vari pacīst?"</p>
+
+<p align="JUSTIFY">"Vēļ varu," mute soka, i īt jī tuoluok. Daguoja pi pašys
+eļnis, muote nanūcīta i palaida dālu vīnu pošu, a poša atguoja uz sātu.</p>
+
+<p align="JUSTIFY">Is tān [tagad] tāvs dālu maklātu. Nūguoja da tai vītai, kur īt
+treis cei, kožnys uz sovu pusi, jis taipat, kai juo buoba, guoja pa vidējū, nuguoja da
+tuos ustobeņas, īguoja vydā, <b>i </b>radz: stuov golds, uz golda gruomota, svece un
+pretim gruomotai guļ malns suņs. Jis īleida kacarāgūs i sād. Kai tikai pušnakts,
+tyuleņ atīt juo dāls i soka: "Dīveņ, Dīveņ, muote mani mozu proluodēja."</p>
+
+<p align="JUSTIFY">Tod juo tāvs tyuleņ izlīn nū kacarāgu i soka: "Dēliņ, isim
+uz sātu!"</p>
+
+<p align="JUSTIFY">Dāls soka: "Labi, īsim, bet nazynu, vai tu izcīssi, mums
+vajadzēs īt caur pošu eļni."</p>
+
+<p align="JUSTIFY">"Bet īsim, var byut, ka i izcīsšu."</p>
+
+<p align="JUSTIFY">lt jī, īt - dāls vaicoj tāvam: "Vai vari vēļ?" Tāvs
+atsoka: "Varu vēļ, īsim tuoļuok."</p>
+
+<p align="JUSTIFY">Bet beidzūt tūmār i tāvs naizcīta i atguoja uz sātu.</p>
+
+<p align="JUSTIFY">Īs tān jū maklātu juo buoba. Īguoja tymā pošā ustobevā,
+kurymā jau beja juos tāvs un muote. Jei īleida taipat kacarāgūs i vieruos, ku gu
+malns suņs i pret jū uz golda gruomota i svece. Un kai tikai pušnakts, tyuleņ atīt
+juos dāds i soka: "Dīveņ, Dīveņ, muote mani mozu proluodēja."</p>
+
+<p align="JUSTIFY">Tod tyuleņ jei saprota, kas ar juos dādu nūtika. Jei izleida nū
+kacarāgu un pīguoja pī juo, saceidama: "Nu tān īsim uz sātu." Bet jis tik
+atsacēja: "Īsim."</p>
+
+<p align="JUSTIFY">Guoja jī guoja, jau pavysam tyvai eļnei, bet juo buoba nikuo nasoka.
+Tod jis soka uz sovu buobu: "Kad pīīsim pi eļnes, tad atsadareis durovas. Kai
+tikai es eļnī īīšu. tai tyuleņ aizadar ēs, bet tod otkon atsadarēs, i tod ej tu.
+Īīsi eļnī, tev pa vīnai i ūtrai pusei byus kotli, kur valni cylvākus vard, tod jam
+nu lobuos puses kotla cylvākus i svīd par kreisū placu, bet nu kreisuos puses kotla
+svīd par lobū placu uorā."</p>
+
+<p align="JUSTIFY">Eļnes durovas atsadareja, īguoja vydā juos dāds, kai atsadarēja
+ūtru reizi, tai tyuleņ īguoja jei poša i suoca svīst cylvākus nu lobuo kotla pa
+kreisū placu uorā, un nu kreisuo kotla par labū placu uorā. Kad izsvaidēja vysus
+cylvākus, tod pīskrēja pi juos pots lelais valns i pavaicuoja; "Kū tu te
+dor'?"</p>
+
+<p align="JUSTIFY">Jei dasaguodova, kai jei dāds sacēja, jei tai i pascēja: "Es
+sovu doru, bet na tovu."</p>
+
+<p align="JUSTIFY">Bet laimējuos, ka jei nikai cytaiduok nasacēja lelyjam valnam, a to
+jū jis smolkom druponom saplāstu, a tai i aizskrēja. Izsvaidēja jei vysus cylvākus,
+guoja pakaļ dādam i jīm pakaļ vysi citi cylvāki.</p>
+
+<p align="JUSTIFY">Bet vēļ na vysa juo struope, vajadzēja īt caur gunim. Caur pyrmū
+guni kai guoja, vysi tī cylvāki pasataisēja par zūs's. Caur ūtru guni kai guoja,
+pasataisēja par vuškys; bet caur trešū guoja, vēļ pasataisēja par cylvākim. Tai
+jei izgluobe sovu dādu i cytus cylvākus, abi atguoja uz sātu un dzeivova laimeigi.</p>
+
+
+</body></html>

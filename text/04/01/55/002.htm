@@ -1,0 +1,213 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa dēls suņa veidā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 440. A. Lerchis-Puškaitis Džūkstē -Pienavā. LP, II, 5. </p>
+
+<p align="JUSTIFY">Kāda pamāte apietas ar savu pameitu<b> </b>dikti suniski. Pameita gan
+izdara visu uz mata, ko jau tik liek, bet tomēr nevar un nevar iztapt.</p>
+
+<p align="JUSTIFY">Kādu dienu pameitai jāatnes ūdens no akas, ka spainis sauss.
+Nabadzīte raud gaužas asaras. Te - kur gadījies, kur ne - attek balts sunītis un saka:
+"Ja tu mani ņemsi par vīriņu, tad gādāšu, ka ūdeni aiznesīsi." Meitiņa
+apsolās. Sunītis tūlīt izdara, kā solījies, un tad pazūd.</p>
+
+<p align="JUSTIFY">Pēc kāda laika pameitai gadās cits brūtgāns. Viņa negrib iet, bet
+pamāte uzstāj, ka jāiet. Nekā darīt. Pienāk kāzu vakars : brūtgāns atlaiž, visi
+tek pretim, baltais sunītis arī tai pulkā gadījies. Citi saiet iekšā, sunīti pamet
+laukā. Te uz reizi baltais sunītis laukā - sāks tik dziedāt:</p>
+
+<p align="CENTER">"Meitiņ mīļā, laid mani iekšā, </p>
+
+<p align="CENTER">- Mani mazu vīrulīt' </p>
+
+<p align="CENTER">Vai atmini to dieniņu, </p>
+
+<p align="CENTER">Ko pie akas solījies?"</p>
+
+<p align="JUSTIFY">Visi pasmejas par sunīša labo muti un, joku dēļ, ielaidīs arī.
+Sunītis ietek istabā, ierauga brūtgānu brūtei blakus un tūlīt dzied atkal:</p>
+
+<p align="CENTER">"Meitiņ mīļā, ņem mani blakus, </p>
+
+<p align="CENTER">- Mani mazu vīrulīt' </p>
+
+<p align="CENTER">Vai atmini to dieniņu,</p>
+
+<p align="CENTER">Ko pie akas solījies?"</p>
+
+<p align="JUSTIFY">Brūtgāns domā: "Jocīgs šunelis! Jāļauj jau būs, lai nāk
+arī blakus, kad tik dikti lūdzas."</p>
+
+<p align="JUSTIFY">Sunītis apguļas brūtei pie kājām un vairs nesaka ne vārda. No
+rīta sākas derības, sunītis dzied atkal:</p>
+
+<p align="CENTER">"Meitiņ mīļā, ņem mani derēt,</p>
+
+<p align="CENTER">- Mani mazu vīrulīt' </p>
+
+<p align="CENTER">Vai atmini to dieniņu,</p>
+
+<p align="CENTER">Ko pie akas solījies?"</p>
+
+<p align="JUSTIFY">Brūtgāns jau atplēš muti, bet vēl neko. Pēc derībām jāēd
+brokasts, sunītis dzied atkal:</p>
+
+<p align="CENTER">"Meitiņ mīļā, ēd ar mani, </p>
+
+<p align="CENTER">- Mani mazu vīrulīt' </p>
+
+<p align="CENTER">Vai atmini, to dieniņu,</p>
+
+<p align="CENTER">Ko pie akas solījies?"</p>
+
+<p align="JUSTIFY">Brūte noliek savu tiesu sunītim, šis paliek klusu. Pēc brokasta
+visi sasēž ratos un brauks uz baznīcu pie laulībām; sunītis dzied atkal:</p>
+
+<p align="CENTER">"Meitiņ mīļā, ņem mani ratos,</p>
+
+<p align="CENTER">- Mani mazu vīrulīt' </p>
+
+<p align="CENTER">Vai atmini to dieniņu, </p>
+
+<p align="CENTER">Ko pie akas solījies?"</p>
+
+<p align="JUSTIFY">Nobrauc baznīcā, mācītājs sāk laulāt. Te uzreiz sunītis itin
+dikti :</p>
+
+<p align="CENTER">"Meitiņ mīļā, ņem mani laulāt, </p>
+
+<p align="CENTER">- Mani mazu vīrulīt' </p>
+
+<p align="CENTER">Vai atmini to dieniņu, </p>
+
+<p align="CENTER">Ko pie akas solījies?"</p>
+
+<p align="JUSTIFY">Mācītājs prasa: "Ko tad tu solījies? Izsaki visu, ātrāki
+nelaulāšu!"</p>
+
+<p align="JUSTIFY">Meita nu izsaka galu no gala. Pamāte speŗ vai zemes gaisā; tomēr
+nekā darīt. Ne mācītājs nu vairs laulā, ne arī pameitai acumirklī ko padarīt. Tik
+brūtgāns bij prāta vīrs, tas saka: "Kāpēc, meitiņ, man tūlīt neizteici visu
+skaidri? Kā lai to zinu?"</p>
+
+<p align="JUSTIFY">Būtu teikusi labprāt, bet baidījos no pamātes." </p>
+
+<p align="JUSTIFY">Pamāte, to dzirdēdama, dusmās izskrien no baznīcas laukā ,
+sunītis tai pakaļ. Pamāte grib sunīti rokā dabūt; bet tai pašā acumirklī atlaiž
+varena karīte<b> </b>astoņiem zirgiem. Sulainis nolēc no buka, atdara karīti un lūdz
+balto sunīti iekšā kāpt. Baltais sunītis iekāp karītē un pārvēršas par staltu
+ķēniņa dēlu. Tagad pameitu laulāja ar ķēniņa dēlu un aizveda uz zelta pili. Bet
+pirmo brūtgānu, par viņa labsirdību, ka licis sunīti iekšā laist, ļāvis pie
+brūtes kājām apgulties, ieņēmis ratos, - ķēniņš to iecēla par savu pirmo padoma
+devēju.</p>
+
+
+</body></html>

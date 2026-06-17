@@ -1,0 +1,178 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>30</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Labie brāļi.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>30. </b>A. 303. P. Smelteris Latgalē.</p>
+
+<p align="JUSTIFY">Beja div bruoļi dveiņi. Tak [krievu, tā] jīm nūmyra tāvs, muote,
+palyka vīni poši. Taids beja vīns, taids ūtrvs, ļaudis nevarēja pazeit. Jī
+juoškūši pasaulī, kū tur pīdzeivuoškūši, kū provjedeiškūši [kr izzināt]?
+Dajuoj pi kristceļu, uz tuo kristcelu akmiņa stulps [kr., stabs). Pastota iudiņa
+gluozi: ka byuškūte izkoltuse - zeime, ka vīns nu šūs nedzeivs. Jī šķiras, klonuos
+vīns ūtram, cikuom vīn var vīnām ūtru saredzēt.</p>
+
+<p align="JUSTIFY">Vīns bruolis juodams satūp vylku, grib tū saut. Vylks 1yudzuos
+nesaut šuo, šys byuškis iam izgodnys [kr. noderīgs). Bruolis nesaun. Satūp luoci,
+grib saut. Tys ar lyudzuos ka nesaut, tuo ar nesuovja. Satūp lovu, tys taipot, tuo ar
+nesuovjā. Visi treis zvēri skrīn jam, pakaļ.</p>
+
+<p align="JUSTIFY">Puisis ījuoj ķēneņa gorodā [kr., pilsēta), uz nakti īsaprosa pi
+mīškoneicas [miesta iedzīvotājas]. Naktī šys dzierd gorodā lelu sanēšanu.
+Mīškoneica pastuosta, ka reitu veškūts ķēneņa meitu uz taida kalna, kur jai
+byuškūte smierts [kr., nāve]. Jei beja žēleiga dēļ ļaužu, kuodē[ visi raud un
+žālūjas.</p>
+
+<p align="JUSTIFY">Reitā puisis sāstas uz zyrga, juoj uz kolnu. Atvad ķēneņa meitu
+zalta krāslā, pasādyna uz kolna, bet paši nūbāg kai žeidi,</p>
+
+<p align="JUSTIFY">pamatuši nabašnīku [baltkrievu niaboščyk, mirons, līķis]. Šys
+ar sovim zvērim nūsavier: izīt čorts [kr. čort, velns] nu kolna molas. Puisis laiž
+sovus zvērus vaļā, šī tyulen saplēš čortu, un ķēneņa meita spryuk nu nuoves.
+Tod šys prosa ķēneņa meitai paīskuot šam golvu: trešs gods, kai šam golva
+neīskuota. Kēneņa m.eita sāstās un īskuoj, puisis aizmīg.</p>
+
+<p align="JUSTIFY">Vīns lelskungs īt pasavārtu, kur palyka ķēneņa meita. Jis īrauga
+puisi, nūsaun jū, sakopuoj gobolūs :līk bucā un bucu palaiž jyurē. Tod jis atvad
+ķēneņa meitu un stuosta: švs ratavuojs [baltkr. ratawac', glābt]. Kēneņš grib
+atdūt kungam pus kēnestes un meitu par sīvu. Meita neīt, pagaideiškūte.</p>
+
+<p align="JUSTIFY">Zvēri grib gluobt sovu saimenīku. Luocis pataisa tyliu un pīlaseitu
+bišu kūzulu, lovš dabuoj dzeivuo iudeņa un myrušuo iudeņa. Vylks juoj pa tyltu,
+izgrīž bucu viersā un atbrāuc atpakaļ. Meža vucyns sadauza steipas. Pasmērēj ar
+myrušu iudini saaug mīsa; pasmērēj ar dzeivu iudini - puisis ceļas augšā. Jis juoj
+tod otkon uz nakts pi mīškoneicas. Mīškoneica atskrīn uz ķēneņa, pastuosta, ka pi
+šuos guļ jau ūtru nakti cylvāks ar trejim zvērim. Ķēneņa meita pastuosta tāvam,
+ka tys eists šuo gluobējs. Atvad tod tū puisi uz ķēneņu, jis sasalauluoj ar
+ķēneņa meitu.</p>
+
+<p align="JUSTIFY">Pēc godu divēju znūts prosuos apsavārtu, kaidas kurā styurī
+muojas. Ķēneņš pīsoka neīt vīnā moujā, bet šys, vysu apsaviers, aizroksta
+uorspusē sovu un zvēru vuordu un īt vydā. Izskrīn rogona ar deveņuom golvuom,
+lyudzuos nelaist zvēru vydā, dūd šam nīdreiti, ar kū dzeit šūs nūst. Nu sišonas
+ar tū nīdreiti visi zvēri palīk par akmiņim, pēdeigi ar pats palīk par ak'mini. Ta
+i niu izgaisa ķēneņam zmīts.</p>
+
+<p align="JUSTIFY">Atjuoj ūtrys bruolis pi stulpa uz kristceļa. Jam ar prīškā goduos
+zvēri, kas skrīn jam pakaļ. Šys atrūn tur izkoltušu gluozi, aplītu ar asni, juoj
+bruoļa maklātu un nakti guļ pi tuos pašas mīškoneicas. Mīškoneica pastuosta vysu
+kēneņam un nīvad jū uz kēneņu. Ķēneņa meita pīzeist jū par sovu veiru un negrib
+laist prūjuom. Tiklab dzeivuojs godu i ūtru ar muoršu. Šys dzeivuojs da dzeivuojs,
+nezyns, kaidas kur muojas. Īs apsavārtu. Īīt vīnā muojā, radz rogonas un soka:
+"Lai tevi ād smerte, juo nebyus dzeivs muns bruolis ar zvērim! Muni zvēri izēss
+iasu vysas. Kab maņ bruolis ar zvērim byutu dzeivi!"</p>
+
+<p align="JUSTIFY">Rogonas lyudzuos: trejdeveņas kēneņu zemes vajagūt apskrīt, ka
+dabuot taidu zuoļu. Kas šam? Ka tik byutu! Rogona apskrīn un dabuoj. Kuŗu pasmērēj,
+tys i dzeivs. Kai kreit niu viersā visi zvēri: divi lovi, divi luoči, divi vylki, tai i
+saād pušu.</p>
+
+<p align="JUSTIFY">Ūtrys bruolis niu atvad muoršai veiru i soka: "Vo tovs eistais
+veirs! Es dzeivuoju ar muoršu."</p>
+
+
+</body></html>

@@ -1,0 +1,241 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Velns maisā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">16. K. A. 330 B. Teicējs A. Dubrovskis Varakļānos. Kultūras balss
+kr.</p>
+
+<p align="JUSTIFY">Sen senejūs laikūs dzeivuoja pasaulē vīns boguots cylvāks, jam
+beja vīns dāls, kurs nazynuoja nikaida bāda. Pēc sova tāva nuoves dāls izdevja vysu
+sovu montu ubogim, bet pats aizguoja pa pasauli pazavērt, kai dzeivoj ļaudis. Dāls
+pajēmja leidz buteli yudeņa, maizi ar suoli, mēteli un aizguoja. Ceļā jis satyka
+vīnu veci. Vec's soka jam: "Atdūd, dēliņ, man buteli a:r yudeni!"</p>
+
+<p align="JUSTIFY">Dūmuoja, dūmuoja dāls un atdevja buteli ar yudeni. Īt jis tuoļuok
+un sateik vēl ūtru. veci. Vec's prosa jam maizi ar suoli. Jis ari pajēmja un atdevja un
+aizguoja otkan tuoļuok. Īt jis un sateik vēl trešū veci. Vec's prosa jam mēteli. Jis
+atdevja jam mēteli un aizguoja tuoļuok. Īt un izīt uz kristceļim. Tur sēd treis vaci
+veči. Vīnam ir butele ar yudeni, ūtram maize ar suoli, tre šam mētels. Soka jī
+dālam: "Tu myusus īzgluobi nu bādas, tagad pros, kuo gribi nu myusu, mēs tev vysu
+par itū dūsim!"</p>
+
+<p align="JUSTIFY">Vec's, kuram beja dūta butele ar yudeni, īdevja dālam tādu peipi,
+kura vysu laiku daga bez tabaka un guns. Ūtrs vec's, kuram beja dūha maize ar suoli,
+īdevja dzeivu capuri, un trešais, kam beja dūts mētels, īdevja maisu, kurs ari beja
+dzeivs. Dāls pajēmja itū vysu montu un īt tuoļuok sovu ceļu. Ceļā, kas paprosa
+peipēt, tam dūd peipīti, kas paprosa naudas, jis paceļ capuri un īdūd naudas. Tai
+jis guoja ilgi un devja vysim ubogim naudas.</p>
+
+<p align="JUSTIFY">Vīnu reizi myusu varūnis īguoja pi vīna muižinīka un prosa nakts
+muoju. Kur dzeivuoja miližinīks, tī myusu varūņa naīlaidja uz nakts muoju, bet
+aizsyutīja uz ūtru muoju, kur nikas nadzeivuoja. Myusu varūnis īguoja tymā muojā,
+lykuos uz gultas un guļ. Kad jū suoka mīgs jemt, redz jis, ka atsatais'īja lūgs, par
+lūgu īskrēja škiersts un apstuoja uz golda. Škiersts atsataisīja un izleida nu
+škiersta vacs vecs ar nazi rūkā. Pīguoja itys nabašnīks [mirons] pī varūņa gultas
+un suoka ar nazi grīzt jam kuojas. Varūnis vaicoj večam: "Kū tev nu manis
+vajag?"</p>
+
+<p align="JUSTIFY">"Es gribu pasaskiust, bet navaru atrast taida cylvāka, kurs mani
+paskuiss,"<b> </b>soka vec's.</p>
+
+<p align="JUSTIFY">"Tu tai runoj, kab es tevi paskustu," atbildēja varūnis,
+"bet nagrīz man ar nazi kuoju!"</p>
+
+<p align="JUSTIFY">Varūnis nūleida nu gultas, pajēmja nu nabašnīka nazi un vaicoj
+jam: ,,Kū skust?"</p>
+
+<p align="JUSTIFY">Nabašnīks jam soka: "Golvu nu lobuos puses!" Varūnis
+nūskuta.</p>
+
+<p align="JUSTIFY">"Kū vēl?" prosa varūnis.</p>
+
+<p align="JUSTIFY">"Skut nu lobuos puses vīnu ūsu," atbildēja vecs. "Kū
+vēl?" voicoj varūnis.</p>
+
+<p align="JUSTIFY">"Skut lobuos puses buordas golu."</p>
+
+<p align="JUSTIFY">Varūnis skut nabašnīku un vaicoj: "Kuodēļ tev tai vajag
+skustīs?"</p>
+
+<p align="JUSTIFY">Nabašnīks jam atbild: "Kad es beju par muižinīku, tod sovim
+kalpim, kuri nalabi darīja un manis naklausīja, tīm es taipat skutu pus golvas, labuos
+puses pus ūsas un pus buorzdas, bet tagad, kad nūmyru, manis napījem tai pasaulī, bet
+soka, kab es paprīšku taipat nūskustu. Par tū es vysu laiku staiguoju pa šū pasauli
+un cik ar nazi nūgrīžu aužu, bet naatrodu taida cylvāka, kas mani nūskustu. Cīši
+tev paldīs, ka tu mani apskuti, tev es par tavu dorbu aizmoksuošu!"</p>
+
+<p align="JUSTIFY">Pajēmja nabašnīks varīmi aiz rūkas un aizvedja pi vīna akmeņa.
+Akmens beja vyss ar putekļim. Nabašnīks uz akmeņa ar pierstu pīrakstīja: "Šam
+cylvākarri atdūmu pusi sovas boguotības</p>
+
+<p align="JUSTIFY">un nuoju par manim izdarītu lobumu un nu šuos dīnas es vairuok uz
+sovu muoju naatīšu!"</p>
+
+<p align="JUSTIFY">Pīrakstījis itūs vuordus, nabašnīks aizguoja atpaka un Iykuos
+sovā škierstā. škiersts ar lelu vēju izsanesja pa lūgu uorā. Variinis lykuos
+guļtā un aizmyga.</p>
+
+<p align="JUSTIFY">Reitā atīt muižinīks ar sovim kolpim, kab iznestu nūsystū
+ceļaveiru, bet tai šaltī redz, ka ceļaveirs guļ un peipej peipi. Muižinīks vaicoj
+varūņam: "Nu kai labi gulēji, un kū sapynā redzēji?"</p>
+
+<p align="JUSTIFY">"Gulēju labi!" soka varīmis, "Naktī beja tovs tāvs,
+es jū nūskutu un par dorbu jis man aizmaksuoja."</p>
+
+<p align="JUSTIFY">Jis paruodīja muižinīkam akmeni. Muižinīks papasavēra, kū talvs
+pīrakstīja, un atdevja varūņam pusi sovas boguotības. Varūnis vysu itū montu
+izdevja otkon ubogim, bet pats aizguoja sovu ceļu tuoļuok. Īt jis un redz: stuov
+maziņa ustabiņa. Īguoja varūnis tymā ustobā un redz, ka tī guj slyma sīvīte,
+atraitne, un apleik juos gultai stuov mozis bārni un gauži raud. Pi gultas stuovēja
+Nuove ar iskapti rūkuos. Varūnam tyka žāl bārnu un jis Vaicoj Nuovei : "Kuo tu
+te stuovi?"</p>
+
+<p align="JUSTIFY">Nuove jam atbild: "Es atguoju pēc ituos sīvītes un gribu jū
+īra jemt<b> </b>sev leidz."</p>
+
+<p align="JUSTIFY">Sasadusmuojas varūnis, pajēmja sovu maisu, pakratīja un soka uz
+Nuovi: "Lein maisā!"</p>
+
+<p align="JUSTIFY">Nuove tyuleņ īleida juo maisā. Jis aizsēja maisu, lyka sev uz
+placim un a,iznesja. Sīvīte palyka vasala, suoka dzeivuot un audzynuot sovus bārnus.
+Varīmis īt tuoļuok un nas Nuovi maisā. Tai Nuove nūsēdēja maisā daudz godu.
+Varūnis jū nalaidja uorā. Suoka Nuove prasīt varūņam, kab jū izlaistu nu maisa.
+Varūnis vaicoj Nuovei : "Dūd man vuordu, ka tu najemsi ļaužu. nu ituo
+pasauļa!"</p>
+
+<p align="JUSTIFY">Nuove ari devja jam vuordu najemt ļaužu un jis jū izlaidja uorā nu
+maisa. Nuove aizguoja sovu ceļu, bet varūnis sovu. Itys varīmis īt pa pasauli un redz,
+ka stuov trepes pa kurom</p>
+
+<p align="JUSTIFY">var kuopt dabasūs. Varūnis ilgi nadūmuoja un suoka kuopt pa trepem
+uz dabasim, izkuopja jis da dabasu vuortim. Tur stuov svātais Pīteris ar atslāgom.
+Varīmis soka Pīteram : "Laid mani dabasūs!"</p>
+
+<p align="JUSTIFY">Pīters jū nalaiž. Tūlaik varūnis gribēja Pīteri pasādynuot
+maisā, bet Pīters ralein maisā un soka varūņam: "Ej uz zemes un dzeivoj tur,
+dabasūs tev vītas nav!"</p>
+
+<p align="JUSTIFY">Kū darīt varūņam? Vajag īt atpakaļ uz zemi, bet jis redz, ka
+trepu nav. Varūnis pajēmja viervi nu svātuo Pītera, pīsēja pi muokuļu un suoka
+laistīs uz zemi. Vierve puortryuka un varūnis nūkrita zemē, bet nanūsastjtas, un tai
+palyka uz tuo pasauļa.</p>
+<b>
+
+<p align="JUSTIFY">&nbsp;</p>
+</b>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

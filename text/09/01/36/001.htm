@@ -1,0 +1,139 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>36</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5"><strong>Kārīgā nabadze.</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">l. A. 751. J ā n i s D ī c m a n i s "P a
+s a k u v ā c e l ī t ē", 1891. 57, 21. LP, VII, III, 48, I, 7.</font><font size="4"></font></p><font size="4">
+</font>
+
+<p align="JUSTIFY">Sen atpakaļ vecos laikos dzīvoja pie viena saimnieka ļoti nabaga
+sieviņa. Viņa bija tik nabaga, ka tai nebija nekā ko ēst, nedz arī ko ģērbties.
+Saimniekam bija veca klēts, tur tas turēja cūku pelus. Vienu dienu nabaga sieviņa,
+klētī grābdama pelus, sāka gauži lūgt Dievu par savu lielo nabadzību, lai Dievs
+viņai nāktu palīgā. Pelus sagrābusi, viņa atgriezās atpakaļ un ieraudzīja pie
+kasta (tīņa) stāvam vecu, vecu vīriņu ar baltu bārdu. Vecais vīriņš mīlīgi
+uzrunāja nabaga sieviņu un sacīja: "Es redzu, ka tev klājas ļoti gŗūti un tu
+esi lūgusi par savu grūtumu, lai to tev atņemtu. Tev nebūs vairs ciest badu un ēst
+pelus! Tu vari no šī kasta ikreiz pa divi lāgi grābt, tad tev būs miltu papilnam, bet
+sargies trešo reizi bāzt rokas kastā."</p>
+
+<p align="JUSTIFY">To teicis, vīriņš tūliņ pazuda. Nu nabaga sieviņai nevajadzēja
+vairs ciest badu un gar citu nama durvim vazāties, lūgt dāvanas un maizīti: maizes nu
+bija diezgan, jo miltu netrūka. Bet jo jau labi iet, jo vēl labāki grib!</p>
+
+<p align="JUSTIFY">Kad nu sieviņa tā ilgāku laiku no kasta miltus bija grābusi un
+iztikusi, tad viņa kādu dienu pie sevis tā runāja: "Nu, kālab es nevarētu katru
+reizi pa trim lāgiem grābt miltus? Te jau miltu papilnam un man arī nevajadzētu tik
+daudz reizas tiem pakaļ nākt."</p>
+
+<p align="JUSTIFY">Kā runāts, tā darīts. Otrā dienā viņa atkal nogāja pie lielā
+kasta grābt miltus. Šodien nu sieviņa gribēja izmēģināt savu nodomu: viņa bāza
+rokas vēl trešo lāgu kastā pēc miltiem.<b> </b>Bet tikko trešo lāgu rokas bija
+iebāzusi, te nejauši kasta vāks krita un sievai<font size="4"> </font>nocirta galvu.</p>
+
+
+</body></html>

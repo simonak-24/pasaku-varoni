@@ -1,0 +1,317 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>22</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Bārenīte un mātes meita pirtī. A.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 480. Z. Jankovskis Jelgavas apkaimē, A. Bīlenšteina kr. LP, VI
+824 (9).</p>
+
+<p align="JUSTIFY">Vienai mātei bija divi meitas: īstā un pameita. Īstā meita tai
+bija mīļa, bet pameita netīkama.</p>
+
+<p align="JUSTIFY">Reiz viņa sūtīja pameitu pirtī linus sargāt. Bet pameitai bija
+trīs lopiņi: sunītis, kaķītis, gailītis, tos viņa paņēma līdz biedros. Nogājusi
+pirtī, paēda vakariņas pati, paēdināja ir lopiņus; uztaisīja gultu pašai,
+uztaisīja ir lopiņiem un tad visi gāja gulēt. Gulēja, gulēja, te ap pusnakti velns
+klāt ar tādu troksni, ka zeme vien rībēja, un sauca, pie durvim dauzīdamies: Meit,
+meit; meit, laid' man' iekšā!"</p>
+
+<p align="JUSTIFY">Bet šī vaicāja lopiņiem: "Sunīti, kaķīti, gailīti, vai
+laidīšu iekšā?"</p>
+
+<p align="JUSTIFY">Tie atbildēja: "Nelaid, slikti būs!"</p>
+
+<p align="JUSTIFY">Pa brītiņam velns dauzījās otrreiz: "Meit, meit, meit, laid
+mani iekšā?"</p>
+
+<p align="JUSTIFY">Šī vaicāja lopiņiem: "Sunīti, kaķīti, gailīti, vai
+laidīšu iekšā?" Tie atbildēja: "Nelaid, slikti būs!"</p>
+
+<p align="JUSTIFY">Pa brītiņam velns dauzījās trešreiz: "Meit, meit, laid man
+iekšā "</p>
+
+<p align="JUSTIFY">Šī vaicāja: "Sunīti, kaķīti, gailīti, vai nu laidīšu
+iekšā?" Tie atteica: "Laid!"</p>
+
+<p align="JUSTIFY">Labi! ielaida. Velns ienāca pirtī un tūlin atkal: "Meit, meit,
+meit, pūt uguni!"</p>
+
+<p align="JUSTIFY">Bet pameita vaicāja lopiņiem: "Sunīti, kaķīti, gailīti, vai
+pūtīšu uguni?"</p>
+
+<p align="JUSTIFY">"Nepūt, slikti būs!"</p>
+
+<p align="JUSTIFY">Pa brītiņam velns atkal: "Meit, meit, meit, pūt uguni!"
+Šī vaicāja: "Sunīti, kaķīti, gailīti, vai pūtīšu?" "Nepūt,
+slikti būs!"</p>
+
+<p align="JUSTIFY">Atkal pa brītiņarn velns trešreiz: "Meit, meit, meit, pūt
+uguni!"</p>
+
+<p align="JUSTIFY">Šī vaicāja: "Sunīti, kaķīti, gailīti, vai nu
+pūtīšu?" Pūt!"</p>
+
+<p align="JUSTIFY">" Labi! iepūta uguni. Bet kad uguni iepūta, velns atkal:
+"Meit, meit, meit, dod man ēst!"</p>
+
+<p align="JUSTIFY">Pameita vaicāja lopiņiem: "Sunīti, kaķīti, gailīti, vai
+došu ēst?"</p>
+
+<p align="JUSTIFY">"Nedod, slikti būs!"</p>
+
+<p align="JUSTIFY">Pa brītiņam velns atkal: "Meit, meit, meit, dod man ēst!"</p>
+
+<p align="JUSTIFY">Šī vaicāja: "Sunīti, kaķīti, gailīti, vai došu ēst!"
+"Nedod, slikti būs!"</p>
+
+<p align="JUSTIFY">Atkal pa brītiņam velns trešreiz: "Meit, meit, meit, dod man
+ēst!"</p>
+
+<p align="JUSTIFY">Šī vaicāja: "Sunīti, kaķīti, gailīti, vai nu došu
+ēst?" Dod!"</p>
+
+<p align="JUSTIFY">Labi! iedeva ēst. Bet kad bija paēdis, velns atkal: "Meit, meit,
+meit, nomauc man zābakus!"</p>
+
+<p align="JUSTIFY">Pameita vaicāja lopiņiem: ,,Sunīti, kaķīti, gailīti, vai maukšu
+zābakus tam?"</p>
+
+<p align="JUSTIFY">"Nemauc, slikti būs!"</p>
+
+<p align="JUSTIFY">Pa brītiņam velns atkal: "Meit, meit, meit, nomauc man
+zābakus!"</p>
+
+<p align="JUSTIFY">Šī vaicāja: "Sunīti, kakīti, gailīti, vai maukšu zābakus
+tam?" "Nemauc, slikti būs!"</p>
+
+<p align="JUSTIFY">Atkal pa brītiņam velns trešreiz: "Meit, meit, meit, nomauc
+zābakus man!"</p>
+
+<p align="JUSTIFY">Šī vaicāja: "Sunīti, kaķīti, gailīti, vai nu maukšu?"
+Mauc!"</p>
+
+<p align="JUSTIFY">Labi! nomauca zābakus. Kad nomaukusi zābakus, velns atkal:
+"Meit, meit, meit, taisi man gultu!"</p>
+
+<p align="JUSTIFY">Pameita vaicāja lopiņiem: "Sunīti, kaķīti, gailīti, vai
+taisīšu gultu?"</p>
+
+<p align="JUSTIFY">Netaisi, slikti būs!"</p>
+
+<p align="JUSTIFY">Pa brītiņam velns atkal: "Meit, meit, meit, taisi man
+gultu!"</p>
+
+<p align="JUSTIFY">"Netaisi, slikti būs!"</p>
+
+<p align="JUSTIFY">Atkal pa brītiņam velns trešreiz: "Meit, meit, meit, taisi man
+gultu"</p>
+
+<p align="JUSTIFY">Šī vaicāja: "Sunīti, kaķīti, gailīti, vai nu taisīšu
+gultu?" Taisi!"</p>
+
+<p align="JUSTIFY">Labi! uztaisīja gultu. Kā uztaisīja gultu, velns atkal: "Meit,
+meit, meit. nāc manim klāt gulēt!"</p>
+
+<p align="JUSTIFY">Šī vaicāja lopiņiem: "Sunīti, kaķīti, gailīti, vai iešu
+klāt gulēt?"</p>
+
+<p align="JUSTIFY">"Neej, slikti būs!"</p>
+
+<p align="JUSTIFY">Pa brītiņam velns atkal:" Meit, meit, meit, nāc klāt
+gulēt!" Šī vaicāja: "Sunīti, kaķīti, gailīti, vai iešu klāt
+gulēt?" <b>"</b>Neej, slikti būs!"</p>
+
+<p align="JUSTIFY">Atkal pa brītiņam velns trešreiz: "Meit, meit, meit, nāc klāt
+gulēt!"</p>
+
+<p align="JUSTIFY">Šī vaicāja: "Sunīti, kaķīti, gailīti, vai nu iešu klāt
+gulēt?" "Ei</p>
+
+<p align="JUSTIFY">Labi! gāja klāt gulēt. Bet nu velns iesāka pameitu žņaugt un
+mocīt. Tad pameita iebrēcās: "Sunīti, kaķīti, gailīti! sunīti, kaķīti,
+gailīti!"</p>
+
+<p align="JUSTIFY">Tūdaļ sunītis rēja, kaķītis ņaudēja, gailītis dziedāja un
+velns</p>
+
+<p align="JUSTIFY">kā sprukstiņš aizspruka projām, atstādams ratus ar pāris melniem
+zirgiem, ar naudu, gan sudraba, gan zelta.</p>
+
+<p align="JUSTIFY">No rīta, kad pameita piecēlās, tā iesēdās ratos ar visiem trim
+lopiņiem un brauca pie pamātes, ka vizēja vien. Pamāte, tādus dārgumus redzēdama,
+sagaidīja pameitu laipni un nezināja, kā cienāt, kā godināt.</p>
+
+<p align="JUSTIFY">Bet otru vakaru pamāte sūtīja savu īsto meitu pirtī linus sargāt
+un iedeva arī sunīti, kaķīti, gailīti līdz. Nogājusi pirtī, tā paēda vakariņas
+pati, bet lopiņiem tikai tādu garoziņu pasvieda. Pēc vakariņām uztaisīja gultu sev
+pašai, bet lopiņiem netaisīja nemaz. Tad aizgāja gulēt.<b> </b>Gulēja, gulēja - ap
+pusnakti velns ar tādu troksni klāt, ka zeme vien rībēja, un dauzās pie durvim un
+sauc: "Meit, meit, meit, laid man' iekšā!"</p>
+
+<p align="JUSTIFY">Šī vaicāja lopiņiem: "Sunīti, kaķīti, gailīti, vai
+laidīšu iekšā?" Tie atteica: "Laid! Ne tu mums paēst devi, ne tu mums
+mīkstu guļas vietu taisīji!"</p>
+
+<p align="JUSTIFY">Šī ielaida. Ienāca iekšā, velns atkal: "Meit, meit, meit,
+uguni pūt!"</p>
+
+<p align="JUSTIFY">Šī vaicāja lopiņiem: "Sunīti, kaķīti, gailīti, vai
+pūtīšu uguni?" "Pūt! Ne tu mums paēst devi, ne tu mums mīkstu guļas vietu
+taisīji?"</p>
+
+<p align="JUSTIFY">Šī iepūta. Kā iepūta uguni, velns atkal: "Meit, meit, meit,
+dod man ēst!"</p>
+
+<p align="JUSTIFY">Šī vaicāja lopiņiem: "Sunīti, kaķīti, gailīti, vai došu
+ēst?" "Dod! Ne tu mums paēst devi, ne tu mums mīkstu guļas vietu
+taisīji!"</p>
+
+<p align="JUSTIFY">Šī iedeva ēst- Paēdis labi, velns atkal: "Meit, meit, meit,
+nomauc zābakus man!"</p>
+
+<p align="JUSTIFY">Šī vaicāja lopiņiem: "Sunīti, kaķīti, gailīti, vai maukšu
+zābakus tam ? "</p>
+
+<p align="JUSTIFY">"Mauc! Ne tu mums paēst devi, ne tu mums mīkstu guļas vietu
+taisīji!"</p>
+
+<p align="JUSTIFY">Šī nomauca. Bet līdz nomauca zābakus, velns atkal: "Meit,
+meit, meit, nāc klāt gulēt!"</p>
+
+<p align="JUSTIFY">Šī vaicāja lopiņiem: "Sunīti, kaķīti, gailīti, vai iešu
+tam klāt gulēt?"</p>
+
+<p align="JUSTIFY">"Ej! Ne tu mums paēst devi, ne tu mums mīkstu guļas vietu
+taisīji!"</p>
+
+<p align="JUSTIFY">Šī gāja klāt gulēt. Bet līdz labi apgulās, velns iesāka
+žņaugt. Nu sauca gan uzsaukdama: "Sunīti, kaķīti, gailīti, sunīti, kaķīti,
+gailīti!" bet lopiņi ne rēja, ne ņurdēja, ne arī dziedāja.</p>
+
+<p align="JUSTIFY">Un tikām velns saimnieces meitu tur mocīja, kamēr nabadzīte par
+pelnu čupu palika; bet ādu, to jau priekšlaiku bija norāvis un izžāvis uz sētas,
+lai kalst.</p>
+
+<p align="JUSTIFY">No rīta saimniece, īstās meitas ādu ieraudzījusi, teikusi:</p>
+
+<p align="JUSTIFY">Redzi, redzi, kā mana meitiņa smuki rēgojas: zelta treses izstiepusi
+pār sētu!"</p>
+
+<p align="JUSTIFY">Bet kad aizgāja un tādas briesmas ieraudzīja, tad saimniece tik
+dikti sabaidījās, ka turpat pie pirts durvim nomira.</p>
+
+<p align="JUSTIFY">Piezīme. R. Vulfs no Ūziņiem piesūtījis Lerchim -Puškaitim
+variantu (VI<b>, </b>524. piez.), kur pamāte sūtījusi pameitu pirtī gulēt".
+Pameita aizgājusi ar suni, kaķi un gaili. "Velns sacījis ienākdams: "Nomauc
+man zābakus!" Šī nomaukai, bet tā tūlin gailis iedziedājies, un velns pa kaklu,
+pa galvu aizprucis. atstādams pameitai zirgus, ratus un pilnu maisu zelta naudas aiz
+durvim." P. Š.</p>
+
+
+</body></html>

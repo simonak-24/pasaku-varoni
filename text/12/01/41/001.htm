@@ -1,0 +1,234 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>41</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="center">Visziņa dakteris.</p>
+</font>
+
+</b><p><b>l. </b>A. 1641. J. Bankins «Šis un tas» I, 1872, 51.</p>
+
+<p align="JUSTIFY">Patukšs skrodelis dzīvoja ar savu sievu un bērniem mazā mājiņā,
+ceļa malā. Reizu viņam saslimst sieva, tam vairāk naudas nav, kā tik viens pats
+dalderis. Viņš paņem to pašu un iet pie dakteŗa. Pie dakteŗa nonācis, viņš ieiet
+istabā un saka: "Labdien, cienīgs dakteŗa lielskungs!"</p>
+
+<p align="JUSTIFY">Dakteris, apvilcies naktssvārkus, lielu pīpi iekodis zobos, sēž pie
+galda, kur tam liela grāmata stāv atvērta priekšā. Viņš itin skarbi prasa: "Ko
+tev vajaga?"</p>
+
+<p align="JUSTIFY">"Cienīgs dakteŗa lielskungs, man sieva slima," skrodelis
+nopūzdamies atbild.</p>
+
+<p align="JUSTIFY">Dakteris daudz maz paskatās grāmatā un saka: "Tai vajaga
+pļūtiena zāļu"; un iedod labu paciņu no tām.</p>
+
+<p align="JUSTIFY">Skrodelis atkal prasa: "Lielskungs, cik jāmaksā?" </p>
+
+<p align="JUSTIFY">Tas atbild: "Dalderis."</p>
+
+<p align="JUSTIFY">Skrodelis izvelk dalderīti no ķešas, uzliek uz galda un iet. </p>
+
+<p align="JUSTIFY">Sieva pāŗa kaŗotes plūtiena zāļu apdēzrusi, atveseļojas, un nu
+laba daļa zāļu paliek pāri. Skrodelis domā pie sevis, vai ne varētu savu izdotu
+dalderi par tām vēl atdabūt. Viņš sarunājas ar savu sievu, sagādājas
+naktssvārkus, gaŗu pīpi, lielu vecu grāmatu un tad izsit lielu šilti uz durīm ar
+tādu virsrakstu: "Še dzīvo dakteris, kas visu zina."</p>
+
+<p align="JUSTIFY">Pēc kādām dienām nozog lielkungam muižā zirgus. Tas savus zirgus
+meklēdams brauc gar skrodeļa mājiņu, ierauga tādu šilti un brīnās par to, ka tur
+tagad visu zinātājs dakteris dzīvo, kur senāki skrodelis mita. Viņš liek pieturēt
+zirgus un stellē kučēru tur iekšā. Kučērs ieiet, redz dakteri pie galda sēžam
+&amp;127;un uz to saka: "Labdien, cienīgs dakteŗa lielskungs!"</p>
+
+<p align="JUSTIFY">Tas nu gan sāk stāstīt, ka zirgi nozagti, bet dakteris uz to nemaz
+neklausās, tik paskatās savā grāmatā un tāpat skarbi kā tas dakteris šim pasaka:
+"Tev vajaga pļūtiena zāļu"; tad paņem pāŗa šķipsnas no tūtes, iebeŗ
+kaŗotē un iedod šim. Tam jādzer, vai grib vai negrib.</p>
+
+<p align="JUSTIFY">Kučērs iziet ārā un lielskungs tam prasa: "Nu, kas tur labs
+bija?"</p>
+
+<p align="JUSTIFY">Tas atbild: "Piķis viņu zina, tas muldēja par pļūtiena
+zālēs un man iedeva veselu karoti nodzert."</p>
+
+<p align="JUSTIFY">Kučērs nu sēžas uz bukas un sāk braukt. Jau šim tā sāk rūkt un
+griezties pa vēderu, un gan jūt kas būs. Par labu gabalu ierauga šķūni ceļmalā,
+pļavā. Tas uzšauj zirgiem un laiž jo spoži, lai tiktu līdz turienei. Pret šķūni
+ticis, tas iedod grožus lielkungam, speras no bukas zemē un davai aiz šķūņa. Tur
+tupēdams, skatās pa šķirbu šķūnī, un ierauga par brīnumu savus nozagtos zirgus
+tur iekšā. Viņš nu nāk pie lielkunga un teic uz to: "Tiešām tas ir gudrs
+dakteris; viņš skaidri zinājis, kur mūsu zirgi. Redzat, lielskungs, mūsu zirgi tur
+šķūnī!"</p>
+
+<p align="JUSTIFY">Tie nu brauc uz muižu, dabū šķūņa atslēgu, atslēdz duris un
+izņem savus zirgus. Lielskungs, zināms, ir ļoti priecīgs par &amp;127;o, ka dabūjis
+savus zirgus rokā, un dod par tādu gudrību dakteŗam labu daļu naudas. Nu skrodelītis
+itin labi jau var dzīvot.</p>
+
+<p align="JUSTIFY">Pēc kāda laika otram lielkungam nāburgos izzog no istabas pilnu
+skasti ar zelta un sudraba lietām. Tas arī nāk pie daktera, kas visu zina, un lūdz,
+vai šis tam nevarētu palīdzēt, kā to dabūtu rokā. Skrodelītis tam atteic :
+"Kāpēc ne, bet ņemat mani pašu ar manu sievu trīs dienas muižā pie sevis,
+dodat man ēst vislabākos ēdienus un dzert visdārgākos dzērienus un turat mani kā
+kādu smalku lielkungu."</p>
+
+<p align="JUSTIFY">Lielskungs to visu viņam apsola, un ņem šo līdz uz muižu. Tos nu
+ieliek skaistā istabā, un sulaiņi viņus apdienē, pienesdami ēdienus un dzērienus,
+un šie dzīvo kā jau laikam kungi.</p>
+
+<p align="JUSTIFY">Pirmās dienas vakarā lielskungs skrodeļam prasa: "Vai jau
+zināms?" "Būs gan, bet tagad vēl ne," šis atbild. Tāpat prasa otru
+vakaru, un šis atkal atteic, ka būs gan, bet tagad vēl ne. Trešās dienas rītā
+skrodelītis ar sievu, kapiju nodzēris, paliek tāds bailīgs, domādams, kas nu būs kas
+ne, jo vēl nekādas zīmes par zādzību nebija manījis.</p>
+
+<p align="JUSTIFY">Pie vakara maltītes sulainis ienes tiem pirmo ēdienu.. Kad to
+apēduši, viņš sacīs uz sievas: "Ta nu ir pirmais," (proti ēdiens).</p>
+
+<p align="JUSTIFY">Sulainis nobālis iziet no istabas, nāk ķēķī un stāsta citiem, ka
+svešais kungs skaidri uz viņu sacījis : "Tas nu ir pirmais." Viņš nemaz
+vairs neiet ar otru ēdienu, bet lai otrs sulainis to dara.</p>
+
+<p align="JUSTIFY">Tas iet un atkal uzliek ēdienu galdā, un pastāv gaidīdams, kamēr
+kungi apēd; skrodelis ēst beidzis, saka uz sievu: "Šis ir otrs."</p>
+
+<p align="JUSTIFY">Sulainis satrūcies un stāsta, ka svešais, uz šo zīmēdams, teicis:
+"Šis ir otrs."</p>
+
+<p align="JUSTIFY">Beidzot pats pavārs iet ar trešo ēdienu. Skrodelitīs paēdis
+saliekas rokas kopā, skatās uz debesīm un sakan "Paldies Dievam, tas nu bija
+trešais."</p>
+
+<p align="JUSTIFY">Pavārs ar sulaiņiem, kas visi trīs bija vainīgi, nu gan zināja kas
+tiem gaidāms, tāpēc šie sarunājās, gāja pie skrodelīša un solīja tam daudz
+naudas, lai šis nesakot lielkungam, ka šie paši nozaguši dārgo skasti. Viņš arī ir
+mierā, bet tik paģēr, lai šie parāda skasti, kā tas var zināt, vai visas lietas tur
+vēl iekšā. Tie gan nodievojaa, ka itin nekā tur neesot izņēmuši, un visas lietas
+skastē kā liktas; bet skrodelītis pastāv cieši uz to - jo viņš nemaz nezināja, kur
+skaste ir - vajagot apskatīt, vai visas lietas veselas. Šie nu viņu izved aiz klēts
+bērzos un parāda, kur skasti norakuši.</p>
+
+<p align="JUSTIFY">Kad rītā bija kapiju padzēris, tad lielskungs nāk pie tā un prasa:
+"Vai skaste rokā?"</p>
+
+<p align="JUSTIFY">"Jā, skaste rokā!" tas atbild, ved lielkungu bērzos. un
+parāda, kur tā ierakta. Lielskungs tam nu deva daudz naudas un tad viņu atlaida uz
+mājām. Skrodelītis tagad bija bagāts vīrs, jo viņš bija dabūjis labu tiesu naudas
+no pirmā lielkunga par zirgu uziešanu, tad no sulaiņiem un pavāra par nesacīšanu, un
+tagad no lielkunga par skastes pierādīšanu.</p>
+
+<p align="JUSTIFY">Divas reizes viņam labi bija izdevies par viszinātāju dakteri, bet
+Dievs zina, kā trešo reizu klātos. Tāpēc viņš noņēma daktera šilti no durīm un
+strādāja atkal skrodeļa amatu kā jau senāki.</p>
+
+<p align="JUSTIFY">Piezīme. Šī ir visagrāki iespiestā tautas pasaka par visziņa
+dakteri, kas tomēr stipri atšķiras tāpat no 1800 gada kalendāra varianta kā arī no
+J. Zvaigznītes tulkotās (III, 1861, 44) Grimma pasaciņas. Abos pēdējos variantos
+viszinis ir zemnieks, šeit turpretī skroderis. Kalendāra pasakā ir nozagts gredzens,
+Grimmu varinta nauda, šeit «skaste ar zelta un sudraba lietām". No jauna še ir
+pienācis motīvs par caurejas zālēm. P. Š.</p>
+
+
+</body></html>

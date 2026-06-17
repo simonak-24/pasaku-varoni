@@ -1,0 +1,191 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Netīrais velna kalps.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">9. A.<b> </b>361. Krēsliņu Jānis, Malienā, "Latv. teikas"
+II, 11. LP, VII, II, 19, 6, 1.</p>
+
+<p align="JUSTIFY">Noskumis jauneklis gāja pa ceļu. Tēvs un māte mājā gulēja
+neveseli un maizes nebija ne kumosa. Gan viņš vienu otru bija lūdzis pēc palīdzības,
+bet nekā nebija dabūjis. Izmisis viņš izsaucās: "Kad cilvēki man nepalīdz,
+kaut jel pats velns man palīdzētu!"</p>
+
+<p align="JUSTIFY">Tikko jauneklis šos vārdus bija izrunājis, kad arī velns, nevis ar
+gaiļa vai zirga kājām, bet kā smalks kundziņš melnos astainos svārkos, viņam
+parādījās un to uzrunāja : "Labdien, draugs' Par ko tik noskumis?"</p>
+
+<p align="JUSTIFY">Kā nu nebūšu noskumis? Trīs dienas neesmu ēdis, svārki "</p>
+
+<p align="JUSTIFY">noplīsuši, auksts laiks, salst."</p>
+
+<p align="JUSTIFY">,,Kad tik vien vainas, tad jau varu palīdzēt," velns saka, ,še
+tev svārki, valkā viņus vesels, naudas arī svārku kabatā ,</p>
+
+<p align="JUSTIFY">netrūks." Jauneklis priecīgs grib svārkus vilkt mugurā.</p>
+
+<p align="JUSTIFY">"Pag, Pag, pirms svārkus apvelc, mums vēl jānorunā līgums.
+Tevim iepriekš jāapsolās izpildīt viss tas, ko tev pavēlēšu. Pirmkārt, tev šie
+svārki jāvalkā trīs gadi no vietas dienu un nakti un tev nav brīv viņus ne reizi
+novilkt. Otrkārt, tev pa šo laiku nekad nav brīv muti mazgāt. 'Treškārt tev nav
+brīv galvu sukāt un degunu šņaukt. Ja to izpildīsi - būs labi; ja ne - tad tev gals
+klāt."</p>
+
+<p align="JUSTIFY">Jauneklis to apsolījās un velns aizgāja, solīdamies pēc trim
+gadiem šinī pašā vietā ar jaunekli sastapties.</p>
+
+<p align="JUSTIFY">Jauneklim mājā pārejot, tēvs priecīgs prasīja: "Ai, dēliņ,
+kādi tev skaisti svārki! Vai maizi arī pārnesi?"</p>
+
+<p align="JUSTIFY">"Maizes un naudas kā pelavu!" dēls sacīja, lai laižot tik
+roku šā kabatā, tad tūlin redzēšot. Tēvs neticīgi iebāza roku dēla kabatā un
+izvilka pilnu sauju dukātu. Nu bija prieki bez gala. Bet kad dēls stāstīja, kā Pie
+naudas ticis, tad tēvs noskumis kratīja galvu, sacīdams: ,Diezin, dēliņ, vai iespēsi
+visu to izpildīt? Bet dzeršanu tev, dēls, turpmāk vajaga atmest; dzērumā varbūt
+piemirsīsi, ko velnam solījies."</p>
+
+<p align="JUSTIFY">Dēls to apsolīja. Tā viņš nodzīvoja pirmo gadu. Mati tam izauga
+gaŗi sapiņķējušies, ģīmis melns, netīrs, deguns notecējis kā jumta ledtekas,
+svārki spīdēja vien no netīrumiem. Jauneklis bija palicis par smirdošu riebekli. Visi
+no viņa bēga., kaut gan tam naudas bija bez ziņas. Visu atstumts, jauneklis
+sataisījās uz vientuļa dzīvi : nopirka māju un naudu sakŗāva šķirstos saviem
+piederīgiem. Arī nabadziņiem tas deva ar bagātu roku, bet cieši piekodināja, ka tie
+nedrīkst sacīt "paldies!" jo tad visa bagātība izzudīšot. Pie jaunavām
+tam laimes nebija, jo kaut gan vienai, otrai bagātība ļoti patika - pie tik netīra
+cilvēka tomēr neviena negribēja iet. Sadusmojies viņš teica: ,.Tagad jūs mani
+atraidat, bet nāks laiks, kad man skriešus pakaļ skriesit!"</p>
+
+<p align="JUSTIFY">Pagāja arī otrs gads un tagad jauneklis apņēmās arī trešo
+pārciest. Un tikko trīs gadi bija apkārt, tad arī jauneklis bija tai vietā, kur
+priekš trim gadiem ar velnu derību slēdza. Novilcis velna dotos svārkus, tas tos
+pakāra pie koka. Te arī velns, rūkdams un kā viesulis riņķī griezdamies bija klāt
+un sauca pikti: "Vai tu jau atnāci?"</p>
+
+<p align="JUSTIFY">"Zināms," jauneklis droši atbildēja, "tevi jau sen
+gaidīju, tavus svārku par visas pasaules bagātību ne stundas vairs neturēšu
+mugurā."</p>
+
+<p align="JUSTIFY">"Sasodīts nelietis!" velns brēca, "man iztērēji tik
+daudz <b>nau</b>das. Būtu tik vēl vienu sauju zelta ņēmis, tad visa mana bagātība
+būtu pagalam!"</p>
+
+<p align="JUSTIFY">To sacījis, velns pakampa svārkus un aizskrēja, kā smiltis vien
+nokūpēja. Jauneklis nu steidzās priecīgi uz māju -- viņš bija velnu uzvārējis.
+Pirmais darbs bija mazgāties. Bet kur nu! Mazgājās. mazgājās, bet balts netika. Nu
+tēvs un māte kurināja pirti un salūdza trīsdesmit sievas palīgā nomazgāt. Šās
+izmazgāja četri podi ziepju, izberza divi vezumi akšķu, bet tad arī bija pulka balts
+kā ābols un skaists kā princis, kā to ir pazīt nevarēja. Nu gan visas ciema meitas
+meta uz viņu acis un visādi mēģināja tam pielabināties. Bet jauneklis sacīja:
+"Toreiz jūs mani nicinājāt, tagad es jūs negribu!"</p>
+
+<p align="JUSTIFY">Viņš aizgāja pāri pār Daugavu un no turienes atveda skaistu
+zeltenīti, ar kuŗu dzīvoja ļoti laimīgi un dzīvo vēl tagad ja tikai nav nomiris.</p>
+
+
+</body></html>

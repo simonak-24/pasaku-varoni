@@ -1,0 +1,173 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Līķu ēdēja.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">4. A. 363. St. Ulanovska Vilānos. Zbi6r wiadomosci do antropologii
+krajowei. Krakavā 1895, 445 - 6.&gt; </p>
+
+<p align="JUSTIFY">Guoja mjeita iz kristamuoti gostūs. Īt jei pa cjeļu, vderas, ka jvoj
+ju.ojējs uz zyrga, zyrgs bolts, i bolts juojējs, i bolts suņc skrīņ pa suonim.</p>
+
+<p align="JUSTIFY">Rozjuoja cauri. paīt jei gobolu, vieras, ka juoj pretim sorkons
+juojējs, sorkons zyrgs i suņc sorkans.</p>
+
+<p align="JUSTIFY">Rozjuoj cantri, īt jei vjē gobolu, vieras, ka juoj malns juojējs iz
+malna zyrga i malns suņc skrīņ leidza.</p>
+
+<p align="JUSTIFY">Daīt jei pi kristamuotis ustobys, vieras, ka siņcjās [kr.
+priekšiņā] iz durovu, iz klindzi, cylvāka rūka; iz slīkšņa cylvāka kuoju. Taisa
+iei ustobu - dūrs vaļā, vieras, ka kristamuotje ād cylvāku. Jau jei vysu cylvāku
+apādusja, tik golva vīn palykusja i ād jei tū golvu.</p>
+
+<p align="JUSTIFY">Īt jei ustabā, sazavasaluoj ar kristamuoti, a kristamuotje soka tai
+iz jū: "Soki mudruok, kū tu ŗedzēji īdama?"</p>
+
+<p align="JUSTIFY">"A kū es ŗedzjēju? Es ŗedzēju, ka bolts juojējs i bolts
+zyrgs i bolts suņc!"</p>
+
+<p align="JUSTIFY">Kristamuotje soka: "Itjei beja muna dīna. Nu, kū tu vjēļ
+ŗedzjēji?"</p>
+
+<p align="JUSTIFY">"Is ŗedzjēju, ka sorkons juojējs ir sorkons zyrgs i sorkons
+suņc."</p>
+
+<p align="JUSTIFY">Kristamuotje soka: "Itei muna sauleitje bjeja. Kū ta tu vjēļ
+ŗedzjēji?"</p>
+
+<p align="JUSTIFY">"Es ŗedzjēju, ka malns juojējs i malns zyrgs i malns
+suņc." </p>
+
+<p align="JUSTIFY">"ltjei muna nakts bjeja. Soki vjēļ, kū tu ŗedzjēji, soki
+mudruok!" </p>
+
+<p align="JUSTIFY">"Es ŗedzjēju, ka ap cjotkys [baltkrieviski tanta] ustobu zornys
+bjeja apstaipjeitys."</p>
+
+<p align="JUSTIFY">"Itjei muni cjeliņi, kur es staiguoju špacierā. Soki vjēļ,
+kū tu ŗedzjēji?"</p>
+
+<p align="JUSTIFY">"Es ŗedzjēju, ka pi cjotkys durovu bieja cylvāka rūka iz
+klindzi."</p>
+
+<p align="JUSTIFY">"A, tjei muna atslēga, kur es durs<b> </b>aizslādzu. Soki
+vjēļ, kū tu ŗedzjēji."</p>
+
+<p align="JUSTIFY">"Es ŗedzjēju, ka pi cjotkys<b> </b>durovu bjeja cylvāka
+kuoja." "A, tys muns slīksnis ira. Soki mudruok, kū tu vjēj ŗedzjēji."
+"Es ŗedzjēju, ka cjotka ādja cylvāka golvu."</p>
+
+<p align="JUSTIFY">Kai jei pascjēja, ka ŗedzjēja, ka cjotka ādja cylvāka golvu, to
+cjotka giva i apjēdja tū mjeitiņu. Jei bjeja rogona, kas iz jū guoja, tū i jēdja jei
+kūpā. I vysa.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

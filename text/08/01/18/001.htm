@@ -1,0 +1,191 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>18</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5">Trīs vēja mezgli.</font></p><font size="5">
+
+</font></b><p align="JUSTIFY"><b><font size="5"></font></b><font size="3">1. A. 578. E. Birznieks no Fr. Baumaņa
+Dzirciemā. Jkr. III<b>, </b>55 (20). L. P. VII, II, 28, 2, 2.</font></p><font size="3">
+
+<p align="JUSTIFY">Tēvam un mātei bija dēlēns, jau it labi liels stroķis, bet par
+daudz liels nerīša: bijis, kur nebijis - pie dīķa vien, pie dīķa vien. Gan māte
+noteica, lai neejot ūdens tuvumā, varot noslīkt, gan tēvs sapēra, bet viss tas neko
+nelīdzēja. Tikko puika kaut ko nodabūja: vai nu karoti, sāls piestiņu, cepuri,
+pastalu, tad tos tūliņ ūdenī iekšā, lai peld. Beigu beigās tēvs ar māti
+nosprieda, ka nieki vien būšot - puiku no ūdens nevarēšot vis atradināt, lai jau
+viņš mācas par jūrnieku.</p>
+
+<p align="JUSTIFY">Tēvs izlaida pa visu pasauli ziņu, ka viņš gribot savam dēlam
+skolotāju. Atnāca vecs vīriņš un sāka mācīt dēlu visās jūrnieku gudrībās. Tā
+kā puikam prāts uz to nesās, tad arī viņš ļoti lēti paturēja, ko vecais
+skolotājs viņam mācīja, un pēc neilga laika vecais vīriņš ziņoja tēvam, ka viņa
+dēls tagad esot pilnīgi izmācīts jūrnieks. Vecais vīriņš nu taisījās iet atkal
+projām, bet vispirms vēl iedeva savam māceklim auklu ar trim mezgliem un teica:
+"Lai gan tu tagad zini visus vējus, pasaules un jūŗas, bet jūrniekam ar to vis
+vēl nepietiek. Kad vējš nepūš jeb plosās vētra, tad tikpat viņam mierīgu prātu
+jānogaida kamēr atkal sacelsies vējš jeb saniknotā jūŗa nostāsies trakot. Te tev
+būs aukla ar trim mezgliem - kamēr tev šī būs, tu būsi jūŗas un vēju pavēlnieks.
+Kad nebūs vējš un tu atraisīsi pirmo mezglu, tad pūtīs krietns ceļa vējš, ja
+atraisīsi otru, tad trakos vētra, kuŗu tikai trešo mezglu atraišot, varēs
+apmierināt."</p>
+
+<p align="JUSTIFY">Vecais vīriņš aizgāja un jaunais kapteinis sāka braukāt ar savu
+kuģi pa jūŗu. Citi jūrnieki par viņu brīnījās: visur, kur tik viņš brauca,
+viņam pūta labs ceļa vējš; ne viņam kādreiz uzbruka vētra, ne arī cita kāda
+nelaime gadījās ceļā.</p>
+
+<p align="JUSTIFY">Reiz viņš nobrauca ķēniņa galvas pilsētā. Daudz kuģu stāvēja
+ostā gatavi aiziet; bet tikko mūsu kapteinis iebrauca un nosēja visus mezglus, palika
+viss tik rāms, ka jūŗā ne ūdens pilīte<b> </b>nepakustējās un uz sausuma ne apses
+lapiņa nedrebēja. Kuģiem bija gribot negribot jāpaliek ostā. Nogulēja vienu dienu,
+otru, bet vējš kā necēlās, tā necēlās. Visi par to bija ļoti sapīkuši, bet<b> </b>pavisam
+vairāk bija pats ķēniņa dēls. Viņam vēl tai pašā dienā vajadzēja notikt aiz
+jūŗas pie savas brūtes, otras zemes princeses; ja viņš šodien tur nenobrauc, tad
+viņa ietu pie cita. Ķēniņa dēls solīja nezin ko tam maksāt, kas viņu pārvestu
+pāri, pat visu savu tēva valsti, ja tikai tiktu laikā pie savas brūtes. Mūsu
+kapteinis pieteicās viņu aizvest. Princis prieka pilns iekāpa viņa kuģī. Kapteinis
+nu pataisīja pirmo mezglu vaļā: sacēlās tāds ceļa vējš, ka kuģis zibeņa
+ātrumā aizšāvās par jūŗu projām. Jau otrā rītā princis ieraudzīja no tālienes
+savas brūtes tēva pili. Princis tikko vēl laikā nonāca pilī - viņa brūti patlaban
+kā gribēja salaulāt ar citu. Tagad nu viss vēl izgāja labi un princis pēc kāzām
+tur palika par ķēniņu. Kapteinis brauca atpakaļ uz savu nopelnīto valsti. Braucot
+viņš domāja: "Kam man tādas valsts vajaga, lai viņu ņem kāds cits, kas grib -
+kas man te nekait manā kuģī; bet apskatīties gan jau apskatīšos, kā viņi tur
+dzīvo."</p>
+
+<p align="JUSTIFY">Viņš nobrauca pie vecā ķēniņa un arī tam izstāstīja savu
+nodomu, ka negribot viņa valsti par prinča aizvešanu - tik jauka dzīve nevienam
+ķēniņam nevarot būt, kā viņam kuģī. Vecais ķēniņš viņu uzaicināja, lai taču
+viņš kādu laiciņu paciemojoties pie šā. Kapteinis palika no iesākuma tik uz kādām
+dienām, bet vēlāki vairs nemaz negribēja braukt projām: vecajam ķēniņam bija
+skaista princese un tā viņam ļoti patika.</p>
+
+<p align="JUSTIFY">Kādā dienā atbrauca princesei precinieki: viens valdinieks turpat no
+jūŗas salas precēja pēc viņas. Bet princese bija ieskatījusies kapteinī un atteica
+preciniekiem. Tie nelikās būt par to visai apvainoti un lūdza veco ķēniņu, lai
+ļaujot viņiem nakti pārgulēt turpat pilī. Vecais ķēniņš to labprāt atļāva un
+vēl labi preciniekus pacienāja. Bet otrā rītā tos vairs pilī neatrada. Viņi bija
+aizbēguši un nozaguši arī princesi. Vecais ķēniņš no bēdām nezināja, ko darīt.
+Viņš skaidri zināja, ka no salas valdītāja nagiem nekad vairs savu meitu neatdabūs,
+jo viņu nevarēja nekādi apkaŗot. Salai visapkārt bija lieli klinšu kalni un ūdenī
+daudz slepenas klintis, tā ka pie salas nemaz nevarēja piebraukt. Bet kapteinis
+nezaudēja dūšu. Viņš paņēma savus ļaudis līdzi un brauca uz salas pusi. Tikko
+viņš salai tuvojās, salenieku kuģi nāca viņam visi pretī. Kapteinis turpat jūŗā
+izmeta savam kuģim enkurus un tad līdz kā ienaidnieku kuģi piebraukuši līdz aizām
+un slepenajiem klints ragiem, kapteinis atraisīja abus mezglus. Acumirklī sacēlās
+briesmīga vētra: viļņi trakoja, bangas šķēlās, ienaidnieku kuģu masti
+krakšķēja, ļaudis vaimanāja. Arī kapteiņa paša kuģi jūŗa pie enkura svaidīja
+ka rieksta čaumalu šurpu, turpu. Pēc brīža kapteinis atraisīja trešo mezglu un nu
+viss apklusa, viļņi nostājās - bija redzamas tikai vēl salauztās kuģu sienas,
+sadauzīti cilvēku līķi, visādas kuģa lietas. Dzīvi tikai bija palikuši salas
+valdnieks un nozagtā ķēniņa princese. Kapteinis tūliņ devās ar saviem ļaudim
+malā, atņēma salas valdniekam princesi, nokāva viņu pašu un tad brauca ar princesi
+atpakaļ uz mājām. Drīzi vien izrīkoja varenas kāzas - kapteinis un princese
+precējās. Pēc kāzām kapteinis palicis par ķēniņu, bet reizēm vēl arī
+pabraukājis pa jūŗu. Savu vēja auklu ar trim mezgliem tas tad ikreizes ņēmis līdzi.</p>
+</font>
+
+
+</body></html>

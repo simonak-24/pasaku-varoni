@@ -1,0 +1,282 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Bārenīte un mātes meita pie briesmoņa.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 48. 1880. Pogu Jānis, Bechmanis, Bramberos. Brīvzemnieka
+"Mūsu tautas pasakas". LP, VII, II, 27 11, 1.</p>
+
+<p align="JUSTIFY">Vecos laikos dzīvoja atraitne, nikna ragana. Viņai bija īsta meita
+un sērdienīte, pameita. Īstā meita bija nejauka, kā pati ragana, gaŗu, līku degunu,
+nolutušām ausim, lielām lūpām, krumpaiņiem vaigiem, bet sērdienīte bija skaista,
+daiļa vaigā un smuidri, stalti noaugusi, kā niedre ezerā. Zināms, ka uz nejaukās
+mātes meitas neviens nemeta ne acu virsū, bet pēc skaistās sērdienītes<b> </b>tīkot
+tīkoja jau daudz precinieku. Tas raganai grauztin grauza sirdī un savās domās tā
+apņēmās nogalināt pameitu.</p>
+
+<p align="JUSTIFY">Kādu dienu pamāte izdzēsa mājā visas ugunis un sūtīja tad
+pameitu pēc uguns uz sumpurņa pili, kas nebija tālu no raganas mājas. Tā zināja, ka
+negantais sumpurnis saplosīs cilvēku savā pilī gabalu gabalos. Sērdienīte, godīga,
+klausīga meitiņa, tūliņ darīja, ko tai lika, un teciņus tecēja taisni pa ceļu, pa
+lielu biezu mežu uz sumpurņa pili. Mežam cauri tapusi, tā satika brangu govi ar ļoti
+pierietējušu tesmeni. Govs mīli lūdzās: "Meitiņ, izslauci mani: ar
+pierētējušu tesmeni iet gŗūti."</p>
+
+<p align="JUSTIFY">Sērdienīte tūdaļ ņēmās un izslauca govi, kā labāki nevarēja.
+"Paldies, paldies, tev, meitiņ," sacīja govs un nu gāja katra savu ceļu.</p>
+
+<p align="JUSTIFY">Tāļāku iedama, sērdienīte satika baltu aitiņu, ar ļoti gaŗu
+pinkainu vilnu, kas karājās līdz pat zemei. Aitiņa mīļi lūdzās: "Meitiņ,
+nocērp mani: ar biezu vilnu gŗūti iet karstā laikā."</p>
+
+<p align="JUSTIFY">Sērdienīte tūdaļ ņēmās un nocirpa aitiņu, ka labāki nevarēja.
+"Paldies, paldies, tev, meitiņ," sacīja aitiņa un gāja katra savu ceļu.</p>
+
+<p align="JUSTIFY">Atkal kādu gabalu pagājusi, sērdienīte ieraudzīja zirgu kas ar
+virvi pie mieta pavisam bija notinies. Zirgs mīļi lūdzās: "Meitiņ, nocērp mani
+: ar biezu vilnas kārtu gŗūti iet karstā laikā."</p>
+
+<p align="JUSTIFY">Sērdienīte tūdaļ ņēmās un attina virvi no mieta un gāja savu
+ceļu tālāk uz sumpurņa pili pēc uguns. Sumpurņa pils bija gaužām grezna māja,
+uztaisīta uz vistas kājām. Šurp atnākusi, sērdienīte padeva labvakaru un lūdza
+uguni. Sumpurnis, labvakaru saņemdams, atteica: "Dabūsi gan uguni, bet še tev
+šīs podziņas, - skandini un dej, kamēr izgulēšos."</p>
+
+<p align="JUSTIFY">To teicis, sumpurnis iegāja citā istabā pārdomāt, kā vislabāki
+meiteni nogalināt, lai pats pie tam labi izpriecātos. Bet tikko velns izgāja, izlīda
+pelīte no pamata un sacīja: "Mīļā meitiņ, dodi man podziņas, es par tevi
+padiešu, bet pati bēdz projām, cik ātri vien vari, - taisni pa laukiem, mežiem,
+tiešām uz mājām. Šīs pils kungs, no savas istabas ārā iznācis, tevi bez
+žēlastības saplosīs gabalu gabalos; izej kukņā, tur dabūsi uguni; turpat uz
+šķirsta ir divi naudas maki: viens liels, otrs mazāks, abi ar zelta naudu un dārgiem
+akmeņiem. Paņem to mazo līdz, tas lielais būs par gŗūtu."</p>
+
+<p align="JUSTIFY">Sērdienīte atdeva pelei padziņas, izgāja kukņā, paņēma uguni un
+mazo naudas maku un steidzās mudīgi vien projām pa laukiem, pa mežiem, tiešām uz
+mājām.</p>
+
+<p align="JUSTIFY">Pēc kāda laika sumpurnis iznāca no savas istabas un redz, ka ne
+meitene, bet pele činkstina podziņas. Sapīka sumpurnis un grābj saviem lieliem dzelzs
+nagiem pēc pelītes. Bet šī mudīgi, mudīgi ieskrēja pamatā un sumpurnis saviem
+nagiem velti vien noskrāpējās gar sienu, kā kaķis gar aizkritušām lamatām. Nu
+sumpurnis meklēja meiteni visās istabās un kambaros. Nekur to pilī neatradis, tas
+izskrēja laukā un gribēja bēgli panākt.</p>
+
+<p align="JUSTIFY">Viņš laida savas ķepas vaļā, bet nevarēja vis meiteni panākt, jo
+tas neskrēja tiešām pa laukiem un mežiem, bet apkārt pa ceļu. Skriedams sumpurnis
+satika zirgu un prasīja, vai nav redzējis kādu sievišķi. Zirgs labu brīdi
+apdomājies, atbildēja, ka gan vienu redzējis; tā nupat aizskrējusi uz to pili, kas
+stāv uz vistas kājām, bet atpakaļ neesot vēl neviens nācis. Sumpurnis nu skrēja kā
+traks atpakaļ uz mājām, izmeklēja vēl reiz visas istabas, kambarus, visus kaktus, bet
+neatrada ne nieka, tad lielās dusmās iekaucās un skrēja atkal tiešām pa ceļu
+meitenei pakaļ.</p>
+
+<p align="JUSTIFY">Pusceļu noskrējis, sumpurnis satika aitu un prasīja, vai nav
+redzējusi kādu sievišķi. Aita, labu brīdi apdomājusies, atbildēja, ka gan vienu
+redzējusi; tā nupat aizskrējusi uz to pili, kas stāv uz vistas kājām. Sumpurnis nu
+rāva atkal elsdams, pūzdams atpakaļ uz savu pili, izmeklēja cauri visas istabas no
+augšas līdz apakšai, visus kaktus, kaktiņus un meiteni nekur neatrazdams, varenās
+dusmās nošķaudījies un noŗūcies, skrēja atpakaļ pa ceļu, ka smiltis vien putēja.</p>
+
+<p align="JUSTIFY">Vairāk nekā pusceļu noskrējis, sumpurnis satika govi un prasīja,
+vai nav redzējusi kādu sievišķi. Govs, labu brīdi apdomājusies, atbildēja, ka gan
+vienu redzējusi; tā iten nupat kā aizskrējusi uz pili, kas stāv uz vistas kājām.
+Sumpurnis, kā pats velns, laida atpakaļ uz savu pili, izmeklēja visas istabas kambarus,
+visus pēdīgos kaktiņus un stūrīšus, pagaldes, pabeņķus, visus šķūņus,
+staļļus, laidarus, klētis un, pēdīgi, vēl reiz kukņu un visas citas malu maliņas,
+un nekur meiteni neatradis, devās mierā, jo viņš bija no lielas skriešanas un
+meklēšanas pavisam noguris, piekusis. Bet pilī ieiedams, sumpurnis atminējās savu
+naudas maku, ko tas vakar kukņā aizmirsis uz šķirsta. Viņš iegāja kukņā paņemt
+savu naudiņu, bet mazo maku nu vairs neatrazdams, tas noprata, ka meitene aizbēgusi ar
+lielu daļu no viņa mantas. No dusmām zils un melns, zobus griezdams, tas galvu nokāris
+gāja gulēt neganti domādams, kā meitenei atspītēt.</p>
+
+<p align="JUSTIFY">Ap to pašu laiku sērdienīte pārnāca sveika, vesela mājās, iedeva
+pamātei uguni un izstāstīja, kā viņa sumpurņa pilī tikusi pie lielas mantas.
+Pamāte, kā jau ragana, ļoti kāroja pēc mantas un nu tai par varu iegribējās, lai
+viņas īstā meita nāktu pie vēl lielākas mantas, nekā pameita. Tā izdzēsa atkal
+mājā visas ugunis un ar savu meitu sarunājusies, sūtīja to uz sumpurņa pili pēc
+uguns.</p>
+
+<p align="JUSTIFY">Raganas meita skrēja, lēkdama vien, pa lielo mežu uz pili, lai drīz
+sagrābtu jo daudz zelta un dārgu akmeņu. Mežam cauri izskrējusi, tā satika govi ar
+pierietējušo tesmeni. Govs mīļi lūdzās: "Meitiņ, izslauc mani!"</p>
+
+<p align="JUSTIFY">Bet raganas meita pagāja govij gaŗām, degunu gaisā izcēlusi.
+Gabaliņu pagājušai, tai nāca pretim pinkaina aitiņa un mīļi lūdzās:
+"Meitiņ, nocērp mani!"</p>
+
+<p align="JUSTIFY">Bet raganas meita dusmīgi iesaucās: "Ej pie malas, man nav
+vaļas kulties ar niekiem."</p>
+
+<p align="JUSTIFY">Vēl tālāk ejot, tā tikko neuzskrēja zirgam virsū, kas cieši
+satinies ar virvi ap mietiņu. Zirgs mīļi lūdzās: "Meitiņ, attaisi mani
+vaļā."</p>
+
+<p align="JUSTIFY">Bet raganas meita, gaŗām skriedama, tikai pikti jo pikti noņurdēja:
+"Griez ceļu, sasodītais badakāsi. Man nav vaļas kulties<b> </b>ar tevi."</p>
+
+<p align="JUSTIFY">Sumpurņa pilī nonākusi, raganas meita nedeva ne pašam sumpurņam
+labvakaru, bet tūlin prasīja uguni. Sumpurnis pasmiedamies, atbildēja: "Dabūsi
+gan uguni, bet še tev podziņas skandini un dej, kamēr uguni sameklēšu."</p>
+
+<p align="JUSTIFY">Sumpurnis iegāja citā istabā gudrot, kā jo briesmīgi nomocīt savu
+vislielāko ienaidnieci. Izlīda atkal no pamata pelīte un sacīja: "Mīļā
+meitiņ, dod man podziņas, es par tevi padiešu, bet pati bēdz projām, cik ātri vien
+vari. Šīs pils kungs, no istabas ārā iznācis, tevi saplosīs gabalu gabalos. Izej
+kukņā, tur tu dabūsi uguni, turpat uz šķirsta divi naudas maki, viens liels, otrs
+mazāks; paņem to mazo maku līdz, tas lielais būs par grūtu."</p>
+
+<p align="JUSTIFY">Raganas meita nosvieda pelītei podziņas, iešāvās kukņā, pakampa
+lielo naudas maku un skrēja kā viesulis uz mājām. Patlaban arī sumpurnis mokas
+sagudrojis, izlēca no savas istabas un ieraudzīja atkal peli dejam un podziņas
+skandinām. Bet šoreiz sumpurnis bija manīgāks. Kā vanags viņš nokampa pelīti
+saviem dzelzs nagiem un saknaibīja smalkos gabaliņos. Tad tas šāvās pa durvim ārā
+bēglei pakaļ. Labu gabalu noskrējis, viņš satiek zirgu un prasa, vai nav redzējis
+kādu sievišķi. Zirgs tūdaļ atbildēja, ka nesen viens aizskrējis gaŗām uz meža
+pusi. Sumpurnis nu rāva vēl dūšīgāki pakaļ; noskrēja līdz aitai un prasīja, vai
+tā nav redzējusi kādu sievišķi. Aita tūdaļ atbildēja, lai tik skrejot žiglāki uz
+meža pusi, gan panākšot. Sumpurnis skrēja nu kā pats nelabais un drīz bija pie govs
+klāt un prasīja, vai nav redzējusi kādu sievišķi. Govs atteica, ka tepat aiz krūma
+jau esot un pagrieza 'alvu uz to pusi, kur raganas meita, lielo naudas kuli stiepdama,
+pēdīgi nokususi, elsdama, pūzdama gulēja gar zemi. Sumpurnis pieskrēja it priecīgs
+raganai klāt un izrāva tai savu naudas maku, ko tā turēja cieti nagos satvērusi. Šī
+gan turējās, cik spēja, bļāva, koda, kārpījās kājām, rokām un spļāva
+sumpurņam<b> </b>zilas zēveles acīs, bet viss nelīdzēja ne nieka. Sumpurnis nogrāba
+raganas meitu aiz matiem un rāva atpakaļ uz savu pili. Še tas uzsēja to uz karstām
+restēm un kurtin kūra apakšā uguni. Tad knaibīja sumpurnis raganai sarkanām stangām
+miesu no kauliem nost. Gan viņa bļāva un lūdzās, bet viss nekā nelīdzēja. Kad nu
+miesa bija pagalam saknaibīta un ragana nomira, tad velns nokampa viņas dvēseli un
+iemeta elles katlā, lai vārās līdz pastarai dienai.</p>
+
+<p align="JUSTIFY">Novakarā izgāja vecā ragana sagaidīt savu meitiņu ar zelta
+nešļavu. Tā gaidīt gaidīja līdz pusnaktij. Te vējš atnesa no sumpurņa pils
+cilvēka gaļas smaku un nu tik vecene noprata, kas noticis. To pārņēma tādas dusmas
+un žēlabas, ka tā turpat uz vietas nomira un arī viņas dvēseli velns nokampa un
+iemeta elles katlā, lai vārās līdz pastarai dienai.</p>
+
+<p align="JUSTIFY">Bet tiklo, skaisto, bagāto sērdienīti slavēja un daudzināja visi
+ļaudis. Viņas slavu izdzirda arī tās zemes jaunais ķēniņš un apņēma to par
+sievu. Kāzas dzēra diženi lielas.</p>
+
+<p align="JUSTIFY">Arī mani ielūdza kāzās. Sataisījos godam: nopirku divus sukura
+zirgus un medus maizes ratus; liku pašūt žīda skrodelim raibus papīra svārkus un
+biksas, uzliku galvā sviesta cepuri, apāvu smalkus plāceņu zābakus un laidu tad uz
+kāzām, kā pats dižais vedējs. Ceļā uznāca karsta saule, izkusa mana cepure.
+Gribēdams dabūt citu cepuri, apstājos pie kroga. Kamēr es krogā, te - kur bijuši,
+nebijuši - pulks zēnu apēduši manus zirgus un ratus. Gāju tāļāk kājām, pliku
+galvu. Ejot noplīst mani smalkie zābaki. Uznāca stiprs lietus, sašķīst mani svārki
+un biksas. Ko nu darīt? Kur dēties plikam, kailam. Auksts lietus līst. Par laimi
+ieraugu ceļmalā uz ratiem lielu trūbu. Lienu iekšā un nokusis, sasalis, labā
+patvērumā drīz iemiegu. Bet ielīdis biju lielgabalā. Zaldāti pēc lietus turēja še
+savu munsturi un šāva ar lielgabaliem, ka rībēja vien. Izšāva arī to lielgabalu,
+kur es gulēju, un atšāva mani šinī zemē, mūsu pašu pagastā.</p>
+
+
+</body></html>

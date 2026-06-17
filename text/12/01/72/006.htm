@@ -1,0 +1,212 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>M?c?t?js tiek nests uz debesim</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Mācītājs tiek nests uz debesim.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>6.</strong> A. 1525. 1737. E. A. Simsons no P. Antonova,
+Kapiņu pag. Latvju kultūras kr.</p>
+
+<p align="JUSTIFY">Vīnam molkas ciertējam bija dāls Pīters. Kad Pīters izauga,
+nagribēja dveivuot ar tāvu un aizguoja meklēt sev kaidu lobuoku darbu, jo nu molkas
+cieršonas beja gryuti puordzeivuot. Jis guoja, guoja un daguoja pi vīnas ustobas, kuŗā
+sadūmuoja palyugt kaut kuo paēst un puorgulēt par nakti. Īguoja Pīters ustobā un
+redz: sēd vecenīte un vuorej putru. Pīters suoka lyugt. Vecenīte īdevja jam paēst,
+bet par gulēšonu soka tai: "ej lobuok tuoļuok, jo te dzeivoj divi laupītuoji,
+viņi var tevi nūsist!"</p>
+
+<p align="JUSTIFY">Pīters teicja: "Nav maņ baist, jo pi manis nav nimoz naudas,
+pats esmu ubogs, jo nūsiss, paldīs Dīvam, jo tai kai tai nav kuo darīt!"</p>
+
+<p align="JUSTIFY">Tai vecenīte īdevja jam vītu gulēt. Kad atskrēja laupītuoji, jei
+izstuostēja, kaids ir cylvāks. Jī dūmuoja, kū darīt. Pīters tūlaik suoka jūs
+lyugt, lai pījem arī jū par plaeigu. Laupītuoji teicja tai: "Labi, mes tevi
+pajemsim tikai tad, kad tu kaut kū nūzagsi. Reitā vīns zenmīks vess sovu zyrgu
+puordūt, jo tu jū nuzagsi, tūlaik paliksi dzeivuot ar mums!"</p>
+
+<p align="JUSTIFY">Pīters beja ar mīru. Nuokūšā dīnā Pīters aizguoja pi ceļa un
+suoka gaidīt koleidz zemnīks vess zvrgu puordūt. Jis tyulen pajēmja viervi un
+pasakuora. Zemnīks redzūt tū. teicja: "Nikuo es navaru tev, cylvāks, paleidzēt,
+maņ juosasteidz uz tiergu!"</p>
+
+<p align="JUSTIFY">Pīters īraudzēja, ka zemnīks aizguoja tuoļuok, jis pa ūtru ceļu
+aizskrēja zemnīkam prīškā un otkon pasakuoŗa. Radzūt tū, zemnīkam palyka baist un
+jis suoka dreiž īt uz prīšku. Pīters otkon aizskrēja zemnīkam prīškā un vēļ
+pasaktuoŗa. Tūlaik zemnīks dūmoj: "Atstuošu zyrgu un aizīšu drusku atpakaļ
+pasavērt, vai vēl karuojas pyrmais cylvāks, kurs pasakuoŗa, vai tys ir tikai
+muoņi?"</p>
+
+<p align="JUSTIFY">Tai arī izdarīja. Atstuoja zemnīks zyrgu un aizguoja pasavērt.
+Pīters pajēmja zvrgu un pa ūtru ceļu aizjuoja pi laupītuojim. Tūlaik laupītuoji
+soka tai: "Reit brauks boguots žeids ar sovom precem, ja tu viņam nūjemsi tū
+vazumu, byusi mums par vadūni!"</p>
+
+<p align="JUSTIFY">Pīters arī beja ar mīru. Reitā jis jau gaidēja pi ceļa, kad
+žeids brauks. Kad īraudzēja žeidu, Pīters tyuleņ suoka zvīgt kai zyrgs. Žeids
+dūmuoja, varbyut, vēl kaids brauc, bet kad nivīna naredzēja, aizguoja kryumos
+pasavērt. Pīters tuo tikai gaidīja. Jis pajēmja vazumu un aizbraucja. Laupītuoji, tū
+radzādami, sasadusmuoja un tūmār pajēmja Pīteri par vadūni. Pīters redzēja, ka
+laupītuojīm tys napateik un jis soka: "Bruoļi, es šudiņ, naīšu nikur, tikai
+nakti aizbraukšu pretim vīnam kēniņam, kurs brauks ar zalta vazumu, bet jyus ejit
+tyuleņ medibuos. Es atsapyusšu drusku un padūmuošu, kai vīgluok tū dorbu
+izdarīt."</p>
+
+<p align="JUSTIFY">Laupītuojim tys patyka, ka Pīters pats uzjem tik gryutu dorbu un
+aizguoja, bet Pīters nimoz nagulēja. Jis pajēmja vysu lobuokū montu un zaltu un
+aizbraucja pi sova tāva. Tai laupītāji juo nadabuoja.</p>
+
+<p align="JUSTIFY">Pīters teicja tāvam: "Ej, tāvs, pi popa un pasoki, ka es gribu
+precētīs un gribu jemt juo meitu. Jo jis prasīs, kaidu dorbu es doru, pasoki, ka es
+esmu lels zaglis!"</p>
+
+<p align="JUSTIFY">Tāvam tys napatyka un jis suoka pīrunuot, bet Pīters nabeja ar mīru
+un molkas ciertējs aizguoja pi popa. Pops teicja tai: "Labi, es atdūšu meitu tikai
+tad, kad jis mani kaut kai pīmuonīs!"</p>
+
+<p align="JUSTIFY">Tāvs atguoja un izstuostēja Pīteram, kuo pops grib. Pīters pajēmja
+treis lopsas, īguoja popa duorzā, atsasāda uz kūka un vīnu lopsu izlaidja nu maisa
+uorā. Kolpi popa suoka klīgt, ka vajagūt kaut kai nūkērt lopsu, bet pops naļuovja.
+Tūlaik Piters izlaidja nu maisa ūtru lopsu. Otkon kolpi suoka klīgt, bet pops
+apmīrinuoja jūs. Pīters izlaidja trešū 1opsu. Tys popam patyka. Jis dūmuoja, ka
+taida lopsa grib, lai jū šaun un suoka ar plinti pats ar kolpim skraidīt pa duorzu. Te
+Pīters pīguoja kluot un teicja: "Es jyusus jau pīmuonēju, dūdit sovu meitu maņ
+por sīvu!"</p>
+
+<p align="JUSTIFY">Pops atbiļdēja: "Na, jo tu vēl kaut kū nu manis nūzagsi,
+tūlaik dabuosi munu meitu par sīvu!"</p>
+
+<p align="JUSTIFY">Pīters aizguoja muojuos un dūmuoja, kū izdareit. Golā sadūmuoja
+puorsagērbtīs par engeli. Atsasāda Pīters duorzā taišņi pretim popa ustobas lūgam
+un suoka meikstā bolsā runuot: "Es esmu engels! Pats Dīvs syutēja maņi pi tevis
+pateikt, ka jis jems tevi dzeivu uz dabasim. Reit atnuoc šurp, te byus maiss un tu īlīn
+tur, es tevi aiznesšu uz dabasim. Meitai atstuoj vysu sovu boguotibu, bet nadūd
+Pīteram, jis ir lels grēcinīks!"</p>
+
+<p align="JUSTIFY">Dzieržūt taidus vuordus, pops soka: "Paļdīs munam Dīvam, es
+sagaidīju sovu laimīgu dīnu, reit byušu te!"</p>
+
+<p align="JUSTIFY">Engels pazuda, bet pops aizguoja muojuos, atdevja vysu montu meitai un
+izstuostīja, kas nūtyka. Meita naticēja, jo zynuoja, ka tāvs nav svātais cylvāks.
+Reitā jis atguoja tur, kur pavēlēja Pīters, un kad īraudzēja maisu, īleidja
+īškā. Engeļs aiztaisēja jū un suoka viļkt pa zemi, pa vysaidim kryumim un<b> </b>kolnim,
+bet kad pops suoka prasīt, kur jis jū atvedja, - Pīters atbildēja: "Tys ir
+ērkšku ceļš!"</p>
+
+<p align="JUSTIFY">Tad atvedja uz kļāvu, atstuoja tur un teicja: "Te byus tev
+juoguļ, koleidz atsateirīsi nu sovim grākim un tūlaik Dīvs tevi pījems dabasu
+vaļstībā!"</p>
+
+<p align="JUSTIFY">Pīters aizguoja uz sātu. Pops gulēja, bet zūsis staiguoja apkuort
+un vys kņuobja jū. Jis nu suopem suoka klīgt. Atskrāja kolpi, attaisīja maisu un
+redz: pops guļ. Tūlaik pops saprota, ka tys engeļs beja pats pīters un kaut gon
+nagribēja atdūt sovas meitas viņam, tūmār atdevja.</p>
+
+<p>Tai Pīters dabuoja sovu laimi un nikuo nagribēja zagt, jo naudas jam beja daudz, na
+tikai sovas, bet ari pops īdevja lelu pyuru sovai vīnīgai meitai, tys ir Pītera
+sīvai.</p>
+
+
+</body></html>

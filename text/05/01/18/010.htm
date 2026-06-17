@@ -1,0 +1,238 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Spēlētājs ellē.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">10.<b> </b>A. 476. Runtuļu Vilis Vilcē, Jkr. V, 2. 1. p. 25. LP, VII,
+I, 615 I. p. 6.</p>
+
+<p align="JUSTIFY">Sen, sen atpakaļ valdīja sīksts kungs, kas savus ļaudis un citus
+krāpa un plēsa līdz pēdīgajam. Viņš atņēma tiem beidzamo lopiņu un pārdeva to,
+lai tikai vairāk naudas saraustu. Ja ļaudim pietrūka ko ēst, tad tas gan palienēja pa
+pūram labības, bet ar šo mēru vajadzēja iztikt visu pavasari. Gan ļautiņi bēra
+pelavas. gan lika salmus klāt, gan krimta koku saknes; bet no bada jau neizbēga.
+Laimīgs, kas pliku dzīvību izvilka. Atnāca rudens, tad bija parāds jāatdod desmit
+divdesmitkārtīgi. Bet jo vairāk naudas nāca, jo kārums kungam auga pēc vēl vairāk
+naudas un kungs palika ik ar dienu bagātāks. Viņš lika uztaisīt lielu ēku no dzelzs,
+kuŗā glabāja savu naudu. Izskaitīt viņš viņas vairs nevarēja; tādēļ mērīja to
+pūriem un nedēļas aizgāja, kamēr izmērīja.</p>
+
+<p align="JUSTIFY">Nu kungs redzēja, ka bagātības diezgan, un nodomāja uz vecuma
+dienām atgriezties no grēkiem un iestāties starp svētiem. Viņš lika uzbūvēt
+baznīcu tādu, tik lielu un greznu, kāda vēl nebija redzēta. Iekšpuse bija tā ar
+zeltu izlikta, ka acis apžilba skatoties. Tad viņš lika pie altāra zārku uztaisīt,
+kurā lai viņi pēc nāves ieliekot un parokot zem altāra. Kad baznīca bija gatava un
+viņu iesvētīja, tad kungs ielikās zārkā, gribēdams redzēt, kāda gula viņā; bet
+tik ko zārkam uzlika vāku, te zeme atvērās un zārks ar visu kungu nogrima zemes
+dziļumos. Tai vietā, kur zārks nogrima, palika dziļš, ne visai plats caurums.</p>
+
+<p align="JUSTIFY">Lielmāte, kas bija vēl jauna un skaista kā puķīte, apsolījās to
+precēt, kas nolaidīšoties pa caurumu zemes dziļumos un atnesīšot ziņas no nelaiķa.
+Sanāca daudz kungu, kas visi gribēja dabūt bagāto skaistuli, bet nevienam nebija
+dūšas laisties pa caurumu zemē.</p>
+
+<p align="JUSTIFY">Beidzot apņēmās nelaiķa kunga muzikants Jānītis nolaisties.
+Sanesa visas virves, cik tikai viņu pa visu pagastu un muižu bija, sasēja kopā, bet
+nekā! - par īsu. Lienēja no apkārtējiem pagastiem un muižām, bet kā par īsu, tā
+par īsu. Nu lika lielmāte visus linus, cik pagastā un muižā bija, virvēs savīt, bet
+nekā! kā par īsu. tā par īsu. Tad lika nogriezt visām pastalām auklas, atņemt
+visiem arājiem pātagas un savīt virvēs - tagad Jānītis manīja, ka zeme vairs nav
+tālu, izvilka nazi no ķešas un pārgrieza virvi sev virs galvas.</p>
+
+<p align="JUSTIFY">Nokritis lielā tumšā alā, viņš sāka grābstīties gar sienām,
+līdz beidzot uzgāja lielas dzelzs durvis. Nu tikai grūst vaļā! Sagrūda veselu dienu,
+beidzot atvērās durvis krakšķēdamas. Iegāja iekšā, bija liela istaba, pilna
+tvaikiem, ziliem dūmiem. Istabas vidū stāvēja nolikta liela sile, pilna kvēlošām
+oglēm, pie siles bija piesiets baits zirgs, kas ēda kvēlošas ogles pilnām mutēm. Tik
+ko zirgs ieraudzīja Jāni, tas pacēla galvu un teica: "Vai, Jānīti, kur tu esi
+iekāpis! Te jau ir elle un es esmu tavs bijušais kungs. še nu velns mani moca. Kad
+pārnāks velni ar sešām un ar divpadsmit galvām, tad tie tevi saplēsīs, ka ne
+matiņš nepalika vesels."</p>
+
+<p align="JUSTIFY">Jānis gāja tālāk, iegāja citā istabā. Šī bija viscaur no zelta
+un dārgiem akmiņiem. Jānis nosēdās kādā zelta krēslā un sāka spēlēt. Te
+pārskrēja velni: cits ar trim, cits ar sešām, cits ar deviņām, pats vecais ar
+divpadsmit galvām. Kāri tie klausījās, kā Jānim skan. Vecais velns nosūtīja
+sulaiņus, lai tie atvestu raganas. Sanāca tādas daiļas preilenes kā saulītes, zīda
+kleitēs, zelta kurpītēs ar dimanta papēžiem - pašas piens un asinis, bet acis uguns,
+kas uguns. Velni savilkās melnus, gaŗus svārkus zelta kņopēm un spožiem spožiem
+zābaciņiem, spiciem papēžiem, piesprauda sev katrs dimanta zvaigzni un nu ņēmās
+dancot un lakstoties ar raganām. Bija ko redzēt, kā velni ar raganām lēca! Raganas
+gandrīz pa gaisu vien lidinājās un tik kājas pie zemes piedūra, ka nozibēja vien.
+Bet Jānis ņēmās spēlēt, ko tikai nagi nes' - arvienu ātrāki, arvienu ātrāki -
+te, tranks! tranks! divi stīgas pušu. Rāva vēl vaļā uz tām divām, bet ziu bija
+velni un raganas tā iekaisuši dancot, ka Jānim palika zils acu priekšā no trakās
+dejas. Izmisis tas rāva visiem spēkiem pa stīgām, tā ka visa elle nodrebēja, un
+velni nogāzās gar zemi un stīgas ar visām vijolēm bija uz vietas pušu. Vecais velns
+uzcēlies, nopurinājies, teica: "Vadzi, Jāni, tas beidzamais grūdiens bija gan par
+stipru - vijoles pušu! Ko nu es ellē darīšu bez mūzikas?"</p>
+
+<p align="JUSTIFY">Jānis atteica, ka tas nekas nav, lai tikai iedod kādu pūru naudas un
+izlaiž uz virspasauli, gan jau šis iegādāšot citas vijoles. Velns apdomājās un
+teica: "Labi, es tev došu pieci pūri naudas, ar ko citas vijoles nopirkt, bet lai
+tu neaizmirstu uz elli atpakaļ nākt, es tev sūtīšu līdzi vienu savu padoma
+devēju."</p>
+
+<p align="JUSTIFY">Nu devās Jānis līdz ar velnu no elles ārā. Gāja, gāja vai kādu
+veselu gadu pa zemes apakšu. Velns nesa naudas maisus un Jānis gāja svilpodams pakal.
+Beidzot nonāca viņi pie kādas upes, ņēmās peldēt, sapeldēja veselu gadu un
+izpeldēja uz virspasauli pašos tālajos leišos.</p>
+
+<p align="JUSTIFY">Nonāca pie kādas sādžas. Jānis gāja iekšā prasīt sev
+naktsmājas, jo velna jau nevarēja neviens redzēt. Vakarā leitietes pataisīja Jānim
+gultu, kur gulēt. Velns to redzēdams, prasīja: "Vadzi, kur tad es pa nakti
+gulēšu?"</p>
+
+<p align="JUSTIFY">Jānis parādīja uz abru, kuŗā bija patlaban maize iejauta,
+teikdams: "Te tev būs pārliekam branga guļa!"</p>
+
+<p align="JUSTIFY">Velns likās abrā, ka milti vien noputēja. No rīta meita gāja pie
+abras, pārmeta krustu un sāka mīcīt. Velns, nabadziņš, pamodies, gribēja sprukt
+ārā, bet nekā! - krusts priekšā. Meita paņēma menti un sāka maizi jaukt. Nu
+klājās velnam par daudz gŗūti. Tas sāka svaidīties no vieniem sāniem uz otriem, bet
+kā nevar, tā nevar tikt ārā - sasodītais krusts arvienu priekšā. Jānis gulēdams
+to visu redzēja un domāja: "Pag, pag, nu tu, brāl, vari tikt reizi no velna nagiem
+vaļā!"</p>
+
+<p align="JUSTIFY">Viņš uzcēlās, apģērbās, nopirka no leiša divi zirgi un ori,
+sakŗāva viņā savus naudas maisus un nu davai! projām.</p>
+
+<p align="JUSTIFY">Jānis nobrauca jau lielu, lielu gabalu, te dzird viņš velnu nākam
+pa gaisu šņācot, rūcot. Velns pieskrēja klāt un teica: "Vai, kādā nelaimē tu
+mani iegumdīji! Saproti, meita ietaisīja mani klaipiņā un iešāva mani krāsnī.
+Domāju - nu varēsi izsprukt ārā, bet avū! atkal krusts priekšā. Sāka jau svilt man
+kamzoļi, te atminos savā nedienā, ka krāsnij jau skurstenis, kur izsprukt.</p>
+
+<p align="JUSTIFY">Devos pa to ārā, visu skursteni, visu krāsni sagāzdams un tā tevi
+panācu. Uj! bet tad ta piekusu!"</p>
+
+<p align="JUSTIFY">Tā runādami tie piebrauca pie citas sādžas. Te redz, nāk viena
+piedzērusi leitiete, tādu resnu vēderu, tāda tukla, vatētiem krūtim, atrotītām
+rokām - uj! velns nodreb, to redzēdams. Ātri tas prasa Jānim: "Kas tad tā
+ir?"</p>
+
+<p align="JUSTIFY">Jānis pasmējies atteic: "Tā ir atkal viena no tām
+mīcītājām, kas tevi pirmīt mīcīja. Šī nu atkal nāk tevi mīcīt. Kad tevi
+pirmīt jau tā jaunā meita nobendēja, tad tu vari domāt, kā tev tagad klāsies!"</p>
+
+<p align="JUSTIFY">Velns to dzirdējis, atstāja Jāni ar visiem naudas maisiem un pats
+bļaudams pa gaisu projām. Nu tika Jānis reizi no velna nagiem vaļā.</p>
+
+<p align="JUSTIFY">Jānis pārbrauca mājās pie skaistās lielmātes Tik ko lielmāte to
+ieraudzīja, tā krita viņam ap kaklu saukdama: "Ak tu mans mīļais Jānīti! Nu tu
+reizi esi pārnācis, kā es tevi gaidīju!"</p>
+
+<p align="JUSTIFY">Nu dzēra tie kāzas septiņas nedēļas no vietas. Muižas pagalmā
+bija galdi klāti, kur varēja katrs ēst un dzert pēc patikas, vienalga vai dienu, vai
+nakti. Pēc kāzām Jānītis izdalīja velna dāvāto naudu starp saviem ļaudim, tā ka
+visi palika bagāti. Jānītis piedzīvoja bērnus un bērnu bērnus un visi slavēja
+labo, mīlīgo kungu Jānīti.</p>
+
+
+</body></html>

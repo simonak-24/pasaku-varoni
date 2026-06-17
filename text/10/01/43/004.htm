@@ -1,0 +1,178 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Padoms maks? naudu.</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Padoms maksā naudu.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">4.<b> </b>A. 910. B. J. Šaržants ar E. Orlovski
+Garlenē. LP, V, 300 (131).</font></p><font size="3">
+
+<p align="JUSTIFY">Viens puisis apņem tādu sievu, kas liela šuvēja un rakstītāja.
+Reiz sieva izšuj raibiem rakstiem tādu zīžu gultas sagšu, kas mazākais simtu rubļu
+vērts. Vīrs aiznes dārgo sagšu pilsētā pārdot. Bet pircējs saka: "Vēlies, ko
+labāk gribi: vai naudu, vai labu padomu?"</p>
+
+<p align="JUSTIFY">"Ko nu vēlēties? Nauda laba lieta gan, bet labs padoms dažreiz
+derīgāks. Ē! ņemšu to padomu! Saki, kāds viņš ir!"</p>
+
+<p align="JUSTIFY">"Viņš ir tāds: dimants cietāks par tēraudu! to nevajaga
+aizmirst."</p>
+
+<p align="JUSTIFY">Par tādu padomu vien vīrs noskuma gauži un pārgāja itin nošļucis
+mājā. Bet sieva mierināja: "Tagad izšūšu vēl raibākiem rakstiem zīžu gultas
+apsegu, to pārdosi pilsētā par divisimti rubļiem - būs nauda atkal."</p>
+
+<p align="JUSTIFY">Labi, izrakstīja apsegu un vīrs nesa pilsētā pārdot. Bet pir cējs
+saka: "Šis apsegs rivisimti rubļu vērts - tur nav ko runāt; tomēr vēlies, ko
+labāk gribi: vai naudu, vai labu padomu?" </p>
+
+<p align="JUSTIFY">"Ko nu vēlēties? Nauda laba lieta, bet labs padoms dažreiz
+derīgāks. Ē! ņemšu padomu! Saki, kāds viņš ir!"</p>
+
+<p align="JUSTIFY">"Viņš ir tāds: kas nedienās pasmejās, tam laime
+uzsmaida!" </p>
+
+<p align="JUSTIFY">"Labi, labi!" vīrs atteica un pārgāja mājā bez naudas.
+Bet sievas tēvs pikts bez gala: "Vai tādam muļķim savu meitu devu? Naudu
+izkaisīt pa sētmalām! Prasi, kur šis skries ar saviem padomiem!"</p>
+
+<p align="JUSTIFY">Un tā nu vārds pa vārdam, vārds pa vārdam, kamēr sievas tēvs
+sapiktojās pavisam un aizdzen znotu projām. Neko darīt jāiet. Kur nu ies? Ies uz
+kuģiem un brauks citā malā laimi meklēt. Brauc, brauc - saceļas vētra uz jūŗas un
+kuģis svaidās kā čaumala. Citi kuģinieki pārbijušies vaimanā, ko nu iesākšot
+tādā nedienā; bet znots tikai pasmejas un uzsvilpo. Nu citi norunā: "Skaties,
+mēs vaimanājam, viņš smejas! vai ziniet: caur viņu vien laikam tāda vētra
+sacēlusies, viņš būs burvis - metīsim viņu jūŗā!"</p>
+
+<p align="JUSTIFY">Labi, iemeta jūŗā. Bet tai pašā brīdī sagadījās no jūŗas
+dibina daudz mazu vīriņu, sprīda garumā, ar kuplām bārdām, olekts gaŗumā. Tie
+saņēma slīcēju un ienesa jūŗas dibinā lielā skaistā pilī. Un tur pilī redzēja
+vīrus pie liela galda; viens deva mīklas minēt - citiem bija jāmin. Znots iesēdās
+kaktiņā un gaidīja, kas īsti notiks. Te mīklu devējs iesauksies : "Vēl mazs,
+mazs brītiņš laika - ja uzminat šo beidzamo mīklu, tad vēl ir līdzēts. Tādēļ
+sakait ātri: kas ir cietāks par tēraudu?"</p>
+
+<p align="JUSTIFY">Vīri minēja, minēja - nevarēja uzminēt. Bet znots tagad
+atminējās pircēja padomu - viņš iesaucās: "Dimants!"</p>
+
+<p align="JUSTIFY">Līdz to izteicis - mīklu devējs ar vīriem un vīriņiem nozūd;
+tikai tos vārdus vien nodzirdēja: "Simtu gadu minējām - neuzminējām - nu
+uzminēja viegli; lai nu pils paceļas!"</p>
+
+<p align="JUSTIFY">Tai brīdī skaistā pils pacēlās no jūras dibina ar visu znotu;
+viņa bijusi no tīra zelta.</p>
+
+<p align="JUSTIFY">Nu znots pārgāja pie sievas lielīdamies : "Are, vai neteicu, ka
+padomi labāki par naudu. Nākat nu skatīties, ja neticat."</p>
+
+</font><blockquote><font size="3">
+  </font><p align="JUSTIFY"><font size="3">Un no tās dienas znots dzīvoja ar sievu zelta pilī.</font><font size="4"></font></p><font size="4">
+  </font><font size="2">
+</font></blockquote><font size="2">
+</font>
+
+
+</body></html>

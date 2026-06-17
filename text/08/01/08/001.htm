@@ -1,0 +1,186 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5">Blēdīgā sieva.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">l. A. 566. J. Kalniņš, Druvienā. Zin. Kom. kr.
+LP. VI, 855 (130, 2).</font></p><font size="3">
+
+<p align="JUSTIFY">Viens jājējs, ceļā būdams, atpūts pie siena kaudzes. Vēlāk,
+gabaliņu pajājis, ierauga: siena kaudze deg. Nu atskrien atpakaļ skatīties - izlien no
+kaudzes liela čūska, aptinas zirgam ap kaklu un saka: "Aiznes mani uz turieni, kur
+es likšu zirgam iet, tad tev ļauna nedarīšu!"</p>
+
+<p align="JUSTIFY">Labi - šis mierā. Nu jāj, jāj - aizjāj pie vienas pils. čūska
+aptura zirgu, attinas zirgam no kakla un ielien pie pils vienā alā. Bet jātnieks iejāj
+pils pagalmā, ieliek zirgu stallī, pabaro un tad ieiet istabā raudzīt, vai nesastaps
+kādu cilvēku. Izskatās vienā malā, otrā - nav ne dzīvas dvēselītes; bet ēdams
+galds ir apklāts ar labākiem ēdieniem un gulta uztaisīta, ka labāk nevajaga - tas
+viss. Nu, ko nu gaidīt? Ēst gribas, sēžas pie galda, paēd labi, izguļas mīkstā
+gultā un paliek trīs dienas.</p>
+
+<p align="JUSTIFY">Ceturtā jās projām - ienāk trīs jumpravas. Pirmā iedeva samta
+krustiņu un saka: "Trīs dienas ēdi, trīs dienas dzēri, ir paldies nesacīji, še
+tev tas samta krustiņš par piemiņu. Ja varbūt kādreiz nevarēsi savai sievai pa
+prātam iztapt, tad pakaŗ krustiņu pār krūtim - tu paliksi par zirgu."</p>
+
+<p align="JUSTIFY">Otra iedeva zobinu sacīdama: "Trīs dienas ēdi, trīs dienas
+dzēri, ir paldies nesacīji, še tev tas zobins par piemiņu. Ja tev varbūt kādreiz
+gadītos kaŗā iet, ar to zobinu ienaidniekus uzvarēsi."</p>
+
+<p align="JUSTIFY">Trešā iedeva kreklu, sacīdama: "Trīs dienas ēdi, trīs dienas
+dzēri, ir paldies nesacīji, še tev šis krekls par piemiņu. Kaŗā iedams, velc viņu
+mugurā, tad ienaidnieka lodes tavam augumam nekā nepadarīs."</p>
+
+<p>Un jātnieks ar krustiņu, zobinu, kreklu nu aizjāja tālāk.</p>
+
+<p align="JUSTIFY">Jāja, jāja - satiek rekrūtu ķērājus. Tie saķer jātnieku, aizved
+pie ķēniņa un nodod zaldātos. Bet ķēniņš ar laiku jauno zaldātu dikti iemīl,
+viņš saka: "Tev jāpaliek manai meitai par vīru!"</p>
+
+<p align="JUSTIFY">Ķēniņa meitai gan zaldāts nepatika, bet nekas nelīdzēja,
+ķēniņš tomēr liek viņus salaulāt.</p>
+
+<p align="JUSTIFY">Bet kas nu par labumu, ja ar varu ko uzspiež? Ķēniņa znota sieva
+nīdēt nīdēja savu vīru un beidzot pierunā vēl savu pirmo brūtgānu, pie kuŗa
+tēvs nelaida, lai ienīsto vīru slepeni nomaitā. Bet tai dienā, kad sievas pirmais
+brūtgāns nāca maitāt, ķēniņa znotam palaimējās samta krustiņu uzgrūst kaklā un
+ātrumā pārvērsties par skaistu brūnu zirgu. Zirgs aizaulekšo pie viena saimnieka un
+saimnieks otrā rītā pieklīdušo veda tirgū pārdot. Bet tirgū zirgs ļoti iepatikās
+ķēniņa meitai - viņa paša sievai - tā nopērk zirgu un pārved pilī. Pārveda pilī
+- zirgs paliek par ķēniņa znotu. Sieva nu pukojas, traka palikdama, ka pati savu
+ienīsto vēl pirkusi, un ierunā vēl otrreiz pirmajam brūtgānam, lai nāk viņu
+nomaitāt. Un šoreiz pirmais brūtgāns atnāca ar kaŗa spēku ķēniņa znotu
+nomaitāt. Bet ķēniņa znots apvilka brīnuma kreklu, apjoza dāvināto zobinu un
+aizdzina viens pats brūtgāna kaŗa spēku, ka nebija ko apskatīties.</p>
+
+<p align="JUSTIFY">Nu ķēniņa meita vēl vairāk sapīka un lūkoja ar viltu no
+ienīstā vīra atkratīties. Viņa lika tādu pašu zobinu kaldināt, tādu pašu kreklu
+aust kā vīram un tad slepeni pārmainīja neīsto zobinu ar vīra zobinu, neīsto kreklu
+ar vīra kreklu. Nu aizsūtīja īsto zobinu, īsto kreklu pirmajam brūtgānam un lika
+teikt, lai šo kreklu velkot mugurā, šo zobinu jožot pie saviem, tad pārvarēšot
+katru. Labi, pirmais brūtgāns apvelk kreklu, apjož zobinu un nāk otrreiz ķēniņa
+znotu ar kaŗa spēku maitāt. Ķēniņa znots droši gāja ienaidniekam pretim, jo viņam
+nebija ne jausmas, kas ar zobinu un kreklu noticis. Izjāj viens pats pretim, sāk
+cirsties - neveicas nekādā jēgā. Un kaŗa spēks sakapāja ķēniņa znotu gabalu
+gabalos; tad sameta miesas gabaliņus maisā, maisu uzsēja viņa paša zirgam mugurā un
+iedzina mežā, lai aiznes pie devītā. Bet zirgs skrien, skrien - aizskrien uz triju
+jumpravu pili ar visu maisu. Jumpravas iznāk pretim un atron, kas noticis. Nu salika
+gabalu pie gabala, nu svaidīja ar dzīvības zālēm tik ilgi nokauto ķēniņa znotu,
+kamēr atdzīvināja. Bet atdzīvināto jumpravas pārrāja: "Kam tu neklausīji
+padomam, kam tu izstāstīji sievai visu par kreklu, par zobinu?"</p>
+
+<p align="JUSTIFY">Labi izrājušas, jumpravas iedeva ķēniņa znotam citu zobinu, citu
+kreklu. Nu ķēniņa znots jāja par jaunu ar pirmo brūtgānu kaŗot un apkāva visu
+viņa kaŗa spēku. Bet apkāvis visus, viņš sakapāja arī šos mazos gabaliņos,
+sabēra maisos, maisus sasēja zirgu mugurās un zirgus iedzina mežā. Tur tad vilki
+apēda pirmā brūtgāna kaŗa vīru miesas. Bet ķēniņa znots lepni pārjāja mājā,
+dabūja no sievas tēva valdību un valdīja labi jo labi.</p>
+</font>
+
+
+</body></html>

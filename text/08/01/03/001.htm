@@ -1,0 +1,207 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="center"><font size="4"></font><font size="5">Raganas šķiltavas.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">l. A. 562. A. Lerchis-Puškaitis
+Džūkstē-Pienavā. LP. I, 126 (100).</font></p><font size="3">
+
+<p align="JUSTIFY">Viens kaŗavīrs iet uz māju, trīs mārkas tam kabatā. Mežā pie
+viņa piestājas ragana, riebīga vecene, un jautā: "Vai tev naudas nevajaga?"</p>
+
+<p align="JUSTIFY">"Kā nu nevajaga, trīs mārkas tik kabatā, bet kas tad ies
+dot?"</p>
+
+<p align="JUSTIFY">Iznes no šī ozola stumpja manas šķiltavas, tad nauda būs."
+"</p>
+
+<p>"Bet kā stumpī ielīst?"</p>
+
+<p align="JUSTIFY">"Nekas, es tevi iesiešu virvē, ielaidīšu. Stumpja dibenā tu
+ieraudzīsi trijas durvis; pa pirmajām durvim ieejot, atradīsi naudas tīni ar vaŗa
+naudu. Uz tīņa sēdēs liels suns, ar tādām acim, kā stops; bet nebaidies! Še mans
+priekšauts, paklāj to, nocel suni tur virsū un grāb, cik patīkas! Kad kapara naudu
+esi sagrābies, tad ej pa otrām durvim iekšā. Tur būs tīnis ar sudraba naudu un uz
+tīņa tāds suns, kam acis lielākas par dzirnu akmeņiem, bet nebaidies! Paklāj
+priekšautu, nocel suni un grāb, cik patīkas! Kad sudraba naudu esi sagrābies, tad ej
+pa trešajām durvim iekšā. Tur būs tīnis ar zelta naudu un uz tīņa tāds suns, kam
+acis, kā baznīcas tornis, bet nebaidies! Paklāj priekšautu, nocel suni, sagrābies
+naudu un paņem arī manas šķiltavas, kuŗas atradīsies zelta naudas tīnī!"</p>
+
+<p align="JUSTIFY">Kaŗavīrs tā izdara, iznes naudu, iznes šķiltiavas un taisās
+projām iet. Vecene, to redzēdama, šim pakaļ, lai atdodot šķiltavas. Kaŗavīrs dod'
+arī, bet lai tik pasakot, kur tādas škiltavas vecenei vajagot. Vecene neteic. Nu kad
+neteic, tad došanas nav. Vecene šim čuprā. Kā šī čuprā, tā kaŗavīrs zvels ar
+zobenu. vecene nokrīt - kaŗavīrs aiziet.</p>
+
+<p align="JUSTIFY">Tomēr raganas naudai nekādas svētības nebija, izputēja šā,
+izputēja tā; tik trīs mārkas atliek. Ko nu ar zieda naudu iesākt? Sāks strādāt,
+pinekļus vīt. Vijot nabadziņam iegribas ēst. Viņš paņem šķiltavas un domā uguni
+kurt, lai putru izvārītu; bet kā šķiļ, tā viens raganas suns, no kapara naudas
+tīņa, klāt un prasa, ko gribot?</p>
+
+<p>"Ko gribu? Naudas gribu!"</p>
+
+<p align="JUSTIFY">Acumirklī nauda klāt. Nu šķils vēl otreiz, trešureiz: visi trīs
+raganas suņi klāt - ko gribot?</p>
+
+<p align="JUSTIFY">"Gribu ķēniņa meita redzēt. Atnesiet man viņu te, lai
+apskatos, vai derēs man precēt, jeb ne."</p>
+
+<p align="JUSTIFY">Acumirklī ķēniņa meita klāt. Šis apskatās - laba. Suņi atnes
+meitu atpakaļ; bet meita ieiet pie tēva un stāsta tā: "Tēt, gulēju tagadiņ
+dienasvidu un sapņoju: lieli melni suņi mani aiznesa uz vecu būdiņu pie kāda
+kaŗavīra, kas, labi apskatījies, cieši nosolījās mani par sievu ņemt."</p>
+
+<p align="JUSTIFY">To dzirdot, ķēniņam iešaujas prātā, ko kāda māmiņa, meitai
+dzimstot, bija nosacījusi: šo meitiņu kādreiz kaŗavīrs apprecēšot. Ķēniņam tas
+nepatīk. Viņš noliek savu kalponi meitai par sargu.</p>
+
+<p align="JUSTIFY">Otrā dienā kaŗavīrs atkal pašķiļ un pavēl ķēniņa meitu
+atnest. Tā notiek; bet nu kalpone laiž suņiem pakaļ, iezīmē kaŗavīra būdiņu un
+parāda ķēniņam. Ķēniņš iemet brūtgānu cietumā un pavēl rītu kārt. </p>
+
+<p align="JUSTIFY">Kaŗavīrs sēž cietumā un nožēlo, ka šķiltavas piemirsis līdzi
+paņemt. Te uz reizi nāk svešs puisis cietumam gaŗām.</p>
+
+<p align="JUSTIFY">"Puisi, klausies, aiztec uz manu būdiņu, tur tu atradīsi apakš
+čubmaišeļa vecas šķiltavas. Atnes man tās, tad pilnu cepuri naudas dabūsi!"</p>
+
+<p align="JUSTIFY">Patlaban jāiet pie kārtavām, puiša vēl nav. Aiziet pie kārtavām
+- puisis tek elzdams un iedod kaŗavīram šķiltavas. Ķēniņš grib zināt, ko šis ar
+šķiltavām iesāks; bet kaŗavīrs tūlīt parāda, ko iesāks: šķiļ - trīs suņi
+klāt. Suņi nu šķaida, suņi nu plēš, bet ķēniņš liek suņus apsaukt un atdod
+savu meitu kaŗavīram par sievu.</p>
+
+<p align="JUSTIFY">Cits atstāstījis tā šo pasaku:</p>
+
+<p align="JUSTIFY">Kādam kaŗavīram reiz gadās caur lielu mežu iet. Mežā tas pamana
+raganu no ozola stumpja izlienam,</p>
+
+<p align="JUSTIFY">"Ko tu te ložņā?" kaŗavīrs prasa.</p>
+
+<p align="JUSTIFY">Vecene negrib, negrib teikt, bet, kad kaŗavīrs draud ar zobenu, tad
+jau saka: "Nekas, brālīt, tur mana nauda, ko esmu savečojusi."</p>
+
+<p align="JUSTIFY">Kaŗavīrs vairāk neprasīdams lien stumpī. Vecene gan negrib, negrib
+atļaut, bet ko tu vecam norūdītam kaŗavīram padarīsi? Ozolā tas atron kapara,
+sudraba, zelta naudu un šķiltavas. Ārā lienot, vecene to sagrābj aiz smakra un prasa,
+lai atdodot šķiltavas, kaut arī naudu paturētu, paturētu.</p>
+
+<p align="JUSTIFY">"Ā, putniņ! Tās šķiltavas tava atslēga, bez kuŗām nespēj
+naudas zvejot!" karavīrs uzsauc un tad šķiļ ar zobenu tā raganai, ka šī
+augšpēdu, pagalam.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Šī pasaka gan ir ļoti līdzīga H. K. Andersena
+pasaciņai (Ievads, 109. lpp.), kādēļ nebūs arī brīva no grāmatu iespaida, bet
+dažādie varianti tomēr liecina, ka viņa ir tautas pasaka. Arī es atceros bērna
+dienās to Raunā dzirdējis no veciem cilvēkiem, kas gan to nebija no grāmatām
+lasījuši. P. Š.</p>
+</font>
+
+
+</body></html>

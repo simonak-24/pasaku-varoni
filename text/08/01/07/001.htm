@@ -1,0 +1,261 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5"><strong>Ar brīnuma augļiem atdabūtās burvju
+lietas.</strong></font></p><font size="5">
+</font><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">1. A. 301. 566. J. Bankins "Šis un
+tas", II, 1875, 7.</font></p><font size="3">
+
+<p align="JUSTIFY">Reizu kādam ķēniņam bija jāiet karā. Tas salasīja savus kaŗa
+pulkus un stājās ienaidniekam pretī. Kad nu mājās nebija rūmes tik daudz zaldātiem,
+tad apmeta lēģeri uz lauka, kuŗ liels, biezs mežs bija tūvuma.</p>
+
+<p align="JUSTIFY">Viens jauns zaldāts, bīdamies no kaušanas, paņēma plinti un zobinu
+un iemuka biezumos. Otrā dienā ķēniņš, zināt dabūjis, stellēja visu kaŗa spēku
+mežā tā meklētu. Viens zaldāts uzgāja bēgli un gribēja to vest malā pie
+ķēniņa, bet bēglis sacīja uz atradēju: "Klausies! Paliec tu ar' tepat pie manis
+mežā! Kādēļ tad mums būs iet kaŗā, kuŗ varbūt mūs pirmos nošaus? Labāki iesim
+abi divi projām."</p>
+
+<p align="JUSTIFY">Atradējs gan to negribēja darīt, bet kad bēglis tam uzmācās, tad
+apsolījās palikt tam par biedru, tie nu abi divi devās dziļāki mežā iekšā. Citi
+meklētāji, iznākuši no meža, drīz apķērās, ka nevien bēgli nav dabūjuši, bet
+arī vēl otru zaldātu pazaudējuši.</p>
+
+<p align="JUSTIFY">Nu tiem atkal bija jāiet meklētu. Tika norunāts, ja viņi esot
+izbēguši, tad, kad tos dabūjot rokā, tūliņ uz vietas vajagot nošaut. Beidzot gan
+tiem nāca prātā, ka varbūt mežā kautkuŗ tāda vieta esot, kuŗ gan var ieiet, bet
+nevarot tikt ārā, tādēļ tagad negāja pa vienam, bet pa diviem kopā. Vienam pāram
+gadījās uziet bēgļus, un tie šos tūliņ gribēja nošaut, bet kad tie sāka
+lūgties, lai pagaidot un nešaujot, tad ar' meklētāji palika mierā, un prasīja,
+kādēļ tie bēguši. Bēgļi, savu nāvi priekš acīm redzēdami, sāka arī pārrunāt
+meklētājus, lai šie pie tiem paliekot. Viens meklētājs par tādu valodu ļoti
+saskaitās un tūliņ vienu bēgli uz vietas nošāva. Nu tam palika bailes, jo pats
+ķēniņš to nebija vēlējis, tādēļ abi meklētāji, bēgļa paskubināti, palika
+mežā un steidzās vēl dziļāki biezumos iekšā. Kad nu citi meklētāji no meža
+iznāca un redzēja; ka tagad pavisam četri vīri trūka, tad ķēniņš, bīdamies, ka
+pēdīgi arī pašam nav jādodas lapās, nelaida vairs nevienu uz meklēšanu. Viņi
+domāja, ka ne vis izbēgušie tur vainīgi, bet laikam meklētājiem kāda cita liksta
+uzbrukusi.</p>
+
+<p align="JUSTIFY">Šie trīs bēgļi pēc ilgas staigāšanas pa mežu mežiem, nonāca
+pie kāda kalniņa, kuŗ tie ieraudzīja nelielas duris. Viņi, tās atvēruši, gāja tur
+iekšā un uzgāja gaŗu gaņģi, pa kuŗu arvienu tā uz leju gāja. Labi dziļi apakš
+zemes tie uzgāja smukas istabas, bet cilvēku tur nebija iekšā. Vienā istabā
+stāvēja galds ar trim krēsliem riņķī apkārt, otrā trīs gultas un trešā istaba
+bija pilna drēbju.</p>
+
+<p align="JUSTIFY">Tie no iešanas gauži piekusuši, metās ikkatrs savā gultā un
+apgūlās; pēc atmodušies tie ieraudzīja uz galda trīs bļodas ar ēdieniem, un pie
+katras bļodas zīmīte, uz kuŗām ikkuŗa zaldāta vārds bija uzrakstīts. Viņi bija
+diezgan izsalkuši, tādēļ sēdās pie galda un sāka ķemmēt. Kad bija paēduši, tad
+vēl vairāk apskatīja māju un uzgāja grīdā lūku, un to atvēruši, iegāja tur
+iekšā; bet tiem par brīnumu tur vis nebija pagrabs, bet itin smuka istaba, kuŗ tie
+ieraudzīja trīs skaistas dāmas itin glīti ģērbušās. Šās no iesākuma gan
+sabijās un kaunējās, bet pēdīgi ar tiem sāka runāties un stāstīja, ka šī māja
+esot kāda pils, kas senāki stāvējusi virs zemes, tad reizu zeme piepēši pārplīsusi
+un pils iegrimusi zemē. Kad šie tām prasīja, no kā viņas pārtiekot, tad viņas
+rādīja maisu, kuŗ iekšā bija kāds puspūrs miltu, un stopu pilnu ar ūdeni,
+sacīdamas: ,.No tā mēs pārtiekam; mums nekad netrūkst ne maisa miltu, ne stopa
+ūdens."</p>
+
+<p align="JUSTIFY">Zaldāti, ar tām labi iepazinušies, pēdīgi iemīlējās savā
+starpā un vēlējās precēties. Kad nu mācītāja nebija, kas tos laulātu, tad dāmas
+viņus ieveda kādā sānistabā, kuŗ sēdēja vecs sirmgalvis, kas šos mācītāja
+vietā salaulāja. Viņi tur nu dzīvoja labu laiku, nemaz nedomādami pili atstāt.
+Sievas viņus apšķinķoja ar brīnišķīgām dāvanām. Viens dabūja tādus svārkus,
+kad tos apvilka, tad palika neredzams. Otrs dabūja tādu tauri, kad to pūta pa vienu
+galu, tad sanāca daudz, daudz apbruņotu zaldātu ar plintēm un zobiniem un gaidīja tik
+uz pavēli; bet kad taurei pūta pa otru galu, tad visi zaldāti pazudās. Trešais
+dabūja par šķiņķi maku, kuŗā nekad naudas netrūka; līga to pakratīja, tad
+tūliņ bira dukāti skanēdami vien laukā.</p>
+
+<p align="JUSTIFY">Pēdīgi tie sarunājās iet pastaigāties pa pasauli, un izgāja pa
+tām pašām durim, kuŗ bija ienākuši. Viņi nu staigāja pa mežu, kamēr uzgāja
+kādu lielu pili. Tur iegājušiem, viņiem stāstija, ka šī ķēniņa meita esot liela
+kāršuspēlmane: viņa nospēlējot un atņemot visu naudu. Ja kas ar miljoniem rubļu
+tur ieejot, tas bez kapeikas no turienes iznākot. Tur nu iegāja tas zaldāts, kam bija
+neizkratamais naudas maks, un uzdevās, ka gribot ar princeni kārtis spēlēt. Princene
+bija ar mieru un tie sāka spēlēt. Zaldāts nebija nekāds kāršuspēlmanis, kādēļ
+princene to arvien vinnēja; bet kad tam naudas nebija trūkums, jo viņš maciņu
+izvilcis, pakratīja vien, un katru reizu tūliņ aizmaksāja, tad tie sāka atkal no
+jauna spēlēt. Princene, tādu maku redzēdama, brīnījās par to. Sadusmojusies, viņa
+neredzot paķēra zaldāta maku un nolika savu tai vietā. Kad nu zaldāts gribēja
+kratīt naudu, tad tikai kādas kapeikas vien izbira. Princene nu pavēlēja izgrūst
+zaldātu pa durim; tas gan nu manīja, kas bija noticis, bet viņš skaidri nevarēja
+pierādīt, tādēļ bija jāpaliek mierā.</p>
+
+<p align="JUSTIFY">Bēgļi nu visi trīs kopa sarunājās princenei par to atriebties.
+Reizu ķēniņš savas meitas dzimšanas dienā taisīja lielas balles, uz ko daudz svešu
+viesu bija lūgts. Kad visi viesi kopā ar princeni ēda un dzēra pie galda, tad otrs
+zaldāts savos brīnumsvārkos apģērbies, piestājās pie meitas, līga tā kaŗoti
+bāza pie mutes, tad šis sita par roku, tā ka viss ēdiens šai ieskrēja acīs un
+karote izlēca no rokas un nokrita zemē. Viesi, to redzēdami, sāka smieties un
+čukstēja cits citam ausīs. Ķēniņš, to manījis, stellēja viesus citā istabā,
+viņš pats nostājās pie durim un, ikkatru viesi labi ar rokām aptaustīdams, pa mazu,
+mazu duru šķirbiņu ielaida istabā, tam arī laimējās satvert zaldātu un noraut
+svārkus, jo tas bija vilcies princesei no pakaļas. Tas nu palika redzams un manāms,
+ķēniņš lika viņu iemest cietumā, un tagad princenei bija miers pie galda.</p>
+
+<p align="JUSTIFY">Kamēr tie vēl ēda un dzēra pie galda, tamēr trešais zaldāts
+pūta ar savu brīnišķīgo tauri; pēc taurēšanas saskrēja daudz apbruņotu
+kaŗavīru no malu malām un apstāja pili, tie gaidīja tik uz pavēli, kad sākt šaut.
+Visi viesi un pats ķēniņš skrēja skatīties, tādu lērumu ieraudzīdami, nu drebēja
+vien no bailēm. Ķēniņš lūdza taurētāju pie sevis iekšā, tas arī paklausīja un
+ienāca ar visu savu tauri; ķēniņš tam lūdzās tauri apskatīt, un zaldāts, neko
+sliktu nedomādams, šim to arī iedeva. Līga ķēniņam taure rokā, tad viņš tūliņ
+pūta pa otru galu un visi kaŗavīri bija projām, tagad zaldātu saņēma cieti un
+ieslodzīja pie otra drauga cietumā.</p>
+
+<p align="JUSTIFY">Trešais zaldāts, palicis viens, devās uz mežu, gribēdams uzmeklēt
+veco pili apakš zemes. Pēc kāda brīža tas ieraudzīja smukas ogas un sāka tās ēst;
+bet tikko viņš kādas divas vai trīs bija apēdis, tad viņam deguns sāka stiepties
+garāks un garāks, kamēr pēdīgi veselu asi bija garš. Viņš tagad sava lielā deguna
+dēļ vairs nevarēja staigāt galvu nodūris uz zemi, bet nu tam bija galva jāgriež
+arvien uz augšu, ka lai garais deguns nenolūztu. Šis tā iedams, ieraudzīja netālu
+otrā vietā citas ogas un sāka tās ēst. Un, ak tu prieks! Viņa garais deguns sāka
+rauties un palika tāds pats, kā senāki bijis. Viņš savā lielā priekā atgādājās
+ķēniņa meitas un ar šām ogām apņēmās tai atriebties.</p>
+
+<p align="JUSTIFY">Tas pielasīja kādu groziņu ar tām ogām, no kuŗām deguns garš
+bija tapis, un vienu svārkukešu pillu ar tām ogām, no kuŗām deguns atkal bija
+sarāvies, un tad gāja uz ķēniņa pili. Tas iegāja pilī un pārdāvāja sulaiņam
+ogas priekš ķēniņa. Sulainis, zinādams ķēniņu lielu gardēdi, gāja pie tā
+iekšā un teica, ka kāds vīrs ar ogām atnācis un tās pādāvājot. Ķēniņš deva
+sulaiņam naudu, šis nopirka par to no vīra ogas un ienesa tās viņam. Ķēniņš ēda
+pats un deva arī savai sievai un meitai. Tiem visiem trim nu izauga veselu asi gari
+deguni, gan viņi nu sūtīja pēc dakteriem, bet neviens negadījās, kas tos būtu
+varējis ārstēt:</p>
+
+<p align="JUSTIFY">Otru dienu mūsu zaldāts gāja pie ķēniņa un izdevās par dakteri;
+ķēniņš bija ļoti priecīgs un solīja tam daudz naudas, ja izārstēšot. Zaldāts,
+liels akutņiks būdams, nedeva vis tūliņ ogas, bet dedzināja ar baltu dzelzi
+ķēniņam degunu un stāja virsū, lai izsūdzot savus grēkus. Tas šim teica, ka viņa
+deguns tikai lielu grēku dēļ tāds palicis. Ķēniņš tam sūdzēja gan šādus, gan
+tādus grēkus, lielus un mazus, arī pēdīgi, kad zaldāts prasīja, vai kādam kautko
+neesot atņēmis, sāpes nevarēdams izciest, atdeva šim tauri un svārkus. Zaldāts
+vairs ķēniņu ilgāki nemocīja, bet iedeva ogas, no kā deguns ātri izveseļojās,
+ķēniņieni viņš nemaz nemocīja, jo šī nekādu ļaunumu nebija darījusi.</p>
+
+<p align="JUSTIFY">Zaldāts nu gāja pie princenes, dedzināja tāpat kā ķēniņam ar
+baltu dzelzi degunu un paģērēja, lai tā izsūdz savus grēkus. Šī tos drīz
+izsūdzēja un arī atdeva tam neiztukšojamo maciņu; dakteris tai nu iedeva no
+veselības ogām, un deguns tūliņ sarāvās un palika vesels. Ķēniņš dakteram
+aizmaksāja lielu naudu un gribēja dabūt arī tauri un svārkus atpakaļ, bet zaldāts
+tam nedeva, sacīdams, ka šās lietas zināmā vietā jānododot, citādi deguni atkal
+būšot augt un stiepties. Ķēniņš uzticējās dakteram un atlaida viņu ar visām
+brīnišķīgajām lietām, tam piekodinādams labi aši steigties prom, ka lai deguni
+atkal nesāktu stiepties.</p>
+
+<p align="JUSTIFY">Viņš arī izlūdzās savus draugus no cietuma, un nu visi trīs
+dzīvoja un turējās kopā un izdarīja ar saviem šķiņķiem daudz brīnumdarbu
+pasaulē.</p>
+</font>
+
+
+</body></html>

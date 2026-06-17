@@ -1,0 +1,175 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Brīnuma kalējs.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p><font size="5"></font><font size="3">2. A.<b> </b>753. V. V ī d n e r s Sk r u n d ā. LP, V, 227
+(103).</font></p><font size="3">
+</font>
+
+<p align="JUSTIFY">Vienā pilsētā dzīvoja ļoti vecs, nespēcīgs kalējs lielā
+nabadzībā. Un kā arī ne? Pakalt vairs neko nespēja - kur gadīsies pārtika? Te vienu
+dienu ienāks smēdē jauns puisis: vai nevajagot palīga?</p>
+
+<p align="JUSTIFY">"Kur nu palīga? Pašam trūkst darba. Kas vairs pie tik veca, kā
+es, nāks kalt?"</p>
+
+<p align="JUSTIFY">"Ej, ej - ko nu bažījies! Ja mēs divi samestumies kopā, es
+galvoju: rītdien visi atvērtu acis, ko īsti protam, un tev maizes netrūktu."</p>
+
+<p align="JUSTIFY">"Nu labi! Lai tad notiek, kā saki!"</p>
+
+<p align="JUSTIFY">Un zellis tūliņ norāva svārkus, uzpūta uguni un āmuru vien
+cilāja. Te, itin nejauši gadās vecai nabadzei gar smēdi iet.</p>
+
+<p align="JUSTIFY">Šis iesaucās: "Are, kur darbs!" Un tā no smēdes ārā,
+noķer veceni, uzsviež uz laktu un kaļ un kaļ. Vecais kalējs saņem rokas: "Ko
+tas trakulis iedomājies?" Bet zellis tikai groza veceni lūškās, liek vecajam
+plēšot un kaļ atspēries. Beidzot izmet kaļamo klonā dzesēt un - vai tie nav silti
+brīnumi - gadās no vecenes tāda jauna slaika sieviete, ka jādomā. Daudz - divdesmit
+gadu veca. Zellis saka: "Nu, veco kalēj, ko teicu pirmīt? Pagaidiet! tā izpaudis
+vēsti itin drīzi pa pilsētu, kas te par kalējiem, un tad tikai nu sataisīsimies darbu
+pretim ņemt."</p>
+
+<p align="JUSTIFY">Un patiesi - otrā dienā saradās tik daudz pārkaļamo, ka nemaz
+apnesties. Cits bija sirms, cits plikpauris, cits salīcis, cits pusmūžā un visi labi
+maksāja, lai tikai kaļ. Zellis tad arī strādāja nosvīdis. Nedēļu vēlāk nabaga
+kalējs bij stāvus bagāts. Nu zellis sacīja: "Klausies, veco kalēj, tagad tev
+naudas pa pilnam; man arī vairāk nav vaļas teitan ar veciem cilvēkiem galēties -
+iešu projām. Bet to tev nosaku: lai nāk kādi nākdami - pats nekal neviena, klāsies
+nelabi!"</p>
+
+<p align="JUSTIFY">Labi! zellis aiziet un kalējs paliek viens pats. Bet kur tu, jāsaka,
+mieru dabūsi? Otrā dienā smēde stāv grūdām pilna: "Kal mani, kal mani!"</p>
+
+<p align="JUSTIFY">Vecais gan izskaidro: "Es jau nekaļu cilvēkus, mans zellis, tas
+kala, bet viņš aizgāja uz citu pusi - meklējiet rokā, ja gribat!"</p>
+
+<p align="JUSTIFY">Tomēr, kas tevi klausīs? Gŗūst un gŗūst arvienu vēl klāt; un
+beidzot - kas ir - atnāk tāda veca bagātniece un sola visu to smēdi ar zeltu piebērt,
+ja pārkaļot viņu par jaunu. Vecais kalējs domā: "Vai traks! tā ir gan nauda,
+Nemaz nezinu, ko nu darīt. Ē! ja izdotos, kaltu gan."</p>
+
+<p align="JUSTIFY">Un, kamēr šis tur vēl prātos - bagātā vecene jau nosēdusies
+laktā: lai tikai metot ar āmuru virsū, gan jau izdošoties! Nu kalējs sagrābj veceni
+lūškās un sāks sildīt ugunī; bet kur tu Dieviņ! Deg kā traka pavisam čokurī un
+nu labi redz: neies tā lieta! Tādās sprukās kalējs tikko vēl attop iesaukties:
+"Kaut mans zellis būtu, tas gan pabeigtu!"</p>
+
+<p align="JUSTIFY">Un - kur gadijies, kur ne - zellis arī klāt: lai atridējoties no
+kājām! Vecais sabijies jau laikus saliecas kaktā un platām acim vēro, kas tur nu
+iznāks. Bet vai nu prāts! tai pašā acumirklī zellis izmet kaļamo klonā un - kas ir
+- izkalis no bagātās vecenes kaķi. Citi, to redzēdami, ne labdienas neatdevuši; bet
+zellis vecajam kalējam pakratīja ar pirkstu: "Sargies, vēl reizi to nest, ko
+nejaudi celt!" (Zellis esot bijis velns.)</p>
+
+<p align="JUSTIFY">P i e z ī m e. Šis un sekošais variants varbūt drīzāk piederētu
+pie pasakas par "velna bildi" (IV. sējums, 15 (177-184), bet pēc satura nav
+arī šķiŗami no šās pasakas. P. Š.</p>
+
+
+</body></html>

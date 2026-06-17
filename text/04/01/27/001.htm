@@ -1,0 +1,168 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>27</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Puisis apprecē čūsku.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A.<b> </b>Lerchis-Puškaitis no Kaspara Čipiņa Džūkstē. LP,
+VII, I, 511, 1.</p>
+
+<p align="JUSTIFY">Citreiz viens puisis brīnum sitis odzes, kur tikai aizgrābis. Vienu
+dienu viņam gadījies kautkur iet, un iedams apmaldījies. Gājis, maldījies - iegājis
+vienā mājiņā, tur bijis vecs vīriņš. Lūdzis naktsmājas tam. Bet vecais teicis:
+"Ja tu apņemies izciest, tad es tev naktsmāju dodu. Šonakt nāks odzes, līdīs
+tev pa muti pāri, vilksies pa pieri, pa azoti, pa rokām; tikai nepiespiedi nevienu un
+nesaki ne vārda. Ja to vari izciest, tad dodu naktsmājas."</p>
+
+<p align="JUSTIFY">Viņš teicis: "Tagad tumša nakts, nekur nevaru iet, vai nu šā
+nāve, vai tā - neko darīt."</p>
+
+<p align="JUSTIFY">Palicis. Gulējis, gulējis - tā nākot odzes, vilkušās pa rokām,
+pa pieri, visur vilkušās pāri čupu čupām. Bet šis nevienu nav aizticis, ne arī
+vārdu pīkstējis. Izložņājušās, gājušas ārā. Tad viena odze teikusi:
+"Pagaidi! es tev to atdarīšu, ko tu manām māsām esi darījis. Tu tagadin maita
+biji, kad tu nepakustējies!"</p>
+
+<p align="JUSTIFY">No rīta izcēlies - vecais vaicājis: "Kā bij?"</p>
+
+<p align="JUSTIFY">Teicis: "Vai akls! auksts vien gāja pa visu miesu, līda kur
+nekur, bet nemaz nepakustējos; un kad gāja ārā, tad teica, ka būšot to atdarīt, ko
+es viņas māsām esot darījis."</p>
+
+<p align="JUSTIFY">Vecais teicis: "Nu, kad tu pāriesi mājā, saimnieks liks tev
+rudzus pļaut, tad tev uz kopiņas būs viena odze. Kamp odzi aiz astes, svied pār kreiso
+plecu, tad paliks āda rokā. Bet ja to nedarīsi, tad klāsies nelabi."</p>
+
+<p align="JUSTIFY">Ja, kā pārgājis, saimniekam pirmais vārds: "Ej rudzus
+pļaut!"</p>
+
+<p align="JUSTIFY">Izgājis pļaut, tā odze uz kopiņas. Kampis aiz astes, sviedis pār
+kreiso plecu, palikusies āda rokā. Pārnesis mājā ādu, gribējis gan sviest ugunī,
+bet nesviedis, ielicis savā šķirstā un izgājis atpakaļ pļaut. Aizgājis uz lauku --
+redzot: skaista, jauna meita sienot viņam rudzus. Izsējusies - vēlāk puisis ies
+mājā, šī arī iet līdz, neatstājot vairs ne pēdas.</p>
+
+<p align="JUSTIFY">Vienreiz gribējis iet klāt gulēt; bet šī teikusi: "Tagad
+nenāc, kamēr pa gadu un seši nedēļi, tad varēsi mani ņemt."</p>
+
+<p align="JUSTIFY">Nu, un kas ir? Viņš pēc tā laika apprecējis to meitu, sadzīvojis
+seši gadi, trīs bērnus lai piedzīvojis. Bet vienreiz ierunājies par tam, kā toreiz
+viņu dabūjis. Tiklīdz ierunājies, tā šī raudot un činķstot, lai parādot to
+ādiņu! Domājis: tik ilgi nu dzīvo, jau trīs bērni, seši gadi, nekas nebūs --
+parādījis arī. Bet kā parādījis odzes ādu, tā šī ādā iekšā un<b> </b>par
+odzi žagaros nozūd. Šis gan izlūdzies: "Mīļā sieviņa, nāc ārā!"</p>
+
+<p align="JUSTIFY">Nekā - šņācot vien, nenāk vis vairs ārā. Tā paliek. Te vienu
+vakaru šis iet basām kājām uz stalli gar žagaru strēķi gaŗām un tā šī krabac!
+papēdī iekšā - iedzēlusi, teikdama: "Nu es tev atdarīju, ko tu manām māsām
+darīji !"</p>
+
+<p align="JUSTIFY">Nomiris no tā dzēluma.</p>
+
+
+</body></html>

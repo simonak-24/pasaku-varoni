@@ -1,0 +1,162 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>20</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Ēšanās.</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p align="JUSTIFY">1. A. 1088. A. G a r i - J u o n e n o 65.g. v e c ā s S. Z a š č e
+r i n s k a s D o m o p o l ē. L a t v j u k u l t ū r a s k r.</p>
+
+<p align="JUSTIFY">Sasastreid reizi valns ar cylvāku, kurs nu jīm var apēst vairuok
+klučku. Cylvāks soka, ka šis varūt valruok apēst, a valns soka, ka šis varūt
+vairuok apēst.</p>
+
+<p align="JUSTIFY">Nu labi! Valns aizīt uz kuozorn, a cylvāks apstellej vīnam vecīšam
+izkalt desmit sīku (sieku) klučku, paša cītuokuo dzeļža. Atnas klučkas, salīk uz
+golda un suok ēst. Valns kūda, kūda dzeļža klučkas un nikai navar sakūdēt, soka:
+"Es jau vysus zūbus aplaužu!"</p>
+
+<p align="JUSTIFY">Un jis suok jau reit nakūdītās. Cylvāks jem un ber vīņ pa sauvei
+aiz krakla, ber vīņ. VaIns tikai breinuojas, kur cylvāks var apēslt tik daudzi
+klučku. Valnam jau vādars pallyka pavysam cīts, tys navar pasagrīzt un soka cylvākam:
+"Vajag izkurinuot pierti, pasapērt, varbyut paliks vīgluok."</p>
+
+<p align="JUSTIFY">Izkurina pierti, aizīt jī obēji, valns peras, peras - vys gryuts.
+Cylvāks soka: </p>
+
+<p align="JUSTIFY">"Juoizīt uorā."</p>
+
+<p align="JUSTIFY">"A kū tu tī uorā darīsi?" vaicoj valns. </p>
+
+<p align="JUSTIFY">"Klučkas izkratīšu."</p>
+
+<p>Izīt jis uorā un krota klučkas pa krakla prīšku.</p>
+
+<p align="JUSTIFY">"Kai jis klučkas izkratīs nu vādara? dūmoj valns, "vajag
+izīt pasavērt.</p>
+
+<p align="JUSTIFY">Jā, redz: klučkas tai i bierst. Valns pajem nazi un puorgrīž sev
+vādaru, klučkas gon bierst, abet valns bļaun kai troks : "Dūd dīgu ar odotu,
+dūd dīgu ar odotu!"</p>
+
+<p align="JUSTIFY">"Tyliņ, tyuliņ," atsoka cylvāks; izīt uorā dabuoj druots
+gobolu, īver odotā un dūd lai valns šyun. Šyun, šyun walns un īsaver, ka nava dīgs
+bet druots. Bļaun otkon: "Dūd dīgu!"</p>
+
+<p align="JUSTIFY">Bet kū tad vaira ar dīgu padarēsi, ka vyss vādars vīnūs
+caurumūs?</p>
+
+<p>"Vajag īt uz skrūderi, lai izlīk īluopu," soka valns un aizīt pi
+skrūdera. Skrūders izšyun jam uz vādara drēbes gobolu. "Nyu byus lobi!"
+dūmoj valns un soka: "Vajag vēļ pīēst klusu." Pīād klučku un atsagulst.
+Cylvāks drusku atuorda un pa vīnu molu suok biert uorā klučkas. Cykam valns guļ jam
+puorpleist vādars un jis nūsabeidz. Cylvāks pajam vysu valna zalta naudu. I šudiņ
+dzeivoj boguots, jo vakar nanūmyra.</p>
+</font>
+
+
+</body></html>

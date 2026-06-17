@@ -1,0 +1,158 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Spēlētājs ellē.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">7. A. 476. Skolnieks V. Juoņins Eglūnē.</p>
+
+<p align="JUSTIFY">Reiz dzīvoja viens puika, kam ļoti patikās spēlēt. Kad viņš gana
+govis vai zirgus, viņš arvien pataisa kādu stabulīti, un kā viņš sāk spēlēt, tā
+govis un zirgi nāk klausīties.</p>
+
+<p align="JUSTIFY">Vienu reizi visa ciema jaunie cilvēki bija aizgājuši pieguļā,
+puiši un meitas tērzēja un smējās. Arī puika sāka pūst savu stabulīti, bet nu
+visi paliek klusu un tik klausās. Visi aizmirst gŗūtos dienas darbus un nejūt vairs
+nekādu nogurumu kaulos.</p>
+
+<p align="JUSTIFY">Kad puika sāk spēlēt bēdīgi, viss mežs sāk raudāt un no debesim
+birst asaras. Vīri un sievas, nākdami vakarā no sava darba, apstājas, klausās un
+raud. Pēc kāda brīža spēlētājs pāriet atkal uz jautru mūziku. Vīri un sievas nu
+nosviež iskaptis un dakšas, saķeŗas pāros un sāk dancot. Līdz ar viņiem priecājas
+zirgi pļavā un krūmi mežmalā. Tāds bija šis mazais muzikants.</p>
+
+<p align="JUSTIFY">Puika uzaug lielāks, pataisa vijoli un aiziet pasaulē laimi meklēt.
+Visur, kur vien viņš nonāk un sāk spēlēt, viņu saņem ar ēdieniem un dzērieniem
+un arī naudas nežēlo. Tā viņš ilgi staigāja no vienas vietas uz otru.,
+iepriecināja labus ļaudis, bet ]auniem bez naža grieza sirdi.</p>
+
+<p align="JUSTIFY">Velni redz: kur muzinants spēlē, tur ļaudis mazāk dara grēku. Tas
+nu šiem nemaz nebija pa prātam. Iet reiz muzikants caur mežu un velni tam aizsūta
+divpadsmit izsalkušu vilku priekšā. Vilkiem acis vien spīd un tie grasās to tūlin
+saplēst. Muzikantam nav nekāda ieroča, ar ko atgaiņāties. Viņš paņem savu vijoli
+un grib vēl pēdējo reizi paspēlēt. Viss mežs apklusa, kokiem vairs lapas netrīsēja
+un vilkiem tecēja asaras no acim. Kad muzikants beidza spēlēt, tad vilki aizgāja it
+kā nokaunējušies. Nu viņš varēja atkal mierīgi iet tālāku.</p>
+
+<p align="JUSTIFY">Vienā vakarā muzikants nosēdās pie vienas upes uz akmeņa, pajēma
+atkal savu vijoli un sāka spēlēt. Izlikās, it kā debess un zeme klausītos un pat
+zivis pacēla savas galvas no ūdens. To dzirdēja arī pats Ūdens ķēniņš, kas
+dzīvoja tai upē. Ūdens ķēniņš nu sāka dancot, bet tūlin arī upes ūdens
+pārplūda par krastiem un noslīcināja daudz laukus. To redzēdams, muzikants vairs
+nespēlē, pieceļas un grib iet projām. Tai brīdī pienāk pie viņa divi jauni kungi
+un lūdz, lai viņš nākot arī pie viņiem vienu vakaru paspēlēt. Muzikants ir arī ar
+mieru. Tā nu viņu aizved vienā lielā skaistā namā, kur<b> </b>bija daudz jaunu kungu
+un dāmu. Muzikants novēro, ka viņi visi pieiet pie viena galda, pamērcē bļodā
+pirkstus un aptraipa sev acis. - Tādā brīdī, ka neviena nebija pie galda, muzikants
+arī steigšus pieiet pie bļodas un aptraipa sev acis. Nu tik viņš redz, ka visi kungi
+ir velni. dāmas ir raganas, un pats viņš atrodas ellē. Kad nu viņš sāka spēlēt,
+tad visa elle izputēja un velni ar raganām aizskrēja pa visu pasauli. No tā laika
+velniem bija bailes no muzikanta un viņi nekad vairs tam neaiztika.</p>
+
+
+</body></html>

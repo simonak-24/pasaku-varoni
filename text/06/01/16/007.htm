@@ -1,0 +1,231 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">7. A. 530. A. Gari-Juone no 65 g. vecas S. Zaščerinskas, Domopolē.
+Latvju kultūras kr.</p>
+
+<p align="JUSTIFY">Vīna kēneņa meita grib precētīs, jei sataisa uz augsta, augsta
+kolna bazāru un izsludynoj pa vysu valsti, ka kas izlēks uz tuo kolna, tam jei īdūs
+sovu zalta gradzynu un paliks par tuo sīvu. Kēneņa meita sēd uz kolna un gaida.</p>
+
+<p align="JUSTIFY">Vīnam tāvam bejuši treis dāli: divi gudri un vīns glups. Gudrī
+bruoli aizjuoj uz kolnu, a muļkīts palik sātā, jam bruoļi līk izteirēt auzas,
+sajauktas ar palanim. Muļkītis ari izteirej auzas, sarauš vīaā pusē, palnus ūtrā
+un prosa muotei: "Mam, palaid mani uz mežu sēņu palasītu!"</p>
+
+<p>"Ej vīn, ej, dāls!"</p>
+
+<p align="JUSTIFY">Muļkīts pajem skalinīti, aizīt uz mežu pi tāva dūbes, pajem
+atslāgu, uzsveļp - atskrīn skaists lels zyrgs. Jis īlein zyrgam pa vīnu ausi īškā,
+pa ūtru izlein uorā taids skaists kungs, kaida ūtra nav vysā valstī. Vīnā ausī
+palyka juo nateiruos drēbes a ūtrā jis apvylka skaistus svuorkus. Sāstās jis zyrgam
+mugurā, juoj, dadzan sovus bruoļus - kai līk vīnam ar zūbynu par ausi, tam auss
+nūst. Pats aizskrīn uz kolnu, izlāc tikai treisdesmit septiņas ass, a gradzyna
+nadaboj. Atjuoj uz mežu, īlein pa vīnu ausi īškā, pa ūtru uorā -- otkon vacajuos
+drēbēs, aizīt uz sātu un pajem tukšū skalinīti.</p>
+
+<p>"Kam ta tu sēņu napīlasīji?" valcoj muote muļkīšam. "Staiguoju,
+staiguoju pa mežu, nivīnas sēn's naatrodu," atsoka muļkīts.</p>
+
+<p align="JUSTIFY">,,Kū tod jyus, bruolj, loba redzējuot?" vaicoj muļkīts sovim
+bruolim.</p>
+
+<p align="JUSTIFY">"A kū tī ioba redzeisi? Myusus ceļā dadzyna vnns kēneņa
+dāls - kai metja ar zūbvnu. atcierta ausi. Aizskrēj's pi kolna, izlēcja treisdesmit
+septiņas as's augšā un pazuda," atsoka bruoļi.</p>
+
+<p align="JUSTIFY">Ūtrat dīnā obēji gudrī bruoļi sasataisa ceļā, a muļkīti
+atstuoj sātā, īdūd jam izlasīt mīžus nu palnim. Bruoļi sāstas zyrgim mugurā un
+aizjuoj. Muļkīts izlosa mīžus nu palnim, sarauš palnus vīnā gubiņā, mīžus
+ūtrā un prosa muotei, lai jū palaiž uz mežu sēņu palasītu.</p>
+
+<p align="JUSTIFY">"Ej, vīn, dēliņ! tikai atnes sēnes, napadori kai vakar!"
+soka muote. Muļkīts pajem skalinīti i aizīt uz mežu, daīt pi tāva dūbes, pajem
+atslāgu, uzsveļp -- atskrīn zyrgs. Jis tyuliņ īlein zyrgam vīnā ausī, tī atstuoj
+malnuos drēbes izlein pa ūtru uorā, taids kungs, kaida ūtra nava vysā valstī.
+Sāstās sovam zyrgam mugurā un dzanās pēc bruoļim, dadzan bruoļus, mat vīnam ar
+zūbynu par dagunu, daguns nūst. Pats aizskrīn uz kolnu, dajuoj pi kolna, lāc zyrgs,
+izlāc symtu osu, bet gradzyna vēj nadaboj. Atjuoj uz mežu, pa vīnu ausi īlein
+īškā, pa ūtru uorā, otkon taids pat kai bejis, appliss, lanckarains. Pajem tukšū
+skalinīti un atīt uz sātu. Muote prosa: "Kur tad sēnis?"</p>
+
+<p align="JUSTIFY">"Lasīju, lasīju, pīlasīju pylnu skalinīti, nasūt skalinīts
+izkrita nu rūkas un izbyra sēnis," muonej muļkīts.</p>
+
+<p>"Kū, bruci, lciba redzējuot?" vaicoj muļkīts.</p>
+
+<p align="JUSTIFY">"A kū tī loba redzēsi? Mes braucēm, juoj vīns kēneņa dāls,
+"</p>
+
+<p align="JUSTIFY">dadzyna myusus - kai cierta man par daunu, tai daguns nūst, a pats
+aizskrēja uz bazāru, izlēcja symts osu iz kolna un pazuda," atsoka bruoli.</p>
+
+<p align="JUSTIFY">Muļkīts izkuop uz cepļa un guļ. Trešā dīnā bruoļi vēļ
+sazataisa braukt uz bazāru, muļķīšam līk izteirēt kvīšus nu palnim un paši
+aizbrauc. Muļķīts izteirej kvīšus nu palnim, sarauš kvīšus vīnā gubiņā, a
+palnus ūtrā un prosās nu muotes, lai palaiž uz mežu sēnēs</p>
+
+<p align="JUSTIFY">Kuo tu īsi uz mežu sēnēs, ka tu nikuo navari pīlasīt?" soka
+muote.</p>
+
+<p align="JUSTIFY">"Šūdiņ es pīlasīšu, palaid, muot," lyudzās muļkīts.
+"Ej tikai, pīlosi sēņu!" pasoka muote.</p>
+
+<p align="JUSTIFY">Muļkīts, pajēmis skalinīti, aizīt uz mežu. Jis daīt pi tāva
+dūbes, pajem atslāgu, uzsveļp un zyrgs tyuliņ kluot. Pa vīnu ausi jis īlein īškā,
+pa ūtru izlein uorā taids kungs kaidu ūtru pamēklēt. Sāstās zyrgam mugurā un
+dzanās pec bruoļim. Trešā dīnā, dadzin's bruoļus, naaizteik jūs, bet paskrīn
+garum, ka zeme vīn nūdimd. Daskrīn pi bazāra kolna, lāc zyrgs, izlāc pašā kolna
+viersyunē kēneņa meita īdūd jam gradzynu, jis pajem gradzynu, nūlāc nu kolna un
+aizjuoj uz mežu. Mežā jis pasaver, ka gradzyns bezgola speidīgs, taids speidīgs, ka
+pasavērt navar. Jis īlein zyram pa vīnu ausi īškā, pa ūtru izlein uorā un otkon
+savuos pat sapleisušajuos drēbēs, bet gradzyns speid kai agruok. Muļkīts nūraun
+lopu, aptyn gradzynu, bet tys i caur lopu speid. Tad jis izplēš sovam pindzjukam ūderis
+gobulu, aptyn pierstu, pajem skalinīti un īt uz sātu.</p>
+
+<p>"Kur tad senis?" prosa muote.</p>
+
+<p align="JUSTIFY">"Guoju pa mežu, daskrēja vylks un apēdja sēnis," muonej
+muķīts.</p>
+
+<p>"Kū ,bruoļi, lobu redzējāt?" vaicoj jis.</p>
+
+<p align="JUSTIFY">"A kū tī redzēsi? Mes braucjam pa ceļu, kēneņa dāls
+paskrēja garum ar cīši lelu, skaistu zyrgu, daskrēja pi bazāra kolna, izskrēja
+pašā kolna viersyunē, pajēmja gradzynu un pazuda," atsoka bruoļi. "Bet kas
+tev tī rūkai?"</p>
+
+<p align="JUSTIFY">"Vakar mežā puorgrīžu ar nazi, šūdīn aptynu, lai asnis
+natak," atsoka muļkīts un izkuop uz cepļa gulātu.</p>
+
+<p align="JUSTIFY">Pusnaktīs duraciņam gribīs pasavērt uz gradzyna, jis atraisa lupotu
+nu gradzyna spūdruma palīk vysa ustoba gaiša. Bruoļi atsamūst i soka: "Kū tu
+tī dori uz cepļa?"</p>
+
+<p align="JUSTIFY">"Fs nikuo nadoru, es mīrīgi guļu," atsoka muļķīts,
+teidams pierstu ar lupotu.</p>
+
+<p align="JUSTIFY">Ūtrā dīnā kēneņa meita pasoka, lai vysi : boguoti, nabagi, klybi,
+okli - īt uz pili. Bruoļi aizīt pi kēneņa meitas un vaicoj: "Voi myusim sovu
+bruoli muļkīti ari vest?"</p>
+
+<p>"Vedīt vīn," atsoka kēneņa meita.</p>
+
+<p align="JUSTIFY">Kad atvedja muļķīti uz kēniņa pili, kēneņa meita pamanīja, ka
+muļkīšam piersts apsīts ar lupotu, un soka: "Atraisi lupotu vaļā!"</p>
+
+<p align="JUSTIFY">Muļķīts atraisa un kēneņa meita pazeist sovu spūdrū gradzynu.
+Kēneņa meita līk izkurinuot pierti, izmozgoj muļkīti, apvalk jam teiras drēbes,
+sataisa brangas kuozas. Tamuos kuozuos beja ari gudrī bruoli, vysi ēdja, dzēŗa un
+prīcuojās.</p>
+
+
+</body></html>

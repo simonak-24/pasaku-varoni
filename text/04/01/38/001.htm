@@ -1,0 +1,165 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>38</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Olas meita.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">Teicējs J. Sylāns Kaunatu pag.</p>
+
+<p align="JUSTIFY">Vīnā cīmā dzeivuoja vīns vecs ar sovu buobu. Jīm bārnu nabeja,
+bet beja malna vistiņa un tei vistiņa kotru dīnu nūdēja pa divi ūliņas. Dzeivouja
+veči na boguoti ,un, na cīši bēdīgi. Nikaidas bādas ji naredzēja, bet vīna nalaime
+aim beja, ka nav bārnu, jīm Dīvs nadeva.</p>
+
+<p align="JUSTIFY">Kaidā dīnā malnuo vistiņa nūdēja treis ūliņas: divi ūliņas
+beja kai ūliņas, bet trešuo beja cīši lela. Veči gribēja itū trešū ūliņu
+puorsist un pasavērt, kas tymā ūliņā ir vydā. Lai syta cik sizdami, bet nikai
+navarēja puorsist, ūliņa beja brīsmīgi cīta. Pajēmja vecs itū ūliņu, nūlyka uz
+cepļa un pavysam par itū aizmiersa.</p>
+
+<p align="JUSTIFY">Vīnu reizi uz cepļa izskrēja pele un ar sovu asti puorsyta tū
+ūliņu. Nu tuos ūliņas izzalaupīja moza meitiņa, kura beja cīši smuka. Sēd aiz
+golda vecs ar sovu buobu, ād vuorētus zierņus un dzierd, ka nazkas uz cepļa runoj:
+"Mamiņ, es zierņu gribu!"</p>
+
+<p align="JUSTIFY">Nūsabeida vecs ar sovu buobu un guoja vārtūs. Veras: uz cepla sēd
+meitiņa. Prīcīgi palyka veči un pajēmja itū meitini sev par eistynū meitu.
+Dzeivuoja itei meitiņa pi veču, auga jei na pa dīnom, bet pa stundem, un taisījuos
+arvīn smukuoka un smukuoka Jei paleidzēia vecenei struoduot un kur rūkas pīliks, tī
+vyss gotevs apstruoduots.</p>
+
+<p align="JUSTIFY">Vīnu reizi meita runoj: "Es gribu īt pi veira."</p>
+
+<p align="JUSTIFY">Pabāduoja veči, bet kū darīt, vajag atdūt meitu pi veira. Veči
+uzaicynuoja vysu pasauli, kab pi jū meitas brauktu jauniči svuotūs, ka vysi byutu lobi
+un boguoti.</p>
+
+<p align="JUSTIFY">Vīnu reizi pībraucja daudz jauniču nu vysom pusem, vysi taidi
+muocīti un boguoti. Atbraucja taipat ari vīns nabogs puiss, jis kaut beia nabogs, bet
+cīši samuks. Meitai nabogs puiss uz reizes patyka un jei pasacīja, vysim dzieržūt :
+,,Naboga puiss byus man par veirul"</p>
+
+<p align="JUSTIFY">Vysi boguotī jauniči uzreizes palyka dusmīgi un pasacīja:
+"Mēs nagribam, ka ar myusim aiz vīna golda sādātu itys naboga puiss."</p>
+
+<p align="JUSTIFY">Vecs ar veceni ari suoka<b> </b>lomuot sovu meitu un gribēja izdzeit
+nu nstobas tū naboga puisi, bet meita suoka rauduot un pasacīja: "Es ni pi vīna
+boguota naīšu, kai tik pi ituo naboga puiša!"</p>
+
+<p align="JUSTIFY">Vacs nagribēja, kab boguoti jauniči byutu dusmēgi, jis vysus
+jauničus sastatīja vīnā rindā. bet<b> </b>meitai aizsēja acis ar skustiņu un
+pasacīja : "Kuru tu, paša naradzūt, izlasīsi, tys byus tovs veirs !"</p>
+
+<p align="JUSTIFY">Meita apstaiguoja vysus tm pīguoja pi naboga puiša un izlyka jam uz
+kryutim sovu rūku un runoj: "Itys ir muns veirs!"</p>
+
+<p align="JUSTIFY">Kū darīt? Vysi boguotī jauniči aizbraucja uz sātu bez jaunives.
+Ūtrā dinā sataisīja lelas kuozas, labi padzēŗa un suoka dzeivuot laimīgi.</p>
+
+
+</body></html>

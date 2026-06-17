@@ -1,0 +1,272 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Maģiskā bēgšana un aizmirstā līgava.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 313 C. A. Lerchis-Puškaitis Džūkstē - Pienavā. LP, II, 16.</p>
+
+<p align="JUSTIFY">Reiz jūrmalā dzīvojis nabags zvejnieciņš. Viņš tikai pārticis
+no jūŗas zivim: ko vienā dienā izzvejojis, to otrā dienā ēdis. Bet nu reizi
+atgadījies, ka astoņu dienu laikā ne ķīša nenoķēris. Bads jau rēgojies gar visiem
+pakšķiem. Devītā dienā negājis labāk. Izsalcis, noskumis tas atgriezis muguru uz
+kāpu pusi un airējis uz māju. Bet tai pašā acumirklī zvejnieks pamanījis laivu ar
+deviņiem vīriem tuvojamies. Piebrauc laiva klāt, nav vis deviņi vīri, bet viens pats
+vīrs deviņām galvām.</p>
+
+<p align="JUSTIFY">"Vai ķeŗas ar kas?" deviņgalvis jautā.</p>
+
+<p align="JUSTIFY">"Ne, neķeŗas. Tagad jau devīto reizi velti izzvejojos. Esmu
+izsalcis kā suns. Ko lai ēd, kad nevar noķert?"</p>
+
+<p align="JUSTIFY">"Nevien tas," deviņgalvis atteic, "tu badā nomirsi, jo
+zivis tev ātrāk neķersies, kamēr man savu dēlu par puisi atdosi. Nedomā tik, ka
+tavam dēlam pie manis neklāsies labi: viņam būs laba lone, labas dienas. Ja tā esi ar
+mieru, tad atved rītu šādu laiku dēlu te šurp. Zivis, to apgalvoju, tūlīt ķersies,
+ka jums vien."</p>
+
+<p align="JUSTIFY">Tēvs paklausa un atved dēlu. Deviņgalvis aizbrauc ar dētu un tēvs
+žēli tam noskatās pakaļ. Sirds gan sāp, bet ko darīt Tik nelabi vienādi, kā
+otrādi.</p>
+
+<p align="JUSTIFY">Deviņgalvis aizbrauc ar dēlu pār jūtu vien līdz vienam kalnam.
+Kalna malā deviņgalvis izlec no laiviņas un pazūd uz kalna. Dēls gaida, gaida savā
+laiviņā līdz vakaram; bet nevarēdams nekā sagaidīt, tas atstāj laiviņu un kāpj
+kalnā raudādams. Beidzot viņš atron caurumu kalnā un ieiet iekšā. Tomēr tālu arī
+nevar tikt, jo gadās vaŗa vārti priekšā. Viņš pieklauvē pie vārtiem. Te iznāk
+daiļa meiča un brīnās: "Vai, puisīt, kur tu te iekūlies?"</p>
+
+<p align="JUSTIFY">"Es esmu te salīgts par puisi. Vai kunga te nav?"</p>
+
+<p align="JUSTIFY">"Kā nu nav? Viņš guļ. Bet saki, vai tu varēsi visu to
+izdarīt, ko viņš tev liks?"</p>
+
+<p align="JUSTIFY">"Vai varēšu, to nezinu, redzēs!" </p>
+
+<p align="JUSTIFY">"Ja tu apņemies man par vīru palikt, tad es tevi glābšu!"
+</p>
+
+<p align="JUSTIFY">"Kālab ne!"</p>
+
+<p align="JUSTIFY">Nu tad labi! Tikko deviņgalvis uzcēlies, tad tas tūlīt sauks tevi
+iekšā un sūtīs pie darba. Bet tu itin droši atsaki: "Esmu līdzis tikai par
+dienu strādāt. Man, kungs, cāļu acis, nevaru redzēt pa nakti." Pēc šiem
+vārdiem viņš tevi visādi knaibīs; bet tu cieties un ne balsa neparādi, gan tad viss
+būs labi."</p>
+
+<p align="JUSTIFY">Kā meiča izstāstīja, tā arī notika. Bet dēls ciešas uz postu un
+nesaka ne vārdiņa. Beidzot deviņgalvis atstājas nospļaudamies: "Pi, tu maita,
+nevarēju balsa dabūt dzirdēt!"</p>
+
+<p align="JUSTIFY">Līdz ko nu deviņgalvis apgulies, tad meita klāt ar zālēm un
+sazāļo iekniebtās brūces. Un tūlīt dēls mana, ka otrs spēks piegadījies. Bet
+meita saka: "Puisīt, nebrīnies! Tas nav vis tavs<b> </b>spēks, bet deviņgalvja;
+jo tikdaudz, cik deviņgalvim spēks izgāja tevi mocot, tikpat daudz tevim piegāja
+klāt. Tik pacieties vēl nākošu nakti un saki tā, kā mācīju!"</p>
+
+<p align="JUSTIFY">Nākošā naktī deviņgalvis atkal sūta dēlu pie darba. Bet dēls
+atbild: "Esmu līdzis tikai pa dienu strādāt. Man, kungs, cāļu acis, nevaru
+redzēt pa nakti!"</p>
+
+<p align="JUSTIFY">To dzirdēdams, deviņgalvis klāt un moca, ko nagi nes. Šis sakož
+zobus un nesaka ne vārda. Beidzot tas atstājas nospļaudamies: "Pi, maita,
+nevarēju balsa dabūt dzirdēt!"</p>
+
+<p align="JUSTIFY">Līdz ko nu deviņgalvis apgulies, meita atkal sazāļo brūces. Un nu
+jau divreiz tik lies spēks klāt nekā vakar.</p>
+
+<p align="JUSTIFY">Trešo vakaru viss notiekas tāpat; tik deviņgalvis nu vēl
+briesmīgāki moca. Tomēr dēls ciešas un izcieš arī. Deviņgalvis šovakar
+nospļaujas trīs reizes, sacīdams: "Pi, tu maita, nevarēju un nevarēju balsa
+dabūt dzirdēt!"</p>
+
+<p align="JUSTIFY">Tagad meita sazāļo brūces un nu šim trīsreiz tik liels spēks
+klāt, nekā vakar. "Tas labi!" meita priecājas. "Še tev ass zobins un
+šīs zāles. Ej tu pie deviņgalvja iekšā un nocērt viņam visas galvas, kamēr tas
+nesadabū jaunus spēkus. Ja deviņgalvis spļauj ugunis, tad lej tās zāles virsū un
+cērt, ko māki, zāles uguni apdzēsīs."</p>
+
+<p align="JUSTIFY">Dēls sagrābj zobinu un nocērt trīs galvas. Šis spļauj negantas
+ugunis. Kā spļauj ugunis, tā uzlej zāles, apdzēš uguni un nocērt visas deviņas
+galvas: Līdz ko devītā galva noripo, tā brīc! brīc! brīc! kalns nodreb un tai
+vietā izceļas jauka, jauka pilsēta. Meita nu saka: "Tagad varam kāzas turēt un
+tev jāpaliek par šās pilsētas ķēniņu, jo esmu sava nelaiķa tēva, šās pilsētas
+ķēniņa, vienīgs bērns."</p>
+
+<p align="JUSTIFY">"Meitiņ, tas neiet!" dēls atsaka. "Man jau uz kāzām
+arī jāaicina savi vecāki, radi, draugi. Es aizbraukšu tai pašā laiviņā visus
+saaicināt."</p>
+
+<p align="JUSTIFY">"Labi, labi, tad še tev mans gredzens. Ja to apgrozīsi trīsreiz
+saujā, tad aiztiksi, kur tik vēlies. Tik sargies mājā teikt<b>, </b>ka es, tava
+līgaviņa, skaista esmu. Ej nu ej, tik nepiemirsti, ko tevim nosacīju."</p>
+
+<p align="JUSTIFY">Dēls nu pagroza gredzentiņu saujā un nonāk acumirklī pie tēva. Nu
+ielūdz tēvu, ielūdz māti kāzās; beidzot jāiet tik vēl radi lūgt. Pie radiem ejot,
+jātiek caur muižu. Kungs, pa muižu staigādams, uzprasa, kurp iešot? Tā un tā.</p>
+
+<p align="JUSTIFY">"Kā tad pie ķēniņa meitas tiki?" kungs prasa. Tā un tā.</p>
+
+<p align="JUSTIFY">"Nu, vai ķēniņa meita arī ir skaista?" </p>
+
+<p align="JUSTIFY">"Nav skaista, kungs."</p>
+
+<p align="JUSTIFY">"Nu, vai tik skaista būs, kā mana vecākā meita?"
+"Nav tik skaista, kungs!"</p>
+
+<p align="JUSTIFY">,,Nu, vai tik skaista, ka mana viduvēja meita?" </p>
+
+<p align="JUSTIFY">"Nav tik skaista, kungs!"</p>
+
+<p align="JUSTIFY">"Nu, vai tik skaista, kā mana jaunākā meita?"</p>
+
+<p align="JUSTIFY">To prasot, šim paliek dusmas. Viņš saka: "Liec mani mierā! Ne
+tavas meitas tik skaistas var būt, nedz arī ir: mana līgava desmitreiz
+skaistāka!"</p>
+
+<p align="JUSTIFY">Kā katrreiz, tā arī tagad, dusmās dažlabs nevajadzīgs vārds
+izsprūk. Tomēr tas slimākais bij tas -- gredzens pazudis. Kā nu līdz līgavai tikt?
+Nabadziņš iet pa ceļu un raud. Te gadās veca sieviņa. Tā Laimiņa. Viņa prasa:
+"Dēliņ, kādēļ raudi?" Šis izstāsta visu, kā noticis.</p>
+
+<p align="JUSTIFY">"Ja, dēliņ, kādēļ apsmēji Laimas māmuliņas labo
+prātu?" </p>
+
+<p align="JUSTIFY">"Neapsmēju, neapsmēju; tas nelāgais vārds tāpat man
+izspruka!"</p>
+
+<p align="JUSTIFY">"Nu labi! Še apaun to kurpīti un aizskrien pie Mēneša, ceļu
+uzprasīt uz Pilsētas kalnu."</p>
+
+<p align="JUSTIFY">Aizskrien pie Mēneša, bet šis nekā; lai skrienot pie Saules, tā,
+pa dienu staigādama, vairāk esot ievērojusi. Aizskrien pie Saules, bet šī nekā; lai
+skrienot pie Vēja, tas lienot visās šķirbiņās klausīties. Aizskrien pie Vēja,
+padod labdienu, izprašina, ja tas raudzīs gan Pilsētas kalnu pateikt. Vējš paņem
+divpadsmit stabulītes, iziet laukā un pūš. Pārskrien vienpadsmit Vēji: Ziemelis vien
+nevar pārskriet. Nu sauc Ziemeli, lai visi pakšķi krakšķ. Ne cik ilgi Ziemelis
+mājā: "Ko pavēlot?"</p>
+
+<p align="JUSTIFY">"Kur tik ilgi biji?" Vēju tēvs uzprasa.</p>
+
+<p align="JUSTIFY">Nāku no Pilsētas kalna!</p>
+
+<p align="JUSTIFY">"Ziemelis vēl pūzdams, elsdams atbild. </p>
+
+<p align="JUSTIFY">"Aizved man to cilvēku uz Pilsētas kalnu!" </p>
+
+<p align="JUSTIFY">"Vai, mīļo Vēju tēv, viņš jau mani nepanāks!"</p>
+
+<p align="JUSTIFY">"Nemuldi niekus, viņam Laimas māmuliņas kurpes kājā!" </p>
+
+<p align="JUSTIFY">Ziemelis sāk skriet; bet šis, kā laiž vaļām, tā Ziemelim
+papēžus vien min. Viens divi - abi Pilsētas kalnā klāt.</p>
+
+<p align="JUSTIFY">Tagad laimīgais dēls apprec ķēniņa meitu un dzīvo laimīgi.</p>
+
+
+</body></html>

@@ -1,0 +1,144 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vīrs ceļo uz elli.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">4. A. 477. Kultūras balss krājuma pasaka no Latgales.</p>
+
+<p align="JUSTIFY">Reiz dzīvoja viens kungs, kas meklēja sev tādu kalpa, kas zinātu
+viņa domas, lai nebūtu kalpam nekas jāsaka ar vārdiem. Tā nu viņš izbrauc laukā
+meklēt kalpu, satiek vienu puisi tam saka: "Nāc pie manis par kalpu!"</p>
+
+<p align="JUSTIFY">Puisis atbild: "Es varu iet."</p>
+
+<p align="JUSTIFY">Bet kalps nezināja kunga domu un jau otrā dienā tika atlaists. Kungs
+atkal izbrauca laukā kalpu meklēt. Saticis ceļa gājēju, viņš saka: "Ja tu vari
+izzināt manas domas, tad nāc pie manis par kalpu!"</p>
+
+<p align="JUSTIFY">Ceļa gājējs saka: "Es varēšu izzināt."</p>
+
+<p align="JUSTIFY">Kungs pieņem ceļa gājēju par kalpu. Otrā dienā kungs domā braukt
+uz pašu elli, lai kalps nezinātu, kur šis grib braukt. Kalps arī ir jau drīz ar
+zirgiem klāt un domā: "Aizvedīšu savu kungu uz elli un tad pats palikšu muižā
+par kungu!"</p>
+
+<p align="JUSTIFY">Tā nu viņi brauc pa purviem un mežiem, ka dūņas vien šķīst.
+Pēdīgi piebrauc pie augstas sētas ar lieliem vārtiem. Kalps piedauza Pie vārtiem un
+tūlin izskrien velns pretī. Velns iegriež kungam mazajā pirstiņā un liek viņam
+parakstīties elles grāmatā ar paša asinim. Kungs sabīstās un arī parakstās ar
+trīsošu roku. No tā laika kungs palika velnam par sulaini.</p>
+
+<p align="JUSTIFY">Kalps nu atbrauca atkal uz muižu atpakaļ, bet kungs palika ellē un
+netika vairs šai zemē. Kalps pēdīgi apprecēja kunga sievu un dzīvoja laimīgi. Bet
+kungi no tā laika vairs nemeklē tādus kalpus, kas zinātu viņu domas.</p>
+
+<p align="JUSTIFY">Piezīme. Pasaka ir atstāstīta rakstu valodā. P. Š.</p>
+
+
+</body></html>

@@ -1,0 +1,199 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Muļķa velnam gudrs puisis.</strong></font><font size="3"></font></p><font size="3">
+
+<p align="RIGHT">&nbsp;</p>
+
+<p>l. A. 1149. 1115. 1132. 1120. J ē k a b s K r i e v i ņ š, 1880. D r a b e š u Z ī
+l ē s, B r ī v z. k r. LP, VI, 398, V, 12, 16a.</p>
+
+<p align="JUSTIFY">Agrākos laikos bijis tāds gana puisis, kas nevienam ceļa negriezis.
+Te vienu dienu ganos pienācis viņam velns klāt un noderējis par puisi. Pirmo dienu
+licis puisim uz avotu pēc ūdens iet ar tādiem spaiņiem, ko kauna dēj tikai tukšus
+jaudājis pavilkt, kur nu vēl ar ūdeni. Bet puisim bijusi laba attapība: nolicis lielos
+spaiņus pie avota, taisījis lāpstu un nelicies vairāk ne zinot. Te, pa brīdim, velns
+pakaļ : "Ko te dari, ka ūdeni nenes? "</p>
+
+<p align="JUSTIFY">"Ko daru? Taisu lāpstu, gribu rakt iedobumu un avotu mājā
+ielaist. Saki pats, kad ar tādiem nieka spainīšiem lai ūdeni sanesu?"</p>
+
+<p align="JUSTIFY">Bet velns, piesmeldams lelos spaiņus, pats pārnesis ūdeni,
+noteikdams puisim, lai avotu mājā nelaižot, lai labāk ejot mežā pēc malkas.</p>
+
+<p align="JUSTIFY">Labi, puisis gājis malkā. Bet velnam bijis tik liels un tik smags
+cirvis, ka puisis tik tik pavilkt varējis, kur nu vēl ar tādu pacirst. Nekā cita
+darīt, aizvilcis cirvi mežā, nosēdies pie egles un sācis auklas vīt. Atskrējis
+velns : ko te nīkstot, kādēļ necērtot?</p>
+
+<p>"Ā! ko nu ar tādu nieka cirvi cirtīšu? Labāk novīšu auklu apņemšu mežam
+un pārnesīšu pa muguru uz reizi mājā. "</p>
+
+<p align="JUSTIFY">"To ne, to ne!" velns spārdījies, "lai mežs paliek
+vēl maniem bērniem!"</p>
+
+<p align="JUSTIFY">Un tā pats paķēris vienu priedi, izrāvis ar visām saknēm un
+pārnesis mājā.</p>
+
+<p align="JUSTIFY">Bet puisi, tādu pretinieku, no tās dienas gudrojis nobeigt. Esot
+nokalis pieci podi smagu āmaru un ar to tīkojis pa nakti puisi nosist. Tomēr puisis,
+apmanīdams velna nodomu, salasījis ganos pilnu kuli pūpēžu, ielicis kuli gultā un
+pats apgulies pagultē. Naktī velns metis ar āmaru pa pūpēžu maisu, ka putekļi vien
+noputējuši un priecīgi stāstījis sievai: "Nu viņš ir beigts!"</p>
+
+<p align="JUSTIFY">Bet puisis izlīdis no pagultas, zobodamies: "Jā, kungs, es arī
+redzēju, ka puišam dūmi vien nokūpēja!"</p>
+
+<p align="JUSTIFY">Velns domājis: "Pag, pag - nosist tevi nevarēju, bet nu ņemšos
+tevi kratīt."</p>
+
+<p align="JUSTIFY">Un tā paķēris vāģu priekšasi, uzsēdinājis puisi virsū un nu
+skrējis un vilcis asi, cik tikai ātri varējis. Puisis sēdēdams, kliedzis: "Vai,
+kungs, kā krata, vai, kā krata!"</p>
+
+<p align="JUSTIFY">Velns domājis: "Nu viņu drīz sakratīšu gan, ja jau tā
+brēkā," un skrējis vēl ātrāk. Bet jo ātrāk skrējis, jo ātrāk apkusis un
+puisis atkal palicis dzīvs.</p>
+
+<p align="JUSTIFY">Tagad velns apņēmies puisi noslāpēt: licis trīs dienas pirti
+kurināt un vedis puisi sildīties krāsns priekšā, kur vairāk uguns ; pats turpretim
+no uguns vairījies, uzkāpdams lāvā, kur taisni dūmus īsti dabūjis sarīties. Gan
+šis cieties lāvā šķaudīdams, kāsēdams, bet kad nevarējis vairs paciest -
+vaicājis puisim: "Kā tev ir pa siltumu?"</p>
+
+<p>"Vai, kungs, es tikko nenosalstu."</p>
+
+<p align="JUSTIFY">Nu velns redzējis, ka puisis stiprāks par viņu, un tādēļ
+saridējis visas mantas lielā, lielā maisā un ar sievu aizbēdzis. Bet puisis slepeni
+bijis paslēpies arī maisā. Velns skrējis briesmīgi ātri; bet puisis maisā tikai
+iesaucies arvienu: "Pagaidi, kungs, mani arī!"</p>
+
+<p align="JUSTIFY">Un jo šis saucis, jo velns skrējis, kamēr tad piekusis un vienā
+ezera salā izkratījis maisu un atradis puisi arī turpat. Velns brīnījies: "Kur
+tu te izgadījies?"</p>
+
+<p align="JUSTIFY">"Nekur neizgadījos; bet tam tā tikai vajaga būt. Kur kungs tur
+puisis!"</p>
+
+<p align="JUSTIFY">Nu velns teicis tā uz puisi: "Guli tu vienā ezera malā, es
+otrā sieva gulēs pie mantām."</p>
+
+<p align="JUSTIFY">Viņš cerējis puisi aizmigušu noslīcināt, bet puisis nemaz
+neaizmidzis; viņš nogaidījis velna sievu aizmiegam un tad atstiepis to savā vietā,
+pats apgulies sievas vietā. Rītā velns, ko cēlies, aizskrējis otrā ezera malā,
+iesviedis sievu ezerā un tad steidzies pie mantām, priecādamies: "Nu, sieva, es
+viņu vienreiz patērēju!"</p>
+
+<p align="JUSTIFY">Bet puisis smējies: "Jā, kungs, es arī redzēju, ka burbuļi un
+ūdens vien putēja."</p>
+
+<p align="JUSTIFY">Velns apmanījis, ko pats izdarījis, neatsacījis ne vārda, bet
+ielēcis ezerā sievai pakaļ, kur tad abi palikuši. Bet puisim palikusi visa velna
+mantība.</p>
+</font>
+
+
+</body></html>

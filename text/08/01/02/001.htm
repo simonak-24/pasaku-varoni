@@ -1,0 +1,305 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Brīnuma lampa.</p>
+</font><font size="4">
+
+</font></b><p align="JUSTIFY"><b><font size="4"></font></b><font size="3">1. A. 561. H. Skujiņš, Andrs Ziemelis, no
+67 g. vecas Rudzītes Smiltenē.</font></p><font size="3">
+
+<p align="JUSTIFY">Bīš vienc tāds skrodelis, un šim bīš vienc pats dēls. Skrodelis
+drīz vie nomiris un dēls palicies tik nebēdīgs, ka māte vais šā nevarēsi nekā
+valdīt. Šī nu visu nevisādi izdomāsies, ko ar dēlu iesākt un kā būt un
+bēdāsies, ka šai neesot nekādas naudas un mantas, kā varētu dēlu kādā amatā
+izmācīt. Māte jau ilgi tā bēdāsies un te, vienreiz, ienācis pie šās vienc vīrs
+un stāstījies, ka šis esot šās vīra jaunākais brālis un nācis aptaujāties, kā
+šai tagadīnās ejot un ko darot šās dēls un vai kādā amatā ar' ejot, kā varētu
+vieglāki maizi paēst. Māte nu stāstīsi vīram savas bēdas, kāds šai negals esot ar
+dēlu, ka šis nekur nevarot stillt un kā šai ejot slikti un nevarot dēlu nekur
+mācībā nodot, jāču ta šis no svešim drusku rautos un nāktu pie prāta. Ta nu vīrs
+sacīš, lei dodot šim dēlu līdza, šis palīdzēšot šo amatā izmācīt. Nu
+sprieduši, sprieduši un ,kamēr nosprieduši ar, ka tā vie būšot jādara., un dēls
+ar bīš priecīgs un vīkšnes vīram līdza.</p>
+
+<p align="JUSTIFY">Skrodeļa dēls nu sataisījies un gāš vīram līdz. Vīrs šo vedis,
+vedis un pēdīgi ievedis dziļi mežā. Nu šie abi piegāš pie liela kalna un pašā
+kalna galā bīš lielc akimlinc. Vārs nu licis, lei skrodeļa dēls veļot akmimu no.
+Skrodeļa dēls ar ķēries akminam klā, bet nekā vis nevarēš izdarīt - akminc nemaz
+ar nekustējies. Ta vīrs iedevis skrodeļa dēlam gredzenu un sacīš, lei paberzējot
+gredzenu. Skrodeļa dēls paberžēš gredzenu un nu akminc pats no sevis nocēlies un nu
+skrodeļa dēls redzēš, ka apukš akmina ir dziļa ala. Vīrs sacīš skrodela dēlam,
+lei šūs laižoties pa alu lejā un tur šis ieiešot dziļā pagrabā un tai pagrabā
+būšot dau naudas un dārgu akminu. Lei ņemot sev naudas, cik vie uzietot., un ta lei
+paņemot vecu laimpīnu un tā lampīna būšot pašā pagraba dibinā. Dēls ar iegāš
+pagrabā un sabāzies sev pillas ķešas ar naudu un dārgim akminim, ta paņēmis
+lampīnu, iebāzis azautē un gāš no pagraba laukā. Šis nu vē tūļājies u,n
+grābstījies un vīrs jau kliedzis, lei atdodot šim lampīnu. Bet skrodela dēls vē
+tūļājies un sacīš: "Pagaiču, gan jau dabūsi!"</p>
+
+<p align="JUSTIFY">Nu vīrs pārskaities, aizgrūdis alai akminu priekšā un skrodeļa
+dēls vais neticis no alas laukā. Šis nu sēdēš alā un domāš, kā nu tikšot
+laukā. Izprovējies akmiņu nogrūst, bet nekā nevarēš izdarīt. Nu sēdēš alal un
+no gara laika sācis knibināties ap gredzenu, ko iedevis vīrs, ka šis nevarēš akmina
+novelt. Skrodeļa dēls knibinājies, knibinājies, kamē ņēmis un gredzenu drusku
+paberzēš. Nu tūlītās šim vienc ,pie pašas auss prasīš : "Kēnī', ko
+vēlies?"</p>
+
+<p align="JUSTIFY">Skrodeļa dēls tīri vai satrūcies, ka šo par ķēnīnu saucot, un
+prasīš, kas šis tāds esot, kas šnrrr pie auss runājot, no kurienas šis esot un kā
+šim vaigot. Nu tas gars, kas runāš skrode]a dēlam pie auss, sācis stāstīt, kas šis
+ir un ka nav vis cilvēks, bet gars, un viņš klausot tam gredzenam un tūlītās
+.nākot, ka to gredzenu drusku paberzējot, un viņš izpildot visu ta, ko vie šim vēlot
+darīt. Nu skrodeļa dēls tūlītās sapratis, kas par lietu, un prasīš garam, vai šis
+nevarot šā izlaist mo ialas laukā. Jā, gars sacīš, ka to šis varot gan, un novēlis
+akminu no alas no(st). Skrodeļa dēls izgāš no alas laukā un gars akal aizvēlis
+akminu priekšā. Skrodea dēls aizgāš apakaļ pie mātes un dzīvāš 1aimīgi, jo nu
+šim bīš naudas papillam. Skrodeļa dēls dzīvāš kā vienc bitauris un pēdīgi
+iemīlējis pašu ķēnīna meitu. Viņč nu gāš pie ķēnīna un prasīš, lei dodot
+šim savu meitu par sievu. Ķēnīc bīš ar mieru, bet meita negribēsi ne dzirdēt un
+šai jau ar bīš iecerēts cits brū(t)gānc un tas bīš no augstas kārtas un ar to jau
+princese bīsi slepenībā norunājusi saprecēties. Par to nu skrodeļa dēls varēn
+nobēdājies un palicis slims. Pa tam princese rīkosies uz kāzām un kāzu diena jau
+bīsi nolikta. Kāzu dienā māte sacīsi skrodeļa dēlam: "Re' nu, kā bev
+izčibēja ar princi. Šodie princesei ir kāzas!"</p>
+
+<p align="JUSTIFY">"Lei jau ir," sacīš skrodeļa dēls, "bet man vie
+viņa kritīs!" Tai naktī, ka princesei </p>
+
+<p align="JUSTIFY">kāzas dzēruši, skrodeļa dēls paberzēš gredzenu, un ka gars
+atnācis, ta licis, lei šis </p>
+
+<p align="JUSTIFY">noskato,bies, ka jau nais pārs iešot gulēt un lei ta šis gars
+paņemot princesi un atnesot šur. </p>
+
+<p align="JUSTIFY">Kā ta, kā jaunais pārs aizgāš gulēt, tā gars ar tūlītās
+atnesis princesi uz skrodeļa māju. Rītīnā akal skrodeļa dēls li cis, ,lei gars šo
+aiznes apakaļ uz ķēnīna pili. </p>
+
+<p align="JUSTIFY">Gars visu tā izdarīš, kā skrodeļa dēls vēlēš, un pēc bīši
+lielu lieli brīnumi, kā princese </p>
+
+<p align="JUSTIFY">varēsi pa nakti pazust jaunam vīram no sāmiem, uiru rītīnā akal
+atradusies pilī un ka </p>
+
+<p align="JUSTIFY">nevienc ne redzēš, ne dzirdēš, kā šī aizgāsi un atnākusi.
+Jaunais vīrs gāš pie paša ķēnīna un stāstīš, kā viss noticis un ķēnīc
+nākošā naktī pielicis pie šo istabas </p>
+
+<p align="JUSTIFY">durim vaktis. Bet vakarā atkal princese pazudusi un rītīnā tik vē
+pārradu</p>
+
+<p align="JUSTIFY">sies mājā un nevienc nezināš, kā viss tas noticis. Nu jaunais
+vīrs bīš varēn errīgs un stāstīš ķēnīnam, kā vis akal noticis, un ķēnīc nu
+licis atsaukt mācītāju un pats ar mācītāju vaktēš princesi. Bet tikko šī iegāsi
+gulēt, ka akal uzreiz no gultas pazudusi un nevienc ne manīt nemanīš, kur šī
+palikusi. Nu mācītāš sacīš, ka te vais, neesot labi, un jaunais vīrs ar sacēlis
+varēnu traci, un kliedzis,</p>
+
+<p align="JUSTIFY">brēcis, ka princese esot laikam ragana un varbūtās ar pašu vellu
+draugos. Un jaunais vīrs neparko ar vais negribēš ar princesi palikt kopā un ka
+rītīnā akal gars atnesis princesi uz ķēnīna pili; ta jaunais vīrs pie šās vais
+negāš un aizgāš pavisīnas prom. Tā nu princese izšķīrusies no sava vīra.</p>
+
+<p align="JUSTIFY">Drīz vie skrode]a dēls palicis vesals un gāš akal uz ķēnīna
+pili. Viņš nelicies ne zinis, ka princesei jau bīšas kāzas, ka šī jau apprecēsies
+un akal ūzšķīrusdes. Skrodeļa dēls akal lūdzies, lei ķēnīc dodot šim savu meitu
+:par sievu un ķēnīc bīš ar mieru. Nu šoreiz pati princese ar bīsi ar mieru un šie
+abi apprecēšies. Bet nu princesei bīš jānāk uz skrodeļa māju dzīvāt un šai tas
+vis nepaticies, pats ķēnīc ar jau bīš vecs un švaks un šis sacīš skrodeļa
+dēlam, lei paliekot vie pidī un pārskatot visas šā darīšanas. Nu skrodeļa dēls ar
+vienu laicīnu dzīvāš ķēnīna pilī un pēdīgi nodomāš, ka būšot jāceļot
+pašam sava pils, ta. varēšot ar princesi mierīgi dzīvāt. Skrodeļa dēls paberzēš
+gredzenu un prasīš garam, vai šis varot pa vienu nakti uzcelt tādu pili, kas būtu
+vēl smukāka par paša ķēnīna pili. Bet gars atbildēš, ka tas neesot šā varā, bet
+tas esot lampīnas varā. Un gars izstāstīš skrodeļa dēlam, kā lei darot. Skrodeļa
+dēls nu vilcis to lampīnu, ko šis iznesis no pagraba, no azautes laukā un paberzēš.
+Tūlī saskrēš vesals lērums garu un prasīš skrodeļa dēlam, kā šim vaigot.
+Skrodeļa dēls sacīš, ka šim maigot tādas pils, kas būtu vē smukāka par paša
+ķēnīna pili un tai pilei vaigot būt gatavai pa viem nakti. Jā, lam piņas gari
+varēš gan to izdarīt un otrā rītā pils jau bīsi gatava.</p>
+
+<p align="JUSTIFY">Nu skrodeļa dēls gāš ar princesi uz jauno pili dzīvāt un
+aicināši pašu ķēnīnu ar. Bet ķēnīc vis negāš un sacīš, ka tie jau nevarot
+labi darbi būt, ka pa vienu nakti varot tādu pili uzcelt, un sacīš, ka skrodeļa dēls
+gan laikam esot bufris. Nu skrodeļa dēls šā tā atlarzāš un sacīš; ka šim jau
+tāda maņa esot, ka daudz varot padarīt. Ta vē skrodeļa dēls sacīš ķēnīnam, lei
+šis pa vienu dienu uztaisot šā pilei vienu logu, kas vē nebīš gatavs. Ķēnīc nu
+rāvies nosvīdis visu dien:u un nevarēš un nevarēš tā loga pa dienu uztaisīt un
+skrodeļa dēls ta sacīš, ka šis tādu logu pa viemu stundu uztaisot. Nu skrodeļa
+dēls licis gredzena garam, lei uztaisa bogu, un nebīsi vē stunda galā, ka jau. logs
+bīš gatavs.</p>
+
+<p align="JUSTIFY">Skrodeļa dēls dzīvāš ar princesi laimīgi savā jaunā pilē un
+šim nu vairs lampīnas nevaidzēš. Skrodeļa dēls izvilcis lampīnu no azautes un
+uzlicis uz krāss malīnas. Reiz skrode]a dēls aizgāš uz jakti un princese vie viena
+pilē palikusi. Bet tas buris, (tas vīrs, kas atnācis pie skrodeļa dēla mātes un
+sacīš, ka šis esot skrodeļa visjaunākais brālis, bīš liec buris un tas gribēš to
+lampīnu sev dabūt), saodis, kur skrodeļa dēls ir, un novaktēš, ka šā paša nav
+mājā, un saņēmies dau smuku lampu līdz un gāš pilī iekšā un solīš princesei
+piecas sešas jaunas lampas, ja šī šim vietā dodot vienu vecu lampīnu. Princesei
+jaunās lampas patikušās un šī sākusi meklēt kādu vecu lampīnu, ko dot vietā, kā
+tiek pie jaunām lampām. Šī nu meklēsi, meklēsi, kamē sameklēsi ar to lampīnu, kam
+tie gari klausīši, un ņēmusi un atdevusi to lampīnu buram pret jaunām lampām.
+Princese jau nemaz nezināsi, ka tai vecai lampīnai ir tāds spēks. Nu buram bīsi tā
+lampīna rokā un šis tūlītās licis garim aiznest skrodeļa dēla pili ar visu
+princesi tālu tālu prom.</p>
+
+<p align="JUSTIFY">Ka skrodeļa dēls nācis no jakts mājā, ta vair nebīš ne pils, ne
+princeses. Viņš jau tūlītās sapratis, kas nu ir par lietu, un berzēš savu gredzenu
+un prasīš gredzena garam, vai šis nevarot atgādāt šā pili atpakaļ. Bet gredzena
+gars sacīš pretī, ka bas nestāvot šā spēkā. Ta skrodeļa dēls prasīš gredzena
+garam, vai šis nezinot, kur šā pils tagadīnās esat un vai šis (gars) šā nevarot uz
+turieni aiznest. Jā, to gan gredzena gars varēš un tas bīš vienc redzējienc, ka gars
+aiznesis skrodeļa dēlu. Nu skrodeļa dēls pārģērbies par nabagu un lodāš ap pili
+riņķī vie.</p>
+
+<p align="JUSTIFY">Pa tam princese dzīvāsi pilī un šo vecais buris visādi kārdnāš,
+lei nākot pie šā klātgulēt. Bet princese neielaidusies ar veco buri un šis nu
+palicis varēn nejauks un sacīš tā, ja šī šodie, tā kā trešo nakti, nenākšot
+pie šā klātgulēt, tā šis likšot šo nolietāt. Nu princese bīsi varēn bēdīga un
+stāvēsi pie loga un raudāsi. Bet skrodeļa dēls gāš pašlaik gar logu un šī šo
+redzēsi un tulītās ar pazinusi. Nu šī ša ieaicināsi paslepšu pie sevis iekšā un
+abi nogūdrēši, kā darīt.</p>
+
+<p align="JUSTIFY">Vakarā nu princese gāsi pie vecā bura un sacīsi, ka šī esot ar
+mieru šovakar iet pie šā klātgulēt. Nu vecais buris bīš varēn laimīgs un princese
+šo vedināsi uz dzeršanu. Buris bīš ar mieru un abi sākuši dzert. Bet kā buris
+drusku pagriezies, tā princese šā glāzē iebērusi jipti un buris iedzēris un
+nozvēlies beigts gar zemi. Nu princese aicināsi skrodeļa dēlu iekšā un abi sākuši
+meklēt lampīnu rokā. Izmeklēši malu malīnas, izjaukuši kaktu kaktus, bet lampīnas
+nekur nebīš. Tā nu skrodeļa dēls gāš pašam buram klāt un pāmeklēš šo.
+Pēdīgi ar lampīnu atraduši buram azautē. Nu skrodeļa dēls tūlītās paberzēš
+lampīnu un licis garim, lei aiznesat pili apakaļ uz veco vietu. Gari akal aiznesuši
+pili apakaļ uz veco vietu.</p>
+
+<p align="JUSTIFY">Nu akal cilvēkim bīš lielu lielie brīnumi, ka pils pa nakti
+pazudusi un akal pa nakti atradusies apakaļ, vecā vietā. Šie nu akal visi sākuši
+runāt, ka skrodeļa dēls buris vie būšot un nevienc cilvēks jau tādus darbus nevarot
+izstrādāt. Bet skrodeļa dēls nu vis nevienam nekā vē nesacīš.</p>
+
+<p align="JUSTIFY">Bet tam vecam buram, kuŗu rincese nozāļosi, bīš vienc draugs, ar
+lielc buris, un tas dabūš visu zināt, kā šā draugarn izgāš. Šis nu nospriedis,
+kā jāatrieboties skrodeļa dēlam, un uzstedlēš šim tādu slimumu, kā nevienc pats
+dakteris ar šā nevarēš izārstēt. Nu skradeļa dēls jau ilgi gulēš slims un
+nevienc dakteris ar šā neviarēš izārstēt. Skrodeļa dēls izsolīš lielu naudu, kas
+šo varot izārstēt. Nu rākuši visu nevisādīgi un nevienc pats ar nekā nevarēš
+izdarīt. Pēdīgi nu atnācis tas pats buris, kas skrodeļa dēlam to slimumu uzlaidis;
+un sacīš, ka šis varot šo izārstēt. Nu skrodeļa dēls sacīš, lei ārstējot ar.
+Bet buris sacīš, ka šis tagadīnās nekā nevarot darīt un šim jāgaidot pusnakts, ta
+šis tik varēšot sākt rīkoties. Nu skrodeļa dēls tūlītās sapratis, kas tas ir par
+putnu, un kā buris šim; pagriezis muguru, tā skrodeļa dēls izrāvis zobinu un
+nocirtis buram galvu. Bet kā buris bīš pagalam, tā skrodeļa dēls ar tūlītās
+palicis vesals.</p>
+
+<p align="JUSTIFY">Nu skrodeļa dēls dzīvāš pilī laimīgi ar savu princesi un šiem
+vais nebīš neviena skauģa, kas šos skauž.</p>
+
+<p align="JUSTIFY">Piezīme. Šī ir Tūkstoš un vienas nakts pasaka (skat. Ievads 89
+lpp.), kas tāpat, kā abas sekošās, ir tomēr uzrakstītas no tautas mutes. P. Š.</p>
+</font>
+
+
+</body></html>

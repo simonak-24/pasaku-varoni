@@ -1,0 +1,274 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dvēsele olā.</p>
+</b></font>
+
+<p align="JUSTIFY">8. A. 302. A. Lerchis-Puškaitis Džūkstē-Pienavā. LP, III, 2. </p>
+
+<p align="JUSTIFY">Kādam zvejniekam apmirst visi dēli; tik jaunākais paliek.</p>
+
+<p align="JUSTIFY">Tēvs jaunāko dēlu iesauca par Pastari.</p>
+
+<p align="JUSTIFY">Reiz zvejnieks, ar savu Pastari jūrmalā zvejodams, ierauga lielu
+savādu kuģi. Kuģis pienāk pie malas un apstājas. Neviena cilvēka neredz,. Te uz
+reizi iznāk no kuģa apakšas liels vīrs tas bijis pats velns - un uzsauc zvejniekam:
+"Ved šurp man savu dēlu Pastari!"</p>
+
+<p align="JUSTIFY">Zvejnieks atbild: "Ne es dēlu vedīšu, ne došu!"</p>
+
+<p align="JUSTIFY">To dzirdēdams lielais vīrs ielec jūŗā, izbrien malā, paķeŗ
+Pastari, aiznes to uz kuģi un aizbrauc kā viesulis. Pret vakaru kuģis apstājas jūŗas
+vidū pie kādas skaistas pils. Lielais vīrs ieved Pastari pilī un ierāda tam īpašu
+istabu, pieteikdams: "Ja naktī kaut ko dzirdi, tad nededzini uguni un
+neskaties!"</p>
+
+<p align="JUSTIFY">Pastaris nu paliek viens pats istabā. Viņš noskumis domā: "Kas
+nu ar mani notiks, kas nenotiks - redzēs gan!"</p>
+
+<p align="JUSTIFY">Vakarā tas liekas gulēt, bet neaizmieg. Līdz ko labi tumšs, tā
+sāk viens čabināties. Pastaris domā: "Čabinies, cik tu gribi; ne man uguns ir
+brīv dedzināt, ne arī ir, ko aizdedzināt!"</p>
+
+<p align="JUSTIFY">Tā paliek. Otrā naktī tāpat. Trešajā naktī Pastaris nodomā pie
+sevis: "Tavu brīnumu! kas te varētu vienā gabalā čabināties? Pag, pag, rītā
+runāšu lielajam vīram, lai aizved mani uz vienu dienu pie tēva pasērsties. Ja viņš
+to darīs, tad parunāšu tēvam šķiltavas un degli. Tā būs pareizi, un tad tevi,
+putniņ, ieraudzīšu!"</p>
+
+<p align="JUSTIFY">No rīta Pastaris runā lielajam vīram, vai nevarot viņu aizvest uz
+vienu dienu pie tēva pasērsties.</p>
+
+<p align="JUSTIFY">,,Kālab ne?" lielais vīrs atbild. "Bet atpakaļ braucot tev
+nav brīv it nekā no tēva mājas līdz ņemt. Tad vēl, es palikšu uz kuģa tevi
+gaidīt; ja pret vakaru pirmo reizi kliegšu, tad atstāj tēva māju un nāc; ja otrreiz
+kliegšu, tad esi jau pusceļā; ja trešoreiz kliegšu, tad jābūt uz kuģa."</p>
+
+<p align="JUSTIFY">Labi. Pastaris otrā rītā pārbauc pie tēva un izstāsta visu, ko
+piedzīvojis, pēc kā nācis. Tēvs nevar izdomāt, kā lai šķiltavas un degli klusu
+aizved; bet Pastaris atsaka: "Iešūsim uguns lietas aiz svārku oderes, tad
+aizvedīšu kā nabagus!"</p>
+
+<p align="JUSTIFY">Labi. tā izdara. Pret vakaru tēva māja nodreb un notrīc: lielais
+vīrs kliedzis pirmo reizi. Pastaris steidzas projām. Līdz ko labi pusceļā, te zeme
+nodimd: lielais vīrs kliedzis otru reizi. Līdz ko labi jūrmalā, te jūŗa nožvākst:
+lielais vīrs kliedzis trešo reizi. Nu uziet uz kuģi. Lielais vīrs prasa: "Vai
+paņēmi ko līdz?"</p>
+
+<p align="JUSTIFY">"Pats labi redzi, ka nav nekā!" Pastaris atbild. Nu tad
+brauksim!"</p>
+
+<p align="JUSTIFY">" Kuģis aiziet kā viesulis, viens divi pie pils klāt.</p>
+
+<p align="JUSTIFY">Vakarā Pastaris aiziet gulēt, bet neaizmieg. Līdz ko labi tumšs,
+tā sāk viens čabināties. Pastaris tūlīt uzšķiļ uguni un ierauga daiļu meiču.
+Bet šī no uguns sabīstas un aizbēg.</p>
+
+<p align="JUSTIFY">No rīta lielais vīrs pie Pastaŗa iekšā.</p>
+
+<p align="JUSTIFY">"Ak tā, tēviņ, tu man uguni šķilsi! Nāc līdz!"</p>
+
+<p align="JUSTIFY">Pastaris iet. Bet laukā lielais vīrs sagrābj Pastari un aiznes to
+pār jūŗu uz augstu, augstu kalnu, pašā virsotnē. Tur tas atstāj Pastari un pats
+pazūd.</p>
+
+<p align="JUSTIFY">Pastaris izstāvās galotnē vienu dienu, otru; cik ilgi stāvēs?
+Raudzīs līst zemē. Nu lien, nu rāpjas, nu mocās un cīnās, kamēr tad ar lielām
+mokām trešajā dienā norāpjas ar saskrambātām rokām asiņainiem ceļiem,
+sadriskātām drēbēm. "Labi, ka tik tālu!" Pastaris iesaucas un iet taisni
+projām. Gar mežmalu iedams tas ierauga nogāztu zirgu, ieduŗtu zobinu un četrus
+ēdējus ar izsalkušām mutēm. Pastaris grib gaŗām iet, bet tie viņu nelaiž,
+sacīdami: ,,Puisīt, neeij secen! Mēs četri virsnieki nogāzām šo zirgu tev zirgs
+mūsu starpā jāizdala! Viens no mums ir zvēru virsnieks, otrs putnu virsnieks, trešais
+zivju virsnieks, ceturtais skudru virsnieks. Ja taisni mācēsi dalīt, tad tev labi
+samaksāsim."</p>
+
+<p align="JUSTIFY">Labi, Pastaris ņemas dalīt. Zvēru virsniekam iedod abus činksļus,
+putnū virsniekam abus plečus, zivju virsniekam viduci, skudru virsniekam galvu. Pastaris
+nu ieduŗ zobinu, kur atradis, un grib tūlīt aiziet, bet virsnieki to nelaiž sacīdami:
+"Tu mācēji labi dalīt, par to tev labi samaksāsim. Še tev no zvēru virsnieka
+viens sariņš. Ja tev kāda nelaime uzbruktu, tad pavirpini sariņu un piemini zvēru
+virsnieku, tūdaļ tavs spēks būs deviņreiz lielāks par paša zvēru virsnieka spēku.
+Tad še tev no putnu virsnieka viena spalviņa. Ja tev reiz kāda nelaime uzbruktu, tad
+pavirpini spalviņu un piemini putnu virsnieku, tūdaļ varēsi deviņreiz ātrāki skriet
+un laisties nekā pats putnu virsnieks. Tad še tev no zivju virsnieka viens zvīnītis.
+Ja tev reiz kāda nelaime uzbrukutu, tad pavirpini zvīnīti un piemini zivju virsnieku,
+tūdaļ varēsi deviņreiz vieglāki un ātrāki peldēt nekā pats zivju virsnieks. Tad
+še tev no skudru virsnieka viena kājiņa. Ja tev kādreiz nelaime uzbruktu, tad
+pavirpini kājiņu un piemini skudru virsnieku, tūdaļ varēsi deviņreiz dziļāki zemē
+līst, nekā pats skudru virsnieks." Labi, Pastaris pateicas par dāvanām un aiziet.</p>
+
+<p align="JUSTIFY">Pret vakaru zeme sāk dimdēt, jūŗa putot, un re, lielais vīrs
+Pastarim klāt, </p>
+
+<p align="JUSTIFY">noprasīdams: "Kas tev atvēlēja no kalna zemē līst?"
+"Pastaris atvēlēja."</p>
+<b>
+
+</b><p align="JUSTIFY"><b>"Ak </b>tā!" lielais vīrs iesaucās, "nu ja Pastaris
+atvēlējis, tad Pastarim jāizput!"</p>
+
+<p align="JUSTIFY">Un nu lielais vīrs gāžas Pastarim virsū; bet Pastaris mudīgi,
+mudīgi pavirpina zvēru virsnieka sariņu, piemin viņu un tad sakampj lielo vīru tik
+sparīgi, ka visa zeme nodimd. Acumirklī lielais guļ kā bluķis. Nu cīnās, nu
+raustās, bet lielais nekur pabūt. Beidzot Pastaris saka: "Ja neteiksi, kur tava
+dzīvība atronas, tad piesiešu tevi tik stiprām saitēm pie šīs klints, ka ne mūžam
+vaļā netiksi. Tev būs jānomirst badā kā sunim. Kraukļi tevi apēdīs!"</p>
+
+<p align="JUSTIFY">Lielais vīrs lūdzas, lai tā nedarot, tas viņam par lielu kaunu,
+viņš būšot teikt.</p>
+
+<p align="JUSTIFY">"Nu labi, tad saki - tiksi vaļā!" Pastaris saka.</p>
+
+<p align="JUSTIFY">"Redzi, Pastar, viņpus jūŗas ir tā pils, kur tevi pirmo reizi
+aizvedu. Pils pagalmā ir stabs. Ja pie staba piesistu ar mazo pirkstiņu, tad nokristu
+zobins. Ja ar zobinu noietu uz tuvējo mežu, tad gadītos liela čūska mežā. Ja kāds
+spētu čūskai ar zobinu galvu nocirst, tad izskrietu no glavas zaķis. Ja zaķi
+noķertu, nokautu, tad izskrietu no zaķa balodis. Ja balodi noķertu, nokautu, tad
+izkristu no baloža pauts. Pautā guļ mana dzīvība. Bet tu to, Pastarīti, nevari ar
+visu savu milža spēku izdarīt, jo pauts krizdams iekritīs deviņas asis dziļi
+zemē."</p>
+
+<p align="JUSTIFY">"Labi, tagad tieci vaļā!" Pastaris iesaucās. To teicis,
+viņš palaiž lielo vīru, aiziet jūrmalā, pavirpina zivju virsnieka zvīnīti, piemin
+viņu un tad pārpeld viens divi pār jūŗu 1īdz pilei. Ieiet pagalmā -- ja - ir gan
+stabs. Pasit ar mazo- pirkstiņu: zobins žvaukt! zemē. Nu saķeŗ zobinu un steidzas uz
+mežu pēc čūskas. Čūska izlien šņākdama pretim; bet kā Pastaris dod ar zobinu,
+tā galva ripodama aizripo. Tomēr tai pašā acumirklī zaķis arī ārā un lobj ko māk
+no meža ārā. Pastaris knaši pavirpina putnu virsnieka spalviņu, piemin viņu un
+noķeŗ zaķi. Zaķis turās pretim, bet šņakt! zobins noņem tam galvu. Līdz ko galva
+nokrīt, te balodis ārā un mākoņos augšā; bet Pastaris atkal pavirpina putnu
+virsnieka spalviņu, piemin viņu un noķeŗ balodi, lai ir to nokautu. Līdz ko balodis
+pagalam, te pauts bļaukt! deviņas asis dziļi zemē iekšā. Tagad Pastars pavirpina
+skudru virsnieka kājiņu, piemin viņu un ielien kā skudra pautam pakal. Maz acumirkļos
+pauts no zemes apakšas ārā. Tagad Pastaris steidzas ar pautu uz pili. Aiziet tur,
+lielais vīrs jau priekšā.</p>
+
+<p align="JUSTIFY">"Tu kāroji pēc manas dzīvības, lielo vīr, bet nu tava
+dzīvība manās rokās!" Pastaris iesaucas. To teicis tas drāž pautu lielajam
+vīram ar tādu sparu pierē, ka viss pauts sašķīst un lielais vīrs, augšpēdu
+atkrizdams, izpūš dzīvību.</p>
+
+<p align="JUSTIFY">Pastaris nu bij brīvs; no sava kakla kunga tas bija atpestījies. Bet
+tagad tam stāv prātā tā daiļā meita, ko toreiz uguni šķiļot, <b>pa</b>redzēja.
+Viņš domā: "Kur citur tā būs, kā pilī? Jāiet raudzīt."</p>
+
+<p align="JUSTIFY">Ieiet pilī - kā tad - meita sēž itin bēdīga.</p>
+
+<p align="JUSTIFY">"Ko nu gaudi?" Pastaris tai uzsauc, "priecājies 1abāk,
+jo 1ielais virs pagalam, es viņu uzvarēju. `</p>
+
+<p align="JUSTIFY">"Ko? Vai patiesi?" meita brīnījās. ,,Kā, puisīt, par
+manu izpestīšanu tev lai atmaksāju?"</p>
+
+<p align="JUSTIFY">"Paliec man par līgaviņu, tad būs atmaksāts." Pastaris
+atbild. "Labi, lai notiek tā!"</p>
+
+<p align="JUSTIFY">Un nu Pastaris pārveda savu līgaviņu tēva mājā un nosvinēja
+brašas kāzas.</p>
+
+
+</body></html>

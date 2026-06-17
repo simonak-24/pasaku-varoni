@@ -1,0 +1,155 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Velna dotā sieva.</p>
+</font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+</b><p align="JUSTIFY"><b></b>10. A. 465 D. A. Gari-Juone no 65 g. vecas S. Zaščerinskas,
+Domopolē. Kultūras balss kr.</p>
+
+<p align="JUSTIFY">Vīns jauns puiss gu škyunī, da juo kotru nakti staigoj vīna jauna
+šmuka meita i gulstas kluot; jis jū i apskaun i vys, bet nu pušnaktim tei meita pazyud.
+Puiss tū gadījumu patur sovā pruotā, nastuosta ni tāvam, ni muotei, a ni sovim
+draugim. Jam gribējuos, lai tei meita dzeivoj pi juo vysod. Aizīt jis da spoveds [grēku
+sūdzēšanas] un pastuosta baznīckungam, ka da juo kotru nakti atīt gulātu vīna jauna
+skaista meitīte, bet kai tik pušnakts, tai i pazyud. Baznīckungs jū nūsvētej, īdūd
+jam rožoncu, škaplerus un soka: "Ka jei tik atīs, tu jai izlīc rožoncu un
+škaplerus, stypri saturi jū un nalaid vaļā. Jei puorzataisīs par vysaidu i par
+čyusku un par putnu, bet tu tikai turi un nalaid vaļā."</p>
+
+<p align="JUSTIFY">Atīt puiss uz sātu, aizīt vokorā uz škyuni gulātu, naktī meita
+kai lykta kluot. Jis tyulin izsvīž jai viersā rožoncu, škaplerus un stypri tur. Jei
+puorzataisīja par vysaidu, bet jis nūturēja un jei palyka par juo sīvu. Pēc kaida
+laika jai pīdzyma bārns un jei vadynuoja sovu veiru pi juos tāva cīmūs. Izīt uorā,
+parunoj ar žogotu un aizīt obēji uz teiruma golu. Teiruma golā zemē īleikst un jī
+nīigrimst. Kad grima, tad sīva veiram sacīja: "Kū es ēsšu, tū i tu ēd."</p>
+
+<p align="JUSTIFY">Tāvs nūsaprīcuoja, īraudzējis sovu meitu, znūtu un pamīluoja
+jūs ar vvsu, kas beja. Tod tāvs soka: "Kuo gribi, meit, lai es tev īdūmu, voi
+zalta, voi kaida cyta monta?"</p>
+
+<p align="JUSTIFY">"Par divdesmit godu kolpuojumu es cyta nikuo nagribu, kai tikai
+solmu kyulīti, kurs stuov koktā pīslīts," atsoka meita.</p>
+
+<p align="JUSTIFY">"Žāl gon man tev tū kvulīti atdūt," soka valns. Bet
+meita cyta nikuo najēmja un valns atdevja jai tū solmu kyulīti, kurs koktā beja
+pīslīts. Izcīmuojuši pi valna jī atguoja atpakaļ. Meita soka veira tāvam:
+"Tēt, izstatīsim tūs kyulīšus!"</p>
+
+<p align="JUSTIFY">Jī izraisīja solmus, ak Jēzus, Marija kas par skaistu duorzu
+izzataisīja! Kuo tikai tī nabeja! Taids duorzs, ka aiz lustis navarēja uorā izīt.
+Pēc tam meita soka: "Tēt, izkurinoj pierti, apsavilksim vysi boltuos
+drēbēs!"</p>
+
+<p align="JUSTIFY">Tāvs izkurinuoja pierti, vysi izamozguoja, apsavylka baltuos drēbēs
+atguoja uz duorzu, vyss duorzs pazacēļa uz augšu un dvēseles, izguoja uz debesim. Tys
+solmu kyulits, beja jaunu meitu nūgulētu bārnu dvēseles. Redz, cik dvēseļu izgluobe
+caur rožoncu un škaplerim! . .</p>
+
+
+</body></html>

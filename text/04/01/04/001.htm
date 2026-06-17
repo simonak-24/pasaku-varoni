@@ -1,0 +1,239 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Velns mais?</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Velns maisā.</p>
+</b></font>
+
+<p align="JUSTIFY">1. A. 330 B. Štrauss Ērbeģē. LP, III, 38, AŠ III, 9a.</p>
+
+<p align="JUSTIFY">Kādam tēvam<b> </b>bijuši trīs dēli: divi gudri, viens muļķis.
+Viņi dzīvojuši tādā mežā, no kuŗa nevarējuši nekad izkļūt un dienišķu
+maizīti papelnīties. Tādēļ tēvs mirstot varējis tikai katram vienu maizes kukuli
+atstāt. Dēli dzīvojuši ļoti vārgi un dienu mūžu ilgojušies: "Kaut jele reiz
+varētu no dziļā meža izkļūt!"</p>
+
+<p align="JUSTIFY">Kādu vakaru dēli ēduši katrs no sava kukuļa un taisījušies pie
+miera iet. Te nejauši ielīdis vājš vecītis lūgdamies: "Dēli mīļie, dodiet
+man naktsmāju, dodiet arī katrs tiesiņu maizes iekost!"</p>
+
+<p align="JUSTIFY">Divi gudrie nogriezuši tādu šķēlīti, bet muļķītis nogriezis
+labu nuciņu. Nu likušies visi četri pie miera. Bet no rīta pamožoties, vecīša vairs
+nebijis.</p>
+
+<p align="JUSTIFY">Otrā vakarā dēli atkal ēduši. Te ielīdis vecītis lūgdamies:
+"Dēli mīļie, dodiet man naktsmāju un kādu tiesiņu maizes!"</p>
+
+<p align="JUSTIFY">Divi gudrie nogriezuši tādu šķēlīti, bet muļķītis labu
+nuciņu. Nu likušies visi četri pie miera. Bet no rīta pamožoties, vecīša vairs
+nebijis.</p>
+
+<p align="JUSTIFY">Trešā vakarā dēli atkal ēduši. Vecītis atkal ielīdis
+lūgdamies: "Dēli mīļie, dodiet man naktsmāju un kādu tiesiņu maizes!"</p>
+
+<p align="JUSTIFY">Bet dēli teikuši: "Dosim gan naktsmāju, tik tas mums netīk, ka
+tevi nevienu rītu vairs neatrodam gultā."</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Lai, lai, dēli, nu redzēs, vai citurīt mani
+  neatradīsit."</p>
+</blockquote>
+
+<p align="JUSTIFY">Divi gudrie tūlīt nogriezuši tādu šķēlīti, bet muļķītis labu
+nuciņu. Pēc tad devušies pie miera un no rīta vecītis bijis gan vēl gultā. Viņš
+izcēlies un tad sacījis uz muļķīti: "Ej dēliņ, atnes no viņa avotiņa
+ūdeni!"</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Ja, tētiņ, man nav neviena nesamā," muļķītis atteicis.
+  "Ej tik vien, ej, pie avotiņa būs trauciņš!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Muļķītis aizgājis pēc ūdens. Bet kamēr pārnācis, ūdens bijis
+palicis par vīnu. Nu dzēruši vīnu gardi jo gardi un paturējuši varenu brokastu. Pēc
+brokasta vecītis prasīja vienam brālim : "Dēls, vai gribi debesīs tikt?"</p>
+
+<blockquote>
+  <p align="JUSTIFY">Gribu!" "</p>
+  <blockquote>
+    <p align="JUSTIFY">Tad prasījis otram brālim: "Dēls, vai gribi debesīs
+    tikt?" Grību!"</p>
+  </blockquote>
+  <p align="JUSTIFY">" Beidzot prasījis muļķītim: "Dēls, vai gribi debesīs
+  tikt?" "Negribu!" muļķītis pasmējies.</p>
+</blockquote>
+
+<p align="JUSTIFY">Vecītim palicis žēl, ka muļķītis nevēlējies debesīs tikt.
+Viņš domājis: "Muļķītim tik laba sirds un tāds lai nenāktu. debesīs. Tas
+neiet, raudzīšu viņu iedabūt:"</p>
+
+<p align="JUSTIFY">Vecītis teicis uz muļķīti: "Klausies, dēls, še tev šī
+kulīte; ja tev pasaulē domā kāds pāri darīt, tad tik saki: "Lien šinī
+kulītē.'." Un nu nākat visi trīs man līdz. Es jūs izvedīšu no šā meža un
+palaidīšu katru uz savu pusi."</p>
+
+<p align="JUSTIFY">Tā noticis. Muļķītis nu aizgājis ar savu kulīti uz kādu pili.
+Tanī pilī vienā istabā arvienu ļaudis mocīti. Pils kungs apsolījis tam savu meitu
+dot, kas apņemtos no nelāgās ista&amp;127;bas mocītāju izdzīt. Muļķītis, pilī
+ieiedams, prasījis darbu; pilskungs ieteicies, vai nevarot no moku istabas nebēdnieku
+izdzīt, tad dabūšot viņa meitu par sievu. Muļķītis tūlīt gatavs, lai tik laižot
+iekšā.</p>
+
+<p align="JUSTIFY">Labi. Līdz pusnaktij bijis miers istabā; bet pēc pusnakts ienācis
+velns ar izplēstām rokām un gribējis muļķīti sagrābt. Muļķītīs iesaucies:
+"Lien šinī kulītē!" un tā velnam acumirklī, gribot negribot, bijis jālien
+kulītē. No rīta kungs mazuliet pavēris durvis, saukdams: "Muļķīti, vai tu vēl
+esi dzīvs?"</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Esmu gan!"</p>
+  <p align="JUSTIFY">Vai tad neviens tevi nemocīja?'` "</p>
+</blockquote>
+
+<p align="JUSTIFY">"Gribēja gan mocīt, bet es neģēli iebāzu kulītē un piesēju
+to pie gultas kājas."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Kas tad tas tāds bija?" "</p>
+</blockquote>
+
+<p align="JUSTIFY">"Velns bija. Bet nu viņš manos nagos. Dod tik nu zirgus šurp,
+nolikšu kulīti uz tilta un tad braukšu tikmēr pāri, kamēr velns būs samīts."</p>
+
+<p align="JUSTIFY">Muļķītis pārbraucis kulītei reiz pāri, velns jau lūdzies.
+Pārbraucis otrreiz -- velns jau smilkstējis. Pārtraucis trešo reizi -velns saucis, lai
+prasot, ko gribot no viņa, tūliņ visu apsolīšoties, bet lai tik vairs nebraucot pāri<b>
+</b>un lai laižot ārā.</p>
+
+<p align="JUSTIFY">"Labi!" muļķītis teicis, ,,bet tad tev jāapsolās
+pasaulē nekad vairs cilvēkus nemocīt un vēl saviem bērniem pateikt, ka tie arī tos
+nemocītu."</p>
+
+<p align="JUSTIFY">Velns apsolījies. Nu muļķītis izlaidis velnu pusdzīvu. Kungs
+atdevis muļķītim savu meitu un darinājis brašas kāzas.</p>
+
+<p align="JUSTIFY">Muļķītis dzīvojis pilī ar savu sievu ilgus gadus laimīgi jo
+laimīgi. Bet reiz tas vārīgi saslimis un labi paredzējis, ka būs jāliek kaŗote pie
+malas. Viņš lūdzis savu sievu: "Ja es nomirstu, tad uzmauc man veco kulīti kaklā
+un aproc ar visu kulīti."</p>
+
+<p align="JUSTIFY">Muļķītis nomiris un sieva tā izdarījusi. Pēc miršanas
+muļķītis nogājis ar kulīti pie debess vārtiem un gribējis iekšā tikt, bet vārtu
+sargi atraidījuši sacīdami: "Tu reizi teici, ka negribot debesīs nākt - nevaram
+tevi iekšā laist. Ej pie velna, varbūt, ka tur tevi pieņems."</p>
+
+<p align="JUSTIFY">Muļķītis aizgājis pie velna. Bet līdz ko velni ieraudzījuši
+muļķīti ar kuli kaklā, tie saukuši: "Ej projām, negribam tevi! Vai nāci atkal
+mūs mocīt -- tāpat kā toreiz mūsu tēvu?"</p>
+
+<p align="JUSTIFY">Neko darīt, muļķītis gājis atpakaļ pie debes5 vārtiem un saucis
+un bļāvis, lai laižot iekšā.</p>
+
+<p align="JUSTIFY">Te iznācis tas pats vecītis, kas toreiz kulīti iedevis, un ievedis
+muļķīti iekšā. Iekšpusē vecais vīriņš pārvērties par Dievu un rādījis
+muļķītim, kur viņa abi brāļi jau sēž.</p>
+
+
+</body></html>

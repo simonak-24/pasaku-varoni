@@ -1,0 +1,159 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Velns zārkā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">4. Embūtē, A.<b> </b>Bīlenšteina kr. LP, VI, 4, 19.</p>
+
+<p align="JUSTIFY">Kāds vīrs visu mūžu bija dzīvojis bezdievīgi vien. Viņam bija
+dēls un tas pamazām sāka arī tēvam pakal trakot.</p>
+
+<p align="JUSTIFY">Te vienu dienu dēls laukā ara. Tā pienāk vecs, vecs vīriņš un
+saka: "Vai tu gribi tāpat dzīvot, kā tavs tēvs dzīvojis? Ja esi tā nodomājis,
+tad ej mājā un skaties kādā nāvē tavs tēvs mirst!"</p>
+
+<blockquote>
+  <p align="JUSTIFY">Dēls vaicā: "Kā to varēšot redzēt?"</p>
+</blockquote>
+
+<p align="JUSTIFY">"varēsi gan! Nomauc tam zirgam to silksni no kakla, paņem līdz,
+uzkāp istabas augšā, izurb ar svārostu griestiem caurumu, bet tiešām uz tēva guļas
+vietas - tad uzliec tur silksni un skaties pa caurumu, gan tad redzēsi, kā tavs tēvs
+mirst, un kā dienās arī tu mirsi, ja labāk nesāksi dzīvot."</p>
+
+<p align="JUSTIFY">Labi. Dēls darīja, kā vecais bija licis. Un līdz to silksni bija
+nolicis, ieraudzīja - trīs briesmīgi velni stāv pie tēva guļas ar izspīrētiem
+nagiem, it kā ko gaidīdami. Sagaidīja arī - tēva dvēseli sagaidīja. Bet līdz arī
+dvēsele izšāvās pa muti, tā viens velns pakampa dvēseli - aizskrēja, otrs pakampa
+miesas - aizskrēja; bet trešais iegulās tēva vietā un pārvērtās gluži tai pašā
+izskatā kā tēvs.</p>
+
+<p align="JUSTIFY">Dēls, to visu redzēdams, trīcēdams nokāpa no istabas augšas un
+izsamisis aizgāja uz lauku. Bet vecītis atkal bija priekšā: nu lai pastāstot, ko esot
+redzējis.</p>
+
+<p align="JUSTIFY">Dēls izteic tā un tā, un gaužas par to, ka nu velns glabājams
+tēva vietā.</p>
+
+<p align="JUSTIFY">Vecītis saka: "Nesaki nekā! Tu viņu viegli izdzīsi no zārka.
+Bēŗu dienā, kad taisāties uz kapiem vest, uzvāri labu katlu vāroša ūdens, uznes
+istabas augšā un lej pa to pašu caurumu, kur šodien skatījies, taisni zārkā,
+gulētājam virsū, tad tu redzēsi, kur viņš paliks. Tikai sargāties, ka neviens tai
+brīdī nestāvētu durvīs, viņam pretim. Vislabāki durvis atveriet līdz galam vaļā,
+ka viņš karstumā neiziet ar visām durvim ārā."</p>
+
+<p align="JUSTIFY">Dēls tā izdarīja un patiesi izdzina velnu no zārka, paglabāja
+tukšu zārku.</p>
+
+<p align="JUSTIFY">Un no tās dienas viņš palika pavisam citāds cilvēks. Ne nu vairs
+ar kaimiņiem plūcās, ne rājās, pat saviem māju ļaudim cieši aizliedza ir mazāko
+ienaidu.</p>
+
+
+</body></html>

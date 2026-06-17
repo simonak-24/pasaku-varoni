@@ -1,0 +1,136 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>27</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Labie brāļi.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>27. </b>A. 303. D. Ozoliņš Jaun-Rozē, Brīvzemnieka kr. LP, VII. II,
+20, I, 8.</p>
+
+<p align="JUSTIFY">Divi dēli reiz aizgājuši pasaulē, katrs ar savu lāci, vilku, suni,
+putniņu un dūci. Dūčus iedūruši ozolā.</p>
+
+<p align="JUSTIFY">Vēlāk, kad pirmais brālis ķēniņa meitu izglābis no velna, tad
+tas aiz noguruma apgulies turpat. Pa to 1aiku ķēniņa sulainis nokāvis aizmigušo
+glābēju un pārvedis izglābto mājā melodams, ka šis izglābis, lai dodot šim par
+sievu. Bet vēl nebijušas kāzas dzertas, te putniņš pārnesis dzīvības ūdeni un ar
+zvēriem atdzīvinājis nokauto.</p>
+
+<p align="JUSTIFY">[Īstais glābējs nu tiek atzīts un neīstais nosodīts. Glābējs nu
+apprecē ķēniņa meitu. Pēc kāzām viņš aiziet ar saviem zvēriem medībās,
+nomaldās dziļā mežā, uzkuŗ tur uguni un sāk sildīties.] Turpat līdzās kādā
+kokā sēdējusi sieva un lūgusi, lai &amp;127;aujot viņai nokāpt un sasildīties pie
+viņa uguns kura. [Jaunais ķēniņš arī atļauj. Tad sieva aiztiek ar kociņu viņa
+zvēriem un viņam, pēc kam visi pārvēršas par akmeņiem].</p>
+
+<p align="JUSTIFY">[Otrs brālis nu apskata ozolā iedurtos dūčus un redz, ka pirmā
+brāļa dūcis pavisam sarūsējis. Viņš steidzas ar saviem zvēriem brālim palīgā.
+Ragana tiek nogalināta, un par akmeni pārvērstais brālis tiek atkal par cilvēku.
+Izglābtais brālis tomēr nokauj aiz greizsirdības savu brāli, bet aiz žēluma
+atdzīvina viņu atkal. Nu abi dzīvo saticīgi un laimīgi].</p>
+
+
+</body></html>

@@ -1,0 +1,179 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>58</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Muļķis par precinieku.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>1. </strong>A. 1685. K. Šulcs Zasulaukā. LP, VI, 345, 82. M.
+Bohm, Lettische Schwānke, 52, 32.</p>
+
+<p align="JUSTIFY">Vienai mātei bija vienīgs dēls, smuks zēns; bet par nelaimi liels
+muļķis.</p>
+
+<p align="JUSTIFY">Tomēr - ko darīsi - izaudzis šis ir, sāks māte skubināt, lai
+brauc precībās. Jā, tūliņ dēls mierā. Aizbrauc - sāks cienāt šo ar novārītiem
+vistu pautiem. Labi, zēns tādus gardumus ilgi nav baudījis un nu tikai rij pautu uz
+kumosa, pautu uz kumosa kā gatavs badakāsis.</p>
+
+<p align="JUSTIFY">Pārbrauc mājā - māte apvaicājas: "Dēliņ, kāda cieņa tev
+tur šodien bija?"</p>
+
+<p align="JUSTIFY">"Laba cieņa, laba cieņa: deva pautus vien ēst." "Nu
+tad, laikam, saēdies gan labi?"</p>
+
+<p align="JUSTIFY">"Saēdos! kas tur daudz ko ēst; tā jau tikai iznāca: pauts uz
+kumosa, pauts uz &amp;127;kumosa."</p>
+
+<p align="JUSTIFY">"Vai dēliņ! kā nu ciemā var tik badīgi ēst, vajadzēja taču
+pautu uz trim, četrām daļiņām griezt, tas tā pieklājīgāki."</p>
+
+<p>Tā paiet šī reiza.</p>
+
+<p align="JUSTIFY">Nav diezin cik ilgi, dēls atkal ceļā uz brūtes. Pienāk ēdams
+laiks, cels šoreiz sausus zirņus priekšā. Labi. Bet dēls skaidri atmin, ko todien
+māte teikusi: ciemā jaēd pamazām - uz trim, četrām daļiņām pārgriežot. Un tā
+neko vairāk - ņem nazi no kabatas ārā un griež katru zirnīti tā pa vidu un atkal
+tā pa vidu. Mājinieki izbrīnas, kas tas par vāczemnieku, kas ne zirņus neprot ēst?
+Bet dēlam vis viena maksa - viņš tur izšņakstinās, izšņakstinās un tad, ēdis
+neēdis, griež zirgu apkārt un laiž mājā. Pārbrauc, māte tūliņ: "Nu,
+dēliņ, kāda cieņa tev šodien bija?"</p>
+
+<p align="JUSTIFY">"Sausi zirņi bija; bet lai Dievs pasarga, tos ēzdams vari palikt
+neēdis, jo kas tas par lielu laiku aizņemas, kamēr tādus sīkumus sagraiza vien, kur
+tad nu vēl paēst."</p>
+
+<p align="JUSTIFY">"Ai, dēliņ, kas tu par vientiesi! Tu ej ciemā zirņus ar nazi
+graizīt, tie jau saujām mutē metami!"</p>
+
+<p>Tā paiet atkal šī reiza.</p>
+
+<p>Nav diezin cik ilgi, dēls trešreiz ceļā uz brūtes mājām. Aizbrauc, pienāk
+ēdams laiks -- cels šoreiz biezputras podu priekšā.</p>
+
+<p align="JUSTIFY">Ā ! dēls atminas, ko māte teikusi : tad ciemā ar sauju jāēd.
+Labi. Un nu šis tikai ķeš biezputru saujā un met mutē kā mūrnieks mālus. Bet
+brūtes tēvs ilgāki nekautrējas: pačukst šim, lai braucot labāk mājā biezputru
+ēst un teitan acis vairs nerādot. Labi, dēls brauc arī - kad jau nevēl, nevēl.</p>
+
+<p>Pārbrauc : māte tūliņ : "Kā tik ātri atpakaļ ?"</p>
+
+<p align="JUSTIFY">"Ā! cik tad ilgi atkal biezputra jāēd: iemet vienu sauju, otru,
+trešu - paēdis."</p>
+
+<p align="JUSTIFY">"Vai, dēliņ!" māte novaidas, "tu ēd biezputru ar
+sauju un kaŗoti neaiztiec. Tad jau tu savu mūžu neapprecēsies."</p>
+
+<p align="JUSTIFY">Un mātei bija taisnība: dēls patiesi neapprecējās - cauru mūžu
+notupēja aizkrāsnī viens pats kā tāds atstātais nabadziņš.<font size="4"> </font></p><font size="4">
+</font>
+
+<p align="JUSTIFY">Piezīme. Šo pašu pasaku ir uzrakstījusi A.<b> </b>Vējiņa no
+Lābāna Ergļu</p>
+
+<p>pagastā. P. Birkerts, Latvju t. anekdotes, I, 149, 338. P.<b> </b>Š.</p>
+
+
+</body></html>

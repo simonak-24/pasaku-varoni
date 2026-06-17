@@ -1,0 +1,140 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Puika pārnes velna dārgumus. </p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 328. Kanaviņš Gulbenē, Zin. Kom, kr. LP, VII, II, 25, 3, 7</p>
+
+<p align="JUSTIFY">"Vairāk brāļu izgājuši kopā ceļot un pie velna mātes
+iegriezušies par nakti palikt, kur tad tikuši guldināti pie velna meitām. Bet
+muļķītis paņēmis jaunāko meitu un aizjājis ar brāļiem pie laika projām. Velna
+māte uzsēdusies uz piestas un saukusi: Bucate! bucate!" </p>
+
+<p align="JUSTIFY">Piesta pacēlusies gaisā un šī muļķim pakaļ. Tad jaunākā velna
+mātes meita iedevusi muļķītim drāniņu. kad to pavēcinājis, tad zirgam aiz astes
+izcēlusies uguns upe, velna māte netikusi pāri. Muļķītis pārmucis ar velna meitu
+mājā un apprecējis to. </p>
+
+<p align="JUSTIFY">Bet pie velna mātes viņiem aizmirsies sunītis Viszinātājs. Šim
+sunītim muļķītis vēl gājis aka un gudrībā nozadzis to. Pēc gada muļķīša
+sievai piedzimis bērniņš. Sunītis Viszinātājs teicis: "Tiklīdz bērniņš
+rādīsies laukā, atlaidīsies zaļš putniņš, paņemdams bērniņa dvēseli. Tādēļ
+zaļais putniņš - tā būs pati velna māte -notveŗams gudrībā; ādas tarbiņā
+ieliekams un cepļa krāsns priekšā karsināms. Cepli vajaga nokurināt ar paegļa,
+pabērža un sēr mūkšļa malku. </p>
+
+<p align="JUSTIFY">Ādas tarbiņā atkal sabāžami ērkšķi, dadži, utis, putniņam par
+ligzdu, un putniņu krāsns priekšā karsējot, vēl jāsakot: "Kur lec, tur duŗ,
+kur lec, tur ķirpes vien jāēd!" tad velna māte pazudīšot un bērniņa dvēseli
+nedabūšot.</p>
+
+<p align="JUSTIFY">Tā arī noticis.</p>
+
+
+</body></html>

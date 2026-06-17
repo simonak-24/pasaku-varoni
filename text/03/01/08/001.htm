@@ -1,0 +1,172 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Maģiskā bēgšana ar meitenes palīdzību. </title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+
+<p align="center"><big><strong><big>Maģiskā bēgšana ar meitenes palīdzību. </big></strong></big></p>
+
+<p>1. A,313,A. Māturu Atis Grāvendālē. LP,VI,119, 4. AS, III. 4.g. </p>
+
+<p>Kāds saimnieks braucis no pilsētas mājās un gribējis dikti dzert. Ceļmalā bijusi
+aka - gājis dzert; bet dzerot iekritusi cepure. Palicis bēdīgs, kā lai bez cepures
+pārbraucot mājā? Te izlīdis melns jaunskungs un teicis, lai atdodot to, kas viņam
+pirmais skriešot pretim, tad gādāšot dabūt cepuri. Saimnieks domājis: kas gan cits
+kā suns skriešot pretim, un apsolījis. Tad dabūjis cepuri, braucis uz mājām. Vēl
+nebijis piebraucis pie vārtiem, kad jau viņa mazā meitene skrējusi pretim. Nu bijis
+bēdīgs, ka jāatdod meitene, bet neko darīt. Otrā dienā bijis jāved pie akas un
+jāsviež iekšā. Meitene izkritusi ūdenim cauri - tur bijis liels klajums un klajumā
+pils; tā pils piederējusi velna kungam, kas tēvam todien cepuri bija atdevis. Velns tad
+ievedis meiteni pilī un licis vārīt pusdienai biezo putru. Un tur bijis iemūrēts
+aplam liels katls; tanī ielējusi seši spaiņi ūdens un izvārījusi biezo putru. Bet
+velns, kad atnācis pusdienā, vēl bāries, ka maz izvārīts, lai citā reizē vārot
+pilnu katlu! Otru dienu vārījusi pilnu katlu. Un cita darba meitenei arī nebijis, ka
+jāvāra ēst un velnam jāieskā galva. Daždien bijusi viena galva, daždien vairāk.
+Bet meitenei mājā vēl palicis brālis. Tas arvienu taujājis: "Kur māsa palikusi,
+kur māsa palikusi?" Bet tēvs nekad nav teicis; tomēr vienreiz dabūjis taču
+zināt, kur māsa palikusi, un tūliņ taisījies meklēt. Nonācis pie akas, velns
+izlīdis pretim. Brālis vaicājis, vai viņam nevajagot kalpa? Kā tad ne?" un
+tūliņ salīdzis. Bet nu brālis baidījies lēkt akā; velns drošinājis, lai tikai
+lecot, nekas jau ļauns nenotikšot. Labi, lēcis. Nu velns aizvedis brāli uz pili un
+licis vienu teļu ganīt. Māsa izgājusi ārā un teikusi, ka viņš nenoganīšot teļu,
+tas esot velns. Nu šis palicis bēdīgs: bet māsa iedrošinājusi, lai nebēdājoties un
+iedevusi sarkanu zīda diegu, lai to teļam gar kaklu apsienot - neiešot nekur. Labi.
+Apsējis - noganījis gan teļu. Vakarā velns prasījis: "Vai varēji noganīt
+teļu?" Atteicis: "Ūja! vienu teļu nenoganīt!" Otrā dienā devis citu
+darbu, vienu zirgu tā apkopt, ka arvienu paēdis, arvienu pilnas redeles. Māsa
+prasījusi: kas nu viņam par darbu? Atteicis, viens zirgs jākopjot. Šī sacījusi:
+"Tu viņu nepieēdināsi - tas ir velns; bet paņem koku, aizej uz stalli un drāz
+iesmu. Tad zirgs vaicās: "Ko tu dari?" Atteic: "Ja daudz ēdīsi, tad to
+mutē iespraudīšu!" Viņš aizgājis un visu tā izdarījis. Zirgs lūdzies, lai
+nedurot iesmu, nemaz neēdīšot. Pielicis pilnas redeles ar sienu un tā tās
+stāvējušas visu dienu. Vakarā velns prasījis: "Vai varēji apkopt zirgu?"
+Atbildējis: "Kāpēc gan nevarēšu?" Velns nobrīnējies, diezin, vai tik
+neesot sarunājies ar māsu? Ja to dabūšot zināt, tad abus nokaušot. Trešā dienā
+velns teicis, lai apsējot atmatu, izaudzinot, nopļaujot, samaļot un izgatavojot no
+graudiem viņam dzērienu! Nu zēns bēdājies, ka to neizdarīšot; bet māsa
+drošinājusi: "Nenoskumsti!" Un velnam bijusi sudraba taurīte; kad to
+taurējis, sanākuši visi viņa kalpi un prasījuši, ko pavēlot? Māsa nu iedevusi to
+taurīti brālim. Viņš aizgājis uz atmatu un taurējis. Tūliņ visi kalpi klāt,
+sacīdami: "Kungs, ķēniņ, ko pavēlat?" Teicis, lai viņi uzarot, noecējot,
+apsējot to lauku un izaudzējot graudus! Visi tūliņ ķērušies pie darba: viens aris,
+otrs ecējis, trešais sējis, cits audzinājis, cits pļāvis, cits malis. Beidzot viņš
+pats izspiedis sulu un nesis velnam dzērienu. Velns prasot, kā to esot izdarījis?
+Citādi neesot, ka gan ar māsu sarunājies, tādēļ nokaušot! Bet velns vēl aizgājis
+gulēt. Nu māsa teikusi, ka jābēgot. Un velnam bijusi gudrības grāmata; ja to
+izmācījušies no galvas, tad varējuši palikt par ko tikai vien gribējuši. Māsa arī
+izmācījusies un tad bēgusi. Bet kad velns atmodies, tūdaļ sasaucis visus savus kalpus
+un licis dzīties pakaļ. Bēgļi tomēr laikā pamanījuši, ka dzenas pakaļ, un tad
+māsa palikusi par zelta zivtiņu, brālis par mazu strautiņu. Velna kalpi aizskrējuši,
+nevarējuši viņus dabūt un gājuši tukšā atpakaļ. Velns prasījis, kāpēc neesot
+noķēruši? Atteikuši, ka nevarējuši dabūt. Velns jautājis: "Vai tad ceļā
+nekā neredzējāt?" Atbildējuši, ka pamanījuši strautiņu un mazu zivtiņu
+tanī. Velns iebrēcies dusmīgi, kādēļ neesot izsmēluši strautiņu un zivtiņu
+noķēruši, jo tie abi viņi bijuši? Un nu sūtījis, lai dzenoties atkal pakaļ! Bet
+šie abi, pamanīdami, ka dzenas atkal pakaļ, arī rīkojušies: brālis palicis par
+ābelīti, māsa par putniņu tanī. Kalpi atskrējuši, nepazinuši atkal viņus,
+gājuši otrreiz mājās. Nu velns, palicis loti dusmīgs, sasaucis visus kalpus un tad
+arī pats dzinies līdz. Bet par to laiku brālis ar māsu jau bijuši mājās un
+uzvilkuši ar krītu krustu uz durvim. Velni nevarējuši ietikt istabā, visi gājuši
+atpakaļ uz velna pili tukšām rokām. </p>
+
+
+</body></html>

@@ -1,0 +1,163 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>26</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Burvis zārkā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">26. Jaunzemju Berta Alūksnē, Zin. Kom. kr. LP, VI, 11, 13. </p>
+
+<p align="JUSTIFY">Sen senos laikos dzīvojis greznā pilī bagāts muižas kungs.</p>
+
+<p align="JUSTIFY">Viņš bijis neprecējies vientulis un vismīļāki uzturējies savā
+rakstāmā istabā. Un šī pati istaba arvienu bijusi dikti silta - īpaši ziemu vēl;
+citas pils istabas nekad nebijušas tik siltas. Apakšnieki, kad vajadzējis ar kungu ko
+runāt, drīkstējuši siltajā rakstāmā istabā katru brīdi ienākt; tikai ap pašām
+pusdienām un pusnaktim cieši bijis aizliegts tur kāju spert.</p>
+
+<p align="JUSTIFY">Bet vienu dienu stārasts - vai nu piemirsis, vai citādi kā laiku
+pārskatījies - nejauši ienācis siltajā rakstāmā istabā ap pašām pusdienām un
+sācis stāstīt savas vajadzības.</p>
+
+<p align="JUSTIFY">Kungs stārastu brīnum bijis iemīlējis un katrreiz ar viņu laipni
+vien sarunājies; bet šoreiz bargi, dusmīgi raudzījies uz stārastu un nikniem skatiem
+sarunājies ar nejauku, sarkanu kaķi, kas tupējis krāsns augšā. Stārasts, nevienas
+atbildes nesagaidījis, aizsteidzies ļaužu istabā un stāstījis citiem ko piedzīvojis
+No tās dienas visi sargājušies aizliegtajā laikā kungu traucēt.</p>
+
+<p align="JUSTIFY">Bet vienreiz kungs piepēži tik dikti saslimis, ka galu tikai
+paredzējis; tādēļ noteicis savam stārastam pie laika: ja viņš mirtu, lai tad
+lieliskām bēres sarīkojot. Visiem muižas ļaudim jātērpjoties jaunās drēbēs, un
+taupīt nevajagot itin nekā.</p>
+
+<p align="JUSTIFY">Un tā nu kungs nomiris. Kā nomiris, tūlin stārasts sparīgi
+rīkojis lepnās bēres; pat jaunas, skaistas jo skaistas kamanas licis uz bērēm
+steigšus sasteigt: tikai par nelaimi ziemas laikā jaunajām kamanām apmālējums tik
+ātri nežuvis. Neko darīt - sasteigt vajaga - licis kamanas nelaiķa kunga siltajā
+rakstāmā istabā ievilkt, tur žūšot ātrāki. Labi, ievilkuši. Bet otrā rītā
+ieies kamanas raudzīt - atron drupatas un skaidas vien.</p>
+
+<p align="JUSTIFY">Kas kamanas saēdis, kas ne, to nevarējuši izprātot. Nu, tas nu ar
+kamanām. Bet tai pašā bēŗu reizā tur arī skroderis strādājis. Visiem bērēs
+vajaga jaunu drēbju, kā tad nestrādās? Un tas, pavecīgs vīrs, lūdzies stārastam
+siltāku istabu. Stārasts ielaidis siltajā rakstāmā istabā: Zināms, to arī teicis
+gan skroderim, kas ar kamanām tai naktī noticis; bet skroderis atsacījis: "Man nav
+bail!" un gājis tomēr tur strādāt, kad tikai silts.</p>
+
+<p align="JUSTIFY">Strādājis, strādājis - te uz reizi ieraudzījis krāsns augšā
+sarkano kali it nejaukām acim uz viņu raugāmies. Nu skroderis pāršalcis gan, bet vēl
+neko. Tomēr piepēži kaķis audzis lielāks un lielāks. tad velšus novēlies no
+krāsns un spiedies šim vienmēr vairāk virsū Tagad skroderis izmucis pa logu un
+ieskrējis pie stāŗasta Rītā gājuši raudzīt, kas rakstāmā istabā noticis
+atraduši šujamās drēbes smalkās skrandiņās pa istabu izkaisītas.</p>
+
+<p align="JUSTIFY">Pienākusi bēŗu diena. Bet kā atbraucis mācītājs, kā taisījis
+zārku vaļā - atraduši zārkā mirēja kunga vietā tikai apdegušu bluķi Neko darīt
+- mācītājs apsvētījis un aizveduši to pašu bluķi uz kapiem.</p>
+
+
+</body></html>

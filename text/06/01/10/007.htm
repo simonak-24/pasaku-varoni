@@ -1,0 +1,166 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pieci savādie stiprinieki.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">7. A. 513 A. Māturu Atis Grāvendālē. LP, VI, 643 (122, 7). </p>
+
+<p align="JUSTIFY">Vienam tēvam bijis dikti stiprs dēls, Mežavičus vārdā. Kādreiz
+Mežavičus gājis pa mežu un saticis vienu, kas izrāvis bērzu ar visām saknēm.
+Piegājis klāt, padevis labdienu un teicis, lai bērzu rāvējs ejot līdz. Gājis. Nu
+abi nogājuši pie kurvju pinēja, kas nopinis 100 kurvjus vienā stundā. Mežavičus
+teicis, lai ejot līdz. Gājis. Tad visi trīs gājuši un satikuši vēja vīru; tam
+bijis garš deguns un, kad vienu deguna caurumu aizbāzis ar salmu kūliņu, tad jau bijis
+liels vējš; bet kad salmus izvilcis - kad abas nāsis bijušas vaļā - tad bijusi tāda
+auka, kas lauzusi kokus no saknēm ārā. Mežavičus teicis, lai vēja vīrs arī ejot
+līdz. Gājis. Pēc tam satikuši sala vīru. Kad šis drusciņ pavilcis cepuri, tad salis
+brangi; bet ja parāvis uz vienu ausi, tad salis tā, ka zeme sasprēgājusi. Tas arī
+gājis līdz.</p>
+
+<p align="JUSTIFY">Tad viņi satikuši lielu tecētāju; tas turējis vienu kāju uz
+augšu un jau varējis 100 jūdzes stundā noskriet. Tas arī gājis līdz. Nu viņi visi
+gājuši, gājuši - izgājuši mežam cauri un ieraudzījuši ķēniņa pili. Iegājuši
+iekšā, turienes ķēniņam bijusi viena meita, liela tecētāja: neviens nevarējis
+viņu noskriet. Ķēniņš teicis: kas viņa meitu izskriešot, tam dodot to par sievu un
+pusvalsti; jāskrienot līdz tam un tam avotam, un kuŗš pirmais iesmelšot avotā ūdeni
+un būšot atpakaļ pilī, tas uzvarējis.</p>
+
+<p align="JUSTIFY">Paņēmuši krūzes un skrējuši. Tecētājs aizskrējis pirmais,
+iesmēlis ūdeni un jau bijis pusceļā uz pili - ķēniņa meita tikai tad vēl skrējusi
+uz avotu.</p>
+
+<p align="JUSTIFY">Ķēniņš tomēr negribējis vairs meitu Mežavičum dot, teicis: vai
+nebūšot mierā, kad uzcelšot pili, kur dzīvot un, kad došot visu, ko tikai vajaga?</p>
+
+<p align="JUSTIFY">Mežavičus un viņa biedri domājuši, domājuši - salīguši arī.
+Tā nu dzīvojuši kādu laiku pilī, te ķēniņam palicis žēl, ka šie tik daudz
+jābaŗo, un gudrojis kādā vīzē dabūt no kakla. Gudrojis, gudrojis - sagudrojis vienu
+nakti pili apkraut ar malku un aizdedzināt.</p>
+
+<p align="JUSTIFY">Bet salas vīrs savilcis. cepuri uz vienu ausi un nu bijis tik auksts
+laiks, lai Dievs pasarga. Pils gan nodegusi, bet šie aukstumā palikuši dzīvi.</p>
+
+<p align="JUSTIFY">Nu ķēniņš apsolījis tik daudz naudas, cik viens no viņiem varot
+panest, un tad lai nekad vairs nenākot viņa valstī.</p>
+
+<p align="JUSTIFY">Labi. Mežavičus licis pašūt lielu, lielu ādas maisu, aizgājis pie
+ķēniņa un sakot, lai nu beŗot naudu. Aizgājuši uz mantas kambari un nu beŗot; jau
+visa nauda sabērta - maiss vēl ne pusē. Tad ķēniņš aizņēmies vēl naudas no
+citurienes ķēniņiem un nu piebēruši maisu gandrīz jau pilnu. Bet Mežavičus teicis,
+ka neesot ko nest, tomēr diezgan būšot.</p>
+
+<p align="JUSTIFY">Nu viņi gājuši projām. Bet ķēniņš, salasījis kaŗa spēku,
+dzinies pakaļ, gribējis atņemt naudu. Tad vēja vīrs izrāvis salmus no nāsim un
+aizpūtis visu kaŗa spēku projām.</p>
+
+<p align="JUSTIFY">Viņi nu nogājuši uz cita ķēniņa valsti, uzcēluši lielu pili un
+tur tad dzīvojuši.</p>
+
+
+</body></html>

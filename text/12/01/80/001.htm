@@ -1,0 +1,233 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>80</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Zemnieks par mācītāju.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>1.</strong><b> </b>A. 1825. A. V. Zacharska no 100 g. v. St.
+Šuša Rēzeknē. Latvju kultūras kr.</p>
+
+<p align="JUSTIFY">Senejūs laikūs tuoļi nu myusu, pus verstys da jyusu, vīns gons
+ganēja lūpus. Tys gons sataisēja sev stabuli un spēlēja vysaidus dančus. Vīnu reizi
+itys gons atdzyna lūpus pi upis, lūpi ēdja zuolīti a gons sādās pi upis molys un
+skaisti spēlēja uz sovys stabuleitis. Nu kurenis pazajāmīs -izlīn nu dziļuma valns
+un daīt pi gona vaicoj: "Kai tu vari tai skaisti spēlēt uz ituos stabuleitis? Es
+jau klausēju, klausēju upis dziļumā un navarēju izturēt, izguoju pazavārtūs."</p>
+
+<p align="JUSTIFY">Gons nicik namūsabeida, bet vēļ vairuok spēlej. Valns vaicoj nu
+gona: "lzvuicej mani spēlēt uz ituos stabuleitis, es tev par itū, kū gribeisi,
+tū padareišu."</p>
+
+<p align="JUSTIFY">"Labi!" pascēja gons, "es tevi izvuiceišu spēlēt uz
+ituos stabuleitis, bet tu mani par itū sataisi par bazneickungu, kab es vareitu vysaidus
+mišus turēt un vysaidus gruomotus skaitēt."</p>
+
+<p align="JUSTIFY">"Labi!" pascēja valns, "izvuic mani spēlēt, tod byut
+tev par bazneickungu."</p>
+
+<p align="JUSTIFY">Suoka gons tī pat pi upis molys uicēt valnu spēlēt uz stabuleitis.
+Valns ir saprateigs un par kaidu stundi laika jau muocēja vysu kū spēlēt, vysaidus
+dančus. Jis pajamja tū gona stabuleiti un, īdams prūjam, pascēja: "Byut tev par
+gudru bazneickungu!"</p>
+
+<p align="JUSTIFY">Nu reizis pēc valna vuordu gons palyka par bazneickungu un tyka
+bazneicā, natuoļi nu myusu, a pus verstys nu jyusu. Bazneickungs dzeivoj sev kai kungs
+un nikur nikuo nazyna, kaidys dīnys īt. Vīnu reizi itys bazneickungs ar sovu jaunuokuo
+bazneickungu struodoj uz teiruma, a verās, ka &amp;127;auds tai īt. Bazneickungs vaicoj
+nu jaunuakuo bazneickunga, kaida šūdin dīna, ka &amp;127;auds tai īt, moža kaida
+svātdīņa.</p>
+
+<p align="JUSTIFY">"Na, varbyut ļauds īt uz tierga, bet es lobuok
+pavaicuošu," pascēja jaunuokais bazneickun&amp;127;-s.</p>
+
+<p align="JUSTIFY">Daīt bazneickungs un vaicoj nu vīnys sīvītis, uz kureni jī tai
+skrīn. Sīvītja jam atbilda: "Gareigs tāvs, uz bazneicu, reit že svātdīņa,
+vosorys svātki."</p>
+
+<p align="JUSTIFY">Bazneickungs jaunuokais atīt pi vacuokuo bazneickunga, kurijis
+struoduoja uz teiruma un runoj: reit vosorys svātki. Tiuleņ jī pametja dorbu,
+nūskrēja uz bazneicu un atturēja vešporu. Reitā bazneickungs vacuokais tur mišu, bet
+taišņi uz pusis miša atskrīn valns ar sovu stabuleiti, daskrīn pi bazneickunga un
+runoj: "Zini kū? Es šudin spēlēju uz vīnu kuozu kadriļi un taišņi pīktū
+daļi aizmiersu. Tu man paruodi."</p>
+
+<p align="JUSTIFY">Bazneickungs atbildēja valnam: "Tagad man nav vaļas, vajag
+pabeigt miši, pēc miša es tev paruodeišu."</p>
+
+<p align="JUSTIFY">Valns gribēja tiuleņ, bet bazneickungs napaklausēja. Valns pascēja:
+"Labi, es jau namuoceišu spēlēt, bet tu ar nikuo nazynuosi."</p>
+
+<p align="JUSTIFY">Pasceidams itūs vuordus, valns nūskrēja uz kuozom kur jis
+saspēlēja, kai pats zynuoja. Kai valns nūskrēja, bazneickungs stuov pi oltora un nicik
+navar skaitēt tuos gromotys, pats nazyna, kū jam darēt. Tai jis cyluoja tū gruomotu un
+golu golā nūguoja uz zakristiji. Ļauds ar tai dūmuoja: varbyut šudin taids mišs tai
+nikuo nadūmuodami, nūguoja uz sātu. Atīt ūtra svātdīna, bazneickungs nazyna, kū
+darēt, kaidu evageliju skaitīt. Jis navar nivīna vuorda saprast, bet kū že jam
+darēt? Vajag kū nabejs laudim pascēt. Izīt bazneickungs pi oltora, paceļ&amp;127;
+augši lelu gruomotu, kur tur mišu, un vaicoj nu &amp;127;aužu: "Bārni muni, zynit
+itū<b> </b>gruomotu?"</p>
+
+<p align="JUSTIFY">Ļauds vīnā bolsā atbilda: "Nazynim vys, gareigs tāvs."
+"Ak, tai!" runoj bazneickungs, "jius nazynit itū gruomotu, tad kam jius
+eitja uz bazneicu? Tiuleņ eitja uz sātu!"</p>
+
+<p align="JUSTIFY">Ļauds nikuo vairuok napascēja, a poši sevī padūmuoja: varbyut
+bazneickungs jūs nūtrokuoja, izguoja nu pruota, bet kū darēt - vysi &amp;127;auds
+nūguoja uz sātu. Uz cytys svātdīņis otkon pībraucja un pīguoja uz bazneicu ļaužu,
+a bazneickungs vys nikuo nazyna. Vajag jam otkon īt uz mišu, jis pajam pi oltora tū
+lelū gruomodu, paceļ&amp;127; augši un vaicoj nu ļaužu: "Bārni muni, zynit jius<b>
+</b>itū gruomotu, vai na?"</p>
+
+<p>Ļauds vysi vīnā bolsā atbildēja. "Zinim, gareigs tāvs."</p>
+
+<p align="JUSTIFY">"Ak, tai, jius zinit, tod kuopēc jius eitja uz bazneicu? Tiuleņ
+skrīnit uz sātu!"</p>
+
+<p align="JUSTIFY">l,auds dūmoj: nu bazneickungs pavysam troks - jī vysi sazalasējās
+un padevja lyugumu veiskupam, ka pi jūs bazneickungs palyka troks, jū vajag puormeit.
+Cik tī dīnu puorguoja, atskrīn pi bazneickunga valns un runoj: "Nu kū? Paruodeisi
+tu man pīktū daļi kadriļa, vai ne? Tū reizi es nazynuoju, man beja lels kauns. Tu man
+paruodi tū pīktū da]i kadriļa, es tev ar paleidzeišu un tu paliksi tai pat par
+bazneickungu. Nikas tev nikuo napadareis."</p>
+
+<p align="JUSTIFY">Bazneickungs paruodēja valnam piktū daļi kadriļa, valns
+izvuicējās un īdams pascēja bazneickungam: "Kod atbrauks veiskups, tu nūlīc pi
+oltora vīnu garči zalta un div butelis sorkonuo vīna, vyss byus labi."</p>
+
+<p align="JUSTIFY">Bazneickungs vysu padora, kū jam pascēja valns, pajam kaidus grib,
+vysus rokstus skaita un vysu kū zyna. Atbrauc veiskups, pīzalasēja &amp;127;auds pylna
+bazneica. Izīt pi oltora veiskaps un tai pat bazneickungs. Verās veiskups, ka stuov
+garčs ar zaltu, suoka likt sev kārmvnā naudu un pīlyka pylnus kārmynus. Tod vaicoj nu
+&amp;127;auds: "Kū jius runuojit, ka bazneickungs troks? Jis labi tur mišu un vysu
+kū zyna." A bazneickungs runoj veiskupam, ka jū ļauds naklausa, nagrib īt uz
+bazneicu. Veiskups izdzēra tuo sorkornuo vīna un runoj ļaudim, kab jī uz cytys
+svātdīņis vysi sazalaseitūs bazneicā, jis pats tureis miši. Tai &amp;127;auds vysi
+nūguoja uz sātu. Veiskups ar bazneickungu labi izdzēra un kū veiskupam sēdēt? Jis
+laimeigi nūbraucja uz sovu sātu, palyka bazneicā tys pats bazneickungs.</p>
+
+<p align="JUSTIFY">Atīt svātdīņa, agri nu reita suoka braukt un īt nu vysu pušu
+&amp;127;auds uz bazneicu. Pīguoja laužu pylna bazneica, a bazneickungs vys gaida un tur
+jūs, kai vairuok pīzalaseitu. Ļaudim jau apnyka gaidēt, cyti jau ēst aizgribēja,
+golu golā sagaidēja. Jī dū'muoja ka mišu tureiz pats veiskups, bet izīt tys pats
+bazneickungs pi oltora un runoj: "Bārni muni, taisit lūgys un durovys cīti,
+skaiteisim puotorus treis nedēļis."</p>
+
+<p align="JUSTIFY">Ļaudis, itū izdzierdādami, vīns nu ūtra vaicoj: vai tu pajāmi nu
+sātys kū paēst? Tai ļauds dūmoj: jīm vaidzeis miert bodu. Vīns pi ūtra vysi
+&amp;127;auds nu bazneicvs uorā un uz sovu sātu. Nu tuos reizis nivīns nu zemnīku uz
+bazneicu īt nadūmoj, beistās, kab uz reizis treis nedēļis nalyugt Dīva. A tys
+bazneickungs vēl tagan dzeivoj un nikur nikuo nadora. Ļauds jam vairuok nikuo navar
+padarēt.</p>
+
+<p align="JUSTIFY">Piezīme. Pie šā numura variantiem pieder arī IV. sējuma 12.
+pasakas 13. variants. P. Š.</p>
+<font size="2">
+
+<p>&nbsp;</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,228 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Sēzam, atdaries !</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">5. A. 676. J. Dīcmanis, Pasaku vācelīte, 1891,
+21 (12). </font></p><font size="3">
+
+<p align="JUSTIFY">Reiz dzīvoja vecs vīriņš ar savu sieviņu, un viņiem nebija nekā
+ko ēst, nedz arī ko ģērbties, tikai ar žagaru lasīšanu viņi iztika, kurus vīrs
+ikdienas lasīja, veda pilsētā un pārdeva. Un tā viņi vilka savu dzīvību. Kad kādu
+grasīti par žagariem dabūja, tad vīrs tūliņ nopirka par šo naudu maizīti un vēl
+citu, kas pārtikai vajadzīgs. Drēbes viņi taisīja no meža sūnām, kuras viņa
+sieviņa savērpa, un tad no tām izauda audeklus.</p>
+
+<p align="JUSTIFY">Kādu dienu vecītis izgāja atkal mežā. Mežā staigādams, viņš
+uzgāja sūnu kalniņu, saka sūnas plūkt un maisā bāzt. Uz vienreiz vecītis izdzirda
+sev tuvumā pulksteņu skaņu un ratu rībēšanu. Gribēdams redzēt, kas tie par tādiem
+kungiem, viņš nolika savu sūnu maisu aiz kāda kupla krūma un pats uzkāpa kuplā
+kokā. Pēc kāda maza laiciņa piebrauca pie kalniņa sveši kungi ar melniem ratiem un
+melniem zirgiem. Zirgi bija apkalti sudraba pakaviem. Šie kungi bija velni.</p>
+
+<p align="JUSTIFY">Viņi piebraukuši pie kalniņa, trīs reizes sauca:
+"Dziedzerkalniņ, atveries!" un kalniņš tūliņ atvērās un kungi iebrauca
+kalna iekšā. Kad kalnā bija iebraukuši, tad viņi atkal sauca: "Dziedzerkalniņ,
+aizveries!" un kalniņš arī tūliņ aizvērās. Kad nu viņi tur kalnā bija
+paēduši un padzēruši, viņi izbrauca un kalniņš aizvērās. Vecītis noskatījās
+viņiem pakaļ, cik vien viņa acis vēl varēja saredzēt. Kad nu viņš redzēja, ka
+minētie kungi bija projām, tad viņš tūliņ nogāja tanī pašā vietā, no kurienes
+kungi izbrauca, jo viņš bija cieti ievērojis to vietu un arī klausījies, ka kungi
+sauca.</p>
+
+<p>Viņš arī mēģināja trīs reizes saukt, un kalniņš atvērās. Vecītis nu iegāja
+kalnā. Tur gājis, viņš atrada lielu istabu un tanī istabā bija liels, garš galds -
+tas bija pielikts visādiem ēdieniem un dzērieniem. Viņš apskatījās tūliņ
+visapkārt istabā, bet neviena nemanījis, sēdās pie galda un krietni vien paēda un
+padzēra. Vecītis tādu labu ēdienu un dzērienu vēl sava mūžā nebija baudījis,
+tāpēc viņš arī ēda, cik vien varēja. Kad viņš nu bija paēdis un padzēris,
+viņš sāka apskatīt lielo istabu un atrada vēl vienu istabu. Šinī pēdējā istabā
+bija trīs lieli apcirkņi, pilni zelta naudas. Viņš izkratīja sūnas no maisa un tad
+maisu piebēra zelta dukātiem, paņēma maisu uz pleciem un sauca trīs reizes:
+"Dziedzerkalniņ, aizveries!"</p>
+
+<p align="JUSTIFY">Kalniņš aizvērās un viņš pārnesa naudas maisu mājās. Tad
+viņš tūliņ nosūtīja sieviņu pie sava brāļa un lika palūgt sieku. Viņa brālis
+dzīvoja netālu no vecīša būdas un bija bagāts saimnieks.</p>
+
+<p align="JUSTIFY">"Kur tu liksi sieku?" brālis brīnidmies prasīja, jo viņš
+abi zināja, ka viņa brālis bija pavisam nabags, un ka viņam nekā nebija, ko mērīt
+ar sieku. Vecīša sieva atteica, ka viņa nezinot, ko vecais mērīs. Saimnieks
+ielipināja sieka stūrī drusciņ piķa.</p>
+
+<p align="JUSTIFY">Vecene pārnesa sieku un viņi ņēma un izmērīja naudu. Iznāca
+pūrs un dvālekts. Kad nauda bija izmērīt, tad vecīte aiznesa sieku. Brālis,
+paņēmis savu sieku, ieraudzīja dibenā spožu zelta dukātu pie pika pielipušu. Viņš
+nu vecītei vairs nekā nesacīja un arī neprasīja. Tikko vecene bija pārnākusi, te
+brālis arī bija klāt un mīlīgi lūdza vecīti, lai viņam arī pateic, kur viņš
+dabūjis zelta naudu. Pa priekšu viņš gan negribēja teikt, bet kad nu brālis viņu
+lūdza, tad viņš arī izstāstīja: "Es to zelta naudu atradu mežā vienā kalnā.
+Ja tu gribi to vietu zināt, tad es tev viņu varu parādīt!"</p>
+
+<p align="JUSTIFY">Vecīša brālis tūliņ pārgāja mājā, iejūdza ratos divi zirgus
+un steigšus vien atbrauca pie brāļa atpakaļ. Nu vecītis piesēda visam klāt un abi
+aizbrauca uz mežu.</p>
+
+<p align="JUSTIFY">Pie kalna piebraukuši, viņi klausījās, vai kungu nav kalnā. Kad
+viņi nomanīja, ka to nav iekšā, tad saimnieks piebrauca ratus pie kalna un vecītis
+sauca trīs reizes: "Dziedzerkalniņ, atveries!" Kalniņš tūliņ atvērās un
+vecītis lika, lai brālis brauc iekšā.</p>
+
+<p align="JUSTIFY">Saimnieks arī iebrauca kalna un vecītis vēl pamācīja brāli,
+sacīdams: "Kad tu kalna iebrauc, tad saki: "Dziedzerkalniņ, aizveries!"
+tad kalns atkal aizvērsies, un kad tu gribi laukā tapt, tad saki: "Dziedzerkalniņ,
+atveries!" tad viņš atkal atvērsies un tu varēsi mierīgi izbraukt!" To
+teicis vecītis aizgāja uz mājām.</p>
+
+<p align="JUSTIFY">Saimnieks, kalnā iebraucis, atrada tur tāpat lielu galdu ar visādiem
+ēdieniem un dzērieniem piekrautu. Viņš paēda, padzēra, tad iebrauca otrā istabā
+pie naudas apcirkņiem, piebēra maisus ar zelta naudu, uzkrāva uz saviem ratiem un
+taisījās ara braukt. Piebraucis pie izejas, viņš gan sauca: "Dzeju, dzeju, dziju
+kalniņ, atveries!" bet kalniņš neatvērās, jo viņš bija pareizo vārdu
+aizmirsis. Viņam nu palika bail, ka nevarēšot vairs ara tapt.</p>
+
+<p align="JUSTIFY">Pēc neilga laiciņa viņš izdzirda augšām uz kalna pulksteņa
+skaņu un ratu rībēšanu. Viņš gan labi saprata, ka nu būs slikti, bet nezināja, kur
+nu bēgt un kur paslēpties. Viņš ātri vien iebrauca zirgus tumšā istabas stūrī un
+pats palīda zem krēsla, jo citur vairs nebija laika paglabāties. Tikko viņš bija zem
+krēsla palīdis, te izdzirda augšām saucam: "Dziedzrkalniņ, atveries!``</p>
+
+<p align="JUSTIFY">Vecīša brālis nu dzirdēja pareizo vārdu, bet nu vairs nebija
+laika, jo tanī pašā acumirklī kalniņš atvērās un kungi iebrauca kalnā. Saimnieks,
+ieraudzījis tādus melnus kungus iebraucam, pārbijās tik neganti, ka vai dzīvs būtu
+zemē ielīdis. Viņš trīcēja kā apšu lapa un tupēja zem krēsla, ausis sacēlis kā
+zaķis no bailēm. Kad kungi bija kalna iebraukuši, tad kāds no viņiem teica: "Kas
+te par svešu smaku?"</p>
+
+<p align="JUSTIFY">Viņi ošņāja un runāja: "Tā varbūt ir mūsu pašu
+smaka." </p>
+
+<p align="JUSTIFY">Viņi tūliņ nosēdās pie galda ēst. Ēdot kādam velnam no krita
+nazis zemē. Viņš liecās to uzņemt un ieraudzīja saimnieku zem krēsla. Viņi sāka
+nu visi skatīties, izvilka saimnieku no krē sla apakšās, ņēma un saplēsa viņu un
+izsvieda ārā uz mēslu čupu.</p>
+
+<p align="JUSTIFY">Saimniece, nevarēdama savu vīru mājā sagaidīt, nogāja pie
+vecīša un lūdza, lai viņš nākot viņai līdz saimnieku raudzīt. Viņi nu aizgāja
+uz mežu. Pie kalna viņi atrada saimnieku uz mēslu čupas nedzīvu un briesmīgi
+saplosītu, paņēma viņa miesas un pārveda mājā. Saimniece lika skroderim sava vīra
+miesas gabalus sašūt kopā, ielika tās zārkā, salūdza radus un turēja bērēs. Radi
+sanāca un liki ienesa istabā. Uz pašu pusnaktī saimnieka miesas tapa no zārka
+izrautas un ar tādu varu, ka visi durvju stenderi un kliņķi tapa aptraipīti ar
+asinīm.</p>
+
+<p align="JUSTIFY">Tā gāja bagātajam saimniekam, kam jau savas mantas bija pa pilnam.
+Viņam ar to vēl nepietika, bet viņš lūkoja nozagt vēl cita mantas un caur to nu
+dabūja tādu briesmīgu gaļu.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Šī pasaka līdzinās vairāk vācu nekā arābiešu
+variantam. P. Š.</p>
+
+<p>&nbsp;</p>
+</font>
+
+
+</body></html>

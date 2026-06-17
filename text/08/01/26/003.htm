@@ -1,0 +1,149 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Lielie stiprinieki.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">3. A. 650 B. Teicēja 76 g. vecā Īva Staleidzāne Atašienā, Latvju
+kultūras kr.</p>
+
+<p align="JUSTIFY">Pi vīna zemnīka šiva žeids skrūders. Uz lūga ap maizes gabaliņu
+pīsametja daudz mušu. Žeids pajēmja sovu syksnu un nūsyta septiņas mušas.</p>
+
+<p align="JUSTIFY">"Gon man vairs šyut, es esmu styprinīks!" padūmuoja
+žeids.</p>
+
+<p align="JUSTIFY">Pajēmja skrūders sovu syksnu, pīrakstīja uz syksnas, ka jis ar
+vīnu sitīni nūsyta septiņas golvas, apjūzja syksnu ap vādaru un īt. Sātmaļu molā
+gulēja nūspruogušais teļš.</p>
+
+<p align="JUSTIFY">"Izraudzēšu vēļ reizi sovu spāku!" padūmuoja žeids un,
+pakēris teļu aiz astes, puorsvīdja par sātmaili. Otkon žeids pīrakstīja uz sovas
+syksnas, ka puorsvīdis viersi par sātmali, īt un meklej styprinīku, ar kū lauztīs.</p>
+
+<p align="JUSTIFY">Īguoja žeids vīnā ustobiņa. Saiminīca cepja bļiņus. Jau beja
+pīcapti divi leli sīti bļiņu un cepja trešū sītu. Saiminīca beja styprinīca un
+juos divi dāli ari styprinīki. Obi beja izguojuši mežā.</p>
+
+<p align="JUSTIFY">"Es asmu styprinīks!" soka žeids.</p>
+
+<p align="JUSTIFY">"Pagaidi, atīs muni dāli un tad varēsit pasaspākuot!"
+atbildēja saiminīca.</p>
+
+<p align="JUSTIFY">Saiminīca izcepja vēļ catūrtū sītu bļinu žeidam. Atguoja dāli
+un stuojuos vysi pusdīnas ēst. Styprinīki izēdja pa sītam bļinu un izdzēŗa pa
+brandīna butelei, bet žeids apēdja tik treis bļini, izdzēŗa vīnu gluozīti
+brandīna un vairuok navar.</p>
+
+<p align="JUSTIFY">Vokorā styprinīki atsagula uz gara benča un žeidu atguldynuoja uz
+benča vyda. Muote atsagula uz ūtra benča pret žeidu. Kai pyrda vīns styprinīks, tai
+žeids īskrēja ar golvu ūtram styprinīkam ūkstā. Kai pyrda ūtrs styprinīks, tai
+žeids otkan izlēcja uz benča un guļ. Muote kai pyrda, tai žeidu ar vysu sysnu
+izsvīdja pa lūgu gaisā un žeids atsamūda pi tuos pašas ustabiņas, kuŗā šiva.</p>
+</font>
+
+
+</body></html>

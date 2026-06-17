@@ -1,0 +1,263 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Novaktētā ragana.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>&nbsp;</b></p>
+
+<p align="JUSTIFY"><b>7. </b>A.306. Lapas Mārtiņš Rūjienā. "Pasakas un
+nostāsti" Smiltenē 1902, 9.</p>
+
+<p align="JUSTIFY">Kādam saimniekam bijis ļoti miedzīgs, bet citādi čakls ganu puika,
+tas savu gana uzdevumu ļoti labi izpildījis, bet rītos tomēr vairāk reizes bijis
+jāmodina, līdz uzcēlies un lopus dzinis ganos. Saimnieks licis atsaukt gana māti, kas
+dzīvojusi pāris verstis atstatu kādā pirtiņā, un tai sacījis: "Tavs dēls man
+citādi visādi ir ļoti labs un paklausīgs gans; tikai rītos viņš ir miedzīgs."</p>
+
+<p align="JUSTIFY">Gana māte atbildējusi: "Līdz šim viņš rītos agri vienmēr
+pats no sevis pamodās un uzcēlās."</p>
+
+<p align="JUSTIFY">Vecene uz māju iedama, ganos apmeklējusi savu dēlēnu un viņu labu
+brīdi pamācījusi un devusi viņam padomu, kā atsvabināties no miedzības.</p>
+
+<p align="JUSTIFY">Vakarā gans, pēc mātes padoma, neatģērbies, bet slepeni nolicies
+gulēt zem saimnieka gultas un redzējis, ka arī saimniece neatģērbusies likusies
+gultā saimniekam blakus. Kad saimnieks, no dienas pūlēm noguris, jau ciešā miegā
+dikti krācis un arī ganam zem gultas acis patlaban taisījušās aizvērties, viņš
+izbijies redzējis, ka kāds liels, melns vīrs klusu ienācis, paņēmis saimnieci pa
+pleciem un iznesis ārā. Zēns lēnām līdis viņiem pakaļ, lai redzētu, kas notiek.
+Tikko durvis drusku bija pavēris, viņš dzirdējis, ka saimniece paklusu saka:
+"Prātīgi!"</p>
+
+<p align="JUSTIFY">Un lielais, melnais vīrs to ātri pa lūku uznesis uz bēniņiem, no
+turienes pa jumta čukuru laukā, un tad pa gaisu vēja ātrumā projām.</p>
+
+<p align="JUSTIFY">"Kaut arī es tā varētu aizlaisties saimniecei līdz!"
+Zēns paklusi ierunājies.</p>
+
+<p align="JUSTIFY">Bet tajā pašā acumirklī otrs tāds pats melns, liels virs
+nostājies pie gana, paķēris to un uzlicis uz saviem; kamiešiem, nesis pa lūku uz
+bēniņiem un, pa jumta čukuru laukā un pa gaisu projām. Bet zēns nebija teicis:
+"Prātīgi!" Un tādēļ pie lūkas stenderes dabūjis krietnu belzienu un caur
+jumta čukuru skrejot kāds jumta gabals tapis norauts.</p>
+
+<p align="JUSTIFY">Melnais vīrs vēja ātrumā nesis ganu viņa saimniecei pakal uz
+Vāczemi un tur viņu ienesis kādā greznā pili. Tur bijusi liela velnu balle. Melni
+muzikanti spēlējuši un velni, par smalkiem kungiem apģērbušies, dancinājuši
+smalkas raganas, un starp tām arī gana zēna saimnieci.</p>
+
+<p align="JUSTIFY">Zēns nostājies pie zāles durvim un visu šo velnu draci
+noskatījies. Viņa saimniece ar velniem .lēkājusi kā traka un pa starpas brīžiem ar
+tiem mīli tērzējusi.</p>
+
+<blockquote>
+  <p align="JUSTIFY">Kāds velns pienācis zēnam un jautājis: "Ko tu te dari?"</p>
+</blockquote>
+
+<p align="JUSTIFY">"Vai tad tu neredzi, ko daru?" zēns droši atbildējis.
+"Es noskatos, kā mana saimniece ar jums, kungiem, lēkā un tērzē."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Pēc tam, jautātājs aizgājis, neko vairāk nerunājis.</p>
+</blockquote>
+
+<p align="JUSTIFY">Otrā zālē gaŗi galdi bijuši apklāti un apkrauti ar ēdieniem.
+Pēc kāda laika visi dancotāji - starp tiem arī gana saimniece -gājuši pie šiem
+galdiem mieloties. Atkal kāds cits kungs pienācis zēnam un jautājis: "Vai
+neuzdosi savu vārdu un arī nenāksi pie galda līdz ar citiem viesiem mieloties?"</p>
+
+<blockquote>
+  <p align="JUSTIFY">Mans vārds manai saimniecei zināms, kas ar kungiem kopā "</p>
+</blockquote>
+
+<p align="JUSTIFY">mielojas, bet es nabaga gans, nepiederu pie kungu galda," zēns
+atbildējis.</p>
+
+<p align="JUSTIFY">Tad kungs viņam atnesis labu gabalu baltmaizes un kādu desu, ko zēns
+neēdis vis, bet ietinis savā kakla lakatā un iebāzis kabatā par piemiņu, ka ar
+saimnieci kopā bijis Vāczemes velnu ballē.</p>
+
+<p align="JUSTIFY">Pēc mielasta viesi sākuši atvadīties, jo gailu laiks vairs nebijis
+tālu. Ganu zēns tagad ievērojis savu saimnieci. Tā izgājusi no pils un tad tas pats
+melnais vīrs, kas viņu no mājas bija atnesis, atkal paņēmis viņu uz kamiešiem un pa
+gaisu vēja ātrumā aiznesis. Gaisā paceldamies, saimniece atkal bija sacījusi:
+"Prātīgi!"</p>
+
+<p align="JUSTIFY">Zēns to redzējis un klusu bubinājis: "Kaut jel mani arī kāds
+aiznestu uz māju, kā atnesa šurpu."</p>
+
+<p align="JUSTIFY">Un tūlin tas pats melnais vīrs, kas viņu bija atnesis, bijis klāt,
+paņēmis viņu uz kamiešiem un pacēlies gaisā. Tagad zēns arī pēc saimnieces
+priekšzīmes sacījis: "Prātīgi!" Un sveiks un vesels nonācis mājā.</p>
+
+<p align="JUSTIFY">Saule bijusi jau lielā gabalā, kad saimnieks iespējis pamodināt
+ganu, kas tagad nebijis vis zem saimnieku gultas, bet atradies pats savā guļas vietā.</p>
+
+<p align="JUSTIFY">"Tu jo dienas jo vairāk topi par miega pūzni," saimnieks
+dusmīgi sacījis. "Kā cilvēka bērns var gulēt kā mirons, it kā visu nakti
+būtu strādājis?"</p>
+
+<blockquote>
+  <blockquote>
+    <p align="JUSTIFY">,Saimniece arī laikam vēl gul" zēns atbildējis. ,</p>
+  </blockquote>
+</blockquote>
+
+<p align="JUSTIFY">"Kas tev daļas par saimnieci? Saimniece ir saimniece, bet tu esi
+gans."</p>
+
+<p align="JUSTIFY">"Pagājušā kaktā tomēr mēs abi pa to pašu ceļu braucām uz
+Vāczemes velnu balli un pa to pašu ceļu braucām atkal atpakaļ," zēns
+atbildēja.</p>
+
+<blockquote>
+  <blockquote>
+    <p align="JUSTIFY">Ko tu tur muldi?" saimnieks iesaucās. "Vai no miega esi
+    "</p>
+  </blockquote>
+</blockquote>
+
+<p align="JUSTIFY">prātu zaudējis?"</p>
+
+<p align="JUSTIFY">"Nebūt ne, saimniek. Mēs tiešām bijām Vāczemes velnu
+ballē."</p>
+
+<p align="JUSTIFY">Un nu zēns saimniekam izstāstījis visu, parādījis arī kakla
+lakatiņā iesieto, no velna balles līdzi paņemto baltmaizi un desu, kas bijuši
+pārvērtušies par nedzīvu čūsku un zirga mēslu gabalu, un rādījis arī uz caurumu
+jumta čukurā, pa ko melnais vīrs viņus bija iznesis gaisā un norāvis jumtam gabalu.</p>
+
+<p align="JUSTIFY">Saimnieks par to visu ļoti brīnījies un ar zēnu vairs ne viena
+vārda nerunādams, steidzies pie saimnieces, lai to uzmodinātu un jautāja, ko ganu
+zēna ērmotais stāstījums īsti nozīmē?</p>
+
+<p align="JUSTIFY">"Vai tu pagājušā naktī biji Vāczemes velnu ballē?"
+saimnieks jautāja saimniecei, kad to ar lielām pūlēm bija pamodinājis.</p>
+
+<p align="JUSTIFY">"Kas tev tādas lietas stāstījis?" saimniece iztrūkusies
+atbildējusi.</p>
+
+<p align="JUSTIFY">"Mūsu ganu Ješka man izstāstīja visu, ka velni jūs abus pa
+gaisu aiznesuši uz Vāczemi, ka tu tur velnu ballē dancojusi, tērzējusi un mielojusies
+ar velniem, un ka velni jūs abus pārnesuši mājā."</p>
+
+<p align="JUSTIFY">"Tad tas bijis mūsu Ješka, kas balles zālē stāvēja pie
+durvim!" saimniece izsaukusies. "Tagad tev vairs nevaru slēpt, ka esmu ragana
+un stāvu ar velniem biedrībā. Būtu es to zinājusi, ka Ješka nogulies zem mūsu
+gultas, lai noskatītos manu darbu pa nakti, tad es būtu viņu nožņaugusi. Tagad pie
+tevis arī vairs nevaru palikt, jo tu negribēsi raganu par sievu."</p>
+
+<p align="JUSTIFY">Saimniece pēc šiem vārdiem ātri uzcēlusies no gultas, palēkusies
+drusku uz augšu, un saimnieks redzējis tikai zaļganu dūmu mākoni izskrejam pa durvim
+laukā, un gultas priekšā, tajā vietā, kur saimniece bija stāvējusi, tikai dažas
+vecas bērzu tāsis bijušas redzamas.</p>
+
+<p align="JUSTIFY">Saimniece nu bijusi pazudusi, bet ganu Ješka vairs nebijis rītos
+miedzīgs.</p>
+
+
+</body></html>

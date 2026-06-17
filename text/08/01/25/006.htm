@@ -1,0 +1,197 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Stiprais Ansis.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">6. A. 650 A. H.Skujiņš, Andrs Ziemelis, no Martas Kuplās Plāņu
+pag.</p>
+
+<p align="JUSTIFY">Dzīvāš kalēš, bīš jau labi gados, un šim nebīš neviena
+bērna, Kalēš vienāži tā vie nosaucies: "Kau man būtu dēlīc! Kau man būtu
+dēlīc!"</p>
+
+<p align="JUSTIFY">Vienā rītīnā kalēš gāš uz smēdi un redzēš, ka uz laktas tup
+ziķerīgs puika, un kā pamanīš kalēju, tā tūlī saka: "Es būšu tavs
+dēlīc!"</p>
+
+<p align="JUSTIFY">Nu labi! Kalēš vedis dēlu pie kalējietes un šī sākusi šo
+audzināt un būt. Bet puika, kā pa brīnumu, audzis nevis gadiem, bet dienām, un drīz
+vie bīš lielc un varēš jau tēvam palīdzēt. Nu abi kaluši, ka skanēš vie, un
+kalēš bīš dikti priecīgs, ka šim tāds palīgs gadījies, kas var desmit reiz par
+šo vairāk pastrādāt. Un bīš ar skaudīgi stiprs tas kalēja dēls! Reiz bīš
+jākaļ stiernis. Kalēš gribēš likt stierni uz laktas un sist ar ēmuru, bet dēls
+sacīš, ko tur niekosies, un ņēmis ar rokām un salocīš stierni. Visādīgi kalējam
+gāš labi, bet tik viena nelaime bīsi. Dēls skaudīgi dau ēdis un kā ņēmis, tā
+vienā rāvienā izstrēbis div nesienus putras un apēdis div kukuļus maizes. Kalējam
+drīz vie pietrūcies darba un ēdiena un vienu reizi kalēš sacīš dēlam tā:
+"Tev jāiet pasaulē, man vairs nav darba un maizes. Lūkā pats sev pelnīt
+maizi!"</p>
+
+<p align="JUSTIFY">Nu, nekā, kalēja dēls taisījies uz aiziešanu un kalēš šim kalis
+varenu kūju. Nokalis birkavu smagu un devis dēlam. Dēls sviedis kūju gaisā un turēš
+roku apukšā. Kā kūja nākusi zemē, tā šim uz rokas un salīkusi čunkurā. Nu
+kalēš kalis stiprāku kūju un tā bīsi div birkavi smaga. Kalēja dēls sviedis kūju
+gaisā un turēš roku pretī. Kā šī nākusi zemē, tā atkal salīkusi un kalēja
+dēls šo nosmādēš par švaku. Nu kalēš pārkalis vē reiz kūju un pielicis vē
+vienu birkavu klā. Ka dēls šo sviedis gaisā un ka šī kritusi zemē, tā vairs
+nesaliekusies un to nu dēls ņēmis sev līdza.</p>
+
+<p align="JUSTIFY">Kalēja dēls gāš, gāš un dagāš pie viena ķēniņa pils. Tur nu
+pašreiz septiņi ķēnīna vīri veduši no kūts ārā lielu vērsi un gribēš kaut no.
+Bet šie nekā nevarēš vērša valdīt un staipīšies, kamē šo var noturēt. Kalēja
+dēls dagāš šiem klā un sācis šos piesmiet, ka šie septiņi gabali nevarot tāda
+knišļa pievārēt, kur vienam ritīgam vīram tik vienc grābienc esot. Pats ķēnīc ar
+dzirdēš, ka kalēja dēls tā piesmej šā vīrus, un šis nu dusmīgi kliedz: "Ko
+plāties! Nu ta rādi, kāds tev nags ir!"</p>
+
+<p align="JUSTIFY">Kalēja dēls dagāš vēršam klā un kā zvēlis ar knipi pa pieri,
+tā šis kājas vie notirināš un uz vietas bīš beigts. Visi acis vie pabolīši, bet
+nesacīši gan nekā. Ka ķēnīc redzēš, ka kalēja dēlam ir gan nags, ta šis sacīš
+uz kalēja dēla, lai deroties pie šā. Ķēniņam dikti nepatikusies kalēja dēla
+lielība un šis gribēš kalēja dēlam kā atriebt. Nu, ko tad? Kalēja dēls jau varot
+derēties ar, bet kādi tā tie darbi būšot un kāda tā maksa, to gan kalēja dēls
+tūlī gribēš zināt. Nu ķēnīc sacīš tā, ka šim būšot jāpadarot trīsi darbi.
+Ja šis tos darbus varēšot padarīt, ta saņemšot no šā pusvalstības un vē šā
+meitu (princesi) par sievu; bet ja nevarēšot, ta šim galva beigta. Līkuši, līkuši
+un salīkuši ar. Nu ķēnīc tūlī devis kalēja dēlam pirmo darbu. Šim jābraucot uz
+mežu pēc malkas. Ķēnīc iedevis div zirgus un kalēja dēls aizbraucis uz mežu. Šis
+nu dasēš zirgus pie koka un pats gāš meklēt krietnu ozolu, ko vest uz pili. Kamē
+šis meklēš krietnu ozolu, tikmē lāči saklupuši zirgim pirsū un nokoduši abus
+zirgus. Kalēja dēls pārskaities, sācis lāčus tramdīt un noķēris div lāčus,
+aizjūdzis zirgu vietā, izrāvis ar visām saknēm lielu ozolu un uzgāzis uz vezuma un
+šāvis uz pili. Ka kalēja dēls iebraucis pagalmā, ta ķēnīc acis vie paplētis,
+kādi nu kalēja dēlam zirgi un kāds šim vezums.</p>
+
+<p align="JUSTIFY">Nu nekā, pirmo darbu kalēja dēls izdarīš un ķēnīc šim devis
+otru darbu. Jāejot uz ezaru un jānositot vellc, kas tai ezarā dzīvājot, un vella
+galva jāatvedot ķēnīnam parādīt. Pats vellc, kas tai ezarā dzīvāš, bīš varēn
+bezkaunīgs un zadzis cilvēkus, kas vie tūlāku pie ezara dagāš. No tā ezera visi
+cilvēki vairīšies, kā no ugunc, un nevienc nedrīkstēš tūlumā iet, un ķēniņam
+ar to vellu bīš lielas nedienas. Kalēja dēls akal sajūdzis savus lāčus un braucis
+uz ezaru. Lāčus viņš atstāš ezara malā, un pats bridis ezarā iekšā. Kā vellc
+pamanīš, ka vienc brien ezarā iekšā, tā tūlī pagrūdis galvu no ūdens ārā un nu
+gāzies kalēja dēlam virsū. Kalēja dēls jau pacēlis kūju un gribēš vellam gāzt
+pa pauri, bet apdomājies un kā ķēris ar nagim vellam aiz matim un izrāvis no ezara
+ārā. Nu vellu kalēja dēls iesēdināš priekšā, devis grožas rokā un vēlēš, lei
+brauc uz ķēnīna pili. Kalēja dēls pats sēdēš pakaļā un skatījies, kā vellc
+brauc. Ka nu šie iebraukuši ķēnīna pagalmā, ta ķēnīc acis vie izplētis, ka
+redzēš vellu gluži rāmu. Nu ķēnīc nobijies, jo šim bīš bailes, ka nu būs
+jāpaspēlē derības ar kalēja dēlu. Nu šis ilgi, ilgi gūdrēš, kādu darbu lei do
+kalēja dēlam, ka nav derības jāpaspēlē. Pēdīgi nu ķēnīc izgudrēš ar. Viņš
+nu stellēš dēlu pie nāburgu ķēnīna un vēlēš no šā dabūt trīsas mucas zelta.
+Nu kalēja dēls akal jūdzis lāčus ilksīs, uzsēdināš vellu par kučēru un braucis
+uz nāburgu ķēnīna pili. Bet nāburgu ķēnīc šā nelaidis pilī nemaz iekšā. Nu
+kalēja dēls pārskaities, ķēris pilei aiz viena stūŗa un pagāzis šo sāņu.
+Ķēnīc nu pārbijies un skrēš lūgties, lei tā nedarot. Kalēja dēls apsolījies
+vais tā nedarīt, ja šim dodot trīsas mucas zelta. Nekā, ko darīt. Ķēnīnam bīš
+jādo trīsas mucas zelta, ja grib ar vesalu ādu cauri tikt. Nu kalēja dēls vēlis
+mucas vezumā iekšā un braucis uz pili. Derības kalēja dēls bīš vinnēš. Ķēnīc
+atdevis šim pusi no savas valstības un savu meitu par sievu. Šie nu dzīvāš laimīgi.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,225 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Burvis un viņa māceklis.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">9. A. 325. J. Holanderis, Madalienā, Zin. kom kr. LP, VI, 136, 1. AŠ,
+III, 5e.</p>
+
+<p align="JUSTIFY">Vienreiz vienam zemniekam bija viens vienīgs dēls. Un tas to dēlu
+sūtījis augstās skolās. Bet reiz tēva jumtā krauklis ķērcis. Tēvs vaicājis
+dēlam, ko tas krauklis tur ķērcot? Šis tak esot bijis augstās skolās, tad jāzinot.</p>
+
+<p align="JUSTIFY">Dēls atbildējis: "Kā lai to zinu? Kraukļu skolā jau neesmu
+bijis."</p>
+
+<p align="JUSTIFY">Nu tēvs sūtījis dēlu ir kraukļu skolā vienu gadu. Labi. Bet ap
+gada beigām itin piepēži ieskrienot pie tēva viens krauklis: "Es esmu tavs dēls
+no kraukļu skolas, rītu tev jābrauc man pakaļ. Tur mēs esam daudz skolēnu, visi par
+kraukļiem pārvērsti. Vai tu varēsi mani tai kraukļu pulkā pazīt, Ja, nevarēsi, tad
+man jāpaliek turpat - mājā netieku. Bet es pamācīšu, kā pazīsi. Mums visiem būs
+jānostājas uz gaŗas kārts; pirmo reizi es būšu trešais no šī gala, otrreiz būšu
+piektais un trešreiz man paskries maza mušiņa gar acim."</p>
+
+<p align="JUSTIFY">To teicis, krauklis aizlaidies atpakaļ. Otrā dienā tēvs aizbrauks
+kraukļu skolā. Kraukli jau nostājušies uz kārts, lai nu minot savu dēlu: kuŗš ir?
+Tēvs parādīja: "Tas trešais!"</p>
+
+<p align="JUSTIFY">Labi, uzminēts!"</p>
+
+<p align="JUSTIFY">"Bet nu krauklim bijis jāizskraidās, jāsajaucas un atkal
+otrreiz jāsametas uz kārti: lai nu minot! Tēvs parādījis: "Tas piektais!"</p>
+
+<p align="JUSTIFY">"Labi uzminēts!"</p>
+
+<p align="JUSTIFY">Aatkal kraukļiem bijis jāsajaucas: lai nu minot</p>
+
+<p align="JUSTIFY">Tas un tas!" tēvs parādījis, jo redzējis mazo mušiņu dēlam
+gar acim laižamies.</p>
+
+<p align="JUSTIFY">Tagad dēls varējis atkal palikt par cilvēku un nu abi ar tēvu
+braukuši pa jūru uz māju.</p>
+
+<p align="JUSTIFY">Bet jūŗā atkal viens krauklis sācis ķērkt masta galā. Tēvs
+vaicājis dēlam: "Nu tu esi kraukļu skolā bijis - pasaki man, ko tas krauklis
+ķērca?"</p>
+
+<p align="JUSTIFY">"Ai, tēt, ja es to stāstītu, ko tas krauklis ķērcis, tad tu
+mani iemestu jūŗā - nevaru teikt."</p>
+
+<p align="JUSTIFY">Par tādu atbildi tēvs saskaities un dusmās tikpat iemetis dēlu
+jūrā, vai teicis, vai neteicis. Tomēr dēls nenoslīcis vis, aizpeldējis ar zivi otrā
+malā palicis tur par cilvēku, saticis vecīti un aizgājis pie tā dzīvot. Dzīvojis,
+dzīvojis tādu laiku - uz vienu reizi sacījis vecītim tā:</p>
+
+<p align="JUSTIFY">"Rītā palikšu par skaistu putniņu; nes mani pilsētā,
+pārdod; tikai būrīti [sprostiņu] vien neatdod!"</p>
+
+<p align="JUSTIFY">Labi, otrā dienā vecītis aiznesis putniņu pilsētā un satiek
+ķēniņa meitu. Tā, izdzirdējusi putniņa skaisto dziesmu, nopirkusi par dārgu naudu;
+bet būrīša vecītis nedevis līdz. Ķēniņa meita paņēmusi putniņu un gājusi citu
+būrīti pirkt; bet ar pārdevēju runājoties, putniņš Pasprucis un bijis ātrāk
+mājā nekā vecītis.</p>
+
+<p align="JUSTIFY">Atkal pēc kāda laika dēls teicis vecītim: "Nu rītā palikšu
+par lielu vērsi; aizved mani pilsētā un pārdod; tikai valgu vien neatdod!"</p>
+
+<p align="JUSTIFY">Labi, vecītis pārdevis vērsi, bet valga nedevis līdz. Pircējs
+paņēmis vērsi un pircis citu valgu, bet vērsis tamēr pasprucis un uz mājām
+atpakaļ.</p>
+
+<p align="JUSTIFY">Pēc tāda laika dēls teicis trešreiz vecītim: "Rītā palikšu
+par zirgu; aizved mani pilsētā un pārdod; tikai zelta iemauktus vien neatdod!"</p>
+
+<p align="JUSTIFY">"Labi, aizvedis. Bet pilsētā vecīšam uznākusi liela naudas
+kārība, Pārdevis zelta iemauktus arī. Un tas nopircējs bijis pats kraukļu skolas
+skolotājs. Kā tad nopircis, tūlin pārjājis mājā, ielicis zirgu stallī,
+piesacīdams staļļa puišam, lai zirgam ļoti maz ēst dodot.</p>
+
+<p align="JUSTIFY">Par laimi puisis neklausījis vis, baŗojis labi un kādā dienā vēl
+palaidis zirgu pavisam vaļā. Zirgs ātri aizskrējis, bet kraukļu skolotājs dzinies
+pakaļ. Skrējuši, skrējuši līdz jūŗas malai. Jūŗas malā zirgs palicis par zivi,
+ķērējs palicis par zivi un abi peldējuši otrā malā.</p>
+
+<p align="JUSTIFY">Otrā malā bijusi ķēniņa pils un pils priekšā trīs ķēniņa
+meitas velējušās. Pirmā zivs [dēls] nu ātri, ātri izlēkusi pie ķēniņa meitām
+malā un pārvērtusies par skaistu dimanta gredzenu. Jaunākā ķēniņa meita pirmā
+ieraudzījusi gredzenu, un uzmaukusi pirkstā, steigusies. istabā. Bet istabā gredzens
+pārvērties par dēlu, izstāstīdams visu galu no gala, kā tas bija gadījies un kā
+tas vēl gadīsies. Še pilī šovakar atnākšot smalki kungi spēlēt un starp tiem
+būšot arī pats kraukļu skolotājs; tas prasīšot par spēlēšanu dimanta gredzenu,
+bet lai ķēniņa meita to nedodot vis.</p>
+
+<p align="JUSTIFY">Ja, un tā arī bijis. Vakarā atnākuši smalki spēlmaņi un
+spēlējuši tik jauki, ka nespējuši atklausīties. Beiguši spēlēt, ķēniņš
+prasījis, nu ko gribot maksas?</p>
+
+<p align="JUSTIFY">"Negribam ne šī, ne tā - gribam jaunākās ķēniņa meitas
+dimanta gredzenu!"</p>
+
+<p align="JUSTIFY">Lai ņemot! ķēniņš atvēlējis.</p>
+
+<p align="JUSTIFY">Bet meita nedevusi gredzenu, lai pārplēš, un spēlmaņi palikuši
+tukšā.</p>
+
+<p align="JUSTIFY">Nu gredzens, par dēlu pārvērties, sacījis tā: "Rītā vēl
+otrreiz spēlmaņi sanāks un izspēlējušies prasīs dimanta gredzenu; bet ja nu nevari
+ne pavisam no viņiem glābties, svied gredzenu zem krēsla!"</p>
+
+<p align="JUSTIFY">Ja, pareizi! Rītā visi vakarējie klāt atkal un spēlē vēl
+jaukāki. Beiguši spēlēt, prasa gredzenu. Meita nedod. Kā nedod, šie ar varu. Nu
+jaunākā ķēniņa meita norāvusi gredzenu un sviedusi zem krēsla. Tūlin spēlmaņi
+palikuši par kraukļiem gredzenu kampt; bet gredzens palicis par vanagu. Nu plūkušies
+briesmīgi; bet vanags kraukļus aizdzinis.</p>
+
+<p align="JUSTIFY">Tagad gredzens [vanags] palicis par dēlu, apņēmis jaunāko ķēniņa
+meitu, mantojis no ķēniņa valstību un dzīvojis labi.</p>
+
+
+</body></html>

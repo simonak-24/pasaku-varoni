@@ -1,0 +1,169 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Mu??is par slepkavu</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Muļķis par slepkavu.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>11. </b>A. 1600 A. Gari-Juone no 42 g. vecās P. Pūrmalītes,
+Dricēnos. Latvju kultūras kr.</p>
+
+<p align="JUSTIFY">Dzeivuoja treis bruoļi, divi beja gudri un vīns duračiņš. Gudrī
+bruoļi syutīja duraciņu, lai jis īt uz mežu kū navīn nūgyun, nūsyt un atnas jīm
+: voi kaidu zači, voi putnu. Aizīt jis vīnu dīnu uz mežu, nūstaigoj un nikuo
+naatnas; bruoļi jū lomoj, kam nikuo naatnas nu meža. Utrā dīnā jis taipat
+izzastaigoj pa mežu un nikuo naatnas; bruoļi vēļ vairuok jū sabar. Kur tod jis
+nūgyus zači voi kaidu putnu? Trešā dīnā jis, staiguodams pa mežu, īrauga vacu popu
+un soka: "Nyu es tevi sagyušu, byus man kū nūnest bruoļim!"</p>
+
+<p align="JUSTIFY">Duraciņš nūsyt popu, līk uz placim un atnas bruoļim. "Šate,
+sacījat, ka es nikuo navaru nūgyut un nūsist."</p>
+
+<p align="JUSTIFY">Bruoļi puorsabeida un dreižuok aiznas popu uz pierti, paceļ greidu
+un ībuož zam greidas. Popa sētnīki meklej pa vysu mežu, bet nikur navar atrast,
+nūskumst un sataisa bēres. Uz bērem pasauc vysus apkuortējūs dzeivuotuojus, aizīt i
+duraciņš ar sovim bruoļim. Bērēs vysi suoc ēst, dzert un sareibst. Duraciņš soka:
+"Dzert to vysi dzer, bet popu man vīnam vajadzēja nūsist, tod nikas man
+napaleidzēja!"</p>
+
+<p align="JUSTIFY">Tū izdzierduši popa bārni, saskrēja ap duraciņu un soka: "Ka
+tu jū nusyti, kur tod tu jū lyki?"</p>
+
+<p>"Piertī zam greidas pabuožu," atsoka duraciņš.</p>
+
+<p align="JUSTIFY">Duraciņa bruoļi puorsabeida, atskrīn dreiži uz sātu nūkaun uozi
+un pabuož piertī zam greidas popa vītā. Bērinīki ar duraciņu īt uz pierti,
+duraciņš paceļ greidu un prosa: "Jyusu popam buorda beja?"</p>
+
+<p>"Beja," atsoka jī.</p>
+
+<p>"A rogi beja?" vaicoj tuoļuok duraciņš.</p>
+
+<p align="JUSTIFY">"Ei pļuopa, kurs tod cylvāks ar rogim?" atsona bērinīki. </p>
+
+<p align="JUSTIFY">"Četras kuojas arī beja?"</p>
+
+<p>"Nabeja!"</p>
+
+<p>"Zynoms beja."</p>
+
+<p>"Auss beja?" </p>
+
+<p>"Acs arī beja?"</p>
+
+<p>"Beja."</p>
+
+<p align="JUSTIFY">"A daguns beja?" </p>
+
+<p align="JUSTIFY">"Beja."</p>
+
+<p>Un jipa arī beja?"</p>
+
+<p align="JUSTIFY">"Na, jipas gon nabeja," atsoka jī. </p>
+
+<p align="JUSTIFY">Duraciņš izvalk nu greidas zamūškas uozi.</p>
+
+
+</body></html>

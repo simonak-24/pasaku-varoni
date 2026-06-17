@@ -1,0 +1,166 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Bārenīte un mātes meita aukstumā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 480. J. Johansone Rīgā, A. Bērzkalnes krājumā. </p>
+
+<p align="JUSTIFY">Dzīvoja reiz atraitne, kuŗai bija divas meitas: īstā meita Maija un
+pameita Anna. Pamāte pavisam neieredzēja Annu par to, ka viņa bija skaistāka un daudz
+labsirdīgāka kā Maija. Anna nezināja, kas pamātei par iemeslu dusmoties un viņu
+neieredzēt. Maija visu dienu tikai pastaigājas, kamēr Anna strādā, bet pati nekā
+nedara.</p>
+
+<p align="JUSTIFY">Pamāte redz, ka dienu no dienas Anna paliek skaistāka un viņa top
+vēl ļaunāka pret to. "Laiks ātri iet. Anna ir skaista, viņu drīz izprecēs, bet
+mana Maija paliks vecmeitās."</p>
+
+<p align="JUSTIFY">Tas grauza pamātes sirdi. Pamāte Annu pastāvīgi sita un nedeva tai
+vairs pat ēst, cik vajadzīgs. Bet ko tik iedomājās Maija; to visu vajadzēja Annai
+izdarīt.</p>
+
+<p align="JUSTIFY">Reiz ziemas laikā, Maijai iegribējās vijolītes un Annu izdzina pa
+durvim un piekodināja, lai bez vijolītēm atpakaļ nerādās. Gauži raudādama Anna
+iegāja mežā, viņai bija auksti un arī ēst gribējās, bet visur tikai sniegs un
+ledus un nekā vairāk.</p>
+
+<p align="JUSTIFY">Beidzot viņa ierauga klajumā divpadsmit melnus vīrus uz divpadsmit
+akmeņiem sēžam. Pirmā vietā sēž Janvāris. Vidū viņiem kuras ugunskurs. Anna
+lūdz apsildīties un prasa, vai nezinot, vai kur nevarot dabūt vijolītes. Janvāris
+paņēma savu zizli, iedeva Martam, tas iesēdās Janvāŗa vietā un pamāja ar zizli,
+uzreiz lauki nokusa un pļavās un grāvjos ziedēja zilas vijolītes. Anna ātri saplūca
+un devās uz māju.</p>
+
+<p align="JUSTIFY">Atkal iestājas auksta ziema un Maija ar pamāti brīnējas, kur viņa
+tās dabūjusi. Anna teica, ka uz pakalniņa viņu esot daudz. Citreiz Maijai iegribējās
+zemeņu, arī tās Anna ziemas laikā atnesa un beidzot februārī Maijai iegribējās
+sārtu, lielu ābolu. Anna arī tos atnesa, bet tikai divus, jo Oktobris bija tikai divus
+vēlējis ņemt. Par to nu mājās Annu krietni sabāra, ka tik maz esot, bet kad Maija
+ābolu ēda, tas viņai tā iesmeķējās, ka viņa palika dusmīga, ka Anna nav vairāk
+atnesusi. Pamāte arī saskaitās un sāka Annu sist. Raudādama Anna krāsns priekšā
+apgūlās.</p>
+
+<p align="JUSTIFY">Bet Maija bija tik ietiepīga, ka pamāte tai atnes kažoku un Maija
+pati aizgāja ābolus meklēt. Beidzot arī viņa nokļuva pie divpadsmit mēnešiem.
+Viņa bez prasīšanas piegāja pie uguns un sildījās. Janvāris prasīja: "Ko tu
+meklē, meitiņ?"</p>
+
+<p>Maija atbild skarbi: "Kas tev par daļu, vecais āksts!" Sasildījusies viņa
+aiziet meža biezumā un skatās pēc ābeles, bet Janvāris sadusmojies uzsūtīja viņai
+briesmīgu salu un Maija nosala.</p>
+
+<p align="JUSTIFY">Pamāte izgaidījās, bet meitiņa kā nerādās, tā nerādās. Viņa
+aiziet pati savu meitiņu meklēt. Noiet pie meitas un atron to nosalušu, un no
+žēlabām turpat nomirst. Anna izgaidās abas un nu saprot, ka abas nosalušas.</p>
+
+<p align="JUSTIFY">Viņa paliek par mājiņas īpašnieci. Vēlāk viņu apprec bagāts
+kungs un aizved uz savu muižu. e viņi dzīvo laimīgi.</p>
+
+
+</body></html>

@@ -1,0 +1,166 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>12</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dažādi spēka vīri.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">12. A. 650 C. M. A. Alksnis, Skaistā. Fil. Biedr. Raksti. XII, 47.</p>
+
+<p align="JUSTIFY">Kaidā molā dzeivova dāds ar buobu. Jīm nabeja bārnu. Vīnu reizi
+dāds atīt uz mežu piec molkas. Mežā jis sateik veceiti, kurs pasņādze jam malnu
+pagaļeiti un sacieja, lai šū pagaļeiti nas uz muojom un šyopoj treis dīnas un
+nakt’s.</p>
+
+<p align="JUSTIFY">Dāds nūcierta kuorti, nu kuŗas nūdūmova iztaisīt šyupieļi, un
+atguoja uz sātu. Sātā atguoj’s, jis vysu izstuostieja sovai sīvai. Sīva beja
+cīš prīceiga. Šyupeļis tyka iztaiseits un pagaļeiti šyupova treis dīnas.
+Pādējuos dīnas vokorā pagaļeite teišām suoka kustēties un izdūt skaņas.</p>
+
+<p align="JUSTIFY">Sīva saskatējuos un atroda šyupieļī bārnu. Bārns beja skaists un
+lels. Jī tū nūkristeja Kūkati. Kad Kūkats puordzeivova pīcus godus, jis beja ļūti
+lels un dykts (stiprs). Jis ņese uz placym zyrgu ar vysu vazumu, ruove kūkus nu sakņom.
+Nasaskatūtīs uz sovu spāku, jis beja ari laimeigs, un kū jis gribēja nu treis
+aizdūmuotim vaicuojumim, pīsapildijuos divi nu cituŗeiz ari visi. Dīnas laikā Kūkats
+beja lels, bet kad jis apsaguluos un aizmyga, palyka kai vīnkuoršs bārns. Sīva
+baidejuos nu Kūkaša un tamdieļ lyudze dādu, lai jis tū naktī nūgalynoj. Veiram beja
+žāl sova bārna. Jis iztaiseja kasti, īlyka bārnu jimā un aizņese uz upi, kur
+palaida jū pa straumi uz leju. Dāds atsagrīzuos sātā un dzeivova vacū dzeivi, bet
+dāls pluovuoja pa upi kastē.</p>
+
+<p align="JUSTIFY">Reitā jis pasamūduos un napazyna, kur atsarūn. Kasti beja izvylkus
+kaida sīvīte un attaisējus vaļā. Bārnu jei apguldeja gultā. Kūkats suoka staiguot
+pa ustobom: Vysuos ustobuos beja kuorteiba. Klāvā jis atrūn nūkautu veceiti un sasītu
+sīvīti. Kūkats izzynova, ka šei sīvīte jū izgluobe, un ka jū sasēja zagļi, kur
+aplaupeja jīm gonomūs pulkus, Kūkats nūsapyutuos un saceja: "Koč ba itys veceits
+palyktu dzeivs!"</p>
+
+<p align="JUSTIFY">Piec šitim vuordim jis ar sīvīti aizīt uz ustobu. Sīvīte īdūd
+jam āst. Pa ieššonas laiku īīt ustobā veceits, kurs tikai nasen atpakaļ beja
+nūsysts. Sīvīte nūsabejuos, bet Kūkats sacieja: "Maņ ir spāks, jes
+nūgalynuošu vysus slāpkauņus."</p>
+
+<p align="JUSTIFY">Pa ieššonas laiku slāpkauņi aizvede lūpus uz mežu un atguoja
+aplaupeitu sātu. Kūkats jūs sakava un sasēja, īkyure lelu guņi un sadadzynova vysus
+slāpkauņus. Piec tam Kūkats aizguoja uz mežu, kur beja slāpkauņu sāta, nūdadzynova
+slāpkauņu sātu, pajāme jūs montu un atsagrīze uz sovu sātu. Kūkaša spāks beja
+cīš lels un jis dzeivova ilgi, ķēre zvierus un atņese uz sātu dzeivus.</p>
+
+<p align="JUSTIFY">Natuoļ nu jūs sātys dzeivova buorgs un lels miļzis, kurs āde
+ļaud’s. Kūkats tū apveice un ar tū nūvierse īdzeivūtuojilm draudūšuos
+brīsmys.</p>
+
+<p align="JUSTIFY">Vīnā dīnā pi Kūkaša atguoja ziņņeši nu tuoluos ķēņiņa
+vaļsts un praseija, lai jīm paļeidz, juo jūs ķēņiņam bejus vīna meita, kuru
+nūlaupiejs ļauns gors. Kūkats daudz naskuma, atsasveicynuojuos nu sovejim un aizbrauce
+uz tuolū ķēņiņa vaļsti. Ceļš beja gars un saisteits ar gryuteibom. Ļaunais gors
+beja puorsaviertīs par zvieru un vairuokas reizes uzbruka Kūkašam un juo pavadūņim.
+Kūkats ļaunū goru puorspēja un nūgalynova, ar kū ari ķēņiņa meita beja gluobta.
+Kēņiņš par tū beja cīš prīceigs un Kūkašam par atļeidzeibu deve pus ķēņiņa
+vaļsteibos. Kūkats nu dzeivova laimeigi.</p>
+</font>
+
+
+</body></html>

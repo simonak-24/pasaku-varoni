@@ -1,0 +1,215 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>24</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">24. A. 530. St. Uļanovska Viļānos. Zbior wiadomos'ci do antropologii
+krajowej. T. XVIII, 29 (24).</p>
+
+<p align="JUSTIFY">Bjeja tāvam treis dāli: div gudri, trešs duraks. Tys tāvs nūmyna i
+lyka mierdams vysim trejim pa naktjai iz juo dūbis [dobes, kapa] puorgulāt, pjec bjēru
+jau, ka jū paglobuos.</p>
+
+<p align="JUSTIFY">Ka jū paglobuoja, to vaidzjēja vacuokam īt iz kopim; a jis bjeidās
+i prosa duracjeņu, kab jis ītu iz juo vītu. A duracjeņč palnūs gulēja, vut's [utis]
+kova i nobu ar krepječim [šņurguļiem] mozuoja [staipīja]. Jis nazabjeida nikuo,
+nūguoja iz kopim i guļ. Ap pušnakts cjeļas tāvs nu dūbis i īdūd jam vara zyrgu i
+soka tai: "Tjei vacuaka bruoļa laimja, a ka jis nava pats atguojis, to es tjev
+atdūšu. Pajem tu ituo zyrga, a kai tjev vaidzjēs jū, izej uorā, apsagrīz treis
+reizis iz pādas, aizsvilp - jis atskrīs. Tūŗeiz īlīņ jam kairajā [kreisajā]
+ausī, par lobū izlīņ, to tjev byus vysys drābis vara, i sadli, i pjeicka, i kuapslys
+- vyss vara."</p>
+
+<p>Tāvs īleida dūbjā atpakaļ, a duracjeņč nūguoja iz sātu.</p>
+
+<p align="JUSTIFY">Iz ūtris nakts vaidzjēja īt vidiškjējam. bet jis bjeidās i
+prasjēja palnuruškys, kab ītu iz juo vītu. Jis nūguoja. Ap pušnakts izleida tāvs nu
+dūbis, īdjevja jam sudobra zyrgu i pascjēja, ka tjei vidiškuo bruoļa laimja. "A
+ka šys nava atguojis, to byus djēj tjevis."</p>
+
+<p align="JUSTIFY">Lyka jam taipat izīt uorā, ka vaidzjēs zyrga, apsagrīzt treis eizis
+iz pāda, aizvilpuot, par kairū ausi īleist, par lobū izleist, i byus sudobra drābis
+patim, a zyrgam sudobra sadli, i kuopslys, i pjeicka.</p>
+
+<p align="JUSTIFY">Iz trešys nakts nūguoja jau tys duraks aiz sjeva, i tāv s īdevja
+jam zalta zyrgu. .</p>
+
+<p align="JUSTIFY">I bjeja tamā kjēnistī kjēniņč, i bjeja jam vīna mjeita. Vot jis
+padjevja ziņi vysim, ka jis grib tū mjeitu pi vjeira izdūt. Pajēmja, pataisjēja
+augstu, augstu stykla kolnu - divpadsmit vjerstu augstumā, izsādynoja tī viersā sovu
+mjeitu i pīscjēja, kab vysi par treis dīnys iz tuo kolna juotu. A tys, kas izjuos,
+nūmauks jai nu piersta zalta gradzynu un jū pabučuos, tys jū pajims par sīvu.</p>
+
+<p align="JUSTIFY">Ka atguoja jau tjei dīna, tī bruoļi gudrī sazaladās [sataisās] i
+juoj, jis prosās: "Pajemīt i maņa leidza, bruoleiši!"</p>
+
+<p align="JUSTIFY">Vot jī izlomuoja jū, poši nūjuoja, a jū pamjeta sātā. Jis
+izguoja uorā, treis ŗeizis apsarīzja iz pāda, aizsvilpa i atskŗāja jam vara zyrgs, -
+par kairū ausi īleida, pa lobū izleida i izzataisjēja cīši šmuks puiss ar vara
+dŗābim, - sāda iz zyrga i nūjuoja. Juo zyrgs mudris, dadzyna bruol's sovus, sadevja
+jīm ar pjeicku par koklu i nūjuoja pa cjeļu. Vysi cīši nūzabŗeiņāja, ka taidu
+nabieja vjāļ redzjējuši. Jis kai skrāja, tai četri vjersti izskŗāja iz tuo kolna,
+apsagrīzja zyrgu i pa tīm ļaudim jis izgaisa. Atjuoj iz sātu, licīs iz cjepla i guļ.</p>
+
+<p align="JUSTIFY">Atjuoja i bruoļi i stuosta, ka nizkaids, naradzāts bjejis,
+"taidas dŗābis šmukas, pats taids i zyngs i nikas jū nazynuoja, jis i
+izgaisa."</p>
+
+<p align="JUSTIFY">Iz ūtris dīnys bruoļi otkon juoj, a palnuruška prosās:
+"Pajemīt i maņa leidza, bruoleiši!"</p>
+
+<p align="JUSTIFY">Jī izzasmjāja nu juo i aizjuoja poši. Vot jis izguoja uorā,
+aizsvilpuoja i atskŗāja jam sudobra zyrgs, -- pa kairū ausi īleida, pa lobū izleida i
+nūjuoja ar sudabra dŗābim - i sadli, i kuopslys, i pjeicka, vyss sudobra, a jis pats
+vjāl šmukuoks kai vakar bjeja. Dadzyna bruoļu, sadjevja par koklu ar pjeicku, - kai
+skŗāja iz tuo kolna, tai iz ostonu vjerstu izskrāja, - apsagrīzja i pa cjeļu iz
+sātu, īsaroka palnūs i guļ.</p>
+
+<p align="JUSTIFY">Atjuoj bruoļi i navar izzalīleit, kaids tys bjejis par šmuku, i
+zyrgs sudobra, i dŗābis, i vyss kas sudobra. "Kai skŗāja, tai da pus kolna
+izskrāja." Vys stuosta ap itū puisi.</p>
+
+<p align="JUSTIFY">Iz trešys dinys bruoļi juoj otkon, a jis i naprosa jau, kab jū
+jimtu. Ka jī izjuoja, jis tiuleņ īt uorā, apsagrīzja treis ŗeizis iz pāda,
+aizsvilpa i atskŗāja jam zalta zyrgs. Jis pa kairū ausi īleida, pa labū izleida i
+izzataisjēja par taidu šmuku puisi ar zalta drābim, ka vysā kjēnistī taida šmuka
+nabjeja. Dajuoja da tuo kolna, ka rozdzyna zyrgu, kai skŗāja, a ŗeizi iz ous kolna
+izskŗāja. Kai skŗāja ūtru ŗeizi, tai viersum iz kolna izskŗāja, kjēniņa mjeitu
+pabučuoja, gradzynu jai pajēmja, iz piersta sjev uzmaucja, apsagrīzja zyrgu, nu kolna
+nūskŗāja i pa ļaužu vydu i izgaisa.</p>
+
+<p align="JUSTIFY">Atjuoj bŗuoļi iz sātu i breinīs, nu kitrīnis jis taids atsarads, i
+kur jis palyka, i nikas juo nazyna. A tys duracjeņč pajēmja i rūku ar skustjeņu
+apsjāja, lai nikas naradz, ka jam gradzyns iz piersta. Vaicoj bruoļi: "Kam tjev
+rūka apsīta?"</p>
+
+<p>A šys cierts molku, īcierts rūkā.</p>
+
+<p align="JUSTIFY">Iz reita syuta jam kjēniņč pa vysu kjēnisti, lai mjeklej, por kuo
+byus kjēniņa mjeitys gradzyns iz piersta. Mjeklej i mjeklej, navar nikur atrast. Cik
+dīnu mjeklēja - navaida. Vot lyka kjēniņč mjeklēt pi vysu puišu, iai byus kaids,
+voi boguots, voi bjednys, šmuks - našmuks, kungs, voi mužiks, kab sjev kuram rūkas
+pazavārtu.</p>
+
+<p align="JUSTIFY">Atīt iz tīm bruoļim, apsavjer jūs rūku i ŗadz, ka trešs bruols
+iraida, līk jam atīt, a tī bruoļi gudrī soka: "Pamjatīt jū! Jam nava gradzyna,
+jis duracjeņč, jis, palnūs apsaracs, guļ, vuts kaun i ar krepječim nobu
+smjārej!"</p>
+
+<p>Jī soka: "Tys nakas! Šy navar nivīna atstuot!"</p>
+
+<p align="JUSTIFY">Vjeras, ka jam rūka apsīta - atraisa skustjeņu i ŗadz gradzyns iz
+piersta. Gribjēja jū izmozguot i salaidjēt [sataisīt], kab iz kjēniņa nūvjast, a
+jis soka, ka navajaga. Izguoja, treis ŗeizis apsagrīzja iz pāda, aizsvilpa i atskŗāja
+zalta zyrgs. Jis īleida kairā ausī, pa lobū izleida i izzataisjēja par pati
+šmukuokū puisi iz vysa pasauļa ī tai nūjuoja lauluotūs. I es iz kuozu bjeju, jēžu
+un dzēru; pa lyupom tjecjēja, mutjā ni lasjeitis nabjeja.</p>
+
+
+</body></html>

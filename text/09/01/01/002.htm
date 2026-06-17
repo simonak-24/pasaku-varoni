@@ -1,0 +1,177 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="center"><font size="3"></font><font size="5"><strong>Lielais ēdējs.</strong></font><font size="3"></font></p><font size="3">
+
+<p align="JUSTIFY">2. A. 651. A. Lerchis - Puškaitis Džūkstē. LP, 339 (144, 2).</p>
+
+<p align="JUSTIFY">Reiz Džūkstē esot dzīvojis Liedēdējs. Viņš, darbos iedams,
+arvienu jau pirmdienā apēdis visu līdzpaņemto maizi un tad cauru nedēļu sajozis
+vēdaru. Dažreiz gan citi liecinieki atmetuši pa druskam, bet cik tas nu bijis tādam
+vīram.</p>
+
+<p align="JUSTIFY">Lielēdējs, daudz ēzdams, bijis arī vareni stiprs. Reiz, caur
+Bērzniekiem iedams, iemetis Lielupē lielus, lielus akmeņus par laipu, iegājis
+tuvējās mājās un runājis saimniecei nodzerties. Saimniece atteikusi: "Nodzeries,
+nodzeries, ciemiņ, pie putras trauka tāpat ar pavārnīcu."</p>
+
+<p align="JUSTIFY">Bet Lielēdējs paliecis putras toveri ieslīpi un iztempis visu putru,
+apmēram savi nēši divi, tencinādams: "Tā, tā - nu drusku noremdēja
+slāpes."</p>
+
+<p align="JUSTIFY">Citā raizē atkal nolauzis Džūkstes Lielmežā egli, palīdis apakš
+zariem un pārstiepis nenodzenētu Lancenieku ciemā; kur egles zarotā galotne vilkusies,
+tur vēl šodien grāvis redzams. Džūkstes Lancenieku sudmalās, tur atkal vienreiz
+uznesis astoņi pūri balto zirņu.</p>
+
+<p align="JUSTIFY">Reiz Lielēdējs nobraucis Rīgā un kādam kungam šo, to tur
+pakalpojis. Kungs devis paēst par to labumu: ienesis lielu podu izvārītu kāpostu.
+Lielēdējs izēd to podu - nemaz nejauš, prasījis vēl. Izēdis to, prāsījis vēl,
+izēdis trešo - vēl prasījis, bet kungam vairāk nebijis - atteicis: "Atnāc citā
+reizē Rīgā braukdams."</p>
+
+<p align="JUSTIFY">Bet nedēļu, vai divi nedēļu vēlāk šim pašam kungam
+ievajadzējies Lielēdēju rokā dabūt, lai kas. Āre, kungs saķildojies ar Daugavas
+zvejnieku. Zvejnieks atvedis lielu, lielu lasi un noprasījis par tādu zivi, vīra
+lielumā, 25 rubli. Kungs atcirtis: "Spogs tāds, tik daudz prasīdams! Cik liela
+taču viņa ir! Labs vīrs, kā mans Lielēdējs, apēd viens pats tādu!"</p>
+
+<p align="JUSTIFY">Zvejnieks neticējis, ka tas iespējams, un nu saderējuši. Tūliņ
+kungs sūtījis kučieri uz Džūksti Lielēdējam pakaļ. Kučieris atbrauc, Lielēdējs
+patlaban sēj zirņus.</p>
+
+<p align="JUSTIFY">"Labrīt, Lielēdēj! Vai brokastu jau paēdi?"</p>
+
+<p align="JUSTIFY">"Nē, sēdams tikai iegrauzu nevārītus zirņus tādu
+sieku."</p>
+
+<p align="JUSTIFY">"Brauc man līdz Rīgā lielu zivi ēst!"</p>
+
+<p align="JUSTIFY">"Cik liela tad ir - diezin, vai maz vērts braukāt?"</p>
+
+<p align="JUSTIFY">"Nu, būs gan vērts, zivs vīra lielumā."</p>
+
+<p align="JUSTIFY">"Tad gandrīz!"</p>
+
+<p align="JUSTIFY">Un tā abi aizbraukuši. Rīgā Lielēdējs noēdis derības lasi vīra
+lielumā un tad vēl uzkodām divus mazākus lašeļus sivēna lielumā.</p>
+
+<p align="JUSTIFY">Reiz Lielēdējs braucis ar citiem uz Rīgu šķūtīs. Izbēruši
+labību un nu džūkstenieki sākuši ar Rīgas vācu puišiem lielīties. Rīdzinieki
+teikuši: viņi stiprāki; džūkstenieki atkal smējušies: Mūsu Lielēdējs viens pats
+jūs, pavārgušus siseņus, ar īkšķi izsit!</p>
+
+<p align="JUSTIFY">Un pēc tā vārda kāds stiprs, stiprs rīdzinieks tūliņ pieskrējis
+Lielēdējam klāt, sagrābis kažokam aiz apkakles un pārplēsis līdz apakšai.
+Lielēdējs kažoka dēļ nejauki sapiktojies un kā dusmās grābis rīdzenieku, tā ar
+vienu roku uzsviedis labības šķūnim otrā stāvā: puisis triecienā nosities.</p>
+
+<p align="JUSTIFY">Reiz vecuma galā Lielēdējs nesis apzāģētu baļķi pa glumu ledu;
+te neviļot paslīdējusi kāja un kā kritis ar visu baļķi, tā arī palicis guļam.</p>
+</font>
+
+
+</body></html>

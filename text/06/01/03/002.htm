@@ -1,0 +1,241 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="center">Pateicīgais mirons.</p>
+</font></b>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 505. A. Bīlenšteina kr. Ērgļos. LP, VI. 305, 71. </p>
+
+<p align="JUSTIFY">Vienam ķēniņam bijis dēls, un tas gribēš reizot pa pasauli; bet
+tēvs viņu nelaidis. Tad dēls sacīš: "Es sev galu darīšu, ja tu nelaidīsi</p>
+
+<p align="JUSTIFY">Vispēdīgi laidis arī ar smuku zirgu, un pats vēl jājis pavadīt.
+Gabalu jājuši un apgūlušies vienā krogā. Bet rītā dēls tēvu turpat atstāš un
+bez viņa aizjāš pasaulē. Jāš, jāš - iejāš atkal vienā krogā, iegāš ķēķī
+uzpīpēt un ieraudzījis skurstenē vienu cilvēku, kas bīš pakārts. Iegājis pie
+krodzinieka un prasīš, pie kam tas tur esot iekārts dūmos?</p>
+
+<p align="JUSTIFY">Te esot tāds vidus: ja kāds apgrēkojies par desmit rubļu un nevarot
+aizmaksāt, to izkaŗot dūmos.</p>
+
+<p align="JUSTIFY">Bet kad nu otrs aizmaksājot tos desmit rubļus, vai tad varot viņu
+izpirkt?</p>
+
+<p>Krodzinieks sacīja: jā, tad gan varot.</p>
+
+<p align="JUSTIFY">Nu ķēniņa dēls aizmaksāš tos desmit rubļus, izpircis pakārto
+apracis un jāš projām. Jāš, jāš - atskatījies atpakaļ un ieraudzīš vienu
+skrējēju. Tas sacīš: "Es arī iešu, kur tu jāsi."</p>
+
+<p>Ķēniņa dēls sacīš: "Ak, es jau jāšu pa pasauli."</p>
+
+<p align="JUSTIFY">Tad sacīš tas skrējējs: "Nu, es jau ar(i) varu iet pa
+pasauli." "Nu, nāc, nāc - es neesmu par to liedzīgs.</p>
+
+<p align="JUSTIFY">Nu viņi gāja pa divi. Tad ķēniņa dēls sacīja: "Nesaki
+nevienam, ko es tev stāstīšu. Es ešu ķēniņa dēls, bet man nav necik naudas. Bet
+nestāsti to nevienam, citādi man var varbūt kāda nelaime notikt: ka mani ieliek
+cietumā."</p>
+
+<p align="JUSTIFY">Un viņš apņēmās nevienam nesacīt. Bet iegājuši abi div i vienā
+pilsētā - skrējēš taču izpļāpēš, ka viņš ķēniņa dēls un nu viņam jāiet
+pie ķēniņa. Tad viņš sacīš uz skrējēju: "Redz, kā tu izpļāpēji! Dievs
+zin, kā nu man klāsies; ka neieliek abus divus cietumā!"</p>
+
+<p align="JUSTIFY">Un viņš dagāja pie tā ķēniņa. Ķēniņš vaicāš: "Vai tu
+esi ķēniņa dēls?"</p>
+
+<p align="JUSTIFY">Jā! "</p>
+
+<p>Tad tas ķēniņš viņu atlaidis.</p>
+
+<p align="JUSTIFY">Bet skrējēš esot zināš, kur vienā vietā nauda zemē. Viņš
+uzsēš sudraba karot: uz galvas un naktī aizgāš uz turieni. Dagāš pie tās vietas,
+iznācis velns un prasīš:</p>
+
+<p>"Ko tu gribi?"</p>
+
+<p align="JUSTIFY">"Es dzirdēju, ka te nauda esoti; man vajaga!" skrējēš
+sacīš. </p>
+
+<p align="JUSTIFY">"Nu, pazvērē ka tu man pats palieci. Es gan redzēšu, kā tu
+riktīgi (pareizi) zvērējis."</p>
+
+<p align="JUSTIFY">Tad skrējēš zvērēš, ka viņš patiesi padošoties. Bet velns
+sacīš: "Tas ir palši zvērēts!" Jo, kam sudrabs klāt, un viņš zvērē,
+tad tikai viņš uz to sudrabu vien zvērē, un nekad riktīgi nezvērē. Un viņš
+trīsreiz tā zvērēš un visas reizas palši. Tad visupēc velns nosviedis vienu maisu
+un sacīš: "Ja tev naudas vajaga, tad nosvied to maisu zemē, naudas būs
+diezgan."</p>
+
+<p align="JUSTIFY">Un otrā dienā ķēniņš atkal vēstīš to ķēniņa dēlu pie
+sevim(s) un atkal tāpat runāš. Tad viņš atkal gāš atpakaļ un sacīš uz
+skrējēju: ;,Pavisam slikti, kā tu izrunāji! Diezin, kā mums pašiem vispēdīgi
+klāsies."</p>
+
+<p align="JUSTIFY">Tad tai otrā naktī atkal skrējēš āš uz to pašu vietu, sudraba
+kaŗoti uzsējis uz galvas. Tur nozvērējis vienreiz, otrureiz, trešureiz un visas
+palši. Tad velns nosviedis vienu lielu mēteli un sacīš: "Kad tu kur gribi iet,
+tad uzvelc to mēteli, tevi nekas neredzēs, i(r) pats velns tevi neredzēs."</p>
+
+<p>Nu viņš aizgāš uz māju.</p>
+
+<p align="JUSTIFY">Trešā dienā atkal ķēniņa dēlam bija jāiet pie ķēniņa un
+viņš viņu ar tiem pašiem vārdiem atlaidis.</p>
+
+<p align="JUSTIFY">Tad skrējēš gāš trešā naktī uz to pašu vietu ar visu sudraba
+karoti un visas trīs reizes zvērējis palši. Nu velns nosviedis lielu zobinu un
+sacīš: ,.Kad tu to zobinu paņemsi rokā, tad, kur</p>
+
+<p align="JUSTIFY">vien paskatīsies, galva tā kritīs. kā pogas, i pašiem velniem
+kritīs."</p>
+
+<p align="JUSTIFY">Ceturtā dienā ķēniņš atkal vēstīš ķēniņa dēlu pie sevis.
+Bet tad paša ķēniņa meita iedevusi viņam tabakas dozi, sacīdama: "Rītā atkal
+atnes šo dozi, jo citādi ķēniņš redzēs, ka man nebūs tās dozes."</p>
+
+<p>Viņš paņēma dozi un pārnāca atpakaļ. Bet nu skrējēš sacīš "Kam tu
+ņēmi to dozi? Tev viņa var nozust, kur tad dabūsi?" Ak, kas man te viņu
+ņems?"</p>
+
+<p align="JUSTIFY">Un tur tai krogā bija trīs mazas kastītes: viena lielāka, otra
+mazāka, un trešā vēl mazāka. Tad viņš ielicis tai vismazākā no tām to dozi un
+aizslēdzis; bet šo kastīti atkal ielicis vidējā kastītē un atkal aizslēdzis : bet
+to vidējo kastīti atkal ielicis vislielajā un tad aizslēdzis ir to, sacīdams:
+"Kas tur gan viņu varēs dabūt?"</p>
+
+<p align="JUSTIFY">"Jā, jā, kas to var zināt, kādi cilvēki pasaulē nav!"
+skrējēš atbildēš.</p>
+
+<p align="JUSTIFY">Un kad nu viņi apgulušies, skrējēš naktī redzējis, ka tā
+ķēniņa meita ar divi zirgi dabraukusi pie tā kroga, iegāsi iekšā, atslēgusi.
+pirmo, otru un trešo kasti, izņēmusi to dozi un aizbraukusi projām. Bet skrējēš
+gāja viņai paka( un redzēja, ka viņa aizbrauca uz elli. Skrējēš bija apvilcis to
+mēteli, ko velns iedevis pie naudas dobes. Un kad ķēniņa meita iegāja ellē, tad
+atdevusi to kasti velnam. Bet velni saoda svešu smaku.</p>
+
+<p align="JUSTIFY">"Kas te var būt? Te ērmīga sveša smaka?" tie jautāja. </p>
+
+<p align="JUSTIFY">Tad skrējēš paņēmis rokā to zobinu, ko velns devis, un tūlin
+velniem galvas krita kā pogas. Bet ķēniņa meita, to redzēdama, žigli aizbrauca
+projām. Skrējēš nu paņēma ķēniņa meitas tabakas dozi, pārgāja atpakaļ uz krogu
+un apgulās, it kā nekur nebūtu bijis.</p>
+
+<p align="JUSTIFY">Rītā, kad ķēniņa dēls uzcēlies un dozes vairs neatradis,
+skrējēš sacīš: "Edz, kam tu ņēmi? Es jau tev sacīju, ka var izzagt! Kur nu
+ņemsi atdot ķēniņa meitai?"</p>
+
+<p align="JUSTIFY">Tad ķēniņa dēls no bailēm gribēja projām bēgt; bet nu
+skrējēš atdeva dozi, zobinu, mēteli un maisu, sacīdams: "Tā es tevi pasaulē
+glābu, tāpēc, ka tu mani izpirki no skursteņa."</p>
+
+<p align="JUSTIFY">To sacīš, tas vēl pamācīš, kas ar maisu, zobinu un mēteli
+darāms, un tad pazudis.</p>
+
+
+</body></html>

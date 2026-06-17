@@ -1,0 +1,283 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Triju brāļu līgums ar velnu.</p>
+</font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+</b><p align="JUSTIFY"><b></b>A. 360. J Dīcmanis Lejas Kurzemes Liegos. "Pasaku
+vācelīte", 39. LP, VII, II, 28, 2, 4.<b></b></p><b>
+</b>
+
+<p align="JUSTIFY">Reiz dzīvoja saimnieks, tam bija trīs dēli. Pie saimnieka mājām
+itin tuvu kungam bija mežs, un saimnieka trīs dēli gāja arvien kunga mežā zagt
+kokus. Kungam tas nepatika un viņš uz saimnieka dēliem dusmojās. Kādu dienu kungs
+nogāja pie mi- nētā saimnieka un teica : " Ja tu savus dēlus neaizdzen no savām
+mājām, tad likšu viņus izdzīt un tev mājas atņemšu. Tavi dēli ir lieli zagli,
+viņi apzog manu mežu un apskādē kokus. To es nemaz nevaru vairs paciest. Bet klausies.
+nepiemirsti, ko es tev tagad sacīju!"</p>
+
+<p align="JUSTIFY">Saimnieks palika domīgs un runāja pie sevis: "Nemaz nezinu ko
+lai daru? Kad kungs man mājas atņem, kur tad lai palieku?</p>
+
+<p align="JUSTIFY">Neko darīt, dēli jāsūta projām. Viņi ir jauni, vēl pilni spēka,
+var sev maizi arī citur nopelnīt."</p>
+
+<p align="JUSTIFY">Otrā dienā viņš lika dēliem sataisīties, iedeva katram maizes
+kukuli un cirvi un tad aizraidīja katru pa savu ceļu. Viņi visi trīs, katrs pa savu
+ceļu iedami, nonāca mežā. Gāja ilgu laiku pa biezu tumšu mežu maldījās,
+nevarēdami mežam nekur malu atrast. Pietrūka arī ko ēst visiem trim.</p>
+
+<p align="JUSTIFY">Kādu dienu. jaunākais brālis, tā pa mežu domīgs staigādams,
+ieraudzīja vīru no otras puses tiešām pretim nākam. Viņš palika tūlin priecīgāks
+un pie sevis tā runāja: "Varbūt tam būs kāds mazumiņš maizes. un ja viņam
+arī maizes nebūtu, taču zinās, kur mežam mala."</p>
+
+<p align="JUSTIFY">Viņš itin mudīgi steidzās svešajam vīram pretim. Bet par brīnumu
+svešais vīrs bija viņa vecākais brālis. Vecākais brālis, jaunāko brāli
+ieraudzījis sev pretim nākam, tāpat to bija turējis par svešu vīru un pie sevis
+tāpat runājis: "Varbūt, ka svešajam vīram būs taču kāds kumosiņš maizes.
+Kad arī viņam maizes nebūs, tad taču viņš zinās man parādīt mežam malu."</p>
+
+<p align="JUSTIFY">'Tā abi bija domās maldījušies un nevienam nebija maizes. Kamēr
+viņi vēl tā runāja, ieraudzīja atkal kādu vīru pretī nākam. Viņi nu cerēja, ka
+šim svešajam vīram būs kāds kumosiņš maizes, un priecīgi devās šim pretī. Bet
+teic tavu brīnumu - vīrs nebija vis svešs, bet viņu pašu vidējais brālis. Šis tos
+ieraudzījis, bija tāpat domājis kā šie: "Varbūt, ka tiem divi svešajiem
+vīriem būs kāds kumosiņš maizes. un varbūt, ka viņi arī zinās, kur mežam
+mala."</p>
+
+<p align="JUSTIFY">Visi trīs nu bija tā izsalkuši. ka nemaz vairs nevarēja paciest --
+labāki vēlējās tulin nomirt. Viens teica: ,,Kā citādi nāvi</p>
+
+<p align="JUSTIFY">atradīsim? Pakārsimies!"</p>
+
+<p align="JUSTIFY">Otrs tāpat. Kamēr viņi par savu gŗūto bēdu likteni vēl runāja,
+piejāja balts jājējs ar baltu zirgu. Nu visi trīs brāļi pazemīgi lūdza balto
+jājēju, lai viņš būtu tik labs parādīt, kur mežam mala.</p>
+
+<p align="JUSTIFY">,,.Jūs, jaunie puiši! - es gan zinu, kur mežam mala!" baltais
+jājējs itin laipni sacīja.</p>
+
+<p align="JUSTIFY">Tad brāļi no sirds lūdza balto jājēju: "Dod mums drīzi vien
+ēst, jo nevaram vairs paciest. kā gribam ēst."</p>
+
+<p align="JUSTIFY">Vecais jājējs teica: "Nākat man līdz, es jūs apgādāšu ar
+maizi!"</p>
+
+<p align="JUSTIFY">Baltais jājējs, kas bijis pats Dievs, viņus izveda uz meža malu un
+deva krietni paēst. Kad viņi bija paēduši, tad baltais atkal<b> </b>runāja tā:
+"tā Jums došu vienu maciņu pilnu ar naudu. Ja Jūs mani klausīsit un tas
+darīsit, kā .Jums sacīšu, tad. šai maciņā nekad naudas netrūks."</p>
+
+<p align="JUSTIFY">Viņš maciņu iedeva vecākajam brālim un teica uz viņu: "Kad
+tev kāds prasa, tad tev vairāk neko nebūs runāt, kā: "Mēs, brāļi, visi
+trīs!"</p>
+
+<p align="JUSTIFY">Uz vidējo brāli viņš sacīja: "Tev nebūs nekad vairāk neko
+runāt, kā: .,Naudas labad!"</p>
+
+<p align="JUSTIFY">Un uz jaunāko brāli baltais kungs sacīja: "Kad tev kāds ko
+jautā, tad katru reizi atbildi: "Tas bija labi gan!" Ja Jūs visi tā
+izturēsities, kā es Jums tagad sacīju, tad maciņš nekad netaps tukšs. Kad arī Jums
+vairāk ko prasītu, tad tomēr citu Jūs neko nedrīkstat runāt, kā katrs tikai savu
+noliktu teicienu."</p>
+
+<p align="JUSTIFY">Tā tas arī palika, visi trīs brāļi bija pilnīgi mierā. Pēc tam
+viņi aiz gāja no baltā jājēja un gāja arvien tālāk uz priekšu. Tā iedami viņi
+nonāca krogā. Tur viņi ēda un dzēra, nekā nerunādami un neprasīdami, bet
+trīskārtīgi visu aizmaksāja, jo naudas viņiem netrūka. - Maciņš bija vienmēr
+pilns.. Krodzenieks, krodzeniece turēja viņus par mēmiem. Tā brāļi te krogā
+dzīvoja 1abas dienas un krodzenieks palika viņu dēļ dienu. no dienas bagātāks.
+Viņš lika pārtaisīt pat savu krogu, kas tagad līdzinājās bagāta kunga pilij.</p>
+
+<p align="JUSTIFY">Gadījās, ka tā novada kungs, pie kuŗa krogs piederēja, sadomāja
+saviem saimniekiem paaugstināt māju nomaksas. Muižas vagāre, gudrs un sapratīgs vīrs
+būdams, sacīja kungam: "Ko .Jūs, cienīgs kungs, nabaga saimniekus gribat
+apgŗūtināt? Labāk uzliekat krodzeniekam to tiesu vairāk! Viņš paliek par daudz
+bagāts. Vai viņš nevar maksāt? Kad Jūs redzētu, viņš savu krogu tik skaistu
+pārtaisījis, ka tas tikpat stalts un grezns izskatās, kā Jūsu pils."</p>
+
+<p align="JUSTIFY">Kungs tūlin lika kučierim iejūgt zirgus un taisījās braukt
+apskatīties krogu. Brauca, brauca` bet krogu nevarēja uzbraukt. Kučieris nomanīja, ka
+kungs ko meklē, bet nevar atrast. Viņš pagriezies uz kunga pusi pazemīgi prasīja:
+"Cienīgs kungs, man liekās, ka Jūs ko meklējat un nevarat ieskatīties."</p>
+
+<p align="JUSTIFY">"Meklēju mūsu krogu, nevaru ieraudzīt."</p>
+
+<p align="JUSTIFY">"Vai, kungs! - mēs jau 3 reizes esam krogam gaŗām pabraukuši.
+Tas ir mūsu krogs, tā staltā pils tur!"</p>
+
+<p align="JUSTIFY">Kungs pabrīnējās, jo nebija krogu vairs pazinis. Kučieris apturēja
+zirgus un kungs iegāja krogā. Krodzenieks un krodzeniece ļoti mīlīgi un laipni kungu
+saņēma un labi pacienāja. Kamēr kungs krogu apskatīja, pienāca vakars. Kungs
+taisījās braukt mājās un lika kučierim zirgus aizjūgt. Bet krodzenieks un
+krodzeniece norunāja kungu, lai nebraucot mājās, bet lai paliekot pi,: viŗoiem par
+nakti. Kungs arī. ļāvās ierunāties un palika.</p>
+
+<p align="JUSTIFY">Vakarā, kad kungs un kučieris jau gulēja., krodzeniecei ie nāca
+prātā ļaunas domas. Viņa paklusi teica krodzeniekam:</p>
+
+<p align="JUSTIFY">"Mīļo vīriņ! vai zini ko? Mums būs lielāka nomaksa
+jāmaksā. Man šķiet, ka kungs tamdēļ vien tikai šurp braucis. Ņemsim un nokausim
+viņu un kučieri, tad mums nebūs vairs par lielāku maksu jābaidās -- un redzētāja
+arī neviena nav. Mūsu trīs labie viesi ir mēmi, tie nekādu liecību nevar
+izdot."</p>
+
+<p align="JUSTIFY">Šāds padoms krodzeniekam labi patika un viņi nu gaidīja, līdz
+kungs ar kučieri labi iemigs. Kad bija aizmiguši, tad viņi abus nokāva un viņu miesas
+iznesa ārā un paglabāja. Kad viss tik tālu bija padarīts, krodzeniece savā ļaunā
+bezdievīgā sirdī palika nemierīga, sāka baiļoties. Pavisam pārsteigta un sajukusi,
+viņa teica: "Vadzi, mīļo vīriņ - slikti būs! Kad tik nepienāk, ka mēs to esam
+darījuši? Es domāju: tev vajadzētu tūlin iet un likt visās baznīcās zvanīt, un ja
+tev kāds par viņu miršanu vaicā, tad saki droši, ka šie trīs ceļotāji būs viņus
+nokāvuši. Tā mums varbūt it labi izies."</p>
+
+<p align="JUSTIFY">Krodzenieks tūlin mudīgi vien nogāja un lika visās baznīcās
+zvanīt. Kad ļaudis dabūja zināt, ka kungs krogā miris no slepkavu rokas, tad liels
+pulks steidzās uz krogu briesmu darbu skatīties. Krodzeniece nu ņēmās visā spēkā
+ļaudim ieteikt, ka to tie trīs ceļotāji padarījuši, jo cits neviens te neesot krogā
+manīts.</p>
+
+<p align="JUSTIFY">Tūlin tanī pašā dienā krodzeniekam, krodzeniecei un trim brāļiem
+bija jātiek uz tiesu. Tiesas kungs lika iesaukt vecāko brāli un tam prasīja: "Vai
+tu nokāvi to kungu un viņa kučieri?"</p>
+
+<p align="JUSTIFY">"Mēs brāļi visi trīs!" viņš itin droši atbildēja.</p>
+
+<p align="JUSTIFY">Tiesas kungs lika iesaukt vidējo brāli un tam prasīja:
+"Kamdēļ nokāvāt to kungu un kučieri?"</p>
+
+<p align="JUSTIFY">" Naudas labad!" vidējais brālis atbildēja.</p>
+
+<p align="JUSTIFY">'Tiesas kungs lika iesaukt jaunāko brāli un tam prasīja : "Kā
+Jūs to uzdrīkstējāties darīt?"</p>
+
+<p align="JUSTIFY">Tas bija labi gan!" jaunākais brālis itin droši un jautri
+atbildēja.</p>
+
+<p align="JUSTIFY">Pēc viņu pašu izteikumiem tiesas kungs atzina brāļus par
+vainīgiem. Nosprieda trīs brāļus slepkavības dēļ pakārt.</p>
+
+<p align="JUSTIFY">Otrā dienā kaŗamā vietā, ku karātavas bija uztaisītas, sanāca
+daudz daudz ļaužu. Pēc kāda laiciņa atveda tos trīs brāļus kārt. Pieveda pie
+karātavām, jau gribēja kārt, te - kur radies, kur ne? - piejāja baltais jājējs un
+teica tiesas kungam, ka šie trīs brāļi nevainīgi: viņi neesot šo briesmīgo
+slepkavību darījuši. Baltais jājējs izteica tiesas kungiem, ka viņš iedevis viņiem
+maciņu pilnu ar naudu un noteicis, ka vairāk nedrikst runāt, kā katrs šo vienu
+teicienu, to pašu, ko viņi tiesas priekšā katrs runājuši. Kad arī pie tiesas būtu
+diezin kas prasīts, viņi tikai šo noteikto teicienu būtu atbildējuši; vēl vēlāk
+baltais vīrs runāja: "Krodzenieks un krodzeniece nokāva kungu un kučieri "</p>
+
+<p align="JUSTIFY">baidīdamies no lielākas nomaksas par krogu.</p>
+
+<p align="JUSTIFY">Krodzenieku un viņa sievu pārklaušināja - tie arī atzinās par
+vainīgiem un tos pakāra. Nu trīs brāļi aizgāja uz ,tēva mājām. nezaga vairs kunga
+mežā, bet dzīvoja labi un laimīgi.</p>
+
+
+</body></html>

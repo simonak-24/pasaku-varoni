@@ -1,0 +1,176 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Mirons kāzās.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">5. K. Tarzleris Druvienā, Brīvzemnieka "Sborņik" 95. L.P,
+VII, I, 153 (4).</p>
+
+<p align="JUSTIFY">Divi mājas bija tuvu kaimiņus. Arī saimnieki dzīvoja ļoti labā
+draudzībā; bet piepēži -- ne par šo, ne par to -- saķildojās un ēdās bez gala.
+Reiz viens no šiem saimniekiem, patlaban kā no tiesas pārbraucis, gāja istabā un itin
+piepēži istabas vidū saklupa uz grīdas un nomira. Neko darīt, kas miris, miris -
+atmodināt jau vairs neatmodināsi - bija jāsarīko bēres un jāpaglabā kā pienākas.</p>
+
+<p align="JUSTIFY">Kādu laiku pēc tam šis otrs saimnieks aizbrauca uz Rīgu un,
+atpakaļ braukdams, atšķīrās no ceļa biedriem. Bija jau brangi vēlais, kad viņam
+pašu laiku kapiem bija jābrauc gaŗām. Te, tai ' acumirklī saceļas pie kapu vārtiem
+liels viesulis un no viena kapa izšausies liels, balts vīrietis ar dunci rokā, melnos
+zābakos, sacīdams tā: "Nāču, apskaties. kā es tagad dzīvoju. Ja jau esmu tavs
+senākais kaimiņš! Šonakt tev tā kā ta jāmirst; bet es gribēju iepriekš tev
+patencināt pār tavām labdarībām."</p>
+
+<p align="JUSTIFY">Itin nekas neatlika saimniekam, bija jāiet līdz. Negantnieks ieveda
+viņu lielā pilī, jaukās, lielās istabās, sacīdams: "Tagad es tevi
+papriecināšu!" 'To teicis, tas ieveda viņu vienās kāzās, kur ēda, dzēra un
+deja; bet viņus abus neviens pats neieraudzīja. Tad negantnieks piegāja brūtei klāt,
+izzīda tai visas asinis - nabadzīte nokrita gar zemi un nomira. Kāzinieki gan sauca,
+gan brēca -w nezin ko darīt, ko iesākt, bet negantnieks ar savu biedru tamēr projām
+jau un smaida vien, ko izdarījis. Tad saimnieks ievaicājās negantniekam: ;,Vai tad
+brūti nemaz nevarētu vairs atdzīvināt?"</p>
+
+<p align="JUSTIFY">"Var gan; bet kur tad šie to izzinās. kā tas darāms? Brūte
+tūdaļ atdzīvinātos, ja "Kāds kreisās rokas mazajā pirkstiņā iegrieztu un
+trīs asins pilītes iepilinātu viņai mutē."</p>
+
+<p align="JUSTIFY">Tā viņi aizgāja tālāku un nonāca pie vienas mājas, kur bija
+kristības. Tur viņi atkal ēda, dzēra un līksmojās, bet aizejot, negantnieks piegāja
+pie jaunpiedzimušā bērna un izsūca tam asinis Bērns arī tūlin nomira Māte
+bēdājas un raud, arī visi viesi nobijās. Negantnieks atkal smaida un stāsta biedram,
+ka arī bērnu var atdzīvināt, ja kāds iegriež viņam kreisās kājas mazajā
+pirkstiņā un trīs asins pilītes iepilinātu viņam mutē. Tad negantnieks vēl saka,
+ka viņiem vēl esot laiks līdz pusnaktij, un aizved saimnieku uz citu māju, kur ir
+bēres. Viņi pieiet pie mājas durvim un redz, ka tur ar krītu ir uzzīmēts lietuvēna
+krusts. Iet pie logiem, tur atkal ir tādi paši krusti. Negantnieks grib iet atpakaļ,
+bet saimnieks lūdz, lai laižot viņu uz kādu brīdi iekš, teikdams: "Man dikti
+ēst gribis."</p>
+
+<p align="JUSTIFY">Negantnieks arī viņu atlaiž un saka: "Nāc tikai drīzāk
+ārā, es te tevi uzgaidīšu."</p>
+
+<p align="JUSTIFY">Saimnieks ieiet, nosēstas pie galda un tik ēd ka ēd. Negantnieks jau
+vairāk reizes viņu sauc laukā, bet šis tik izliekas, itkā nedzirdētu. Te piepēži
+iedziedas gailis. Negantnieks uzkliedz viņam vēl pēdējo reizi: "Caurais maiss,
+vai tu vēl neesi pilns?"</p>
+
+<p align="JUSTIFY">Bet šis neatbild ne vārda. Tad negantnieks aizbēg, viņu lādēdams.</p>
+
+<p align="JUSTIFY">Nākošā rītā saimnieks aizgāja un atdzīvināja, kā bija teikts,
+brūti un bērnu, un tad izstāstīja visu, ko bija redzējis un piedzīvojis. Aizgāja uz
+kapsētu, iz, aka kapu un tiešām: negantnieks guļ zārkā uz mutes. Viņš laikam bija.
+par vēlu pārnācis un nepaspējis vairs uz muguras apgriezties. Nu mironim ņēma un
+nocirta galvu, nolika to pie kājām un uz zārka vāka vēl uzzīmēja lietuvēna krustu.
+No tā laika mirons vairs neblandījās pa pasauli apkārt.</p>
+
+<p align="JUSTIFY">Piezīme. <b>A. </b>Lerchis-Puškaitis ir ievietojis šo pasaku tik
+līdz pusei. kur mirons stāsta, kā brūti varot atdzīvināt. Beigās viņš piezīmē,
+ka gluži tādu pašu esot uzrakstījis P. Zaravičs Veismaņos. P. Š.</p>
+
+
+</body></html>

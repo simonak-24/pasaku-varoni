@@ -1,0 +1,167 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Mednieks izglābj princesi.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>7. </b>A. 304. J. Saržants Iģenē. LP, VI, 125, 2. AŠ, II, 96d.</p>
+
+<p align="JUSTIFY">Aitu ganiņš ganīja savas aitas pie rijām, Pie viņa aizgāja
+ķēniņa kučieris, nokāva nabaga aitu ganiņu. Te atskrēja lauva, lācis, zaķītis un
+redz : aitu ganiņš pagalam.</p>
+
+<p align="JUSTIFY">Tad lauva uzsauca zaķītim: "Skrien pēc dzīvības zālēm! Tur
+lielajā mežā ir dzīvības avots."</p>
+
+<p align="JUSTIFY">Zaķītis mudīgi aizskrien pēc dzīvības zālēm, ka noput vien, un
+drīzi ir atpakaļ. Lauva šo ieraudzījusi, notālēm sauc jau: "Vai dabūji? Vai
+dabūji?"</p>
+
+<p align="JUSTIFY">Zaķītim pilna mute, tas vairāk nevar atbildēt: "Ū, ū!"
+tikai norūc.</p>
+
+<p align="JUSTIFY">Bet lauva vēl otrreiz: "Vai dabūji?"</p>
+
+<p align="JUSTIFY">"Ū, ū!" zaķītis norūc, steigdamies pie nomirušā
+ganiņa. Bet lauva vēl trešreiz itin bargi uzsauc: "Vai dabūji dzīvība&amp;127;
+ūdeni? Atbildi, kad prasu!"</p>
+
+<p align="JUSTIFY">Nu zaķītis skaidri atteica: "Ja!" bet tad arī visas zāles
+bija no mutes ārā, viss skrējiens velti. Tad zaķītis noteica, lai viņam vairs tā
+neprasa, un aizskrēja otrreiz pēc dzīvības zālēm. Atnesa zāles, uzlaida ganiņam
+virsū to muti - ganiņš nemaz nepakustas. Tad atnesa vēl vienu muti dzīvības ūdeni -
+un nu jau ganiņš drusku pakustējās. Trešo muti, kad to atnesa, ganiņš cēlās
+augšām, norakstīja mazu grāmatiņu un iedeva zaķītim, lai nonesot ķēniņa meitai,
+viņa brūtei. Zaķītis aizskrien pie pils durvim, klaudzina, klaudzina - lielām mokām
+ielaidīs gan šo. Ieticis pili, zaķītis tūdaļ aizsteidzās tur, kur brūte sēž, un
+pagrubināja brūtei pie kājām. Brūte paraudzījās (paskatījās), ka zaķītim
+grāmata mutē, tūlin paņēma un lasīja. Un tur bija rakstīts, ka kučieris viņas
+brūtgānu nokavis (aitu ganiņu).</p>
+
+<p align="JUSTIFY">Aitu ganiņš bija izpestījis ķēniņa meitu un kučieris bija
+nodomājis ķēniņam melot, ka viņš tas pestītājs un tādēļ ganiņu nokavis. Tad
+ķēniņa meita </p>
+
+<p align="JUSTIFY">iedeva grāmatu ķēniņam. Tas izlasīja, kas tur rakstīts, un
+tūlīt iesauca kučieri iekšā, sacīdams: "Spried tu! Man pazuda veca atslēga,
+nokalu jaunu, bet nu veco atradu. Kuŗu nu lietošu, veco, vai jauno?"</p>
+
+<p align="JUSTIFY">Kučieris teica: "Vecā ir labāka!"</p>
+
+<p align="JUSTIFY">"Labi! Bet spried vēl, ko tādam lai daru, kas otram rīkli
+pārgriež?"</p>
+
+<p align="JUSTIFY">"Tādu vajaga ielikt mucā, kur sadzīts pulka naglu, adatu un ar
+trim zirgiem saraustīt."</p>
+
+<p align="JUSTIFY">"Labi! Tu pats esi sev nospriedis tiesu," ķēniņš sacīja
+un lika kučieri mucā, aizjūdza trīs zirgus priekšā un saputināja neģēli gabalu
+gabalos.</p>
+
+<p align="JUSTIFY">Bet aitu ganiņu saprecināja ar savu meitu. Tie dzīvoja laimīgi.</p>
+
+
+</body></html>

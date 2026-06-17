@@ -1,0 +1,210 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Bezbailis meklē bailes.</p>
+</font>
+
+</b><p><b></b>&nbsp;</p>
+
+<p>7. A. 307. 326. P. Šmits, no P. Zeltiņas Rīgā.</p>
+
+<p align="JUSTIFY">Reiz dzīvojis viens ļoti bagāts kungs, kas bijis ļauns pēc savas
+dabas. Viņam bijusi viena vienīga meita, kuŗa piepēži nomirusi. Mirušo meitu viņš
+licis aizvest uz baznīcu, lai tur varētu par to Dievu lūgt. Par nakti viņš tur
+nolicis vienu sargu, bet no rīta atraduši tikai vairs sarga kaulus. Tāpat noticis ar
+otru un trešo sargu.</p>
+
+<p align="JUSTIFY">Turpat dzīvojis viens jauns puisis. kam nebijis ne no kā bailes.
+Kungs nu lūdzis šo puisi, lai viņš uzņemtos mirušo meitu apvaktēt un izzināt, kas
+ar viņu par akti notiek. Par to viņš nu apsolījis tam lielu algu. Bet ja meita būtu
+bijusi tikai apburta un vēlāki atkal pamostos, tad viņš dotu šim to par sievu.</p>
+
+<p align="JUSTIFY">Puisis atteicis, ka nevis algas dēļ viņš iešot sargāt, bet viņš
+pats gribot zināt, kas tur baznīcā notiekot. Pirmo vakaru viņš iegājis baznīcā un
+apslēpies mirušo sargu kaulos. Priekš pusnakts viņš redz, ka baznīcā sanāk velni,
+izņem kunga meitu no zārka un sagriež to smalkos gabalos. Tad nu viens velns iesaucies:
+Te ir dzīva cilvēka smaka!"</p>
+
+<p>" Nu sākuši izmeklēt visas malas un puisis jau domājis, ka arī šim būs gals
+klāt. Te iedziedājies gailis un velni steigšus vien salikuši atkal kunga meitu kopā,
+iecēluši zārkā un aizbēguši. Kad nu no rīta kungs gājis baznīcā, tad atradis
+drošo puisi sveiku un veselu. Šis nu arī izstāstījis kungam visu, ko bija redzējis.</p>
+
+<p align="JUSTIFY">Otru nakti puisis atkal iet baznīcā un paslēpjas augšā pie
+baznīcas luktuŗa. Naktī atkal sanāk velni, sagriež kunga meitu gabalos un sāk
+runāt: "Te tiešām ir dzīva cilvēka smaka!"</p>
+
+<p align="JUSTIFY">Meklēdami šoreiz velni apskatījuši arī kaulu kaudzi; bet tur nekā
+neatraduši, sākuši skatīties gaisā un ieraudzījuši tur puisi uz luktuŗa. Tad velni
+sakrāvuši baznīcas solus vienu uz otra, uzkāpuši uz soliem un vēl rāpušies cits
+citam uz pleciem. Gandrīz jau bijuši puisim klāt, kad iedziedājies gailis un tālāk
+viss noticis tāpat kā pirmajā naktī.</p>
+
+<p align="JUSTIFY">Trešā naktī puisis nosēdies turpat zārka tuvumā, apvilcis ar
+krītu sev riņķi apkārt un lasījis bībeli. Naktī velni atkal bijuši klāt.
+ieraudzījuši puisi un gribējuši tam brukt virsū, bet nekā nevarējuši par krīta
+riņķi pāri tikt. Tad viņi gājuši atkal pie kunga meitas, sagriezuši to gabalos, bet
+gluži nejauši viens gabals pārkritis par krīta riņķi pie puiša. Kad gailim dziedot,
+velni gribējuši atkal salikt meitu un doties projām, tad atraduši, ka viena gabala
+trūkst un ka tas ir pie puiša aiz krīta riņķa. Nu sākuši puisi lūgties un
+solījuši tam lielu maksu, lai atdodot vien to gabalu, bet puisis tik lasījis bībeli un
+nelicies ne zinot. Nekā nepanākuši,. velni atkal aizbēguši. Tad puisis piegājis pie
+kunga meitas zārka, pielicis meitas miesai trūkstošo gabalu, un meita tūlin
+pamodusies. Nu gājuši abi pie altāra, pielūguši Dievu un nu meita bijusi no burvības
+atsvabināta.</p>
+
+<p align="JUSTIFY">Kad nu kungs no rīta atkal iegāja baznīcā, tad par lielu brīnumu
+atrada tur savu meitu dzīvu. Drošajam puisim par pateicību kungs viņam apsolīja savu
+meitu par sievu. Puisis atbildēja: "Tas viss ir ļoti labi, bet bīties es tomēr
+neesmu dabūjis."</p>
+
+<p align="JUSTIFY">Kungam bijis kāds cits kungs pazīstams, kuŗam bijusi viena apburta
+pils. Tai pilī neviens nevarējis par nakti pārgulēt un kas tur vakarā iegājis, tas
+no rīta atrasts pagalam. Meitas tēvs nu nosūtījis drošo puisi uz savu draugu.</p>
+
+<p align="JUSTIFY">Svešais kungs bijis ļoti priecīgs par nebēdīgo puisi un aizvedis
+viņu tūlin uz apburto pili. Naktī tur uzreiz atveŗas durvis un pie puiša ienāk liels
+melns kungs, kas viņam sniedz roku. Puisis uzsauc: "Parādi man papriekšu savas
+rokas! Es esmu šās pils kungs un katram rokas nesniedzu."</p>
+
+<p align="JUSTIFY">Melnais kungs arī parāda savas spalvainas rokas ar gaŗiem nagiem un
+puisis atkal izsaucas : "Vai brālīt, cik tev gari nagi! Nāc man papriekšu līdz,
+lai es tos apgriežu!"</p>
+
+<p align="JUSTIFY">Puisis nu aizvedis melno kungu uz darba istabu, kur bijis
+skrūvbeņķis, ieskrūvējis tur viņa rokas, tad aizgājis pats projām un nolicies
+mierīgi gulēt. No rīta atnācis kungs un atradis puisi gluži veselu. Tas nu
+izstāstījis, ko par nakti dzirdējis un redzējis. Tad gājuši abi uz darba istabu
+apskatīt ieskrūvēto kungu, bet no tā tur vairs nebijis ne vēsts. Pils īpašnieks nu
+teicis: "Ja tu vēl nākošu nakti še paliksi dzīvs, tad es tev to pili
+atdošu."</p>
+
+<p align="JUSTIFY">Otrā naktī puisis atkal aizgājis uz apburto pili un licies gultā
+gulēt. Bet drīz vien izcēlies liels troksnis un puisis jutis, ka viņš vēja ātrumā
+tiek nēsāts pa pili apkārt ar visu gultu. Puisis par to nemaz nesabijies un tik
+izsaucies: "Ātrāk, ātrāk!" Kad nu spoki bijuši visādi izālējušies, bet
+puisis tomēr nav baidījies, tad atstājuši to mierā un paši pazuduši.</p>
+
+<p align="JUSTIFY">Otrā dienā atnācis atkal pils kungs apskatīties, kas ar puisi
+noticis; bet tas tikai priecādamies stāstījis, kā viņš pa nakti esot ar gultu
+braukājis. Kungs nu arī pēc solījuma atdevis savu apburto pili puisim.</p>
+
+<p align="JUSTIFY">Drošais puisis nu gājis atpakaļ uz pirmo kungu, kur tad ar kunga
+meitu nodzēruši priecīgas kāzas. Ar jauno sievu viņš nu tūlin devies uz savu pili.
+Meitas tēvs gan par to baidījies, bet znots atbildējis: "Kā es savu dzīvību
+varēju aizsargāt, tā es aizsargāšu arī sievas dzīvību!"</p>
+
+<p align="JUSTIFY">Kad abi nonākuši jaunajā pilī, tad puisis gan bijis ļoti laimīgs,
+bet tomēr žēlojies, ka neesot dabūjis bīties. Jaunā sieviņa nu likusi atnest no
+upes vienu spaini auksta ūdens ar mazām zivtiņām. Kad vīrs nakti bijis aizmidzis, tad
+uzlējusi tam visu ūdeni ar zivtiņām virsū. Vīrs uztrūcies no miega, iesaucies:
+"Vai, kā es nobijos!"</p>
+
+<p align="JUSTIFY">No tā laika drošinieks nekādas bailes vairs nemeklējis, dzīvojis
+laimīgi ar savu sieviņu un dzīvo vēl tagad, ja nav nomiruši.</p>
+
+
+</body></html>

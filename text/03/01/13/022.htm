@@ -1,0 +1,213 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>22</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Neuzticamā māsa.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">22. A. 315. 304. Mācītājs Hilde, Gaujienā. R. Auning "Ü ber
+den lett. Drachen-Mythus", 136. LP, VI, 2 AŠ, II, 97h.</p>
+
+<p align="JUSTIFY">Vienam tēvam bijuši divi bērni: viens dēls Jānis vārdā un viena
+meita. Kad tēvs un māte nomiruši, tad brālis ar māsu palikuši tēva mājā dzīvot,
+bet drīz tiem apnicis un tie gājuši meklēt labākas dzīves. Viņi gājuši un
+ieraudzījuši meža vidū vienu māju. Tai mājā ap galdu sēdējuši divpadsmit brāļi
+un visi viņi dzēruši no viena biķeŗa. Pie sienas karājies zobens. Jānis paņēmis
+zobenu no sienas un nocirtis tiem vienpadsmitiem galvas, bet tam divpadsmitam tikai
+aizcirtis vien kaklu, un visus ienesis pagrabā. Un viņi dzīvojuši priecīgi, jo tai
+mājā nekā netrūcis.</p>
+
+<p align="JUSTIFY">Jānis reiz aizgājis uz tirgu un nopircis sev balodi. Kamēr šis
+bijis tirgū, tikām tas, kam kakls bijis tikai ievainots, iznācis no pagraba un māsa
+viņā iemīlējusies, un viņi abi norunājuši Jāni nonāvēt. Tai mežā bijis ļoti
+daudz zvēru, un kas tur gājis, tas ticis saplēsts. Kad Jānis atnācis, tad māsa
+izlikusies slima un sacījusi, lai atnesot šai zaķa pienu.</p>
+
+<p align="JUSTIFY">Brālis aizgājis mežā, bet visi zvēri no viņa bēguši. Viņš
+zaķa mātei uzkliedzis, lai stāvot. Tā ar apstājusies un devusi savu pienu un vēl
+vienu bērnu klāt. Jānis pienu atdevis māsai, bet zaķa bērnu pats paturējis. Māsa
+pienu izlējusi zemē un pati izlikusies nevesela un lūgusi brāli, lai atnesot lapsas
+pienu.</p>
+
+<p align="JUSTIFY">Jānis aizgājis mežā un uzkliedzis lapsai, lai dodot savu pienu.
+Lapsa devusi pienu un vienu bērnu klāt. Pienu viņš nesis māsai. bet lapsas bērnu sev
+paturējis. Tā Jānim bijis jāatnes vēl vilka un lāča piens. Visu viņš atnesis un
+dabūjis no vilkates vilcēnu un no lāčumātes lācēnu.</p>
+
+<p align="JUSTIFY">Māsa, redzēdama, ka brāli nav mežā zvēri saplēsuši, stellējusi
+to beidzot uz dzirnavām pēc miltiem. Dzirnavās dzīvojuši divpadsmit velni. Jānis gan
+atnesis miltus, bet zvēri azmirsušies dzirnavās.</p>
+
+<p align="JUSTIFY">Brīnēdamies māsa un viņas brūtgāns redzējuši Jāni veselu no
+dzirnavām pārnākam un apņēmušies paši Jāni nolietāt. Kad tas bijis ienācis
+mājā, tad brūtgāns to tūlin gribējis nokaut, bet šis lūdzies, lai atļaujot šim
+pirtī nopērties un baltu kreklu apvilkt. To arī atļāvuši. Pirti kurinot, atskrējis
+mazs putniņš un sacījis, lai lūkojot laiku pavilcināt. Dzirnavām esot divpadsmit
+durvis un viņa zvēri jau esot astoņām cauri un drīz būšot te viņu izglābt. Jānis
+pirts krāsnī iebāzis zaļu slapju malku un gaidījis savus zvērus. Te necik ilgi -
+zvēri klāt. Jānis ar saviem zvēriem nu gājis mājiņā iekšā un ar zvēru
+palīdzību piesitis māsu un viņas brūtgānu pie sienas ar naglām un pats aizgājis
+projām ar saviem zvēriem.</p>
+
+<p align="JUSTIFY">Tās zemes ķēniņš licis izsludināt, ka tam došot savu jaunāko
+meitu par sievu, kas viņa trīs meitas izglābšot, jo jūrmalā uz akmeņa viņām
+jāsēžot un tikām jāgaidot, kamēr velns atnākot un viņas aiznesot.</p>
+
+<p align="JUSTIFY">Jānis, to dzirdēdams, gājis ar saviem zvēriem uz jūrmalu un
+redzējis ķēniņa vecāko meitu uz akmeņa sēdam. Tā viņu lūgusi, lai bēgot, jo
+velns arī šo nonāvēšot, bet Jānis nelicies ne dzirdot. Te arī velns klāt ar
+sešām galvām. Viņš velnam ar zobenu nocirtis visas galvas un viņa zvēri velnu
+saplosījuši lupat-lēveros.</p>
+
+<p align="JUSTIFY">Ķēniņa meita gājusi uz māju, bet ceļā satikuši vienu ķēniņa
+sulaini un tam visu izstāstījusi. Tas sacījis, lai sakot, ka šis esot viņu izglābis,
+ja ne, tad šo tūlin nokaušot. Viņš ķēniņam sacījis, ka šis izglābis meitu un
+velnu nokāvis.</p>
+
+<p align="JUSTIFY">Otrā dienā bijis jāiet otrai meitai uz akmeņa sēdēt. Jānis atkal
+bijis klāt ar saviem zvēriem. Nu nācis velns ar deviņām galvām. Arī to Jānis ar
+savu zvēru palīdzību nokāvis un ķēniņa meitu izpestījis. Tā uz mājām iedama,
+satikusi atkal ķēniņa sulaini, un tas atkal solījies arī viņu nokaut, ja neteikšot,
+ka šis viņu izglābis.</p>
+
+<p align="JUSTIFY">Trešā dienā nu bijis jāiet jaunākai ķēniņa meitai uz jūrmalu.
+Šoreiz nācis tāds velns ar divpadsimt galvām. Visa jūŗa kaukusi un zeme dimdējusi,
+kad tas nācis. Jānis ar saviem zvēriem steidzies pretī un sākuši cīnīties. Velns
+Jāni gan sadzinis līdz jostas vietai zemē, bet tomēr beidzot tas velnu ar saviem
+zvēriem nonāvējis un licis ķēniņa meitai uz māju iet. Atkal nācis tas pats
+sulainis pretī un solījis viņu nokaut, ja neteikšot, ka šis viņu izglābis.</p>
+
+<p align="JUSTIFY">Ķēniņš bijis ļoti priecīgs un apsolījis sulaiņam savu jaunāko
+meitu dot. Drīz arī tikušas kāzas svinētas. Jāņa zvēri viens pēc otra arī
+prasījušies uz kāzām. Visi zvēri kāzās ēduši un dzēruši. Ķēniņa meitas, tos
+zvērus redzēdamas, izstāstījušas ķēniņam, ka nevis sulainis, bet tas, kam tie
+zvēri piederot, viņas esot izglābis.</p>
+
+<p align="JUSTIFY">Ķēniņš nu licis sulaini nokaut un pēc Jāņa stellēt. Jānis
+atnācis un apņēmis ķēniņa jaunāko meitu par sievu un nu abi braukuši uz to
+mājiņu meža vidū.</p>
+
+<p align="JUSTIFY">Jānis noņēmis māsu no sienas, bet brūtgānu nokāvis. Māsa
+gribējusi Jāņam atriebties un ielikusi Jāņa pagalvē tā velna žokļa kaulu, ko
+Jānis nokāvis. Kad tas gājis gulēt, tad žokļa kauls viņam ieskrējis galvā, un
+viņš nomiris. Viņš ticis ielikts stikla zārkā jūŗā ielaists, bet zārks peldējis
+pa ūdens virsu. Māsa brāļa zvērus ieslēgusi vienā šķūnī, lai badu nomirstot.
+Bet zvēri izplēsuši šķūņa sienas un devušies uz jūrmalu. Viņi peldējuši visi
+klāt pie zārka un vilkuši to pie malas. Zaķis ķēries pie kaula un vilcis to no
+Jāņa pieres, bet kauls zaķim pašam ieskrējis pierē. Jānis atmodies. bet nu bijis
+zaķis nost. Vilks vilcis zaķam kaulu no pieres, bet kauls ielēcis vilkam pašam pierē.
+Vilkam vilcis lācis un lāčam<b> </b>lapsa. Lapsa bijusi gudrāka par visiem. Viņa
+noliekusi galvu uz sāniem un vilkusi; kauls ar lielu spēku skrējis ārā lapsas galvai
+gaŗām un jūŗā iekšā.</p>
+
+<p align="JUSTIFY">Nu Jānis un viņa zvēri visi bijuši veseli un gājuši uz to
+mājiņu, kur ķēniņa meita vienās asarās pēc Jāņa sērojusies. Jānis nocirtis
+savai māsai galvu un dzīvojis laimīgi. Kad ķēniņš miris. tad Jānis palicis par
+ķēniņu un savus zvērus turējis labi.</p>
+
+
+</body></html>

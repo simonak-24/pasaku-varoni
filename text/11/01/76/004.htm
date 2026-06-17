@@ -1,0 +1,139 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong> Sieva ar apstājiem.</strong></font></p><font size="5">
+
+</font><p align="CENTER"><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p>4. A. 1371. J. B a n k i n s, "Š i s u n t a s" I, 1872., 47.</p>
+
+<p align="JUSTIFY">Vienai mātei bijusi tik slinka meita, kā teļunka. Precinieki sanāk,
+nodzeŗ precības, tad kāzas un šo aizved uz mājām. Līgaviņa paēd, liekās gultā
+un gul vienā gulēšanā cauru augošu dienu un nepaceļ ne pirksta.</p>
+
+<p align="JUSTIFY">Vīrs, to redzēdams, piekodina savai mātei, lai tā viņai nedod
+nepavisam ēst. Kad saime paēdusi, tad tūliņ noņem galdu un noliek maizi pie malas.</p>
+
+<p align="JUSTIFY">Jauniete tāpat guļ otru dienu cauri. Vakarā gan skatās, vai
+vīra-māte nenāks ar putras bļodu pie tās, bet kas to dos, nekā. Tai: vēders gluži
+tukšs un viņai gauži gribas ēst, bet vēl lūko izciest līdz nākošam rītam. Atkal
+tāpat kā vakar! Kad ļaudis paēd, tad vecene gaidu noņem un maizi noliek. Šī gan
+cieš, gan cieš, bet vairs nevar izturēt, desas jau kāp vai pa zobiem laukā.</p>
+
+<p align="JUSTIFY">Tā nu lec no gultas laukā un sāk tik strādāt, ka put vien. Viņas
+tēvs, labi zinādams, kādu putnu izaudzinājis, nāk tā pie vakara meitu apraudzīt.
+Šī, to ieraudzīdama, skrien viņam pretī, nobučo un saka: "Nāc, mīļais tēt'
+un paskaldi tur malku, citādi nedabūsi ēst; jo še tāds nekrietns ieradums: kas gul un
+nestrādā, tam pavisam nedod ēst."</p>
+
+<p align="JUSTIFY">P i e z ī m e. Līdzīgus variantus, kur slinko sievu pārmāca ar
+badu, ir vēl uzrakstījuši O. Tīmons Bebrenē V. Piģene Rūjienā E Bērziņa Liepupē
+(P. Birkerts, Latvju tautas anekdotes, I, 233 453, 5), M. Biksons Ivandē un A. Korsaks
+Ezerē (l. 273, 517-8). P. Š.</p>
+</font>
+
+
+</body></html>

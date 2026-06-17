@@ -1,0 +1,153 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>15</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Stiprais Ansis.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">15. A. 650 A. Indriķis Reķis Kroņa Rendā, Brīvzemnieka krājumā.
+LP, VI, 414 (112, 22. piez.).</p>
+
+<p align="JUSTIFY">Viens kalējs nedēļas laikā uzkalis no dzelzs stipru dēlu un
+nosaucis viņu par Dzelža dēlu. Bet Dzelža dēls briesmīgi pulka ēdis: septiņi
+kukuļi maizes un katlu putras uz reizi - tādēļ gājis pie kunga kalpot, kas spējis
+tādu pieēdināt. Nolīguši tā ēst, cik grib un gada galā trīs knipus pa pieri. Bet
+pirmo nedēļu jau Dzelžu dēls apēdis kungam visu gaļu; tādēļ licis vīriem vērsi
+kaut, lai būtu lielēdējam ko ēst. Bet vīri nespējuši vērsi noturēt, ne arī
+nokaut. Dzelža dēls smējies un nositis ar vienu knipi vērsi.</p>
+
+<p align="JUSTIFY">Nu kungs sabijies par tik stipru roku un gudrojis Dzelža dēlu visādi
+nogalināt. Papriekšu sūtījis malkā, lai lāci noplēstu; bet Dzelža dēls sarāvis
+ar rokām lielus kokus un krāvis vezumā. Kamēr krāvis - divi lāči apēduši zirgus.
+Dzelža dēls iejūdzis lāčus vezumā, pārbraucis un vaicājis kungam: Kur tos divus
+sunīšus būšot pievietot? Lai liekot stallī.</p>
+
+<p align="JUSTIFY">Tad kungs sūtījis sudmalās malt, kur velni mājojuši. Velnu arī
+pārvedis mājā.</p>
+
+<p align="JUSTIFY">Tad sūtījis dīķi sargāt. No dīķa iznācis velns - to arī
+pārvedis mājā un saķēdējis (stallī) abus vīrus kopā. Tad Dzelža dēls vārījis
+ķiļķenus un pavalga tiesai iemetis kunga cūku katlā. Beidzot kungs licis dzelzs ratus
+taisīt un sūtījis Dzelža dēlu pie ķēniņa pēc zelta naudas. Bet Dzelža dēls
+ātrāki nebrauc, kamēr nedošot 16 birkavi kaņepju pātāgu ko vīt un divi birkavi
+pātagas ķelpam. Novijis pātāgu, ielenčojis ķelpu un uzsējis ozola galā. Tad
+izrāvis ozolu ar saknēm un nu bijusi pātaga ar visu kātu. Iejūdzis abus lāčus
+dīselē, abus velnus gaŗjūgā (uz spici) un braucis pie ķēniņa.</p>
+
+<p align="JUSTIFY">Ķēniņš izsūtījis kaŗaspēku un licis Dzelža dēlu nošaut; bet
+Dzelžu dēls savicinājis pātagu un vienā sitienā apsitis kaŗavīrus. Paņēmis naudu
+un braucis atpakaļ. Bet kungs, redzēdams šo vēl dzīvu, paslēpies pagrabā dzelzs
+skapī. Dzelžu dēls iebāzis pa pagraba durvim mazo pirkstiņu un izvilcis dzelzs skapi
+ar visu kungu gaismā. Nu kungs lūdzies, lai ņemot visu pārvesto zeltu un ejot prom.
+Dzelžu dēls pārbraucis pie tēva un dzīvojis bagātīgi. Reiz tēvs ieminējies:
+"Kā tu, dēls, pārnākdams vairs tik daudz neēd kā toreiz?"</p>
+
+<p align="JUSTIFY">"Tas tādēļ, tēt, toreiz es vienā nedēļā neēdis izaugu un
+nu man bija jāapēd tas, ko es citādi, lēni augdams, pāris desmit gados būtu
+apēdis."</p>
+</font>
+
+
+</body></html>

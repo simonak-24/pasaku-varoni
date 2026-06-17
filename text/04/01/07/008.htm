@@ -1,0 +1,240 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Nāve par krustmāti.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">8. A. 332. L. Čapa Rīgā, A. Bērzkalnes krājumā.</p>
+
+<p align="JUSTIFY">Reiz dzīvojis kāds vīrs ar sievu, kuŗi bijuši jau paveci, bet
+bērna tiem nebijis neviena. Reizēm pat par to ļoti sadusmojušies viens uz otru.
+Redzēdami, ka dusmošanās neko nelīdzēs, viņi sākuši lūgt Dievu un Dievs viņu
+lūgšanu arī paklausījis. Kādā nemīlīgā rudens dienā sievai piedzimis dēls.
+Vecāki nu bijuši ļoti priecīgi, nodomājuši, cik iespējams ātri, to kristīt, jo
+nekristīti bērni ātri mirstot.</p>
+
+<p align="JUSTIFY">Laimīgais tēvs gājis pie kunga un lūdzis atļauju kristīt savu
+dēlu. Kungs prasījis: "Kādu vārdu tad tu liksi savam dēlam?" "Es jau
+nu gan, kungs, nezinu --- radu man nav; gribēju jau lūgt kādu no gājējiem
+kūmās."</p>
+
+<p align="JUSTIFY">Kungs atļāvis gan kristīt bērniņu, bet iepriekš viņš
+apskatīšoties un tad pateikšot dēla vārdu. Vecākiem tas bijis atkal lielu lielais
+prieks. Nu taču viņu dēlam būs vārds, kā pašam kunga dēlam.</p>
+
+<p align="JUSTIFY">Kādu dienu atnācis arī kungs apskatīties bērnu, kas bija tik
+niecīgs, vārgs, ka nemaz nevarējis ticēt, ka viņš ir dzīvs. Kungs teicis uz
+vecākiem: "Es jūsu bērnam vārda nezinu. Man tā vien liekas, ka pat svētdienas
+viņš nesagaidīs."</p>
+
+<p align="JUSTIFY">Vecāki ar to bijuši ļoti apbēdināti. Atnāca svētdiena,
+vajadzēja nest bērniņu kristīt, bet kūmas nav nevienas! Gāja uz baznīcu abi vecāki
+paši, bet mācītājs nepieņem tādu kristāmo, kam nav kūmu. Lai vēl paaudzinot mazo
+vienu nedēļu, un ja tad neradīšoties kūmas, tad viņš gan kristīšot bez kūmām.</p>
+
+<p align="JUSTIFY">Vecākiem tās bija atkal neciešamas bēdas. Viņi bija nelaimīgi,
+kad tiem nebija bērnu, bet nu atkal nebija iespējas bērnu līdzīgi citiem audzināt.
+Dievbijīgie vecāki lūdza Dievu caurām dienām. Kādu vakaru pie durvim pienācis vecs
+vecs vīriņš un lūdzis naktsmāju. Vecītis ticis uzņemts ar sirsnību. Vakariņas
+ēdot, viņš ieraudzījis šūpulīti un prasījis, kāds prieks tad nu šiem tur esot,
+vai meita vai dēls? Māte raudādama atbildējusi: "Domāju, ka man būs prieks par
+bērnu, bet redzu tik bēdas vien viņa dēļ."</p>
+
+<p align="JUSTIFY">Nu apbēdinātā māte visu izstāstīja vecītim. Vecītis tikai pa
+smējās. Ja nu tik vien tās bēdas esot, kā tās kūmas, tad jau nekas. Svētdien lai
+tik abi nesot bērniņu uz baznīcu. Kutu satiekot ceļā, lai lūdzot kūmās. Ja
+atsakās viens, otrs, lai vēl lūdz trešo; tas m gan neatteikšoties.</p>
+
+<p align="JUSTIFY">Vecāki tā arī darījuši. Tiklīdz izgājuši no istabas, satikuši
+savu kungu, lūguši to, bet tas palicis nejauks. Viņš jau esot teicis, ka tādam
+vārgulim kūmās neies. Otrs, kas nācis pretim, bijis kāds jauns puika. Tas nu vēl
+nemaz nevarējis būt kūmās. Vecāki jau domājuši, ka nu būs bērnam jāpaliek atkal
+bez kūmām. Tiklīdz viņi izgājuši cauri birzītei, kad pretim nākusi slaika
+sieviete. Vecāki arī to uzrunājuši. Viņa jau esot dzirdējusi par šo nelaimi un
+tādēļ nākusi kūmās. Vecākiem nu tās bēdas pagalam. Apprasījušies, kā tad īsti
+šo saucot, un kādu vārdu lai dēlam liekot. Viņa esot pati Nāve un dēla vārds būs
+Nāvulis.</p>
+
+<p align="JUSTIFY">Vecāki gan negribējuši dot savu bērnu Nāvei, bet cita kūma jau
+nebijis. Nāve šos apmierinājusi, teikdama, ka viņu dēls nemirs, bet ārstēs vēl
+citus. Viņa kā kūma došot dāvanu, ārsta amatu.</p>
+
+<p align="JUSTIFY">Aizgājuši baznīcā, pateikuši mācītājam, ka kūma ir. Šis gan
+negribējis tādu vārdu bērnam likt, bet neko darīt, citu kūmu nav, jāliek vien ir.
+Tā nu taču bērns ir kristīts!</p>
+
+<p align="JUSTIFY">Un tavu brīnumu! Pēc kristīšanas šis tā audzis, ka prieks
+redzēt. Bērns bijis visiem par prieku. No septiņi gadi vecāki to laiduši skolā. To
+viņš ātri beidzis un gribējis vēl ko mācīties, bet vecākiem nav bijis līdzekļu.
+Nāvulis sācis strādāt pa mājām.</p>
+
+<p align="JUSTIFY">Kādu dienu atnākusi viņa krustamāte un teikusi: "Nu dēls, tu
+esi jau savam amatam diezgan sapratīgs, tādēļ tevi tūlin izmācīšu."</p>
+
+<p align="JUSTIFY">Nāve nu teica: "Tu, dēls, būsi ārsts. Ja tevi aicina pie kāda
+slimnieka, tad vispirms paskaties uz slimnieka gultas galu. Es vienmēr esmu pie
+slimniekiem. Ja es stāvu galvgalā, tad tu droši vari slimnieku ārstēt, dod kādas
+zālītes dodams, visas līdzēs; bet ja es stāvu kājgalī, tad nemaz nepūlies
+ārstēt, tādam būs jāmirst. a manu padomu paklausīsi, būsi bagāts; ja ne, būs
+visiem posts."</p>
+
+<p align="JUSTIFY">Otrā dienā saslimusi Nāvula māte. Viņš redzējis, ka nāve stāv
+galvgalī. Iedevis mātei kādas zālītes un tā kļuvusi vesela.. Drīz Nāvuļa slava
+izplatījusies visā apkārtnē. Saslimis reiz pats kungs, arī to Nāvulis izārstējis.</p>
+
+<p align="JUSTIFY">Kādreiz Nāvulis aizaicināts pavisam citā pagastā, kur slimojis
+kāds ļoti bagāts vīrs. Viņš nepavisam negribējis par nāvi ne domāt. Bagātais
+Nāvulim solījis labu algu, lai tikai šo izārstējot. Bet Nāvulis redzējis savu
+krustmāti kājgalī stāvam, un teicis, ka neesot vērts nekādu pūļu pielikt, Nāve
+jau stāvot pie viņa kājām. Drīz bagātais saimnieks arī nomiris.</p>
+
+<p align="JUSTIFY">Pie nabaga ļaudim Nāvulis bijis sevišķā cienā, jo viņš katram
+pateicis, lai veltīgi neizdod naudu par zālēm. Visi sāka viņu saukt par brīnuma
+ārstu.</p>
+
+<p align="JUSTIFY">Reiz saslima pats ķēniņš, un arī tas aicināja Nāvuli, kas to
+drīz vien izārstēja. Par to viņam iedāvināja kādu muižu un nu Nāvuļa vecākiem
+tagad netrūka it nekā.</p>
+
+<p align="JUSTIFY">Pēc neilga laika saslima ķēniņa meita, tika aicināts atkal
+Nāvulis, bet viņš nedrīkstēja to ārstēt, jo Nāve stāvēja kājgalī. Nāvulis jau
+par ķēniņa slimības laiku bija iemīlējis viņa meitu, un tagad to gribēja glābt.
+Viņš teica ķēniņam, lai taisot ķēniņa meitai gultu uz vienas kājas, ka var griezt
+riņķī. Tā arī tika izdarīts. Nāvulis redz, ka Nāve stāv un stāv ar savu sirpi
+kājgalī. Viņš sāka griezt gultu riņķī. Nāve nespēja skriet gultai līdz, beidzot
+nokususi nokrita un viņai izkrita sirpis no rokām. Tanī acumirklī ķēniņa meita
+kļuva vesela. Nāvulis paņēma sirpi un to ieraka kādā dziļā kalnā.</p>
+
+<p align="JUSTIFY">Nāve gan piedeva savam krustdēlam nepaklausību, bet no tā nu bija
+citiem sliktums. Ļaudis vairs nemira un dzīvoja lielu lielu vecumu. Viņi sāka lūgt
+Nāvi, lai viņus ņemot no pasaules ārā, bet Nāve bija bez ieroča. Arī Nāvuļa
+vecāki jau bija ļoti veci un gribēja mirt. Nāve par tiem iežēlojās un sāka meklēt
+savu sirpi, bet neatrada. Kādu karstu vasaras dienu viņa gāja viesos pie Nāvuļa
+vecākiem, un ieraudzīja, ka pļavā gulēja pļāvēji. Piegājusi tuvāk, viņa
+gribēja paņemt kādu no izskaptim, bet visas bija vai nu pakārtas, vai apliktas ar
+zāli, tikai saimnieka dēla izskapts bija nolikta tāpat zemē. Nāve to paņēma un
+steidzās prom. Nāvuļa vecāki ieraudzījuši, ka Nāve nāk, sāka atkal to lūgt.
+Nāve arī paklausīja viņu lūgšanas, bet no tās pašas dienas mira daudz vecu
+cilvēku.</p>
+
+<p align="JUSTIFY">Nāve tagad teica Nāvulim, ka ārstēt viņš varot, bet tādas
+spējas vairs tam nebūšot, tāpēc ka tas neesot viņu klausījis. Viņš ar ķēniņa
+meitu nemaz nebūšot tik laimīgs, kā domājot. Nekad nevajagot domāt laimi tur, kur
+mēs neesam. Viņa arī pastāstīja, ka nu viņa bieži pļaušot arī jaunus cilvēkus,
+jo tā iskapts, kas viņai tagad par ierocī, esot jauna cilvēka rīks. Tāpēc tagad
+arī mirst i jauni i veci. Nekad nevajagot iskapti turēt kailu zemē. Vienmēr vai nu
+jāuzliek zāle virsū, vai jāapslēpj.</p>
+
+<p align="JUSTIFY">Piezīme. Šī pasaka stāv tuvu iepriekšējam variantam. P. Š.</p>
+
+<blockquote>
+  <p align="JUSTIFY">&nbsp;</p>
+</blockquote>
+
+
+</body></html>

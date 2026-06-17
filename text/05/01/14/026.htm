@@ -1,0 +1,167 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>26</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5">
+
+<p align="CENTER"><strong>Abi dzīvē un nāvē savienotie draugi.</strong></p>
+</font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">26. A. 470. 840. Skolnieks A, Ivāns Valmierā, no sava mātes tēva
+Bebru pagastā. Kultūras balss krājumā </p>
+
+<p align="JUSTIFY">Reiz dzīvojuši lielkungs ar lielmāti. Lielskungs bijis ļoti
+žēlīgs un līdzjūtīgs, bet lielmāte jauna un ļoti skaudīga. Lielmāte nomirusi, un
+nu palicis lielskungs viens pats. Kādu dienu lielskungs gājis pa lielu, ceļu un
+ieraudzījis ceļmalā noskrandājušos nabagu, kas teicies esam izsalcis un lūdzis
+dāvanas. Lielskungs apžēlojies par nabagu, aicinājis viņu sev līdz uz pili un
+sēdinājis pie sava galda. Kad nabags pusdienu paēdis, pateicies nama tēvam par
+laipnību un teicis: "Šodien es ēdu pusdienu pie tevis, bet rītdien lūdzu atnākt
+uz pusdienu pie manis."</p>
+
+<p align="JUSTIFY">"Bet es jau nezinu, kur tu dzīvo: nevarēšu tevi atrast,"
+atbild kungs.</p>
+
+<p align="JUSTIFY">"Rīt ap pusdienas laiku šeit pie tavas pils piestāsies balts
+jājams zirgs, sēdies viņam mugurā, viņš tevi aizvedīs uz manu pili." To
+teicis, nabags atstāja pili.</p>
+
+<p align="JUSTIFY">Viss arī notika, kā nabags bija sacījis. Otrā dienā ap pusdienas
+laiku pie Lielkunga pils piestājās balts zirgs. Lielskungs, taisīdamies sēsties zirgam
+mugurā, ceļmalas akmenī iekalis gada skaitli, tad sēdies baltajam zirgam mugurā un
+jājis viesos pie nabaga. Vienā vietā viņš ceļmalā redzējis divus lielus, lielus
+kubulus. Pie šiem kubuliem atradusies sieviete, kas steigā lējusi ūdeni no viena
+kubula otrā. Pēc kāda laika baltais zirgs apstājies pie nabaga pils. Tur jau bijušais
+nabags ciemiņu sagaidījis un laipni saņēmis. Pie bagātā pusdienas galda lielskungs
+pastāstījis par sievieti, kas lējusi ūdeni no viena kubula otrā. Nabags paskaidrojis,
+kā tā sieviete esot kāda modere, kas, dzīva būdama, pārdevusi ļaudim ar ūdeni
+sajauktu pienu. "Par tādu negodīgu krāpšanu viņai caurām dienām un naktim
+jālej ūdens no viena kubula otrā, lai gan nekad nevarēs nedz vienu izsmelt, nedz otru
+pieliet. Tā viņai jālaista ūdens līdz pastara dienai.</p>
+
+<p align="JUSTIFY">Pēc pusdienas nabags aicinājis lielkungu iet viņam līdza uz mirušo
+valsti, solīdamies parādīt arī lielkunga sievu. Lielskungs labprāt sekojis ubagam.
+Tā viņi nonākuši pie kāda liela tumša pagraba ar mazu lodziņu. Nabags āvis
+lielkungam pieiet pie lodziņa un skatīties pagrabā. Tur lielskungs redzējis ļoti
+daudz aužu: vecu un jaunu, lielu un mazu. Starp citiem viņš ieraudzījis arī mirušo
+lielmāti. Nabags iedevis lielkungam niedras kūju un teicis: "Ņem šo kūju, iebāz
+viņu pa lodziņu Pagrabā un velc cik tu vari izvilkt un cik cilvēku tur
+pieķeŗas."</p>
+
+<p align="JUSTIFY">Lielskungs iebāzis pagrabā niedru, pie kuŗas saķērušies ļoti
+daudzi mirušie un starp tiem arī lielkunga sieva. Tiklīdz lielskungs sācis vilkt
+niedru, lielmāte, aiz skaudības pret citiem, sākusi spārdīties un grūst citus nost,
+līdz niedra pārlūzusi un visi atkrituši atpakaļ. Tā tas atkārtojies līdz trim
+reizēm un lielkungam nevienu neizdevies izvilkt.</p>
+
+<p align="JUSTIFY">Pēc tam lielskungs vēlējies atgriezties uz māju. Acumirklī
+ieradies atkal tas pats baltais zirgs, uz kuŗa nu lielskungs atkal uzsēdies un jājis uz
+savu pili. Pārjājis savā muižā, viņš no pils neatradis ne zīmes, viss bijis
+pārvērties un pārmainījies. Tikai pēc akmenī iecirstā gadaskaitļa ļaudis
+stāstījuši, ka priekš vairāk simtu gadiem bijusi viena muiža, kuŗas lielskungs esot
+pazudis.</p>
+
+
+</body></html>

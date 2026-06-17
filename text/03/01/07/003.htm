@@ -1,0 +1,219 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Trīs māsas velnam par sievām.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 311. A. Lerchis-Puškaitis Džūkstē -Pienavā. LP, II, 19. AŠ<b>,
+</b>III, 3c.</p>
+
+<p align="JUSTIFY">Reiz kādam melderim pietrūcis ūdens. Kādu dienu viņš sarunājas
+ar citiem meldeŗiem un saka: "Ja man ūdens gadītos, tad es atdotu nezin ko!"</p>
+
+<p align="JUSTIFY">Bet velns, aiz loga stāvēdams, atbild: "Dod man to, kas ārpus
+durvim,tad ūdens būs!"</p>
+
+<p align="JUSTIFY">"Kas tad tur var būt? Ņem!" melderis atbild.</p>
+
+<p align="JUSTIFY">Bija gan kas: meldeŗa vecākā meita tai brīdī bij iznākusi sētas
+vidū. Velns paņem meitu un to aiznes. Otrā rītā pilns ezers ūdens. Mājā velns
+iedod meitai zelta ābolu un nosaka tā : "Visur tu vari iet; tik šinī vienīgā
+istabā neej!"</p>
+
+<p align="JUSTIFY">Otrā dienā, kamēr velns nav mājā, meita nevar nociesties istabu
+neredzējusi; viņa paveŗ durvis un domā mazuliet paskatīties. Bet ieraudzījusi lielu
+asins mucu, tā ļoti sabīstas un zelta ābols pļunkt! asinīs iekšā. Pārnāk nu
+velns mājā, tas tūlīt, lai parādot zelta ābolu. Ko nu rādīs, kad nav? Par to velns
+sadusmojas un nokauj meitu. Melderim tūlīt ūdens atkal pagalam.</p>
+
+<p align="JUSTIFY">Pēc kādām dienām melderis saka citiem: "Tavu brīnumu, kā man
+ūdens aptrūkās. Ja ūdens gadītos, tad atdotu nezin ko!" Velns, aiz loga
+stāvēdams, atbild: "Dod man to, kas klētī, tad ūdens būs!"</p>
+
+<p align="JUSTIFY">"Kas tad tur var būt, jo klēts aizslēgta? Ņem!" melderis
+atbild.</p>
+
+<p align="JUSTIFY">Bija gan kas: meldeŗa vidējā meita tai brīdī bij aizgājusi pēc
+miltiem. Velns paņem meitu un to aiznes. Otrā rītā ezers pilns. Mājā velns meitai
+iedod zelta ābolu un nosaka tā: "Visur tu vari iet; tik šinī vienīgā istabā
+neej!"</p>
+
+<p align="JUSTIFY">Bet kamēr velns nav mājā, meita paveŗ durvis, ierauga asiņu mucu,
+sabīstas un netīšu iemet zelta ābolu asiņu mucā. Velns nogalina arī viduvējo meitu
+un melderim ūdens atkal pagalam.</p>
+
+<p align="JUSTIFY">Pēc kādām dienām melderis saka citiem : "Brīnumi gan, kā
+ūdens aptrūkst manā ezerā, ta aptrūkst. Ja reiz varētu ūdeni uz ilgāku laiku
+dabūt, tad atdotu nezin ko!"</p>
+
+<p align="JUSTIFY">Velns aiz loga stāvēdams, atbild: "Dod man to, kas mēslenīcā,
+tad ūdens būs mūžam!"</p>
+
+<p align="JUSTIFY">"Kas nu mēslenīcā var būt? Ņem!" </p>
+
+<p align="JUSTIFY">Bija gan kas: meldeŗa jaunākā meita tai brīdī bij iznesusi mēslus
+laukā. Velns paņem meitu un to aiznes. Otrā rītā ezers pilns kā bļoda. Mājā velns
+meitai iedod zelta ābolu un nosaka tā: "Visur tu vari iet, tik šinī vienīgā
+istabā neej!"</p>
+
+<p align="JUSTIFY">No rīta velns aiziet. Meita domā: "Tādu jauku ābolu nevar vis
+tā brucināt, jāliek gultā, pagalvī. Bet pag, pag! kas tanī istabā varētu būt?
+Nekas, kamēr viņš nav mājā, varu paskatīties."</p>
+
+<p align="JUSTIFY">Meita atveŗ durvis un nejauki nobīstas, jo ierauga lielu asiņu mucu
+un blakam abas māsas nokautas. Viņa aizcērt durvis un nesaka nekā. Pārnāk velns -
+lai parādot ābolu. Šī parāda.</p>
+
+<p align="JUSTIFY">"Tas labi!" velns saka, "Paieskā man galvu!" </p>
+
+<p align="JUSTIFY">Šī ieskā un atron uz galvas divas lapiņas. "Kas tās par
+lapiņām?" meita jautā.</p>
+
+<p align="JUSTIFY">"Tās tu neaiztiec, viņas man vajadzīgas! Ja to vienu lapiņu
+nokautam cilvēkam uzliek uz sirdi, tad tas atdzīvojas, un ja tai otrā lapiņā
+iespļauj un kaut ko saka, tad lapiņa atbild, kad arī pats tur klāt nebūtu."</p>
+
+<p align="JUSTIFY">To dzirdēdama meita nu tīšām ieskā galvu, kamēr velns aizmieg.
+Tagad tā viegli, viegli atkasa lapiņas un iebāž kabatā. No rīta velns atkal taisās
+aiziet. Meita saka: "Tu nezini, cik es šodien slima esmu. Ja tu vakarā pārnāc,
+tad nemodini mani augšā: ja trīs dienas cietā miegā nogulēšu, tad būšu vesela kā
+rutks."</p>
+
+<p align="JUSTIFY">"Ja, ja!" velns atbild un aiziet. Līdz ko velns projām, tā
+meita aizliegtajā istabā iekšā, uzliek māsām velna lapiņu uz sirdim un atdzīvina
+abas divas. Pēc tam tā paņem bērza bluķi, apģērbj to cilvēka izskatā, ieliek tad
+gultā, labi nosedz un iespļauj tai lapiņā, kas runā, sacīdama tos vārdus:
+"Vēl esmu slima, vēl nemodini!"</p>
+
+<p align="JUSTIFY">Tagad visas trijas piegrābj labas kules ar velna naudu, paliek mazo
+lapiņu, atbildētāju, pagalvī un tad mudīgi, mudīgi aizbēg uz tēva māju.</p>
+
+<p align="JUSTIFY">Vakarā velns pārnākdams domā: "Šo vakar vēl nemodināšu
+vis, bet rītā, tad lai tik ceļas augšā!" No rīta velns sauc: "Celies
+augšā, vai esi vēl slima?"</p>
+
+<p align="JUSTIFY">Vēl esmu slima vēl nemodini!" lapiņa atbild. "</p>
+
+<p align="JUSTIFY">Vakarā velns atkal sauc: "Celies augšā, vai esi vēl slima Vēl
+esmu slima, vēl nemodini!" lapiņa atbild.</p>
+
+<p align="JUSTIFY">" "Tie ir nieki, tev tagad jāceļas!" velns uzbšauj un
+pieskrien modināt; bet atron tik bluķi. Ak, kā tas spļāva kā tas gānījās; tomēr
+viss velti. Dusmās velns domā sagrābt bluli un to nezin kur aizlaist; bet nekā: spēks
+pagalam. Nu grābj ar vienu roku pēc lapiņām uz galvu, grābj ar otru roku, bet kas
+deva? Nu ieskrien aizliegtajā istabā, skatās, meklē: nokautās pazudušas. Beidzot
+ieskries arī naudas istabā: nauda gandrīz visa pagalam. To redzēdams, velns sakampj
+galvu un aizskrien pie citiem velniem spēka meklēt. Bet citi velni smiedamies atbild:
+"Kur tu, ķēms, nu vairs spēka dabūsi. Ja reiz lapiņas no galvas norautas, tad
+spēks uz mūžu pagalam."</p>
+
+<p align="JUSTIFY">Tik melderis bij laimīgs: tam ūdens vairs netrūka un nauda, ko
+meitas pārstiepa, pietika uz gadiem.</p>
+
+
+</body></html>

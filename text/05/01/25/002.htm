@@ -1,0 +1,208 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Bārenīte un mātes - meita pie briesmoņa.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 480. Skolnieks J. Atteka no 42 g. vecas A. Kalnes Nīcā. K.
+Lielozola kr.</p>
+
+<p align="JUSTIFY">Vienai mātei bijušas divas meitas : īstā meita un pameita. Vienu
+dienu pamāte likusi pameitai, lai ejot uz sumpurņa pili un atnesot uguni. Pameita arī
+tūlīt aizgājusi. Ceļā viņa satikusi aitu, kas lūgusies, lai viņu nocērpot.
+Pameita nocirpusi, gājusi tālāk un satikusi govi Govs lūgusies, lai viņu izslaucot.
+Pameita izslaukusi arī, gājusi atkal tālāk un satikusi zirgu. Zirgs lūdzies, lai
+viņu attinot no mietiņa. Pameita attinusi un, tālāk iedama, nonākusi pie sumpurņa
+pils, kas stāvējusi uz gaiļa kājām.</p>
+
+<p align="JUSTIFY">Bārenīte nu iegājusi pilī iekšā un satikusi tur vecu vecenīti,
+pats sumpurnis bijis izgājis. Pilī viņa prasījusi vecenītei uguni, bet vecenīte
+iedevusi viņai mazu skandeklīti un teikusi, lai ejot otrā istabā un pagaidot. Ja
+paliekot gaŗš laiks, tad lai paskandinot, gan viņa tikmēr ienesīšot uguni. Pameita
+iegājusi otrā istabā, gaidījusi, gaidījusi, bet nevarējusi sagaidīt. Tad izlīdusi
+maza pelīte no cauruma un teikusi : "Meitiņ, dod man skandeklīti! Kukņā uz
+mūrīša ir zēveles un divi naudas maki. Tu nu ej un paķer zēveles un mazāko naudas
+maku un mūc projām. Citādi pārnāks sumpurnis mājā un tevi saplēsīs."</p>
+
+<p align="JUSTIFY">Bārenīte atdevusi pelītei skandeklīti, iegājusi kukņā,
+paņēmusi zēveles un mazāko naudas maku un tad mukusi uz māju.</p>
+
+<p align="JUSTIFY">Kā meitiņa izgājusi laukā, tā arī sumpurnis pārnācis mājā.
+Vecīte tam tūlīt visu izstāstījusi, kas mājā noticis. Tai brīdi pelīte
+paskandinājusi zvaniņu un sumpurnis tūlīt skrējis laukā meitiņu saplēst. Neatradis
+tur meitiņas, sumpurnis ķēris pelīti, bet tā pasviedusi skandeklīti un iebēgusi
+savā caurumā. Tad sumpurnis izmeklējis visu pili, bet meitiņas nekur neatradis.
+Pēdīgi viņš pamanījis, ka trūkst viens naudas maks. Nu sumpurnis sapratis, ka
+meitiņa aizbēgusi, dzinies viņai pakaļ, saticis ceļā zirgu un prasījis tam, vai
+neesot redzējis kādu sievieti aizskrejam. Zirgs atteicis: ,;izskrēja gan uz to pili,
+kas stāv uz gaiļa kājām."</p>
+
+<p align="JUSTIFY">Tad sumpurnis skrējis tūlīt atpakaļ uz savu pili, izmeklējis visas
+malas; bet kad nekā neatradis, tad skrējis atkal projām. Ceļā saticis govi un
+prasījis, vai neesot redzējusi kādu sievieti aizskrejam. Govs atteikusi: "Redzēju
+gan. Tagadīt aizskrēja uz to pili, kas stāv uz gaiļa kājām."</p>
+
+<p align="JUSTIFY">Tad sumpurnis skrējis atpakaļ uz pili un izmeklējis tur visus
+stūrīšus; bet nekā neatradis, skrējis atkal projām, ceļā saticis</p>
+
+<p align="JUSTIFY">aitu un prasījis, vai neesot redzējusi kādu sievieti aizskrejam.
+Aita teikusi: "Redzēju gan. Viņa aizskrēja uz to pili, kas stāv uz gaiļa
+kājām." </p>
+
+<p align="JUSTIFY">Sumpurnis devies atkal atpakaļ, izmeklējis visus atlikušos kaktiņus
+un tad aizelsies licies gulēt, kā bijis piekusis.</p>
+
+<p align="JUSTIFY">Pameita laimīgi pārgājusi mājā, pārnesusi pamātei uguni un nu
+pati bijusi bagātākā meita visā valstī. Pamāte nobrīnījusies vien par to lielo
+bagātību un jau tūlīt otru dienu sūtījusi savu meitu uz sumpurņa pili.</p>
+
+<p align="JUSTIFY">Īstā meita ātri vien steigusies projām un ceļā satikusi aitu. kas
+lūgusies, lai šo nocērpot. Bet meita tikai atcirtusi: "Man nav vaļas."</p>
+
+<p align="JUSTIFY">Tālāku steidzoties, viņa satikusi govi. kas lūgusies:
+"Meitiņ, izslauc mani!"</p>
+
+<p align="JUSTIFY">Meita atkal atcirtusi: "Man ātri jāsteidzas projām."</p>
+
+<p align="JUSTIFY">Gājusi tālāk, satikusi zirgu, kas lūdzies, lai viņu attin. Meita
+tam uzsaukusi: "Lai piķis tevi tin! Man nav vaļas gar niekiem darboties, man ātri
+jāsteidzas projām."</p>
+
+<p align="JUSTIFY">Tā steigdamās, viņa pēdīgi nonākusi pie sumpurņa pils. Pilī
+iegājusi, viņa satikusi vecenīti vienu pašu; sumpurnis atkal bijis izgājis. Īstā
+meita prasījusi vecenei uguni, bet vecene iedevusi viņai tik skandeklīti, sacīdama:
+"Ej tur otrā istabā, ja tev paliek gaŗš laiks, tad paskandini, gan es tev
+ienesīšu uguni."</p>
+
+<p align="JUSTIFY">Meita gaidījusi, gaidījusi, bet nevarējusi sagaidīt. No cauruma
+iznākusi pelīte un teikusi: "Do man to skandeklīti, bet pati ej kukņā. Tur uz
+mūrīša ir zēveles un divi maki pilli ar naudu. Paņem zēveles un to mazāko maku un
+tad mūc uz māju projām, jo drīz pārnāks sumpurnis un tevi saplēsīs."</p>
+
+<p align="JUSTIFY">Meita iegājusi kukņā, paņēmusi zēveles un lielāko naudas maku un
+tad bēgusi uz māju. Tūlīt arī pārnācis sumpurnis un vecene tam izstāstījusi, ka
+atnākusi viena meita. Uz reizi pelīte paskandinājusi skandeklīti, un sumpurnis tūlīt
+skrējis laukā meitu meklēt. Meitas vietā viņš redzējis pelīti, kas pasviedusi
+skandeklīti un tikko, paspējusi ieskriet alā.</p>
+
+<p align="JUSTIFY">Tad sumpurnis devies meitai pa ceļu pakal, saticis zirgu un prasījis,
+vai neesot redzējis kādu sievieti aizskrejam. Zirgs teicis, ka viņa nupat noskrējusi
+gaŗām. Tad saticis govi un tai atkal tāpat prasījis. Govs sacījusi v tagadīt pat
+esot aizskrējusi. Tālāku skriedams, sumpurnis saticis aitu un prasījis, vai neesot
+kādu sievieti redzējusi. Aita atbildējusi : "Turpat jau viņa ceļmalā
+sēd."</p>
+
+<p align="JUSTIFY">Smago naudas maku nesdama, meita bijusi nokususi un atsēdusies
+ceļmalā atpūsties. Sumpurnis pieskrējis klāt, sagrābis meitu cieti un saplēsis to
+gabalu gabalos.</p>
+
+<p align="JUSTIFY">Pamāte gan ilgi gaidījusi savu meitu, bet nevarējusi sagaidīt. Nu
+arī pameita bijusi viņai laba.</p>
+
+
+</body></html>

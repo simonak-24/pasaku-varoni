@@ -1,0 +1,171 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>1</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ganu zēns apprecē ķēniņa meitu.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">4. A. 515. Kreicberģis Dzirciemā, Brīvzemnieka kr. LP, VI, 587 (116,
+2).</p>
+
+<p align="JUSTIFY">Vienam tēvam esot bijis nepaklausīgs dēls. Sūtījis atmatā aitas
+ganīt, bet šis tikai kāpis vītolos svilpes maukt un vilks ikdienas tamēr aiznesis
+vienu altu. Divreiz tēvs noķēris dēlu aiz čegauņa un ar siksnu mizojis, bet kad
+trešo dienu gribējis ar siksnu novazāt, tad aizbēdzis plašā pasaulē. Bēdzis,
+bēdzis, pret vakaru iekūlies vienā ķēniņa pilī. Ķēniņš vaicājis, kas viņš
+esot. Atbildējis: koklētājs! un sācis jauki, skaņi savu svilpi pūst, tā ka visā
+ķēniņa valstī atskanēja. Ķēniņš tādu pūtēju nu paturējis uz savas meitas
+kāzām par muzikantu.</p>
+
+<p align="JUSTIFY">Labi. Pēc kāzām ķēniņš svilpniekam vaicājis: "Kādu maksu
+nu prasi? Tu vari prasīt līdz pusvalstei, visu došu." Svilpnieks atbildējis, lai
+dodot trīs dienas laika apdomāties.</p>
+
+<p align="JUSTIFY">Nu tais trīs dienās tas staigājis pa ķēniņa dārzu un
+ieraudzījis pieķēdētu ķēniņa meitu. Šim patikusi tā un solījis ķēniņam to
+runāt. Bet ķēniņa meita teikusi: "Mani šis ķēniņš kaŗā sagūstīja un te
+atveda par verdzeni. Viņš nozvērējās mani nekad vaļā nelaist, diezin, vai mani
+dabūsi?"</p>
+
+<p align="JUSTIFY">Pēc trim dienām svilpnieks runājis pieķēdēto atdot par atmaksu,
+ķēniņš atteicis: "Tā man nepavisam netika dot, bet vārds jātura. Tādēļ es
+likšu taisīt divi kuģus; pirmā kuģī tu varēsi pa jūru braukt ar ķēniņa meitu
+projām, otrā kuģī es sūtīšu ķērājus jums abiem pakaļ; ja jūs izmuksit -- būs
+jums par labu, ja ne abi būsit mani vergi."</p>
+
+<p align="JUSTIFY">Labi. Bet, ko svilpnieks dara? Saurbis otram kuģim dibinā daudz
+caurumtiņu, ka ne zināt nezin, un kā nu ķērāji izbraukuši jūrā, visi apslīkuši:
+kuģis nogrimis. Šie nu laimīgi aizbēguši. Bet netālu no malas kuģa kapteinis
+sacījis uz svilpnieku: "Trijējādu nāvi tagad vari vēlēties, vai lai tevi
+nošauj, vai lai noslīcina, vai lai ieliek laivā bez airēm un palaiž jūŗas
+viļņos."</p>
+
+<p align="JUSTIFY">Neko darīt - vēlējies labāk, lai palaiž ar laiviņu jūŗas
+viļņos. Palaiduši. Bet viltnieks nu vēl sacījis uz skaisto ķēniņa meitu: Ja tu
+tēvam nesacīsi, ka es tevi atpestīju un, ja nenāksi pie manis par sievu, tad tūliņ
+tevi nomaitāšu.</p>
+
+<p align="JUSTIFY">Neko darīt bēdu dienā, apsolījusies tēvam melot. Bet svilpnieku
+auka izmetusi ar visu laiviņu laimīgi malā. Viņš apsēdies uz akmeņa un rūgti
+raudājis. Pienācis vecs vīriņš: kas kaišot?</p>
+
+<p align="JUSTIFY">'Tā un tā -- izstāstījis. Tad vīriņš iedevis mazu podiņu un
+pindzelīti, teikdams: "Iemērc pindzelīti podiņā un ko tad tu tikai domāsi, tas
+pats no sevis uzmālēsies."</p>
+
+<p align="JUSTIFY">Labi. Nu aizgājis uz to pili, kur skaistās ķēniņa meitas tēvs par
+ķēniņu bijis un runājis: vai nevajagot istabas izmālēt. Ķēniņš teicis:
+"Vajaga gan! Manai meitai drīzi ar viņas glābēju būs kāzas."</p>
+
+<p align="JUSTIFY">Šis tūliņ nopratis, kas tas par glābēju, un neteicis nekā,
+iegājis istabā un uzmālējis visu, visu: kā svilpes maucis, kā ķēniņa meitu
+glābis, kā viltīgais kapteinis viņu jūŗā metis, ķēniņa meitai melot licis -
+visu, visu. Kad nu ķēniņš tādu bildi ieraudzījis, tad viss nācis gaismā un
+senākais aitu gans nu nodzēris ar ķēniņa meitu kāzas.</p>
+
+
+</body></html>

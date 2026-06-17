@@ -1,0 +1,174 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>54</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Muļķis brauc pēc malkas.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>1.</strong> A. 1681. Āboliņu Jānis Rūjeniešos. LP, V, 367
+(160, 2).</p>
+<font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font>Vienam tēvam trīs dēli : divi gudri, trešais muļķis. Visi
+trīs gāja sievas meklēt; muļķītis atrada brūti, gudrie neatrada. Par to gudrie
+sadusmojās un nodomāja muļķīti izjokot. Sestdienas rītā tie ierunāja tēvam, lai
+muļķītim nedodot pirts malku, lai ejot tāpat melns savās kāzās. Bet muļķītis ne
+pagalam negribēja melns kāzās iet. Beidzot tēvs teica: "Ko es ar tevi tiepšos.
+Brauc mežā nocirst pirts malkai to egli, kas apzīmēta!"</p>
+
+<p align="JUSTIFY">Bet braucamā ķēvīte bija gaužam liesa: nevarēja ne tukšā
+pakustēt, kur nu vēl egli pārvilkt? Mežā muļķītis atstāja ķēvi zālē
+ieēsties., netālu no cērtamās egles, un pats ņēmās cirst. Pa brītiņam egle krita
+arī; bet tik nelaimīgi: uzgāzās ķēvītei un nosita to. Ko nu? Kā teiks tēvam, 1abi
+nebūs. Neko darīt - jārauga tēvam aplinkus pielabināties. Tēvs no laika gala brīnum
+cienīja meža putnu gaļu, to muļķītis zināja. Tādēļ noģērbās pliks un iebrida
+ezerā pīles saķert. Bet pīles peldēja veikli un nedevās rokā; gan svieda ar cirvi
+vai netrāpīs, bet cirvis neķēra pīles un nogrima ezerā. Par to starpu čigāns bija
+piezadzies drēbēm un aiznesis. Kam nu tāds pliks rādīsies? Beidzot pa nokrēslu
+aizlīda brūtes mājā kaņepēs slēpties. Bet mājas suņi drīzi apcēla, ka kaņepēs
+kāds slapstās; tie apstāja nabadziņu un rēja tik sīvi, ka ne atgaiņāties. Neko
+darīt - bija jāmūk pie laika uz riju; bet suņi ir te pakaļ. Par laimi rijas priekšā
+ieraudzīja lielu baļļu; muļķītis lēca tai paša iekšā. no suņiem glābdamies.
+Bet tā bija darvas baļļa, pilna ar darvu. Nu bija no galvas līdz papēžiem melnā
+kunga ādā. Neatlikās cits, ka naski doties rijas krāsns augšā žāvēties. Bet
+krāsns augšā nākamā sievas māte todien pārsildīja vistu spalvas. Līdz muļķītis
+spalvām piesitās, visas salipa pie darvainām miesām. Nu bija dzīvais velns. Tomēr
+tas vēl nekas. Drīzi sievas māte ar brūti atnāca rijas krāsnī plāceņus cept un
+šis turpat augšā - vai tie nav traki joki? Cepa, cepa - nekas. Tie, kā par nelaimi,
+sievas mātei viens plācenis izdevās bez piedegumiem ļoti gludens un skaists. Viņa
+mētāja karsto plāceni plaukstīs, rādīdama brūtei: "Re, meitiņ, kas par
+plāceni! Būs vai pašam brūtgānam!"</p>
+
+<p align="JUSTIFY">Muļķītis, gribēdams brūtgāna plāceni redzēt, liecās krāsns
+malai pāri; bet cepējas, nezin kā pacēla acis, ieraudzīja dzīvo velnu un tā
+klupdams, krizdamas prom ļaudim stāstīt, kāds negantnieks viņas tur baidījis. Tomēr
+muļķītis pa to starpu laimīgi pārbēga mājā un taisni ieskrēja siltā pirtī, kur
+brāļi jau pērās. Nu pēra un berza muļķīti, kamēr balts.</p>
+
+<p align="JUSTIFY">&amp;127;Nodzēra kāzas. Mēnesi pēc kāzām, muļķītis brauca pie
+sievas mātes atkāzās. Ceļā sieva piekodināja vīram, lai ciemā daudz neēdot, tas.
+neesot jauki. Aizbrauca tur, muļķītis vairāk neēda, kā vienu plāceni, un gāja
+gulēt. Naktī atmodās, tā gribējās ēst, ka nekur šauties. Neko darīt - bija
+jākāpj no gultas un plāceņi jāmeklē paslepus pa malām. Izgrābstījās šur, tur -
+nekur dabūt. Beidzot iekūlās aizkrāsnī un notvēra kautko mīkstu. Cirta tam pašam
+ar zobiem virsū. Bet tas bija kaķēns un zobiem šitāds plācens par sīkstu.</p>
+
+<p align="JUSTIFY">Atgāja atpakaļ gultā izstāstīt is6evai, ka nelaimējies ēdienu
+atrast. Sieva atteica, ka muldā mīkla -- lai iet to pašu saēsties. Muļķītis ņēma
+mīklu abām rokām un ēda, kamēr vairāk negribējās. Bet kā nu rokas tīras dabūt?
+Prasīja atkal sievai padomu. Tā atteica: "Tepat uz galda ūdens krūzīte -
+nomazgā turpat!``</p>
+
+<p align="JUSTIFY">Muļķītis iebāza abas rokas krūzē, bet nedabūja vairs ārā.
+Prasīja atkal sievai padomu.</p>
+
+<p>Sieva teica: "Ej ārā un pārsit pret kādu stabu krūzi!" Labi. Bet tai
+brīdī sievas māte bija izgājusi blusoties mēnesnīcā. Muļķītis domāja: "Tas
+jau būs laikam stabs?" un zvēla ar krūzi sievas mātei pa muguru: krūza
+izšķīda, bet sievas mātei bija jādarina bēres - lielas, garas bēres; un muļķītis
+vēl šodien bērēs mielojas, ja nava pārbraucis mājā.</p>
+
+
+</body></html>

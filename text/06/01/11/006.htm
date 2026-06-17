@@ -1,0 +1,302 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="center">Stiprinieks gaisa kuģī.</p>
+</font></b>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">6. A. 513 B. Staņislavs Dauksts Jaunlatgales Baltinavas pagastā, J.
+Rupjā kr.</p>
+
+<p align="JUSTIFY">Dzeivova treis bruoļi. Divi gudri bruoļi turēja sovu trešū bruoli
+par muļki. Tamā kēnestī, kur dzeivova itī treis bruoļi, kēniņš pasludynuoja tuodu
+lykumu: kas atbrauks uz juo meitu pa gaisu ar zalta kugi, tys juo meitu apprecēs.</p>
+
+<p align="JUSTIFY">I vot pīguoja tei dīna. Itymā dīnā, kas beja dzirdējs iykumu.
+lasējuos uz kēniņa pili. Izzynovuši itū lykumu, gudrī bruoļi ar' guoja laimas
+maklātu. Muote uz ceļa jīm sataisēja boguotu kuli, k tramā salyka vusuodus gordus
+ēdīnus i dzērīnus. Kad abēji gudrī bruoļi izguoja nu sātas, trešais bruoļs,
+muļkītis, gulādams iz cepļa, grīstūs vārdamīs suoka vuortītīs un runuot uz sovu
+muoti, kas pašulaik palaide sovus abējus vacuokūs dālus: "Reitā, mām', taisi i
+maņ kuli, īšu i es tuos laimas maklātu. Voi ta muna laima byus jyudenī īkrituse,
+varbyut ka i man laimēsīs!"</p>
+
+<p align="JUSTIFY">"Kur tu īsi, muļķīti?" muote suoka buortīs, "guli
+lobuok sātā iz cepļa, tu izguojs nū sātas i pazussi."</p>
+
+<p align="JUSTIFY">Bet tūmār tys muļķītis nalīk mīra, prosa, lai muote sataisa jam
+kuli. Muote radzādama, ka uo nikuo apturēt navar, sataisēja kuli, bet na tyk boguotu,
+kai vacuokajim dālim. Jam īlyka maizes kancīti i yudeņa, lai nanūsluoptu.</p>
+
+<p align="JUSTIFY">Devēs muļķītis ceļā. Īt - īt, īt - īt, jis daīt pi vīna
+lela meža, i sateik vacu, vacu vecīti. Vecīts radz, ka jis taids nūskum's, suoc
+vaicuot jis pī juo: "Kū tu taids bēdeigs?"</p>
+
+<p align="JUSTIFY">"A kai ta nabāduot? Gudruokī bruoļi nūguoja iz kēniņa pili
+laimas maklātu; a kur ta es lai īmu?"</p>
+
+<p align="JUSTIFY">"Nabādoj", vecīts sacēja, nikas, dzeiva i tova laima!
+Pajem vīn ciervi, īej mežā, i izlosi vysurasnuokū kūku. Cērt reizi tam kūkam ar
+ciervi, i pats kreit iz mutes pi zemes, i klausīs, kas tev's sauks. Ko tik tev's suoks
+saukt: "Celīs, tova laima jau atguoja!"</p>
+
+<p align="JUSTIFY">tu tyuleņ celīs. Ka tu pīsaceļsi, to tu īraudzēsi prīškā gaisa
+kugi, kuris laistēsīs i speidēs vīnuos zvaigznēs i mēnešūs. Tu tyuleņ kreit
+itymā kugī i brauc. Ka tu brauksi pa ceļi, to kū tu īraudzēsi iz ceļa, vysu jem
+leidza!"</p>
+
+<p align="JUSTIFY">Vot itys muļkītis, paklausēdams vecīša padūma, pajem ciervi i īt
+mežā maklātu vysurasnuokā kūka. Atrads vysurasnuokū kūku, jis cārt reizi tam
+kūkam i pats kreit ar muti pi zemes, i klausuos, kas sauks. Dzierd, nazkas augši runoj:
+"Celīs, tova laima jau atguoja!"</p>
+
+<p align="JUSTIFY">Muļkītis pīsacēlīs, veras i sovon acim natyc. Kadz jis savā
+prīškā brīsmīgi šmuku zalta kugi, kas vyss laistuos vīnuos zvaigznēs i mēnešūs.
+Jis, nikuo daudzi nadūmuodams, pec vecīša pīsacējuma kreit tymā kugī. Kugis tyuleņ
+aizšņuoc, ka vyss mežs vīn nūskan, pasace gaisā i laižuos iz kēniņa pili. Pilē
+jau ir pībrauc's nū vysaidom molom vysaidi kēniņu dāli ar brīsmīgim skaistim
+zyrgim, bet ar zalta kugi vēļ nivīna nav.</p>
+
+<p align="JUSTIFY">Muļķītis kū tikai īrauga, braukdams iz ceļa, vysu jem leidza. Vot
+jis brauc i veruos, ka nas vīns vecīts padvalkamejā [sedulkas] syksnā sasītu molkas
+nostu. Jis i vaicoj vecīšam: "Kur tu nas tū molku?"</p>
+
+<p align="JUSTIFY">A nu cīma iz mežu nasu." "</p>
+
+<p align="JUSTIFY">"Vot, muļkis! Nu cīma iz mežu molku nas. Voi ta mežā molkas
+nava? Sestīs, brauksim!"</p>
+
+<p align="JUSTIFY">Vecīts pateic jam, sāstas kugi i brauc. Brauc jī obēji i īrauga
+otkon vecīti, kurs nas solmu kyuli.</p>
+
+<p>"Kū tu nas?" muļkītis vaicoj.</p>
+
+<p>"A nū pilsātas iz cīmu solmus nasu."</p>
+
+<p align="JUSTIFY">"Vot muļkis! Nū pilsātas iz cīmu solmus nas. Voi ta cīmā
+solmu nava? Sestīs, brauksim!"</p>
+
+<p align="JUSTIFY">Vecīts pateic muļkīšam par juo lobū vuordu, sāstas i brauc. Brauc
+- brauc jī, brauc - brauc, i īrauga otkon vecīti, kurs lac iz vīnas kuojas pa ceļi,
+ūtros kuojas jam nabeja. Muļkītis paaicynuoja sēstīs jam kugī. Vecīts pateic
+muļkītim par juo lobū vuordu, īsasāst kugī i brauc.</p>
+
+<p align="JUSTIFY">Tagad jī jau brauc četratā, treis vecīši i tys muļkītis. Brauc i
+veros, ka jau natuoli kēniņa pils. Kugis zam kēniņa pils ka aizšņuoc, tai vysi
+kēniņa dāli tai i pasaver iz tuo zalta kuga, ka tys kugis zvaigznēs i mēnešūs vīn
+laistuos. Sabraukuši kēniņu i cytu boguotnīku dāli dūmoj i breinuojuos: te jau ir
+varbyut kuods boguotnīks. Zalta kugis, dabraucūt pi kēniņa pils, nūsalaižos zemē.
+Vysi apkuortējī veros, kas nyu leiss nu kuga uorā. Veros, ka izlein treis vecīši i
+tys sapleisušals mulkītis. Kēniņu i cytu boguotnīku dāli suoc vaicuot vecīšim :
+"Kurs to te jir kuga saimnīks?"</p>
+
+<p align="JUSTIFY">Tī vecīši paruoda iz tuo muļkīša: "Vot itys, kurs vēļ i
+myusus atsādynov's atvede."</p>
+
+<p align="JUSTIFY">Vysi vaicuotuoji, kas labi apsavylkuši, i nūsabreinoj: kur ta te
+taids sapleiss varēja jemt taidu brīsmīgu zalta kugi.</p>
+
+<p align="JUSTIFY">Kēneņa kolpi pastuostēja kēniņam: "Jau atbrauce vīns iz tovu
+meitu ar brīsmīgu zalta kugi."</p>
+
+<p align="JUSTIFY">Kēniņš izīt, pasaveruos iz to sapleisušuo muļkīša i nūsabeist:
+kur ta nyu taidam atdūs sovu meitu. Kū darēt? Dūmoj kēniņš, atsacēt navar; par tū
+ka puorkuops sovu lykumu. Rodi kēniņa ar nadūd padūma kēniņam atdūt sovu meitu
+taidam sapleisušam ubagam. Golu golā kēniņš sadūmoj un pasoka muļkīšam:
+"Vot, pošulaik es ar sovim rodim gribu apsprīst, kad taisēt tev kuozas."</p>
+
+<p>Muļkītis ari pasaklausa.</p>
+
+<p align="JUSTIFY">Saīt kēniņš ar sovim radinīkim pilī. Pa tū laiku, cykom kēniņa
+radinīki lasējuos pilī, tys vecīts, kuris lēce uz vīnas kuojas, soka uz sovu
+vedēju, muļkīti: "Es tān [tagad] puorsataisēšu par myusu, īskrīšu pa lūgu
+pilī i nūsaklausēšu, kū jī sprīss."</p>
+
+<p align="JUSTIFY">Vecīts puorsataisēja par myusu, īskrīn pa lūgu pilī i klausuos,
+kū jī runoj. Rodi kēniņa soka iz kēniņa: "Cyta nikuo tu nadori, kai pasoki
+sovim koIpim, lai ji izkurinoj korstu, korstu pierti, tai ka cylvāks jinā īguojs
+varātu sadegt. Kai īis jis piertē, tyuleņ durovas aizslēgt un pamest par nakti, lai
+jis tur sadag. Ka pierts byus gohova, tu izguoj's uorā jau pasoki, ka kuozas byus reitu,
+i ka tev šūdīņ juoīt piertē mozguotūs."</p>
+
+<p align="JUSTIFY">Kēniņš, nikuo daudzi nadūmuodams, pasoka sovim kolpim, lai jī
+tyuleņ izkurinoj pierti tyk korstu, ka lai vysi greidas dzelži palīk sorkani. Kolpi,
+paklausēdami kēniņa, tyuleņ izkurinoj pierti tyk korstu, ka navar kluot daīt. Kad
+pierts beja izkurinuota, kolpi pasoka kēniņam. Kēniņš, izguoj's uorā, pasoka
+muļkīšam: "Kuozas byus reitu, i tev šūdīņ juoīt piertē."</p>
+
+<p align="JUSTIFY">Pa tū laiku, kad kēniņš runova ar muļkīti, tys vec's, kuris beja
+puortaisējīs par myusu un īskrēj's pilī, izskrēja uorā nū piļa, atsamete
+muļkīšam pi auss i pastuostēja, kū jī beja nūsprīduši. Muļkītis suoka
+bāduotīs, kai lai nyule byus. Bet vec's, kuris nese solmu kyuli nu pilsātas iz cīmu,
+soka muļkīšam: "Itei bāda na bāia, ka leluokas bādas nava. Tykai ka tu īsi iz
+pierti, tu pasoki kolpim, lai jī parunoj kēniņam, ka es gribu īt ar tevim
+piertē."</p>
+
+<p align="JUSTIFY">Muļkītis, īdams piertē, paprosa kolpim, lai jī parunoj kēniņam,
+ka ar manim grib īt piertē vīns vecīts. Kēniņš nikuo nadūmodams, atļaun.</p>
+
+<p align="JUSTIFY">Kolpi īvad jūs piertē, aizslādz dūrs i pamat jūs leidz reitam,
+dūmuodami, ka jī tur sadegs. Kai tik jī saguoja piertē, vec's tyuleņ izkluoja pa
+greidu puskyuļa solmu. Kad puskyuļa solmu beja izkluots, pierts palyka drusku soltuoka,
+tuo ka pošureiz varēja labi gulēt. Tai jī atgulēja piertē vysu nakti. Pa reitam
+klausuos,</p>
+
+<p align="JUSTIFY">ka nazkas atīt. Vecīts, nikuo nagaidēdams, pajem atlykušū
+puskyuļa solmu un izkluoj pa greidu. Pierts palīk tyk solta, ka navar vairuok īškā
+stuovēt. Nuocēji beja kēniņa kolpi, kuri guoja iz pierti vārtūs, kas ar jīm jira
+nūtics. Atslādz dūrs, veruos, ka tī pylnā dzeiveibā staigoj pa pierti. Bet pierts
+tagad beja tyk solta, ka gryuši beja nūstuovēt vydā. Kolpi breinuodamīs suoc vaicuot:
+"Kai jyus te vēļ nasadagāt itamā piertē, kura vakar beja izkurynuota tik korsta,
+ka navarēja kluot daīt?"</p>
+
+<p align="JUSTIFY">"Kū ta jyus te jūkojat ar myusim? Tyk soltā piertē svutēt
+mozguotūs."</p>
+
+<p align="JUSTIFY">Te vysi ac's vīn izplātuši breinuojās; nazyn kū sacīt. Vakar
+pierts beja tyk korsta, ka kluot navarēja daīt, a šūdīņ palvkuse tyk solta ka navar
+īškā pavysam stuovēt.</p>
+
+<p align="JUSTIFY">Nuskrīn kolpi iz kēniņu i pastuosta, ka vecīts ar muļkīti, kuri
+vakar saguoja piertē, šūdīņ atrosti dzeivi. Kēniņš, jīm natycādams, skrīn
+vārtūs pots iz pierti. Nūskrēj's īrauga tū pošu, kū juo kolpi teica. Muļkītis
+tagad soka iz kēniņu: "Jo tu man naatdūsi sovas meitas ar lobu, to es tovu meitu
+nu tev's pajemšu ar karaspāku."</p>
+
+<p align="JUSTIFY">"Nū kurīnes tu jemsi sovu karaspāku, kas tev jū dūs? Man to
+ir sova valsts, a kas ta tev?"</p>
+
+<p align="JUSTIFY">"Nikas! Tev nava juozyn, nu kurīnes es jū jemšu. Bet ka tu
+naatdūsi ar lobu, to atjemšu gon es nu tev's jū," atsacēja muļkītis.</p>
+
+<p align="JUSTIFY">"Nu, ka jau tai, tod leidz reitam jo sadabuosi pīcpadsmit pulku
+saldātu, tod atdūšu sovu meitu; bet jo ne, tod naatdūšu," kēniņš atsoka
+muļkīšam dūmuodams, ka tagad gon jam byus beigas.</p>
+
+<p align="JUSTIFY">Atīt reits. Agri reitā, cykam kēniņš vēļ guļ, muļkītis kūpā
+ar tū vecīti, kuris nese padvalkamajā molkas nostu, pa lelu teirumu izsvaidēja molkas
+pagales. Kad pagales bej izsvaidētas, tys vecs vīnā ocumirklī puortaisēja tuos par
+pīcpadsmit pulku lelu karaspāku. Pots muļkītis beja šūs saldātu viersnīks. Jis
+juoja apkuort iz brīsmeigi skaista zyrga, apskatēdams sova karaspāka, voi ir vyss
+kuorteibā. Saldati pošulaik spēlēja i dzīdova dzīsmes.</p>
+
+<p align="JUSTIFY">Pa reitam kēniņš, izzamūdīs nū mīga, i klausuos, ka nazkas uorā
+natuoli spēlej un dzīd. Kēniņš, nikuo nasaprazdams, kas tī var spēlēt, vaicoj
+kolpim. Kolpi jam atbild, ka te spēlej muļkīša karaspāks. Kēniņš, natycadams jīm,
+pots īt pi lūga vārtūs. Īrauga', ka muļkītis, apsavilcīs cīši šmukuos drēbēs,
+juoj iz šmuka zyrga apkuort sovam karaspākam. Kēniņš tyuleņ nūsamozgova, reizē ar
+sovu meltu izguoja uorā apsavārtu muļkīša saldatu. Muļkītis aizjuoja jīm
+prīškā, jūs apsveic un paruodēja sova pīcpadsmit pulku saldatu. Itū vysu
+radzādams, kēniņš atļuove jam apsaprecētīs ar sovu meitu. To jī nūtaisēja
+boguotas kuozas un suoka dzeivuot laimeigi. Kēniņš atdeve muļkītim sovas
+puskēnestis.</p>
+
+<p align="JUSTIFY">Vacuokī muļkīša bruoli, izzynovuši, ka jūs bruoļs apsaprecēja
+ar kēniņa meitu, vīns zaudēja pruotu, a ūtrs nūsasleicynova.</p>
+
+
+</body></html>

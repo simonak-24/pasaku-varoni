@@ -1,0 +1,187 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>23</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Cilvēki pie velniem.</p>
+
+<p align="CENTER">&nbsp;</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>1. A. 313. 327 A J. Namnieks Mežotnē. LP, VI, 119, 5. </p>
+
+<p align="JUSTIFY">Reiz viens vīrs zvejojis upītē un nemaz neķēries. Bēdīgs
+nosēdies krastā un pārdomājis, kas par ķezu? Te pienācis smalks jaunskungs tas bijis
+velns un jautājis, kāpēc tāds noskumis? Tā un tā! virs izstāstījis. Bet jaunskungs
+sacījis: "Ja atvēli man to, kas tev mājās nezināms, tad arvienu būs pilns
+tīkls."</p>
+
+<p align="JUSTIFY">Ja, šis mierā. Jaunskungs pazūd; šis nu zvejo pa otrreiz tīkls
+pilns un nu nes lomu palēkdams mājās. Pārnes mājās kas ir? Sievai piedzimis dēls,
+govij vēršelis abi jaunkungam apsolīti.</p>
+
+<p align="JUSTIFY">Patecējis labs laiks velns atnācis pakaļ. Tēvs nu uzsēdinājis
+dēlu vēršelim mugurā, lai jāj! Bet vēršelis sacījis zēnam: "Paņem susekli,
+mālu piciņu un oglīti līdz!"</p>
+
+<p align="JUSTIFY">Labi paņēmis. Un tā velns tūlin sācis skriet pa priekšu, šiem
+bijis jāseko. Bet velns skrējis tik ātri kā pats nelabais. Tad vēršelis teicis
+zēnam: "Nosvied susekli zemē!"</p>
+
+<p align="JUSTIFY">Nosviedis, gadījušies biezi, biezi. krūmi. Velns saskrāpējis
+ģīmi, noplēsis matus, nevarējis vairs tik ātri paskriet; bet šiem bijis līdzens jo
+līdzens ceļš, no krūmiem ne vēsts. Beidzot velns izēdies krūmiem cauri un atkal
+jozis kā negudrais. Tad vēršelis sacījis: "Nosvied māla piciņu zemē!"</p>
+
+<p align="JUSTIFY">Nosviedis, gadījušies dubļi. Līdz acim velns mīcījies pa dubļu
+skrīni un mokām tikai paticis uz priekšu; bet šiem tas labākais ceļš. Beidzot velns
+izēdies dubļiem cauri un atkal jozis kā negudrais. Tad vēršelis sacījis:
+"Nosvied oglīti zemē!" Nosviedis, gadījusies uguns, briesmīga uguns. Velns
+mocījies pa karstumu, šiem nesvilst ne mata galiņš.</p>
+
+<p align="JUSTIFY">Mocījies, mocījies, tomēr izmocījies ugunij cauri un nu bijuši pie
+velna mājas klāt.</p>
+
+<p align="JUSTIFY">Velns cita darba zēnam nedevis, lai ganot savu vēršeli! Ganījis.
+Bet pēc kādām dienām vēršelis sacījis zēnam: "Rītu mani kaus; un ja tev dos
+manu gaļu ēst neēd! Tikai izlasi manus kaulus, paglabā kādā vietā, tad ja tev
+kādreiz nelabi klātos un tu mani pasauktu: "Tpru, tpru, vērsīti, tpru!" es
+būšu klāt."</p>
+
+<p align="JUSTIFY">Labi. Vēršeli nokavuši zēns paglabājis kaulus.</p>
+
+<p align="JUSTIFY">Te pēc maza laika zēnam liek nest ūdeni, kurt uguni. Zēns vaicā
+velna meitai: "Ko ar to ūdeni darīs?"</p>
+
+<p align="JUSTIFY">Meita atbild: "Tur tevi bāzīs iekšā un vārīs!"</p>
+
+<p align="JUSTIFY">Bet paša velna mātei bijis mazs bērns šūplī; meitai tas bijis
+jāšūpo. Un tas gadījies meita izgājusi laukā. Tad zēns iemetis velna bērnu katlā,
+aptinis klucēnu ar dvieli, ielicis bērna vietā šūplī un pats uzrāpies bēlinģā
+paslēpties. Iegājusi velna māte, domājusi: katlā zēns! Un tūdaļ ņēmusi ārā,
+griezusi gabalos, likusi uz šķīvjiem un cēlusi velniem azaidu priekšā. Velni ēduši
+dziedādami: "Ēdu, ēdu, veca vīra bērna kaulus!"</p>
+
+<p align="JUSTIFY">Zēns izdzirdis bēlinģā, dziedājis pretim: "Ēdu, ēdu, veca
+velna bērna kaulus!"</p>
+
+<p align="JUSTIFY">Velna māte, tādu dziesmu padzirdējusi, sacīja meitai : "Ej,
+skaties, vai bērns šūplī!"</p>
+
+<p align="JUSTIFY">Ja, ja. Bet meita, ieraudzījusi aptīto klucēnu, domājusi, ka ir
+bērns. Nu velni atkal dziedājuši: "Edu, ēdu veca vīra bērna kaulus !"</p>
+
+<p align="JUSTIFY">Šis dziedājis pretim: "Ēdu, ēdu veca velna bērna
+kaulus!" Velna māte tagad skrējusi pati šupulī raudzīt, un atradusi klucēnu
+bērna vietā, sākusi nelabi bļaut, lai ķeŗot zēnu, lai ķeŗot zēnu!</p>
+
+<p align="JUSTIFY">Velni uzskrējuši bēlinģā un vilkuši nerātni pa trepēm zemē;
+bet šis aiz bailēm vairāk nevarējis izsaukt, kā: "Tpru, tpru verst, tpru, tpru
+verst!" Vēršelis ir par tādu saucienu atskrējis gan un visus velnus nobadījis.</p>
+
+<p align="JUSTIFY">Nu zēns paņēmis velna mantas, aizgājis atpakaļ pie vecākiem un
+dzīvo, laikam, šodien, ja nava miris.</p>
+
+
+</body></html>

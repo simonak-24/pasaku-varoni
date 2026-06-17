@@ -1,0 +1,233 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>31</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Burvis zārkā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">31. P. Bycāns Kapiņos, N. Rancāna kr.</p>
+
+<p align="JUSTIFY">Beja vīns cīši bednys [nabags] cylvāks, atsarada jam bārns. Jis
+navarēja dabuot ni kristtāva ni kristmuotes. Staiguovis, staiguovis pagal [?] nedēļis,
+a bārns beja vys nakristeits. Bednais sadūmuoja papraseit nu tivējuo grāfa kolpu un
+kolpy uni. Nūguoja jis da kungim i suoka praseit, lai kungs atlaid kolpu nūkristeit jam
+bārnu. Grāfs soka: "Es pots nūbraukšu i nūkristeišu i kolpu ar kolpyuni
+palaisšu."</p>
+
+<p align="JUSTIFY">Atbrauca grāfs, nūkristēja pots bārnu un īdeve vectāvam simtu
+rubļu naudas. Pait laiks, atīt ziņa, ka bednajam juoīt da grāfam iz balli: Grāfs
+izgastēja jū, īdeve jam vēl naudu un sacēja: "Es tev jau paleidzēju i vēl
+paleidzeišu, bet paprīšku nūmieršu un tad tu treis naktis pylnavuoskys [poļu
+pilnowac', sargāt]."</p>
+
+<p align="JUSTIFY">Bednais i apsajēme dūmuodams: "Itik lobam kungam vajaga
+papylnavuot."</p>
+
+<p align="JUSTIFY">Paguoje laiki, atīt ziņa, ka grāfs nūmiris, i ka muižā gaida juo
+kyumys. Jis aizguoje, nūmozguoje mirūni, i pyrmū reizi jam daguoje pylnavuot klētī.
+Bednais stuovēje klētī un pylnavuova, pi pušnakts laika grāfs pasakustynuova,
+atsasēda, pīsacēle i vaicuoj: "Pylnavuoj?"</p>
+
+<p align="JUSTIFY">Bednais stuov ni dzeivs ni miris un atbild: "Pylnavuoju." Par
+šaiti grāfs otkon atsagula nadzeivs.</p>
+
+<p align="JUSTIFY">Ūtru reizi bednajam daguoja bazneicā pylnavuot. Grāfs tai pat
+pasakustynuova pasacēle, daguoje pi sova kyumys i vai cuoja: "Pylnavuoj, voi
+ne?" "Pylnavuoju," jis atsacēja.</p>
+
+<p align="JUSTIFY">Par šalti grāfs otkon atsagula.</p>
+
+<p align="JUSTIFY">Atguoja dīna, grāfu paglobuoja, a itam laime. Jis pavaicuova nu
+bazneickunga, kū dareit? Bazneickungs jam īdeve vāzdu i sacēja: "Ka atsasēssi,
+tai apvedi ar šū vāzdu krugu apleik sevis! Krugs nalaiss jū pi tevis."</p>
+
+<p align="JUSTIFY">Bednis pylnavuoj vīns pots pi dūbes, naktī vieras: grāfs at saraka
+poša rūkom, izleida nu dūbes i pavaicuova: "Pilnavuoj?"
+"Pylnavuoju!"</p>
+
+<p align="JUSTIFY">No i dapylnavuoj da galam!"</p>
+
+<p align="JUSTIFY">Par šaiti mirūns aizguoja, īleida dūbē i zeme poša aizzaroka.
+Pylnavuotuojs klausīs, nazkas ap pušnakti ap vuortim runuoj: "šūdīn grāfu še
+paglobuova."</p>
+
+<p align="JUSTIFY">Daguoje divi cylvāki, suoka rakt mirūnu uorā, izroka, nū plēse jam
+uodu i nūlyka molā. A tys pilnavuotuojs īvyika uodu ar vēzdeņi sovā krugā. Valni
+jū atkon aproka, bet uodys vair nava. Vieras, īrauga, itū cylvāku i runuoj:
+"Atdūdi myusu uodu!" "Ite grāfa uoda, na jyusu."</p>
+
+<p align="JUSTIFY">"Atdūdi uodu lobuok ar lobu!" Nadūšu."</p>
+
+<p align="JUSTIFY">"Valni navar īskrīt da jam krugā i atjemt uodys, pylnavuotuojs
+vēl syt ar sovu vāzu. Valni gon balda, gon prosa ar lobu, pylnavuotuojs nadūd. Tad
+valni prosa: "Ar tu puordūdi?"</p>
+
+<p align="JUSTIFY">"Uoda duorga."</p>
+
+<p align="JUSTIFY">"Cik tad jei duorga?" </p>
+
+<p align="JUSTIFY">"Vīnu vazumu zalta." </p>
+
+<p align="JUSTIFY">Valni nūskrēja, atvede vazumu zalta i sacēja: "Mes dūsim zalta
+naudu, a tu dūd uodu!"</p>
+
+<p align="JUSTIFY">Grāfa kyuma soka: "Īberīt zaitu krugā, tūreiz atdūšu
+uodu!" Valni sabēre naudu, bet kyuma soka: "Uoda grāfa duorga, nadūšu.
+Atvedīt ūtru vazumu zalta!"</p>
+
+<p align="JUSTIFY">Valni nūskrēja pēc zalta, atvede ūtru vazumu i soka: "Tagad
+dūd uodu paprīšku!"</p>
+
+<p align="JUSTIFY">"Uodys paprīšku es nadūšu." Ka nadūsi, to mes
+atjemsim." </p>
+
+<p align="JUSTIFY">"Kai gribit."</p>
+
+<p align="JUSTIFY">Laiks vysai zam galļu dzīduošonys, juosteidzas, sabēre i ūtru
+vazumu zalta krugā.</p>
+
+<p align="JUSTIFY">"Nyu dūdi!"</p>
+
+<p align="JUSTIFY">"Nadūšu, uoda duorga, atvedīt trešu vazumu zalta naudys!"
+</p>
+
+<p align="JUSTIFY">"Vīns valns soka: "Juo ņadūsi, tyulen sarausteisim."</p>
+
+<p align="JUSTIFY">"Nadūšu nikuo!" </p>
+
+<p align="JUSTIFY">Ūtrs valns soka: "Īsim mudruok i atvessim trešū vazumu
+zalta!"</p>
+
+<p align="JUSTIFY">Pirmais soka: "Jis vyss leidza nadūs uodys."</p>
+
+<p align="JUSTIFY">Dreizi jau dzīduos gaili, navar ilgi gaidīt. Valni mudri nūskrēja i
+atvede trešū zalta vazumu. Tad jī runuoj: "Tagad nabyusim tik glupi tev paprīšku
+naudys bērt. Dūd mums uodu, a mes tev zaltu."</p>
+
+<p align="JUSTIFY">Grāfa kyuma soka: "Es nadūšu uodys paprīšku. Berīt
+paprīšku zaltu krugā!"</p>
+
+<p align="JUSTIFY">Valni jēme i sabēre zaltu krugā, bet kyuma nadeve uodys. Valni
+nūsasirdēja, bet navarēja nikuo dareit. Aizdzīduoja gailis. valni izgaisa, a uoda i
+treis vazumi naudys palyka.</p>
+
+<p align="JUSTIFY">Bednais kyuma, dagaidējis dīnys, aizguoja uz sovu sātu. Grāfa uodu
+jis atdeve bazneickungam, a bazneickungs tū sadadzynuova. Treis vazumi zalta palyka
+kyumam par pylnavuošonu.</p>
+
+<p align="JUSTIFY">Daguoja nakts, sapynā pilnavuotuojam pasaruoda grāfs i soka:
+"Paldīs, mīļais kyumeņ, ka tu nūpylnavuovi i izsorguovi munys uodys! Jem par tū
+pusi munys muižys i pusi munvs monta!"</p>
+
+<p align="JUSTIFY">Tymā pat naktī jis pasaruodēja sapvnā sovai sīvai i sacēja:
+"Atdūd pusi vysa kuo pylnavuotuojam! A ka tu paturēsi poša, to es nalikšu tev
+mīra.''</p>
+
+<p align="JUSTIFY">Bednais kyuma nyu palyka par boguotu kungu.</p>
+
+
+</body></html>

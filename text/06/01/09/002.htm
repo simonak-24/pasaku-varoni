@@ -1,0 +1,162 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Bārenis pie niknās pamātes.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 511. 532. A. Lerchis - Puškaitis Džūkstē -Pienavā. LP, II,
+46 (91).</p>
+
+<p align="JUSTIFY">Kādam puisēnam bij grūtas dienas: nikna pamāte to nevar ieraudzīt
+ne acu galā. Reiz puisēns aizbrauc tēvam uz tirgu līdz. Tēvs tirgū grib puisēnam
+zirgu nopirkt; bet puisēns saka: "Tēt, tie zirgi man par dārgu, brauksim labāk
+mājā!"</p>
+
+<p align="JUSTIFY">Labi. Ceļā tie satiek vecu sirmgalvi, kam tāds zirdziņš, kā ne
+paiet. Puisēnam vājais krabiņš iekrīt acīs. Viņš lūdz tēvu, lai to viņam
+pērkot. Tēvs gan pretojas, kur tādu likšot; bet kad nu lūdzās - lai notiek arī.
+Puisēns pārved savu krabiņu mājā un sāk to kopt. Un skaties tik, par vienu nedēļu
+kakls kā ritenis, mugura kā lāva. Tas pamātei vēl jo vairāk rieba. Zirgs ar puisēnu
+esot pilni velna! Kādu dienu pamāte nevar vairs savas dusmas savaldīt, viņa apņemas
+puisēnu ar velna rutku nonāvēt. Bet labais zirgs puisītim izlīdz. Un kā tas
+gadījās? Zirgs, pamātes nodomu izzinājis, stāv bēdīgs, nodūris galvu pie siles: ne
+ēd, ne ir. Puisēns, to redzēdams, prasa: "Diezin, zirdziņ, kas tev noticis?"</p>
+
+<p align="JUSTIFY">Zirgs tūlīt sāk runāt un atbildēt: "Kā nenoskumt? Pamāte
+tevi grib nolietāt. Viņa iedrupinājusi piena maizē velna rutku. Neēd vis, dēliņ,
+pienamaizi, citādi būsi pagalam!"</p>
+
+<p align="JUSTIFY">Puisēns paklausa un paliek dzīvs. Otrā dienā zirgs atkal bēdīgs.</p>
+
+<p>"Kas nu tev labs, zirdziņ, uzgājis?"</p>
+
+<p>"Jā, pamāte izvārījusi tev velna rutka putru. Neēd!"</p>
+
+<p align="JUSTIFY">Puisēns paklausa un neēd. Bet nu pamāte nevar vairs izbrīnēties,
+kas puisēnam padomu piedod. Viņa aiziet pie raganas, lai tā pasacītu, kas puisēna
+padomu devējs. Ragana atbild: "Treknais zirgs stallī. Kauj zirgu nost, tad puisēnu
+nonāvēsi!"</p>
+
+<p>Labi. Kaušot nost.</p>
+
+<p align="JUSTIFY">Trešā dienā zirgs atkal bēdīgs. "Kas nu tev, labo zirdziņ,
+uzgājis?"</p>
+
+<p align="JUSTIFY">"Jā, pamāte mani nokaus. Bet nekas; tik paklausi mani, tad būs
+labi. Ja nu pamāte mani kaus, tad pienāc labi tuvu, lai manas asinis varētu tev uz
+cepuri uzsprāgt! Cepuri aproc dārzā. lai vietā izaugs zelta bumbiere, zelta augļiem.
+Tu vari augļus ēst, cik gribi; bet ja pamāte ēdīs, tad tik paskaties, kas
+notiks."</p>
+
+<p align="JUSTIFY">Puisēns tā dara. Zirgu kaujot tam uzsprāgst viena asins pile uz
+cepuri, Cepuri tas aprok dārzā. Tur izaug zelta bumbiere, zelta augļiem. Puisēnam
+augļi ļoti smeķ. Pamāte to ieskatās, tai arī kārums uznāk. Bet līdz ko vecene
+vienu augli apēd, tā atkrīt augšpēdu un izdziest.</p>
+
+
+</body></html>

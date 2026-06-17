@@ -1,0 +1,167 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Br?numa kal?js</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Brīnuma kalējs.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">3. A.<b> </b>753. T e i c ē j a 76 g. v e c a Ī
+v a S t a l e i d z ā n e A t a š i e n ē. L a t v j u k u l t ū r a s k r.</font><font size="4"></font></p><font size="4">
+</font>
+
+<p align="JUSTIFY">Vīns kalējs izkala valnu ar rogim un pakuoŗa smēdē uz sīnas.
+Pīpard kalējs rūkā, pīlik rūku valnam pi daguna un soka: "Valns, še paūd!
+Valns, še tev muna dvēsele!"</p>
+
+<p align="JUSTIFY">Valnam tys napatyka un jis vys prasīja kalēju palaist jū vaļā, bet
+kalējs dora sovu. Kaidu reizi valns soka: "Kalēj, izsvīd mani aiz smēdes uz zyrga
+māslu gubas un es tev par tū pylnu capuri zalta īdūšu!"</p>
+
+<p align="JUSTIFY">Kalējs beja ar mīru un valns aizskrēja pēc zalta. Pa tū laiku
+kalējs izroka dūbi, izgrīzja capurei dybynu, pastatīja capuri uz dūbes un gaida.
+Atstīp valns maisu zalta un sabēŗa capurē, bet capure nabeja pylna. Valns aizskrēja
+pēc ūtra maisa un, atstīpis ūtru maisu zalta, sabēŗa capurē, bet capure kai nav,
+tai mav pylna. Sasadusmuoja valns, ka kalējam tik lela capure, un aizskrēja pēc trešuo
+maisa. Atstīpja valns trešū maisu un sabēŗa capurē. Capure beja pylna. Kalējs
+puorkristīja zaltu, pajēmja nu uz sīnas pakuortū valnu un izsvīdja aiz smēdes uz
+zyrgu māslu gubas. Pēc kaida laiciņa kalējs pasavēŗa un redzēja, ka valna uz māslu
+gubas jau nabeja. Dzeivoj kalējs un kaļ sovā smēdē.</p>
+
+<p align="JUSTIFY">Vīnu reiz atguoja uz smēdi kaids svešs cylvāks un soka:
+"Pījem mani par struodnīku, es naprasīšu nu tevis nikaidas moksas. Pats ej uz
+krūgu un dzer, bet es par tevi struoduošu vysu! Es asmu lobs kalējs, muoku vacu
+cylvāku par jaunu puorkalt!"</p>
+
+<p align="JUSTIFY">Kalējs padūmuoja, padūmuoja un pījēmja svešu cylvāku par
+struodnīku. Tys beja tys pats valns, kuru kalējs izsvīdja aiz smēdes. Tai zelle
+kalējam struodoj, bet pats kalējs vairuok krūgā sēd. Atbraucja uz smēdi vīns vacs,
+vacs kungs un prasa puorkaļt jū par jaunu. Tys kungs beja ari valns. Zelle atbildēja:
+"Es tū varu izdarīt!"</p>
+
+<p align="JUSTIFY">Zelle pajēmja vacū kungu lyka uz guns, dadzynuoja dadzynuoja un lyka
+uz loktas kaļt. Pyrmuok izkola kuojas, tad rūkas, tad vādaru un tad cytu vysu.
+Pastatīja zelle kungu kuojuos un jis beja par jaunu cylvāku. Kungs samoksuoja zellei,
+sāduos rotūs un aizbraucja. Smēdē bejušī vysim izstuostīja un ļauds runuoja:
+"O, lobs kalējs! O, lobs kalējs!"</p>
+
+<p align="JUSTIFY">Runas aizguoja leidz vacajam grafam, uz kuŗa zemes beja pastatīta
+smēde. Pa tū laiku zelle beja aizguojis prūjom un kalējs struoduoja otkon vīns pats.
+Atbraucja vacais grafs uz smēdi un prosa kalēju puorkaļt jū par jaunu. Kalējs
+saprota, ka te beja tuo valna dorbi, kuru jis izsvīdja aiz smēdes, un tuodēļ saka
+grafam: "Es namuoku puorkaļt vacus cylvākus par jaunim, tū muocīja muns
+zelle!"</p>
+
+<p align="JUSTIFY">"Es tevi varu nūpērt," atbildēja grafs. "Jo tovs
+zelle muocīja, tu ari vari!"</p>
+
+<p align="JUSTIFY">Nikuo cyta naatlyka kalējam darīt un jis lyka grafu uz guņs. Daga,
+daga grafs, taurējās, taurējās, švierkštēja, švierkštēja un sadaga, tai ka kauli
+vīn palyka. Kalējs nūsabeida, izrausja nu guņs grafa kaulus un pasacīja: "Es
+namuocīju kaļt un tuodēļ nasajēmu!"</p>
+
+<p align="JUSTIFY">P i e z ī m e. Skat. piezīmi pie iepriekšējā varianta. P. Š.</p>
+
+
+</body></html>

@@ -1,0 +1,187 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ceļotājs meklē laimi.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">8. A. 460. B. K. Corbiks no 50 . veca Kārļa Tabāka. Vadakstes pag.</p>
+
+<p align="JUSTIFY">Kā jau ziemsvētku vakarā, puiši ātrāk apkopj zirgus, meitas
+govis, un visi saiet istabā. Pīrāgi salikti uz galda, saimnieks notur vakara pātarus,
+tad paēd vakariņas, noskaita otrreiz pātarus, un tad visi gaida ziemsvētkus. Saimnieks
+ap vienpadsmitiem iziet laukā un neienāk vairs iekšā.</p>
+
+<p align="JUSTIFY">Iziet citi laukā paskatīties, kur saimnieks. Nekur nav, iet iekšā.
+Divpadsmitos iziet atkal meklēt, bet nav. Citi mājenieki nodomāja, ka saimnieks
+aizgājis uz pušeniekiem. Pulkstens labi pāri jau pusnaktij. Mājenieki dzird, ka
+pušenieku sulai rej un aiziet apskatīties. Redz - saimnieks brauc ar savu balto ķēvi.
+Tanī gadā ziemsvētki bija pavisam bez sniega. Iebrauc saimnieks sētā. Mājenieki
+brīnās un prasa: "Kur tu biji?"</p>
+
+<p align="JUSTIFY">"Rīgā biju!" saimnieks atbild. Citi brīnās un saka:
+"Tu melo!"</p>
+
+<p align="JUSTIFY">Kur tad es tās siļķu mucas ņēmu, ka es meloju?" saimnieks
+saka. "nāciet apskatīties, tad jūs redzēsat.</p>
+
+<p align="JUSTIFY">Un, riktīgi - mucas vezumā. Saimnieks liek mucas velt klētī. To
+vienu itin viegli ieveļ, bet tiklīdz pie otras ķērās gailis nodziedāja; muca paliek
+tik smaga, ka visi mājenieki tai nekā nevar padarīt. Visi gudro, ko nu darīt. Vecais
+saimnieks saka, ka cits nekas neatliek: apgāzt ratus un tad ievelt iekšā. Visi ķeŗas
+klāt, apgāž ratus un ieveļ mucu klētī. Ieveļ mucu klētī, nojūdz balto ķēvi,
+ieved to kūtī, un saimnieks iet uz istabu.</p>
+
+<p align="JUSTIFY">Saimniece atkal prasa: "Kur tu biji?" "Rīgā
+biju!" saimnieks tāpat atbild. "Tu nevarēji būt Rīgā, ko tu muldi!"</p>
+
+<p align="JUSTIFY">"Re če, ka nu netic, kur tad<b> </b>es tās mucas ņēmu?"</p>
+
+<p align="JUSTIFY">Saimniece prasa: "Kas tad tevi vedināja uz Rīgu braukt?"
+"Āre, kā izgāju laukā, priekšā smuks jaunskungs, kuŗš vedināja sevi uz Rīgu
+aizvest un par to došot mucu siļķu. Man uznāca tāda luste, ka neiegāju ne iekšā
+pateikt. Kā iesākām braukt, es prasīju, ka ta mēs sasniegsim Rīgu?"</p>
+
+<p align="JUSTIFY">Jaunskungs teica: "Nekas, gan jau mēs Rīgu sasniegsim."
+Rati ripoja kā pa glāzi, nemaz nepurināja. Jaunskungs teica: "Vai tu zini, kapēc
+man tevis vajaga: man tagad par Rīgu jākaŗo. Kad piebrauksim tilta galā, piesien
+ķēvīti, paņem atsaiti no kreisās ratu puses un nāc man līdz! Kad mēs būsim tilta
+vidū, nāks mans pretinieks. Viņš grib par Rīgu valdīt, un es gribu par Rīgu
+valdīt. Tilta vidū mēs sāksim plūkties. Tu viņam mēģini ar atsaiti trīs reizes
+uzgāzt, tikai netrāpi man, tad es būšu uz vietas pagalam!"</p>
+
+<p align="JUSTIFY">Piebraucām pie tilta gala. Es piesienu ķēvīti, paņemu kreiso ratu
+atsaiti un eimu jaunkungam līdz. Kad bijām nonākuši tilta vidū. manam jaunam kungam
+uz reiz krīt viens liels melns kungs virsū. Ar vienu ķērienu mans jaunskungs gar zemi.
+Es nu tik leju ka leju jaunkunga pretiniekam, bet tiklīdz trīs reizes biju iesitis, mans
+jaunskungs uzreiz šāvās augšā un ar vienu rāvienu pārsvieda melno kungu pār tilta
+malu.</p>
+
+<p align="JUSTIFY">"Tā nu es esmu par visu Rīgu tas ķēniņš, brauc savu
+ķēvīti šurp, un es tev došu tavas krietni nopelnītās siļķes." Piebraucu pie
+vienas lielas ēkas. Man iedeva vienu mucu.</p>
+
+<p align="JUSTIFY">Muca bija tik viegla, ka es domāju, tā tīri vai tukša būs.
+Piebraucām pie otras ēkas, jaunskungs attaisīja durvis un teica: lai ņemot no šīm
+siļķēm ar vienu mucu, šīs esot labākas.</p>
+
+<p align="JUSTIFY">"Ar divām mucām siļķu varbūt rīt ap pusdienas laiku būšu
+mājā," es sacīju.</p>
+
+<p align="JUSTIFY">"Tiksi mudīgi vien mājā," teica jaunskungs, "tikai
+neapsauc savu zirdziņu ar vārdu "tprru", tad drīzi vien tiksi mājā."</p>
+
+<p align="JUSTIFY">Mēs sadevāmies rokas, un es braucu uz mājām. Rati tā ripoja, kā
+pa glāzi, nemaz nepurināja. Sāka tikai tad purināt, kad kaimiņu suņi ierējās, bet
+tad jau bija tepat mājas." Mājenieki aizgāja un attaisīja mucas. Viena muca bija
+pilna peinām siļķēm, bet otra - pilna zelta dukātu.</p>
+
+<p align="JUSTIFY">Jaunskungs esot bijis Dievs.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,143 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>15</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Spēlētājs ellē.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">15. A. 476. A. Lerchis - Puškaitis Džūkstē - Pienavā. LP, II, 45.</p>
+
+<p align="JUSTIFY">Citreiz dzīvojis kāds vīrs. varens koklētājs. Kad viņa kokle
+skanējusi, tad dzīvie nevarējuši atklausīties un mirējiem neticis mirt.</p>
+
+<p align="JUSTIFY">Reiz šis pats koklētājs sēdējis pie kapsētas, koklējis un
+koklējis. Miroņi, to dzirdēdami, norunājuši priecīgas dzīras darināt un
+koklētāju pie sevis ieaicināt. Divi miroņi, baltās drēbēs, izgājuši koklētājam
+pakaļ, paņēmuši viņu aiz rokas un veduši caur kādu apakšzemes caurumu pie sevis
+iekšā. Koklētājs iegājis miroņu dzīvoklī un atradis tur daudz, daudz baltu viesu
+priekšā. Visi bijuši ļoti priecīgi un laipni. Koklētājam tie devuši ēst un dzert
+papilnam un arvien plijušies virsū, lai tik koklē un koklē. Tā sadzīvojuši trīs
+dienas.</p>
+
+<p align="JUSTIFY">Pēc trim dienām koklētājs taisījies aiziet. Miroņi to
+pavadījuši līdz apakšzemes caurumam un piedāvājuši, kā atmaksu lielu kaudzi ogļu.
+Bet koklētājs tik paņēmis vienu ogli, pasmējies un sacījis: "Draugi mīļie,
+kur tad nu vairāk likšu, mājā man ogļu pašam diezgan."</p>
+
+<p align="JUSTIFY">To sacījis, koklētājs atstājis miroņus un aizgājis uz māju.
+Pāriet mājā - ak tavus brīnumus! ne vairs tie ļaudis, ne šis ne tas. Viss svešs,
+viss citādāks. Prasa vienam, otram; bet neviens nepazīst koklētāja. Beidzot gadās
+vecs vīrs. Tas gan dzirdējis, ka reizi tanī mājā varens koklētājs dzīvojis un
+piepēži nozudis; bet tas esot noticis priekš trīsdesmit gadiem.</p>
+
+<p align="JUSTIFY">Tagad koklētājs noģidis, cik ilgi pie miroņiem sabijis. Bet viņam
+trīsdesmit gadi izlikušies par trim dienām. Otrā dienā koklētājam iešaujas prātā
+tā ogle, ko pie miroņiem paņēmis. Viņš grābj kabatā, un re, ogle palikusi par
+zelta dukātu. Tagad vīrs nožēlojis, ka nav ņēmis visu kaudzi.</p>
+
+
+</body></html>

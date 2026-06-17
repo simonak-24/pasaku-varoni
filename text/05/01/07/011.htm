@@ -1,0 +1,213 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Labi</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5">
+
+<p align="CENTER"><strong>Velna dotā sieva.</strong></p>
+</font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">11. A.465D. Teicējs 67 g. vecs A. Kovaļevskis Bebrenē. </p>
+
+<p align="JUSTIFY">Tāvam beja vīns dāls. Tāvs jū cīši žāluoja un dāls izauga par
+lelu bryutguonu. Vīnā vokorā dāls paēdja vakariņu un izguoja nu ustobas. Dāls
+atguoja atpakaļ tikai pēc divpadsmit stundem nakts. Ūtrā vokorā pēc vakariņom dāls
+izguoja nu ustobas un tāvs dūmoj: ,,Īšu pasavēršu, kur dāls staigoj?"</p>
+
+<p align="JUSTIFY">Dāls aizguoja taisni uz reju un tāvs - jam pakaļ. Dāls īguoja
+rejā. bet tāvs pīguoja pi rejas lūdziņa un redz, ka rejā stuov gaidiņš, dag svece
+un pi tuo galdiņa sēd dāls ar skaistu meitu. Tei meita beja apburta. Tai dāls ar meitu
+nūsēdēja leidz divpadsmit stundem nakts un, kad gaiļi dzīduoja, tad pazuda. Dāls
+atguoja uz ustobu un atsagula.</p>
+
+<p align="JUSTIFY">Reitā tāvs, ntkam nikuo nasacīdams, aizguoja uz baznīckungu un vysu
+izstuostīja baznīckungam, kū jis redzēja rejā. Baznīkungs soka: "Vajag man īt
+pasavārtu, bet tu daboj rožoncu un škapleru!"</p>
+
+<p align="JUSTIFY">Tās sadabuoja rožoncu ar škaplerim, baznīckungs pajēmja svētītuo
+yudeņa un kristamū kreitu un vokorā obi aizguoja uz reju. Baznīckungs pīguoja pi
+rejas lūdziņa un ari redz: sēd dāls ar meitu, stuov galdiņš un uz galdiņa dag
+svece. Tad baznīckungs pīguoja pi rejas durovom, aizkristīja tuos ar kristamū kreitu
+un, attaisījis rejas durovas, svīdja uz meitas svētītū yudeni.</p>
+
+<p align="JUSTIFY">"Uz manis guni izmetja!" klīdzja meita un gribēja izskrīt
+pa durovom, bet navarēja, jo durovas beja aizkristītas ar kristamū kreitu. Tam laikam
+baznīckungs pasacīja tāvam izsvīst meitai uz kokla rožancu ar škaplerim un tāvs tū
+izdarīja. Meita vairuok nikur naskrēja un jū aizvedja uz baznīcu, nūkristīja un
+salauluoja ar dālu.</p>
+
+<p align="JUSTIFY">Dzeivoj veirs ar sīvu laimīgi. Pēc kaida laika jīm pīdzyma
+meitiņa. Nailgi meitiņa padzeivuoja un kaidā reitā veirs ar sīvu atroda meitiņu
+nūgulātu. Vysi nūsprīdja, ka meitiņu ir nūgulējusi muote. Apglobuoja meitiņu un
+otkon dzeivoj pa vacam.</p>
+
+<p align="JUSTIFY">Vīnā reitā veirs ora duorzā, atskrēja krauklis, atsasāda kūkā
+un kārc. Veirs ar un ar. Sīva izškrēja nu ustobas un klīdz: "Kuodēļ tu narunoj
+ar kraukli?"</p>
+
+<p align="JUSTIFY">"Kū es zynu ar putnu runuot?" atbildēja veirs.</p>
+
+<p align="JUSTIFY">"Jis myusu prosa uz kuozom!" soka sīva. Tad sīva parunuoja
+ar kraukli, kai jis saprūt, un krauklis aizskrēja.</p>
+
+<p align="JUSTIFY">"Kad tad mes īsim uz kuozom un uz kurīni?" prosa veirs
+sovai sīvai.</p>
+
+<p align="JUSTIFY">"Par treis dīnas, es ceļu zynu!" atbildēja sīva.</p>
+
+<p align="JUSTIFY">"Nu, tad ej izcep kaidu pluocini aiznest uz kuozom!" soka
+veirs.</p>
+
+<p align="JUSTIFY">"Navajag nikuo nest," atbildēja sīva.</p>
+
+<p align="JUSTIFY">Trešā dīnā veirs ar sīvu aizguoja uz tū pašu reju, kurā jī
+jauni sēdēja. Sīva atguoja nu durovom treis sūļi un veirs ar sīvu pakrita caur zemi.
+Kur jī tagad atsarada, veirs nazynuoja, bet tyuleņ jīm prīškā aizskrēja moza
+meitiņa un suoka klīgt: "Muns tētīts, muns tētīts atguoja! Tu esi muns
+tētīts! Es tej mozuo meitiņa, kura jyusim nūmyra! Tad mani nūzoga valns un muotei pi
+suona pīlyka apses molkas paga]u! Es tova meitiņa, tu muns tētīts!"</p>
+
+<p align="JUSTIFY">Tad meitiņa runoj sovam tāvam: "Kad Jyusim kuozuos dūs ēst un
+dzert, tu nadzer un naēd tuo, kū cyti dūs, bet ēd tikai tū, kū es tev dūšu, bet
+muote var vysu ēst. Tur byus cyuškas un tuorpi ēdīnam un pūra yudeņs dzerīnam! Tev
+valns dūs zalta naudu, bet tu tuos naudas najem, bet paprasi cysu kyulīša. Kad valns
+prasīs: "Pa kurīni tu brauksi?" tu atbildi: "Pa zemi!"</p>
+
+<p align="JUSTIFY">Tad veirs ar sīvu un meitiņu īguoja valna pilī. Valns precēja sovu
+dālu un par svuotu vajadzēja byut veiram. Valns pamanīja veiru un soka: "Es sovu
+meitu tev atdevu bez pyura, tuodēļ ej šur un pajem zalta, cik tik gribi!"</p>
+
+<p align="JUSTIFY">Valns pajēmja luopstu un suoka gruobt zaltu, lai bārtu maisā un
+dūtu znūtam, bet znūts soka: "Man naudas navajag, lobuok atdūd man itū cysu
+kyulīti. kurs guļ koktā!"</p>
+
+<p align="JUSTIFY">Nikuo darīt, valns atdevja cysu kyulīti un aicynoj znūtu ar meitu pi
+golda. Vysi cyti vīsi ād vysu, kū izlīk, bet veirs tilcai tū, kū padūd juo
+meitiņa. Jau pīsacēļa vysi nu golda un valns prosa znūtam: "Pa kurīni tu, kuozu
+svuotiņ, brauksi?"</p>
+
+<p align="JUSTIFY">"Es pa zemi braukšu!" atbildēja veirs. '</p>
+
+<p align="JUSTIFY">Tad valns prosa panuoksnim: "Pa kuŗīni jyus brauksit?"
+"Mes pa puskūku brauksim!" atbildēja ponuoksni.</p>
+
+<p align="JUSTIFY">"Un pa kurīni jyus brauksit?" prosa valns jauničam.
+"Mēs pa kūku viersvunem!" atbildēja jauniči.</p>
+
+<p align="JUSTIFY">Pajēmja veirs cysu kyulīti, sāduos ar sīvu malnūs zyrgūs un brauc
+pa zemi, ponuoksni pa puskūkim, bet jauniči pa kūku viersyunem. Atsavēŗa veirs
+atpakaļ un redz, ka tur, kur jis puorbrauc, vysi kūki izzaguož ar vvsom sokuornem. Cik
+jis ilgi nibraucja, bet redz, ka pībraucja pi sova tāva bruoļa rejas. Turpat stuovēja
+juo tāva bruols. Veirs vylka ar puotogas kuotu par rejas pakši un rodas, ka vējs tai
+izraustīja reju uz vysom puem.</p>
+
+<p align="JUSTIFY">"Valns lai tevi paraun ar vysom tovom kuozom!" pasacīja
+tāva bruoļa Pēc itim vuordim veirs ar sovu sīvu atsamūda pi sovas rejas uz tuos
+pašas vītas, kurā īkrita, un veira rūkā beja na cysu kyuls, bet zalta naudas maiss.
+Tū zyrgu, ar kurim jis braucja, un cytu kuozinīku, nabeja. Veirs ar sīvu atstīpja
+naudas maisu uz ustobu un sovu myužu nūdzeivuoja laimīgi.</p>
+
+
+</body></html>

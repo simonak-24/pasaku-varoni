@@ -1,0 +1,177 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>22</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dažādi spēka vīri.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">22. A. 650 C. Teicēja A. Reča Silajāņu pag. Latvju kultūras
+krājumā.</p>
+
+<p align="JUSTIFY">Senejūs laikūs dzeivuoja vīns boguots saiminīks. Dīvs devja juo
+sīvai dālu. Veirs ar sīvu beja ļūti prīcīgi un dūmuoja, ka dāls byus
+vysskaistuokais pasaulē. Kad dāls tyka pruovuoks, tad jis navarēja ni rūku, ni kuoju
+paceļt. Tāvam ar muoti beja kauns, ka jūs dāls krūplis. Jam beja uz cepļa pataisīta
+vīta un tur jis gulēja leidz treisdesmit godim un vysu, kū jam vajadzja, tū jis
+darēja uz cepļla. Beja ļūti korsta vosora. Vysi aizguoja sīna pļautu. Muote, īdama
+uz sīnu, soka dālam, lai jis dazaver, kab kas naīītu ustobā. Kad viņa izguoja, dāls
+atsagulās un aizmyga. Uzreizes jis izdzierda, ka nazkas īguoja ustobā. Dāls pasamūda
+un verās, ka īguoja vacs vecīts, kurs soka krūplim: "Kuo tu guļi? Kuop zemē,
+parunuosim, kas tev ir!"</p>
+
+<p align="JUSTIFY">Krūplis vysu jam izstuostīja. Tad vecīts teicja: "Cel, cel
+rūkas, varbyut, varēsi nūkuopt nu cepļa!"</p>
+
+<p align="JUSTIFY">Jis suoka kustynuot rūkas un kuojas, un viņas pasadūd. Tūreiz
+vecīts runoj: "Kuop zemē, parunuosim!"</p>
+
+<p align="JUSTIFY">Krūplis atbiļdēja: "Baist maņ kuopt nu cepļa, kab
+nanūkristu."</p>
+
+<p align="JUSTIFY">"Nikas, nanūkrissi, kuop tik drūši!"</p>
+
+<p align="JUSTIFY">Krūplis nūkuopja nu cepļa un palyka taids prīcīgs, ka jis var
+staiguot un nikas jau nasuop. Tūreiz krūplis soka: "Munam tāvam ir ols, es īšu
+dabuošu un mes izdzersim uz munu laimi!"</p>
+
+<p align="JUSTIFY">Vecīts beja ar mīru. Saiminīka dāls atnesija olu un dūd paprīšku
+dzert vecīšam, bet jis runoj: "Na, dāls, dzer tu, es vāluok."</p>
+
+<p align="JUSTIFY">Krūplis tikkū dalyka pi lyupom, kai vysu skrūzi izdzēŗa un soka
+vecīšam: "Kas tys byus, ka es vysu izdzēru?"</p>
+
+<p align="JUSTIFY">Vecīts jam atbildēja: "Ej un atnes ūtru skrūzi!"</p>
+
+<p align="JUSTIFY">Tad krūplis atnezja ūtru skrūzi, un dūd paprīšku vecīšam dzert,
+bet jis otkon soka: "Na, dāls, tu dzer, es vāluok."</p>
+
+<p align="JUSTIFY">Krūplis kai dalyka pi lyupom, tai izdzēŗa vysu un nūguoja pēc
+trešas skrūzes ols. Otkon vecīts jam dūd paprīšku dzert un jis otkon vysu izdzēŗa.
+Tūreiz vecīts soka jam: "Tai kai tu dāls izdzēri vysas treis skrūzes ols, atnez
+vēl catūrtū!"</p>
+
+<p align="JUSTIFY">Dāls soka: "Tāvs, es tagad varu pajemt un apgrīzt vysu zemi!
+Man ļūti daudz spāka!"</p>
+
+<p align="JUSTIFY">Vecīts atbiļdēja: "Navajag tai dūmot, atnez satūrtū skrūzi,
+izdzersim abi divi pa pusei."</p>
+
+<p align="JUSTIFY">Krūplis atnezja vēļ catūrtū skrūzi ols un pusi izdzēŗa, bet
+ūtrū pusi pametja vecīšam. Kad vecīts izdzēŗa ūtrū pusi, tad dāls soka:
+"Es, tāvs, navaru zemes puorgrīzt uz augšu un debesi uz zemi. Tikai, kas uz zemes
+stuov, tū es varu puornest."</p>
+
+<p align="JUSTIFY">Tad vecīts soka: "Es esmu pats Dīvs un tev dūšu vuordu
+Eļjašs un divi guņs zyrgus, tev vajadzēs braukt pa debesim leidz pasauļa golam!"
+Tai šūdin vēl Eļjašs braukoj pa debesim ar guņs zyrgim.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Šī pasaka ir aizjemta no krievu teikas paŗ Muromieti
+Iļju jeb Elijāsu (skat. Ievads. 71. l. p.), kas ir samaisīts ar bībeles Elijāsu kas
+braucis "ar ugunīgiem zirgiem" (II. Ķēn. 2. 11) un ar grieķu saules dievu
+Hēliju. Tādā ziņā Iļja pie krieviem ir attīstījies par pērkona dievību. P. Š.</p>
+</font>
+
+
+</body></html>

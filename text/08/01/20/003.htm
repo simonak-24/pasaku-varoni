@@ -1,0 +1,200 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Žīds ērkšķu krūmā.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">3. A. 592. R. Vulfs Ūziņos. L. P. III, 95 (57).</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz viens zēns ganīja ezera malā govis. Viņam uznāca garš laiks.
+Lai laiku pakavētu, tas dabūja lāpstiņu un rakņāja ezera malā mazu grāvīti.
+Drīzi grāvītis piepildījās ar ūdeni un tecēja čurinādamies uz priekšu, it kā
+gribēdams racēju panākt. Tā nu tas darbojās.</p>
+
+<p align="JUSTIFY">Bet uz reizi zēns nejauki pārbijās: ezera ūdens sāka briesmīgi
+mutuļot un griezties. Piepēži no mutuļa izšāvās melns vīrs. Tas bija pats velns.</p>
+
+<p>"Ko tu te dari?" velns uzbļāva zēnam.</p>
+
+<p align="JUSTIFY">"Darbojos tāpat, grāvīti rakdams," zēns stomīdamies
+atbildēja, jo trīcēja no bailēm.</p>
+
+<p align="JUSTIFY">"Zēns, vai tu traks esi? Neroc! Tu jau vari ezeru beigās tā
+nolaist. To, lūdzams, nedari: ezers ir mans miteklis."</p>
+
+<p align="JUSTIFY">Dzirdēdams tādus vārdus, zēns tūdaļ nomanīja, ka briesmīgajam
+vīram ļoti maz sapratības. Viņš palika drošāks un smiedamies atteica: "Ja tu
+man labi maksāsi, tad vairāk nerakšu."</p>
+
+<p align="JUSTIFY">"Ko lai tev maksāju? Naudas man tagad nav - še tev tāda maza
+stabulīte: to tu vari arvienu papūst, tad saimnieka lopi barosies acim redzot."</p>
+
+<p align="JUSTIFY">Zēnam stabulīte labāki patika nekā nauda; viņš to tūliņ pielika
+pie mutes un pūta. Laiks nu gan pagāja ļoti īsi, bet tik viena nelaime: jo stabuli
+pūta, jo govis lēca. Zēns domāja: "Ko nu var zināt - varbūt, ka viņām tā
+jālec, ja grib ātri nobaŗoties."</p>
+
+<p align="JUSTIFY">Bet govis nebaŗojās vis: ar katru dienu tās palika vājākas un
+vājākas. Saimnieks sāka brīnīties, kas govim par nelaimi, un nereti pārmeta zēnam,
+ka govis labi nenoganot. Bet zēns arvien ticēja: "Lai saimnieks saka, lai - gan jau
+pienāks laiks, kad govis acim redzot nobaŗosies, kā briesmīgais vīrs teicis."</p>
+
+<p align="JUSTIFY">Kādu dienu saimnieks tomēr sadomāja iet paskatīties, ko zēns labi
+ar lopiem dara. Viņš neredzot aizlīda pa krūmu krūmiem un slepeni noskatījās. Te uz
+reizi zēnam iesitās prātā stabuli papūst. Tūdaliņ govis lēca un saimniekam gribot
+negribot arī bija jālec. Pēc laba brīža zēns atlika stabuli. Saimnieks, no
+lēkšanas vaļā paticis, dusmās sagrāba zēnu un veda pie kunga apsūdzēt. Zēns gan
+lūdzās, bet nelīdzēja. Tuvu pie muižas tie satika vagāru. Vagārs prasīja:
+"Kur tu to zēnu stiep?"</p>
+
+<p align="JUSTIFY">"Jā, stiepšu pie kunga apsūdzēt - viņam tāda stabule: kad
+papūš - jālec, vai gribi vai ne."</p>
+
+<p align="JUSTIFY">Vagārs neticēja; lai papūšot, gribot redzēt. Zēns izvilka stabuli
+un pūta. Tūliņ vagārs ar saimnieku lēca, kā traki, saukdami: Nepūt vairs - diezgan,
+diezgan!" Zēns atlaidās.</p>
+
+<p align="JUSTIFY">Pašos muižas vārtos tie satika muižaskungu. Muižaskungs prasīja
+vagāram: "Kur tas saimnieks to zēnu stiepj?"</p>
+
+<p align="JUSTIFY">"Pie kunga, cienīgs muižkungs, viņam, tam zēnam, tāda
+stabule: kad tas papūš, jālec, vai gribi vai ne."</p>
+
+<p align="JUSTIFY">Muižaskungs neticēja, lai uzpūšot, gribot redzēt. Zēns izvilka
+stabuli un pūta. Tūliņ muižaskungs, vagārs, saimnieks lēca kā traki, saukdami:
+"Diezgan, diezgan - nepūt vairs!" Zēns atlaidās. Nu visi nogāja pie kunga.
+Kungs prasīja: "Ko gribat?"</p>
+
+<p align="JUSTIFY">Atvedām te tādu zēnu ar savādu stabuli: kad uzpūš - jālec gribot
+negribot. Kungs neticēja, lai uzpūšot. Zēns uzpūta. Nu tūliņ kungs, muižaskungs,
+vagārs, saimnieks lēca, kā traki, saukdami: "Diezgan, diezgan - nepūt
+vairs!" Zēns atlaidās.</p>
+
+<p align="JUSTIFY">"Vadzi, kur tu tādu stabuli ņēmi?" kungs uzprasīja.</p>
+
+<p align="JUSTIFY">Tur un tur, tā un tā - zēns izstāstīja.</p>
+
+<p align="JUSTIFY">"Tas labi! Es jau sen zināju, ka manā ezerā briesmīgais vīrs,
+velns, piemājo. Tev vajaga ar stabuli viņu aizdzīt. Ej roc atkal to grāvīti un kad
+briesmīgais vīrs iznāk no ezera, teic, lai nerok, tad tūliņ uzpūt stabuli, lai tas
+labi izlēcas. Bet neatlaidies; pūti kamēr pie beigām esi viņu nokausējis. Gan tad
+tas sāks lūgties. Bet ātrāki neļaujies pielūgties, kamēr nav apsolījies, ezeru
+atstāt un uz citurieni aiziet."</p>
+
+<p align="JUSTIFY">Labi - zēns tā darīja. Velns iznāca un prasīja: "Vai tu atkal
+jau roc grāvi?"</p>
+
+<p align="JUSTIFY">Bet zēns, ne vārda neatbildējis, izrāva savu stabuli un pūta un
+pūta, kamēr nokausēja velnu ar platu muti.</p>
+
+<p align="JUSTIFY">Velns sāka lūgties, lai nepūšot. Bet zēns ātrāki neatlaidās,
+kamēr bija apsolījies, ezeru atstāt. Neko darīt - bija jāklenderē uz citurieni
+dzīvot. Kungs nu bija priecīgs. Par atmaksu tas zēnam iedāvināja jaunas mājas un
+iecēla to par saimnieku.</p>
+</font>
+
+
+</body></html>

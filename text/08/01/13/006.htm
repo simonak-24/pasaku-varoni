@@ -1,0 +1,168 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Zaķu gans.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">6. A. 610. 570. A. Lerchis Puškaitis Džūkstē
+- Pienavā. L. P. I, 100 (65).</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam tēvam ir trīs dēli: divi gudri, viens muļķis. Reiz
+ķēniņa princese paliek slima un ķēniņš sapņo, ka princesi ar zelta ābolu varot
+izārstēt. Viņš izlaiž pa visu savu valsti ziņu, ka tas, kas zelta ābolu
+atnesīšot, dabūšot viņa princesi par sievu. Vienu rītu tēvs izceļas un ierauga pie
+loga zelta ābeli ar trim zelta āboliem. Viņš norauj trīs ābolus un iedod katram
+dēlam vienu, lai ietu pie ķēniņa. Papriekš iet vecākais dēls. Viņš paņem rieceni
+maizes, ieliek zelta ābolu vācelītē un iet ēzdams. Netālu no pils tam piestājas
+vecs vīriņš un prasa: "Ko ēdi? Dod man ar!"</p>
+
+<p align="JUSTIFY">"Vai visiem varu maizi piedot!" dēls dusmīgi atbild un
+nedod.</p>
+
+<p align="JUSTIFY">"Ej, ej, dēliņ, lai Dievs tev palīdz!" vecais nomurmina un
+pazūd. Šis nu aiziet pilī un saka ķēniņam, ka zelta ābolu atnesis. Ķēniņš
+aicina iekšā lai parādot. Attaisa vāceli vaļā, meklē ābolu; bet ābola vietā
+zaltis saritinājies vācelē. Ķēniņš sapiktojas un izdzen krāpnieku par durvim
+laukā. Otrā dienā iet viduvējs dēls ar ābolu un paņem arī maizi līdz. Vecais
+vīriņš arī piestājas un prasa: "Ko ēdi? Dod man lai!"</p>
+
+<p align="JUSTIFY">"Vai katram varu maizi piedot?" tas atcērt vecītim.</p>
+
+<p align="JUSTIFY">"Ej, ej, dēliņ, lai Dievs tev palīdz!" vecais nomurmina un
+pazūd. Viduvējs dēls nu ieiet pilī, attaisa vāceli un grib ķēniņam ābolu dot; bet
+ābola vietā zaltis saritinājies. Ķēniņš arī šo izdzen pa durvim laukā. Trešā
+rītā iet muļķītis uz pili. Viņš ieliek ābolu vācelītē, paņem maizi un soļo
+lēni lēni ēzdams. Te vecais vīriņš atkal klāt un prasa: "Ko ēdi? Dod man
+lai!"</p>
+
+<p>"Še vecīti viss, es jau iekodu savu tiesu!"</p>
+
+<p align="JUSTIFY">Vecītis paņem maizi, iedod muļķītim stabulīti un tad pazūd.
+Muļķītis aiziet uz pili un saka, ka zelta ābolu atnesis. Ķēniņš domā, ka atkal
+kāds krāpnieks atnācis un tādēļ saka: "Ja tev ābols būs, tad princesi
+dabūsi; bet ja ne, tad kakls nost!"</p>
+
+<p align="JUSTIFY">Taisa vācelīti vaļā - ir ābols, ka viz vien. Ķēniņš tūdaļ
+izdziedē princesi un grib kāzas taisīt. Bet ķēniņiene princesi pie tāda nelaiž,
+sacīdama: lai papriekšu izganot balto zaķi. No rīta muļķītis gana balto zaļi.
+Līdz pusdienai zaķis ēd itin brangi un dienas vidū iznāk pati ķēniņiene pie gana
+apprasīties, kā klājoties.</p>
+
+<p>"Labi klājas! Kas nu tādu sesku nenoganīt!"</p>
+
+<p align="JUSTIFY">Ķēniņiene drīzi aiziet uz mājām, bet zaķis, ko tik māk, tai
+pakaļ. Muļķītis gan skrien priekšā, bet neko nelīdz.</p>
+
+<p align="JUSTIFY">"Kad tevi deviņie!" viņš iesaucas, "jārauga
+stabulīte pūst, redzēs, ko tad viņš darīs,"</p>
+
+<p align="JUSTIFY">Līdz ko stabulīti pūš, zaķis nāk, ka kūp vien atpakaļ. Saulei
+rietot baltais zaķis tā pieēdis, ka kukst vien. Viņš pārdzen to mājā un no rīta
+notura kāzas ar princesi.</p>
+</font>
+
+
+</body></html>

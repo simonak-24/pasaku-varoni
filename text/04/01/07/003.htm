@@ -1,0 +1,187 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Nāve par krustmāti.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 332. 330 A. Pogu Jānis-Bechmanis, Brīvzemnieka kr.<b> </b>LP,
+VI, 129, 3. AŠ, III, 10b.</p>
+
+<p align="JUSTIFY">Sen senos laikos dzīvoja kāds vīrs lielākajā nabadzībā. Viņš
+bija tik nabags, ka nespēja ne savu jaunpiedzimušu dēliņu uz baznīcu aizdabūt
+krustīt, jo neviens pie tāda nabaga pat ne krustībās nenāca. Neko darīt, bāza savu
+dēliņu maisā un nešus nesa uz baznīcu. Bija jāiet pa briesmīgi lielu mežu. Meža
+vidū satika jājēju baltā zirgā; tas vaicāja, kur šis ejot?</p>
+
+<p align="JUSTIFY">Nesu savu dēliņu kristīt nava neviena, kas palīdz." "</p>
+
+<p align="JUSTIFY">Es tev palīdzēšu!" jājējs saka, "ja man dēliņu par
+krustadēlu dosi, tad aiznesīšu līdz baznīcai."</p>
+
+<p align="JUSTIFY">Labi, jājējs aiznesa bērnu, tēvs gāja nopakaļus kājām. Kad
+bērns bija nokristīts. jājējs aiznesa baltajā zirgā bērnu uz mājām un sacīja
+tēvam: "Kad mans krustadēls būs 16 gadu vecs, tad nākšu viņam pakaļ." To
+teicis, tas atdeva labas dienas nabaga vīrelim un aizjāja.</p>
+
+<p align="JUSTIFY">Pēc 16 gadiem jājējs atkal baltajā zirgā atjāja, paņēma
+krustadēlu un aizveda kādā apakšzemes istabā. No rīta krustatēvs stāstīja savam
+krustadēlam, ka viņš esot Nāve un vaicāja, kādā amataī šis gribēšot mācīties?
+Zēns atteica: "Mīļais krusta tēvs, !ādu amatu jūs man vēlēsit, ar tādu
+būšu mierā!"</p>
+
+<p align="JUSTIFY">Tu, tad labi - tu būsi dakteris! Es tev došu zāles un ar "</p>
+
+<p align="JUSTIFY">padomu palīdzēšu; bet pie tam cieti piekodinu, kad tu pie slimnieka
+būsi un mani redzēsi kāju galā stāvam, tad vari dziedināt ; bet kad es galvas galā
+stāvu. tad neaiztiec slimnieku!"</p>
+
+<p align="JUSTIFY">Labi. Drīzi vien jauno dakteri pa visu apgabalu izslavēja. Un atkal
+reiz saslima bagāts tirgotājs. Tas bija apsolījis pusi no savas mantas tam, kas viņu
+izdziedinātu. dakteris aizgāja, redzēja Nāvi kāju galā, iedeva zāles - vesels. Nu
+dabūja briesmīgu naudu - bija bagāts vīrs tagad.</p>
+
+<p align="JUSTIFY">Otrā reizē atkal ķēniņa meita gŗūti saslima. Aizgāja dziedināt
+- redz: šoreiz Nāve gultas galvas galā. Ko nu? Tā sadomā: liek uztaisīt tādu gultu
+ar vienu kāju un ieguldina tur ķēniņa meitu. Kad nu Nāve atkal galvas galā
+piešmaucās, tā šis žigli pagrieza gultu citādi, Nāve palika kāju galā un meita
+bija vesela. Nu dabūja no ķēniņa vēl lielāku naudu un varenu godu bez tam. Bet kad
+pārgāja mājā, Nāve krustadēlu aplam sabāra, lai tā otru reiz vairs nekrāpjot.</p>
+
+<p align="JUSTIFY">Drīz pēc tam pats ķēniņš iesirga. Nu ķēniņš apsolīja
+pusvalsti tam, kas viņu paglābšot. Labi. Atnāca lielais dakteris, ieguldināja .
+ķēniņu vienkājas gultā un ārstēja tāpat, kā toreiz meitu. Bet Nāve šoreiz par
+varu gribēja gultas galvas galā piešmaugties, un kā šī tur par daudz uzbāzās, tā
+mans dakteris itin piepēži pagrieza gultu labi stipri, tā ka Nāve kukuriski ieskrēja
+kaktā. Kamēr nu Nāve no sitiena pa kaktu ķeparājās, viņš iedeva ķēniņam zāles,
+tas vesels un šim pusvalsts rokā. Pārgāja priecīgs mājā, atrada Nāvi no dusmām
+slimu. Redzēdams, ka ar labu vairs netiks tā kā tā, sadomāja Nāvi labāk pavisam
+nogalināt. Viņš izgāja laukā, uztaisīja labu bozi no ābeles koka ar deviņiem
+zariem - tāda esot vajadzīga, ja gribot Nāvei ko darīt -- un spēra Nāvei tā pa
+galvu, ka tā uz reizi bija pagalam. Beidzot apraka nosisto pakalnē un miers mājā.</p>
+
+<p align="JUSTIFY">Bet kas nu notika? Neviens cilvēks vairs nemira: dzīvoja visi
+nosirmojuši, sakrupuši... Vairāk gadu simteņu bija pagājuši, vecie pavisam bija
+apnikuši dzīvot un brēca raudādami pēc nāves.</p>
+
+<p align="JUSTIFY">Tad Dievs prasīja Saulei, vai nezinot, kur Nāve nogrimusi? Saule
+atbildēja, ka viņa Nāvi nava redzējusi savā spožumā. Tad aicināja Mēnesi,
+zvaigznes, vai tie nezinot? Šie atbildēja: neesot manījuši. Beidzot sauca Vēju, vai
+tas nezinot? Vējš atbildēja. ka dursciņ esot gan manījis, kur Nāve palikusi. Tad
+pavēlēja Vējam pūst, cik spēka. Vējš pūta vareni kādas trīs dienas un izpūta
+Nāvi no pakalnes.</p>
+
+<p align="JUSTIFY">Nāve izcēlās kājās un aizbadējusies iesāka briesmīgi cilvēkus
+kaut; pirms, zināms, savu paša krusta dēlu patērēja, kuŗš tagad ļoti vecs bija
+tapis. Bet vecie, kas iepriekš tā pēc Nāves bija brēkuši, tagad, Nāvi atkal
+redzēdami, slēpās un muka pa kaktu kaktiem. Bet kur tu izslēpsies no manīgā? Nost
+visi!</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

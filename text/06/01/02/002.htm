@@ -1,0 +1,153 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Pārdabīgais palīgs.</p>
+</font></b>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 504. A. Lerchis - Puškaitis Džūkstē - Pienavā. LP, II, 75
+(3).</p>
+
+<p align="JUSTIFY">Reiz dzīvoja nabaga rokpelnis. Un kā jau nu katram rokpelnim šaura
+pārtika, tā arī šim: ko šodien nopelnījis, tas rītu jāapēd. Bet reiz rokpelnim
+uznāca tādas nedienas, ka veselu nedēļu nebij ne maizes kumosiņa ko mutē bāzt.
+Izprasās vienā vietā darbu, otrā, nekur dabūt Neko darīt - jāiet uz svešu pusi
+darbu meklēt. Rokpelnis paņem savu nūju un aiziet. Kādā purvmalā nabadziņš
+apsēžas uz ciņa un smagi nopūzdamies, pats pie sevis nočukst: "Lai nu Dievs
+zina! Ēdis neesmu tālāk paiet nevaru, būs laikam uz šā ciņa badā jānomirst!"</p>
+
+<p align="JUSTIFY">Un līdz ko šos vārdus izteicis, te vīrs paceļ acis un saraujas :
+spoža karīte, četriem baltiem zirgiem, nāk aulekšiem vien viņam virsū. Viņš izlec
+stāvus, paceļ savu nūju un domā no zirgiem atgaiņāties, lai nesabrauktu; bet biklie
+zirgi sabaidās no viņa nūjas, ieskrien purvā un iestrieg ar visu karīti. Kučieŗa
+karītei nemaz nav, tik vecs sirms vīrs sēž karītē un mocās, lai ārā tiktu.
+Rokpelnim, to redzot, iešaujas prātā šādas domas: "Ta ta jauki! Ja nu manā
+vietā būtu gadījies kāds blēdis, kam otra labums pie nagiem līp, tas tagad
+aplaupītu dārgo iejūgu, zeltīto karīti un aizietu stāvu bagāts; bet es to
+nedarīšu, labāk palīdzēšu no purva izkulties.</p>
+
+<p align="JUSTIFY">Bet līdz ko rokpelnis domā palīdzēt, te zirgi sāk ņemties, sāk
+ņemties un izbrien paši no purva. Sirmais vīrs tagad saka rokpelnim: "Tu man
+domāji palīdzēt. Nu labi, tad gribu ir tev palīdzēt. Tik godīgām dvēselēm
+nebraukšu gaŗām, nāc sēdies man blakus!"</p>
+
+<p align="JUSTIFY">Rokpelnis iesēžas sirmgalvim blakus. Tai pašā acumirklī baltie
+zirgi aiziet kā vēji. Ne cik ilgi, karīte apstājas pie varenas</p>
+
+<p align="JUSTIFY">pils vārtiem. Sirmgalvis izkāpj no karītes un saka tā:
+"Paliekait visi, kas šinī pilī dzīvo, par akmeņiem!"</p>
+
+<p align="JUSTIFY">Acumirklī visi cilvēki pārvēršas par akmeņiem. Tagad sirmgalvis
+pagriežas uz rokpelni, paņem viņu pie rokas, ieved pilī un tad saka Šī pils ir
+slepkavu pils; bet tie rezgaļi dabūjuši, ko pelnījuši. Šī pils tagad pieder tev; tu
+dabūji to, ko tava taisnā sirds pelnījusi."</p>
+
+<p align="JUSTIFY">Tai pašā acumirklī sirmgalvis ar karīti nozūd un pils, ar visu
+rokpelni gaisā paceldamās, aiziet uz to vietu, kur rokpeļņa būdiņa.</p>
+
+
+</body></html>

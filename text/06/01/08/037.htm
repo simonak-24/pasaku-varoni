@@ -1,0 +1,174 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>37</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vienacīte, Divacīte, Trijacīte.</p>
+</b></font>
+
+<p>&nbsp;</p>
+
+<p>37. A. 511. K. Tarzieris Druvienā. LP, V, 130, 3.</p>
+
+<p align="JUSTIFY">Vienam ķēniņa dēlam gribējies precēties, bet nevarējis sagudrot,
+kutu lai prec. Gājis pie paregona. Paregons teicis:</p>
+
+<p align="JUSTIFY">"Brauc pa visu valsti un lūko tādu atrast, kas tev kaunās acīs
+skatīties." Labi. Otrā dienā braucis gar ciemu, kur īstā meita un pameita linus
+plūkušas. Pašu laiku īstā meita bārenīti bārusi; bet tiklīdz ieraudzījusi lepno
+ķēniņa dēlu, tūlin smaidījusi kā saule un skatījusies, acis izspilgusi, kur šis
+brauc ; pameita turpretim plūkusi savus linus un pazemībā nemaz acis nepacēlusi uz
+augšu. Nu ķēniņa dēls iegājis pie saimnieces, teikdams: "Pārsauc to meitu, kas
+linus plūcot apkārt neskatās! Es viņu precēšu."</p>
+
+<p align="JUSTIFY">Bet saimniece pasaukusi īsto meitu. Ķēniņa dēlam licies. ka
+saimniece viņu māna, tādēļ braucis atkal pie paregona padomu prasīt. Paregons
+teicis: "Aizbrauc precībās un sūti abas meitas Daugavas malā, tur būs bērza
+celmā zelta cirvītis iecirsts. Kas cirvīti pārnesīs, tā būs īstā."</p>
+
+<p align="JUSTIFY">Labi, sūtījis cirvītim pakaļ. Papriekšu gājusi īstā meita,
+atradusi Daugavas malā bērza celmu un gribējusi cirvīti ņemt; bet cirvītis, cik
+kampusi, tik palēcies gaisā un nodevies rokā. Īstā meita izmocījusies ilgu laiku un
+tad sākusi cirvīti lādēt: "Neģēlis, kaut sapuvis! šis man rokā
+nedosies!"</p>
+
+<p align="JUSTIFY">Bet lādot cirvītis vēl augstāk palēcis - īstā meita pārgājusi
+bešā.</p>
+
+<p align="JUSTIFY">Nu gājusi pameita. Tai arī cirvītis lēcis gaisā, bet viņa
+lūgusies: "Cirvīti, cirvīti, ko lēc, ko mani skumdini? Nelēc, nelēc, cirvīti
+labais!"</p>
+
+<p align="JUSTIFY">Un, re - cirvītis ļāvies pielūgties, iecirties celmā un atdevies
+pameitai.</p>
+
+<p align="JUSTIFY">Bet saimniece aiz vārtiem skatījusies nelabām acim, kā ienīstā
+Pameita zelta cirvīti mājā nesusi. Skaudībā nelaidusi nemaz pameitu istabā, tūlin
+likusi dziŗai ūdeni sanest. Pameita steigusi ūdeni nest; bet smeļot zelta cirvītis
+iešļucis akā. Nu saimniece zaimodama sūdzējusi ķēniņa. dēlam, kāda nesapratne
+pameita esot, tīši mētājot zelta dārgumus pa aku. Ķēniņa dēls atteicis: "Lai
+nu tas! Tagad ieģidos meitas uz jūrmalu sūtīt. Tur būs zelta ozols dimanta zīlēm;
+kas zīles pārnesīs, to precēšu."</p>
+
+<p align="JUSTIFY">Īstā meita pirmā aizskrējusi zīles raut. Bet cik šī
+pasnaikājusies, tik ozols palidinājies gaisā. Sākusi lādēt: "Neģēlis! kaut
+sapuvis! šis man rokā nedosies!"</p>
+
+<p align="JUSTIFY">Bet lādot zelta ozols vēl augstāk palidinājies - īstā meita
+pārnākusi bez dimanta zīlēm.</p>
+
+<p align="JUSTIFY">Nu gājusi pameita. Tai arī zelta ozols lidinājies gaisā, bet viņa
+mācējusi lūgties: "Ozolīti, ozolīti, ko lidinies gaisā, ko skumdini mani?
+Atdod, atdod dimanta zīlītes!"</p>
+
+<p align="JUSTIFY">Un, re - ozols bijis pielūdzams, atdevis dimanta zīlītes pilnu
+klēpi. Pameita nākusi mājā; bet dimanti laistījušies un ķēniņa dēls jau
+notālēm ieraudzījis šo nākam. Tūlin iztecējis pats aiz vārtiem pretim, iecēlis
+dimantu nesēju ratos un pārvedis savā pilī.</p>
+
+<p align="JUSTIFY">Piezīme. Var būt, ka arī uzrakstītājs ir sagrozījis šo pasakas
+variantu. P. Š.</p>
+
+
+</body></html>

@@ -1,0 +1,134 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Raganas svešā zemē.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">7. A. 478. J. Maculevičs, "Pawujciejšzona... dieļ zemniku
+Latwiszu", Viļnā 1850. 202-3 1. p. Vāciski Fr. Bienemann "Livlä ndische
+Sagen", 1897, 167 (207). Rakstu valodā tulkojis LP, VII, 1, 634 (4).</p>
+
+<p align="JUSTIFY">Paklausat dzjeivuotuoju uz Rāznas azara molom. O, kaidus breinumus
+viņi stuosta ap lelū kolnu pi tuo azara, kotru sauc Volkenbergu.</p>
+
+<p align="JUSTIFY">Runoj, ka zam tuo kolna ir pokoji (istabas), škļepi un pogrobi,
+tymūs pokojūs jād, sova tāva nūluodjeita, ļūti skaista meita. Tymūs pogrobūs ir
+daudz naudas un vysaidas boguotjeibas, soŗgoj tuos boguotjeibas div lely suņi.</p>
+
+<p align="JUSTIFY">Runoj, ka nezkod uz tū kolnu skraidjēja naktim treis ragaņas,
+dzjeivuodamas na tuoļi nu tuo azara. Kai juos lēcja par azaru Rāznu: tjei uz slūtas,
+cyta uz luopstas, a treša uz pīstas. Kai uz tuo kolna raisstjēja uz uodas viersja
+nezkaidas luodjeitas gruomotas. Kai komova nezkaidu nevaiņeigu bārnu.</p>
+
+<p align="JUSTIFY">Kai smīkleigi spīdja zjeimjas (zēģeļus) da tuos gruomotas. Uz
+gola, kai tu gruomotu uz myužeibas svīdja da azara un daudz leidzonu (līdzīgu) tom
+izguodu un posoku. Kad azars naktī cīši vaid un ryuc, runoj, ka ragaņas ar valnim
+doncoj pa tū kolnu.</p>
+
+
+</body></html>

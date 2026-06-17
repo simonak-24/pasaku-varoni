@@ -1,0 +1,255 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Varonis izglābj trīs nolaupītas princeses.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>3. </b>A. 301. A.<b> </b>Alfreds, "Pasakas" 1893, 11.</p>
+
+<p align="JUSTIFY">Dzīvoja kāds ķēniņš. Tam bija trīs gauži skaistas meitas.
+Ķēniņš ļoti mīlēja ar kuģiem braukt. Viņam bija liels pulks dažādu kuģu. Reiz
+viņš 1ika uzbūvēt kuģi no tīra zelta. Kad kuģis jau bija gandrīz gatavs, tad pie
+ķēniņa pieskrēja balodis un sacīja: "Ķēniņ, ja tev tavas meitas mīļas, tad
+nelaid viņas nekad uz šī kuģa, citādi tās aizbēgs."</p>
+
+<p align="JUSTIFY">Ķēniņš arī apņēmās baloža vārdiem paklausīt un lai viņa
+meitas kā lūgdamās lūdzās, viņš tām taču neatļāva ar jauno kuģi pabraukties.
+Reiz tās tomēr, tēvam mājā neesot, aizgāja uz jūrmalu un uzkāpa uz skaistā kuģa.
+Bet tikko tās bija sākušas to apskatīt, kad sacēlās liela vētra, ūdens ap kuģi
+sāka vārīties kā katlā, kuģis tapa atrauts no enkuriem un aizskrēja šņākdams un
+kŗākdams zilajā jūrā.</p>
+
+<p align="JUSTIFY">Tēvs mājās pārnācis un meitas neatradis, steidzās tūlīt uz
+jūrmalu, un kad arī kuģa tur neatrada, tad viņš noprata, kas bija noticis. Gauži
+noskumis, viņš atgriezās savā pi1ī un izsolīja lielu zumu naudas un vienu meitu tam
+par sievu, kas zudušās princeses atkal atvedīšot pie viņa. Atradās arī vīrs, kara
+virsnieks Drošulis, kas apņēmās princeses uzmeklēt. Viņš lika sarīkot lielu kuģi,
+ielikt tur iekšā barību uz astoņiem gadiem, izraudzīja sev divus drošus kareivjus
+par pavadoņiem un tad devās ceļā. Projām braucot, tiem vēl ķēniņš no malas sauca
+pakaļ: "Ja jūs manu meitu neatvedīsit; tad tas būs jūsu gals, tiklīdz jūs
+pārnāksit mājā."</p>
+
+<p align="JUSTIFY">Trīs gadi bija Drošulis ar saviem biedriem pa jūru apkārt
+maldījies, kad viņš beidzot piebrauca pie kādas svešas jūrmalas, kur zelta kuģis
+stāvēja noenkurots. Drošulis lika savu kuģi klāt piebraukt un uzkāpa tad uz zelta
+kuģa. Tur viņš nevienas dzīvas dvēseles neatrada. Kuģis bija gluži tukšs. Taču
+viņš domāja, ka princeses nevarot tālu no kuģa būt un tāpēc apņēmās šo
+apgabalu izmeklēt.</p>
+
+<p align="JUSTIFY">Kuģi noenkurojuši, tie gāja jūrmalā. Netālu no krastmalas viņi
+uztaisīja telti, viens kaŗeivis palika tajā ēdienu taisīdams, kamēr Drošulis ar
+otru kareivi devās princeses meklēt.</p>
+
+<p align="JUSTIFY">Ap pusdienas laiku pie telts pienāca milzīgs vīrs un prasīja, lai
+viņam dodot ēst. Kad kaŗeivis nekā par to negribēja dzirdēt, tad milzis to
+nežēlīgi sasita, izēda visu ēdienu un tad aizgāja projām.</p>
+
+<p align="JUSTIFY">Vakarā, kad biedri nāca mājā, sētnieks tiem ar stīviem locekļiem
+nāca pretī un stāstīja, kas viņam bija gadījies.</p>
+
+<p align="JUSTIFY">Otrā dienā Drošulis atstāja otru kareivi mājā par pavāru. Arī
+šim negāja labāk ar svešo nekaunīgo milzi.</p>
+
+<p align="JUSTIFY">Trešā dienā palika pats Drošulis mājā, lai redzētu, kas tur
+īsteni notiek. Ap pusdienas laiku arī atnāca tas pats milzis un prasīja, lai dodot
+ēst.</p>
+
+<p align="JUSTIFY">"Labprāt," Drošulis atteica, "nāc tik un sēsties man
+pretī!" Milzis arī nelikās</p>
+
+<p align="JUSTIFY">sev divreiz sacīt, bet sēdās tik klāt un ēda dūšīgi. Kad bija
+paēduši, tad Drošulis stāstīja</p>
+
+<p align="JUSTIFY">milzim, ka viņš meklējot trīs zudušas pŗinceses, vai viņš, kas
+zin, nezinot, kur tās varot </p>
+
+<p align="JUSTIFY">atrast? Milzis to dabūjis zināt teica: "Zinu gan, kur tās
+princeses atrodas. Parādīt ar tev viņas varu, bet projām vest tu viņas
+nedrīksti."</p>
+
+<p align="JUSTIFY">"Labi, labi," Drošulis atbildēja, "tik aizved vien
+mani pie viņām."</p>
+
+<p align="JUSTIFY">Milzis bija ar to mierā un abi taisījās ceļā. Bet milzis ar pāra
+soļiem aizskrēja tik tālu, ka Drošulis tā ir saredzēt vairs nevarēja. Viņš sāka
+tam k1iegt pakaļ, un nu milzis atnāca atpakaļ. "Ida, zēn," viņš smējās,
+"tu man vis līdzi neiziesi. Sēdies uz maniem kamiešiem, rau tā! tad es tevi
+nesīšu."</p>
+
+<p align="JUSTIFY">Drošulis paklausīja un uzsēdās milzim uz kamiešiem. Milzis nu ar
+maz soļiem aizskrēja bez gala tālu un uzkāpa kādā ļoti augstā kalnā, kuŗa galā
+bija skaista pils.</p>
+
+<p align="JUSTIFY">Šinī pilī milzis Drošuli ienesa un to no kamiešiem nocēlis ,
+iekrita pats kādā gultā </p>
+
+<p align="JUSTIFY">un cieti aizmiga.</p>
+
+<p align="JUSTIFY">Drošulim, milzi gulošu redzot, uznāca domas to nokaut. Viņš
+izvilka zobenu un ar vienu cirtienu nocirta milzim galvu. No tā nu izšāvās liela
+asiņu strāva un plūda pār gultas malām kambarī.</p>
+
+<p align="JUSTIFY">Drošulis, milzi nokāvis, gāja tālāk pilī iekšā. Kādā gauži
+skaistā istabā viņš ieraudzīja meklētās princeses pie galda sēdam un šujam.
+Princeses taisīja dārgu brūtes uzvalku, jo uz rītdienu bija noliktas vecākajai māsai
+kāzas ar briesmīgo milzi. Drošuli ieraudzījušas, princeses ļoti iztrūkās. Vecākā
+tam uzsauca: "Vai, Drošulīt, kā tu esi iedrošinājies še ienākt? Bēdz labāk
+čakli projām, jo kad mans brūtgāns pārnāks, tad viņš tevi uz vietas
+nožņaugs."</p>
+
+<p align="JUSTIFY">"Esiet tik mierīgas!" Drošulis atteica, "viņš jau ir
+pagalam un nevar nekā vairs darīt. Bet jūs esiet vispirms sirsnīgi sveicinātas no
+jūsu tēva un taisāties tūlīt man līdz uz dzimteni."</p>
+
+<p align="JUSTIFY">Princeses salasīja visus savus dārgumus un rotas lietas, un gāja
+Drošulim pakaļ. Kad tie priekšistabā nonāca, tad tikko varēja izbrist caur asinim,
+kas no milža iztecēja.</p>
+
+<p align="JUSTIFY">No pils ārā tikuši, tie čakli steidzās no augstā kalna lejā uz
+jūrmalas pusi. Bet viņiem ceļa gabals, ko milzis ar divi soļiem bija nogājis, bija
+jāiet četri gadi. Beidzot tie nonāca jūrmalā, kur abi zaldāti arvien vēl dzīvoja
+un gaidīja savu vadoni pārnākam. Kareivji apsveicināja Drošuli ar lielu prieku...
+Šis tiem pavēlēja, lai uz rītdienu visu sataisot, kā varot agri projām braukt. Tad
+viņš apgulās, un no ceļošanas noguris būdams, cieti aizmiga. Tikko tas bija noticis,
+tad viņa blēdīgie biedri gāja pie princesēm, un apdraudēdami tās ar nāvi,
+piespieda apzvērēt, ka viņas mājā sacīšot, ka šie esot viņas izglābuši.
+Drošuli tie gribēja nokaut, bet uz princešu gaužu lūgumu, viņi at1aidās no šā
+nodoma</p>
+
+<p align="JUSTIFY">un nosprieda ielikt viņu koka kuģī un palaist jūŗā. Kā sacīts,
+tā darīts. </p>
+
+<p align="JUSTIFY">Viņi Drošuli viegli saņēma, lai tas neuzmostos, un aiznesa uz koka
+kuģi. Vecākā princese vēl aizgāja Drošulim vietu uztaisīt, un to darīdama, viņa
+ielika tam pagalvī savu brūtes uzvalku, ko bija līdzi paņēmusi. Tad kaŗeivji nolika
+tur savu virsnieku un paši līdz ar princesēm uzkāpa uz zelta kuģa un aizbrauca. Bet
+briesmīgas vētras tos dzenāja šurp un turp, tā kā tie nekādi nevarēja tikt ma1ā.</p>
+
+<p align="JUSTIFY">Turpretī Drošuļa kuģis peldēja, laba ceļa vēja dzīts, taisni uz
+dzimteni un drīz apstājās pie tās pašas vietas, kur viņš priekš gandrīz astoņiem
+gadiem bija izbraucis. Nu tik vēl Drošulis atmodās. Apskatīdamies, kur viņš atrodas,
+un sevi vienu atrazdams, viņš saprata, kas bija noticis. Drošulis bija neganti
+piekrāpts. Viņš nu pārdomāja, kas darāms. Pie ķēniņa iet viņš nedrīkstēja.
+Tāpēc viņš apņēmās uzturēties kādu laiku dzimtenē par svešnieku, lai
+noskatītos, ko viņa biedri dara un vai tie jau ir pārnākuši.</p>
+
+<p align="JUSTIFY">Apģērbies citās drēbēs un arī princeses brūtes rotu līdz
+paņēmis, viņš apslēpa kuģi biezā niedrājā un tad gāja uz pilsētu. Tur viņš
+dabūja dzirdēt, ka viņa biedri ar abām jaunākajām princesēm šodien kāzas dzeŗot,
+bet vecākā princese esot teikusi, ka tikai pie tā iešot, kas viņai atnesīšot tādu
+brūtes uzvalku, kāds tai bijis tālu aiz jūŗas.</p>
+
+<p align="JUSTIFY">Drošulis to izzinājis, aizgāja uz pili un lika sevi pieteikt
+vecākajai princesei. Tikko šī Drošuli ieraudzīja, tad viņa krita tam ap kaklu, veda
+to pie ķēniņa un izstāstīja, ka šis esot īstais glābējs, bet viņa biedri tik
+viltnieki un blēži. Par pierādījumu Drošulis parādīja paģērēto brūtes uzvalku.</p>
+
+<p align="JUSTIFY">Ķēniņš nu vairs nešaubījās, ka Drošulis esot viņa meitas
+glābējs. Viņš tam deva vecāko princesi par sievu, bet abus blēdīgos kaŗeivjus
+pavēlēja nokaut.</p>
+
+
+</body></html>

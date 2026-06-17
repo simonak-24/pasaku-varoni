@@ -1,0 +1,192 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>62</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Meitene, kas savus brāļus meklē.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">l. A. 451. K. Tarzieris Druvienā. Brivzemnieka "Sborņik"
+107.</p>
+
+<p align="JUSTIFY">Reidz dzīvoja ķēniņš, kam bija divpadsmit dēlu, un visi viņi
+bija stipri un skaisti. Bet šim ķēniņam nebija nevienas pašas meitas. Reiz viņš
+sevī apņēmās: "Ja man piedzimtu meita, es nokautu visus dēlus."</p>
+
+<p align="JUSTIFY">Viņa valstībā dzīvoja viena ragana; viņa nevarēja ķēniņa
+dēlus ieraudzīt, un šī nu izgādāja, ka ķēniņiene nāca atkal cerībās. Viens no
+pils ļaudim to dabūja zināt, un viņam palika ķēniņa dēlu ļoti žēl. Viņš tos
+izveda no pilsētas, ieveda dziļā mežā un sacīja: "Ja jūs še no kāda augsta
+koka redzēsit ķēniņa tornī baltu karogu, tad jūsu mātei būs dēls un jūs varat
+griezties atpakaļ; bet ja redzēsit sarkanu, tad būs meita; ja jūs tad atnāksit
+mājā, tad jūs nokaus."</p>
+
+<p align="JUSTIFY">Ķēniņa dēli kāpa pēc kārtas vienā augstā kokā un skatījās
+uz torni. Tā pienāca kārta arī jaunākajam brālim, tas uzkāpa kokā un iesaucās:
+"Sarkans karogs!"</p>
+
+<p align="JUSTIFY">Tagad viņi iegāja vēl dziļāki mežā un nonāca pie vienas
+istabiņas, kurā dzīvoja kāda vecene. Pie tās vecenes viņi apmetās uz dzīvi. Bet
+šī vecene bija tā pati ragana, kas viņus neieraudzīja.</p>
+
+<p align="JUSTIFY">Brāļi gāja katru dienu medībās un norunāja nokaut katru sievieti,
+kas tik kritīs viņu rokās; tikai veceni nospŗieda neaizkart. Ķēniņa meita, viņu
+māsa izauga par to laiku liela un aizgāja pasaulē meklēt savu brāyt. Viņa nonāca
+arī tai pašā mežā. Gāja, gāja - pēdīgi nonāc;a pie istabiņas un iegāja iekšā
+Tai dienā bija mājā mazākais brālis, kuru sauca par arkulīti. Viņš pazina māsu
+pēc zelta zvaigznes pierē un nenokāva vis viņas, bet gan padzirdīja un paēdināja.
+Vakarā viņš to paslēpa apakš apgāztas baļļas un brāļi viņas nemaz nepamanīja.
+Rītā, kad brāli jau bija aizgājuši, ķēniņa meita izgāja dārzā un ieraudzīja
+tur divpadsmit skaistas puķes. Viņa tās sāka raut. Viņa vēl nebija paspējusi visas
+noraut, kad atskrēja mājā visi brāļi, pārvērtās par melniem kraukļiem un
+aizlaidās.</p>
+
+<p align="JUSTIFY">Atnāk ragana un saka: "Tu vari brāļus izglābt, ja pieci gadi
+no vietas ne runāsi ne smiesies. Bet ja tikai vienu vārdu sacīsi, vai pasmiesies, tad
+viņiem būs jāmirst."</p>
+<b>
+
+</b><p align="JUSTIFY"><b></b>Ķēniņa meita tikai palocīja galvu un iegāja mežā. Ragana
+turpretī berzēja no priekiem rokas un domāja: "Tagad gan ies bojā ne tikai
+brāļi, bet arī māsa."</p>
+
+<p align="JUSTIFY">Tā ķēniņa meita staigāja pa mežu veseli četri gadi, bet piektā
+gadā viņai iznāca satikties ar vienu jaunu ķēniņu. Viņa tam ļoti patika, un viņš
+to apņēma par sievu, lai gan viņa nerunāja neviena vārda,</p>
+
+<p align="JUSTIFY">Bet ragana dabūja par visu to zināt. Viņa pārvērtās par Smalku
+kungu un nonāca pie jaunā ķēniņa. Ķēniņš, nekā nezinādams, pieņēma svešo
+kungu pie sevis. Tas tagad lūkoja ķēniņam iestāstīt, ka viņa sieva esot ragana un
+tādēļ arī nerunājot un nesmejoties. No iesākuma ķēniņš neticēja, bet tad sāka
+domāt: "Varbūt, ka ir arī taisnība."</p>
+
+<p align="JUSTIFY">Pēdīgi ķēniņš ir tomēr pierunāts, un viņš nospriež savu
+sievu sadedzināt, kā jau raganu. Svešais kungs tikai vēl pamudina ķēniņu
+pasteigties ar sodu, ka ragana audis uz dumpi nesamusinot. Ķēniņš arī jau ir nolicis
+soda dienu.</p>
+
+<p align="JUSTIFY">Tai dienā bija taisni pagājuši pieci gadi no tā laika, kur
+ķēniņienes brāļi bija pārvērsti par kraukļiem. Svešajam kungam bija uzdots
+gādāt, ka sods tiek izpildīts. Nu tika krauts sārts, bet ļaudim tomēr neizdevās
+sakraut drīzumā malku, lai tie steidzās kā steigdamies. Tikai vēl ap pusdienu sārts
+bija gatavs. Ķēniņš pats skatījās pa savas pils logu, kā viņa sievu dedzinās.
+Svešais kungs arī skraidīja ap ķēniņu, šo to stāstīdams, lai tikai ķēniņš
+varbūt neatceltu sava soda.</p>
+
+<p align="JUSTIFY">Jau pielaida sārtam uguni un malka jau sāka stipri degt, kad
+piepēži atlaidās divpadsmit kraukļu un nodzēsa uguni ar saviem spārniem. Kad uguns
+nodzisa, viņi tūlin palika par cilvēkiem. Tagad ķēniņiene iegāja pilī ar saviem
+brāļiem, sāka runāt un izstāstīja visu ķēniņam. To dzirdēdama, ragana, kas bija
+par kungu pārvērtusies, lielās dusmās spēra ar kāju pie zemes; tā ka pati ielīda
+zemē un tai vietā tikai dūmi vien nokūpēja.</p>
+
+<p align="JUSTIFY">Ķēniņš ar ķēniņieni nu dzīvoja laimīgi.</p>
+
+<p align="JUSTIFY">Piezīme. Līdzīgu pasaku par 11 brāļiem uzrakstījis H. Skujiņa
+Smiltenē. P. Š.</p>
+
+
+</body></html>

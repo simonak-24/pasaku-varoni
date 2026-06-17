@@ -1,0 +1,408 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>13</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Par zirgu pārvērstais jauneklis.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">13. A. 314. Teicējs 67. g. vecs A.<b> </b>Kovaļevskis Bebrenē.
+Kultūras balss kr.</p>
+
+<p align="JUSTIFY">Dzeivoja kaids nabogs cylvāks ar sovu sīvu; jīm jau beja treis
+bārni un vēļ divi pīdzyma. Nazyna nabogs, kū darīt ar bārnim: sīva slyma, bārni
+mozi, maizes nav. Sadūmuoja nabogs nest bārnus sleicynuotu. Dabuoja jis maisa, lyka
+bārnus maisā un nas uz upi. Ceļā nabogs satyka vecīti. Vecīts prosa: "Kū tu
+nes?"</p>
+
+<p align="JUSTIFY">Nasu divējus sunīšus sleicynuot!" atbildēja nabogs.</p>
+
+<p align="JUSTIFY">"Es kai reize [taisni] meklēju sev sunīša, īdūd man
+vīnu!" prosa vecīts.</p>
+
+<p align="JUSTIFY">"Nalobi sunīši, nalītas taidi. Jo jau lobi byutu, es nanastu
+jūs sleicynuotu." atbildēja nabogs.</p>
+
+<p align="JUSTIFY">"Nu, kaut ari nalītas, bet man vīnu īdūd," prosa vecīts.
+Tad nabogs soka vecīšam: "Mes divi un Dīvs trešs, es tev pīsazeistu, ka nasu
+sleicynuot sovus divējus bārnus."</p>
+
+<p align="JUSTIFY">"Kuodētu tai dori?" prosa vecīts.</p>
+
+<p align="JUSTIFY">"Maizes man nav, kyumu dabuot navaru un tuodēļ tys
+juodora," atbildēja nabogs.</p>
+
+<p align="JUSTIFY">"Nes uz sātu, paprosi kaidas buobiņas, kura paleidzēs bārnus
+nūkristīt, aiznes reit uz baznīcu, es tur gaidīšu un ar tū buobiņu nūkristīšu
+bārnus. Tikai kristīsim vīnu puiku par Juonīti ūtru par Uodumiņu. Uodumiņu es par
+treis godi aizīšu un pajemšu. Tagad slyma uz sātu, un varbyut Dīviņš byus devis tev
+kaidu maizes kumūsiņu!" pamuocīja vecīts.</p>
+
+<p align="JUSTIFY">Atīt nabogs ar bārnim uz sātu un aizguojis dabuoja nabadzigas
+buobiņas par kyumu. Atsasāda buobiņa golda golā un gaida, kad vajadzēs nestīs ar
+bārnim uz baznīcu. Īdūmuoja nabogs, ka ūtrā kambarītī vēļ beja atlicis maizes
+gabaliņš un ar pādēju gabaliņu gribēja pamīluot sovu kyumu uz ceļa. Aizguoja
+nabogs uz ūtru kambari un redz, ka tymā vītā, kur stouvēja maizes gabaliņš, beja
+pylns peirāgu, maizes, svīsta, goļas un cytu lobu ēdīņu. Pajēmja nabogs peirāga un
+svīsta un atsanesja pamīluot sovu kyumu. Slymuo sīva redz un breinuojās, kur veirs
+jēmja peirāgu un svīstu. Veirs pabaruoja ari sīvu un tad pajēmuši bārnus, aiznesja
+jūs uz baznīcu nūkristīt.</p>
+
+<p align="JUSTIFY">Pi baznīcas vecīts jau gaidīja un nūkristīja bārnus par Juonīti
+un Uodumiņu. Atnesja bārnus uz sātu. Pasavēŗa nabogs ceplī un redz, ka ceplī capas
+vysaidas dasas. Pabaruoja nabogs sovu kyumu un palaidja. Tagad vysa kuo nabagam pīteik un
+bārni aug. Tai puorguoja treis godi uņ atīt tys vecīts.</p>
+
+<p align="JUSTIFY">"Kai muni kristdāli aug?" prosa vecīts. "Abi vasali,
+paldīs Divam!" atbild nabogs.</p>
+
+<p align="JUSTIFY">"Nu, tagad jau es jemšu Uodumiņu sev," soka vecīts.
+"Ak, jem, juo jau jemams," atbildēja nabogs.</p>
+
+<p align="JUSTIFY">Vecīts pajēmja Uodumiņu, bet bārni beja tai pījyukuši vīns pi
+ūtra, ka Juonīts bez Uodumiņa nagribēja palikt.</p>
+
+<p align="JUSTIFY">"Ak, jem obējus, ka Juonīts napalīk," soka nabogs.</p>
+
+<p align="JUSTIFY">Vecīts pajēmja obējus puikas un aizvedja pi sevis. Padzeivuoja
+bārni kaidu dīnu pi vecīša un vecīts soka Juonīšam: "Tagad mes ar Uodumiņu
+īsim pastaiguotu, bet tu, Juonīt, palīc muojuos un pīsaver sātas, apkuort
+skraidīdams. Tur uz pogolma ir divi olūtiņi. Tu verīs nasamozguoj teirajā olūtiņā,
+tys Uodumiņa, bet tovs ir nateirais! Jo mozguosīs Uodumiņa olūtiņā, tad tev byus
+slykti."</p>
+
+<p align="JUSTIFY">Vecīts ar Uodumiņu izguoja pastaiguotu, bet Juonīts, skraidīdams ap
+ustobu, pīkusa un gribēja nūsamozguot. Pīguoja Juonīts pi sova nateiruo olūtiņa un
+nagrib jimā mozguotīs, bet nūsamozguoja Uodumiņa teirajā olūtiņā. Tyuleņ vyss
+Juonīša vaigs apauga ar sosim. Juonīts beiduos, ka nu kristtāva byus ruojīns,
+tuodēīskrēja ustobā un nūsaglobuoja aiz cepļa un sēd. Atguoja kristtāvs ar
+Uodumiņu nu pastaiguošonas. Uodumiņš skraida pa vysom vītom<b>, </b>meklēj
+bruolīša, bet nav. Tad vecīts soka Uodumiņam: "Pasaver, dēliņ, varbyut,
+Juonīts aiz cepļa sēd?"</p>
+
+<p align="JUSTIFY">Uodumiņš aizskrēja aiz cepļa un izvylka bruolīti sosuotu.
+"Redz, kaids tu, dēliņ, napaklausīgs," soka vecīts, "es tev sacīju
+nasamozguot Uodumiņa olūtiņā, bet tu manis napaklausīji un tagad vyss apaugi ar sosu.
+Tagad tevi vysi sauks par Sosu!"</p>
+
+<p align="JUSTIFY">Vecīts īdevja Juonīšam treis uobūli: vīnu sudobra, ūtru zalta,
+trešu dimanta, un soka: "Tagad ej un meklēj sev dorba! Kur dīnēsi, tur īstoti
+kotrā duarza styurī pa itim uobūlīsam un juo kuo tev nu manis vajadzēs, paprosi, es
+aizsyutīšu. Tikai verīs - pi sprūguota nasajem dīnēt!"</p>
+
+<p align="JUSTIFY">Juonīts ībuozja uobūlīšus karmanā, atsavasaļoja ar kristtāvu un
+bruolīti un īt. Ceļā Juonīts satyka kaidu sprūguotim motim kungu. Kungs prosa nu
+Juonīša: "Sasiņ, kur tu ej?"</p>
+
+<p align="JUSTIFY">"Eju dorba maklātu," atbildēja Juonīts. "Ej pi manis
+par gonu," soka kungs</p>
+
+<p align="JUSTIFY">Na, naīšu, tu naesi taisnīgs cylvāks, tev moti sprūguoti,"
+atbildēja Juonīts, un kotrs jī izaškeira pa sovu ceļu.</p>
+
+<p align="JUSTIFY">Na par lelu gabaliņu kungs gruovītī samērcēja rūkas yudenī,
+saglaudja motus, un aizskrējis Juonīšam priškā, prosa: "Sasiņ, kur tu ej?"</p>
+
+<p align="JUSTIFY">Breinums, kuodēi mani vysi par sasiņu sauc," nūdūmuoja pats
+sevī Juonīts un soka kungam: "Eju dorba maklātu "Ej pi manis par gonu,"
+soka kungs.</p>
+
+<p align="JUSTIFY">"Īšu, tu esi taisnīgs cylvāks,tev moti nav sprūguoti,"
+atbildēja Juotīts.</p>
+
+<p align="JUSTIFY">Tai Juonīts ar kungu sadarēja pi kunga par gonu. Ūtrā reitā
+Juonīts īsavēŗa, ka kungam sprūguoti moti un nūdūmuoja pats sevī: "Jis nav
+taisnīgs cylvāks, jam sprūguoti moti, tuodēes sovu uobūlīšu juo duorzā
+nastatīšu!"</p>
+
+<p align="JUSTIFY">Bet ganīt Juonīšam beja juogona par vosoru pi sprūguotuo
+saiminīka. Saiminīks beja cīši dusmīgs un kotru reizi, kai tik saimnīka lūpi
+īskrēja rudzūs vai vosoruojā, .Juonīšam atskaitīja nu lūnes. Atguoja rudens un
+vēl Juonīts palyka saimnīkam paruodā. Vysa Juonīša lūne beja izskaitīta pamozam
+par kotru reizi, kai tik lūpi īskrēja škodē. Atstuoja Juonīts saiminīku un īt
+tuoļuok. Cuoja guoja jis un pīguoja pi kaida kēniņa pils.</p>
+
+<p align="JUSTIFY">Sasiņ, kur tu ej?" - prosa Juonīšam kaids kēniņa kolps. ,</p>
+
+<p align="JUSTIFY">"Eju dorba maklātu," atbildēja Juonīts.</p>
+
+<p align="JUSTIFY">Duorzinīkam ir vajadzīgs paleigs, ej, varbyut tevi pījems,"
+soka kēniņa kolps.</p>
+
+<p align="JUSTIFY">Juonīts aizguoja pi duorznīka un palyka par paleigu. Trejūs duorza
+styurūs Juonīts īstastīja pa uobūļam un izauga treis uobeļnīcas: vīna ar
+sudobra,ūtra ar zalta un trešā ar dimanta uobūjim. Kad kaids raudzēja nu uobeļnīcom
+nūraut uobūļus, uobeļnīcas pasacēļa gaisā un nikas navarēja dabuot uobū]u, bet
+kad Juonīts pīguoja pi uobeļnīcas, vysi zori ar uobūļim leida Juonīša rūkuos.</p>
+
+<p align="JUSTIFY">Kēniņam beja treis meitas. Jaunuokuo meita beja slyma. Kaidu reizi
+ķēniņš sadūmuoja aizbraukt uz cytom kēnestem un pasavērt cytu kēniņu duorzus.
+Kēniņš pajēmja ar sevi obi vacuokuos meitas un duorznīku un aizbraucja. Jaunuokuo
+meita, slyma byudama, palyka muojuos un navarēja izbraukt. Juonīts palyka Par duorznīku
+un staiguoja pa duorzu. Sadūmuoja Juonīts pasavyzynuot uz zyrga un aizklīdzja:
+"Kristtāvs, atsyuti man sudobra zyrgu!"</p>
+
+<p align="JUSTIFY">Zyrgs beja kluot. Juonīts nūvylka sovas vacuos drēbes, apsavylka
+atsyutītajuos kristtāva drēbēs, sāduos uz zyrga un skraidēja pa vysu duorzu, tai ka
+zori vīn lyuzt uobeļnīcom. Tai jis paskraidīja uz sudobra zyrga kaidu laiku, nūkuopja
+nu zyrga, apvylka otkon sovas vacuos drēbes, zyrgu ar lobom drēbem palaidja, losa un
+kraun koponā uobeļnīcu aplauztūs zorus. Kēniņa slymuo meita pa lūgu redzēja tū
+vysu un lyka sovim kolpim pasaukt Sasiņa. Juonīts atguoja pi kēniņa meitas. Kēniņa
+meita soka Juonītim: "Sasiņ, es asmu slyma, atnes man kaidu uobūlīti nu
+duorza!"</p>
+
+<p align="JUSTIFY">Juonīts aizguoja uz duorzu, nūškina treis sudobra uobūļis nu
+sudobra uobeļnīcas un padevja kēniņa meitai. Kēniņa meita uobūjus nūglobuoja.
+Juonīts otkon aizguoja uz duorzu, sadadzynuoja aplauztūs uobeĪnīcu zorus, apkūpja
+uobeļnīcas, tai ka tuos suoka vēļ lobuok augt, un staiguoj pa duorzu.</p>
+
+<p align="JUSTIFY">Atbraucja kēniņš ar meitom un duorznīku nu svešom zemem.
+Duorznīks iguoja duorzā un prosa nu ,Juonīša: "Kas taids ar uobeļnīcom ir
+nūticis?"</p>
+
+<p align="JUSTIFY">"Beja vātra, aplauzja uobeļnīcom zorus un es tik paspēju
+aplauztūs zorus sadadzynuot un apkūpt uobeļnīcas," atbildēja Juonīts.</p>
+
+<p align="JUSTIFY">Duorznīks apsavēŗa uobeļnīcas un vēj pateicja Sasiņam, ka jis
+tai labi prota apkūpt.</p>
+
+<p align="JUSTIFY">Pēc mēneša laika otkon ķēniņš ar meitom un duorznīku aizbraucja
+uz svešom zemem. Šūreiz jaunuokuo ķēniņa meita, apsamazdama par slymu, palyka otkon
+sātā, jo gribēja nūsavērt leidz golam, kū Sasiņš izdarīs. .Tuonīts staiguoja,
+staiguoja pa duorzu un aizklīdzja: "Kristtāv, atsyuti man zalta zyrgu!"</p>
+
+<p align="JUSTIFY">Tyulen zalta zyrgs beja kluot. Juonīts nūvylka sovas vacuos drēbes,
+apvylka atsyutītuos kristtāva drēbes, sāduos zyrgam mugurā un juoja pa duorzu, tai ka
+uobslnīcas leidz pusei lyuzt. Pēc kaida laiciņa Juonīts nūkuopja nu zyrga, apvylka
+vacuos drēbes, zyrgu palaidja un losa aplauzītuos uobeļnīcu viersyunes un dadzynuoj.
+Kēniņa meita pa lūgu tu vysu redzēja un lyka sovim kolpim pasaukt Sasiņa. Juonīts
+atguoja pi kēniņa meitas. Kēniņa meita soka Juonīšam: "Sasiņ, es slyma, atnes
+man kaidu uobūlīti nu duorza!"</p>
+
+<p align="JUSTIFY">Juonīts aizguoja uz duorzu, nūškina nu zalta uobeļnīcas treis
+Laita uobūļus un atnezis padevja tūs kēniņa meitai. Kēniņa meita uobūļus
+nūglobuoja. Juonīts otkom aizguoja uz duorzu un struoduoj sovu dorbu. Uobeļnīcas aug,
+tai ka lobuok augt navar.</p>
+
+<p align="JUSTIFY">Atbraucja kēniņš ar savom meitom un duorznīku. Duorznīks īguoja
+duorzā, apsavēŗa uobeļnīcas un pateicja Juonīšam, ka jis tai lobi muok apkūpt
+uobeļnīcas</p>
+
+<p align="JUSTIFY">Pēc kaida laika otkon kēniņš ar vacuokom meitom un duorznīku
+aizbraucja uz svešom zemem. Otkon jaunuokuo kē </p>
+
+<p align="JUSTIFY">niņa meitu apsametja par slymu un palyka muojuos. .Tuonīts staiguoja,
+staiguoja pa duorzu un aizklīdzja: "Kristtāv, atsyuti man dimanta zyrgu!"</p>
+
+<p align="JUSTIFY">Tyuleņ dimanta zyrgs beja kluot. Juonīts nūvylka sovas drēbes,
+apvylka atsyutītuos kristtāva drēbes, sāduos zyrgam mugurā un skraida pa duorzu, tai
+ka uobeļnīcas ar saknēm grīžas uorā. Skraidīja, skraidīja Juonīts pa duorzu uz
+dimanta zyrga, nūkuopja zemē, apvylka yacuos drēbes, palaidja zyrgu un struoduoj sovu
+dorbu. Otkon kēniņa meita pa lūgu redzēja, kai Sasiņš vyzynuojuos, un iyka sovim
+kolpim pasaukt Sasiņa. Juonīts atguoja pi kēniņa meitas. Kēniņa meita soka
+,Juonīšam: "Sasiņ, es slyma, atnes man kaidu uobūlīti nu duorza!"</p>
+
+<p align="JUSTIFY">Juonīts aizguoja uz duorzu, nūškina nu dimanta uobeļnīcas treis
+uobūus, un atnezis padevja kēniņa meitai. Kēniņa meita uobūTus nūglobuoja. Juonīts
+otkon aizguoja uz duorzu un dora sovu dor bu.</p>
+
+<p align="JUSTIFY">Atbraucja kēniņš nu svešom zemem un sasaucis sovas meitas, soka
+juom: "Es jau asmu vacs un ttagribu kēnestes valdīt, tuodē] jyus, meitas, kura man
+lobuokū duovonu īduovynuosit, tei varēs precētīs un tuos veirs valdīs
+kēnesti!"</p>
+
+<p align="JUSTIFY">"Kā lai es zynu duovynuot?" - soka jaunuokuo kēniņa meita,
+"munas muosas braukuoja pa svešom zemem redzēja vysaidas skaistas lītas, bet es
+nikuo."</p>
+
+<p align="JUSTIFY">"Es navainīgs, ka tu beji slyma un navarēji braukt,"
+atbildēja kēniņš.</p>
+
+<p align="JUSTIFY">Nūrunuotā dīnā kēniņa meitas nas tāvam duovonas. Vacuokuos un
+vidējuos meitas duovonas kēniņš napījēmja, juo bija naskaistas. Jaunuokuo meita
+izvylka nūglobuotūs deviņus uobūļus un padevja kēniņam.</p>
+
+<p align="JUSTIFY">"Tu vari precētīs un tovs veirs byus par kēniņu!" soka
+kēniņš, " bet pasoki, meitiņ, kū tu precēsi?"</p>
+
+<p align="JUSTIFY">"Es gribu precēt Sasiņu," atbildēja kēniņa meita.</p>
+
+<p align="JUSTIFY">Kēniņš nagribēja, ka juo meita precēs Sasiņu, bet nikuo navarēja
+cyta izdarīt, juo beja devis vuordu, un suoka taisīt kuozas. Bet Juonīts, kuru grib
+precēt kēniņa meita, staiguoj pa duorzu un struoduoj sovu dorbu. Kuozu dīnā
+,Tuonīšam apvylka jaunos drēbes, aizvedja uz baznicu un salauluoja. Sabraucja nu
+baznīcas vysi kuozinīki, bet Juonīts izkuopja nu karētas, apvylka sovas vacuos drēbes
+un struoduoj otkon duorzā.</p>
+
+<p align="JUSTIFY">Izzynuoja cytu zemju kēniņi, ka kēnigš apprecēja sovu meitu ar
+Sasiņu un paslūdynuoja kēniņam karu. Kēninš pasaucja Sasiņu un soka: "Reit tev
+byus juobŗauc uz karim!"</p>
+
+<p align="JUSTIFY">Sasiņš nikuo naatbildēja, aizguoja uz duorzu un struoduoj sovu
+dorbu. Sasadusmuoja kēniņš uz Sasiņa un izdzyna jū ar sovu meitu nu piTs. Sasiņš
+aiguoja un īstuoja par tylta sorgu. Juo sīva, kēniņa meita, sēd sorga ustabiņā, bet
+pats Juonīts staiguoj un sorguoj tyltu. Reitā kēniņš braucja uz karim un soka
+Sasinam: "Lyudz Dīvu` lai Dīvs paleidz sakaut īnaidnīkus!"</p>
+
+<p align="JUSTIFY">"Es lyugšu Dīvu, atbildēja Juonīts. Kēniņš nūsvīdja
+Juonīšam treis kapeikas un pats aizbraucja uz karim. Juonīts par treijom kapeikom
+nūpierka sīvai maizes gabaliņu, bet pats aizklīdzja: "Krusttāv, atsyuti sudobra
+zyrgu!"</p>
+
+<p align="JUSTIFY">Tyuleņ sudobra zyrgs beja kluot un Juonīts apvylka atsyutītuos
+kristtāva drēbss, pajēmja rūkuos zūbynu un sāduos zyrgam mugurā. Zyrgs pasacēļa
+gaisā un aizskrēja uz karim. Dreiži Juonīts sakuova īnaidnīkus un atskrēja uz sova
+zyrga atpakaT uz tyltu. Pi tylta Juonīts apvylka vacuos drēbes, palaidja zyrgu un otkon
+sorguoj.</p>
+
+<p align="JUSTIFY">Ūtrā reitā otkon brauc kēniņš uz karim un soka Juonītim:
+"Sasiņ, lyudz Dīva, lai Dīvs paleidz ari šūdīn īnaidnīkus sakaut!"
+"Es ari šūdīn lyugšu Dīvu, taipat kai vakar," atbildēja Juonīts.
+Kēniņš nūsvīdja ,Tuonīšam sešas kapeikas, bet pats aizbraucja uz karim. Juonīts
+par sešom kapeikom nūpierka sīvai maizes. pasaucja zalta zyrga un otkon aizskrēja uz
+karim un, sakavis īnaidnīkus, atskrēja uz; tyltu atpakaļ, apvylka vacuos drēbes,
+palaidja zyrgu un sarguoj tyltu.</p>
+
+<p align="JUSTIFY">Trešā reitā otkon brauc kēniņš uz karim un soka Sasiņam:
+"Sasiņ, lyudz Dīvu, lai Dīvs atsyuta vēl tū kungu, kurs paleidzēja aizvakar un
+vakar sakaut īnaidnīku! Šūdīn jau pādēja dīna. Še tev deviņas kapeikas,
+nūpierksi sev un sīvai maizes!"</p>
+
+<p align="JUSTIFY">"Es lyugšu Dīvu," atbildēja Juonīts. ,</p>
+
+<p align="JUSTIFY">Kēniņš aizbraucja uz karim, bet Juonīts, nūpiercis sīvai maizes,
+aizklīdzna: "Kristtāv, atsyuti dimanta zyrgu!"</p>
+
+<p align="JUSTIFY">Tyuleņ dimanta zyrgs beja kluot. Juonīts apvylka atsyutītuos
+kristtāva drēbes, pajēmja rūkuos zūbynu un sāduos zytgam mugurā. Zyrgs pasacēļia
+gaisā un aizruovja ,Tuonīti uz karim. Cierta, cierta Juonīts ar sovu zūbynu un jū
+īvainuoja rūkā. Kēniņš īsavēa, ka tak asinis Juonīšam nu rūkas, nūruovja nu
+kokla sovu šallīti un apsēja Juonītim rūku. ,ļuonīts sādtos uz sova dimanta zyrga,
+pasacēTa gaisā un pazuda nu kēniņa acim. Jis atskrēja pi tylta, puorsavylka, palaidja
+sovu zyrgu un sorguoj tyltu. Kēniņš prīcīgs brauc nu karim uz sātu, sakavis
+īnaidnīkus, un pībraucis pi Juonīša prosa: "Sa!siņ, vai lyudzi Dīvu?"</p>
+
+<p align="JUSTIFY">"Lyudžu, tāvs, kēniņš," atbildēja Juonīts un pastīpja
+sovas rūkas pēc kēniņa rūkas, lai pabučuot tū. Kēniņš īsavēŗa Juonīšam uz
+rūkas sovu šallīti un prosa: "Kai muna šalle pi tevis tyka?"</p>
+
+<p align="JUSTIFY">"Tu pats, tāvs, kēniņš, apsēji man rūku uz karim,"
+atbildēja Juonīts.</p>
+
+<p align="JUSTIFY">Tūlaik kēniņš saprota, ka tys kungs, kurs jam paleidžēja sakaut
+īnaidnīkus, beja juo znūts. Kēniņš vad sovu znūtu uz pili, bet Juonīts soka:
+"Es vāluok aizbraukšu!"</p>
+
+<p align="JUSTIFY">Kēniņš atbraucja uz pili, pa vysom īlom pīstatīja soldotus un
+gaida sova znūta. Juonīts aizklīdzja: "Kristtāv, atsyuti man lobu karētu ar
+zyrgim un duorgas drēbes man un munai sīvai!"</p>
+
+<p align="JUSTIFY">Tyuleņ karēta ar sudobra, zalta un dimanta zyrgim un duorgom drēbem
+beja kluot. Juonīts ar kēniņa meitu puorsavylka, sāduos karētā, atbraucja uz pili un
+palyka par tuos zemes kēniņu.</p>
+
+
+</body></html>

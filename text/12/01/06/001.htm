@@ -1,0 +1,151 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Meistara zaglis dažādos apstākļos.</p>
+</font>
+
+</b><p><b>l.</b> A.<b> </b>1525 G. Skolnieks Fr. Ozoliņš Krāslavā.</p>
+
+<p align="JUSTIFY">Vienā valstī dzīvoja trīs brāļi: divi gudri, trešais muķītis.
+Reiz viņi visi trīs devās uz ķēniņa pili zagtu. Nakts vidū viņi nobraukuši pie
+ķēniņa klēts, kur bija piesieti suņi. Trīs brāļi gudrojuši, kā varētu tikt tai
+klētī iekšā. Muķītis saka uz saviem brāļiem: "Es paņemšu salmu kūli, jūs
+mani iesieniet tanī un paveliet uz klēts durvim."</p>
+
+<p align="JUSTIFY">Kad muļķītis novēlāms pie klēts durvim, tad izlīda no salmu
+kūļa un izlauza durvis. Suņiem viņš nolika gaļas gabalu, lai tie ēstu, un nu paši
+nesa mantas no klēts un lika vezumos. Kad viss bija salikts, tad zagļi taisījas bēgt
+prom. Galu, galā starp muļķīti un vecāko brāli izcēlās strīds. Klētī bija viena
+ķēniņa cepure, ko gribēja muļķītis paturēt sev un vecākais brālis atkal sev.
+Beidzot muļķītis saka uz brāli: "Es iešu pie ķēniņa un prasīšu, kam cepure
+piedērēs: tam, kas zaga, vai tam, kas stāvēja pie malas?"</p>
+
+<p align="JUSTIFY">Muļķītis tā arī izdarīja. Viņš aizgāja pie ķēniņa, kas vēl
+gulēja savā pilī, un prasīja: "Kam piederētu© cepure: vai tam, kas zagtu, vai
+tam, kas stāvētu pie malas?"</p>
+
+<p>Ķēniņš atteicis: "Saprotams, tam, kas to zagtu."</p>
+
+<p align="JUSTIFY">Vecākais brālis to visu aiz loga noklausījās. Muļķītis izgājis
+no ķēniņa pils tūlīt uzlika cepuri galvā un visi trīs brāļi brauca atkal uz
+māju. Nobraukuši lielu gabalu, viņi apstājās noklausīties, vai kāds nedzenas
+pakaļ. Viņi izdzird troksni un saprot, ka ķēniņš dzenas, ar saviem sulaiņiem
+pakaļ. Vecākie brāļi, to dzirdami, visas zagtās mantas atstāja uz ceļa.
+Muļķīšam to palika žēl. Viņš tūlīt iedzina zirgus ar mantām mežā, pats
+paietas kādu gabalu, apsēžas un sēd. Pēc neilga laiciņa atbrauc ķēniņš, redz
+vienu cilvēku sēdam, prasa: "Vai neredzēji kādus zagļus braucam?"</p>
+
+<p align="JUSTIFY">Muļķītis atbild: "Es redzēju, ka kādi vīri nobrauca pa citu
+ceļu."</p>
+
+<p align="JUSTIFY">Ķēniņš aizbrauca, bet muļķītis paņēma zirgus ar mantām un
+aizbrauca uz māju. No tā laika muiļķītis palika bagāts.</p>
+
+<p align="JUSTIFY">Piezīme. Tādu pašu pasaku vēl uzrakstījis J. Vaivads N. Rancāna
+krājumā. P. Š.</p>
+
+
+</body></html>

@@ -1,0 +1,176 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Laup?t?js par precinieku.</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Laupītājs par precinieku.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">10. A<b>. </b>955. A.<b> </b>Gari-Juone no 57 g.
+vecas Stepuonu Jadvigas Domopolē. Latvju kultūras kr.</font></p><font size="3">
+
+<p align="JUSTIFY">Senuok pi mums vysur beja bīzi un dziļi meži. Reizi vīna jauna
+šmuka meitiņa aizguoja uz mežu ūguos un aizzamaldīja. Staiguodama pa mežu, jei
+sateik puišus, vīns jū suok svuotuot. Nu suokuma jei nagribēja īt, bet kad jis
+izstuostīja, ka asūt cīši boguots, un jo natycūt, tod lai ejūt apsavārtu. Izvad jū
+uz stygas, paruoda, uz kuru pusi īt, un pastuosta, ka pi muojas vuortim gulēs divi leli
+suņi. Ejūt īškā vajag sacīt suņim: "Sabaļ, Moska, laid man īškā, byušu
+jyusu saiminīca."</p>
+
+<p align="JUSTIFY">Pa nūruodītū stygu jei īt, īt un daīt pi vīnas cīši skaistas
+muojas. Tai apkuort statins vīnūs zaltūs laistās, pa vydu vuorti, vuortu vīnā un
+ūtrā pusē guļ pa suņam. Īdama jei soka: "Sabaļ, Moska, lai man īškā, byušu
+jyusu saiminīca."</p>
+
+<p align="JUSTIFY">Obeji suņi mīrīgi gulēja, jei īīt pilī - redz: vīna vecīte
+sēd un gauži raud. Jei i prosa: "Kuo tu raudi, taidā skaistā pilī
+dzeivuodama?"</p>
+
+<p align="JUSTIFY">"Oi, meit, tu nazyni, kaidā tu nalaimē esi tykuse. Tu nu šenis
+vairuok uorā natiksi. Te dzeivoj slapkauņi un vysus kaun zemē, kas tik vīn teik
+īškā. Šūnakt kaus mani, bet tu gon vēļ vari tikt uorā. Naktī, kad slapkauņi
+atīs mani kaut, tu palein zam gultas, lai tevi naīrauga. Dreiži pēc tam jī apkriss
+gulēt, kur kurais. Tu paklusiņom izlein nu gultas zamaškas un bēdz prūjom. Pi suņim
+daguojuse, soki: "Sabaļ, Moska, laid maņ uorā, byušu jyusu saiminīca."
+Suņi i palaiss tevi."</p>
+
+<p align="JUSTIFY">Tai pamuocījuse, vecīte vedja paruodīt slapkauņu montu. Vīnā
+kambarī beja pylns zalta, ūtrs aizbārts ar sudobru, trešs ar vysaidim duorgumim, un
+vīns pylns ar nūkautim cylvākim. Īraudzējuse tik daudz nūkautu cylvāku, jei
+puorsabeida un dreizuok steidzjās paleist zam gultas. Zam gultas jei gulēja leidz
+naktei, te saskrēja slapkauņi, nūcierta vecītei golvu. Vīns kai cierta, tai truopēja
+vecītei taišņi par mozū pierstiņu, uz kura tai beja gradzyns. Tys pierstiņš
+palēcja zam gultas, kur gulēja meita. Jai drabuļi puorjēmja, īdūmuojūt, ka jī var
+suokt meklēt tū pierstiņu un atrass jū zam gultu, bet vīns nu slapkauņim soka:
+"Kū tū nīku meklēt, lai palīk."</p>
+
+<p align="JUSTIFY">Nūkovuši vecīti, dreiži apsagula slapkauņi un suoka šņuokt vīn.
+Nūsaklausījuse, ka jau vysi guļ, jei klusiņom, uz pierstu golim izguoja nu ustobas un,
+daguojuse pi vuortim, soka: "Sabaļ, Moska, laid man uorā, byušu jyusu
+saimnīca."</p>
+
+<p align="JUSTIFY">Suņi palaidja, tūreiz jei skrēja uz sātu, cik spādama dreižuok.
+Atguojuse uz sātu, meita pastuostīja, ka mežā ir skaista pils, kurā dzeivoj
+septiņdesmit septiņi slapkauņi, un ka tur ir brīsmīgi daudzi zalta, sudobra un cyta
+monta. Apkuortejī suoka pulcētīs un gudruot, kai nu slapkauņim dabuot montas. Pēc
+kaida laika atbrauc vīns slapkauns pi tuos pat meitas svuotūs, jei i pīkreit īt.
+Sasalauloj, suok dzert kuozas, a meita tikal vylcynoj, cykom sasalasīs vairuok ļaužu un
+apjems slapkauņus. Kaveidami suok stuostīt sapņus, beiguos bryute soka: "Es
+redzēju sapnā vīnu skaistu pili, apkuort pilei zalta statins, pi vuortim guļ divi leli
+suņi. Tamā pilī beja vīna vecīte, kuru slapkauņi nūkova. Cārtūt jai nūcierta
+mozū pierstiņu un tys nūnācja pi manis zam gultas."</p>
+
+<p align="JUSTIFY">Tū pasacījuse, jei izvylka nu kešas nūcierstūs pierstiņu ar
+gradzynu, un paruodīja slapkaunim. Jī stypri puorsabeida. Sasalasījuši ļaudis
+apjēmja slapkauņus, pajēmja tūs pilī ar vysu montu. Montu sadalīja sovā storpā un
+vysi dzeivuoja boguoti ilgus godus.</p>
+
+<p align="JUSTIFY">P i e z ī m e. N. Rancāna krājumā ir vēl viens tāds variants, kur
+meita tāpat nonāk laupītāju mājā, bet kamēr laupītāji guļ, viņa izbēg kopā ar
+otru meitu, ko laupītāji ir pašulaik atveduši. Tā viss nāk gaismā un laupītāji
+dabū savu sodu. P. Š</p>
+</font>
+
+
+</body></html>

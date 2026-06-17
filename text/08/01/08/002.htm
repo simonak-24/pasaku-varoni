@@ -1,0 +1,257 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Blēdīgā sieva.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">2. A. 566. R. Bergmanis, Ķūķeniekos. LP. IV,
+68 (13, 4).</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam tēvam trīs dēli: divi gudri, trešais muļķis. Tam tēvam
+bijis liels rāceņu lauks un no tā rāceņu lauka katru nakti sākuši nozust rāceņi.
+Tēvs sūtījis savus gudros dēlus lauku sargāt; bet tie nenosargājuši. Beidzot
+sutijis muļķīti. Labi, muļķītis nosēdies rāceņu laukam vidū un gaidījis.
+Atnācis vīrs ar maisu un sācis rāceņus rakt. Muļķītis piegājis klāt teikdams:
+"Ko nu viens pats raksi? Pag, pag, palīdzēšu tev, vecam vīram!"</p>
+
+<p align="JUSTIFY">Vīrs bijis ar mieru un nu pierakuši maisu itin ātri. "Pag,
+pag," muļķītis atkal teicis, "palīdzēšu tev aiznest, tik vieglais jau nav
+vis!"</p>
+
+<p>"Tas labi!" vīrs atteicis, "palīdzi, palīdzi!"</p>
+
+<p align="JUSTIFY">Un nu nesuši, nesuši, beidzot vīrs teicis: "Drīzi būsim pie
+lielas pils - tur dzīvo mans kungs. Kad ieiesi pilī - mans kungs tev samaksās par to
+labumu, ka palīdzēji man maisu nest! Viņš teiks: "Ņem, ko pats gribi!" Bet
+tur būs dažādas zelta un sudraba lietas - tās neņem, ņem labāk uz loga trīs
+akmeņa bumbiņas! Šīs bumbiņas ir tādas: ja vienu ar otru sasit kopā, tad acumirklī
+ieronas piecpadsmit mazi vīriņi un izdara visu, ko vien tik vēlies."</p>
+
+<p align="JUSTIFY">Drīzi nonākuši pie pils. Muļķītis iegājis iekšā un
+ieraudzījis lielu vīru. Tas teicis, lai muļķītis ņemot, ko vien gribot, tādēļ ka
+palīdzējis maisu nest. Muļķītis ņēmis tās trīs akmeņa bumbiņas. Lielais vīrs
+gan skubinājis labāk ņemt zelta un sudraba lietas, neka nieka bumbiņas; bet
+muļķītis neklausījis un aizgājis ar bumbiņām uz māju. Mājā muļķītis sasitis
+bumbiņas kopā un ataicinājis piecpadsmit vīriņus. Tiem pavēlējis lielu pili uzcelt.
+Šo pili atdevis vecākiem; bet tad pats paņēmis suni biedros un aizgājis ar bumbiņām
+pasaulē.</p>
+
+<p align="JUSTIFY">Gājis; gājis - uz vienu reizi nogājis vienā ķēniņa pili. Tam
+ķēniņam klājies ļoti nelabi. Kaimiņa ķēniņš bija iekaŗojis visu viņa valsti,
+un nu - tā kā rītu - vēl taisījies arī to pili postīt, kur ķēniņš dzīvojis.
+Tādās sprukās muļķītis gribējis palīdzēt. Viņš iegājis pie ķēniņa un
+teicis, lai dodot viņam vaļu, gan ienaidnieku izdzīšot, ka nebūs ne apskatījies.
+Ķēniņš priecīgs atteicis: "Ja tu to vari izdarīt, manu ienaidnieku atdzīt,
+manu valsti atkal atdabūt, tad apsolu tev savu vienīgo meitu par sievu!"</p>
+
+<p align="JUSTIFY">Labi. No rīta muļķītis nogājis ar savām bumbiņām ienaidnieka
+lēģerī. Ienaidnieki smējuši, ko viņš viens pats ar nieka ieročiem vazājoties. Bet
+muļķītis sasitis bumbiņas vienu pret otru un tā tūliņ gadījušies piecpadsmit
+vīriņi un palīdzējuši briesmīgi sakaut ienaidnieku. Ķēniņš nezinājis no
+priekiem, ko darīt, tūliņ atdevis muļķītim savu meitu par sievu.</p>
+
+<p align="JUSTIFY">Bet ķēniņa meita nemaz muļķīti negribējusi: viņa slepeni
+turējusi kaimiņu ķēniņu, tēva ienaidnieku, par brūtgānu, ko neviens cits
+nezinājis, kā tik viņi abi divi paši. Bet ķēniņa meita mācējusi tā izlikties, it
+kā viņa būtu ar muļķīti tomēr mierā. Otrā dienā tā prasījusi muļķītim:
+"Vai tu nezini pateikt, kas tev palīdzēja kaimiņa ķēniņu uzvarēt?"</p>
+
+<p align="JUSTIFY">"Zinu gan, man ir tāds suns, kad uzsaucu "pij!" tad
+ronas piecpadsmit vīriņi no viņa un padara visu ko."</p>
+
+<p align="JUSTIFY">To dzirdēdama, ķēniņa meita nozagusi muļķītim suni un
+aizsūtījusi to savam brūtgānam, lai tā un tā darot ar viņu, tad atkal tēvu
+uzvarēšot.</p>
+
+<p align="JUSTIFY">Kaimiņa ķēniņš, zināms, tūliņ sasaucis jaunu kaŗa spēku un
+atkal nācis kaŗot. Bet uz kaŗa lauka no suņa negadījušies vis piecpadsmit vīriņi,
+kā brūte teikusi, lai gan saucis "pij!" uzsaukdams.</p>
+
+<p align="JUSTIFY">Pa to starpu muļķītis izgājis ar savām bumbiņām un sasitis
+kopā, tūliņ saskrējuši piecpadsmit vīriņi un palīdzējuši ienaidnieku lupatās
+sakaut.</p>
+
+<p align="JUSTIFY">Nu ķēniņa meita atkal vīlusi muļķīti pasacīt taču taisnību
+par tiem piecpadsmit vīriņiem. Muļķītis atteicis : "Man ir tāds zobins, kad ar
+to cērt, tad gadās tie piecpadsmit."</p>
+
+<p align="JUSTIFY">Ķēniņa meita nozagusi muļķīša zobinu un aizsūtījusi savam
+brūtgānam, lai tā un tā darot, tad uzvarēšot.</p>
+
+<p align="JUSTIFY">Kaimiņa ķēniņš atkal sasaucis jaunu kaŗa spēku. Bet uz kaŗa
+lauka no zobina negadījušies tie piecpadsmit vīriņi.</p>
+
+<p align="JUSTIFY">Pa to starpu muļķītis izgājis ar savam bumbiņām, tūliņ
+saskrējuši piecpadsmit vīriņi un palīdzējuši sakaut ienaidnieku lupatās.</p>
+
+<p align="JUSTIFY">Nu ķēniņa meita atkal plijusies virsū, pasacīt taču reiz
+taisnību. Un šoreiz par nelaimi muļķītis arī pateicis, ka bumbiņas tās īstenās.</p>
+
+<p align="JUSTIFY">Ķēniņa meita tūliņ nozagusi bumbiņas un aizsūtījusi savam
+brūtgānam. Šis tūliņ ar kaŗa spēku mācies muļķītim un ķēniņam virsū. Bet
+muļķītis teicis uz ķēniņu: "Nebēdā neko, es vēl raudzīšu! Bet ja mans
+zirgs pārskrietu viens pats atpakaļ, tad nebūšu uzvarējis, ja pārjāšu, tad būšu
+uzvarējis!"</p>
+
+<p align="JUSTIFY">Tomēr šoreiz muļķītim vairs nevedies, nebijis vairs bumbiņu.
+Ienaidniekam turpretim gājis citādi, viņš sasitis bumbiņas un nu mācies gan ar kaŗa
+spēku, gan ar piecpadsmit vīriņiem kā traks virsū. Beidzot aizdzinis ķēniņa kaŗa
+spēku un arī muļķīti nonāvējis.</p>
+
+<p align="JUSTIFY">Muļķītis kritis no zirga un palicis par pelnu čupiņu. Zirgs
+pārskrējis viens pats ķēniņa pagalmā un ķēniņš tūliņ sapratis ka labi nav.
+Drīzi kaimiņa ķēniņš atnācis līdz pašai ķēniņa pilij. Ķēniņš gan
+turējies, cik vēl vīru bijis, bet kaimiņa ķēniņš nodūris Ķēniņu un tad
+smiedamies paņēmis viņa meitu uz savu pili pašu līdz. Šī arī labprāt gājusi un
+nemaz par tēvu neraudājusi.</p>
+
+<p align="JUSTIFY">Otrā rītā pie muļķīša pelnu čupiņas nolaidusies vārna,
+sākdama tur knābāt. Bet pašā tai brīdī neredzama roka saķērusi vārnu pie
+kājām. Vārna ķeparājusies un dobja balss teikusi: Vārna! te šinī pelnu čupiņā
+ir zelta graudiņš, paņem to knāblī un aiznes pie kaimiņa ķēniņa pils durvim
+nosviest; ja nedarīsi - vaļā netiksi!"</p>
+
+<p align="JUSTIFY">Vārna paņēmusi zelta graudiņu un nosviedusi, kur sacīts.</p>
+
+<p align="JUSTIFY">Otrā rītā no zelta graudiņa bija izaudzis zelta koks pie kaimiņa
+ķēniņa pils durvim. Ķēniņš ļoti priecājies par zelta koku un gājis iekšā savai
+brūtei teikt. Tā arī iznākusi papriecāties. Bet re nu! tūliņ gadījušies zelta
+kokā divi putniņi, tie dziedājuši: "Velna māte, tēva slepkava! ko skaties, ko
+gribi?"</p>
+
+<p align="JUSTIFY">Ķēniņa brūte nejauki par to sadusmojusies un ieskrējusi pie sava
+brūtgāna, lai acumirklī cērtot zelta koku nost! Ķēniņš ar mieru. Bet pa to starpu
+no pils iznākusi daiļa meita pie koka un raudājusi kaŗstas asaras: "Ak tu nabaga
+kociņš, kam tevi, tādu zelta gabalu, vajadzētu cirst!"</p>
+
+<p align="JUSTIFY">Lai cērt, lai!" koks atteicis, "bet meitiņ, klausi, ko
+teikšu." Ja mani nocirtīs tad iemet mani krāsnī sadedzināt. No uguns izsprāgs
+zelta ābols. To ābolu aiznes pie staļļa un nosvied zemē!"</p>
+
+<p align="JUSTIFY">Necik ilgi, cirtējs iznācis un nocirtis zelta koku. Bet labā meita
+iemetusi koku krāsnī. No uguns izsprāgusi tāda zelta bumba, kā zelta ābols. To
+ābolu aiznesusi pie staļļa un nosviedusi zemē. Otrā rītā no zelta ābola bijis
+gadījies zelta zirgs. Ķēniņa brūte gājusi zirgu skatīties. Bet zirgs teicis:
+"Velna māte, tēva slepkava! ko skaties, ko gribi?"</p>
+
+<p align="JUSTIFY">Šī par to nejauki sadusmojusies un lūgusi ķēniņam, lai zirgu
+nokauj. Bet kamēr kāvējs iznācis, labā meita glaudījusi zelta zirgu raudādama.
+Zirgs teicis: "Neraudi! Kad mani nokaus, tad no galvas izsprāgs tāds kauliņš; to
+kauliņu iemet ezerā - būs labi!"</p>
+
+<p align="JUSTIFY">Meita tā darījusi, un re, no kauliņa gadījusies zelta pīlīte.
+Ķēniņš, tādu pīli savā ezerā redzēdams, tūliņ bridis klāt noķert. Bet pīle
+pašāvusies apakš ūdens un snaps! izkampusi ķēniņam no kabatas tās trīs akmeņa
+bumbiņas! Tai pašā brīdī pīle palikusi par muļķīti. Muļķītis sasitis bumbiņas
+- tūliņ gadījušies piecpadsmit vīriņi, kuriem licis iekaŗot sev visu ķēniņa
+valsti. Kaŗā ķēniņš kritis, bet viņa brūti muļķītis ielicis cietumā un
+ievēlis 24 mucas pie viņas: 12 mucās bijušas ogles, tās bijušas viņai jāapēd, un
+12 mucas bijušas tukšas, tās bijušas viņai jāpieraud, tādēļ ka savu tēvu
+nelaimē iegrūdusi. Beidzot muļķītis apprecējis to labo meitu un dzīvojis laimīgi!</p>
+</font>
+
+
+</body></html>

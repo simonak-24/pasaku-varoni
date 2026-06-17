@@ -1,0 +1,160 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>52</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Izskolotais vērsis.</p>
+</b></font>
+
+<p><strong>1. </strong>A. 1675. J. Bankins «Šis un tas». I, 1872, 58.</p>
+
+<p align="JUSTIFY">Sen senos laikos gauži bagāts, bet jau labi vecs vīrs dzīvojis
+leišos, kam sieva arī bijusi krietni veca. Bērnu šiem neviena paša nav bijis, tāpēc
+reizu, kat govij teļš pieradījies, smuks sarkans vērsēns, viņi šo vērsēnu
+apņēmās turēt par dēlu. Kad nu telš bija paaudzies, tad leitis to aizvedis uz
+Dinaburgu un to atstājis pie kāda žīdu miesnieka kostē. Vērsēns tad nu tur paliek
+kādi seši gadi, un vīrs tiešām &amp;127;stellē ikgadus simtu rubuļu žīdam par
+kosti, prasīdams, kā nu viņa dēlam ejot. Žīds tam arvienu liek atsacīt, ka dēls
+tam brangi liels izaudzis un itin gudrs palicis.</p>
+
+<p align="JUSTIFY">Bet nu reizu leitis savu pieņemto dēlu grib dabūt redzēt, tāpēc
+viņš brauč uz Dinaburgu to apraudzīt. Tur noreizojis, iet pie žīda un tam prasa:
+"Kur nu ir mans dēls? Rādiet man šurpu! Es viņu gribu redzēt."</p>
+
+<p align="JUSTIFY">Žīds to apmierinādams, atbild: "Klusu, klusu, kaimiņ! Tavs
+dēls gan nav vairs pie manis, bet viņš jau liels izaudzis, gauži gudrs vīrs un dzīvo
+tagad Berlīnā par advokātu."</p>
+
+<p align="JUSTIFY">Leitis gan priecīgs par tādu jauku ziņu, bet tomēr nodundo un
+nožēlojas: "Ak skāde, ka savu dēlu nedabūju redzēt! Kā mana vecene par viņu
+nopriecātos, kad to dabūtu redzēt!"</p>
+
+<p align="JUSTIFY">"Es tev došu labu padomu," žīds tam teic; "es labi
+pazīstu advokātu Oķsi Berlīnā; es tev došu grāmatu līdz, brauc tik turpu un
+apmeklē savu dēlu."</p>
+
+<p align="JUSTIFY">Leišam tāds padoms labi patīk, viņš paņem no žīda grāmatu,
+aizbrauc uz māju, sarīkojas un sataisās un tad brauc uz Berlīnu, kur toreiz tiešām
+advokāts dzīvojis, kam vārds Oksis bijis (t. i. mūsu valodā vērsis).</p>
+
+<p align="JUSTIFY">Leitis nu staigā ar savu grāmatu tik ilgi apkārt meklēdams; kamēr
+minēto vīru uziet un tam grāmatu nodod. Advokāts, izlasījis grāmatu - kuŗā žīds
+laikam leiša muļķību bija aprakstījis - paliek uz reizu itin priecīgs, to apkampj,
+nobučo un uz viņu saka: "Labdien', labdien' tēt! Kā jums nu labi iet? Ko mana
+vecā māte dara? Tas gauži labi, ka jūs mani apmeklējuši."</p>
+
+<p align="JUSTIFY">Leiti nu uzņem krietni, dod ēst un dzert kā kungam un gulēt
+mīkstos spilvenos. Pēc kādu dienu paciemošanās Leitis taisās braukt uz mājām, bet
+tad vēl uz advokāta saka: "Mans mīļais dēls! Manai vecenei gan ļoti patiktu un
+tā gauži priecātos, kad viņa tevi dabūtu redzēt; bet nekas nekaiš, es gan viņai
+izteikšu, cik mūsu dēls laimīgi dzīvo; bet savu mantu es labprāt tev gribētu
+norakstīt."</p>
+
+<p align="JUSTIFY">Tas arī ne laisks, sasauc savus draugus kopā un tad liecinieku
+priekšā noraksta, ka advokāts Oksis Berlīnā ir 1eiša dēls un tagadējais
+mantinieks. Leitis paliek tiešām tādās muļķa domās, ka savu dēlu, citkārtējo
+vērsēnu redzējis, ar to norunājies, un aizbrauc mierīgs uz mājām.</p>
+
+
+</body></html>

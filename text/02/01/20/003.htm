@@ -1,0 +1,223 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Mednieks izglābj princesi.</p>
+</b></font>
+
+<p align="JUSTIFY">3. A.304. J. Puļkovskis Mežotnē. LP, VI, 125, II.</p>
+
+<p align="JUSTIFY">Viens ķēniņa dēls gājis medīt un divi zaldāti viņam bijuši
+biedros līdz. Medījuši, medījuši - ķēniņa dēlam iegribējies dzert, viņš
+pieliecies pie akas - tā bijusi līdz malām ar ūdeni - un dzēris; bet abi zaldāti no
+muguras puses norāvuši tam kroni un pašu iegrūduši akā, lai noslīkst. Tomēr
+nenoslīcis vis - viņam bijis gudrs jājams zirgs - tas, tikko slīcinātāji ar kroni
+bijuši labi projām, izrāvis savu kungu pie kājām ārā un sacījis : "Līdz šim
+laikam tu par mani valdīji, nu valdīšu par tevi. Tādēļ klausi, ko tev teikšu.
+Izrauj no manām krēpēm trīs sarus un ej tur meža malā pie vecā ozola; tur vecs
+vīriņš ganīs lielu pulku cūku. Dod savas ķēniņa drēbes vīriņam un vīriņa
+drēbes ģērb &amp;127;tu mugurā, tad viņš tev atdos visu cūku pulku. Cūkas gani
+trīs gadi, tad tu atkal par ķēniņu tapsi. Bet ja tev kādreiz nelabi klājas, tad
+paberzē manus sarus, un ja tevi gaŗš laiks moca, tad pameklē apakš vecā ozola, tur
+būs stabulīte, pastabulē to gaŗa laika pēc!"</p>
+
+<p align="JUSTIFY">To sacījis, zirgs aizaulēkšojis projām, ka nokūpējis vien; bet
+šis nu gājis pie vecā ozola meža malā. Aizgājis - ja, atradis vecīti ar cūkām un
+nu samijis drēbes. Vecītis ķēniņa drēbēs aizgājis, atstādams cūkas šim, lai
+gana. Ganījis, ganījis - sadomājis: "Tas nav nekas - jāmeklē tā
+stabulīte!"</p>
+
+<p align="JUSTIFY">Labi. Atradis apakš ozola un nu stabulējis, lai plīst. Bet cūkas,
+tiklīdz sācis stabulēt, nošķīrušās trejās vienādās rindās, klausījušās un
+klausījušās. Tamēr klausījušās, kamēr iemācījis pirmo cūkas rindu par
+dziedātājiem, otru par muzikantiem un trešo par zaldātiem, kas uz pakaļškājām tā
+izstaigāja pēc tās mūzikas, ko dziedātāji dziedāja, spēlmaņi spēlēja, kā tikai
+vien vajadzēja prieks redzēt.</p>
+
+<p align="JUSTIFY">Bet kad nu ganāms laiks bija pāri, pret rudeni, viņš domā:
+"Ko nu? Nu jādzen pie otra ķēniņa, otrpus meža un jāprasa, vai viņš ir
+redzējis tādas cūkas, kas pašas dzied, pašas spēlē un pašas danco?"</p>
+
+<p align="JUSTIFY">Labi. Aizdzen pie svešā ķēniņa - ķēniņš saka: "Tās jau
+manas cūkas!"</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Ja tās tavas, vai viņas mācēja dziedāt, spēlēt un
+  dancot" Nē, to viņas nemācējušas un arī neticot, ka tagad mācēšot. Nu cūku
+  ganam bija jārāda, ko cūkas māk. Un kad parādīja,</p>
+</blockquote>
+
+<p align="JUSTIFY">kā viņas dziedāja, spēlēja un dancoja, tad ķēniņš pārsmējās
+un tūlin apģērba ganu ķēniņa drēbēs un turēja labi jo labi, gandrīz kā savu
+dēlu.</p>
+
+<p align="JUSTIFY">Bet drīzi pēc tam ķēniņam atnāca ziņa no velna, ka jāatdod
+ķēniņa vecākā meita viņam ezerā; ja ne, tad lai rīkojoties uz karu - vai vienam
+gals, vai otram. Neko darīt -- ķēniņš rīkojās ar velnu kaŗot; bet tādu velnu
+parspēt nava vis joka lieta, tādēļ raizes bija diezgan.</p>
+
+<p align="JUSTIFY">Kamēr šie tur raizējās, rīkojās -- cūku gans klusiņām
+paberzēja sava kumeļa sarus; tā kumeļš - kur gadījies, kur ne -- uz pēdām klāt.
+Lai lecot ar šo zobinu viņam mugurā, tur ezera malā iznākšot velns ar trim galvām -
+lai cērtot visas uz reizi, gan nocirtīšot:</p>
+
+<p align="JUSTIFY">Labi. Cūku gans uzlēca mugurā, aizskrēja uz ezeru un kā cirta
+trijgalvim - nost. Tad kumeļš sacīja: "Tas ir padarīts, ķēniņa meita glābta;
+bet nu uzšķērd velnam vēderu, tur atradīsi vēl zelta gredzenu, to paņem un steidz
+man mugurā, lai ķēniņa kaŗa spēks tevi neierauga un nepamana."</p>
+
+<p align="JUSTIFY">Šis ātri tad uzšķērda velnu, izņēma gredzenu un prom pa citu
+pusi savā cūku kūtī; zirgs, tas arī pazuda, ka ne zināt nezināja, kur palika.</p>
+
+<p align="JUSTIFY">Kaŗa spēks pārnāca atpakaļ un ķēniņš brīnījās: "Kas to
+velnu nobeidzis?"</p>
+
+<p align="JUSTIFY">Bet drīzi atnāca ziņa no sešgalvja velna, ka otra ķēniņa meita
+ezerā atdodama. Nu ķēniņš atkal rīkojās kaŗot; bet cūku gans bija aizsteidzies
+savā kumeļā jau priekšā un velnu nobeidzis. Un kad to bija padarījis, kumeļš
+sacījis: "Uzšķērd velnam vēderu, tur atradīsi sakti. Paņem to un lec man
+mugurā, lai ķēniņa kaŗa spēks tevi neierauga."</p>
+
+<p align="JUSTIFY">Šis paņēma sakti, lēca gan ātri mugurā, bet kaŗa spēks tomēr
+pamanīja un stāstīja ķēniņam, ka lepns jātnieks, viens pats, esot tas velnu
+kāvējs. Nu ķēniņš aplam žēlojās, ka neesot noķēruši jātnieku un nosolījās
+citā reizē pats viņu ķert, ja vēl būšot varbūt kaŗā jāiet.</p>
+
+<p align="JUSTIFY">Un bija arī jāiet. Otrā dienā cita ziņa klāt, ka jāatdodot
+jaunākā meita deviņgalvju velnam ezerā.</p>
+
+<p align="JUSTIFY">Tagad ķēniņš naski rīkojās ; bet kamēr tur rīkojās - te cūku
+ganam kumeļš klāt un liels, liels suns vēl līdz. Šis vai tīri sabaidās no suņa,
+bet kumeļš saka: "Ko tu no tā baidies, tas tev būs par palīgu deviņgalvi
+veikt."</p>
+
+<p align="JUSTIFY">Labi. Nu jāja uz ezeru ar visu suni un iesāka cirsties ar velnu:
+astoņas velna galvas nokrita gan, bet devīto ne par ko pievārēt. Nu, kad tā, tad suns
+klūp palīgā un košus nokož devīto galvu. Bet nu kumeļš skubina: "Šķērd
+ātri velnam vēderu, tur atradīsi kokles. Bet pasteidz - pats ķēniņš, are, kur nāk
+- tas mūs pamanīs."</p>
+
+<p align="JUSTIFY">Cūku gans šķērda, šķērda un līdz kokles laukā, tā mugurā un
+grib jāt; bet ķēniņš arī patlaban klāt, grib šo aizturēt un, nevarēdams
+aizturēt - jātnieks ātri jāja projām - tas tīšām meta savu šķēpu, lai kumeļu
+nodurtu, ka nevar izbēgt ; bet netrāpīja vis kumeļu, trāpīja cūku gana kāju un
+sadurstīja to. Cūku gans izrāva šķēpu no kājas un tomēr aizmuka. Bet pusceļā
+jaunākā ķēniņa meita bija iznākusi noskatīties, kā kaŗā labi veiksies. Tā nu
+pamanīja jātnieka n asinis kājā un sasēja savu drānu, vēl gredzenu savu
+dāvinādama viņam. Sasējusi kāju, jātnieks pārsteidzās savā cūku kūtī un likās
+gulēt. Gulēja, gulēja - uz reizi tikko ķēniņš naktī pārradās ar kaŗaspēku -
+velna kokles sāka skaļi koklēt pa kūti, gredzens mirdzēja un sakts laistījās tik
+gaiši, ka visa pils apkārtne palika kā dienā. Nu ķēniņš apmanīja: "Kas
+tas?"</p>
+
+<p align="JUSTIFY">Un gāja kūtī raudzīt. Iegāja - atrada brīnumus un vēl savas
+jaunākās meitas gredzenu pirkstā un drānu ap pārdurto kāju.</p>
+
+<p align="JUSTIFY">Nu iznāca viss gaismā. Bet tad cūku gans pēc kumeļa vārdiem tapa
+atkal ķēniņa godā un apņēma jaunāko meitu par sievu, ko pats bija izglābis no
+deviņgalvja velna nagiem.</p>
+
+
+</body></html>

@@ -1,0 +1,127 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title> Precinieka z?l??ana</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font></b><p align="CENTER"><b><font size="4"></font><font size="5">Precinieka zīlēšana</font></b><font size="5">.</font></p><font size="5">
+
+</font><p><font size="5"></font><font size="3">l. A.<b> </b>737. P. Š m i t s n o P. D a n k a s R a u n ā.</font></p><font size="3">
+</font>
+
+<p align="JUSTIFY">Viena meita jauna gada naktī gribējusi uzzīlēt, kas viņu
+apprecēšot. Viņa iegājusi vienā tukšā istabā, uzlikusi uz galda divus spieģeļus
+vienu pret otru, spieģeļu starpā nolikusi divas sveces un sākusi skatīties vienā
+spieģelī. Beidzot sveču atspīdumu starpā pamanījusi it kā kādu cilvēku nākam.
+Tas cilvēks nācis arvien tuvāku un izrādījies par zaldātu ar zobenu pie sāniem.
+Beidzot zaldāts arī patiešām parādījies viņas acu priekšā un viņa tam noņēmusi
+zobenu sev par piemiņu. Zaldāts drīz vien pazudis un meita nolikusi zobenu savā
+šķirstā. Vēlāku meitu arī apprecējis viens izdienējis zaldāts un viņi
+dzīvojuši gluži laimīgi.</p>
+
+<p align="JUSTIFY">Reiz viņas vīrs ieraudzījis šķirstā zobenu un prasījis, kur
+viņa to dabūjusi. Sieva arī visu izstāstījusi. Vīrs atcerēdamies, cik viņam tanī
+naktī gŗūti klājies, ļoti saskaities, paņēmis zobenu un nokavis savu sievu.</p>
+
+
+</body></html>

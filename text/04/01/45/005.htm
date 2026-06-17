@@ -1,0 +1,158 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Velns par precinieku.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 425 A.<b> </b>R. Vulfs Ūziņos. LP, VI, 140, 2.</p>
+
+<p align="JUSTIFY">Vienai mātei bijusi viena vienīga meita, bet šai nebijis neviena
+brūtgāna. Māte sacījusi: ,,Kaut pats velns tev par brūtgānu gadītos!"</p>
+
+<p align="JUSTIFY">Kā māte sacījusi. tā noticis. No rīta atbraucis meitai brūtgāns,
+tas bijis pats velns. Lai dodot meitu! Devusi arī. Tad velns, iesēdinājis meitu ratos
+un iebraucis ezerā; māte un abi brāļi tikai noskatījušies vien.</p>
+
+<p align="JUSTIFY">Meitai pie velna klājies ļoti labi. Bet divi nedēļas [?]
+sadzīvojusi pie velna, prasījusi, lai atlaižot pie mātes sērst. Velns sacījis:
+"Ja - ej! Es tevi no ezera izlaidīšu; bet kad tu atpakaļ nāc, atnāc pie ezera un
+saki: "Vīru, vīru, piena burbuli!" Kad piena burbulis ūdens virsū
+izšausies, tad nāc, es burbulī būšu un tevi sagaidīšu. Bet ja piena burbulis ūdens
+virsū neizšaujas, tad saki: "Vīru, vīru, asiņu burbuli!" Un kad asiņu
+burbulis izšāvies, tad nenāc, jo tad būšu nokauts."</p>
+
+<p align="JUSTIFY">Otrā rītā velns sievu izvadījis no ezera līdz ar saviem trim
+bērniem: diviem puisēniem, vienu meiteni. Velna sieva sērsusi pie mātes nedēļas
+laiku un gribējusi atkal atpakaļ iet; bet viņas brāļi taujājuši abiem puisēniem,
+kā tiem labi klājoties ezerā? Un lai pasakot, kā pie viņu tēva varot aiziet?
+Lielākais velna bērns gudri atteicis: viņš nezinot; bet mazākais, kā jau tāds
+muļķis, izstāstījis visu, kur jāiet, kā jāiet un kas ezera malā sakāms.</p>
+
+<p align="JUSTIFY">Tad abi brāļi gājuši uz ezeru savu māsas vīru, velnu, nokaut.
+Aizgājuši un saukuši: "Vīru, vīru, piena burbuli!"</p>
+
+<p align="JUSTIFY">Tūlin ūdens virsū izšāvies balts piena burbulis, tur bijis velns
+iekšā. Bet brāli nu cirtuši ar zobinu burbulī, piena burbulis pārvērties par asins
+burbuli, velns bijis nokauts. Mājā pārgājuši, tie nekā neteikuši.</p>
+
+<p align="JUSTIFY">Pēc divi nedēļām velna sieva gājusi ar bērniem pie vīra un
+saukusi ezera malā: "Vīru, vīru, piena burbuli!" bet ūdens virsū izšāvies
+asins burbulis, un viņa tūlin nopratusi, ka vīrs nokauts.</p>
+
+<p align="JUSTIFY">Nu prasījusi saviem bērniem, kuŗš esot teicis viņas brāļiem par
+piena burbuli un par asiņu burbuli? Mazākais teicis, ka viņš. Tad velna sieva
+sacījusi: "Ak tu nolādēts krupis!"</p>
+
+<p align="JUSTIFY">To teikusi, tā nobūrusi mazāko puisēnu par sapuvušu cērpu,
+lielāko par ozolu, meiteni par liepu; bet pati palikusi par dzeguzi un aizlidojusi
+kūkodama: "No ozola uz liepiņu, no ozola uz liepiņu, kukū, kukū!"</p>
+
+<p>Māte ar abiem dēliem tikai nobrīnējusies vien par meitas raibo dzīvi.</p>
+
+
+</body></html>

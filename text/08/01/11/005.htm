@@ -1,0 +1,173 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Ar vienu burvju lietu iekaŗo otru.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">5. A. 569. 566. J. Henniņš no J. Andersona,
+1885. g. Sasmakā.</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz bija vienam mežsargam viens dēls, tas kādreiz gāja par mežu
+tik ilgam, kamēr apmaldījās. Kad uznāca sebs vakars un palika tumšs, tas apgūlās
+kādas divi-trīs kārtis nost no viena ozola. Par kādu laiku atnāca lācis un uzlīda
+tai ozolā, kur bija bišu drava. Tas lācis izņēma no dravas vienu drāniņu, atklāja
+to un nu tur bija visādi ēdieni un dzērieni, muzikanti spēlēja un uguņi dega. Lācis
+paēda un aizgāja.</p>
+
+<p align="JUSTIFY">No rīta mežsarga dēls uzlīda uz ozola, izņēma no dravas to
+drāniņu un gāja tālāk. Iedams viņš satika vienu vecu vīru, kas viņam gauži
+lūdzās ēst. Tad mežsarga dēls tam prasīja: "Ko tu man par to dosi?"</p>
+
+<p align="JUSTIFY">Vīriņš iedeva vienu dozu ar septiņiem vīreļiem, kas visu
+izdarīja, ko tik vien tiem pavelēja. Tā nu vecais vīriņš paēda un aizgāja ar visu
+drāniņu. Tikko viņš bija aizgājis, tūdaļ mežsarga dēls sūtīja tos vīreļus
+pakaļ, un tie atkal atņēma to drāniņu.</p>
+
+<p align="JUSTIFY">Nu mežsarga dēls gāja tālāku un satika atkal vienu vecu vīriņu,
+kas tāpat lūdzās ēst. Otrs vecītis iedeva par to drāniņu vienu naudas maku, kur
+nemūžam naudas netrūkst. Tikko tas bija aizgājis, tad mežasarga dēls sūtīja tos
+septiņus vīreļus pakal, tie atņēma to drāniņu.</p>
+
+<p align="JUSTIFY">Nu mežsarga dēls gāja tālāk un atkal satika vienu vecu vīru, kas
+arī viņam lūdz ēst. Viņš atklāja to drāniņu un paēdināja to. Vecais atkal
+gribēja iemīt to drāniņu un iedeva mežsarga dēlam tādu kūju, ka uzkāpj uz tās
+virsū, tad var visur nokļūt, kur tik iedomājas. Tikko vecais aizgāja, mežsarga dēls
+sūtīja tos septiņus vīreļus pakaļ, kas tam atņēma to drāniņu.</p>
+
+<p align="JUSTIFY">Nu mežsarga dēls uzkāpa tai kūjai mugurā un sacīja: "Ka es
+būtu pie sava tēva,"</p>
+
+<p align="JUSTIFY">Viņš tūlīt bija klāt. Nu viņš bija ieradis ceļot un pie tēva
+tam vairs netika strādāt. Tas uzkāpa atkal uz kūjas un sacīja: "Ka būtu
+ellē!"</p>
+
+<p align="JUSTIFY">Tūlīt arī bija tur. Viņš izstaigāja visas malas un atrada velna
+dēlu vienā kambarī, vecā velna nebija mājās. Velna dēls iedeva tam divi ābolus:
+kad vienu apēd, paliek vesels, bet otru kad apēd, uzaug rags pierē. Tad mežsarga dēls
+uzkāpa atkal uz kūjas un sacīja: "Ka es būtu ķēniņa pilī!"</p>
+
+<p align="JUSTIFY">Tas arī tūlīt notika. Tur viņš iegāja un lūdza naktsmāju.
+Ķēniņš viņu lūdza uz vakariņām, bet viņš sacīja, ka negribot ēst, un viņam
+pašam esot labākas vakariņas. Kad viņš atklāja savu drāniņu, tad tur bija visādi
+ēdieni un dzērieni, muzikanti spēlēja un ugunis zvēroja un laistījās. Ķēniņš,
+to redzēdams, lūdza lai viņu ar pieņem pie vakariņām. Kad viņi bija paēduši, tad
+ķēniņa meita nozaga to drāniņu un ielika citu tai vietā. Tā izskatījās gluži
+tāpat ka pirmā, bet muzikanti nespēlēja, lai dar ko darīdams, un uguņi nedega.
+Mežsarga dēls nu iedeva tai ķēniņa meitai vienu sliktu ābolu, un tai uzauga liels
+rags pierē. Gan lika to zāģēt nost, bet jo zāģēja, jo tas vairāk auga. Kad neviens
+vairs nevarēja dziedēt, tad mežsarga dēls apsolīja izdziedēt. Viņš lika to ievest
+vienu pašu istabā, paņēma labu pātagu un tad tik ilgi pēra, kamēr tā izstāstīja,
+kur likusi to drāniņu. Tad viņš iedeva to labo ābolu apēst un tūlīt tas rags
+nogāja. Nu viņš uzsēdināja ķēniņa meitu uz kūjas un sacīja: "Skrej uz
+elli!"</p>
+
+<p align="JUSTIFY">Tā aizskrēja ar visu kūju uz elli. Mežsarga dēlam bija bail, ka
+ķēniņš viņu nesaņem, tāpēc tas izbēga pa nakti no pils. Pa mežu maldoties, tas<b>
+</b>noslīka kādā purvā.</p>
+</font>
+
+
+</body></html>

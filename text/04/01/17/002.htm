@@ -1,0 +1,157 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>17</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Līķu ēdēja.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 363. H. Skujiņa, Andrs Ziemelis, no Martas Kuplās, Plāņu pag.</p>
+
+<p align="JUSTIFY">Vīrs precēš sievu no tāluma un nemaz nezināš, ka šī ir ragana.
+Reiz abi braukuši gar kapsētu un sieva sacīsi: "Pieturi nu bišķī zirgu, man te
+kapsētā ir radi, es ieiešu apskatīt."</p>
+
+<p align="JUSTIFY">Vīrs palicis pie zirga un sieva iegāsi kapsētā. Pēc laba laicīna
+šī nākusi apakaļ, sēdusies akal vāģos iekšā un abi braukuši prom.</p>
+
+<p align="JUSTIFY">Tas nu būtu tas. Bet pēc kāda laika akal abi braukuši uz pilsētu
+un kā šie tiek pret kapsētu, tā sieva akal saka, 1aī pieturot zirgu, šai te
+kapsētā esot radi un šī ieskriešot šos aplūkāt. Vīrs palicis pie zirga tm sieva
+iegāsi kapsētā. Vīrs gaidīš gaidīš un gribēš jau iet kapsētā iekšā un
+meklēt sievu rokā, bet pamanīš, ka šī jau pašreiz nāk. Abi akal braukuši savu
+ceļu.</p>
+
+<p align="JUSTIFY">Pēc kāda laicīna akal vīram bīš jābrauc uz pilsētu un šis
+ņēmis sievu ar līdza. Kā nu braukuši gar kapsētu, tā sieva akal sacīsi, ka šī
+iešot aplūkāt radus, un iegāsi kapsētā. Vīrs palicies pie zirga un gaidīš, ka
+sieva nāks apa.kaļ. Šis gaidīš gaidīš, bet šās, kā nejūt, tā nejūt. Vīrs
+gāš kapsētā iekšā un meklēš sievu rokā. Šis meklēš, meklēš un uzreiz
+uzs'katīš, kur sneva ir. Vīrs gāš klā un nu redzēš, 'kaš te notiek. Sieva bīsi
+atkasusi kapu valā un pašreiz mielosies ap mironu. Bet kā sieva pamanīsi vīru, tā uz
+rāvienu palikusies par govi. Ko nu? Vīrs ņēmis govi un piesēš pie vāģiem un ar
+visu braucis uz māju. Izglabājies govi vienu dienu, otru dienu, bet šī, kā govs
+bīsi, tā ar palikusi. Nu vīrs braucis pie mācītāja un šim visu izstāstīš no
+paša gala.</p>
+
+<p align="JUSTIFY">Mācītāš izmācīš, kā lai darot. Lai šis trīs naktis ejot uz
+baznīcu, nostājoties ar seju pret altāru, apvelkot sev riņķi apkārt un tā lai
+stāvot un lasot bībeli. Apakaļ skatīties šim neesot brīvu, un ja šis apakaļ
+paskatīšoties, ta sieva vais nekad par cilvēku apakaļ netikšot. Šo gan visādīgi
+baidīšot un mākšobies virsū, bet par to nekas, lai tik šis apakaļ vie neskatoties.</p>
+
+<p align="JUSTIFY">Vīrs darīš tā, kā mācītāš mācīš. Šis visas trīs naktēs
+nostāvēš baznīcā un šim gan gāši riņķī visādīgi, ka vīkšēš vie, bet vīrs
+noskatījies apakaļ un tik stāvēš. Visgrūtāki gāš trešo nakti, ta šim no muguras
+puses sākuši mākties virsū, bet vīrs par to nekā neiztaisīš un nelicies ne zinis.
+Ka visas trīs dienas vīrs bīš nostāvēš, gāš uz māju. Sieva no govs bīsi akal
+par cilvēku palikusi. Šie dzīvāši laimīgi un no tās reizes sieva ar bīsi no
+nelabuma vaļā.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

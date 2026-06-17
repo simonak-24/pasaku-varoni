@@ -1,0 +1,166 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>17</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Vīrs par elles katla kurinātāju.</p>
+</font>
+
+<p align="CENTER">&nbsp;</p>
+</b>
+
+<p>1. A. 475. P. Š. no P. Dankas Raunā.</p>
+
+<p align="JUSTIFY">No kaŗadienesta atnāk zaldāts mājā, bet viņam nav nekādas naudas
+un vecāku arī vairs nav, kur pagaidām apmesties. Domādams, ko 1ai dara, viņš nosaka:
+"Ak, tu velns, ko 1ai nu iesāku?"</p>
+
+<p>Te viņš apskatās un redz: nāk viens kungs pretī. Kungs tūlin uzprasa: "Vai
+negribi pie manis par puisi derēties?" "Kādēļ ne? Kad tik ir tāds darbs, ko
+es māku strādāt." "Krāsnis kurināt jau tu mācēsi!" "To jau nu
+gan mācēšu, bet vai es varēšu arī ko nopelnīt?" "Par algu tu nebēdā!
+Tev būs trīs gadi katru dienu jāku rina trīs krāsnis, ka neviena neizdziest. Ja tu
+labi nekurināsi, tad tu dabūsi pērienu; bet ja mani klausīsi, tad tev piebēršu visas
+ķešas ar zeltu."</p>
+
+<p align="JUSTIFY">Zaldāts ir ar to m.ierā un iet kungam līdz. Tā viņi iet par
+purviem un mežiem it kā pa gaisu, kamēr pēdīgi nonāk pie vienas pils. Tur kungs
+ieved viņu vienā istabā, kur ir trīs krāsnis, un vēl piekodina: ,,Kurini nu tās
+krāsnis un karsē tos podus! Bet ja tu noņemsi kādam podam vāku un paskatīsies, kas
+i:ur īekšā, tad tev nocirtīšu kaklu."</p>
+
+<p>Kas tur rnan ko skatīties?" zaldāts atbild un tik sāk kurināt.</p>
+
+<p align="JUSTIFY">Zaldāts jau ir nokalpojis visus trīs gadus un viņam paliek tikai
+vairs pēdējā darba diena. Viyš nu ar visu varu grib zināt, kas gan tajos podos tiek
+vārīts. Viņš pacel pirmajam podam vā.ku un redz, ka tur sēd tas vecais zaldāts. kas
+viņu kaŗadienastā sitis un dīdījis.</p>
+
+<p align="JUSTIFY">Ak, tu te sēdi!" viyš iesaucas, aiztaisa atkal vāku cieši m
+"</p>
+
+<p>piemet vēl vienu malkas gabalu.</p>
+
+<p align="JUSTIFY">Otrā podā viņš atrod savu dusmīgo kaya virsnieku un arī tā podam
+pieliek vienu lieku malkas gabalu.</p>
+
+<p align="JUSTIFY">Trešā katlā vārās viņa bargais kungs, pie kuŗa viņš agrāki
+dienējis. Arī tas viņam aizdevis dusmas, par ko dabūj tāpat vienu lieku malkas
+gabalu.</p>
+
+<p align="JUSTIFY">Tūlin arī ienāk viņa saimnieks un uzsauc : "Kam tu taisīji
+tos vākus valā? Vai tā tu izpildi manu pavēli?"</p>
+
+<p align="JUSTIFY">Zaldāts tā sabiiies, ka nevar vairs ne vārda parunāt. Kungs tomēr
+paliek laipnāks un saka: "Se saņem savu algu un ei tūlin no šejienes
+projām!"</p>
+
+<p align="JUSTIFY">Kungs n:u piebeŗ zaldātam visas ķešas pilnas ar mēs1iem; bet
+zaldāts, kā jau vainīgs būdams, arī neko nesaka. Viņš iziet no pils un tiek atkal
+aiznests kā pa gaisu par purviem un meživm. Nu viņš grib iztīrīt arī savas
+netīrās ķešas, bet izrādās, ka visas ķešas ir pilnas ar zelta naudu. Zaldāts nu
+ir bagāts vīrs un dzīvo laimīgi.</p>
+
+
+</body></html>

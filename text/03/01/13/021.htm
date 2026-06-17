@@ -1,0 +1,282 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>21</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Neuzticamā māsa.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">21. A. 315. 304. 1. Kalniņš, Druvienā. R. Auning "Ü ber den
+lett. Drachen-Mythus", 135. LP, VI, 126, l AŠ, II, 97g.</p>
+
+<p align="JUSTIFY">Vienam tēvam bija divi bērni: viena meitene un viens puika. Bet
+viņiem jau laiku nomira tēvs un māte, un viņus abus nodeva pie viena kunga. Kad viņi
+bija izauguši, tad meita palika lielmātei par rokas meitu un puisis par kučuru. Viņiem
+savā starpā bija tāda mīlestība, ka viens no otra nemaz nevarēja šķirties.</p>
+
+<p align="JUSTIFY">Kādreiz kungs uz kučuru sacīja: "Kad tu man tāds tik labs esi,
+tad es tev došu zirgus un brauc pasaules izskatīties."</p>
+
+<p align="JUSTIFY">Tad viņi abi, brālis ar māsu, aizbrauca pasaules izskatīties.
+Braucot viņiem ceļš arvienu gāja pa lielu mežu, kamēr tas beidzot lielā mežā
+pazuda. Brālis izkāpa no vāģiem, un no ilkss zvanu noraisījis, sacīja māsai:
+"Paliec še, es iešu ceļa meklēt, un kad dabūšu ceļa, tad ar zvanu zvanīšu un
+tu pa skaņai brauc uz to pusi, no kurienes viņa nāk."</p>
+
+<p align="JUSTIFY">Brālis aizgāja un māsa palika mežā stāvote ar zirgu un vāģiem.
+Brālim ar pa Dieva laimi gadījies ceļu uziet, kur ceļmalā uz vērkšķu staba bija
+uzrakstīts : "Par divi verstes ir viena burlaku pils un tai pilī dzīvo divpadsmit
+burlakas, kas ikdienas iet uz laupījumu."</p>
+
+<p align="JUSTIFY">Viņš par to palika ļoti priecīgs un gāja uz pili. Kad pie pils
+nonāca, tad apbrīnoja viņas varenos mūŗus un gāja pa durvim iekšā. Iekšā
+iegājis, viņš tur atrada visādus rīkus, bet cilvēka nebija neviena. Plinti un
+svārpstu paņēmis, viņš uzkāpa uz bēniņiem. Uzkāpis viņš izurba caurumu pret
+burlaku gultu un gaidīja priecīgs, kad burlakas nāks uz gulēšanu. Neilgi pēc tam
+nāca viens resns tēviņš, paēda un apgulās gultā. Kad aizmiga, tad brālis to
+nošāva. Pēc laiciņa nāca trīs burlakas reizā un apgulās tai pašā gultā; tos
+arīdzan viņš nošāva un tā citu pēc cita. Kad pēdīgais ienāca, tad viņš kāpa
+no bēniņiem zemē un sacīja: "Padodies ar labu, citādi tevi nošaušu, kā tavus
+citus brāļus."</p>
+
+<p align="JUSTIFY">Burlaka padevās ar labu un brālis to ieveda divpadesmitā kambarī un
+pieslēdza pie sienas. Tad viņš uzkāpa tornī un zvanīja, lai māsa braucot. Kad māsa
+atbrauca, tad viņš tai izstāstīja visu notikumu.</p>
+
+<p align="JUSTIFY">Pēc kādām dienām brālis sacīja uz māsu, lai šī paliekot mājā
+un lai dzīvojot pa visiem kambaŗiem, bet divpadsmitā lai neejot ; šis iešot uz
+medību. Brālis aizgāja un māsa palika mājā. Gan viņa staigāja no viena kambaŗa
+otrā, bet laiks bija gaŗš. Viņai ienāca prātā, ka jāejot arī divpadesmitā
+kambarī paskatīties, kas tur esot. Iegājusi atrada burlaku pie sienas pieslēgtu.
+Burlaka sāka viņas mīļi lūgties, lai šo atlaižot. Māsa viņa lūgšanu paklausīja
+un atlaida. Kad šis tika vaļā, tad sacīja, ka viņš nu šo gan varot nokaut, bet ja
+šī apņemoties viņam par sievu palikt, tad abi nokaušot brāli un dzīvošot laimīgi.
+Māsa vaicāja: "Kā tad mēs viņu nokausim?"</p>
+
+<p align="JUSTIFY">Burlaka teica: "Paliec par slimu, un kad viņš atnāk, tad saki,
+ka še viens nabags ienāca un teica, lai dabūjot vilka pienu, tad šī palikšot vesela.
+Kad brālis ies vilka pienu meklēt, tad vilki viņu nokodīs."</p>
+
+<p align="JUSTIFY">Māsai šis padoms labi patika. Pēc tam burlaka lika sevi atkal
+pieslēgt. Kad brālis atnāca, tad atrada māsu slimu un vaicāja tai, kādas zāles tai
+palīdzēšot. Māsa atteica: "Še šodien viens nabags ienāca un teica, ka vilka
+piens šim slimumam esot ļoti derīgs."</p>
+
+<p align="JUSTIFY">Brālis gāja tūlin uz mežu un viņam gadījās atrast vilka pienu un
+vilcēnu, ko arīdzan paņēma līdz uz māju. Kad māsai vilka pienu bija iedevis, tad
+viņa sacīja, ka tas nabags tikai šo piemānījis; tas piens nekam neģeldot, jo viens
+šodien ienācis un teicis, ka vilka piens nederot, bet lāča piens esot ģeldīgs.</p>
+
+<p align="JUSTIFY">Brālis aizgāja atkal uz mežu un viņam izdevās lāča pienu atrast
+un vienu lācēnu arīdzan līdz atvest. Kad māsai lāča pienu bija iedevis, tad viņa
+sacīja: "Tas velna žīds mani tikai labi piemānījis, bet nupat izgāja viens vecs
+dakteris, tas sacīja, ka lapsas piens tai vainai esot derīgs."</p>
+
+<p align="JUSTIFY">Brālis aizgāja ļoti bēdīgs, bet līdz ko mežā iegāja, tad
+satrāpa lapsu skrienot ar mazu lapsēnu. Ko līdz lapsa viņu pamanīja, tā pienāca
+klāt. Viņš saņēma lapsēnu un izslauca lapsu. Nu gāja steigšus uz māju. Kad viņš
+pie māsas nonāca, tad viņa teica, ka tas gļēvulis šo tik zobojis vien. "Bet kad
+tu aizgāji, tad ienāca viena jaunava, tā sacīja, ka še aiz mūsu mājas esot viens
+celiņš, kas aizejot uz vienu pagrabu. Tai pagrabā uz galda esot kliņģeŗi ; no tiem
+atnes man vienu, tad es būšu vesela."</p>
+
+<p align="JUSTIFY">Brālis gāja taisni tūlin uz pagrabu un viņa zvēri arī līdz.
+Viņam ejot, viena balss uzsauca: "Ieej drīz pagrabā un uzsvied kapeiku uz galda un
+nāc ārā!"</p>
+
+<p align="JUSTIFY">Brālis iegāja pagrabā, paņēma' kliņģeri, uzsvieda kapeiku uz
+galda un nāca ārā. Kā pa durvim iznāca, tā viņas aizkrita cieti un viņa zvēri
+palika iekšā. Uz māju atnācis, iedeva māsai kliņģeri, bet viņa teica: "Tas
+man laikam nelīdzēs nekā, man būs jāmirst; nāc, lai es tev pēdējo reizu izieskāju
+galvu!"</p>
+
+<p align="JUSTIFY">Brālis ielika galvu māsas klēpī un drīz tur aizmiga. Kad bija
+aizmidzis, tad māsa viņam nogrieza lielos matus, un lielais spēks no viņa atstājās.
+Kad māsa to bija padarījusi, tad burlaks izskrēja. no kambaŗa ar lielu gaŗu dūci un
+gribēja brāli nodurt, bet šis lūdzās, lai paļaujot savu Dievu pielūgt, tad šo
+varēšot ir nokaut.</p>
+
+<p align="JUSTIFY">Kad brālis bija Dievu pielūdzis, un burlaka dūci iztrinis, tad
+uzreiz visi zvēri tam bija mugurā un to saplosīja.</p>
+
+<p align="JUSTIFY">Kad brālis no savām no bailēm uzcēlās, tad gāja tūlīt pie
+māsas un sacīja: "Kad tu mani esi mānījusi un gribējusi nokaut, tad es par to
+gribu tevi pārmācīt. Nāc man līdz uz lielajiem bērziem, tur es tevi mācīšu."</p>
+
+<p align="JUSTIFY">Māsa gāja līdz noskumusi, un kad pie tiem bērziem bija tikuši, kas
+bija kopā saauguši un viducis caurs, tad brālis iecēla māsu bērza starpā un pielika
+vienu baļļu ūdens, otru ogļu un sacīja:</p>
+
+<p align="JUSTIFY">"Kad tu šo iztērēsi, tad tiksi no mokām vaļā."</p>
+
+<p align="JUSTIFY">To sacījis, viņš aizgāja projām ar saviem zvēriem. Te gadījās
+viņam ieiet vienā pilsētā, kas bija tik klusa, ka tur nedzirdēja nekāda trokšņa.
+Viņš ieraudzīja vienas ķēķa durvis vaļā un gāja pa tām ķēķī iekšā, kur
+ieraudzīja vienu meitu. Tai viņš vaicāja, kas tā par lietu, ka viss tik klusu? Meita
+sāka stāstīt ar briesmīgu bailību: "Še vienā namiņā uzturas tārps ar
+deviņām galvām. Viņam par mēnesi jādod viens cilvēks, un četri aveni; un ja to
+nedod, tad viņš nāk un noposta pilsētu. Šodien lozēja un loze krita uz ķēniņa
+meitas, un ap pulksten desmitiem to vedīs uz tārpu; tad zvanīs ar visiem pulksteņiem
+un pūtīs ar ragiem."</p>
+
+<p align="JUSTIFY">Ka ķēķa meita to bija izstāstījusi, tad viņš gāja uz tārpu,
+bet tur bija jāiet cauri caur trim vaktim. Kad nāca pie pirmās, tur prasīja: "Kur
+iedams?"</p>
+
+<blockquote>
+  <p align="JUSTIFY">Viņš atteica: "Tur un tur jāiet, laidiet tik cauri!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Vakts paklausīja un laida viņu cauri. Kad caur pirmo bija cauri
+ticis, tad caur tām divām vēl vieglāki. Kad pie namiņa nonāca, tad viņam visa sirds
+drebēja, bet viņš saņēma dūšu un gāja iekšā. Iegājis tārpam tūlin ar zobinu
+nocirta vienu galvu, izgrieza galvai mēli un to iebāza kulē, bet pašu galvu zvēri
+iznesa ārā; un tāpat viņš darīja ar visām citām galvām. Kad visu bija
+notiesājis, tad pats iegulās tārpa gultā.</p>
+
+<p align="JUSTIFY">Ap pulksten desmitiem veda ķēniņa meitu, pūta ar ragiem un zvanīja
+ar visiem pulksteņiem. Pie namiņa ienākuši, iegrūda ķēniņa meitu iekšā un visi
+kliegdami aizskrēja projām. Šī, nabadzīte, no bailēm uzreiz paģība, bet brālis
+teica: "Nebīsties, tārpu es esmu nokāvis; skaties, še ir viņa mēles manā
+rokā, un ja tu apņemies man par sievu palikt, tad es tevi laidīšu vaļā."</p>
+
+<p align="JUSTIFY">Viņa apņēmās viņam par sievu palikt un izgāja no namiņa uz savu
+pili. Kad pie pirmās vakts tika, tad vakts zaldāts bija tārpa galvas salasījis savā
+kulē un sacīja uz viņu: "Ja tu apņemies man par sievu palikt, tad es tevi dzīvu
+palaidīšu; ja ne, tad nokaušu."</p>
+
+<p align="JUSTIFY">Viņa apņēmās viņam būt par sievu. Ķēniņš taisīja kāzas un
+viesi bija salūgti un pie kāzu galda apsēdušies. Tad tas brālis piegāja ar saviem
+zvēriem pie loga un iesūtīja lapsu, lai noraujot brūtgānam degunu. Lapsa, manīga
+būdama, to arī izdarīja. Tad ķēniņš pavēlēja visus suņus apšaut un sūtīja
+pēc ārsta. Tas brūtgānam sasēja degunu un visi brauca uz baznīcu. Ceļā tiem
+stājās tas glābējs pretī un prasīja brūtei: "Kur brūtgāns?"</p>
+
+<p align="JUSTIFY">Viltīgais brūtgāns, to redzēdams, muka projām. Ķēniņš nu
+taisīja kāzas no jauna ar īsto brūtgānu. Kad kāzas bija nodzēruši, tad brālis
+iegādājās savas māsas un brauca viņai pakaļ. Kad pie bērziem piebrauca, tad viņu
+gan vēl atrada drusku dzīvu, bet viņa bija tik melna kā vārna, badā nomirusi, jo
+nebija ne ogļu ēdusi, nedz ūdens dzērusi. Brālis viņu aizveda uz savu pili un
+iecēla par jumpravu.</p>
+
+<p align="JUSTIFY">Bet tai pašā pilsētā bija viens burvis. Māsa ar to sarunājās,
+kā varētu brāli nonāvēt. Burvis izgudroja labu stiķi, vajagot ielikt vilka zobā
+ģipti. "Un kad tu vietu taisi, tad uzliec to uz pagalva, un kad viņš gulsies, tad
+tas viņam ielīdīs pakaklē un viņš būs pagalam."</p>
+
+<p align="JUSTIFY">Māsa tā izdarīja un brālis bija pagalam. Kad brālis bija
+nomazgāts un nolikts uz palagiem, tad vēl pēdējo reizi laida zvērus viņu apošņāt.
+Lapsa uzreiz uzšņoķerēja vilka zobu un to izvilka; bet nu lapsa bija uzreiz pagalam.
+Lapsai izšnoķerēja vilks to zobu un vilkam lācis. Lācim vairs nebija, kas
+izšnoķerē, to izsvieda pa logu ārā. </p>
+
+<p align="JUSTIFY">Nu māsu saņēma cieti un ielika cietumā. Burvi arīdzan dabūja
+rokā un kad nospriestā soda diena bija klāt, tad burvi pakāra aiz kreisās kājas un
+māsai meta cilpu ap mēli un abus pakāra vienās karātavās. Bet brālis vēl šodien
+laimīgi dzīvo ar ķēniņa meitu.</p>
+
+
+</body></html>

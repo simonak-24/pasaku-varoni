@@ -1,0 +1,198 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>11</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Impampis.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">11. A. 571. Teicējs 67. g. vecs A. Kovaļevskis
+Bebrenē. Latvju kultūras kr.</font></p><font size="3">
+
+<p align="JUSTIFY">Kaidu reiz dzeivuoja veirs ar sīvu. Veira tāvs ar muoti ari vēļ
+beja dzeivi. Sīva suoka naīredzēt veiru, jo jai beja sovs bryutgons. Sīva syuta veiru
+pasaulī dorba maklātu. Ari tāvs ar muobi īstuosta dālam īt pīpelnīt naudas.
+Dūmuoja, dūmuoja puis's un aizguoja nu sātas. Īt jis pa ceļu un sateik vīnu
+cylvāku. Tys cylvāks prosa: "Kur tu īsi?"</p>
+
+<p align="JUSTIFY">"Eju dorba maklātu," atbildēja veirs.</p>
+
+<p align="JUSTIFY">"Ej uz sātu," soka itys cylvāks.</p>
+
+<p align="JUSTIFY">Veirs naīt. Tad cylvāks syta par ausi veiram un veirs palyka par
+vucynu. Kad veirs palyka par vucynu, tys cylvāks soka: "Ej, stuovi pi tāva sātas
+vuortim un gaidi, cikom goni dzeis cytas vuškas sātā!"</p>
+
+<p align="JUSTIFY">Vucyns aizguoja, stuov pi vuortim un gaida. Vokora goni dzyna cytas
+vuškas sātā, vucyns pīskrēja pi juom un īskrēja reizē klāvā. Tai pot vokorā
+atguoja pi sīvas bryutgons un jī sasarunuoja īt uz vušku aizdoru gulātu. Aizguoja
+sīva ar bryutgonu, īguoja aizdorā [aizgalda, nodalījums] un guļ. Vucyns suoka jūs
+abējus ar rogim badīt. Sīva ar bryutgonu turīs un grib izsvīst nu aizdora vucynu, bet
+nikuo navar padarīt. Tai jī napuorgulēja nakts un aizguoja cytur gulātu.</p>
+
+<p align="JUSTIFY">Reitā goni izdzyna vuškas gonūs un gona. Atguoja vokors un goni jau
+dzan vuškas uz sātu. Vucyns aizzaruovja aiz kryumiņa, stuov un dūmoj: "Uz sātu
+es naīšu, jo sīva ar bryutgonu par vakarējom dusmem var mani nūkaut, vylna ari man
+lela, tai ka kaunams asu. Īšu lobuok uz mežu, lai apād mani vylki!"</p>
+
+<p align="JUSTIFY">Īt vucyns uz mežu un otkon sateik tū cylvāku, kurs jū puortaisīja
+par vucynu. Tys cylvāks prosa vucynam: "Kur tu īsi?"</p>
+
+<p align="JUSTIFY">"Īšu uz mežu, lai mani lobuok vylki saplēš, na kai sova sīva
+ar bryutgonu nūkaun!" atbildēja vucyns.</p>
+
+<p align="JUSTIFY">Tys cylvāks īsyta vucynam par ausi un jis palyka par taidu pašu
+cylvāku, kaids beja agruok. Tad itys cylvāks izvylka jūstiņu, padevja veiram un soka:
+"Ej šūnakt uz sovu pierti gulātu, tur redzēsi sovu sīvu ar bryutgonu. Jo
+gribēsi, ka jī salyptu kūpā, tad sasīņ jūstiņai mazdziņu un jī tai pīlips vīns
+pi ūtra, ka naspruks nikod vīns nu ūtra vaļā. Jo tu gribēsi palaist jūs vaļā, tad
+atraisi mazdziņu!"</p>
+
+<p align="JUSTIFY">Tys cylvāks aizguoja sovu ceļu, bet veirs ar jūstiņu aizguoja uz
+pierti, izkuope uz pierts, izjēmja vīnu gristiņu, sēd un gaida. Na par garu laiku
+atīt uz pierti juo sīva ar bryutgonu, atsagula uz luovas un guļ. Veirs aizsēja vīnu
+mazdziņu jūstiņā un jī salypa tai, ka vīns nu ūtra navar tikt vaļā. Reitā muote
+meklej vadaklas pa vysom vītom, bet navar atrast. Aizguoja muote uz pierti un redz, ka
+vadakla ar bryutgonu guļ uz luovas kūpā salypuši. Muote tyuleņ aizskrēja uz ustobu,
+pastuostīja tāvam un sagudruoja veči meklēt būri [burvi]. Tur pat cīmā dzeivuoja
+vīna būrīte, kuras veirs beja čigons. Aizskrēja muote pi būrītes, bet naatroda
+sātā. Čigons, būrītes veirs, prosa: "Kam vajadzīga būrīte?"</p>
+
+<p align="JUSTIFY">Muote izstuostīja sovu nalaimi čigonam. Čigons soka: "ltai
+lītai es lobuok varu pleidzēt kai muna sīva. Es tū vysu izdarīšu par vīnu
+vystu!"</p>
+
+<p align="JUSTIFY">Muote apsūlēja vystu un aizvedja čigonu uz pierti. Īguoja čigons
+piertī, skaitīja sovus būra vuordus un pīlyka rūku atjemt sīvu nu bryutgoma. Kai tik
+čigons pastīpja rūku pi sīvas, veirs uz pierts sādādams, vysu redzēja un aizsēja
+vīnu mazdziņu. Čigons pīlypa pi sīvas un navar tikt vaļā. Tai stuov salypuši
+sīva, bryutgons un čigons. Čigons raustuos un luodīs: "Ka valns parautu vysu
+vystu, kaidā es nalaimē tyku!"</p>
+
+<p align="JUSTIFY">Redz muote, ka nikuo nabyus, un aizbraucja pēc popa. Atvedja popu,
+pops izsvētīja vysus koktus un stīp rūku atjemt čigonu. Veirs atkon aizsēja vīnu
+mazdziņu un pops ari pīlypa. Tai stuov salypuši sīva, bryutgons, čigons un pops. Pops
+lyudzas ar svātim vuordim, luodīs ar slyktim, bet vaļā nateik. Veirs nūkuopja nu
+pierts atguoja uz ustobu un prosa nu muotes ar tāvu: "Kur muna sīva?"</p>
+
+<p align="JUSTIFY">Tāvs ar muoti pasavēra vīns uz ūtra un naatbildeeja nikuo. Tad
+veirs soka: "Vai jyus jū nu sātas izdzynuot par tuo divi dīnas, cikom manis nabeja
+sātā?"</p>
+
+<p align="JUSTIFY">Tad muote soka: "Lelā, dāls, nalaimē ir īkrituse tova
+sīva!"</p>
+
+<p align="JUSTIFY">Muote izstuostīja dālam vysu, kas ar juo sīvu nūtyka, un pasacīja,
+ka jei ir piertī. Dāls izguoja uoraa, pajēmja lobu lūtagu [pātagu] un aizguoja uz
+pierti. Salypušī stuov un nazyna, kū darīt. Veirs suoka dūt popam uodā deviņas
+reizes ar lūtagu. Pops klīdz, bet veirs vys syt. Tad veirs atraisīja mozgu sovā
+jūstiņā un pops tyka vaļā. Pops aizskrēja, atpakaļ naatsavārdams. Tagod veirs
+sukoj čigonam uodu. Īsyta deviņas reizes, atraisīja mozgu un palaidja čigonu vaļā.
+Gon vairuok čigonam īt par būri! Taipat sametja deviņas reizes bryutgonam un palaidja
+tū vaļā, bet sīvai sasyta treis deviņas reizes un tad padzyna jū nu sātas. Tagad
+dzeivoj veirs ar sovim večim un nikas nasyuta juo īt dorba maklātu.</p>
+</font>
+
+
+</body></html>

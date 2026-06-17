@@ -1,0 +1,154 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>15</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Burvis zārkā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">15. Juris Bokums 1868. Durbes Raibenieku Rutkos. LP, VII, I, 133. 1. p.</p>
+
+<p align="JUSTIFY">Senāk lietā mežā bija viena būdiņa, kur dzīvoja liels burvis Ar
+šo burvi visi baidījās un laicījās satikties. Beidzot vecuma galā burvis vienu lāgu
+dikti saslima un ilgi vārga. Vārga, vārga, pienāca mirstamais brīdis, bet nomirt ne
+par ko nevarēja. Brīžam gan izlikās itkā būtu nomiris, bet tas nav ilgi, plēš acis
+atkal vaļā un briesmīgi vien runā, solās sievu nožņaugt, ko neko. Tā viņš dažu
+dienu mira, ēdās un nenomira.</p>
+
+<p align="JUSTIFY">Beidzot sieva manīja: "Nu ir tiešām pagalam," un ielika
+mironi šķirstā. Ielika miroņa šķirstā, aizdedzināja uguni un pirmo nakti sargāja
+to, lasīdama grāmatu. Salasīja līdz pusnaktij nezin kā pacels acis - ierauga, uz
+krāsns gala tup lielu lielais krauklis. Tā šī paķeŗ nūju, atveŗ durvis un dzen
+kraukli ar negodu laukā. Izdzen vienreiz - pa brītiņam tup atkal, dzīs otrreiz. Izdzen
+otrreiz - pa brītiņam tup atkal, dzīs trešreiz. Kā izdzen trešreiz - te vīrs
+šķirstā piecēlās sēdus un sauc uzsaukdams: "Tu, sieva diedelniece tāda, tu
+dzīsi mani no istabas ārā! Kā naģi tevi pārplēsīšu!"</p>
+
+<p align="JUSTIFY">Un tā tūlin arī patiesi izlēca no šķirsta un ķers sievu rokā;
+bet tā, nabadzīte, aši izskrēja pa istabas durvim, iemuka klēti un ar krustis
+slēdzamu atslēgu aizslēdza durvis. Gan šis durvis ķibināja vaļā, plēzdamies kā
+traks, bet krusta atslēgu, kauču gan tā gaužam netārpa bija, nevarēja atplēst:
+krusts priekšā --- tā tā lieta.</p>
+
+<p align="JUSTIFY">Kā nu nevar atraut, sāks šis klēts durvim malkas asi kraut
+priekšā, lai sieva netiktu laukā. Aizkrāva durvis, tad lēca uz jumtu, plēsa salmu
+jumumu zemē un audroja pa jumtu pie sievas tikt, lai to nožņaugtu. Bet līdz beidzamo
+klēpi salmu nogrūda zemē, līdz arī padziedāja gailis un šis, trakulis, palika
+izplēties uz jumta guļot - sieva bija glābta.</p>
+
+<p align="JUSTIFY">Rītā gaismiņā brauca ceļa ļaudis gaŗām, izdzirdēja sievu pa
+klēti brēcam un aurējam un izlaida laukā, lai gan mokas bija lielas atridēt durvis,
+jo dažus klučus trakulis tādus bija aizvēlis durvju priekšā, ka ne četri vīri
+nenesīs. Pēc tam ceļinieki noņēma mironi no jumta, nogrieza galvu, ielika to kāju
+vidū viņam un apraka mežā. Apraka un nu vairs netika laukā no bedres; tikai
+divpadsmit naktis pusnaktīs apakšzemē tas sadauzījās vēl, tā kā zeme virs bedres
+trīcēja, bet tad bija miers.</p>
+
+<p align="JUSTIFY">Piezīme. Gluži tamlīdzīgu Kalnamuižā Anna Brigadera jkdze
+uzrakstījusi.</p>
+
+
+</body></html>

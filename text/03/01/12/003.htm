@@ -1,0 +1,201 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Par zirgu pārvērstais jauneklis.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 314. 304. J. Ezers no Ķelmeru Žaņa Gramzdā. Jkr. V<b> </b>137.
+1. p. LP, VII, II, 21, 1, 2.</p>
+
+<p align="JUSTIFY">Tālu, tālu valdīja ķēniņš. Tā dēls bija liels medinieks . . .
+Reiz viņš, citu pavadīts, aizgāja medīt un nonāca lielā mežā, kur zvēru
+papilnam. Princis savā medības karstumā noklīda no citiem mediniekiem, ieraudzīja
+sumbru, ķēra pēc stopas un izšāva uz viņu bultu. Uz reizi pazuda sumbŗs un viņa
+vietā stāvēja milzīgs burvis, kas roku izstiepis, viņu nolādēja, ka princim būs
+pārvērsties par zirgu tik ilgi, kāmēr kāds gadās. kas zirga dēj savu vienīgo dēlu
+ziedo . . .</p>
+
+<p align="JUSTIFY">Pavadoņi meklē, meklē princi, galā uziet viņa zirgu, zvēru
+saplosītu. Nu redz, kādu galu princis ņēmis, un pārnes šo sēru vēsti ķēniņam.
+Ķēniņš nezina rimties no sirdsēstiem, bet ar laiku viņa skumjas atlaižas un valda
+atkal par savu zemi tēvišķi.</p>
+
+<p align="JUSTIFY">Tālu, tālu bija kādam tēvam trīs dēli, no kuriem viņš
+ienīdēja jaunāko un to izdzina no mājas Puisis iet, iet, nezinādams kurp. Mežā
+viņš tura naktsmāju zem kokiem. Pienāk mazs vīriņš ar sirmu, gaŗu bārzdu un saka:
+"Rau, tur pie tā koka stāv zirgs; kāp tam mugurā un jāj, kurp viņš tevi nes;
+ceļā tev gadīsies krāšņs dārzs, bet no Dieva puses neēd no tā dārza
+augļiem!"</p>
+
+<p align="JUSTIFY">Puisis sēžas zirgam mugurā un jāj. Kā vīriņš stāstījis,
+viņš piejāj pie jauka dārza. Pa dārzu jājot, puisim gribas ļoti ēst, bet<b> </b>viņš
+atturas aizkart augļus. Viņš atveŗ muti, viena oga iekrīt mutē, puisis apēd to.
+Beidzot viņš nojāj kādā ķēniņa valstī un salīgst pie pavāra par puisi.</p>
+
+<p align="JUSTIFY">Reiz ķēniņam sabrauc viesi. Puisis vāra ēdienus. Viņš iziet pie
+zirga. Zirgs māca: "Še tev šī sudraba kaŗote, apmaisi ar to ēdienus!"</p>
+
+<p align="JUSTIFY">Puisis tā dara. Ēdieni ir tik labi izdevušies, ka viesi par labu
+vārīšanu samet pavāram daudz naudas. Pavārs dod arī puisim, bet šis neņem ne
+graša.</p>
+
+<p align="JUSTIFY">Ķēniņam bij trīs meitas, visas velnam dodamas. Kādā dienā
+ķēniņš sarīkoja un ved velnam vecāko meitu.</p>
+
+<p align="JUSTIFY">"Atprasies šodien pavāram," zirgs teic puisim. Labi. Zirgs
+pārvēršas par lepnu kaŗa zirgu, pavāra puisis par princi un jāj pakaļ ķēniņam.</p>
+
+<p align="JUSTIFY">"Ceļat ķēniņa meitu manā zirgā, es viņu izglābšu,"
+puisis sauc. Padarīts.</p>
+
+<p align="JUSTIFY">Velns nāk, rūc, ka zeme dimd. Jau cērtas šķēpiem. Princese turas
+pie nepazīstamā prinča un kāmēr viņš kaujas, viņa iepin tam savu gredzenu matos.
+Velns pārvārēts aizbēg. Ķēniņš grab nepazīstamo varoni paturēt pie sevis, bet
+šis aizjāj.</p>
+
+<p align="JUSTIFY">Otrā dienā ved velnam otru meitu. Puisis atkal jāj un uzceļ viņu
+savā zirgā. Viņš cīnas ar velnu, bet ķēniņa meita pin viņam matos savu gredzenu.
+Velns sakauts, varonis nepazīts aizjāj.</p>
+
+<p align="JUSTIFY">Trešajā dienā ķēniņš nostāda trīssimti baznīckungu un
+trīstūkstoši kaŗavīru. Ķēniņš domā: ja baznīckungi viņu nepielūgs, tad
+kaŗavīri viņu nokaus. Nepazīstamais atkal klāt. Ceļ princesi zirgā un puisis kaujas
+ar velnu. Pa to laiku princese iesien puisim matos savu gredzenu. Velnu sakauj.
+Baznīckungi slīgst ceļos un lūdzas, bet puisis laiž tik projām. Kaŗavīri cērt ar
+zobiniem, bet netrāpa. Pēdīgi vecs zaldāts ievaino nepazīstamo vaigā. Māja rāda
+puisis zirgam vāti. Zirgs aplaiza, vāts sadzīst, un rēta vien atliekas.</p>
+
+<p align="JUSTIFY">Kādā jaukā dienā puisis guļ saulgozī ķēniņa dārzā.
+Ķēniņš un princeses skatās pa pils logu un redz pavāra puiša matos kaut ko spīdam.
+Viena princese iet skatīties un ierauga savu gredzenu, Ķēniņš liek puisi iesaukt:
+"Kālab tev apsieta galva?"</p>
+
+<p align="JUSTIFY">Puisis atbild : "Man sāp galva." </p>
+
+<p align="JUSTIFY">"Noraisi lakatu!" Ķēniņš pavēl.</p>
+
+<p align="JUSTIFY">Noraisa. Puisim vaigā rēta un matos visi trīs gredzeni. "Vari
+precēt, kuŗu meitu gribi," ķēniņš priecīgi atvēl. Puisis apprec jaunāko.</p>
+
+<p align="JUSTIFY">Pēc gada piedzimst jaunajam pārim dēls un aug, ka prieks redzēt.
+Kādu nakti varonis redz sapnī savu zirgu zemē iestigušu līdz žokļiem. Ķēniņa
+znots iet pie zirga: "Celies, celies, celies augšam!" viņš uzmudina zirgu.</p>
+
+<p align="JUSTIFY">Zirgs saka: "Nevaru un ātrāk necelšos, iekams nebūsi nokavis
+savu dēlu uz manas muguras." Puisis liek savu dēlu uz zirga muguras.</p>
+
+<p align="JUSTIFY">"Nekauj!" zirgs uzsauc. "Man diezgan, redzu tavu sirdi.
+Bet parādi vēl tik daudz labsirdības un nocērt manu kaklu." Puisis necērt.</p>
+
+<p align="JUSTIFY">"Sargies, neies tev labi, ja manis neklausīsi," zirgs saka.
+Puisis domā, domā; beidzot paņem zobinu. Galva norit no rumpja un vietā stāv smuidrs
+princis, šās zemes ķēniņa dēls. Puisis un princis abi dzīvo vislielākā saticībā
+un draudzībā, kā ne brāļi tā nevar dzīvot.</p>
+
+
+</body></html>

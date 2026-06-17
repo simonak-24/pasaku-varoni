@@ -1,0 +1,252 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Ceļotājs meklē laimi.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">2. A.<b> </b>460. B. H. Skujiņa, Andrs Ziemelis, no 67 g. vecas Annas
+Rudzītes Smiltenē.</p>
+
+<p align="JUSTIFY">Meža vidū bīsi ala un tai alā dzīvāš vientulis. Reiz pie
+vientuļa atnācis vecs vecis un sacīš, lei šis šķīstoties. Labi, vientulis ar
+paklausīš veča vārdim un ņēmis un iztīrīš alu, kā vie maz varēdams un
+mācēdams Otrā dienā akai atnācis vecis un prasīš, vai vientulis esot
+šķīstījies. Jā, vientulis sacīš, ka šis esot šķīstījies un savu alu esot
+iztīrīš. ka labāki nevarot, un pats ar esot berzies un mazgājies. Ne, tas tā neesot
+ritīgi, sacīš vecis, bet šim vaidzēš pašam savu sirdi šķīstīt, tas būtu -
+atgriezties no ļauna. Te, tā gan vientulis neesot darīš, viņš neesot par savim
+grēkiem domaš. Nu ta lci šķīstoties, sacīš atkal vecis un aizgāš. Labi. Vientulis
+nu domāš: "Kaī lei šķīstās un kā lei to dara?" Šis nu gūdrēš ko
+gūdrēš un pēdīgi nogūdrēš tā: sadedzināšoties! Labi. Vietulis sakurināš
+uguni, uzkāpis pats uz uguns un sadedzinājies.</p>
+
+<p align="JUSTIFY">Tas nu būtu tas. Rītīnā mēžsargs gāš pa mežu un sācis
+ostīties. Ostījies ko ostījies, ka no vienas puses nākusi varēn jauka smaka un tā
+vie licies, ka tur trakoti gards cepetis cep. Mežsargs gāš uz to pusi, no kurienes
+smaka nākusi, un dagāš pie pelnu čupas, kur vakar vientulis sadedzinājies. Mežsargs
+sācis rakāties pa pelnim un uzgāš vientuļa sirdi, kas bīsi pavisam vesela un nemaz
+ar nebīsi sagruzdusi. Mežsargs paņēmis vientuļa sirde un nesis uz māju. Mājā
+mežsargs atdevis vietuļa sirdi savai meitai un sacīš šai- lei sirdi izcepot, ka šis
+pats nākšot mājā, ta šim būšot varēns brokasts. Labi. Meita cepusi vientuļa sirdi
+un mežsargs akal aizgāš uz mežu pats savos darbos.</p>
+
+<p align="JUSTIFY">Ka meita sākusi sirdi cept, ta tā sākusi tik jauki smaržot, ka
+meitai sākušas sliekas tecēt. Meita vairs nevarēsi nociesties un tik pa kumāsīnam
+metusi mutē un pēdīgi apēdusi viena pati visu sirdi.</p>
+
+<p align="JUSTIFY">Ka nu nācis mežsargs mājā, tā tūlītās prasīš meitai, vai šī
+esot sirdi izcepusi. Meita sacīsi, ka šī esot izcepusi gan, bet sirds esot tik jauki
+smaržosi, ka šī pati vairs nevarēsi nociesties un apēdusi visu. Nu mežsargs
+pārskaities un sācis meitu sist.</p>
+
+<p align="JUSTIFY">Tas nu būtu tas. Pēc trīs dienām mežsarga meitai piedzimis dēls
+un šis audzis ne vis ar gadim, bet ar stundām un drīz vie bīš lielc un tik neredzēti
+gudrs! Ka mežsarga meitas dēls bīš lielc, ta trešā dienā sacīš mežsargam, lei
+šis sajūdzot zirgu' un aizvedot šo uz ķēnīna pili. Labi. Mežsargs sajūdzis savu
+zirdzīnu un abi braukuši uz ķēnīna pili.</p>
+
+<p align="JUSTIFY">Tam ķēnīnam bīš vienc tāds raksts un to nevienc cilvēks
+nemācēš izlasīt. Ķēnīc izsolīš lielu naudu, kas varot rakstu izlasīt. Bet
+nevienc tāds neatradies. Nu dēls braucis uz kēnīna pili un sacīš, ka šis varot
+rakstu izlasīt. Labi. Ķēnīc iedevis dēlam rakstu un šis izlasīš ar. Tur jau tai
+rakstā nekā tāda nebīš, tik st:īvēš rakstīts, ka aiz jūras guļot slims vienc
+ķēnīc un to ķēnīnu tā un tā varot izārstēt. Kēnīc bīš priecīgs, ka nu
+pēdīgi vienc atrada, kas mācēš rakstu izlasīt, un prasīš dēlam, kādu algu šis
+gribot. </p>
+
+<p align="JUSTIFY">Dēls sacīš ka šis nekādas algas negribot, un gāš no ķēnīna
+pils laukā un akal abi ar mežsargu braukuši prom.</p>
+
+<p align="JUSTIFY">Nu dēls licis mežsargam, lei braucot pie tā slimā ķēnīna.
+Mežsargs braucic, braucis un dabraucis pie jūīas. Dēls sacīš, lei braucot jūrai
+pāri. Bet mežsargs neparko ar nebraucis un sacīš, ka šis tad ar visu zirgu negribot
+noslīkt. Bet dēls sacīš lei tik braucot, ka neslīkšot. Mežsargs nebraucis un
+nebraucis. Dēls izkāpis no vezma (vezuma) un jāš pār jūru. Nu mežsargs ŗedzēš,
+ka dēls neslīkst, un gāš šim no pakaļas un savu zirdzīnu atstāš zvejniekim, lei
+šie paglabājot, kamēr šie paši nākšot apakaļ.</p>
+
+<p align="JUSTIFY">Abi nu gāši, gāši un dagāši pie slimā ķēnīna pils, kas bīsi
+jūras vidū uz salas. Dēls gāš ķēnīna pilī iekšā un sacīš sulaiņ;m, ka šis
+varot slimo ķēnīnu izārstēt. Sulaiņi veduši dēlu pie ķēnīna un dēls tūlītās
+sacīš: "Manc kungs un ķēnīc, celies augšā!"</p>
+
+<p align="JUSTIFY">Kā dēls tā nosacīš, tā slimais ķēnīc tūlītās palicies
+skaidrāks. Dēls akal otru reizi sacīš: "Manc kungs un ķēnīc, celies
+augsā!" Slimais ķēnīc jau cēlies sēdu. Tad dēls vēl trešo reizi sacīš:
+"Manc kungs un ķēnīc, celies augsā!"</p>
+
+<p align="JUSTIFY">Tad ķēnīc bīš jau pavisam vesels. Nu ķēnīc prasīš dēlam,
+kādu algu šis gribot par šā izārstēšanu? Dēls sacīš, ka šim nekādas algas
+nevaigot, un gribēš iet prom. Bet ķēnīc redzēš, ka dēls ir kājām atnācis, un
+vēlēš, lai jūdzot karītē četrus zirgus, un atdevis karīti ar visim zirgim dēlam,
+lei nu šis brauc uz māju. Dēls ar mežsargu iekāpuši karītē un atkal pār jūru
+aizbraukuši uz to vietu, kur šie savu zirdzīnu atstāši.</p>
+
+<p align="JUSTIFY">Tas nu būtu tas bīš. Uja, bet es jau tur starpā izlaidu, lūk,
+tanī vietā, ka dēls braucis uz jūrmalu no pirmā ķēnīna pils, kur to rakstu
+lasīš, tā šiem ceļā gadījies vilks, kas gulēš turpatās pašā ceļa malā. Dēls
+paskatījies uz vilku un nesacīš ne vārdīna. Kā mežsargs pamanīš vilku, tā
+tūlītās sacīš, ka nu nebūšot labi, vilks saplēsīšot zirgu. Dēls sacīš pretī,
+ka lei braucot vie, ka vilks nekā nedarīšot. Braukuši, braukuši un satikuši lepnus
+bērniekus, kas vēduši līķi uz kapu un līķam gar sānim gāši cilvēki ar degošām
+lāpām. Mežsargs brīnējies par lepno pavadīšanu un sacīš dēlam, ka tam man vaigot
+būt bīšam varēn iabam un bagātam kungam, ka šo ar tādu godu pavadot. Dēls nekā
+nesacīš mežsargam pretī un abi tik braukuši tālāku. Braukuši, braukuši un šiem
+pretī braukuši otri bērnieki un tiem nebīš neviena pavadītāja un pavisam balts
+(nekrāsots) zārks. Nu mežsargs sacīš dēlam, ka tam gan vaigot būt tādam
+plikadīdam vie bīšam, ka pat krietna zārka neesot un neviena paša pavadītāja ar
+neesot. Dēls akal nekā nesacīš un abi tik braukuši, kamēr dabraukuši pie jūras.
+Tas nu būtu tas izlaistais no vidus. Bet nu tagadīnās akai tālāku.</p>
+
+<p align="JUSTIFY">Kā nu dēls ar četrim zirgim dabraukuši pie zvejniekim, tā
+zvejnieki lūgušies<b>, </b>lei šiem atdodot to mazo zirdzīnu, mežsarga zirgu.
+Mežsargs gan pa baitu negribēš atdot zveiniekim savu zirdzīnu, bet dēls nelaidies,
+kamēr mežsargs atdevis ar. Nu abi akal braukuši tālāku un kā tikuši da tai vietai,
+kur to nabadzīnu pirmāk uz kapsētu veduši, tā dēls sacīš uz mežsargu: "Vai
+tu nu gribi redzēt, kāds tas nabadzīc ir, ko pirmāk mums veda garām?"</p>
+
+<p align="JUSTIFY">Labi, lei parādot. Nu dēls kāpis no karītes laukā, pabakstīš ar
+kājīnu drusku zemes un tūlītās zemes atvērušās un bīš nabadzīc redzams, lielā
+godā un zelta kroni galvā. Nu dēls akal sacīš: "Te viņš bija nabadzīc un tur
+viņš ir lielā godā!"</p>
+
+<p align="JUSTIFY">Braukuši, braukuši un dabraukuši pie tās vietas, kur to lepno kungu
+satikuši, un dēls akal sacīš: "Vai tu nu gribi redzēt, kāds tas lepnais kungs
+tagadīnās izskatās?"</p>
+
+<p align="JUSTIFY">Labi, lei parādot! Dēls akai pabikstīš ar kājīnu zemes, zemes
+tūlītās vērušās vaļā un lepnā kunga vietā nākusi varēn nelaba smaka laukā.</p>
+
+<p align="JUSTIFY">Nu akai braukuši, braukuši un dabraukuši pie tās vietas, kur vilks
+gulēš Dēls akal prasīš ntežsargam: "Vai tu nu gribi redzēt, kas tas vilks
+bija?"</p>
+
+<p align="JUSTIFY">Labi, lei rādot! Dēls pabikstīš ar kājīnu zems un šās
+tūlītās vērušās vaļā un nākusi redzama naudas skaste Nu mežsargs vais nevarēš
+nekur stilt, ka vaigot naudas skasti celt ārā un vest uz māju. Bet dēls nelaidis celt
+naudas skasti laukā un sacīš, lei liekot šai miera. Mežsargs nu tīri vai traks
+palicies par tadu lietu un tik stibīš naudas skasti laukā un stiepis tik karītē
+iekšā. Dēls neparko ar nelaidies, kamēr mežsargs akai vēlis naudas skasti apakaļ
+bedrē un ta tik vēlēš, lai braucot uz māju.</p>
+
+<p align="JUSTIFY">Braukuši, braukuši un drīz vie bīši jau pie mājas, ka dēls
+sacīš: "Naudas skaste būs mums priekšā mājās!"</p>
+
+<p align="JUSTIFY">Nu mežsargs akal palicies varēn laimīgs un skubināš zirgus
+ātrāki uz māju.</p>
+
+<p align="JUSTIFY">Kā ta, kā šie braukuši pie mājas, tā ar tūlītās redzēši, ka
+naudas skaste jau stāv pie mājas durim. Nu mežsargs stiepis naudas skasti mājā
+iekšā un bīš varēn laimīgs. Nu dēls sacīš mežsargam: "Tagadīnās būvēsim
+sev māju un dzīvāsim laimīgi!"</p>
+
+<p align="JUSTIFY">Tā ar izdarīši, uzbūvēši māju un visi trīsi dzīvāši
+laimīgi. Tā nu ar to pašu mana pasaka ar ir galā.</p>
+
+
+</body></html>

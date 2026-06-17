@@ -1,0 +1,153 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Trīs zelta mati no velna galvas.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 461. M. Valtere Jelgavas apr. A. Bērzkalnes krājumā. </p>
+
+<p align="JUSTIFY">Viens zemnieks atradis ezera malā mazu zēnu, pārnesis mājās un
+nosaucis par Ezerjāni. Kad puika pieaudzies, viņš bijis briesmīgi nerātns. Zemnieks
+nevarējis viņu valdīt, un beidzot teicis, lai šis ejot uz elli.</p>
+
+<p align="JUSTIFY">Zēns gājis, gājis, kamēr aizgājis uz lielu pilsētu, kur bijis
+ūdens trūkums. Ļaudis viņu lūguši, lai izdibinot, kā varētu ūdeni dabūt. Zēns
+apsolījis un gājis tālāk, kamēr aizgājis otrā pilsētā, kur ķēniņam velns bijis
+meitu nozadzis. Ķēniņš nu šo lūgšus lūdzis, lai izzinot, kā viņš varot meitu
+atdabūt. Zēns apsolījis un gājis tālāk, kamēr saticis vienu plostnieku, kam
+mūžīgi bijis jāceļ braucēji, un projām viņš nevarējis tikt. Nu šis lūdzis lai
+izzinot, kā viņš varot tikt vaļā. Zēns apsolījis un gājis tālāku. Drīz viņš
+nonācis pie vienas pils, kur arī atradis ķēniņa meitu un tā ķēniņa meita bijusi
+velna sieva. Jānis tai visu izstāstījis, kādēļ nācis, paēdis un palīdis pagultē.</p>
+
+<p align="JUSTIFY">Pārnākuši velni, un saozdami cilvēku smaku prasījuši, kas te esot
+bijis. Sieva atteikusi, ka esot gan viens cilvēks bijis, bet atkal aizgājis. Nakti
+ķēniņa meita sāk tā kā murgot, un saka, ka šī sapņojusi, kā vienai pilsētai
+ūdens trūkstot, un kā viņu varētu dabūt. Velns tā paklusām izstāstījis, ka
+vajagot uzmeklēt melnu vērsi, un likt viņam pār akmeni lēkt tad būšot atkal ūdens.
+Pēc brītiņa meita murgo atkal, un saka, ka esot sapņojusi, ka vienam ķēniņam
+nozagta meita, un kā viņu varētu atdabūt. Velns gan negribējis teikt, bet beigās
+izstāstījis, ka kādam cilvēkam viņa jāiznes jāteniski līdz plostam. un ka tad
+vairs velns viņu nevar</p>
+
+<p align="JUSTIFY">dabūt. Pēc brītiņa viņa murgojusi atkal, un teikusi, ka
+sapņojusi, itkā kāds plostinieks gribētu tikt vaļā, un kā to varētu izdarīt.
+Velns teicis, ka vajagot pirmam, kas nāk, kreiso kāju pamērcēt ūdenī.</p>
+
+<p align="JUSTIFY">No rīta velni aizgājuši, zēns paņēmis ķēniņa meitu jāteniski,
+un aiznesis līdz plostam. Nu meita bijusi brīva, tad pastāstījis plostiniekam kas
+jādara; aizgājis uz pilsētu, uzmeklējis melno vērsi, licis tam pār akmeni lēkt, un
+pilsētā bijis atkal ūdens. Pēdīgi aizvedis ķēniņam nozagto meitu. Ķēniņš
+atdevis viņam to par sievu, un visu valsti un nu viņi dzīvojuši laimīgi.</p>
+
+<p align="JUSTIFY">Otrā rītā pārnākuši velni, un neatrazdami sievu, lielais velns
+tūlīt skrējis uz plostu. Plostinieks saķēris velnu, un iemērcis viņa kreiso kāju
+ūdenī, un tai ticis brīvā, bet velnam bijis jāpaliek par cēlēju.</p>
+
+
+</body></html>

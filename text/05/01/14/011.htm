@@ -1,0 +1,155 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>11</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Abi dzīvē un nāvē savienotie draugi.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">11. A. 470. A. Bīlenšteins Jaun- Aucē. LP, VI, 142 (10).</p>
+
+<p align="JUSTIFY">Puisis gājis uz kapsētu. Viņš bija izgājis kāziniekus aicināt
+savās kāzās. Ieraudzījis vienu pliku galviņu gulim pie kapa, teicis:
+"Galviņ(a), ka(d) tu zinātu, ka man kāzas svētdien būs, i(r) tu atnāktu."</p>
+
+<p align="JUSTIFY">Tā paliek. Te kāzu dienā atjāj tik sirms, tik sirms jātnieks uz
+balta zirga un teicis brūtgānam: "Lai es ēmu, lai es dzēŗu; lai es neēmu, lai
+es nedzeru - tu manis neskubini!"</p>
+
+<p align="JUSTIFY">Brūtgāns atteicis: "Ko tu tāds nāci? Es tevi neesmu
+aicinājis."</p>
+
+<p align="JUSTIFY">"Kā tu manis neaicināji, vai neatmini to galviņu, kas plika
+gulēja pie kapa maliņas? Nākošu svētdien būs manas kāzas, tad tu nāc uz manām
+kāzām!"</p>
+
+<p align="JUSTIFY">"Kā tad es zināšu noiet?"</p>
+
+<p align="JUSTIFY">"Zināsi gan. Te pie sētmalas būs tas sirmais zirgs. Kā no
+pirts iznācis, apģērbies, uzsēdies un atjāj!"</p>
+
+<p align="JUSTIFY">Tā noticis. Saimnieks aizjājis un palicis divsimtu gadus uz tām
+kāzām. Ta(d) teicis: "Nu, tētīt, palaižat nu mani mājās, esmu pailgi
+palicis."</p>
+
+<p align="JUSTIFY">"Esi gan palicis pailgu, atlaidīšu."</p>
+
+<p align="JUSTIFY">Pā(r)nācis: nav ne tie ļaudis vairs, itin nekas; veca māte
+sēdējusi pie žoga, zosis ganījusi. Tā stāstījusi šim: "Mana māte teikusi, ka
+sen, sen atpakaļ te reiz saimnieks, nedēļu saprecējies, nozudis. Tas, varbūt, ap
+divsimtu gadu."</p>
+
+<p align="JUSTIFY">Tad teicis, ka šis tas pats esot, kas toreiz zudis un lai parādot,
+kur viņa sieva atronama. Vecā māte iedevusi vienu baltu puķīti un teikusi, lai ejot
+uz kapiem. "Kur tāda paša puķīte augs, tur būs sievas kaps."</p>
+
+<p align="JUSTIFY">Uzgājis uz kapiem. kapi lielām eglēm apauguši, bet ar balto puķi
+atradis gan sievas kapu. Nu pielicis savu puķi klāt gadījusies tā sieva.
+Sabučojušies, sarunājušies abi divi un ta palikuši par pelnu čupiņu. Taču vīram
+bija jāmirst, bez tam nevarēja palikt.</p>
+
+
+</body></html>

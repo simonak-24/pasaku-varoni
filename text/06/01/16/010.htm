@@ -1,0 +1,179 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">10. A. 530 V. Podis Latgalē. Latvju kultūras kr.</p>
+
+<p align="JUSTIFY">Dzeivuoja tāvs un muote. Viņim beja treis dāli. Divi beja gudri, bet
+trešais, jaunuokais -- mulkis. Tāvs un muote beja slymi un viņim vajadzēja miert.
+Pīguoja vacuokais dāls pi tāva un muotes, ka viņi dūtu jam kaidu daļu nu montuojuma.
+Tāvs pasaka: "Tev, dēls, vysa mantojuma puse!"</p>
+
+<p align="JUSTIFY">Tad atguoja ūtrais un tāvs pasacīja: "Tev, dāls, ari puse vysa
+montuojuma!"</p>
+
+<p align="JUSTIFY">Tad atguoja muļkis un sacīja: "Kas tad, tāvs, byus maņ?"
+Tāvs atbildēja: "Tev byus tikai uz cepla gulēt! Bet kad es</p>
+
+<p align="JUSTIFY">ar muoti nūmiersim, jyus, bārni, myusus apglobuojit sausā kopā un
+aizejīt Dīvu lyugtu, lai myusim byutu vīgluok."</p>
+
+<p align="JUSTIFY">Pēo nailga laika veči nūmyra. Dāli viņus paglobuoja. Niu vajaga
+dālim īt uz kopim. Aizguoja vacuokais dāls, atpeipēja dīnu un nakti un kad puorguoja
+muojuos, bruoļi vaicuoja: "Kū tur redzēji?"</p>
+
+<p align="JUSTIFY">"Nikuo tur nav; vējš pyuš, lopas čaukst un cyta nav
+nikuo!" Vajag īt ūtram. Tys ari pajēmja vabāku un guni, peipēja dīnu un nakti.
+Kad puorguoja muojuos, bruoļi vaicuoja: "Kū tur redzēji?"</p>
+
+<p>"Nikuo tur nav, vējs pyuš, lopas čaukst, cyta nikuo tur nav!" Tagad
+vajadzēja īt muļkam. Muļkis pajēmja leļu gruomotu, kurā natryuka puotoru nedēļai
+kuo skaitīt, skaitīja un skaitīja dīnu un nakti. Tad pīsacēļa tāvs un muote nu
+kopa un soka: "Tev, dāls, mierstūt nadevjām nikaida montuojuma, tad tagad dūsim.
+Tu esi myusu Lobuokais bārns, kurs myusus atvīglynuoji soltajā kopā. Nyu tev dūsim
+treis zyrgus - vīnu saules, ūtru mēneša un trešū zvaigžņu zyrgu."</p>
+
+<p align="JUSTIFY">Tāvs vēļ pīsacija, lai pa vīnu ausi zyrgam īlein un pa ūtru
+izleiņ uorā, tad byušūt ūti skaisti gērbts. Bet kad otkon atkapaļ izlīšūt,
+byušūt taids pats, kai ir. "Bet kad vajadzēšūt zyrga, tad izej, pasvilpuo un
+byus pi tevis, kuo gribēsi."</p>
+
+<p align="JUSTIFY">Tai muļkis atguoja uz muojom. Bruoļi vaicoj : "Nu, kū
+redzēji?"</p>
+
+<p align="JUSTIFY">Muļkis soka: "Nav nikuo, vēji pyuš, 1opas čaukst un cyta
+kuo!"</p>
+
+<p align="JUSTIFY">Tymā molā dzeivuoja kēneņš, kurs gribēja sovu meitu atdūt pi
+veira un pasacīja: "Kas dajuos pi munas meitas pa stykla kolnu, tam viņa byus par
+sīvu!"</p>
+
+<p align="JUSTIFY">Gudrī bruoļi suoka sovus zyrgus baruot un sukuot, lai tiktu pi
+kēneņa meitas, bet muļkīts gulēja uz cepļa. Kad atguoja pazeimuotuo dīna braukt uz
+kēniņa meitu, gudrī bruoļi laidjās ceļā, bet muļkam īdevja labeibu nu palovom
+teirēt. Muļkīts pajēmja pasvilpuoja un atskrēja viņam saules zyrgs. Muļkis dalyka
+labeibu pī zyrga nuosim. Tys kai pūtja un labeiba palyka teira. Tod viņs izleida zyrgam
+caur vīnu ausi un caur ūtru izleida un puorsataisīja stolts kēniņa dāls, urtt
+laidjās juot uz kēniņa pili. Muļka bruoļi tikai vēŗās, kas te braucja par kungu.
+Tys kai juoja, tai reizē pi kēniņa meitas un nūskīrpstīja tū. Tad kēniņa meita
+pīmīdzja viņam pi rūkas zēgeli, spūdru kai zvaigzni, bet viņš atsagrīzja un
+atjuoja otkon uz muojom. Izleida zyrgam caur ausi, zyrgu palaidja un pats otkon uz cepļa.
+Atbraucja ari bruoļi un stuosta par stoltū juotnīku, apbreinuodami viņu un zyrgu.</p>
+
+<p align="JUSTIFY">Pēc trejom dīnom kēniņš braukuoja ar sovim sulaiņim un meitu pa
+vysu valsti meklēt tuo, kas viņu nūskūpstīja. Ībraucja ari treju bruoļu sātā. Pi
+tīm divim gon zein es nabeja, bet trešais uz cepļa gulēja un nikuo nasacīja. Kēniņa
+meita īraudzīja veirīti guļūt uz cepļa un soka, lai tys ejūt uz šeni. Bruoļi
+soka, ka tys asūt muļķis. Kēniņa meita īraudzīja spūžu zēgeļi uz muļka rūkas.
+Tad viņu pajēmja un aizvedja uz sovu pili. Muļkis aizbraucja ar vysim sovim zyrgim,
+apsaprecēja un suoka valdīt. </p>
+
+
+</body></html>

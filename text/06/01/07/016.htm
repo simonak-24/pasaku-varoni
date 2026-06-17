@@ -1,0 +1,197 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pelnrušķīte pie ķēniņa.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">16. 510 B. J. Opyncāns Latgalē. Latvju kultūras kr. </p>
+
+<p align="JUSTIFY">Reiz dzeivuoja vīns kēniņš, kam beja ūti skaista sīva. Sīva
+saslymst gryutā slimībā un nūmierst. Palīk kēniņam tikai vīna meita, kas vēl
+skaistuoka par sovu muoti. Kēniņš meklej, meklej sev sīvas, bet tik skaistos, kai beja
+pyrmuo, navar atrast.</p>
+
+<p align="JUSTIFY">Pa tū laiku izaug viņa meita par mārgu. Kēniņš nūdūmoj precēt
+sovu meitu, bet meita ni par kū nagrib izīt pi sova tāva par sīvu. Radzādama, ka byus
+gryuti karuot pret<b> </b>sovu tāvu, viņa ari apsasūla, tikai jai viņš sašyun jei
+šolka svuorkus ar zalta zvaigznem. Kēniņš tyulīt līk šyut skaistus svuorkus, kaidu
+vēļ nikam nav. Svuorki teik sašyuti, kēniņš atnas viņus un prosa: "Voi ar
+mīru tagad byut man par sīvu?"</p>
+
+<p align="JUSTIFY">Meita otkon lyudzās : "Izšyun man svuorkus ar zalta
+mēnešim." Kēneņš līk pagatavuot sovai meita ari zalta mēnešu svuorkus. Kad
+svuorki ir gotovi, viņš pats atnas jūs meitai un vaicoj: "Voi tagad, meit, esi ar
+mīrn, vai vysas tovas teiksmes ir pīpildētas?"</p>
+
+<p align="JUSTIFY">"Nā!" atbild kēniņa meita, "es gribu, lai tu man
+sašyutu svuorkus nu vīnom zalta saulem."</p>
+
+<p align="JUSTIFY">Kēniņš otkon līk pagatavuot sovai meitai svuorkus, kas speidātu
+kai saules. Svuorki teik pagatavuoti un kēniņš steidzas pi meitas.</p>
+
+<p align="JUSTIFY">"Voi tagad esi ar mīru byut par munu sīvu?" jautoj
+kēniņš. "Voi vysas tovas vēlēšonas ir pīpildītas?"</p>
+
+<p align="JUSTIFY">"Na!" atbild kēniņa meita, "es vēļ gribātu, lai tu
+man lyktu taisīt zalta kozu."</p>
+
+<p align="JUSTIFY">Kēneņš ar mīru ir izpildīt ar' šū meitas vēlēšonūs. Viņš
+līk sovim zalta lītu struodoīkim un muokslinīkim iztaisīt zalta kozu. Par tū laiku
+kēneņa meita aizīt pi struodnīkim un palyudz</p>
+
+<p align="JUSTIFY">kozai iztaisīt tukšu vydu un ari iztaisīt duraviņas, kas byutu
+aizslādzamas. Struodnīki izpylda kēniņa meitas gribu un iztaisa kozu, kai beja viņim
+teikts. Kad zalta koza ir gotova un atnasta pilī, tad kēniņa meita salosa vysas sovas
+duorguos suknas, īlein vydā un aizslādz kozu nu īkšas. Tagad, kai par breinumu, nikur
+navar kēniņa meitas atrast. Izmeklej vysu pili, pilsātu, bet meitas nava nikur, viņa
+itkai caur zemi izkrita. Sasadusmoj kēniņš un līk aizvest zalta kozu uz sabru
+kēnesti, kur asūt ļūti staigns pūrs,</p>
+
+<p align="JUSTIFY">un īsvīst viņu pūra dybynā. Sulaiņi izpylda kēniņa pavēli,
+aizvad zalta kozu uz mynātū pūnu un īsvīž viņā.</p>
+
+<p align="JUSTIFY">Paīt kaids laiks, atīt rudens un pēc tam pyrmuo zīma. Labi tik
+pasaļ, tai ka jau var braukt pa azarim un pūrim.</p>
+
+<p align="JUSTIFY">Goduos kaldu reizi par mynātū pūru braukt kēniņa dālam ar sovu
+golmu. Brauc, brauc - pirmais nūstuoj un vairs nagrib braukt; kēniņš līk ūtram
+braukt. Ūtrs pabrauc drusciņ, otkon nūstuoj, trešs ari tū pat dora. Tod kēniņš
+brauc pats. Pībraucis pi tuos vītas, kur viņa ļaudis beja apsastuojuši, viņš
+mēneša spūdrumā redz, ka nazkas speid - speid tik skaisti, ka laistītīs laistuos.
+Pibraucis tyvuok, viņš redz, ka tys ir zalta rogs, un līk viņu izcierst nu lads.
+Sulaiņi īsuoc cierst ladu un vilkt rogu, bet tys na tai vigli dūdās. Tad viņi
+nūprota, ka dziļuok ir kaut kas leluoks. Beiguos pēc īlga dorba viņi izvylka zalta
+kozu.</p>
+
+<p align="JUSTIFY">Atvedis kozu uz pili, kēniņš līk viņu apteirēt un īlikt viņa
+guļamā ustobā. Atguoja nakts un kēneņa dāls īt gulātu. Viņš beja pīradis nakti
+yudeņa vītā atsadzeršonal likt pi gultas pīna gluozi. Nakti, kod kēniņa dāls beja
+aizmidzis, kēniņa meita atdora zalta kozaa duraviņas un, byudama olkona, izdzer pīnu.
+Pasamūst kēneņa dāls dzartu<b>, </b>bet skotuos: gluoze tukša. Pīceļ sulaini un
+izvaicoj, kas par taidu jūku. Sulainis apgalvoj, ka gluoze bejuse pīlīta pylna.
+Breinuojās gon sulalnis, gon kēniņa dāls.</p>
+
+<p align="JUSTIFY">Ūtrā naktī ari tys pats. Uz trešū nakti kēniņa dāls nūsprīž
+vairs nagulēt, bet nūlicis pi sevis zūbynu, apsamest guļūt.</p>
+
+<p align="JUSTIFY">Atīt nakts, kēniņa dāls nūsagulstas, un sulainis kai vysod pastota
+blakus gultai gluozi pīna. Atīt jau pusnakts, bet kēneņa dāls vēl naguļ. Viņš
+skotuos - zalta kozas suonūs atsadoras duraviņas un nu viņas uz gluozi pazastīp
+skaista meitas rūciņa. Moz dūmuodams, viņš tver aiz šuos rūkas un izraun nu zalta
+kozas daiļu sīvīti, gārbtu zvaigžņu apgārbā. Šei meitiņa viņam tai cīši
+pateik, ka viņš nūdūmoj viņu apprecēt.</p>
+
+<p align="JUSTIFY">Reitā viņš izprosa nu kēneņa meitas, kai tai tykuse zalta kozā.
+Izzynuojis patīsību, viņš navar atsateiktīs un atsažāluot tik tikumīgas un
+skaistas jaunovas. Tyka sataisītas boguotas kuozas, kēniņa meita apgērbja sovus
+zvaigžņu svuorkus, kaidus vēl šimā valstī nikas nabeja redzējis. Visi kēniņa
+gūda vīsi breinuojuos par skaistū un labsirdīgū kēniņa meitu. Ilgi vēl šis
+jaunais puors dzeivuoja ielā laimē, saderībā un prīcā.</p>
+
+
+</body></html>

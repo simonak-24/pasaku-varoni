@@ -1,0 +1,212 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Raganas šķiltavas.</p>
+</b></font><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">2. A. H. Skujiņš, Andrejs Ziemelis, no Zelmas
+Melzupes Aumeisteŗos.</font></p><font size="3">
+
+<p align="JUSTIFY">Viens zaldāts nācis no sava dienesta uz māju. Viņš bijis
+nodienējis ķeizaram divdesmit pieci gadi. Viņš nācis uz māju bēdīgs un domīgs, jo
+naudas un mantas tam nekādas nebijis. Radu un draugu tam arī dzimtenē nebijis. Ja kāds
+ar agrāk bijis, tad tas droši vien bija viņu aizmirsis. Jo zaldāts tuvāku ticis
+dzimtenei, jo smagāka sirds tam palikusi.</p>
+
+<p align="JUSTIFY">Zaldāts iegājis mežā, kur tam nākusi pretim veca vecene un sākusi
+ar to runāties. Vecene prasījusi zaldātam, vai šis negribot tai pakalpot, viņa tam
+labi samaksāšot. Pēc tam vēl vecene prasījusi zaldātam, vai viņam bailes neesot.
+Nē, zaldātam nekad ne no kā bailes nav bijis un viņš lielīgi skandinājis savu
+zobenu pret ceļmalas akmeņiem.</p>
+
+<p align="JUSTIFY">Zaldāts ar veceni iegriezušies pa meža ceļu. Viņi nonākuši pie
+augsta kalna, kur audzis milzīgs ozols. Vecene apstājusies pie ozola, iedevusi zaldātam
+virvi, noraisījusi savu priekšautu un arī to viņam iedevusi, sacīdama: .,Tagad kāp
+ozola, piesien virvi pie ozola galotnes un ielaidies pa viņu ozola caurumā. Tu nonāksi
+apakšzemes pagrabā. Tur, aiz pirmām durvim būs liela lāde un lādē būs vecu laiku
+šķiltavas. Ja pirmā lādē nebūs šķiltavu, tad meklē otrā un trešā lādē. Tu
+man tās šķiltavas atnes. Katrā istabā gulēs uz lādes vāka viens suns. Tas gan
+izliksies traki nikns, bet nebaidies, nocel to uz šī priekšauta, tad suns tev nekā
+nedarīs."</p>
+
+<p align="JUSTIFY">Zaldāts uzkāpis ozolā, tad pa virvi nolaidies apakšzemes pagrabā
+un iegājis pirmā istabā. Istabā bijusi liela lāde, uz lādes vāka gulējis suns. Kad
+zaldāts gājis lādei klāt, suns sācis rūkt un zobus rādīt. Bet zaldāts noklājis
+priekšautu zemē, uzcēlis uz viņa suni un pacēlis smago lādes vāku. Lāde bijusi
+pilna ar kapara naudu. Zaldāts bēris naudu kabatās un palicis priecīgāks, sak:
+"Nu būs nauda, ko iztikt."</p>
+
+<p align="JUSTIFY">Bet šķiltavu viņš neatradis. Zaldāts uzcēlis suni atpakaļ uz
+lādes vāka un gājis tālāk - otrā istabā. Otrā istabā bijusi atkal liela lāde un
+uz viņas vāka gulējis liels suns, kam acis bijušas tik lielas, kā telēķi. Lielais
+suns bijis daudz niknāks. Bet zaldāts nebaidījies. Noklājis priekšautu un uzcēlis uz
+tā lielo suni. Suns bijis tik smags, ka zaldāts to tikko varējis pacelt. Kad zaldāts
+pacēlis smago lādes vāku, tad ieraudzījis, ka lāde ir pilna ar sidraba naudu.
+Zaldāts bēris naudu, kur vien varēdams.</p>
+
+<p align="JUSTIFY">Bet šķiltavu viņš neatradis. Viņš uzcēlis suni atkal uz lādes
+vāka un iegājis trešā istabā. Arī tur bijusi liela lāde un uz lādes vāka gulējis
+traki liels suns un acis tam bijušas tik lielas, kā dzirnavu akmeņi. Suns bijis bezgala
+nikns, bet zaldāts nebaidījies. Ar lielām mokām zaldātam beidzot izdevies suni no
+lādes vāka novilkt - pacelt to nav varējis - un uztupināt uz priekšauta. Kad zaldāts
+pacēlis lādes vāku, tad pašā virsū bijušas meklētās šķiltavas un apakš tām
+zelta nauda. Zaldāts noglabājis šķiltavas labā vietā un sācis bērt kabatās un kur
+vien maz varējis zelta naudu. Kad nekur vairs nebijis naudai vietas, tad zaldāts gājis
+no pagraba ārā.</p>
+
+<p align="JUSTIFY">Pa virvi viņš uzvilcies ozola galotnē, apsēdies uz ozola zara un
+sācis pārdomāt, ko lai iesāk, vai lai naudu un šķiltavas atdod vecenei, vai ne.
+Vecene viņu visu laiku pie ozola gaidījusi. Beidzot zaldāts nospriedis veceni
+nogalināt. Zaldāts nokāpis no ozola un ar zobenu nocirtis vecenei galvu.</p>
+
+<p align="JUSTIFY">Zaldāts aizgājis savā dzimtenes pilsētā un sācis tur dzīvot.
+Naudas viņam bijis papilnam. Zaldāts sācis palaidnīgi uzdzīvot un drīz vien naudu
+notērējis. Kādā vakarā viņš nācis no kroga un apmaldījies. Viņš bijis jau
+gluži nabags, naudas tam vairs nebijis. Zaldāts maldījies pa tumšām ielām. Viņš
+bijis tā apmulsis, ka nezinājis, uz kuŗu pusi griezties. Beidzot viņš iedomājies, ka
+viņam tak vēl ir šķiltavas, ko tas iznesis no apakšzemes pagraba. Viņš šķīlis
+uguni un skatījis ceļu uz māju. Kad zaldāts trešo reizi šķīlis, uzreiz visi trīs
+suņi no apakšzemes pagraba bijuši klāt un prasījuši: "Kā vajaga?"</p>
+
+<p align="JUSTIFY">Zaldāts licis suņiem no apakšzemes pagraba atnest visas trīs naudas
+lādes un nolikt savā mājā. Suņi to izdarījuši. Nu atkal sācis zaldāts dzīvot
+vēl bagātāki un izšķērdīgāki, kā agrāk: Viņš iepazinies ar visādiem kungiem
+un augstmaņiem. Pat ar ķēniņa meitu viņš bijis pazīstams. Ķēniņa meita
+iemīlējusi zaldātu un nākusi bieži vien pie viņa. Bet ķēniņš drīz vien
+novērojis meitas gaitas un licis zaldātu iemest cietumā. Zaldāts gulējis cietumā un
+šķīlis ar savām šķiltavām. Melnie suni atskrējuši un zaldāts tiem licis atnest
+ķēniņa meitu. Katru nakti suņi atnesuši uz cietumu ķēniņa meitu un rītā
+aiznesuši to atpakaļ uz pili. Viņi abi bijuši laimīgi. Bet ķēniņš pamanījis, ka
+viņa meita bieži vien pa naktim pazūd no pils. Viņš sācis to vaktēt, bet nevarējis
+novaktēt. Tad ķēniņš izdomājis viltību, uzsējis savas meitas mazam sunītim uz
+muguras putraimu kulīti un atstājis tai galu vaļā. Ķēniņš zinājis, ka viņa meita
+bez sava sunīša nekur negājusi. Un kā tad! No rīta ķēniņš aizgājis pa izbirušo
+putraimu vagu uz cietumu. Nu viņš zinājis, uz kurieni meita pa naktim iet.</p>
+
+<p align="JUSTIFY">Ķēniņš licis aizvest zaldātu uz savu pili, noņēmis tam visu, ko
+vien pie viņa atradis - arī šķiltavas - un licis zaldātu ieslodzīt pils torni un
+stingri apvaktēt. Ķēniņš sasaucis augsto tiesu un nospriedis zaldātam nāvi.</p>
+
+<p align="JUSTIFY">Zaldātu otrā dienā jau veduši pie karātavām, bet viņš bijis
+gluži mierīgs. Nakti priekš soda dienas, ķēniņa meita nozagusi savam tēvam
+zaldātam noņemtās šķiltavas un atdevusi tās zaldātam. Zaldātu aizveduši pie
+karātavām un bende tam jau uzmaucis cilpu kaklā. Ķēniņš jautājis zaldātam, kāda
+viņa pēdējā vēlēšanās. Zaldāts lūdzis, lai atļauj tam uzpīpēt, un ķēniņš
+atļāvis arī. Zaldāts izvilcis no kabatas pīpi un šķiltavas. Kad nu viņš trešo
+reiz šķīlis, visi trīs suņi bijuši klāt un prasījuši zaldātam, kā vajagot.
+Zaldāts licis suņiem sevi atsvabināt un viņa vietā, pie karātavām, aizvest pašu
+ķēniņu. Tas bijis tik redzējiens - zaldāts bijis brīvībā un viņa vietā pie
+karātavām stāvējis ķēniņš. Zaldāts beidzot licis arī ķēniņu atsvabināt. Arī
+to suņi izdarījuši.</p>
+
+<p align="JUSTIFY">Ķēniņš nu arī atdevis zaldātam savu meitu par sievu un pēc
+ķēniņa nāves, zaldāts valdījis par viņa pili un zemi, un dzīvojis laimīgi.</p>
+
+<p>Piezīme. Sal. iepriekšējā varianta piezīmi. P. Š.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,308 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Raganas šķiltavas.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">10. A. 562. 575. H. Skujiņa, Andrs Ziemelis,
+Aumeisteros.</font></p><font size="3">
+
+<p align="JUSTIFY">Viens zaldāts nācis no dienesta. Viņš bijis divdesmitpieci gadi
+nokalpojis un nu bijis brīvs. Zaldāts bijis traki priecīgs un ziņģēdams gājis pa
+ceļu. Zaldāts iegājis lielā mežā un tur redzējis, ka veca vecene raušas pa kārti
+augstā klintī. Zaldāts piegājis klāt un teicis: "Labdien, vecā māt', ko tu nu
+mokies?"</p>
+
+<p align="JUSTIFY">"Labdien, labdien, dēlī', tā jau nu vecam un stāvam
+jāmokās," atbildējusi vecene un 1aidusies pa kārti lejā.</p>
+
+<p align="JUSTIFY">Nu zaldāts sācis ar veceni runāties, un šī tam ņēmusies
+stāstīt: "Tu gan, dēlī', varēji uzrausties manā vietā tai klintī, tev jau tie
+kauli ir vieglāki. Uz klints ir ala. Tu nu nolaidies alā un tur būs četri kambari.
+Pirmā kambarī būs liela lāde pilna ar kapara naudu, un uz tās sēdēs liels suns.
+Otrā kambarī būs atkal liela lāde, pilna ar sudraba naudu, un uz tās vāka tupēs
+tāds suns, kuram būs tik lielas acis, kā vērpjamā ratiņa rats. Trešā kambarī būs
+atkal liela lāde un uz tās vāka tupēs tik liels suns, kuram acis ir tik lielas, kā
+vāģu rati. Ceturtā kambarī būs liels garš skapis un aiz tā zemē būs mazas
+šķiltavas. Tās šķiltavas tu man atnes! Es, redzi, pīpēju un man vienādi vajaga
+uguns. Naudu tu vari ņemt, cik vien tev patīk. Te, lūk, ir mans priekšauts, to tu
+noklāj zemē un uz tā uzcel suni. Tad tev neviens nekā nevarēs padarīt, kad tev mans
+priekšauts būs."</p>
+
+<p align="JUSTIFY">Nu vecene noraisījusi priekšautu un iedevusi zaldātam. Zaldāts
+uzrausies pa kārti pašā klints galā. Tur patiesi bijusi dziļa ala, zaldāts laidies
+tur iekšā un nolaidies apakšzemes pagrabā. Zaldāts iegājis pirmā kambarī, kur
+bijusi liela lāde, un uz tās vāka tupējis suns. Zaldāts noklājis priekšautu zemē,
+uzcēlis uz tā suni un pavēris lādes vāku. Lāde bijusi pilna ar kapara naudu.
+Zaldāts tik bēris naudu ķešās. Tad tas nolaidis lādes vāku, uzcēlis uz vāka suni
+un gājis otrā kambarī. Tur atkal bijusi liela lāde un uz tās vāka tupējis liels
+suns un tam bijušas tik lielas acis kā vērpjamā ratiņa rati. Zaldāts noklājis
+priekšautu zemē, uzcēlis uz tā suni un pavēris lādes vāku. Lāde bijusi pilna ar
+sidraba naudu. Zaldāts bēris naudu ķešās un atkal aizvēris lādes vāku. Nu viņš
+uzcēlis suni atpakaļ uz lādes vāka un gājis trešā kambarī. Tur atkal bijusi liela
+lāde un uz tās vāka tupējis liels liels suns, un tam bijušas tik lielas acis, kā
+vāģu rati. Zaldāts noklājis priekšautu zemē, uzcēlis uz tā lielo suni un tad
+cēlis lādes vāku augšā. Lāde bijusi pilna ar zelta naudu. Nu zaldāts bēris naudu,
+kur vien maz varēdams. Kad visas maliņas bijušas pilnas ar naudu, tad zaldāts
+aiztaisījis lādes vāku cieti, uzcēlis suni atpakaļ un skrējis ārā. Viņš no
+lieliem priekiem aizmirsis šķiltavas paņemt. Zaldāts rausies pa alu augšā. Bet
+augšā to gaidījusi vecene un prasījusi, lai dodot šķiltavas. Nu tik zaldāts
+iedomājies, ka viņš aizmirsis šķiltavas. Viņš nu sacījis: "Vai, vecā māt',
+es pavisam aizmirsu šķiltavas. Nu jālaižas otrreiz alā iekšā un jāiet pēc
+šķiltavām."</p>
+
+<p align="JUSTIFY">Zaldāts laidies atkal alā iekšā, iegājis ceturtā kambarī un aiz
+skapja atradis mazas šķiltavas. Tās viņš iebāzis ķešā un gājis ārā. Bet nu
+suņi ar bijuši tik laimīgi, tik laimīgi, skatījušies uz zaldātu un astes vien
+luncinājuši.</p>
+
+<p align="JUSTIFY">"Hm!" nodomājis zaldāts, "Vecene ir ragana. Kādeļ
+gan viņai vajaga nieka šķiltavas, ka te ir tīras naudas tik, cik uziet? Šķiltavām
+vajaga būt apburtām. Tās man pašam jāpatura!"</p>
+
+<p align="JUSTIFY">Zaldāts nu nospriedis šķiltavas vecenei nedot un to pašu nokaut.
+Viņš rausies pa alu augšā, un pie cauruma to sagaidījusi vecene.</p>
+
+<p>"Nu, vai tev šķiltavas ir rokā?" prasījusi vecene.</p>
+
+<p align="JUSTIFY">"Jā, dabūju gan rokā!" - atbildējis zaldāts, izrausies
+no alas, izrāvis zobenu un nocirtis vecenei galvu.</p>
+
+<p align="JUSTIFY">Nu zaldāts nokauto veceni iekasis sūnās, pa kārti nolaidies no
+klints un gājis tālāk savu ceļu.</p>
+
+<p align="JUSTIFY">Pirmā pilsētā zaldāts apmeties uz dzīvi. Viņš nu bijis traki
+bagāts un licis sev uzcelt lepnu pili. Nu zaldāts dzīvojis lepnā pilī un draugu tam
+netrūcis. Reiz pie viņa atnākuši trīs amatnieki un sacījuši tā: "Mēs tev
+iztaisīsim trīs brīnuma lietas."</p>
+
+<p>"Nu kādas tad?" prasījis zaldāts.</p>
+
+<p align="JUSTIFY">"Es tev izšūšu tādus svārkus, kurus tu uzvilksi un paliksi
+neredzams," sacījis pirmais amatnieks, skrodelis.</p>
+
+<p align="JUSTIFY">"Es tev iztaisīšu tādu mazu vanniņu, kuru tu varēsi uz delnas
+nēsāt, bet kad liesi viņā ūdeni, tad viņa pletīsies tik lielāka un lielāka un
+divpadsmit vīri viņā mazgāsies," sacījis otrs amatnieks, kas bijis traucenieks.</p>
+
+<p align="JUSTIFY">"Bet es tev iztaisīšu tādu zirgu, kas pa gaisu skrien,"
+sacījis trešais amatnieks.</p>
+
+<p align="JUSTIFY">Zaldāts bijis ar mieru. Visi trīs amatnieki norunājuši tā:
+"Visām trim lietām vajaga būt gatavām pēc trīs dienām. Kurš nu savu lietu
+nevarēs atnest zaldātam trešā dienā priekš saules noiešanas, tad tam būs
+nāve."</p>
+
+<p align="JUSTIFY">Trešā dienā pirmais atnācis skrodelis un atnesis svārkus. Zaldāts
+uzvilcis jaunos svārkus un nu to neviens vairs nevarējis redzēt, kad tas staigājis
+jaunos svārkos. Otrs atnācis traucenieks un tas atnesis mazo vanniņu. Vanniņa bijusi
+tik maza, kā krietna viņa delna. Bet tiklīdz vanniņā sākuši liet ūdeni, viņa
+pletusies lielāka un lielāka, kamēr izpletusies tik liela, ka divpadsmit cilvēki
+varējuši viņā mazgāties. Saule jau gājusi nost, bet trešā amatnieka vēl ne jutin.
+Nu beidzot arī tas skrējis aizelsies un stiepis lielu maisu. Viņš nu krāmējis no
+maisa ārā dažādus daiktus un gabalus, licis tos kopā un skrūvējis. Kad zirgs bijis
+salikts, tad zaldāts uzsēdies zirgam mugurā un skrūvējis skrūvējis, kamēr zirgs
+sācis celties augstāk un augstāk. Nu jau zaldāts pacēlies tik augstu, ka jau varējis
+redzēt aiz jūras lepnu pili ar zelta torņiem.</p>
+
+<p align="JUSTIFY">Nu zaldāts sācis ar saviem draugiem lepni uzdzīvot. Drīz vien
+zaldātam sācis aptrūkt naudas. Draugi aizgājuši un zaldāts palicis viens.</p>
+
+<p align="JUSTIFY">Nu zaldāts kāpis savam koka zirgam mugurā un 1aidies pār jūru uz
+lepno ķēniņa pili ar zelta torņiem. Tur nu viņš redzējis, ka pils divpadsmitā
+stāvā, torņa istabā sēd varen smuka princese. Zaldāts paklanījies pret princesi un
+laidies atkal atpakaļ. Otrā dienā zaldāts atkal laidies gar pili, kur torņa istabā
+sēdējusi skaistā princese. Nu vairs zaldāts nelaidies atpakaļ uz savu veco pusi, bet
+apmeties pie zvejnieka jūrmalā. Savu koka zirgu zaldāts izjaucis un visus daiktus
+sabāzis maisā. Zvejnieks prasījis, kas šim tai maisā esot. Zaldāts atbildējis, ka
+tur esot kurpnieka lietas. Bet kādeļ tad šis nestrādājot kurpnieka darbu, prasījis
+zvejnieks. Nu zaldāts sacījis, ka šis pašreiz esot slims un nevarot strādāt.</p>
+
+<p align="JUSTIFY">Zaldāts dzīvojis pie zvejnieka un visu izdibinājis par ķēniņu un
+skaisto princesi. Ar skaisto princesi, lūk bijis tā: Viņai pareģe pareģojusi kauna
+dzīvi. Ķēniņš par to traki noskumis un licis princesi ieslēgt torņa istabā un
+neviena vīrieša tai nelaist tuvumā. Pats ķēniņš nesis princesei ēdienu un vecā
+aukle to apkopusi. Tā princese dzīvojusi sava torņa istabā un tā bijusi astoņpadsmit
+gadu veca un tik skaista, ka grūti tādu sameklēt.</p>
+
+<p align="JUSTIFY">Kad zaldāts trešo reizi uz sava zirga laidies gar torņa istabas
+logu, tad princese tam metusi ar roku un zaldāts ar visu zirgu ielaidies torņa istabā.</p>
+
+<p align="JUSTIFY">Nu zaldāts katru vakaru laidies uz torņa istabu un palicis pie
+princeses visu nakti. No rītiem tas atkal aizlaidies uz jūrmalu. Bet nu zaldātam vairs
+nebijis nemaz naudas. Viņš vienu dienu bēdīgs staigājis gar jūrmalu. Nejauši tam
+iekritušas prātā šķiltavas, kuras tās iznesis no apakšzemes pagraba. Zaldāts
+izvilcis šķiltavas un šķīlis. Kad zaldāts trešo reiz šķīlis, tad visi trīs
+apakšzemes pagraba suņi bijuši klāt un prasījuši: "Ko kungs vēlas?"</p>
+
+<p align="JUSTIFY">Nu zaldāts brīnējies ne mazos brīnumus un prasījis suņiem, ko
+viņi var izdarīt un no kurienes tie ir. Suņi stāstījuši, ka tie esot no apakšzemes
+pagraba un varot nest un piegādāt savam kungam visu, ko vien viņš pavēlēšot. Nu
+zaldāts teicis, vai suņi tam nevarot atnest naudas. Jā, suņi varējuši naudu atnest
+un tūliņ arī aizskrējuši.</p>
+
+<p align="JUSTIFY">Drīz vien suņi bijuši atkal atpakaļ un stiepuši naudu. Mazākais
+suns nesis kapara naudu, vidējais sidraba un lielais zelta naudu. Tad vēl suņi
+teikuši, ka ceturtā kambarī, lielajā skapī esot daudz pērļu un dārgakmeņu. Tos
+arī viņi varot atnest zaldātam. Nē, pērļu un dārgakmeņu pašlaik zaldātam
+nevajadzējis. Nu zaldāts aizmaksājis zvejniekam par rūmi un ēdienu. Viņš bijis
+traki laimīgs un tūliņ aizlaidies pie princeses. Nu zaldāts palicis pie princeses
+cauras dienas un naktis. Viņš tur nodzīvojis trīs mēneši.</p>
+
+<p align="JUSTIFY">Bet nu princesei vajadzējis daudz vairāk ēdiena un vecā aukle
+nesusi to, jo arī zaldātam bijis no tā paša jāpārtiek. Princese palikusi resnāka un
+resnāka. Viņa bijusi mātes cerības. Kad ķēniņš to dabūjis zināt, tad viņš
+sūtījis veco aukli pēc vecmātes, lai tā izmeklē, vai princese nav uz grūtām
+kājām. Nu princese paslēpusi zaldātu pagultē. Atnākusi vecmāte un izlūkojusi
+princesi - kā tad, tā bijusi uz grūtām kājām. Nu ķēniņš sācis prašņāt, kā
+tas gadījies, un princese beidzot arī izstāstījusi, kā viss bijis un ka svešs
+princis pa gaisu pie viņas ielaidies.</p>
+
+<p align="JUSTIFY">Ķēniņš nu sācis meklēt pa visu valsti tādu cilvēku, kas mākot
+pa gaisu skriet. Nekur viņš tāda nevarējis atrast. Tad nu ķēniņš izdomājis viltu
+un uzstādījis istabas logā tādu slazdu, kas gan no āra laiž iekšā, bet no iekšas
+ārā nelaiž.</p>
+
+<p align="JUSTIFY">Tikko ķēniņš bijis slazdu ielicis logā, kā arī zaldāts
+ielaidies iekšā. Viņš palicis pie princeses visu nakti un no rīta gribējis atkal
+prom laisties, bet nu slazds bijis priekšā. Par laimi zirgs bijis stiprs, izrāvis visu
+slazdu no loga un aiznesis pa gaisu. Bet kā par nelaimi slazda āķis palicis pie loga un
+tas zaldātam ārā skrienot, izrāvis no kājas ikra lielu gabalu gaļas un ar visu
+bikšu staru palicis karājoties. Nācis ķēniņš un atradis bikšu staru un gaļas
+gabalu. Nu viņš sācis meklēt vainīgo. Viņš izgājis visas pilis un augstmaņu
+mājas, bet vainīga neatradis. Tad ķēniņš sācis iet no mājas uz māju. Beidzot
+ķēniņš ienācis arī zvejnieka mājā, un tur uzgājis vainīgo. Zaldāta saplēstās
+bikses karājušās uz vadža un ikrs ar bijis izrauts. Nu ķēniņš pārskaities, licis
+zaldātu ņemt ciet. Zaldāts paņēmis līdz savu zirgu, kas bijis izjaukts un maisā
+sabāzts. Ķēniņš prasījis, kas viņam tai maisā esot? Zaldāts atbildējis, ka tur
+esot kurpnieka liestes. Nu, tās varot ņemt līdz. Zaldātu iesvieduši cietumā un
+ķēniņš tam nospriedis nāves sodu.</p>
+
+<p align="JUSTIFY">Pa priekšu veduši uz karātavām zaldātu, pieveduši un likuši
+uzgaidīt. Tad braukusi kariete un viņā veduši princesi, kurai arī bijusi nospriesta
+nāve. Abus gribējuši reizē pakārt. Nu zaldāts kliedzis uz ķēniņu: "Laid man
+uzpīpēt!"</p>
+
+<p align="JUSTIFY">"Nu, pīpē pīpē ar vēl pēdīgo reizi," - atbildējis
+smiedamies ķēniņš.</p>
+
+<p>Zaldāts izvilcis no ķešas šķiltavas un šķīlis trīs reiz. Tūliņ visi trīs
+suņi bijuši klāt un prasījuši: "Ko kungs vēlas?"</p>
+
+<p>"Izpuriniet labi krietni pašu ķēniņu un viņa sulaiņus!"</p>
+
+<p align="JUSTIFY">Suņi nu arī tūliņ sagrābuši pašu ķēniņu un sulaiņus un
+purinājuši tos bez žēlastības. Zaldāts salicis savu koka zirgu, uzsēdies pats un
+uzsēdinājis princesi un aizlaidies.</p>
+
+<p align="JUSTIFY">Zaldāts aizlaidies uz savu veco vietu. Tur nu viņš apmeties un licis
+suņiem atnest no apakšzemes pagraba visu naudu, pērles un dārgakmeņus. Nu viņš
+bijis bez gala bagāts. Beidzot zaldāts nopircis no ķēniņa visu zemi un pili. Nu
+viņš dzīvojot laimīgi ar savu princesi, ja vien no liela vecuma jau neesot nomiris.</p>
+</font>
+
+
+</body></html>

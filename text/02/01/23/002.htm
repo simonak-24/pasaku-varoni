@@ -1,0 +1,132 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Novaktētā ragana.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>2. A. </b>306. Āboliņu Jānis Rūjienā. LP, V, 1, 35. </p>
+
+<p align="JUSTIFY">Kādreiz dzīvoja pie saimnieka velna apsēsta meita. Saimniece katru
+dienu viņai iedod jaunas drēbes, bet no rīta plika kā plika. Kur par nakti
+vazājusies, kur ne? Beidzot saimniece liek puisim meitu sargāt - puisis nenosargā.
+Otrā naktī liek otram puisim sargāt - tas arī nenosargā.</p>
+
+<p align="JUSTIFY">Trešo nakti liks vecītim. sargāt. Bet vecītis paliek nomodā un
+redz, ka meita aiziet caur lopu laidaru uz mežu. Vecītis steidz paka&amp;127; un panāk
+meitu kapara birzē. Te vecītis norauj no koka lapu, ka mežs vien atskan un paglabā
+ādas somā. Aiz kapara birzes meita ieiet velna mājā; bet vecītis arī ieiet
+paka&amp;127; un palien apakš galda. Meita ēda un dzēra un tad sāka dancot. Sanāca
+daudz velnu un tie noplēsa meitai drēbes skrandu skrandās. Vecītis salasa visas
+skrandas un steidzās mājā.</p>
+
+<p>No rīta saimniece vaicā: "Vai nosargāji meitu?" "Nosargāju - ače,
+te kapara lapa, ko birzē rāvu, un skrandas, ko velni plēsa." ..</p>
+
+<p align="JUSTIFY">No tās dienas velns atstāja meitu, tādēļ ka lapa trūka birzē un
+vecītis skrandas plānā (grīdā) bij salasījis.</p>
+
+
+</body></html>

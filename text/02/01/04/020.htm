@@ -1,0 +1,402 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>20</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Varonis izglābj trīs nolaupītas princeses.</p>
+</b></font><font size="4">
+
+<p align="JUSTIFY">&nbsp;</p>
+</font>
+
+<p align="JUSTIFY">20. A. 301 A. M. Novads Oktē pie Talsiem. LP, VII, II, 19, IV, 9.</p>
+
+<p align="JUSTIFY">Vienam ķēniņam trīs dēli: divi gudri, viens muļķis. Un
+ķēniņam ik naktis izzaga vienu zirgu. Viņš sūtīja gudros dēlus zirgus sargāt, bet
+tikpat - kā nozaga, tā nozaga. Trešo nakti gāja muļķis sargāt. Labi - viņš
+apsēžas kalnā un gaida. Gaida, gaida - sāks tikai šim mēness skaidrums (gaišums)
+spīdēt acīs un tūlin tik salds miegs, tik salds miegs, ka nemaz atkauties. Cits nekas
+neatliekas -- jāceļas augšā un bijis.</p>
+
+<p align="JUSTIFY">Jāapsēžas citā vietā. Līdz tad labi arī apsēdies, te taisās
+staļļa durvis vaļā un liels, liels, balts lācis čāpo iekšā, paņem vislabāko
+zirgu aizved projām un pazūd liela akmeņa apakšā.</p>
+
+<p align="JUSTIFY">Rītā muļķis to pasaka tēvam un liek akmeni aizvelt. Aizveļ</p>
+
+<p align="JUSTIFY">akmeni, atrod dziļu alu. Nu muļķis kaldina simtpiecdesmit asu gaŗas
+važas, divpadsmit podu smagu vāli, iesienas šinīs važās un laižas pa caurumu
+dibinā pieteikdams, ja važas apakšā kustināšot, tad lai tēva darbinieki velkot
+viņu augšup. Ielaidās dibinā, vēl divas asis pietrūka važām no gaŗuma. Neko
+darīt - nolēca to trūķumu tiesu tāpat zemē. Nu, un tā nu viņš iet, iet - atron
+trīs krusta ceļus. Sadomā - staigās pa to, kas tiešām aiziet. Labi. Iet atkal
+puscēlienu, atrod sudraba pili un pili simtu istabu.</p>
+
+<p align="JUSTIFY">Izstaigājas pa istabām, atron beidzamā jaunu meitu. Tā tūlin:
+"Muļķi, Muļķi, ko tu te meklē?"</p>
+
+<p align="JUSTIFY">"Sava tēva zirgus meklēju?" šis atbild.</p>
+
+<p align="JUSTIFY">"Viss labi, viss labi! bet ar balto lāci tu neiesāc. Es gan neko
+tuvāki nevaru par viņu tev izstāstīt. Ej pie manas jaunākās māsas, tā tev
+izstāstīs."</p>
+
+<p align="JUSTIFY">"Cik tālu tad tas ir no šejienes!"</p>
+
+<p align="JUSTIFY">"Būs veršku desmit, bet iekāms aizej, še tev šis sudraba</p>
+
+<p align="JUSTIFY">ābols no manis."</p>
+
+<p align="JUSTIFY">Muļķis paņēma sudraba ābolu un aizgāja pie jaunākās māsas</p>
+
+<p align="JUSTIFY">zelta pilī. Tai pilij bija divisimti istabu. Izstaigāja istabas,
+atrada beidzamajā jaunāko meitu. Tā saka: "Tu, Muļki! Ko tu te</p>
+
+<p align="JUSTIFY">meklē?" "Sava tēva zirgus meklēju!"</p>
+
+<p align="JUSTIFY">"Viss labi, viss labi! bet ar balto lāci tu neiesāc. Es gan</p>
+
+<p align="JUSTIFY">neko tuvāki nevaru par viņu tev izstāstīt. Ej pie manas
+visjaunākās māsas, tā tev izstāstīs."</p>
+
+<p align="JUSTIFY">"Cik tālu tas ir no šejienes?"</p>
+
+<p align="JUSTIFY">"Būs jūdžu piecdesmit; bet iekāms aizej, še tev šis zelta
+ābols no manis!"</p>
+
+<p align="JUSTIFY">Muļķis paņēma zelta ābolu ,un aizgāja pie visjaunākās māsas.</p>
+
+<p align="JUSTIFY">dimanta pilī. Tai pilij bija trīssimti istabu un tūlin pa pirmās
+istabas durvim iznāca visjaunākā pretim sacīdama: "Muļķi, Vi! Ko tu te
+meklē?"</p>
+
+<p align="JUSTIFY">"Sava tēva zirgus meklēju!"</p>
+
+<p align="JUSTIFY">"Viss labi, viss labi! bet ar balto lāci neiesāc. Viņš ir
+sešdesmit asu gaŗumā, piecdesmit asu augstumā, viņa vilna ir tik bieza un liela, ka
+tu tur vari paslēpties. Bet ja tu domā ar viņu tomēr cīnīties, tad gaidi to
+apguļamies. Gulošam lien pa balto galvu uz augšu vien, uz augšu vien līdz labai
+ausij. Ausī tas paglabājis pagraba atslēgu. Paņem atslēgu, lien zemē, noej uz
+pagrabu, atslēdz durvis - tur būs divas kublas : pa labi roki taī kublā ir stipruma
+dzēriens, pa kreisi nestipruma. Pārmaini tās kublas un nodzeries no stipruma dzēriena
+trīs reizes, ne vairāk, ne mazāk! Ja dzersi mazāk, neradīsies spēki, cik cīņā
+vajadzīgs; ja dzersi vairāk, zudīs tie paši spēki, kas tev jau bija. Visu to
+padarījis, atliec atslēgu atpakaļ ausī. Nu, un tagad posies pie darba, bet iekāms
+aizej, še tev šis dimanta ābols no manis!"</p>
+
+<p align="JUSTIFY">Tās ziņas savācis, Muļķis negozējās vairs, uzmanīgi vēroja
+balto lāci pārnākam un gaidīja to apgulstamies. Pārnāca, apgulās - kas tas par
+lāci! Kalns, kas kalns! Ar sniegu apsnidzis kalns! Drīzāk, nudien, pēc tāda tas
+izskatījās, ne pēc redzēta zvēra. Kad bija nogulies, aizmidzis, Muļķis uzkāpa pa
+balto lāča galvu līdz ausij, izņēma ats1ēgu, atslēdza pagrabu, nodzērās trīs
+malkus, pārmainīja kublas, atlika atslēgu ausī apakaļ un tad savēcināja savu
+divpadsmit podu smago vāli, lai gāztu jau vienreiz lācim pa pieri. Savēcinādams pats
+tagad manīja, ka no dzēruma spēki gadījušies milzīgums klāt. Smagā vāle likās
+kā paija, tik viegla. Ja, un tā nu gāza lācim pa pieri, bet lācis, par tādu
+zvēlienu vien, drusku, drusku tikai pakustējās, iesaukdamies: Tiš dunduri, ko tu man
+kod!" " '</p>
+
+<p align="JUSTIFY">Muļķis redzēja: paure tam par cietu! palīda tālabad zemāk un
+sāka velēt pa sāniem milža lāci. Velēja, velēja - jau iesita vienu ribu. Kā iesita
+ribu - lācis briesmīgi piktumā ierūcas un uzlec stāvus. Uzlec stāvus, pagriež galvu
+atpakaļ - ierauga Muļķi ar vāli. Tā mans lācis pilnā kaklā: ,,Čurmuli, ko iesāc
+ar mani? Nu labi tev neklāsies!"</p>
+
+<p align="JUSTIFY">Muļķis atsaka droši: "Lai klājas, kā klādamies, kaut tikai
+dabūtu nodzerties!"</p>
+
+<p align="JUSTIFY">Līdz šis iebildis to vārdu "nodzerties", tūlin lācim,
+vadzi, siekalas vien tek pēc stipruma dzēriena tur pagrabā. Nu sader pamieru un ies abi
+tempt. Ieiet pagrabā - lācis kā nesātis pie tās kublas klāt, kur pirmīt stipruma
+dzēriens bijis, bet tagad nestipruma. Lācis dzeŗ, dzeŗ - trīs briesmīgus kluncienus
+vienu pakaļ otra; bet Muļķītis izliekas dzeŗam! - viņš sadzēries savus trīs
+malkus, ko viņš vairāk ies dzert? Un kā tad arī baltais nodzēries, tūlin acim
+redzot palicis vājāks, mazākais par pusi, var teikt vājāks.</p>
+
+<p align="JUSTIFY">Sākuši nu kauties. Muļķim viens paņēmiens. Kā deva ar vāli pa
+priekškājām - kāju dilbi krustim pušu, lācis saklupa un nu to nogalināja vieg1i.
+Nu, ko nu vairs bēdāt? Tūlin paņem visas trīs meitas un ved pie cauruma, lai velk
+augšā. Uzvelk meitas, nu būtu jāsēžas Muļķim važās, bet viņam itin. piepēži
+iešaujas prātā: "Kas var zināt, tādi pārgalvnieka vilcēji, varbūt mani pavelk
+pa pusei un tad laiž atpakaļ, lai krizdams nositos? Siešu tādēļ akmeni važās, tad
+pieredzēšu, kas viņiem prātā."</p>
+
+<p align="JUSTIFY">Iesēja akmeni -- un patiesi! - akmens pa pusei uzvilkts, griezdamies
+vēlās atpakaļ. Ak tavi cilvēki! par varu izsalkuši pēc Muļķīša dzīvības! - bet
+nu par laimi neizdevās.</p>
+
+<p align="JUSTIFY">,la, un tā. nu Muļķis, apakšā pamests, prātoja: "Ko nu
+darīt? Augšup tikt vairs nevar, jārauga tepat apskatīties."</p>
+
+<p align="JUSTIFY">Viņš iet atpakaļ pa tām pašām pēdām līdz krusta ceļiem. Noiet
+tur - sadomā - griezīsies pa kreisi roki, pa to ceļu. 3et nu nav cēlienu gājis -
+gadās mežs, meža vidū klajums, klajumā milzu ozols, milzu ozolā lizds, lizdā
+ērglēni. Domā, kur nu tālāki ies? Drīzi aptumsīs - pārgulēs tā paša ozola
+kuplos zaros. Labi. Guļ, guļ - varēja tā ap pusnakti būt - dzird šņācam.
+Paskatīsies labi - redz: liela čūska rāpjas ozolā un galvu vien kārsta pēc
+ērglēniem. Tā viņš paķers savu divpadsmit podu smago vāli un kā knābs čūskai pa
+purnu - gatavā bija. Un to viņai arī patiesi vajadzēja, ko šī tur meklē, tāda
+putnu rijēja! Gaismā pārskries nu ērgliene - tā tūlin taujāt taujā bērniem:
+"Kas te par svešu smaku? Kas to milzu čūsku patērējis?"</p>
+
+<p align="JUSTIFY">Bērni atbild: ,,Te ozola zaros gul Muļķis, tas to čūsku ar vāli
+vien patērēja."</p>
+
+<p align="JUSTIFY">"Lai tad viņš izguļas, lai!"</p>
+
+<p align="JUSTIFY">Neilgi pēc ērglienes pārskrien ērglis pats: "Kas te par svešu
+smaku? Kas to čūsku kāvis?"</p>
+
+<p align="JUSTIFY">"Ozola zaros guļ Muļķis. tas ar savu vāli čūsku
+nokāva!" To dzirdēdams, ērglis priekā aicināja Muļķi : "Nāc šurp,
+Muļķi! Kādu labumu vēlies no manis par to, ka izglābi manus bērnus no
+čūskas?"</p>
+
+<p align="JUSTIFY">"Cita labuma nevēlos - iznes mani no šejienes virszemē, ja esi
+varbūt tik spēkots."</p>
+
+<p align="JUSTIFY">"Esmu gan, to labprāt darīšu; es tevi nesīšu pār tālo
+jūŗa uz tavu zemi!"</p>
+
+<p align="JUSTIFY">"Labi, labi!" Muļķis atteica, "bet ļauj man tevi
+drusku pār baudīt, tad redzēšu, vai cietīsi, </p>
+
+<p align="JUSTIFY">jeb necietīsi mani pār jūŗu nest." To teicis, tas zvēla reiz
+ar divpadsmit podu smago vāli </p>
+
+<p align="JUSTIFY">ērglirrr tiešām, pa ribām, ka nokrakšķēja vien, bet vāle
+atlēca no ērgļa miesām ar tādu sparu, ka jādomā, akmenim sitis, ne putnam. Ērglis,
+kā likās, maz juta sitienu, tomēr iepīkt iepīka gan, atšņākdams: "Ar mani tu
+neiesāc! Neesmu baltais lācis, deri labāk mieru!"</p>
+
+<p align="JUSTIFY">Saderēja mieru. Nu ērglis sacīja: "Ja tu man apgādā
+divpadsmit vātis vīna un divpadsmit labi baŗotus vēršus, tad spēšu tevi aiznest
+pār tālo jūŗu.</p>
+
+<p align="JUSTIFY">Neko darīt - bija jāiet vīns un vērši saraudzīt. Gāja, aizgāja
+jūŗas malā pie zvejnieka. Zvejnieks sacīja: "Līgsti pie manis par puisi; ja
+kalposi krietni, izkalposi gan vīnu, gan vēršus.'`</p>
+
+<p align="JUSTIFY">Labi. Salīga. Un vienu dienu Muļķim bija jābrauc ar zvejnieka
+reņģēm uz pilsētu. Aizbrauc pilsētā - visi ļaudis sauc : "Nelāgi, nelāgi! `</p>
+
+<p align="JUSTIFY">"Kas par nelāgumu?" Muļķis vaicāja.</p>
+
+<p align="JUSTIFY">Tie atbild: "Kā nebūs nelāgi? Rītu ķēniņa vecāko meitu
+atdos velnam !</p>
+
+<p align="JUSTIFY">Muļķis nosaka: "To tikai ne - meitu velnam atdot!" un
+aiziet naktī velnu gaidīt. Tur bijis viens tilts; apakš tā Muļkis palien, velnu
+gaidīdams. Gaida, gaida - te ap pusnakti nāks velns ar trijām galvām un suņi tam
+skrien pa priekšu. Atskrien suņi pie tilta, apstājas - neiet pāri, bet velns tūdalin
+pilnā kaklā: "Muļķi, lien ārā no patilta! Ja ne - labi neklāsies."</p>
+
+<p align="JUSTIFY">Muļķis iznāk no tilta apakšas un kā deva ar vāli vienreiz suņiem
+- suņi beigti, kā deva otrreiz velnam - velns arī beigts. Tā nu ķēniņa meita
+glābta un Muļķis smaidīdams iet uz māju.</p>
+
+<p align="JUSTIFY">Citā dienā Muļķis atkal brauc uz to pašu pilsētu un dzird visi
+ļaudis sauc: "Nelāgi, nelāgi!"</p>
+
+<p align="JUSTIFY">"Kas par nelāgumu?"</p>
+
+<p align="JUSTIFY">"Ja, rītu vidējo ķēniņa meitu atdos velnam!" "</p>
+
+<p align="JUSTIFY">To tikai ne!" Muļķis atbild un nosit pie tilta arī otru velnu
+ar sešām galvām.</p>
+
+<p align="JUSTIFY">Ne cik ilgi pēc tam Muļķis atkal brauca ar reņģēm uz to pašu
+pilsētu un dzird, visi ļaudis sauc: "Nelāgi. nelāgi! Pavisam nelāgi!" .
+" g</p>
+
+<p align="JUSTIFY">"Kas par nelāgumu?'`</p>
+
+<p align="JUSTIFY">"Ja, rītu mums jāatdod ķēniņa jaunākā meita velnam!"</p>
+
+<p align="JUSTIFY">"To tikai ne - meitu velnam atdot!" un aiziet naktī velnu
+gaidīt. Ap pusnakti nāks velns ar divpadsmit galvām un uguns skrien tam pa priekšu.
+Uguns atnāk pie tilta - neiet pāri un velns sauc pilnā kaklā: "Muļķi, lien
+ārā no patilta! Ja ne - labi neklāsies.</p>
+
+<p align="JUSTIFY">Muļķis iznāk gan no patilta, bet velnam nekā klāt tikt, uguns
+priekšā. Neko darīt - norāva Muļķis sev visas drēbes, pārklāja uguni un bradāja,
+mīņāja ar kājām tik ilgi, kamēr nodzēsa to. Apdzēsa uguni, nu pacēla vāli un
+gāza velnam tā, lai visas divpadsmit galvas uz reizi izput. Nogalinājis velnu, viņš
+smaidīdams</p>
+
+<p align="JUSTIFY">iet pilsētā atpakaļ un saka ķēniņam: "Nu tavas meitas visas
+glābtas!"</p>
+
+<p align="JUSTIFY">Ķēniņš - to tikai var saprast - priecīgs bez gala un solās
+Muļķim dot, ko tikai vēlas, pat arī visu pilsētu un jaunāko meitu par sievu; bet
+Muļķis cita nekā negrib, kā tikai divpadsmit vātis ar vīnu, divpadsmit baŗotus
+vēršus. Labi - dabūja vēršus, dabūja vīnu un iet pie ērgļa apgādāts. Ērglis
+liek uzkŗaut gaļu sev mugurā pa kreisi, vīnu pa labi, Muļķim liek nosēsties vidū
+un tad piesaka tā: "Ja es galvu pagriezīšu uz kreiso pusi, tad iemet man gaļas
+gabalu knāblī, ja uz labo pusi, tad sniedz man vīnu nodzerties!"</p>
+
+<p align="JUSTIFY">Labi. Un nu ērglis pacēlās gaisā un skrēja pār jūŗu vien, pār
+jūŗu vien, dienām un naktim. Tikmēr skrien - aptrūkst gaļa, aptrūkst vīns; šis
+griež galvu uz vienu pusi - nav ko dot, griež uz otru pusi - nav ko dot un nu paliek
+arvien nespēcīgāks, kamēr turpat jau slīkst gandrīz jūŗā. Muļķis redz, labi
+neies griež sev pašam kājai ikrus ārā un met ērglim mutē. Tas aprijis kumosu,
+tūlin paceļas augstāku gaisā un nu var malu kaut cik jau blenst. Tagad Muļkim itin
+priecīgi jau metas ap sirdi:</p>
+
+<p align="JUSTIFY">Nu izmocīsies malā!" "</p>
+
+<p align="JUSTIFY">Bet nekā, kādu versti no malas ērglis krīt jūŗā iekšā. Par
+laimi tai vietā nebija dziļš ūdens vairs, abi izbrida malā sveiki, veseli. Izbrien
+malā, ērglis vaicā: "Kāpēc tu klibo?"</p>
+
+<p align="JUSTIFY">"Tā un tā - kājai nav ikru vairs - izgriezu tev par
+ēsmu." To padzirdējis, ērglis</p>
+
+<p align="JUSTIFY">appūš kājai pušumu, jēlums sadzīst, viss atkal labi. Nu Muļķis
+sarauga ērglim</p>
+
+<p align="JUSTIFY">atkal vēršus jūrmalas mežā, paēdina to krietni un tad abi
+šķiŗas: ērglis skrien</p>
+
+<p align="JUSTIFY">atpakaļ uz apakšzemi. Muļķis steidz pie sava tēva. Pāriet pie
+tēva, neviens to vairs nepazīst, tāpēc ka par apakšzemi ku1damies, ar
+divpadsmitgalvju velnu cīnīdamies, savas drēbes bija sadedzi nājis, uguni slāpēdams.</p>
+
+<p align="JUSTIFY">Ko viņš nu darīs? Sadomā: "Kad nl.l nepazīst, nepazīst mani
+neviens vairs - apmetīšos</p>
+
+<p align="JUSTIFY">tēva mež malā, vientuļā būdiņā par kurpnieku un dzīvošu
+klusumā, kamēr iešausies</p>
+
+<p align="JUSTIFY">cits kāds labāks darbs prātā."</p>
+
+<p align="JUSTIFY">Un tā nu šis dzīvo, dzīvo, te vienu dienu jaunākā māsa, no
+izglābtām meitām apakšzemē, raud un ilgojas pēc savām dimanta kurpēm, ko
+apakšzemē valkājusi. (Izglābtās meitas, visas trīs, bij pārvestas Muļķa tēva
+pilī.) Ķēniņš vaicā saviem c1ivi gudriem dēliem: "Vai tad pasaulē neviens
+nemāk tādas dimanta kurpes pataisīt?"</p>
+
+<p align="JUSTIFY">Gudrie atbild: "Diezin, kas to lai māk!"</p>
+
+<p align="JUSTIFY">Bet tur bija prātīgs sulainis, tas saka : "Es gan zinu vienu
+gudru prātīgu kurpnieku tepat mūsu mežmalā, kas zin, vai tas nemācēs?"</p>
+
+<p align="JUSTIFY">Jaunākā meita, to padzirdējusi, šauj tūlin projām uz mežmalu pie
+ieteiktā kurpnieka. Aiziet, sāks runāt - tas jau Muļķis, viņas glābējs. Šie
+pazīstas un tā tūlin viens otram gar kaklu. Abi tur sasveicinās - uz reizi Muļķis
+ieteiksies: "Tu gribēji savas dimanta kurpes? Te viņas ir, es viņas tā glabāju,
+tā glabāju, no apakšzemes līdz šai būdiņai tās sanēsāju klāt vien lai kur
+iedams, lai ko darīdams." '</p>
+
+<p align="JUSTIFY">Un nu Muļķis ar jaunāko meitu pāriet pie tēva un tēvs sarīko
+abiem kāzas. Kāzu rītā Muļķis visus izved dārzā pastaigaities. Kā šie nu staigā
+- Muļķis piepēži izvelk sudraba ābolu ko apakšzemē dabūjis - no kabatas un met pa
+kreiso roku -no sudraba ābola gadās skaista sudraba pils. Tad izņem. zelta ābolu, met
+pa labo roku - gadās zelta pils. Izņem dimanta ābolu, met pašā dārza vidā - gadās
+dimanta pils. Nu vecākais brālis apņem tai pašā dienā vecāko māsu no izglābtām
+meitām un dzīvo sudraba pilī; otrs brālis apņem vidējo māsu un dzīvo zelta pilī ;
+bet Muļķis ar savu līgavu, jaunāko māsu, dzīvo dārza vidū - dimanta pili.</p>
+
+
+</body></html>

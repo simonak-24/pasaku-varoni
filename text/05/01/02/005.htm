@@ -1,0 +1,191 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ceļotājs meklē laimi.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 460. 13. 1. V. Porietis, Sērpils Aizupēs, Rīg. Zin. Kom. kr.
+LP, VI, 303 (69).</p>
+
+<p align="JUSTIFY">Kādā pagastā dzīvoja viens ubags ar sievu un bērniem lielā
+trūkumā. Kādu dienu ubags aiziet pie mācītāja žēloties, lai gādājot par viņu,
+neesot ko ēst. Mācītājs atsaka: "Kur redzi skalbes, tur brien līdz kaklam, tad
+maize būs!"</p>
+
+<p align="JUSTIFY">Nu ubags palika priecīgs, ka skalbēs var maizi dabūt, un tūlin,
+mājā iedams, laižas vienā skalbu peļķī iekšā un meklē un meklē. Izmeklējās,
+muļķis palikdams - nekā atrast. Beidzot atmeta ar roku m, nobridies līdz kaklam, gāja
+atpakaļ pie mācītāja.</p>
+
+<p align="JUSTIFY">"Cienīgs tēvs! es bridu līdz kaklam pa dūņām un neko
+nedabūju."</p>
+
+<p align="JUSTIFY">Mācītājs sacīja: "Ej uz jūrmalu, tur būs laiva, kāp laivā,
+atstumies no malas un ļauj, lai laiva iet, kur grib."</p>
+
+<p align="JUSTIFY">Tad ubags saņēma savas kules, aizgāja ar sievu un bērniem uz
+jūrmalu, iesēdās ar visiem vienā laivā un laida, lai laiva peld, kur grib.</p>
+
+<p align="JUSTIFY">Iesākumā laiva peldēja, peldēja pa godam, bet vēlāk sacēlās
+tiķ liela vētra, ka bailes, un nu sieva raud, bērni raud: gals tikai nu būšot, - kur
+aizrāvis viņus, kur ne un kā nekā. Šim, zināms, arī labi nerādās un dūša nu
+pavisam saplok. Te par laimi ierauga uz vienu reizi uguni spīdam un mana, ka laiva taisni
+peld uz šo uguni. Ja, un necik ilgi - laiva piepeld malā un apstājas. Šie izkāpj
+ārā un ies skatīties, kur tā uguns ir. Aiziet, atron tādu pili, kādu vēl savu
+mūžu ne pa sapņiem nav redzējuši. Ieiet iekšā ak, laime kur tu gadījies! -visas
+malas pilnas ēdienu dzērienu. gultas uztaisītas - viss, viss; bet cilvēka neviena
+neredz. Šie nu paēd, izpriecājas un tad liekas katrs savā gultā. Rītā agri
+pieceļas, apskatās - atron vēl kūti. kūtī lopus, zirgus, pīles, zosis, jāsaka,
+visu iedzīvi, ka itin nekā netrūkst.</p>
+
+<p align="JUSTIFY">Nu varētu tādā laimes vietā dzīvot nezin cik ilgi bez bēdām, bez
+rūpēm; bet kas to deva? Šis, kā jau ubags, paradis apkārt staigāt - padzīvo vienu.
+mēnesi, otru, trešu - jau apnicis. Vajagot atkal drusku pasauli apskatīties un, ja labi
+nevedīsies, nāks tad atpakaļ uz laimes pili, par jaunu dzīvot.</p>
+
+<p align="JUSTIFY">Labi, paņem sievu, bērnus un iet pasaulē. Iet, iet - ieiet par
+nelaimi mežā un apmaldās. Še nu tev! nu ir maize pagalam, un pili arī vairs nevar
+atrast, kauču ar asarām meklēdams. Tā kādreiz klājas visgribim.</p>
+
+<p align="JUSTIFY">Beidzot ar lielām mokām izkūlās gan no meža un atrada svešu
+pilsētu. Iegājuši pilsētā, dzird: viens kungs pa ielu jādams sludina: "Kas jās
+man līdz medīt, tam es došu zelta cepuri</p>
+
+<p align="JUSTIFY">Ubags atbild: "Es labprāt jātu tev līdz, bet man papriekšu tad
+jānogādā sieva un bērni pie vietas."</p>
+
+<p align="JUSTIFY">Labi, lai darot to. Šis padara to un nu aizjāj abi divi medīt. Kungs
+sēž labā zirgā, šim tikai tāda nātna ķēvele. Aizjāj mežā, tuvu pie jūrmalas,
+kungs nokāpj no zirga un saka uz ubagu: "Vai tev nekāro šņabi iebaudīt?"</p>
+
+<p align="JUSTIFY">Kālab nē?" šis atbild, un iedzer tādu lāsi no kunga šņabja.
+"</p>
+
+<p align="JUSTIFY">Bet tur bij miega zāles klāt un šim - tūlin kā iedzēris - uznāk
+salds miegs: aizmieg.</p>
+
+<p align="JUSTIFY">Un kungs - ko tas dara -- tas paņem nazi, nokauj šā nātna ķēveli,
+izšķērž iekšas, iebāž aizmigušu ubagu zirga vēderā, aizšuj un atstāj. Bet tai
+zemē bija brīnum lieli putni. Tie drīz jo drīzi saradās ap zirga gaļu, knābāja
+knābāja un beidzot - nieki nebūs - saņēma par visiem zirģeli knābjos un uznesa ar
+visu ubagu augstā, augstā zelta kalnā. Tur kalnā putni ēda zirga gaļu knābdamies un
+uzmodināja ubagu. Ubags izlien no zirga vēdera un brīnās un brīnās, kas šo te
+uznesis. Bet apakšā kungs, ubaga medības biedrs, sauc uzsaukdams: "Vai tu neredzi,
+ka tas zelta kalns? Svied man cepurē zeltu, un pa kuru vietu zelts zemē rit, pa to nāc
+pats arī zemē!" </p>
+
+<p align="JUSTIFY">Ubags nosvieda kungam pilnu cepuri zelta, pats sagrābās veselu kuli,
+nonāca rāpdamies no kalna ar zelta kuli mugurā, aizgāja uz pilsētu pie sievas un
+bērniem, uzcēla lepnu namu un dzīvoja laimīgi.</p>
+
+<p align="JUSTIFY">Piezīme. Epizode par zirgā aiznesto cilvēku nāk no "Tūkstots
+un vienas nakts." P. Š.</p>
+</font>
+
+
+</body></html>

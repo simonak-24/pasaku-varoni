@@ -1,0 +1,173 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Mirusī līgava aizved savu tautieti.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">2.<b> </b>A.365. Teicēja Tekla Visocka Nīcgalē. Kultūras balss kr.</p>
+
+<p align="JUSTIFY">Senējūs laikūs beja īrodums sasalasīt kaidā 1elokā piertī,
+kūpīgi parunuot un puosokas pastuostīt. Un jo kurai jaunovai vai otkon jaunekļam beja
+dorbs, tad jī ari tū jēmja leidza pastruaduot.</p>
+
+<p align="JUSTIFY">Kaidu reizi ļaudis saguojuši suoka smītīs un runuot. Vīns runoj
+tū, ūtrs tū. Kaids jauns čylvāks suoka sevi līlīt, ka šis asut ļūti drūss.
+Vēļ kaids ūtrs bolss atsasaucja: "Jo tu taids drūss, tad reit mes aizīsim uz
+ūtru pierti, bet tu pa tymsam pajem nu tuos pierts kruosnes akmeni!"</p>
+
+<p align="JUSTIFY">Labi." atbildēja drūsais. "</p>
+
+<p align="JUSTIFY">Utrā vokorā ari vysi sasalasīja un vēļ vairuok pīguoja redzēt,
+kai drūšais atness akmeni.</p>
+
+<p align="JUSTIFY">Drūsais prosa: "Vai gribat, es varu atnest akmeni!"</p>
+
+<p align="JUSTIFY">Kai tik īt jis pēc akmeua, tai ari cyti īt pasavārtu, vai eisti
+jlis īs pēc akmeņa nūsacitā piertī. Jis drūši īguoja piertī un gribēja pajemt
+akmeni, kai nazkas aiz rūkas -- cop un nalaiž vaļā. Klīgt byus lels kauns, bet palikt
+tī ar baist. Golu golā drūsais vaicoj: "Kas tu taids esi, ka.s turi maini aiz
+rūkas?"</p>
+
+<p align="JUSTIFY">"Es asu jaunova, kura grib izīt pi veira. Jo apsūleis mani
+pajemt, tad laizšu vaļā tovu rūku," atbild jam. Puisīšam tyka baist, bet
+apsūlēt ari nasagrib byut kaidai tur par veiru. Raudzēja klīgt tū veirīšu, kuri
+guoja Ieidzi, izk1īgt ari navar. Tad drūsais dūmoj : Sacīšu, kas byus, nabyus, vys
+jau jej ar varu manis napajems!"</p>
+
+<p align="JUSTIFY">"Palikšu, tik laid mani vaļā," soka puiss.</p>
+
+<p align="JUSTIFY">Tai tyka rūka va]ā un puiss prīcīgs ticis vaļā, kai tik var .
+atskcēja uz tū pierti, kurā sēdēja vysi un ar lelu gaidīšonu gaidīja, kad atīs
+drūsais. Puiss īguoja piertī un vysi nūsabeida juo izskata. Jis beja vyss palicis kai
+myrīys bolts un moti ari bolti nu lelas bailes. Kad puiss suoka stuostīt, tad vysi suoka
+srnītīs un drū synuot: "Tur nikas cyts nabeja, kai tik tu pats puorsabeidīs un nu
+tuos bailes navarēji rūkas atraut."</p>
+
+<p align="JUSTIFY">Tai jū puorlīcymoja un jis pavysam tū par kaidu laiku aiz- miersa.
+Kaidu reizi, zam kaidas lelas svātdīnas, sātā kaltēja isolu un paši beja aizguojuši
+uz ustobu. Par tū laiku sadaga pieris ar vysu īsolu. Kalidu reizi puišam īsagribēja
+pierts un jis dītmoj: "Išu uz kaimiņu pierti un labi izamozguošu!"</p>
+
+<p align="JUSTIFY">Aizīt uz tū pierti, kurā jis apsajēmja byut par veiru tai
+sī-vītei, kura beja aizkēruse aiz rūkas. Cyti guoja nu pierts prūjom, bet jis palyka
+piertī vīns pats. Puiss mozguojas un redz, ka izleida kaida smuka, smuka sīvīte nu
+krezosnes un runoj: "Tu zyni, ka apsajēmi mani precēt?"</p>
+
+<p align="JUSTIFY">Puiss suoka vysaiž pretuotīs, bet nikuo navarēja darīt, kai tik
+vajadzēja apprecēt. Kai tik pasacēja puiss, ka jis ar mīru jū precēt, uz reizes
+izataisīja tik skaista māja, ar vysaidim zaltim un sudobrim, tai i laistuos. Pībraucja
+daudzi ļaužu, beja ysvysaida ēdīņa un dzērīņa. Kad nūdzēra kuozas, pasaškeira
+pierts greida un caur tū vyss nūgryma. Tik reitā, kad jau nūguoja apsavārtu, vēl zam
+greidas varēja dzierdēt kaidu lelu trūksni. Nu tuo laika nikas navarēja ītt tymā
+piertī, tuopēc, ka baidēja un kai tik tymsā kas guoja cauri, tī nazkaids bolss
+klīdzja: "Bēdzīt, bēdzīt!"</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

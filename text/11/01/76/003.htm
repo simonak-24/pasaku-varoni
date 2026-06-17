@@ -1,0 +1,137 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Sieva ar apstājiem.</strong></font></p><font size="5">
+
+</font><p align="CENTER"><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p>3. A. 1371. B e r t u l s o n s S m i l t e n e s B i k s ē j ā. A. B ī l e n š t e
+i n a k r. LP, VI, 367, 105. M. Bohm, "Lettische Schwänke", 5, 5.</p>
+
+<p align="JUSTIFY">Puisis Ancis jau kādi trīs gadi bija izdēvēts par traku, bet viņam
+šis trakums tikai vasaru siena laika mēdza uznākt; tad viņš nereti no brokašķa
+laika aizbēga mežā un katrreiz vakariņās pārradās. Bet ceturtā gadā Ancis
+saderējās pie tāda saimnieka, kam arī gluži tāda paša trakuma slimība esot, kā
+viņš pats teicās, Anci derēdams.</p>
+
+<p align="JUSTIFY">Labi, atnāca siena laiks, saimnieks paņem izkapti, aizbāž pātagu
+aiz jostas un ies ar Anci pļaut. Pļauj, pļauj - Ancim vēl trakuma slimības nav -
+pļaus pēc brokašķa, Ancim jau trakuma slimība ir: nosviež izkapti un bēg mežā.
+Kā šis trakumā bēg mežā, tā saimniekam trakuma slimība arī klāt: bēg Ancim
+pakaļ un dod ka dod ar pātagu. Ancis brēc, lai nesit - šis sit un sit; Ancis saka:
+viņam tūlīt trakums pāriešot. Saimnieks saka: viņam arī tūliņ pāriešot.</p>
+
+<p align="JUSTIFY">Un patiesi! tik bija abiem trakums kā tai dienā. Otrā dienā bija
+abi veseli. Vēlāk viņi sadzīvojuši dažu gadu, bet trakums vairs negadījies ne
+vienam, ne otram.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Raunā stāsta, ka puisis deroties sacījis, ka šim
+vasarā dažreiz uznākot apstāji. Saimnieks atkal teicis, ka viņam dažreiz uznākot
+trakams. Cits tāpat, kā Biksējas variantā. P. Š.</p>
+</font>
+
+
+</body></html>

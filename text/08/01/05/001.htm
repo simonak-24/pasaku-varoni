@@ -1,0 +1,204 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Bagātā brāļa skaudība.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">1. A. 755. 564. Alfrēds, Pasakas, 1893, 17, 7.</font></p><font size="3">
+
+<p align="JUSTIFY">Dzīvoja reiz divi brāļi: vecākais bija uzcītīgs un taupīgs, bet
+jaunākais slinks un palaidnīgs. Tēvs, nomirdams, bija atstājis katram labu daļu
+mantas. Vecākais brālis, uzcītīgs būdams un taupīgi dzīvodams, savu daļu pavairoja
+un palika ar laiku par turīgu saimnieku. Jaunākais, palaidnīgi dzīvodams, bija
+gandrīz visu savu padomu izšķērdējis un dzīvoja netālu no bagātā mājām kādā
+vecā pussagruvušā būdiņā.</p>
+
+<p align="JUSTIFY">Bagātajam bija pulks skaistu, brangu zirgu, nabagajam tik viena slikta
+ķēve, un tās pašas viņš labāk nevarēja sabarot, lai laida vai vislabākajā
+zālē, lai deva vai visutīrākās auzas.</p>
+
+<p align="JUSTIFY">Reiz nabaga brālis pamanīja, ka tāda kā ēna izrāva viņa ķēvei
+visu barību no mutes un aiznesa to viņa brāļa zirgiem. Nabagais par to gauži
+apskaitās. Paslepšus viņš pielīda savādai ēnai klāt un, to saķēris, bargi
+prasīja: "Kas tu tāda esi un kā tu iedrošinājies manu ķēvi apzagt?"</p>
+
+<p align="JUSTIFY">Ēna par to daudz neko nesatrūkās, bet mierīgi teica: "Es esmu
+tava brāļa laime un man ir par viļa labklāšanos jāgādā."</p>
+
+<p align="JUSTIFY">"Bet kur tad mana laime, ka tā par mani nemaz negādā?"
+nabagais jautāja.</p>
+
+<p align="JUSTIFY">"Atlaidi mani, tad es to pasacīšu," bagātā laime
+atbildēja, un kad nabagais viņu bija vaļā palaidis, tad viņa sacīja: "Tava
+laime ir tālu no šejienes. Viņa guļ jūrmalā zem kupla ozola zariem, zelta gultiņā
+cieti aizmigusi."</p>
+
+<p align="JUSTIFY">To sacījusi, bagātā laime pazuda. Nabagais, to dzirdējis, devās
+tūdaļ ceļā, lai savu laimi uzmeklētu. Viņš to arī atrada un uzmodinājis tai
+vaicāja, kādēļ viņa tik mierīgi guļot un nemaz nerūpējoties par viņa
+labklāšanos. Laime tam atbildēja: "Kā man būs tēvi aplaimot, ka tu esi tāds
+izšķērdētājs un tik netīrīgi dzīvo? Vairāk reizes esmu gribējusi pie tevis
+ieiet, bet tikko kāju par slieksni iespēru, tad aiz netīrības un smakas bija tūdaļ
+atpakaļ jāskrien. Eji tagad uz māju un iztīri visu tīru un spožu, tad es pie tevis
+nākšu un tevi aplaimošu."</p>
+
+<p align="JUSTIFY">Nabagais paklausīja un, mājās pārnācis, trīs dienas no vietas
+mazgāja un tīrīja savu istabu, līdz kamēr iztīrīja.</p>
+
+<p align="JUSTIFY">Drīz pēc tam viņa sievai piedzima dēliņš. Vīrs domāja, ka nu
+laime esot atnākusi, bet kad tas pēc kādām nedēļām nomira, tad viņš bēdīgs
+aizgāja atkal uz jūrmalu pie savas laimes un vaicāja, kādēļ šī viņu tā apmānot.
+Laime tam atteica, ka gribējusi viņu papriekš pārbaudīt. Tad viņa tam iedeva mazu,
+netīru maisiņu un sacīja: "Ņem šo un eji mājās. Maisiņš ir gan netīrs, bet
+kad tu sacīsi: "Maisiņ atdaries," tad viņš tev daudz ko tīru
+atnesīs."</p>
+
+<p align="JUSTIFY">Nabagais pateicās un aizgāja. Mājā pārnācis, viņš uzlika
+maisiņu uz galda un sacīja: "Maisiņ, atdaries!"</p>
+
+<p align="JUSTIFY">Tūlīt no maisiņa iznāca pulks lepni ģērbušos sulaiņu, kas visu
+atnesa, ko vien viņš vēlējās. Kad visa bija diezgan, tad tik vajadzēja sacīt:
+"Maisiņ aizdaries!" un sulaiņi tūdaļ pazuda.</p>
+
+<p align="JUSTIFY">Nabagais par tādu laimi nezināja, kā priecāties un ko darīt. Bet
+bagātais, dabūjis dzirdēt par brāļa laimi, gudroja, kā viņam brīnuma maisiņu
+izmānīt. Reiz viņš izrīkoja lielas viesības, kurās ielūdza arī savu brāli. Kad
+tas bija labi iedzēries, tad bagātais viņam solīja pilnu klēti maizes, lai pārdodot
+viņam brīnuma maisiņu. Brālis arī dzērumā pārdeva. Bet ar to nu arī viņa laime
+bija pagalam. Maizes klēts, ko no brāļa bija dabūjis par maisiņu, drīz bija tukša,
+un viņš bija tikpat nabags kā agrāk. Bēdīgs viņš aizgāja atkal uz jūrmalu pie
+savas laimes un stāstīja, kas noticis.</p>
+
+<p align="JUSTIFY">"Tu gan esi gauži slikti izdarījis," laime atteica,
+"bet es tev taču gribu palīdzēt."</p>
+
+<p align="JUSTIFY">To teikusi, viņa nabagajam iedeva citu, ar zeltu un dārgiem akmeņiem
+izrotātu maisiņu.</p>
+
+<p align="JUSTIFY">Nabagais aizgāja mājas un domāja, ka šis maisiņš vēl vairāk
+labuma atnesīs. Bet kad bija izteicis: "Maisiņ, atdaries!" tad no tā iznāca
+pulks zaldātu, kas viņu sāka neganti sist. Nabagais vēl tikko paspēja izteikt:
+"Maisiņ, aizdaries!" un tā tik vēl paspēja glābties no briesmīgajiem
+zaldātiem.</p>
+
+<p align="JUSTIFY">Bet nu arī viņš zināja, kas jādara. Pie bagātā aizgājis, viņš
+tam rādīja skaisto maisiņu un sacīja: "Tu, brāl, esi bagātāks un gudrāks, tev
+arī šis maisiņš labāk piekrīt, nekā man; tāpēc dod man netīro maisiņu, ko es
+tev pārdevu, tad es tev došu šo."</p>
+
+<p align="JUSTIFY">Bagātais bija ar mieru un izmija maisiņu. Tikko nabagais bija
+aizgājis, tad šis, zeltoto maisiņu uz galda uzlicis, sauc ar stipru balsi:
+"Maisiņ, atdaries!"</p>
+
+<p align="JUSTIFY">Maisiņš arī atdarījās un no tā iznāca, ne vis cerētie sulaiņi,
+bet stipri apbruņojušies zaldāti, kas viņu sāka nežēlīgi sist. Bagātais sāpēs
+vairs neatminējās izteikt aiztaisāmos vārdus un zaldāti viņu tikmēr sita, kamēr
+pagalam nosita. Nabagais turpretī palika par bagātu vīru, uzbūvēja lielu, skaistu
+pili un uzdzīvoja zaļi.</p>
+</font>
+
+
+</body></html>

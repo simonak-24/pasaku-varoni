@@ -1,0 +1,205 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>32</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">32. A. 530. Zumberģis Liepājas apg. Brīvzemnieka kr. LP, VI, 661
+(124, 3).</p>
+
+<p align="JUSTIFY">Vienam tēvam ir bijuši trīs dēli, no kuŗiem viens labi dumjš esot
+bijis. Kad nu tēvs esot nomiris, tad dumjais teicis: "Brālīši, kuŗš nu iesim
+tētiņa kapiņa sargāt?"</p>
+
+<p align="JUSTIFY">Šie atteikuši: "Glupais, trakais, ja tev gribas, tad jau vari
+šauties!"</p>
+
+<p align="JUSTIFY">Nu viņš aizgājis un noņēmies visu nakti pie tētiņa kapa palikt.
+Te ap pašu pusnakti nāk viens vīrs, mēness zirgu pie rokas vezdams, un saka uz kapa
+sarga, lai to zirgu ielaižot otrapus ceļa mežā, un kad viņam atkal tā vajagot, tad
+lai tikai ietot un svelpot, tad zirgs būšot klāt. Bet brāļiem mājā lai vairāk
+nestāstot, kā tikai: "Zaķītis vien pār kapu pārskrēja!"</p>
+
+<p align="JUSTIFY">Pārgājis mājā, brāļi vaicājuši: "Nu, ko nu laba redzēji
+pie tēva kapa?"</p>
+
+<p>"Nekā laba neredzēju, zaķītis vien pār karpu pārskrēja!" Otrā naktī
+dumjais brālis atvedis zvaigžņu zirgu un trešā naktī saules zirgu.</p>
+
+<p align="JUSTIFY">Bet nu dumjais brālis padzirdējis, ka ķēniņa meita esot uz
+augstiem glāžu kalniem, un kas tur pie viņas piejāšot, to ņemšot par vīru. Un nu
+jājamā dienā gudrie brāļi saposušies paši pirmie noskatīties, kas pie ķēniņa
+meitas uzjāšot; bet dumjo brāli atstājuši mājā, lai izlasa sieku zirņu no pelniem.
+Lasījis raudādams. Te pienācis viens vecītis: kādēļ raudot? Tā un tā - jātupot
+un jālasot zirni no pelniem, nevarot tikt pie glāžu kalniem, kur visi citi. Tad
+vecītis teicis: "Ko tad tu bēdājies? Saki tikai: "Pelni prātā, zirņi
+siekā!" un piesit trīs reizes pie zemes - darbs būs galā."</p>
+
+<p align="JUSTIFY">Piesitis trīs reizes, sacījis: "Pelni pārtā, zirņi
+siekā!" - tā visi zirņi no pelniem ārā un siekā kā izlasīti. Nu gājis uz
+kapsētas birstiņu, iesvilpies, paņēmis mēness zirgu sēdies tam mugurā un laidis uz
+glāžu kalnim ķēniņa meitas lūkoties. Un vienā pašā lēcienā aizjājis,
+uzskrējis vienu trešdaļu kalnā un griezies atkal atpakaļ. Kad gudrie brāļi mājā
+atnākuši, tie stāstījuši, kādas šie lietas esot redzējuši, bet glupais tikai
+brīnījies vien.</p>
+
+<p align="JUSTIFY">Otrā dienā brāļi kaņepes pelnos iebēruši, trešā dienā
+linsēklas; bet viņš, vīriņa vārdus sacīdams, izlasījis un otrā dienā ar
+zvaigžņu zirgu uzjājis divi daļas kalnā, trešā, ar saules zirgu, pašā kalna
+galā, pie ķēniņa meitas. Ķēniņa meita viņu saldi nobučojusi, iespiedusi viņam
+zēģeli pierē un nu jājis mājā; bet jādams katram gudrajam brālim reiz ar pātagu
+uzsitis.</p>
+
+<p align="JUSTIFY">Pēc kāda laika ķēniņš sasaucis visus vīriešus pie sevis. Gudrie
+arī aizgājuši, bet dumjais palicis mājā pie pārta. Kad nu visi ļaudis izlūkoti un
+nevienam tāda zēģele neatrasta pierē, tad prasīts, vai nemaz cilvēku vairāk mājā
+nav. Gudrie brāļi teikuši, ka šiem gan viens brālis mājā esot, bet tas esot pavisam
+glups un netopot nekur laukā aists. Tad ķēniņš pavēlējis to arī atvest.
+Aizgājuši - dumjais sēdējis aizkrāsnē ar sasietu galvu, Bet kad lakatu no pieres
+norāvuši - ieraudzījuši ķēniņa meitas zīmi pierē. Bet ķēniņš šo tādu nabaga
+lupatu redzēdams, dusmojies un gribējis cietumā iegrūst. Tad dumjais lūdzis, lai
+viņam atļaujot savus zirgus paņemt. Labi, atvēlējis. Nu šis ātriem soļiem
+aizskrējis uz kapsētu, sēdies saules zirgam mugurā un, tos otrus abus katrā pusē
+pavadā turēdams, laidis tādā varenā spožumā uz ķēniņa pili, ka visiem
+skatītājiem acis apstulbojis.</p>
+
+<p align="JUSTIFY">Nu dzēruši kāzas. Pēc kāzām arī par abiem brāļiem
+apžēlojies: vienu pieņēmis par stārastu, otru par junkurti.</p>
+
+<p align="JUSTIFY">Piezīme 1 Ērgļu variantā no A. Bīlenšteina kr. (1864) teikts, ka
+muļķītis siena kaudzi sargājis un pie siena kaudzes no vecīša dabūjis pirmā naktī
+zirgu, kam zvaigzne pierē, otrā kam mēness pierē trešā kam saule</p>
+
+<p align="JUSTIFY">pierē. - Un tur bijis viens stiklu kalns, tur sēdējusi viena
+jumprava katru rītu galā un sacījusi: "Kas pie manis uzjās, tam palikšu par
+brūti! </p>
+
+<p>LP. VI 62 (124,4).</p>
+
+<p align="JUSTIFY">Piezīme 2. Kurzemes Liediķniekos kāds Mūrnieks ir piesūtījis
+Brīvzemniekam pasaku, kur teikts, ka viens ķēniņš licis trissimts pēdu augstu stikla
+kalnu uzcelt un tur uzcēlis savu meitu, teikdams, kas triju dienu laikā tur uzkāpšot
+pie meitas, tas būšot viņas virs un nākamais valdnieks. Tālāk teikts, ka trešais
+brālis, Pelnurušķis, uzjājis pirmā dienā kalnam mazajā pusē ar tādu zirgu kā
+zvaigzne, otrā ar tādu kā mēness līdz pusei, trešā jājis ar tādu zirgu kā saule
+un uzjājis galā. Ķēniņa meita tam iedevuse savu gredzenu un drāniņu. Beigas
+parastas. LP, VI 671 (124, 15.).</p>
+
+<p align="JUSTIFY">Piezīme 3. Vanagu Jānis piesūtījis Lerchim - Puškaitim pasaku no
+Mežotnes, kur muļķa brālis trešo reizi no kalna jādams, aizskrējis ar dimanta zirgu
+un pazudis. Tad ķēniņš licis visu pasauli kratīt. Kratītāji beidzot atnākuši pie
+gudriem brāļiem prasīdami: "Vai te neviena vairāk nava?" Neesot! Bet gudrie
+brāli bija pabāzuši muļķīti apakš kubulas, lai neatrastu šo. Tad kratītāji par
+laimi pamanījuši, ka apgāztās kubulas dibinā pa tapas caurumu pirkstiņš izbāzts.
+Nu pavēla kubulu un atrada muļķīti ar ķēniņa meitas gredzenu pirkstā. Tūliņ veda
+pie ķēniņa un nu bija kāzas muļķītim ar ķēniņ meitu.</p>
+
+<p>LP, VI. 668 (124, 12) </p>
+
+
+</body></html>

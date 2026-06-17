@@ -1,0 +1,238 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dažādi spēka vīri.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">8. A. 650 C. 301. Alfrēds, Pasakas, 1893, 49 (20).</p>
+
+<p align="JUSTIFY">Dzīvoja reiz viena ļoti liela sieva, ko sauca par lielo Grietu; tai
+bija dēls, kas, tikai vēl septiņi gadi vecs būdams, kļuva dēvēts par stipro Ansi.</p>
+
+<p align="JUSTIFY">"Mēs esam nabaga ļaudis," māte reiz sacīja dēlam,
+"tāpēc tev laikus jāstrādā un jāmācās ēst svešu maizi. Zemnieki ņem tikai
+stiprus ļaudis dienastā, tādēļ ej uz mežu un atnes man krietnu nastu malkas, tad es
+tev teikšu, vai būsi jau svešumā derīgs."</p>
+
+<p align="JUSTIFY">Ansītis arī mātei paklausīja, lai gan par tuvējo šķiršanos
+nobēdājās, bet viņa nastiņa pārnākot bija vēl gluži maza. Par to viņš bija
+priecīgs, jo māte nu atzina, ka viņš vēl par nespēcīgu un drīkstēja vēl septiņi
+gadi mājā palikt. Kad tie bija atkal pagājuši, māte viņu sūtīja otrreiz pēc
+malkas. Tagad tam klājās pavisam citādi. Egles tas izrāva kā niedres un pārnesa
+mājā kā spalvas.</p>
+
+<p align="JUSTIFY">Tagad mātei bija veselam gadam malkas diezgan un Ansis varēja siet
+ceļa somu un iet uz kaimiņu pagastu vietas meklēt. Pie pirmā saimnieka, kur tas
+pieteicās, jau bija divi kalpi un trešā tam nevajadzēja, bet Ansi tomēr pieņēma,
+tādēļ, ka viņš no skopā saimnieka neprasīja nekādas algas, bet tās vietā tikai
+brīvību ik gadus saimniekam vienu pļauku par ausi dot.</p>
+
+<p align="JUSTIFY">Pirmais darbs, pie kā tam vajadzēja palīdzēt, bija mežā: bija
+malka jācērt un jāved mājā. Bet rati bija par daudz piekrauti un zirgi nespēja tos
+ne no vietas kustināt. Te Ansis uzmeta zirgus uz vezuma un pats aizrāva ratus uz māju,
+ka noputēja vien. Saimnieks, to redzēdams, kasījās aiz ausim un pie tam ar šaušalām
+domāja uz salīgto gada pļauku. Bet viņš par to nelika nekā manīt un sēdās tikai
+ar Ansi pie galda. Te Ansis darīja atkal savu pienākumu un saimnieks atkal kasījās aiz
+ausim, jo te viņš noskārta, ka šis kalps vienā gadā viņu ar visu viņa mantu būtu
+apēdis. Bet te viņam iekrita padoms prātā, kā viņš no tā varētu tikt vaļā.
+"Mana sieva," tā viņš šim sacīja, "priekš kādām dienām ir iemetusi
+akā savu laulības gredzenu, nokāp lejā un uznes man viņu augšā."</p>
+
+<p align="JUSTIFY">Ansis arī paklausīja. Bet tikko tas bija apakšā, kad saimnieks ar
+kalpiem tam uzbēra veselu vezumu akmeņu virsū.</p>
+
+<p align="JUSTIFY">"Dzeniet vistas no augšas projām," atskanēja balss no
+apakšas, "viņas kasa smiltis akā!"</p>
+
+<p align="JUSTIFY">Saimniekam nu bija jāķeŗas pie svarīgāka līdzekļa: viņš lika
+zvanu no baznīcas torņa noņemt un iemest akā, jo tam taču vajadzēja visu Ansi
+apsegt.</p>
+
+<p align="JUSTIFY">,,Oho, kas tā man par glītu cepuri!" atskanēja otrreiz Anša
+balss no apakšas. Nu nebija vairs cita padoma, kā nolaist dzirnu akmeni lejā.</p>
+
+<p align="JUSTIFY">"Pag!" Ansis kliedza, "te jau man ir gredzens, ejiet no
+gaismas nost, es tūliņ nākšu!"</p>
+
+<p align="JUSTIFY">Ar zvanu galvā un dzirnu akmeni uz pirksta Ansis uzkāpa augšā.
+Saimnieks atkal domāja par savām ausim un dāvināja Ansim tikdaudz naudas un mantas,
+cik tam vajadzēja, lai varētu pa pasauli tālāk ceļot.</p>
+
+<p align="JUSTIFY">Iedams savu ceļu, viņš satika divi biedrus, medinieku un zvejnieku,
+kas tāpat kā viņš, bija bez vietas. Vienu dienu kopā nostaigājuši, tie nonāca pie
+vienas vientuļas mājiņas un pārgulēja šeit. No rīta agri tie pamodās ļoti
+izsalkuši. Vairāk nekas tur nebija atrodams, kā viens grāpis un mazs gabaliņš
+gaļas, un tas jau visiem trim nepietika. Zvejniekam bija jāpaliek mājā par pavāru,
+kamēr mednieks ar Ansi izgāja mežā raudzīt vairāk pārtikas. Pavārs uzkāra katlu
+uz uguns, bet te pielīda kāda maza riebīga sieviete un lūdza kādu mazu gabaliņu
+gaļas. Labais zvejnieks jau noliecās, gribēdams tai gabaliņu nogriezt, bet šī tam
+tūliņ uz muguras, nežēlīgi to spieda un briesmīgi saskrāpēja ģīmi. Citur
+patvēruma neatrazdams, viņš beidzot palīda zem krāsns. Drīz vecā arī pazuda un
+uguns izdzisa.</p>
+
+<p align="JUSTIFY">Pret vakaru pārnāca abi biedri, kas par laimi bija lāci
+nomedījuši. Tūliņ visi trīs ķērās pie darba, nodīrāja to, iztīrīja un
+izvārījuši, sataisīja sev gardas vakariņas.</p>
+
+<p align="JUSTIFY">Rīts ausa un nu gāja zvejnieks ar Ansi medībās, mednieks turpretim
+apsargāja māju un sagatavoja ēdamo. Šim nu atkal notika gluži tas pats, ko jau
+zvejnieks bija piedzīvojis. Vecene ar sarkanajiem kamzoļiem tam atkal pielīda klāt un,
+kamēr tas viņai grieza gabalu gaļas, viņa tam uzlēca mugurā, saskrambāja ģīmi un
+beigās to pasvieda zem krāsns. Viņš vēl turpat tupēja, kad abi biedri vakarā
+pārnāca mājā un prasīja pēc vakariņām. Šoreiz bija jāiztiek bez ēdiena.</p>
+
+<p align="JUSTIFY">Tā pienāca trešā diena. Neviens no izpērtajiem nebija otram par to
+ne vārda bildis, katrs cieta, zobus sakodis, un slepeni priecājās, ka nākošo gaidot
+tas pats liktenis. Šodien Ansis palika mājā, zvejnieks ar mednieku aizgāja mežā.
+Tiklīdz ko viņš sāka vārīt ēdienu, izsalkusī sieva pieklauvēja pie durvim un
+lūdzās gabalu gaļas, ko viņa arī dabūja. Bet tikko tā gribēja Ansim lekt mugurā,
+šis jau bija to pamanījis. Viņš noķēra to pie rokas un mētāja viņu tik ilgi pa
+gaisu, kamēr tai elpa aizrāvās. Tad viņš to sasēja un nometa tur, kur abi
+iepriekšējie bija gulējuši. Šodien ļoti agri abi biedri pārnāca mājā, jau
+iepriekš smiedamies par pērienu, ko arī Ansis būšot dabūjis. Bet par brīnumu tie nu
+dabūja pavisam ko citu redzēt.</p>
+
+<p align="JUSTIFY">Bet Ansis gribēja no sava piedzīvojuma arī kaut ko panākt. Viņš
+veco raganu no krāsns apakšas ātrāk neizlaida, līdz tā tam bija kādu noslēpumu
+atklājusi. Viņš nu dabūja dzirdēt, ka šai kalnā, kur mazā mājiņa stāvēja, esot
+dziļa klints aiza, kas novedot pie kādas brīnumu pils. Šajā pilī dzīvojot viena
+princese, ko apsargājot pūķis. Kas šo uzvarēšot, tas iemantošot līdz ar princeses
+roku arī visu mantu, kas pilī atrodoties. Visi trīs nogāja pie alas un caur dozi
+nosprieda, kuŗam pirmajam pa virvi jānolaižas lejā. Ansim bija jāiesāk. Apakšā
+viņš atrada pili, būvētu tīri no zelta un dārgiem akmeņiem, un tai pilī arī pašu
+princesi. Šī viņam cēla vīnu un maizi priekšā, caur ko viņš kļuva vēl trīsreiz
+stiprāks, nekā papriekšu. Tad viņa tam iedeva stiprāko šķēpu, ar ko tam bija
+pūķis jānokauj. Šis arī drīz vien nolaidās ar varenu troksni lejā un spļāva zilu
+uguni no rīkles. Ar vienu cirtienu Ansis nezvēram nocirta galvu, bet uguns liesmu
+pārņemts, arī pats pakrita bez samaņas pie zemes.</p>
+
+<p align="JUSTIFY">Te piesteidzās princese un atspirdzināja viņu ar vīnu un maizi, tā
+ka viņš tūliņ atžirga un nu jutās vēl trīs reiz stiprāks nekā papriekšu. Tas
+bija arī vajadzīgs, jo drīz vien sacēlās jauns troksnis un otrs pūķis, laidās
+zemē, vēl ugunīgāks un lielāks kā pirmais. Cīniņš atkal sākās, pils trīcēja
+un dimdēja, dūmi aptumšoja gluži gaisu, tomēr Ansis cirta ar savu zobenu pret zvēru,
+tā ka asinis straumēm tecēja un nezvēra galva aizripoja tālu no rumpja. Taču arī
+dūšīgajam cīnītājam zuda prāti un bez samaņas tas pakrita blakus savam
+pretiniekam.</p>
+
+<p align="JUSTIFY">Princese atkal piesteidzās tam klāt un stiprināja to ar vīnu un
+maizi, tā ka tas drīzi vien pamodās. Tad viņa lika savām kalponēm ienest to pilī un
+nolikt labā mīkstā gultā, lai tur atdusētos līdz otram rītam. Tagad princese iedeva
+viņam trešo šķēpu, kas bija vēl lielāks un labāks par abiem pirmajiem. Pēc tam,
+kad viņš ar vīnu un maizi bija vēl trīs reiz spēcīgāks tapis, princese viņam
+paziņoja, ka nu vēl trešais un lielākais pūķis jāuzvar. Vēl tā viņu pamudināja
+un izskaidroja, ka viņu abu laime vai nelaime atkarājas vienīgi no šīs cīņas.</p>
+
+<p align="JUSTIFY">Trešais pūķis nāca lejā, šņākdams un krākdams, sēru un uguni
+no rīkles vemdams. Pilnas trīs stundas vilkās cīņa līdz šis nezvērs nobeidzās,
+bet arī Ansis bija kā bez dzīvības pakritis pie zemes. Kad viss bija apklusis,
+princese piesteidzās tam klāt un ar viņas palīdzību viņš atdarīja savas acis un
+drīz vien atžirga. Ansis nu pacēlās ar princesi no apakšzemes, apprecēja to un
+dzīvoja laimīgi.</p>
+</font>
+
+
+</body></html>

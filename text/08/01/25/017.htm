@@ -1,0 +1,181 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>17</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Stiprais Ansis.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">17. A. 650 A. Jēkabs Birģeris Mežotnē. LP, VI, 407 (112, 20).</p>
+
+<p align="JUSTIFY">Vienam kalējam nebijis neviena bērna. Reiz viņš izkalis no dzelzs
+mazu puišeli un atstājis smēdē. Kas ir? Rītā aizies smēdē - redz: dzelzs puika
+palicis dzīvs un kalis, ka dzirksteles šķīdušas. Nu šim liels prieks - tūliņ vedis
+dzelzs dēlu istabā sievai rādīt un licis ēst dot. Bet dzelzs puika uz reizi apēdis
+katlu putras un klaipu maizes. Tas kalējienei nemaz nepaticis. Kur tik daudz varot
+pieņemt tādam nesātnim? Labāk lai tāds aizejot!</p>
+
+<p align="JUSTIFY">Dzelzs puika daudz arī nelūdzies - aizgājis. Ceļā saticis kungu,
+tas ierunājies: vai negribot pie viņa par puisi līgt?</p>
+
+<p align="JUSTIFY">"Kāpēc nē!" šis atteicis un salīdzis tā: ēst brīv,
+cik gribas un gada galā ar mazo pirkstiņu iesitīšot kungam pa muguru. Kungs
+priecājies par tik lētu puisi un vedis tūliņ mājā. Pārvedis - te otrā dienā
+gadījies desmit vīriem lielu lielu vērsi kā krāsns muižā gaŗām vest. Kungs
+teicis: "Ujā, kas par stipru vērsi - desmit vīri ved."</p>
+
+<p align="JUSTIFY">Dzelzs puika smējies: "Kas tas par lielu - es tādu nositu ar
+mazo pirkstiņu, ja vajadzīgs."</p>
+
+<p align="JUSTIFY">Kungs neticējis: lai sitot, ja varot! Dzelža puika piegājis vērsim
+klāt un uzsitis ar pirkstiņu pa pieri: vērsis tūdaļ nokritis gar zemi un bijis
+pagalam.</p>
+
+<p align="JUSTIFY">Nu kungs aplam sabijies un domājis: "Kas tādu vērsi var no
+sist, tas mani arī nositīs gada galā kā nieku. Jāraisās no viņa labāk vaļā pie
+laika, jārauga ar darbiem nobendēt."</p>
+
+<p align="JUSTIFY">Un tur kungam dārzā bijusi ābele ar zelta āboliem; bet ābolus
+naktīs brīnum zaguši. Ko viņš sagudro? Sūtīs Dzelzs puiku ābolus sargāt, gan tad
+zagļi viņu nokaušot.</p>
+
+<p align="JUSTIFY">Labi. Puika iegājis dārzā - skatās, skatās - redz: nāks pieci
+melni puikas un sāks ābolus raut. Tā mans Dzelzs puika, ne vārda nesacījis, knikt,
+vienam ar pirkstiņu pa pieri, knikt otram, trešam, kamēr visi pieci paliek guļam.</p>
+
+<p align="JUSTIFY">Rītā kungs paskatījies: zaglēni pagalam, Dzelzs puika vesels. Ko nu
+liks tādam darīt? Sagudrojis: lai ejot tur viņu mežā, kur slepkavas stipru namu
+uzcēluši, un nokaujot tos!</p>
+
+<p align="JUSTIFY">Labi, Dzelzs puika aizgājis, nositis slepkavas ar dūri un pārnācis
+teikt, ka jau padarīts.</p>
+
+<p align="JUSTIFY">Nu kungs gudrodams nevarējis vairs sagudrot, ko vēl likt tādam
+darīt. Beidzot sūtījis uz laimi pie sava drauga pēc naudas un slepeni pačukstējis
+tam iepriekš: ja tāds un tāds atnākot pēc naudas, lai tad sūtot veselu kaŗaspēku
+viņam pretim un liekot nošaut.</p>
+
+<p align="JUSTIFY">Labi, draugs tā darījis: izsūtījis visu savu kaŗaspēku Dzelzs
+puikam pretim.</p>
+
+<p align="JUSTIFY">Kaŗaspēks šāvis, šāvis, bet kura lode nākusi, tā atsitusies pie
+Dzelzs puikas dzelzs miesām un atsprāgusi atpakaļ. Nevarējis kunga draugs ar visu
+kaŗaspēku nekā padarīt - bijis jādod nauda.</p>
+
+<p align="JUSTIFY">Dzelzs puika pārnesis naudu un teicis kungam: "Gads pagalam! dod
+nu muguru."</p>
+
+<p align="JUSTIFY">Kungs pārbijies, labi vairs nebūs; bet drošības labad nogūlies gar
+zemi un pārsedzies ar lielu, augstu spilveņu kaudzi, jāsaka, cik jau nu tikai varējis
+spilveņus sadabūt, un tad teicis puikam: lai nu sitot pa tiem spilveņiem - viņa mugura
+tur esot pretim.</p>
+
+<p align="JUSTIFY">Dzelzs puika uzrāpies spilvenu kaudzes galā un spēris ar mazo
+pirkstiņu pa spilveņiem tā, ka kungs no trieciena uz reizi apakšā paģībis. Vēlāk
+ar lielām mokām esot gan atdzīvināts, bet mazo pusi paturējis kungs, to nevar neviens
+noliegt.</p>
+</font>
+
+
+</body></html>

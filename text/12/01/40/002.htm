@@ -1,0 +1,266 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>D???gais skroderis</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dūšīgais skroderis.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>2.</strong> A. 1640. Anna Svenča Daugavpils Līksnas pagastā.
+J. Rupjā kr.</p>
+
+<p align="JUSTIFY">Nazkod dzeivova vīns skraucs (skroderis). Jis beja lels čūdniks.
+Vīnu raizi jis šyva kažukam pīduorkni. Jam šyunūt, īnesa saimineica padvičorkas
+(launagu), tī beja svīsta-maizes un čaja. .lis soka: "Es tyuleņ baigšu šyut,
+tūraiz paēsšu."</p>
+
+<p align="JUSTIFY">Jam šyunūt iz svīsta pīsameta mušu, jis ko ķēra ar rūku, to
+nūsyta septiņas iz raizis. Jis tyuleņ pajēma papeiru, pīrakstēja iz tuo: "Es
+septiņas dūšys ar vīnu rūku nūsytu."</p>
+
+<p align="JUSTIFY">Tū papeiriņu pīlyka pi capures. Kad atguoja svātdīņa, jis
+aizguoja ar vysu tū papeireņu pi capures uz bazņeicu. Jis tī staiguodams soka:
+"Redzīt, kur puiss. ar vīņu rūku septiņas dūšas izgubēju."</p>
+
+<p align="JUSTIFY">Agruok tys skraucs beja saplēss ar radņiku (tiesas kungu. Tū
+svātdiņ pīit pi skrauča radņiks i soka: "Vai tu nūsiti septiņas dūšys ar
+vīnu rūku?"</p>
+
+<p align="JUSTIFY">Skraucs soka: "Jā, nūsytu, kū tu man padarēsi, redz kur veirs,
+ko es ar vīnu rūku septiņas dūšys nū&amp;127;sytu!"</p>
+
+<p>Radņiks skrauci tyuleņ sajēma i nūdzyna da volostnojai, vazdams skrauci vys vaicoj
+: "Vai tu nūsiti septiņas dūšys ar vīnu rūku?"</p>
+
+<p>Jis soka: "Jā, nū&amp;127;sytu."</p>
+
+<p align="JUSTIFY">Bet radņiks napavalcoj, kaidys dūšys. Tai tū skrauceiti dzonova pa
+vysom molu molom, vys vaicuodami: "Vai tu nūsiti septiņas dūšys ar vīnu
+rūku?" Vys napavaicoj, kaidas dūšys.</p>
+
+<p align="JUSTIFY">Tū skrauci nūsyutēja da kēneņam. Kēneņš taipat vaicoj, skraucs
+jam atbild: jā. Kēneņš soka: "Ka tu tik styprs esi, tad tu maņ izgubej meža
+cyuku, divi bagaturi un vīnradzi zvēri. Ka tu maņ itū padarēsi, tad es tevi
+apženēšu (apprecināšu) ar sovu maitu un atdūšu pus kēnestes."</p>
+
+<p align="JUSTIFY">Kēneņš cik raižu beja guoš ar savu voisku (kaŗaspēku) da tam
+mežam, bet nikuo navarēja darēt: kai skrīn visi nu meža, tai sarausta vysus
+gobol-gobolim, tik pats kēneņš izbāg.</p>
+
+<p align="JUSTIFY">Skraucs napīsazeist kēneņam, ka jis ir skraucs, bet soka, ka
+vīnkuoršs puiss. Senuok citi puiši nanosova čorta kaziņu yuzu (ādas bikses), kal tik
+skrauči, pa tuom yuzom kēneņč jū pazma, ka jis ir skraucs, bet skraucs izzalīdza.
+Kēneņš soka: "Jem, cik grib' lelu voisku jem, tik izgubej koč vīnu!"</p>
+
+<p align="JUSTIFY">Skraucs soka: "Maņ daudz navajag, kaidu treisdesmit saldatu, tik
+lai pajem cirus, zuogus, tūraiz īsim da mežam." </p>
+
+<p align="JUSTIFY">Dreizā laikā saldati beja kluot, vysi tyuleņ nūguoja da mežam,
+skraucs pasacēja jīm cierst bolkys, tisīt klāvu ar vīnom durovom, bez jumta, tik
+augstu, i tuo, ka byutu pī trisīņa (baļķu sienas) molas pīslītas trepes vīnā
+molā i ūtrā. Dreizā laikā klāvs beja gotovs. Skraucs saldatus nūsyutēja da sātai,
+pats palyka pi tuo klāva gaidēdams, kod kas atskrīs.</p>
+
+<p align="JUSTIFY">Skraucs gaida, bet jam tuos čorta kaziņis yuzys tai i treis. Zam
+paša vokora klausuos, nazkas tī atskrīņ, verās, ka meža cyuka. Skraucs nūsastuojas
+klāva durovuos, vēl pasakrota vārdamīs da cyukai tei cyuka jau tik sūļu desmit.
+Skraucs kai sadadzynuots īskrēja klāvā, pa tr epēm uorā, aiztaisēja klāva durovas,
+pats īt da sātai, a cyuka tai i kruoc, pa klāvu skraidēdama.</p>
+
+<p align="JUSTIFY">Skraucs nūguoja da kēneņam, kēneņš vaicoj: "Vai nūsiti da
+vīnu?"</p>
+
+<p align="JUSTIFY">Skraucs soka: "Kam maņ jū sist, jis man nikuo slykta
+napadarēja, tik meža cyuku pajēmu aiz saru, īsvīžu klāvā, sist nasytu."</p>
+
+<p align="JUSTIFY">Kēneņš soka, ka maloj, skraucs soka: "Ka natyc, var īt
+pasavērt."</p>
+
+<p align="JUSTIFY">Kēneņš pajēma skrauci; pulku saldatu i aizguoja -- verās: pravda,
+tyuleņ tū cyuku nūšuova. Tūraiz kēneņš vaicoj nū juo: Voi tu naesi skraucs?"</p>
+
+<p align="JUSTIFY">"A jis līdzas. Kēneņš soka: "Tagad izgubej tu tūs cytus.</p>
+
+<p align="JUSTIFY">"Labi," soka skraucs, "tik maņ vajag garys viervys i
+treju saldatu."</p>
+
+<p align="JUSTIFY">Par nagaru laiku vyss beja kluot. Skraucs ar trejim saldatim aizguoja
+da mežam, īt, īt jī verstim tuoļi, skraucs soka: "Jyus aita da sātai, es te
+palikšu."</p>
+
+<p align="JUSTIFY">Skraucs pajem viervi, až naspēj panest, bet vys īt tuoļuok,
+maklādams tuos vītas, kur guļ vīnradzis zvērs, beidzūt jis atroda pi vīna lela
+kūka. Jis nūlyka striki zemē, pats atsasāda pi kūka, umai (piepēši) jis izdzierda
+lelu trūksni, verās, ka atskrīn vīnradzis zvērs. Skraucs pīsacēļa kuojuos, tai i
+krotuos da vīnradžam zvēram. Vīnradzis vēļ vairuok aizzasirdēja, kuo īnērsa
+(iemiedza) golvu, i skrīn taišņi skraučam viersā. Skraucs aizbāg aiz kūka, a
+vīnradzis sovu rogu īdzina leidz pīrei kūkā. Tyuleņ skraucs pajēma striki, aptiņa
+vīnradžam ap koklu un pīsēja tū pi kūka, pats aizguoja pi kēneņa.</p>
+
+<p>Kēneņš vaicoj: "Vai nūsyti da vīnu?"</p>
+
+<p align="JUSTIFY">"Nē," soka skraucs, "kam man jū sist, jis man nikuo
+slykta napadarēja."</p>
+
+<p align="JUSTIFY">Kēneņš vys natyc, skraucs soka: "Īsim pasavārtu, es vīnradzi
+zvēru nūgyvu i pīsēju pi kūka, pats atguoju."</p>
+
+<p align="JUSTIFY">Jī vysi nūīt ar saldatim, verās: pravda, vīnradzis pīsīts,
+skraucs pīguoš vēl soka: "Redz pogons, až rogu īdzyna kūkā nū lelu
+siržu."</p>
+
+<p align="JUSTIFY">Kēneņam jau palyka baist, jis dūmoj: "Tagad man vajadzēs
+atdūt sovu maltu, bet vēļ pruotā redzīs, mož jū vēl apēss tī bagaturi."
+Tagad kēniņš soka : "Nūsyt tu tūs divus, tūraiz es te vi saženēšu ar sovu
+maitu."</p>
+
+<p align="JUSTIFY">Skraucs pajēma maisu, treis akmiņi i aizguoja vīns da mežam.
+Staigoj, staigoj jis vysu dīnu maklādams, kur guļ divi bagaturi, beidzūt atroda pi
+vīnas egles. Skraucs īkuopa eglē, pajēma maisu ar visim akmeņim, atsasāda pošā
+viersyunē i gaida, kod atīs bagaturi. Kod satymsa, atguoja bagaturi, jī suoka stuosteit
+vīns ūtram, cyk kuo nūsyta, sakyura guni apsasiļdēja i atsagula. Tik jī druscīt
+pīmyga, skraucs svīda akmini vīnam iz golvys, tys tyuleņ tryukuos i suoka klīgt iz
+ūtra: "Kam tu man ar kulaku par golvu īsyti?"</p>
+
+<p align="JUSTIFY">Jī drusku pasalomova i aizguoja vēl gulēt. Tik ji drusku aizmyga,
+skraucs svīda ūtru akmeni tam patim iz golvas. Tys tyulen tryukuos, ko dūs ūtram par
+golvu, tys soka: "Kū tu grib' nu maņi, ka tu šūvokor kaunīs?"</p>
+
+<p align="JUSTIFY">Tagad jī sasalomova smagi, bet tūmār aizguoja vēļ gulēt.
+Skraučam, sēžūt kūkā, suoka čorta kozinys drebēt, jis dūmoj : "Ka tik
+nakuoptu kūkā." Tik jī atsagula, svīda vēļ trešū akmeni tam patim iz golvas.
+Jī tyulēņ tryukuos, nikuo nasacēdami, ruova kūkus ar vysom saknem uorā i suoka
+kautīs. Skraucs vēļ vairuok nūsabeja, dūmoj, ka tik naaiztyktu tuos egles, kur jis
+sēd. Bagaturi situos i nūsasyta leidz smiertei. Leidz dīnai skraucs nūsēdēja eglē
+ni mirs, ni dzeivs. Kod izausa dīna, skraucs nūkuopa nu egles, aizguoja da kēneņam i
+soka: "Kai kēru kūku ar vysom saknem, tai i nūsytu."</p>
+
+<p align="JUSTIFY">Kēneņš atguoja - pasavēra: nūsysti, nikuo navar darīt, juožeņej
+ar sovu maitu i juoatdūd pus ķēnestes. Tai i nūtyka, sataisēja kuozas i sasaženēja
+obi.</p>
+
+<p>Es tī beja, ēdu, dzēru, par bārzdu tecēja, i mutē naleida. </p>
+
+<p align="JUSTIFY">Pēc kuozu, kad jaunī gulēja, skraucs vys pa sapņim klīdz:
+"Puiši, šyunit bikses, mērējit kamzūles!" Kēneņa maita vysu dzierd,
+reitā jei stuosta tāvam, ka jis soka: "Puiši, šyunit bikses, mērējit
+kamzūles!" vai jis tik nav skraucs? Ūtru nakti jis vēl taipat klīdz:
+"šyunit bikses, mērējit kamzūles!"</p>
+
+<p align="JUSTIFY">Kēneņš soka: "Tagad nikuo nadarēsi, ka jis skraucs,
+salauluoti, jadzeivoj." Kēneņa meita pīprosa vīna sluga, lai nūcārt skraučam
+golvu. Jis soka: "Labi, reitvokor, ko tik aizmigs, tu izkuop nu gultas, es īīšu ar
+zūbynu, jū nuciersšu."</p>
+
+<p align="JUSTIFY">Itū vysu dzierdēja skraucs. Kod atguoja vokors, skraucs atsagula,
+tyuleņ suoka kruokt, lai dūmoj, ka aizmyga. Sīva izkuopa nu gultas i pasauca sluga.
+Slugs tai i īt ar zūbynu pi siuona, skraucs tai kai pa mīgim soka: "Septiņas
+dūšys ar vīnu rūku nūsytu, te kai pyusšu tai izputēs."</p>
+
+<p align="JUSTIFY">Slugs kai sadadzynuots izskrēja nu guļamuo kambara uorā. Nu tuo
+laika jis vairuok nikod naguoja skrauča cierstu. I skraucs ar savu sīvu dzeivoj laimeigi
+šudiņ, jo vakar nav nūmyruši.</p>
+
+
+</body></html>

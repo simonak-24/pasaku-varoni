@@ -1,0 +1,249 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Brīnuma lampa.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">3. A. 561. H. Skujiņš, Andrs Ziemelis, Aumeisteros.</font></p><font size="3">
+
+<p align="JUSTIFY">Agrāk vienā mājā dzīvojis tēvs un tēva brālis. Tēva brālis
+bijis buris. Kad tēvs nomiris, tad viņa vienīgais dēls vēl bijis puika. Viņš
+dzīvojis pie tēva brāļa, bura.</p>
+
+<p align="JUSTIFY">Buris puiku visādi nerrojis. Puikam nebijis nekur ko iet un tas
+joprojām dzīvojis pie bura.</p>
+
+<p align="JUSTIFY">Puika bijis jau septiņpadsmit gadu vecs, kad to buris sūtījis uz
+velna pagrabu. Pagrabā esot maza lampiņa, lai viņš to atnesot. Buris iedevis puikam
+savādu gredzenu un teicis: ,,Kad tev tas gredzens būs pirkstā, tad tevi neviens
+neaiztiks."</p>
+
+<p align="JUSTIFY">Puika uzmaucis pirkstā bura doto gredzenu un gājis uz velna pagrabu.
+Buris palīdzējis novelt akmemi, kas bijis uz pagraba ieejas, un pa trepēm nokāpis
+pagrabā.</p>
+
+<p align="JUSTIFY">Puika iegājis lielā pagrabā. Tur nebijis neviena dzīva cilvēka.
+Pagrabā degusi maza lampiņa. Puika pagājies tālāk. Tur bijuši gaŗi galdi, piekrauti
+ar gardiem āboliem un ogām. Puika sācis ābolus un ogas ēst. Kad bijis paēdis, tad
+gājis pie lampiņas, nopūtis uguni, iebāzis lampiņu ķešā un kāpis pa trepēm
+augšā. Pie akmeņa buris puiku gaidījis un teicis: "Dod man lampiņu."</p>
+
+<p align="JUSTIFY">Puika nedevis. Viņš nodomājis, ka lampiņai vajagot būt lielam
+spēkam, citādi tak buram viņas nevajadzētu. Buris noskaities un aizgrūdis akmeni
+izejai priekšā un puika palicis velna pagrabā viens un gluži tumsā. Puika apsēdies
+uz trepēm un no gaŗa laika sācis berzēt bura doto gredzenu. Uzreiz tumsā, puikam
+pavisam tuvu, kas prasījis: "Ko kungs vēlas?".</p>
+
+<p align="JUSTIFY">Puika brīnījies, ka viņu saucot par kungu. Viņš runātājam
+prasījis, kas viņš ir. Runātājs stāstījis, ka viņš esot gars un kalpojot
+gredzenam.</p>
+
+<p>"Vai tu mani vari iznest no pagraba?" prasījis puika.</p>
+
+<p>"Jā, varu gan" gars atbildējis un iznesis puiku no pagraba. Pēc tam puika
+licis garam sevi aiznest simtu jūdzes no bura mājas. Gars puiku aiznesis. Puikam
+gribējies ēst - gars atnesis ēdienu. Puikam vajadzējis raudas, arī to gars
+apgādājis.</p>
+
+<p align="JUSTIFY">Puika dzīvojis svešā zemē un tam nekā netrūcis. Netālu no puikas
+būdiņas bijusi skaista ķēniņa pils un ķēniņam bijusi ļoti skaista meita.</p>
+
+<p align="JUSTIFY">Puika bijis jau divdesmit gadu vecs un tādēļ viņu tagad sauksim par
+puisi. Puisis iemīlējies skaistā ķēniņa meitā. Viņš stundām ilgi sēdējis uz
+upes krasta, iepretim ķēniņa pilij, un domājis par skaisto ķēniņa meitu. Reiz
+puisis no gara laika izvilcis no ķešas lampiņu, ko tas no velna pagraba ,iznesis, un
+sācis to spodrināt. Tiklīdz puisis sācis lampiņu berzēt, kad uzreiz saskrējuši
+divi simti garu un prasījuši : "Ka kungs vēlas?"</p>
+
+<p align="JUSTIFY">Puisis brīnījies. Viņš jautājis tiem, kur viņi te gadījušies.
+Gari. atbildējuši:, ka viņi esot lampiņas kalpi un paklausot viņas īpašnieka
+pavēles.</p>
+
+<p align="JUSTIFY">"Nu labi," teicis puisis. </p>
+
+<p align="JUSTIFY">"Vai jūs varat man uzbūvēt greznu pili te, pretim ķēniņa
+pilij?"</p>
+
+<p align="JUSTIFY">"Jā, varam."</p>
+
+<p align="JUSTIFY">"Kad viņa būs gatava?" </p>
+
+<p align="JUSTIFY">"Kad gribēsit."</p>
+
+<p>"Nu, vai pa mēnesi varēsit uzcelt?"</p>
+
+<p align="JUSTIFY">"Jā, jā, viegli vien. Mēs jums uzcelsim greznu pili, ka jūs
+esat tik labs. Mūsu agrākais pavēlnieks bija nikns un nejauks. Pie viņa mums gāja
+slikti. Bet jums, tik labam, mēs visu darīsim," atbildējuši gari.</p>
+
+<p align="JUSTIFY">Pēc mēneša pils bijusi gatava. puisis pārgājis pilī dzīvot.
+Viņš nodzīvojis pilī ;laimīgi ilgāku laiku. Ķēniņš to aicinājis uz savu pili un
+ķēniņa meita viņu iemīlējusi. Viņi nosvinējuši lepnas kāzas un dzīvojuši
+laimīgi. Puisis uzlicis lampiņu uz krāsns augšas, tur viņa stāvējusi, jo nebijusi
+vairs vajadzīga.</p>
+
+<p align="JUSTIFY">Vecais buris sācis puisi meklēt. Pēc vairākiem gadiem viņš
+uzzinājis, kur puisis dzīvo. Buris iztaisījis dažādas skaistas lampas un novaktējis,
+ka puisis aiziet uz medībām. Tad buris iegājis pilī, piedāvājis ķēniņa meitai
+lampas un teicis: "Kurš grib jaunu lampu, tam man jādod vietā veca lampa."</p>
+
+<p align="JUSTIFY">Ķēniņa meitai patikusi viena lampa un viņa to paņēmusi. Tad viņa
+iedomājusies, ka uz krāsns ir veca lampiņa, kas nekad netiek lietāta. Viņa
+sameklējusi veco lampiņu un atdevusi to buram pret jauno lampu. Tā buris ar viltību
+bijis pie velna pagraba lampiņas.</p>
+
+<p align="JUSTIFY">Tūlim nākamā naktī buris licis gariem aiznest pili ar ķēniņa
+meitu uz tuksnesi. Gari vienā naktī to izdarījuši. Kad puisis atgriezies no medībām,
+tad vairs neatrada ne pilis ne savas sievas, ķēniņa meitas. Visi cilvēki sākuši
+runāt, ka pili velni aiznesuši, vai arī tā nogrimusi zemē. Puisis kluslis. Viņš
+zinājis, ka tas ir bura darbs. Viņš sācis berzēt gredzenu, kas tam pirkstā bijis.
+Tūlin atskrējis gars un prasījis: "Ko kungs vēlas?"</p>
+
+<p align="JUSTIFY">Vai tu mani nevari aiznest uz to vietu, kur tagad stāv mana
+pils?" </p>
+
+<p align="JUSTIFY">"Jā, varu," atbildējis gars.</p>
+
+<p align="JUSTIFY">Gars nesis puisi trīs dienas un naktis, kamēr ticis pie tās vietas,
+kur bijusi pils. Tad gars puisi pārģērbis par nabagu un pavadījis to līdz durvim. Pie
+durvim stāvējis par sargu viens no tiem divi simti gariem, kas kalpojuši lampiņai.
+Viņš negribējis puisi pilī laist. Bet gars, kas kalpojis gredzenam, teicis uz to garu,
+kas lampiņai kalpojis, lai laiž iekšā, jo nabags esot šo labais pavēlnieks. Tad gars
+tūlin arī puisi ielaidis pilī.</p>
+
+<p align="JUSTIFY">Puisis uzmeklējis ķēniņa meitu un devies tai pazīstams. Viņi
+norunājuši tā. Tagad ķēniņa meita ies pie bura un sāks ar to vīnu dzert. Bet bura
+glāzē viņa ieliks miega zāles. Kad buris apgulsies, tad no viņa jādabūn atpakaļ
+velna pagraba lampiņa. Kad viss bijis norunāts, tad puisis atkal izgājis no pils un
+apslēpies viņas tuvumā.</p>
+
+<p align="JUSTIFY">Ķēniņa meita aizgājusi pie bura un sākusi ar to vīnu dzert. Bura
+glāzē viņa iebērusi miega zāles. Buris dzēris un palicis arvienu nespēcīgāks.
+Beidzot viņš pakritis zem galda un krācis kā negudrs.</p>
+
+<p align="JUSTIFY">Ķēniņa meita padevusi puišam ziņu un tas iesteidzies pilī. Viņi
+sākuši meklēt velna pagraba lampiņu. Lampiņas nevarējuši nekur atrast. Tā bijusi
+buram uz krūtim uzsieta. Viņi to beidzot uzgājuši un noplēsuši. Bet buris pa miegam
+dzirdējis un saucis garus, lai tie saplosa puisi .ar ķēniņa meitu. Bet bijis jau par
+vēlu. Lampiņa bijusi atkal puiša rokās. Neviens gars vairs neklausījis bura pavēles.
+Puisis licis ganiem saķert buri un to saplosīt. Gari to labprāt darījuši, jo buris
+pret tiem bijis traki nejauks.</p>
+
+<p align="JUSTIFY">Tad puisis licis ganiem, lai tie aiznes pili atpakaļ uz veco vietu.
+Gari pili aiznesuši pa piecām dienām.</p>
+
+<p align="JUSTIFY">Kad cilvēki atkal ieraudzījuši pazudušo pili, tad brīnījušies
+par puiša gudrību, ka tas to varējis atkal no zemes izcelt.</p>
+
+<p align="JUSTIFY">Drīz vien vecais ķēniņš saslimis un nomiris. Viņš savu pili un
+valsti atdevis meitas vīram. Nu puisis ticis par ķēniņu. Viņš valdot par zemi 'un
+pili un mīlējot skaisto ķēniņieni tikpat karsti, kā agrāk.</p>
+
+<p>Piezīme. Sal. abu iepriekšējo variantu piezīmes. P. Š.</p>
+</font>
+
+
+</body></html>

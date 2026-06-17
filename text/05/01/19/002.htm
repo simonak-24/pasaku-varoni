@@ -1,0 +1,152 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>19</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vīrs ceļo uz elli.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 477. R. Vulfs Ūziņos. LP, III, 54.</p>
+
+<p align="JUSTIFY">Viņos laikos dzīvojuši divi brāļi, viens bijis ļoti bagāts, otrs
+ļoti nabags. Reiz nabagākais brālis aizgājis pie bagātā maizes lūgties, bet
+bagātais izņēmis no apcirkņiem paslepus visu labību un teicis, ka neesot ko dot.
+Nabagākais saslaucījis tās pašas smelknes un izcepis no tām itin labu maizi. Otrā
+dienā bagātajam gadījies pie nabagākā aiziet. Nabagākais piedāvāji brālim savu
+baltu maizi, teikdams: "Še, brāl, ēd, ko Dievs man svētījis!"</p>
+
+<p align="JUSTIFY">Bet bagātais brālis atcirtis: "Ej uz elli ar savu baltu maizi!
+Ko tu man te dāvā?"</p>
+
+<p align="JUSTIFY">Nabagais prasījis: "Kur tad, brāl, elle atronama?" "Ej
+tur kur sarkani logi, tur atradīsi elli!"</p>
+
+<p align="JUSTIFY">Labi. Nabagais paņēmis savu baltu maizi un aizgājis elli meklēt. Uz
+ceļa tas saticis vecīti, kas prasījis, uz kurieni ar baltu maizi ejot. Nabagais
+izstāstījis, ka viņa bagātais brālis sūtījis to ar baltu maizi uz elli.</p>
+
+<p align="JUSTIFY">"Ak, tā!" vecītis iesaucies, "ej ar tad, bet ātrāk
+velnam neatdod baltu maizi, kamēr tev atvēl elles verdošā katlā pus pirkstiņu
+iemērkt."</p>
+
+<p align="JUSTIFY">Labi. Pie elles vārtiem velns iznācis ar trim galvām pretim un
+prasījis, cik gribot par to baltu maizi.</p>
+
+<p align="JUSTIFY">"Vairāk negribu, kā tik tavā verdošā katlā pus pirkstiņu
+apmērcēt."</p>
+
+<p align="JUSTIFY">"Ja, ja, ej, mērcē vesels; bet papriekšu atdod man baltu
+maizi."</p>
+
+<p align="JUSTIFY">Nabagais brālis atdevis baltu maizi velnam un iegājis ellē pirkstu
+mērcēt. Bet, līdz ko pirkstu apmērcējis, tā viss zelts, kas tur katlā vārījies;
+sasalis par gaŗu strēmeli pirksta galā. Nabagais gājis uz mājam, bet strēmele tam
+vilkusies līdz un velni nespējuši to saredzēt Mājā nabagais sācis strēmeli kopā
+tīt, m re, kas nu iznācis: satinis tik lielu zelta kaudzi, kā labu ēku. Tagad nabaga
+brālim nebijis vairs jāēd smelknes no brāļa apcirkņa.</p>
+
+
+</body></html>

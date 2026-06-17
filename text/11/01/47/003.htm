@@ -1,0 +1,171 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Ļaunā sieva bedrē.</strong></font></p><font size="5">
+
+</font><p align="CENTER"><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p align="JUSTIFY">3. A. 1164. L a p a s M ā r t i ņ š Ē r ģ e m ē, R ū j i e n ā,
+Ē v e l ē. "G u d r a i s A n s i s u n v e l n s", I, 1901., 64, 19.</p>
+
+<p align="JUSTIFY">Vienam rāmam vīram bijusi ļoti nikna sieva, kas tam ne dienu ne
+nakti nedevusi miera. Viņa to vienmēr dunkājusi un lamājusi. Reiz, kad sieva to atkal
+salamājusi, vīrs aizbēdzis uz mežu. Tur staigādams, viņš atradis vienu dziļu bedri
+kā vecu aku. Viņš tūliņ gājis uz māju un stāstījis sievai, ka mežā viņš
+atradis naudas bedri, lai nākot viņam līdz naudu saņemt. Sieva bijusi mierā un tā nu
+abi aizgājuši uz mežu. Pie bedres sieva tūliņ tiepusies: "Viss, kas šai bedrē,
+pieder man vienai pašai."</p>
+
+<p align="JUSTIFY">"Tad ņem ar visu!" vīrs iesaucies un iegrūdis sievu
+bedrē. Tad viņš pārgājis atkal mājā un dzīvojis mierīgi. Otrā dienā viņam
+palicis sievas žēl un viņš gājis uz mežu apskatīt to bedri. Viņš nocirtis garu
+kārti, iebāzis to bedrē un gribējis vilkt sievu atkal ārā. Kārti laukā velkot,
+viņš sajutis lielu smagumu un priecājies, ka nu sievu varēšot izglābt. Bet kārts
+galā atradies velns, kas lūdzies: "Mīļais cilvēk, velc mani laukā. Vakar te
+iekrita viena sieviete, kas man nemaz vairs miera neliek."</p>
+
+<p align="JUSTIFY">Vīrs sabijies un gribējis velnu grūst atkal atpakaļ, bet velns
+atkal lūdzies: "Izvelc mani, es tevi padarīšu par bagātu vīru!"</p>
+
+<p>Vīrs prasījis: "Ko tad tu man laba darīsi?"</p>
+
+<p align="JUSTIFY">Velns sacījis : "Bagātā muižā es trokšņošu un mocīšu
+ļaudis. Nāc tu un dzen mani projām. Par to tu dabūsi lielu algu. Tā es tevi
+klausīšu trīs reizas, bet ceturto reizu tu manis vairs nedzen projām."</p>
+
+<p>Tā nu abi salīguši un vīrs izvilcis velnu no bedres.</p>
+
+<p align="JUSTIFY">Jau nākošā naktī vienā muižā izcēlies liels troksnis, tā ka
+ļaudis nemaz vairs nevarējuši gulēt. Muižnieks izsolījis tam lielu algu, kas ļaunos
+garus varētu padzīt. Vīrs arī tūliņ par glābēju klāt, izdzen velnu un dabū lielu
+naudu. Tāpat noticis arī vēl otrā un trešā muižā. Vīrs tagad jau ir liels
+bagātnieks.</p>
+
+<p align="JUSTIFY">Drīz vien atkal notikusi tāda nelaime ceturtā muižā, kuŗas kungs
+bija ļoti bagāts. Kungs atkal aicinājis to pašu velnu dzinēju palīgā. Vīrs šoreiz
+negribējis neko darīt, jo atcerējies, ka velns to noliedzis. Kungs šoreiz apsolījis
+trīskārtīgu maksu. Vīrs pārdomājis : "Lai nu notiek, kas notikdams, bet tā ir
+laba alga, kādas nevar atraidīt."</p>
+
+<p align="JUSTIFY">Aizgājis uz to muižu, vīrs redz : velns sēd uz vārtu staba, tura
+lielu akmeni uz galvas un draud to mest šim virsū, ja tik viņš nākšot pa vārtiem
+iekšā.</p>
+
+<p align="JUSTIFY">Bet vīrs bijis gudrs un ātri apķēries, kas te darāms. Piegājis
+pie velna, viņš sacījis: "Ko tu te sēdi uz vārtiem? Sieva tikusi no bedres
+laukā un meklē tevi. Viņa patlaban nāk šurpu!"</p>
+
+<p align="JUSTIFY">Velns, to dzirdēdams, ļoti izbijies. Viņš nometis akmeni zemē un
+aizmucis, lai tik ar nikno sievu nebūtu jāsatiekas.</p>
+
+<p align="JUSTIFY">Vīrs no bagātā kunga dabūjis lielu maksu par velna aizdzīšanu.
+Naudas viņam tagad bijis diezgan un viņš dzīvojis laimīgi visu mūžu.</p>
+
+<p>P i e z ī m e. Pasaka ir saīsināta, atmetot izpušķojumus. P. Š.</p>
+</font>
+
+
+</body></html>

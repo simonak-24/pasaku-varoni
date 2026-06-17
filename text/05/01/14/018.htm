@@ -1,0 +1,160 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>18</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5">
+
+<p align="CENTER"><strong>Abi dzīvē un nāvē savienotie draugi.</strong></p>
+</font>
+
+<p align="CENTER">&nbsp;</p>
+
+<p align="">18. A. 470. E. Birznieks no J. Zariņa, Dzirciemā, Jkr. III, 32 (10). LP, VII,
+I, 1219 (4).</p>
+
+<p align="JUSTIFY">Bija reiz tik bagāts tirgotājs, ka neviens nevarēja viņa bagātību
+saskaitīt; varēja skaitīt cauru dienu, mūžu, gadu gadiem. palikt traks skaitot, bet
+kā nevar, tā nevar saskaitīt. Katrā nedēļā viņš vienu dienu deva visiem ļaudim,
+kas tik pie viņa aizgāja, ēst, dzert, un naktsmājas visu par velti. Divpadsmit
+sulaiņi un seši pavāri strādāja nosvīduši, visus apkalpodami. Tā tas gāja kādus
+divpadsmit gadus.</p>
+
+<p align="JUSTIFY">Pēc divpadsmit gadiem pašā ziemas svētku naktī bagāto tirgotāju
+apzaga, vairāk miljonu naudas viņam izņēma. Tirgotājs par to tā sadusmojās, ka
+apņēmās vairs nevienam ne maizes kumosa nedot. Gan nāca visādi: bagāti un nabagi,
+veci un jauni pa vecam ieradumam pie viņa atkal plītēt, bet viņš tiem nepasniedza ne
+maizes riecieniņa, ne ūdens lāsītes.</p>
+
+<p align="JUSTIFY">Tā tas vilkās labu laiku, kamēr bagātais tirgotājs pašā ziemas
+svētku vakarā ļoti saslima un uz divpadsmit stundām pamira. Viņu nesa gar zvaigznēm,
+gar sauli, gar mēnesi arvienu tālāki un tālāki, kamēr tas nonāca pavisam pasaules
+otrā malā. Tur viņam ļoti sala un gribējās ēst. Viņu nesa vēl tālāki. kamēr
+tas nonāca pie elles; te viņam atkal bija ļoti karsts un gribējās ļoti dzert.
+Tirgotājs sāka lūgties, lai viņu laižot atpakaļ uz mājām, viņš došot atkal
+visiem ēst un dzert otrtiek tik daudz. Viņu palaiž.</p>
+
+<p align="JUSTIFY">Tirgotājs atdzīvojas un paliek vesels. Nu viņš ir daudz, daudz
+devīgāks, nekā pa priekšu: divreiz nedēļā viņš tagad ēdina un dzirdina visus,
+divdesmit četri sulaiņi un divpadsmit pavāri raujas katru dienu slapjām mugurām,
+sanākušos apkalpodami.</p>
+
+<p align="JUSTIFY">Atkal pagājuši divpadsmit gadi. Pašā ziemas svētku vakarā atnāk
+pie bagātā tirgotāja vecs, vecs vīriņš ciemā. Svētkus te pavadījis, vecais lūdz
+tirgotāju līdz pie sevis paciemoties. Vecais vīriņš ved tirgotāju uz savu pili un
+rāda viņam visvisādus greznumus: dimantus un visādus dārgus akmeņus, katrā kambarī
+cienā savādiem ēdieniem.</p>
+
+<p align="JUSTIFY">Labi izciemojies pie vecā vīriņa, tirgotājs nāk atpakaļ uz savu
+pilsētu, bet nevar to vairs atrast. Gan staigā pa to vietu krustiem, šķērsām, bet
+kā nav, tā nav. Tie paši kalni, tās pašas lejas, bet tikai pilsēta nekur nav
+atrodama. Viņš redz cilvēkus, bet tie visi ir sveši. Viņš sāk apvaicāties, kur tā
+pilsēta palikusi, kas te nupat vēl priekš maz dienām bijusi? Svešinieks atbild
+tirgotājam, ka jau gadu simteņi pagājuši, kamēr pilsētu ienaidnieki nopostījuši.
+Vēl vēlāku pēc tam te gājis trīs reizes kaŗa spēks pāri.</p>
+
+<p align="JUSTIFY">Bagātais tirgotājs vēl nedodas mierā, viņš meklē pa zāles
+apaugušām drupām savu agrāko namu, savu agrāko bagātību, kamēr sabirst un paliek
+par pelnu čupiņu.</p>
+
+
+</body></html>

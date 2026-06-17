@@ -1,0 +1,198 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Spēlētājs ellē.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 476. J. Krēsliņš "Teikas iz Malienas" 16. LP VII, I,
+623. 1 .p. 11.</p>
+
+<p align="JUSTIFY">Reiz dzīvoja slavens stabulnieks, kas nepalaida nevienu svētdienu,
+kur negāja uz krogu -vai uz viesībām stabulēt. Bet ko stabulēdams nopelnīja, to arī
+nodzēra - tukšs bijis, tukšs palika. Kādu vakaru tas atkal sēdēja krogā,
+gaidīdams, 1ai kāds liktu stabulēt, bet neviens nenāca. Izgaidījies velti, viņš
+gāja sapīcis uz māju.</p>
+
+<p align="JUSTIFY">Gabalu gājis, atsēdās pie krustceļiem uz akmeni, sacīdams: Vai tad
+šodien ne pats velns mani neaicinās stabulēt?"</p>
+
+<p align="JUSTIFY">Tik ko šos vārdus izteicis, viņš dzirdējis karītes ratus rībam.
+Seši melni zirgi bija karītei priekšā un kučērs brauca, ka ugunis vien šķīda.
+Piepēži karīte apstājās, divi melni jaunkungi izkāpa no ratiem un uzsauca
+stabulniekam : "Ei, draugs, vai gribi šonakt stabulēt?"</p>
+
+<p align="JUSTIFY">"Kāpēc ne, cienīgi lieli kungi, kad tikai ko varu
+nopelnīt," stabulnieks atbildēja.</p>
+
+<p align="JUSTIFY">"Par maksu nebēdā, bet zini, ka tev mums jābrauc līdz ar
+aizsietām acim!"</p>
+
+<p align="JUSTIFY">Stabulnieks domāja, domāja, beidzot apņēmās līdz braukt.</p>
+
+<p align="JUSTIFY">Kungi nu aizsēja stabulniekam acis, iecēla viņu karītē un brauca
+viesuļa ātrumā uz priekšu. Brauca ilgi pa kalniem un lejām, beidzot kungi sacīja, ka
+nu esot mājā. Viņi saņēma stabulniekam katrs pie rokas un veda kādā alas caurumā,
+kur tiem bija jākāpj dziļi, dziļi .zemē iekšā. Tagad kungi noņēma stabulniekam
+lakatu no acim. Izbrīnījies stabulnieks skatījās visapkārt: viņš atradās greznā
+istabā, kur sienas mirdzēja un laistījās no dārgumim. Zelta spraustuvēs gar sienām
+mirdzēja simtiem sveces. Lieli bari smuku kungu un kundzeņu staigāja zīda un samta
+melnās drēbēs pa istabu apkārt, ka zābaki vien čīkstēja. Arī pie stabulnieka
+pienāca kāda skaista kundzene, un tam ap kaklu skaudamās, sacīja: "Nu, mīļo
+draudziņ, kā tev patīk?"</p>
+
+<p align="JUSTIFY">Stabulnieks vēl nebija no brīnumiem atjēdzies, kad pieskrēja<b> </b>sulaiņi
+un tam lika priekšā uz galda dārgus vīnus zelta biķeŗos un sniedza uz šķīvjiem
+dārgus cepešus, ko visuskaistākā kundzene, mīļi smiedama, tam pasniedza. Stabulnieks
+baudīja no visiem dārgumiem un bija tik laimīgs, ka vēlējās visu mūžu te palikt.</p>
+
+<p align="JUSTIFY">Pēc maltītes tas sāka stabulēt un kungi un kundzenes jandālēties,
+kā visas sienas dimdēja un dārdēja. Bet spēlēdams stabulnieks pamanīja, ka kungi un
+kundzenes lāgu lāgiem iegāja kādā kaktiņā, kur stāvēja divi podiņi, kuros tie
+iemērcēja pirkstus un apslapināja acis. "Pag!" stabulnieks domāja, "kas
+tur var būt, es arī iešu un apslapināšu acis."</p>
+
+<p align="JUSTIFY">Nevienam nemanot, viņš pielīda pie poda un, pirkstu tanī
+iemērcēdams, apslapināja labo aci. Ui, kas tad tas? Viņš uz reizi jutās tik stiprs
+kā milzenis. Viņš apslapināja aci vēl reizi un jutās arvienu spēcīgāks.</p>
+
+<p align="JUSTIFY">Bet kas gan tur otrā podā atrodās? Viņš apmērcēja arī tur
+pirkstu un slapināja acis. Ū! no bailēm palika gandrīz pavisam stīvs. Viņš tagad
+redzēja, ka atradās riebīgā, slapjā alā, kur čūskas spiegdamas un šņākdamas
+locījās un staipījās un krupji rāpuļoja gar sienmalēm.</p>
+
+<p align="JUSTIFY">No bailēm stabulnieks sāka jo diktāki stabulēt; un jo diktāki tas
+stabulēja, jo augstāki čūskas, pa pāriem kopā savijušās. lēca. Uz galda vairs
+nebija biķeŗi ar dārgu vīnu, bet miroņu galvas kausi, kuŗos atradās nekristītu
+bērnu asinis. Vēl lielākas bailes un riebums stabulniekam uznāca, kad skaistās
+kundzenes vietā pielīda pelēka čūska ar zaļiem raibumiem un šņākdama ap viņu
+luncinājās. No bailēm viņš aizmiedza acis un stabulēja, ko jaudāja.</p>
+
+<p align="JUSTIFY">Te uz reizi tas dzirdēja gaili dziedam. Briesmīgs rībiens
+atskanēja, visa ala nolīgojās, vēji sāka ap ausim svilpot - un tad viss bija pazudis.
+Stabulnieks atkal atradās turpat uz krusta ceļiem, kur vakarā bija apsēdies un būtu
+visu to notikumu par sapni turējis, ja tam līdzās nebūtu naudas maisiņš kā alga par
+stabulējumu.</p>
+
+<p align="JUSTIFY">Mājā aizgājis stabulnieks veselu mēnesi sagulēja slims. Pēc tam
+tas stabuli ir rokā neņēma un krogā arī vairs kājas necēla. Bet ļaudis brīnījās
+par viņa lielo spēku kā arī par to, kur tam tik daudz naudas.</p>
+
+<p align="JUSTIFY">Reiz stabulnieks, Rīgā aizbraucis, iet gar Daugavas malu un ierauga
+to pašu jaunkungu pretim nākam, kas to bija aicinājis stabulēt. Stabulnieks to
+sveicina. "Ko, vai tu mani redzi?" jaunskungs brīnās.</p>
+
+<p align="JUSTIFY">Zināms!" stabulnieks atbild. "</p>
+
+<p align="JUSTIFY">"Ar kuŗu aci?" jaunkskungs tālāk jautā. . Ar
+kreiso!" šis atbild.</p>
+
+<p align="JUSTIFY">Un pirms stabulnieks dabū apskatīties, jaunskungs izrauj iesmu un
+izdur šim kreiso aci. Kungs uz reizi pazūd un stabulnieks palika vienacis cauru mūžu.</p>
+
+
+</body></html>

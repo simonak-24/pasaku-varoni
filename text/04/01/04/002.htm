@@ -1,0 +1,342 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Velns maisā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 330 B. J. T. Tukuma apr. Spirgā. LP, VI, 145, 1. AŠ, III, 9e.</p>
+
+<p align="JUSTIFY">Reiz viens kaŗa vīrs gājis pa ceļu un viņam tikai trīs kapeikas
+bijis klāt. Par šo naudu labprāt būtu vēlējies maizi pirkt, jo nejauki bijis
+izsalcis, bet kur nu katrreiz ceļa malā tā tie pārdevēji gadīsies? Neko darīt, --
+metis tās domas pie malas un vilcies, cik vēl tā spēka bijis, uz priekšu. Beidzot
+kājas gandrīz vairs neklausījušas, bijis jāapsēžas atpūtināt. Nu sēdējis,
+sēdējis un sācis pārdomāt: "Visiem Dievs līdzējis - vai tad man itin arī
+nelīdzēs?"</p>
+
+<p align="JUSTIFY">Un gandrīz labi nebijis izčukstējis tos vārdus, te neviļot
+pacēlis acis: nāk vecs vīriņš sirmim matiem pretim.</p>
+
+<p align="JUSTIFY">Pienāk klāt: kādēļ esot tāds noskumis?</p>
+
+<p align="JUSTIFY">Tā un tā - griboties gaužam ēst; trīs kapeikas gan būtu maizi ko
+pirkt, bet kas pārdos neapdzīvotā vietā?</p>
+
+<p align="JUSTIFY">"Vai!" sirmgalvis žēli iesaucies, "tad tev taču
+mazākais trīs kapeikas - man atkal nav ne graša pie dvēseles. Vai nevari, mīļais,
+labais brālīti, jel vienu vienīgu kapeiciņu man atmest?"</p>
+
+<p align="JUSTIFY">"Kāpēc ne? Es nemaz tik cietsirdīgs neesmu - še!"
+Sirmgalvis patencinādams paņēmis kapeiku un iebāzis kabatā. Bet roku no kabatas ārā
+vilkdams, iesaucies: ,,Redz, redz, man te atkal tāda lieka pīpīte, ko nevar
+izsmēķēt; pieņem to no manis par piemiņu un staigā vesels!"</p>
+
+<p align="JUSTIFY">Kaŗa vīrs paņēmis pīpīti, tūliņ uzsmēķējis - un skat, kas p
+ar brīnumiem! -- lielā ēstgriba drusku pārgājuse, mazākais tik daudz, ka var ciest
+tālāk iet.</p>
+
+<p align="JUSTIFY">Gājis tādu gabalu atkal, piestājies otrs sirmgalvis: kas viņam
+kaišot, ka tāds nolaidies?</p>
+
+<p align="JUSTIFY">"Kas nu kaiš - ēst gribas ; divi kapeikas gan būtu, bet kur tu
+cilvēks pirksi teitan maizi!"</p>
+
+<p align="JUSTIFY">"Vai! tad tev divi kapeikas - man atkal nav ne graša pie
+dvēseles. Vai nevari, mīļais labais brālīti, to vienu kapeiciņu man dāvināt?"</p>
+
+<p align="JUSTIFY">"Kapēc ne? Tik cietsirdīgs nemaz neesmu - še!" Sirmgalvis
+patencinādams paņēmis kapeiku un iebāzis kabatā. Bet roku no kabatas ārā vilkdams,
+iesaucies: "Redz, redz, man te atkal tāda lieka pudele ar brandvīnu, ko nekad nevar
+izdzert. Pieņem to no manis par piemiņu un staigā vesels!"</p>
+
+<p align="JUSTIFY">Kaŗa vīrs paņēmis pudeli, tūliņ iedzēris drusku un gājis
+tālāk. Gājis, gājis - </p>
+
+<p align="JUSTIFY">saticis trešu sirmgalvi. Šis tāpat vaicājis: kas viņam kaišot, ka
+tāds nolaidis?</p>
+
+<p align="JUSTIFY">"Nekas nekaiš - ēst tikai briesmīgi gribas; viena kapeika gan
+vēl kabatā būtu,</p>
+
+<p align="JUSTIFY">bet kur tu cilvēks šeitam maizi dabūsi pirkt?" "Vai! tad
+tev taču mazākais </p>
+
+<p align="JUSTIFY">kapeika pie dvēseles - man atkal nav ne graša. Vai nevari, mīļais,
+labais brālīti, to kapeiciņu man dāvināt?"</p>
+
+<p align="JUSTIFY">"Kāpēc ne? - še!"</p>
+
+<p align="JUSTIFY">Sirmgalvis patencinādams paņēmis kapeiku un iebāzis kabatā. Bet
+roku no kabatas ārā vilkdams, iesaucies : "Redz, redz, man te atkal tāds lieks
+bundulis azotē; ja tev tā nu gribas ēst, tad tikai pieliec bundulim roku un vēlies,
+kādus ēdienus iedomājies, tūliņ tādi tur gadīsies; bet ja vēlies bundulī kautko
+glabāt, tad tikai pieliec roku un iesaucies: "Iekšā!" - tūliņ - lai tas
+būtu ir vērša lielumā - saŗuks un pazudīs bundulī, ka nedabūsi ne godīgi
+noredzēt."</p>
+
+<p align="JUSTIFY">Kaŗa vīrs nu bijis dikti laimīgs: tagad bijis ko ēst, ko iedzert un
+vēl uzsmēķēt. Viņš gājis priecīgs turpmāk un vakara laikā notapis svešā
+krogā, kur lūdzies naktsmāju. Bet krodzenieks atteicis: "Mums šovakar būs liela
+ļaužu drūzma, te tiešām nebūs</p>
+
+<p align="JUSTIFY">kur piestāt; bet aizej tepat necik tālu uz ķēniņa pili, gan
+ķēniņš ierādīs guļas vietu."</p>
+
+<p align="JUSTIFY">Labi, aiziet pie ķēniņa, ķēniņš itin priecīgs paaicina sulaini
+: "Vai dzirdi! aizved šo ceļa vīru vecajā pilī un ieslēdz viņu tai un tai
+istabā, lai tas izguļas; bet tā ieslēdz, ka nevar laukā izsprukt, jo šonakt bur
+velni dauzīsies. Tie gan uzstāja, lai es savu meitu sūtu viņiem apēst; bet
+nesūtīšu vis, lai viņi labāk ēd to svešo ceļa vīru, ja tā izkratījušies."</p>
+
+<p align="JUSTIFY">Labi, sulainis tūliņ paņem kaŗa vīru pie rokas un vedīs uz veco
+pili. Bet krogam gaŗām ejot, kaŗa vīrs ierauga: tie tur iekšā cep baltmaizi, cep
+zosis un rīkojas braši. Viņš domā: "Ā! vai tad man nevajaga vakariņas?"
+un tūliņ pieliek roku bundulim, vēlēdamies: "Kaut baltmaize un zosis būtu
+bundulī!"</p>
+
+<p align="JUSTIFY">Līdz to izčukstējis, patiesi visas zosis un visa baltmaize nozūd
+bundulī, un kroga galdi paliek tik tukši kā noslaucīti. Tas nu tas. Aiziet vecajā
+pilī, sulainis ieslēdz cietā kambarī, un šis nu paliek viens pats, ēzdams
+vakariņas. Ēd, ēd - nāks tā <b>pret </b>pusnakti - sāk visas malas rībēt un
+beidzot atveŗas durvis. Kā nu atveŗas durvis - redz: divpadsmit velni viens pakaļ otra
+klūp iekšā un tie pakaļējie tikai tiem priekšējiem vēl prašināt prašina: ,,Kas
+nu šonakt par gaļu būs? Vai ir ķēniņa meita?"</p>
+
+<p align="JUSTIFY">"Nav, nav!" priekšējie atbild, "tāds vecs nieka
+zaldāts atsūtīts !"</p>
+
+<p align="JUSTIFY">"Ak tu sasodītais!" pakaļējie nospļaujas, "tad tam
+būs tikpat<b> </b>sīksta gaļa kā tam viņreizēiam - vēl tagad pilni zobi piegājuši
+stāv."</p>
+
+<p align="JUSTIFY">Kaŗa vīrs, to dzirdēdams. gandrīz jau saplaka, bet ātrumā viņam
+iešaujas prātā: "Pag, pag, kur tad mana pīpīte? Jārauga ar to
+pielabināties." Un tā tūliņ: "Klausaties, ciemiņi! to jau es arī zinu, ka
+jūs mani tik tā kā tā ēdīsit. Bet kā būtu, ja mēs papriekšu uzvilktum kuplu
+dūmu? Mans vectēvs arī tāpat darīja. Ik nosēdās ēst, ik labi iepriekš
+sasmēķējās, un kā viņam tad ēdiens pie sirds gāja, to jums nemaz nevaru
+izteikt."</p>
+
+<p align="JUSTIFY">Labi, velni mierā: kupls dūms viņiem esot īsti pa prātam, lai
+tikai dodot šurp.</p>
+
+<p align="JUSTIFY">"Ja, tūliņ!" kaŗa vīrs nosmejas, "man pašulaik
+tāda maza pīpīte arī pie rokas, un tad nu, zināms, ātrāk atlaisties ne, kamēr tas
+mazais nieks izkūpināts. Kas jums, divpadsmit vīriem, tur atkal būs? Katram pa dūmam,
+katram pa dūmam, riņķī vien, kamēr padibins šļurkst."</p>
+
+<p align="JUSTIFY">Un nu visi divpadsmit, pa kārtai vien tā ņēmās, tā ņēmās
+kūpināt, lai Dievs nedod redzēt! Jau visa istaba ziliem dūmiem smok, ka nemaz
+atņemties - vēl pīpīte nav tukša un šie tikai rauj atspērušies. Jau kaŗavīrs,
+nevarēdams vairs dūmu svelmi paciest,</p>
+
+<p align="JUSTIFY">iebāž galvu drānās, bet šie rauj un rauj, lai tur arī gals
+klātu. Un beidzot patiesi arī gals radās: jau paģība viens velns, drīzi otrs, trešs
+vēl un tā pa rindai vien, kamēr pret rīta laiku tikai pats divpadsmitais kaut cik
+jēgā saturējās, uzsaukdams ģībējiem: "1'0 nevar izsmēķēt, gaisma svīst,
+iesim projām!"</p>
+
+<p align="JUSTIFY">Tai pašā acumirklī vīsi grīļodamies izkūņojās laukā un
+aizgāja spļaudīdami kā jau nelabie.</p>
+
+<p align="JUSTIFY">Bet kaŗa vīrs mierīgā garā likās gulēt un sagulēja līdz
+brokasta laikam.</p>
+
+<p align="JUSTIFY">Pēc brokasta ķēniņa sulainis ienāca ar kurvi rakā, lai salasītu
+kaŗavīra kaulus, ko velni būs atstājuši. Bet kā viņš atplēta acis, atrazdams to
+sveiku, veselu gultā. Tūliņ skrēja atpakaļ pašam ķēniņam tādus brīnumus
+vēstīt. Ķēniņš saka: "Tas nemaz uzvar būt - lai viņš tad nāk šurp!"</p>
+
+<p align="JUSTIFY">Atnāk - ja: dzīvs, kas dzīvs.</p>
+
+<p align="JUSTIFY">"Vai tas ir pieredzēts?" ķēniņš brīnas. "Kā tu
+varēji izglābties no tiem velniem?"</p>
+
+<p align="JUSTIFY">Tā un tā: man tāda maza neizsmēķējama pīpele un to viņi tur
+zīda tikmēr, tikmēr, kamēr uzbruka gaisma un tā viņi tad visi, laikam no tās
+gaismas bīdamies, aizspruka bez ardievām.."</p>
+
+<p align="JUSTIFY">"Ja. ja!" ķēniņš pasmudzina galvu, "es to gan
+nezinu, bet sava lieta tur ir. Bet mīļais, labais draugs! kad tu nu vienreiz ar velniem
+esi iesācis, vai nevari vēl pāri naktis ar tiem padarboties? Kas zin, tu viņus
+aizdzeni pavisam, un tad mana meita ir glābta un - manis dēļ - tad es vēl viņu atdodu
+tev par sievu."</p>
+
+<p align="JUSTIFY">"Vai tu prāts!" kaŗa vīrs saņēma rokas, "tad jau
+man jāiet, lai tur arī piķis ceļā stātos!"</p>
+
+<p align="JUSTIFY">Labi -- aiziet. Pienāk pusnakts - velni klāt atkal. Bet kaŗa vīrs
+saka :</p>
+
+<p align="JUSTIFY">"Klausaties, ciemiņi! to jau es arī zinu, ka jūs mani tā kā
+tā ēdīsit. Bet kā būtu, ja mēs papriekšu kādu malku brandvīna uzdzertum? Mans
+vectēvs arī tā mēdza darīt. Ik piesēdās ēst, ik uzšāva kādu lāsi, un kā
+viņam ēdiens gāja pie sirds, to nemaz izteikt nevaru."</p>
+
+<p align="JUSTIFY">Ja, ja! - velni tūliņ.</p>
+
+<p align="JUSTIFY">"Labi, mani ciemiņi!" kaŗa vīrs pasmējās, "man te
+tāda pudelīte brandvīna ir, un tad nu, zināms, ātrāk atlaisties ne, kamēr tas nieks
+izdzerts."</p>
+
+<p align="JUSTIFY">Un tūdaļ visi divpadsmit saklupa ap pudeli, kā mušas uz kreimu.
+Dzēra, dzēra - nemaz neplok. Nu kampj, nu kampj --jādomā: ūkas aizrīs līdz; bet kā
+neplok, tā neplok. Beidzot - kas ir? - joki nebūs - sāks šie, negauši, zvalstīties
+un nu visi, piedzēruši kā dubļi, liksies turpat uz grīdas. Tikai pats divpadsmitais
+vēl turējās kājās, un pa tādam brīdim iesauksies: "To nevar izdzert, gaisma
+svīst, iesim Projām!"</p>
+
+<p align="JUSTIFY">Un tā viņi tad arī aizgāja klupdami, krizdami - kā jau, kas
+iereibuši.</p>
+
+<p align="JUSTIFY">Bet trešo nakti - vai tu traks! - nu velni nāca pavisam citādāki:
+visi sienmaļi trīcēja un to vien sauca: "Šoreiz neļausimies piejokoties, šoreiz
+neļausimies piejokoties! Tagad viņu vajaga nokost, lai kas!"</p>
+
+<p align="JUSTIFY">Bet kaŗa vīrs lēnā garā atteica trokšņotājiem: "To jau es
+arī zinu, ka jūs mani nokodīsit; bet atvēliet man mazākais no gultas izkāpt un
+istabas vidū nostāties, tad varēsit visi reizē pieiet kost."</p>
+
+<p align="JUSTIFY">Ja, ja, bet lai tad kāpjot ātri!</p>
+
+<p align="JUSTIFY">Labi. Bet kaŗa vīrs, no gultas lēkdams<b>, </b>ātri pakampa savu
+bunduli uzsaukdams: </p>
+
+<p align="JUSTIFY">"Visi velni manā bundulī, bez tā viena!" Tūdaļ tie
+vienpadsmit nozuda bundulī; bet tam</p>
+
+<p align="JUSTIFY">divpadsmitajam, kas nobijies palika ārpusē, kaŗa vīrs teica:
+"Ja tu man pienesi šo istabu pilnu ar zeltu un visi jūs apsolaties nekad vairs te
+pilī nerādīties, tad šoreiz vēl palaidīšu pusgodam no bunduļa laukā; bet ja ne.
+tad ir tev i tur iespostīšu, un pūstiet tad manis dēļ, kamēr sapūstiet - arī ārā
+nelaidīšu."</p>
+
+<p align="JUSTIFY">Neko darīt - velns atspēries nesa zeltu, un līdz savam laikam,
+sanesa arī. Mazā gaismiņā kaŗa vīrs palaida iespostītos svabadus un tad posās pie
+ķēniņa. Ķēniņš bija ļoti priecīgs par tādiem darbiem un tūli bez runas atdeva
+savu meitu kaŗa vīram par sievu un vēl pus valsti piedevām.</p>
+
+<p align="JUSTIFY">No tā laika ķēniņa znots dzīvoja laimīgi jo laimīgi.</p>
+
+<p align="JUSTIFY">Bet vienreiz viņam ar sievu iegadījās pa jūŗu braukt. Kas ir? Uz
+vienu reizi viņš paceļ acis - redz: viņa vecie velni nāk sašutuši no ūdens
+apakšas laukā un taisās atriebties, vai ko nu darīt. Ķēniņa znots. mana: labi nav
+un tā iesaucas: "Kur mans bundulis'?"</p>
+
+<p align="JUSTIFY">Velni tūliņ paliek kā mieti un nekust vairs uz priekšu. Bet
+ķēniņa znots noprasa īsi: "Kā jūs mani vēl uzdrošinaties ķircināt:? Ko jūs
+blēži, toreiz apsolījāties, vai neatminat?"</p>
+
+<p align="JUSTIFY">Ja, viņi esot gan apsolījušies, bet tas neesot pieteikts, ka uz
+ūdens arī neesot viņiem brīvu.</p>
+
+<p align="JUSTIFY">"Labi, tad no šīs reizes es ūdens ežas arī jums
+aizliedzu!" Un nu velni likās vienreiz mierā.</p>
+
+
+</body></html>

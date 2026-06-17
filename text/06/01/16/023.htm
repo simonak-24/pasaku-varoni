@@ -1,0 +1,191 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>23</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">23. A. 530. N. Ģerbaševskis no Andrieva Tuntuļa Rēzeknes apr.,
+Unguru pag.</p>
+
+<p align="JUSTIFY">Reiz vienam tēvam bijuši trīs dēli: divi gudri, trešais muļķis.
+Viņu iesaukuši par Pelnrušķi, tāpēc ka tas arvien pelnos rušinājies. Reiz tēvs
+saslimis uz miršanu. Priekš nāves viņš vēl teica dēliem, lai vecākais sargātu
+viņa kapu pirmo nakti, vidējais otru un Pelnrušķis trešo nakti. To teicis tēvs
+nomira.</p>
+
+<p align="JUSTIFY">Tēvu paglabāja un sāka dzert bēres. Šinī naktī vajadzēja iet
+vecākam dēlam uz kapu, bet tas negāja, un viņa vietā aizgāja Pelnrušķis. Pienāk
+pusnakts, uzceļas tēvs un sauc vecāko dēlu neviens neatbild. Nu tēvs sauc bēdīgi:
+"Vai tad neviens nav atnācis?"</p>
+
+<p>Tad atbild Pelnrušķis: "Es tēt, esmu atnācis!"</p>
+
+<p align="JUSTIFY">Tad tēvs saka uz muļķīti: "Tu, dēls, vairs nebūsi
+muļķītis, bet gudrs. Tu būsi daudz gudrāks kā tavi brāļi."</p>
+
+<p align="JUSTIFY">To teicis tēvs pazuda. Pelnrušķis neko. Aiziet mājās. Otrā dienā
+vecākie brāļi prasa, ko redzējis, bet Pelnrušķis daudz neko neatbild.</p>
+
+<p align="JUSTIFY">Otrā naktī jāiet vidējam brālim uz kapu, bet viņš, tāpat kā
+vecākais brālis, neiet, un viņa vietā aiziet Pelnrušķis. Pienāk pusnakts, tēvs
+uzceļas un sauc vidējo dēlu. Neviens neatsaucas. Tad viņš bēdīgi saka: "Vai
+tad neviens nav atnācis?"</p>
+
+<p align="JUSTIFY">Atsaucas atkal Pelnrušķis. Nu tēvs paliek ļoti priecīgs un saka:
+"Tu, dēls, paliksi daudz skaistāks un staltāks nekā tagad esi."</p>
+
+<p align="JUSTIFY">Pēc tam viņš pazuda. Trešā naktī atnāk muļķītis savu nakti.
+Pusnaktī uzceļas tēvs un saka: "Tagad, mans dēls, es tevi algošu par sargājumu.
+Ķēniņš izsludinās precības. Kas varēs uzjāt stikla kalnā un noņemt no princeses
+pirksta gredzenu, tas paliks par viņas vīru un nākošo ķēniņu. Tavi brāļi arī še
+jās, bet tevi atstās mājā. Tev vajadzēs no pelniem linsēklas izlasīt. Še tev
+sudraba stabulīte. Pelnus ar linsēklām saber sietā un piesit tam ar stabuli, tad pelni
+izbirs un paliks tikai sēklas. Tad, ja tu vienreiz pūtīsi stabuli, atskries sudraba
+zirgs ar sudraba segliem, drēbēm un ieročiem; ja divas reizes pūtīsi, tad atskries
+zelta zirgs, un ja trīs reizes, tad dimanta."</p>
+
+<p align="JUSTIFY">Tad tēvs pazuda. Pēc kāda laika notika, tā kā tēvs bija sacījis.
+Ķēniņš izsludināja, ka atdos savu meitu tam par sievu ,kas uzjās pie tās stikla
+kalnā. Abi brāļi arī aizjāja uz stikla kalnu , bet Pelnrušķi atstāja mājās, lai
+tas iztīrot no pelniem linsēklas. Pelnrušķis tikai piesita ar stabulīti un sēklas
+iztīrījās. Tad viņš izgāja ārā un pasvilpa vienu reizi. Atskrēja sudraba zirgs.
+Pelnrušķis apģērbās sudraba drēbēs, apjoza sudraba zobenu un aiz jāja. Kalnā
+jāšana jau bija iesākusies, bet neviens nevarēja tur uzjāt: visi atslīdēja
+atpakaļ. Te parādījās sudraba jātnieks un uzjāja kalnā vienu trešo daļu. Tad tas
+apgriezās un atkal aizjāja.</p>
+
+<p align="JUSTIFY">Atnāk mājās gudrie brāļi un redz, ka pastarītis sēd savos
+pelnos. Tas nu jautā: "Nu, brālīši, ko redzējāt?"</p>
+
+<p align="JUSTIFY">Šie nekā neatbild, bet tik savā starpā sarunājas par sudraba
+jātnieku. Otrā dienā vecākie brāļi aizjāj atkal, atstādami jaunāko pie sēklām.
+Pelnrušķis iztīra sēklas, iziet laukā un tagad pastabulē divas reizes. Atskrien<b> </b>zelta
+zirgs. Pastarītis apģērbjas zelta drēbēs un aizjāj uz kalnu. Nu viņš tiek līdz
+pusei kalnā un tad atjāj atpakaļ mājās, noģērbjas un nosēžas savā vecā vietā.</p>
+
+<p align="JUSTIFY">Atnāk trešā diena un vecākie brāļi atkal aizjāj. Pelnrušķis
+ātri iztīra sēklas, iziet ārā un pastabulē trīs reizes. Atskrien dimanta zirgs.
+Muļķītis apģērbjas dimanta drēbēs un aizjāj. Tagad viņš uzjāj kalnā, paņem
+princeses gredzenu un aizjāj mājās.</p>
+
+<p align="JUSTIFY">Paiet daudz dienu, bet uzvārētājs nerādās. Tad ķēniņš pavēl
+kaŗavīriem to uzmeklēt. Viņi ar' atrod Pelnrušķi un aizved to pie ķēniņa.
+Princese viņu vairs nepazīst, bet par sievu pie tā jāiet, jo gredzens ir muļķītim.</p>
+
+<p align="JUSTIFY">Pašā kāzu rītā, kad jābrauc uz baznīcu, muļķītis atsauc
+sudraba zirgu. Visi acis vien ieplēš redzēdami tādu lepnu jātnieku. Pie baznīcas
+Pelnurušķis pasauc zelta zirgu. Visa baznīca sāk spīdēt no muļķīša zelta
+apģērba. Pēc laulībām brauc jaunais pāris uz mājām.</p>
+
+<p align="JUSTIFY">Otrā dienā ķēniņš sarīko medības. Nu atsauc Pelnrušķis
+dimanta zirgu. Visi acis vien izpleš no brīnumiem. Tad ķēniņš rīko tādas dzīres,
+kādas vēl nekad nav bijušas un kādas ar nekad vairs nebūs. Un Pelnrušķis valda,
+varbūt, vēl šodien, ja nav miris.</p>
+
+
+</body></html>

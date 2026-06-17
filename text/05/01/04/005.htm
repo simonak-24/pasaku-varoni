@@ -1,0 +1,546 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Meklēšana pēc nepazīstamā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 5. A. Līdaku Jēkabs ar Juri Liel -Iecavā. LP, V, 330 (142, 4).</p>
+
+<p align="JUSTIFY">Vienam ķēniņam bija ļoti uzticīgs sulainis; ķēniņš, zināms,
+viņu ļoti mīlējis.</p>
+
+<p align="JUSTIFY">Reiz ķēniņš nopērk nevaldāmu zirgu. Visi nopūlējušies to
+iejāt, rāmu padarīt, bet velti - zirgs kāds bijis, tāds ir. Nu ķēniņš teicis
+sulainim: "Raugi tu negantnieku ievaldīt!"</p>
+
+<p align="JUSTIFY">Labi! sulainis, veikli palēkdamies, uzklūp mugurā un domā
+prātīgi, prātīgi izdzīvoties, lai jau netrakotu, bet kur tu Dieviņ uz reizi, kā
+sadzelts, sacirtās sāņus un aizgāja vēja ātrumā putekšļi vien pakūpēja. Tā nu
+skrien un skrien ilgu laiku pa purviem, pa mežiem; sen jau svešs apgabals, kur jājējs
+savu mūžu kāju nav spēris, bet vēl skrien un skrien. Te beidzot par laimi gadās divi
+lieli koki, tuvu viens pie otra, tikai tāda starpa kā labi vārteļi, un kā nu trakais
+ērzelis caur koku starpu skrēja, tā iežņaudzās kā spīlēs, bij jāapstājas. Tas
+nu būtu labi; bet tikpat - sulainis nokāpj zemē, izskatās, izdomājas : sveša puse,
+nezin ne rīta, ne vakara vairs. Neko darīt, ies uz labu laimi taisni projām, vai tad
+itin kur negadīsies audis? Iet, iet - gadās klajums un klajumā mazas mājiņas. Ieiet
+mājiņās, satiek vecu, vecu, sirmu vīriņu. Vīriņš laipni saņem dievpalīgu un
+vaicā: "Dēls, kur iedams?"</p>
+
+<p align="JUSTIFY">Tā un tā - esot nomaldījies, nokusis, lai parādot ceļu uz mājām.</p>
+
+<p align="JUSTIFY">"Ai, dēls! nokusuši atpūšas; ko mājā arī darīsi? Paliec
+man biedros kādu laiku!"</p>
+
+<p align="JUSTIFY">Labi! dēls patencina par laipnību un paliek.</p>
+
+<p align="JUSTIFY">Bet tur pie mājiņām bija liels, jauks dārzs ar šādiem vārtiem,
+tādiem vārtiem. Sulainis labprāt vēlētos arī pa dārzu pastaigāties; bet vecītis
+saka: "Pagaidi, pagaidi, tā neej vis! Še tev šī atslēgu virkne, slēdz kādus
+vārtus vien gribi un staigā kur vien iedomājies; tikai tos vārtus neslēdz, kas ar
+lūku aizsieti, un neej tur skatīties."</p>
+
+<p align="JUSTIFY">Pirmo dienu sulainis izstaigājās pa dārzu un neaiztika lūku
+vārtus; otru dienu izstaigājās pa dārzu un neaiztika lūku vārtus trešo dienu viņš
+iedomājās: "Kas, nelaime, taču tur varētu būt? Visur vēlē, te vien ne ;
+tīšām raudzīšu paskatīties."</p>
+
+<p align="JUSTIFY">Un tā raisīja arī tūlin lūku vaļām. Vārtus atvēris, ierauga
+lielu lauku, bet lauka vidū rāmu, spožu ezeru. Aiziet pie ezera, izskatās tādu brīdi
+un grib jau nākt atpakaļ, te dzird: gaisā kas iešmīkstas, paskatās: trīs baltas
+pīlītes patlaban nometas ezera malā, bet tad ātri, ātri paliek par daiļām meitām,
+norauj apģērbus un iebrien peldēt: Viņš domā: "Ē! kad tu izčibējis! Tādas
+nekad nebiju redzējis. Joku dēļ jāapskatās tās drānas tuvāk."</p>
+
+<p align="JUSTIFY">Sulainis vienai paņēma drānas un cilāja un brīnījās ilgu laiku.
+Bet tā meita, kuŗai drānas piederēja, beidzot apmanīja, ka nav vairs labi: viņa
+piepeldēja malā un lūdzās žēli: "Puisīti, mīļais! nejoko mani; atliec,
+lūdzams, drānas, kur bijušas."</p>
+
+<p align="JUSTIFY">Ko darīsi? Atdeva arī. Bet šai pašā acumirklī meitas pārvēršas
+par pīlēm un šo pārvērš par balodi; pīles tūlin aizlaižas, bet balodis noskatās
+vien. Še nu tev bija!</p>
+
+<p align="JUSTIFY">Vakarā vecītis pārnāk, ierauga sētā, mieta galā balodi. Viņš,
+zināms, tūliņ noprot, kas noticis, un labi izrājis, pārvērš šo atkal par cilvēku.</p>
+
+<p align="JUSTIFY">Otrā dienā vecītis atkal aiziet un atstāj šo vienu pašu mājās.
+Nu sulainis staigā, staigā pa dārzu, beidzot nevar nociesties, atraisa lūku vārtus un
+ies atkal ezera malā. Aiziet, izskatās tādu brīdi un patlaban grib nākt atpakaļ, te
+gaiss iešmīkstas, baltās pīlītes klāt atkal, ātri, ātri paliek par daiļām
+meitām un iebrien peldēt. Sulainis domā: "Ē, kad tu izčibējis laukā! Tādas
+reti redzamas. Joku dēļ jāapskatās tās drānas tuvāk."</p>
+
+<p align="JUSTIFY">Nu paņēma vienai drānas un cilāja un brīnījās ilgu laiku. Bet
+tā meita; kuŗai drānas piederēja, drīzi apmanīja, ka nav vairs labi; viņa
+piepeldēja malā un žēli, žēli lūdzās: "Puisīti mīļais! nejoko mani,
+atliec, lūdzams, drānas; kur bijušas."</p>
+
+<p align="JUSTIFY">Ko darīsi? Tā lūdzas, atdeva arī. Bet tai pašā brīdī meitas
+pārvēršas par pīlēm un aizlaižas; bet sulainis paliek par cūku un noskatās vien.</p>
+
+<p align="JUSTIFY">Vakarā, vecītis pārnākdams, ierauga cūku sētsvidū un tūlin
+noprot, kas noticis. Neko darīt, pārvērš atkal par cilvēku un tad saka tā : "Ja
+tev tā viena tik vareni patīk, nu, manis d, preci tad viņu."</p>
+
+<p align="JUSTIFY">"Ja, preci nu preci! Viņa jau nepaliek pie manis, ik atdomu
+drēbes, ik aizlaižas."</p>
+
+<p align="JUSTIFY">Nepaliek! Kā lai paliek? Kam atdevi drēbes, kam ļāvies pielūgties?
+Neatdod drēbes, kamēr svēti nav apsolījusies pie tevis palikt."</p>
+
+<p align="JUSTIFY">Labi. Trešā dienā vecītis atkal aiziet, atstādams šo vienu. Bet
+nu sulainis tūlin atraisa lūku, aiziet ezera malā un gaida baltās pīlītes. Drīzi
+pīlītes klāt, paliek par meitām, novelkas un 'ieiet ezerā peldēt. Tomēr šis savai,
+ko ielūkojis, paņem drēbes un cilā un brīnās: "Kas par varenu apģērbu!"</p>
+
+<p align="JUSTIFY">Bet meita izpeld malā un lūdzas un lūdzas: "Puisīti mīļais,
+nejoko mani, noliec drānas. kur bijušas!"</p>
+
+<p align="JUSTIFY">"Lūdzies, cik gribi, nelikšu un nelikšu; solies man svēti par
+līgavu palikt, nelaisties projām, tad atdošu drānas, ātrāki ne."</p>
+
+<p align="JUSTIFY">Nu šī stostīsies, nu šī gorīsies, nemaz lēti sadomāt; beidzot
+tad, tad teiks gan to vārdu ja un vēl nosolas svēti, ka neiešot projām, kaut abas
+māsas diezin kā labinātu.</p>
+
+<p align="JUSTIFY">Tagad sulainis atdeva drānas. Šī ātri apvilkās un aizgāja līdz
+vecīša pagalmā; bet abas māsas palika par pīlēm un aizlaidās prom. Vakarā vecītis
+pārradās un tūlin salaulāja sulaini ar līgavu.</p>
+
+<p align="JUSTIFY">Bet pēc kāda laika sulainis sacīja vecītim: "Iešu ar sievu
+pie ķēniņa, citādi viņš nezinās, kur esmu palicis."</p>
+
+<p align="JUSTIFY">Vecītis atteicis: "Ej, ej, dēls un dzīvo laimīgi; tikai
+pasargies ķēniņa priekšā uzlielīt sievu. Labākais, ja ķēniņš ne zināt nezin te
+esi apsievojies.</p>
+
+<p align="JUSTIFY">Labi! sulainis pāriet mājā un nesaka nevienam, ka svešumā
+precējis tik daiļu sievu; arī sieva nerādās ne ķēniņam, ne citam Savu laiku tā
+gāja labi; bet ķēniņš vienreiz, otrreiz apmana, ka sulainis nava vairs senākais.
+Bijis, kur bijis - savā istabā vien tikai grib krupt. Reiz sulainis atkal pa slepeno
+pusi bija nozudis ķēniņam. Bet šoreiz ķēniņš bija gudrs, paglūnēja pa atslēgas
+caurumu, ko šis tur istabā dara? Ierauga: sulainim tik daiļa sieva kā saule.</p>
+
+<p align="JUSTIFY">" Tas taču neiet!" viņš domā "tik daiļas sievas
+tikai ķēniņiem pieklājas. Bet kā viņam atņemt? Pag, atsaukšu burvi!"</p>
+
+<p align="JUSTIFY">Atnāk burvis: ko laba teikšot?</p>
+
+<p align="JUSTIFY">Tā un tā -- sulainim tik daiļa sieva kā saule. Kā viņš to
+iemantošot?</p>
+
+<p align="JUSTIFY">"Kā iemantot? Dodi sulainim tādu darbu, ko neiespēj izdarīt,
+tad tev būs iemesls nomaitāt viņu un atraikni dabūsi. Bet pašu darbu pateikšu rītu,
+jo ātrumā nevar vis apķert gŗūtākas lietas."</p>
+
+<p align="JUSTIFY">Labi! Rītā burvis steidzas pie ķēniņa ar padomu, ko nakti bija
+sagudrojis. Bet ceļā gadījās tilts, un no tilta apakšas izgadījās balts cilvēks,
+sacīdams burvim: "Nelieti, kur iesi? Ja ķēniņš neliks sulaini mierā, nagos
+iekļūsit abi, tu un viņš!"</p>
+
+<p align="JUSTIFY">Tomēr burvis tev klausīs, atmet ar roku: "Sauc, cik gribi!"
+un iet savu ceļu. Aiziet pie ķēniņa, lai liekot sulainim pārnest lielo lauvu; aiz
+trīsdesmit ķēniņa zemēm, četrdesmitajā tāds esot.</p>
+
+<p align="JUSTIFY">Ķēniņš pasauc sulaini: "Klausies! aiz trīsdesmit ķēniņa
+zemēm četrdesmitajā ir lauva, pārved to man, cik ātri vien iespējams; ja ne - dzīvs
+nepaliksi."</p>
+
+<p align="JUSTIFY">Sulainis, to dzirdējis, bēdīgs ieiet pie sievas; bet sieva mierina:
+"Nieka dēļ bēdāties! liecies tikai gulēt, iestiprini spēkus, es tamēr pa nakti
+izaudīšu lakatiņu raibiem rakstiem un ielikšu ceļa maizi. Bet to tikai piekodinu:
+paglabā lakatiņu ceļā labi jo labi; ja tas tev pazūd, tad viss gājiens vējā.` </p>
+
+<p align="JUSTIFY">Labi! sulainis rima bēdāties un aizmiga saldi; bet sieva auda un
+rakstīja cauru nakti skaistu, skaistu lakatu, kāds tai ķēniņa valstī vēl nebija
+rakstīts. Gaismiņā varenais lakats bija gatavs. Nu sieva modināja vīru un pavadīja
+uz tālo svešumu.</p>
+
+<p align="JUSTIFY">Sulains, nabadziņš, gāja vienu dienu, gāja otru dienu; gāja vienu
+nedēļu, gāja otru nedēļu, vēl nebija aizgājis. Te trešā nedēļā tumšā
+lietainā naktī pamanīja mazu, mazu uguntiņu. Aizgāja tur, pieklauvēja pie durvim -
+iznāk jauna meita un mīli aicina istabā. Meita paēdina un izguldina ceļa vīru un
+rītā agri jo agri ienes ir mutes ūdeni; bet dvieļa vien tikai nenoliek. Sulainis
+nomazgājas, apskatās: dvieļa nav. Slaucīsies tai pašā lakatā, ko sieva
+izrakstījusi. Bet meita, skaisto lakatu pamanīdama, mudīgi klāt: lai parādot viņai!
+jo tādus lakatus tikai viņas māsa mākot rakstīt un aust. Kur viņš tādu ņēmis?</p>
+
+<p align="JUSTIFY">"Tā un tā," sulainis izstāsta, "mana sieva to auda un
+rakstīja."</p>
+
+<p align="JUSTIFY">"Tad tava sieva mana māsa. Labi, ka zinu! Un tad manas māsas
+dēļ lielais lauva tev jāpārved ķēniņam. Labi, ka zinu." To sacīdama, meita
+parāva lakatiņu un izskrēja padurvim.</p>
+
+<p align="JUSTIFY">Bet sulainis bēdājās: "Dieziņ, diezin! Sieva tā pieteica. Kad
+tikai aizskriedama, lakatiņu nenozaudē vien?"</p>
+
+<p align="JUSTIFY">Tomēr šoreiz tādas bēdas bija liekas, drīzi meita atskrēja
+atpakaļ līksmodama: "Še nu tavs lakats! Es tavu darbu atradu. Tepat tuvumā būs
+lanka, liela, liela lanka, un tur atradīsi meklēto lauvu. Bet lankas malā redzēsi
+ērkšķu krūmu, aiz tā krūma lauva gul un pašā krūmā lauvas bērni rotā. Pielien
+krūmam, no šīs puses iedams, un paspied vienu lauvēnu, lai tas iebrēcas; tad lauva
+gāzīsies tev virsū, bet tu uzmet lakatiņu lauvam uz deguna, tūlin lauvu māte paliks
+rāma kā sunītis un ļausies lakatu apsiet ap kaklu, lai ved, kur grib."</p>
+
+<p align="JUSTIFY">Labi! sulainis tā dara un viegli jo viegli saķēra lauvu. Pārveda
+ķēniņam, ķēniņš liek lauvu ielaist dārzā un tūlin atsauc burvi: ko nu likšot
+sulainim darīt? Lauvu esot pārvedis, viņa nodomu izjaucis. Bet burvis atsaka:
+"Pagaidi rītu! jo ātrumā nevar vis apķert gŗūtākas lietas."</p>
+
+<p align="JUSTIFY">Labi. Rīta agrumā burvis steidzas pie ķēniņa ar padomu. Bet ceļā
+gadījās tilts ; un no tilta apakšas iznāca balts cilvēks, sacīdams: "Nelieti,
+kur iesi? Ja ķēniņš neliks sulaini mierā, nagos iekļūsit abi, tu un viņš!"</p>
+
+<p align="JUSTIFY">Tomēr vai burvis tev klausīs? Atmet ar roku: "Sauc, cik
+gribi!" un iet savu ceļu. Aiziet pie ķēniņa: lai liekot sulainim pārnest lielo,
+ziedošo ābeli; aiz četrdesmit ķēniņa zemēm piecdesmitajā tāds esot.</p>
+
+<p align="JUSTIFY">Ķēniņš pasauc sulaini: "Klausies! aiz četrdesmit ķēniņa
+zemēm piecdesmitajā ir ziedoša ābele. Pārnes to man, cik ātri vien iespējams; ja
+ne, dzīvs nepaliksi."</p>
+
+<p align="JUSTIFY">Sulainis, to dzirdējis, bēdīgs ieiet pie sievas; bet sieva mierina:
+"Nieka dēļ bēdāties! Liecies tikai gulēt; es tamēr izaudīšu lakatiņu raibiem
+rakstiem un ielikšu ceļa maizi. Bet to tikai piekodinu: paglabā lakatiņu ceļā labi
+jo labi; ja tas tev pazūd, tad viss gājiens vējā."</p>
+
+<p align="JUSTIFY">Sulainis tūdaļ rima bēdāties un aizgāja gulēt. Bet sieva cauru
+nakti auda un rakstīja skaistu, skaistu lakatu, kāds tai ķēniņa valstī vēl nebija
+rakstīts Gaismiņā varenais lakats bija gatavs. Nu modināja vīru un izvadīja tālā
+svešumā.</p>
+
+<p align="JUSTIFY">Sulainis gāja vienu dienu, gāja otru dienu: gāja vienu nedēļu,
+gāja otru nedēļu - vēl nebija aizgājis. Trešā nedēļā, tumšā lietainā naktī
+pamanīja mazu, mazu uguntiņu. Aizgāja tur, pieklauvēja pie durvim, iznāk jauna meita
+un mīļi aicina istabā. Meita paēdina izguldina, ceļa vīru un rītā itin agri jau
+ienes ir mutes ūdeni, bet dvieļa nenoliek.</p>
+
+<p align="JUSTIFY">Sulainis nomazgājas, apskatās: dvieļa nav. Slaucīsies tai pašā
+lakatā, ko sieva izrakstījusi. Bet meita, skaisto lakatu pamanīdama, mudīgi klāt: lai
+parādot! jo tādus lakatus tikai viņas māsa mākot rakstīt un aust. Kur tādu ņēmis?</p>
+
+<p align="JUSTIFY">Tā un tā - sulainis izstāsta, "mana sieva to auda un
+rakstīja."</p>
+
+<p align="JUSTIFY">"Tad tava sieva mana māsa; labi, ka zinu. Un manas māsas dēļ
+ziedošā ābele tev jāpārnes ķēniņam. Labi, ka zinu."</p>
+
+<p align="JUSTIFY">To sacīdama, meita parāva lakatiņu un izskrēja pa durvim. Bet
+sulainis bēdājās: "Diezin, diezin! Sieva tā pieteica. Kad tikai, aizskriedama,
+lakatiņu nenozaudē vien?"</p>
+
+<p align="JUSTIFY">Tomēr šoreiz tādas bēdas bija liekas, drīzi meita atskrēja
+atpakaļ līksmodama: "Še nu tavs lakats! Es tavu darbu atradu. Tepat, necik tālu,
+zied meklētā ābele. Iekāp viņā un pārsvied lakatiņu galotnei, tad ābele paliks
+tik maza kā puķīte un viegli jo viegli pārnesīsi ķēniņam. Bet iestādījis
+ķēniņa dārzā, noņem lakatiņu, tad mazā puķīte tūdalin izaugs par ziedošu
+ābeli."</p>
+
+<p align="JUSTIFY">Labi! sulainis tā dara un pārnes ķēniņam ziedošo ābeli
+vieglāki, nekā bija cerējis. Ķēniņš, ābeli dārzā redzēdams, pabrīnējās vien
+un atsauca burvi: ko nu likšot sulainim darīt? Ābeli esot pārnesis, viņa nodomu
+izjaucis.</p>
+
+<p align="JUSTIFY">Bet burvis atsaka: "Pagaidi rītu! jo ātrumā nevar vis apķert
+grūtākas lietas."</p>
+
+<p align="JUSTIFY">Labi. Rīta agrumā burvis steidzas pie ķēniņa ar padomu. Bet ceļā
+gadījās tilts un no tilta apakšas iznāca balts cilvēks ,sacīdams: "Nelieti, kur
+iesi? Ja ķēniņš neliks sulaini mierā , nagos iekļūsit abi : tu un viņš."</p>
+
+<p align="JUSTIFY">Tomēr vai burvis tev klausīs? Atmet ar roku "Sauc, cik
+gribi!" un iet savu ceļu. Aiziet pie ķēniņa: lai pasakot sulainim tā:
+"Aizej tur - nezinu, kur! atnesi to - nezinu, ko!"</p>
+
+<p align="JUSTIFY">Ķēniņš pasauca sulaini: "Klausies! aizej tur - nezinu, kur!
+atnesi to - nezinu, ko!"</p>
+
+<p align="JUSTIFY">Sulainis, to padzirdējis, pavisam bēdīgs ieiet pie sievas; sieva gan
+mierina vīru, bet pati arī nezin, kā nu paveikšot tādu darbu, kā ne. Beidzot tā
+saka: "Nebēdājies vis, ej tikai gulēt; es tamēr izaudīšu otrtik lielu lakatu ar
+vēl jo smalkākiem rakstiem un ielikšu ceļa maizi; tikai pieglabā it īpaši šo
+lakatu labi, lai nepazūd."</p>
+
+<p align="JUSTIFY">Sulainis aizgāja gulēt. Bet sieva cauru nakti nosvīdusi auda un
+rakstīja skaistu, skaistu lakatu, kāds tai ķēniņa valstī vēl nebija austs, ne arī
+rakstīts. Gaismiņā lakats bija gatavs. Nu modināja vīru un raudādama izvadīja
+tālā svešumā.</p>
+
+<p align="JUSTIFY">Bet sulainis vēl nebija labi aizgājis, te ķēniņš paaicinās
+sulaiņa sievu un ieteiksies: "Vai zini ko? Tavs vīrs šoreiz gan laikam nepārnāks
+vairs, un kur tu, atraikne būdama, iesi? Tādēļ -man sievas vajaga --- nāc pie manis
+par ķēniņieni."</p>
+
+<p align="JUSTIFY">Sulaiņa sieva domāja: "Kaitināt ķēniņu nebūtu gudri,
+tādēļ labāk mānīšu viņu un atteikšu tā: "Paldies! par ķēniņienes godu;
+es jau arī neticu, ka šoreiz pārnāks, tomēr gadu, drošības dēļ, gaidīšu; ja tad
+nepārnāks --- runāsim tad."</p>
+
+<p align="JUSTIFY">Labi! lai tā paliekot.</p>
+
+<p align="JUSTIFY">Bet sulainis gāja vienu dienu, gāja otru dienu; gāja vienu nedēļu,
+gāja otru nedēļu - vēl nebija aizgājis. Te trešā nedēļā tumšā lietainā naktī
+pamanīja mazu, mazu uguntiņu. Aizgāja tur, pieklauvēja pie durvim, iznāk jauna meita
+un mīļi aicina istabā. Meita paēdina, izguldina ceļa vīru un rītā itin agri jau
+ienes ir mutes ūdeni, bet dvieļa nenoliek. Sulainis nomazgājas, apskatās: dvieļa nav
+Slaucīsies tai pašā lakatā ko sieva izrakstījusi. Bet meita, skaisto lakatu
+pamanīdama, mudīgi klāt: lai parādot viņai! jo tādus lakatus tikai viņas māsa
+mākot rakstīt un aust. Kur viņš tādu ņēmis?</p>
+
+<p align="JUSTIFY">Tā un tā -- sulainis izstāsta, "mana sieva to auda un
+rakstīja."</p>
+
+<p align="JUSTIFY">Tad tava sieva mana māsa. Labi, ka zinu! Un tad manas "</p>
+
+<p align="JUSTIFY">māsas dēļ tev jāiet tur, nezinu, kur! un jāatnes to, nezinu, ko
+Labi ka zinu."</p>
+
+<p align="JUSTIFY">To sacīdama, meita parāva lakatu un izskrēja pa durvim. Bet sulainis
+bēdājās: "Dieze, diezin! Sieva tā pieteica. Kad tikai, aizskriedama, lakatu
+nenozaudē vien?"</p>
+
+<p align="JUSTIFY">Un sulainis izgaidījās vienu dienu, otru dienu - meita nenāk un
+nenāk atpakaļ. Te trešā dienā ieskries noskumusi ar visu lakatu: "Dzirdi jel, ko
+nu teikšu. Tavu darbu nespēju atrast. Trīs dienas izmeklējos, izskraidījos muļķa
+palikdama - nekur un nekur. Bet iesim pie vecās Zemes mātes, kas tagad jau septiņus
+mēnešus guļ nomirusi. bučo viņai ceļus, tad tā atdzīvosies un tavu darbu
+pateiks."</p>
+
+<p align="JUSTIFY">Labi! nogāja pie Zemes mātes. Sulainis nobučoja Zemes mātei ceļus.
+Bet Zemes māte palika dusmīga, ka neļaujot gulēt. Tad sulainis nobučoja otrreiz Zemes
+mātei ceļus. Nu vecā aprima, sasauca visus putnus kopā un vaicāja sulainim: "Ko
+gribēji?"</p>
+
+<p align="JUSTIFY">"Gribēju runāt, kas tā par lietu: Aizej tur - nezinu, kur!
+atnes to - nezinu, ko!"</p>
+
+<p align="JUSTIFY">"Nu, putni mani!" Zemes māte iesaucās, "vai jūs
+nezināt<b>, </b>kur tāda lieta atronama?"</p>
+
+<p align="JUSTIFY">Putni atteica: "Nezinām vis!"</p>
+
+<p align="JUSTIFY">Tad Zemes māte sasauca visus zvērus un vaicāja tiem, vai nezinot
+tādu lietu: Aizej tur - nezinu, kur! atnesi, to - nezinu, ko!</p>
+
+<p align="JUSTIFY">Zvēri atbildēja: "Nezinām vis!"</p>
+
+<p align="JUSTIFY">Tad Zemes māte sasauca visus ložņātājus, visus zemes tekātājus
+un vaicāja tiem, vai nezinot tādu ,lietu : Aizej tur - nezinu, kur! atnesi to - nezinu,
+ko!</p>
+
+<p align="JUSTIFY">Ložņātāji un tekātāji atbild: "Nezinām vis!"</p>
+
+<p align="JUSTIFY">"Nu diezin, vai jel maz visi esat sanākuši?" Zemes māte
+ievaicājās.</p>
+
+<p align="JUSTIFY">"Neesam visi, are, klibā varde palika pakaļ."</p>
+
+<p align="JUSTIFY">Atlec klibā varde, Zemes māte dusmojas: "Kam tik vēlu?"
+"Ja, cienīgā ķēniņiene! sagulēju septiņus mēnešus slima,, drusku vājums
+kājas māc."</p>
+
+<p align="JUSTIFY">"Nu, labi, labi! Bet vai nezini šo cilvēku aizvest pie: Aizej
+tur - nezinu, kur! atnesi to - nezinu, ko!"</p>
+
+<p align="JUSTIFY">"Kā nu nezināšu? Zinu gan." Tad aizved!"</p>
+
+<p align="JUSTIFY">" Un varde tūdaļ lēca pa priekšu, sulainis gāja pakaļ.
+Beidzot abi nokļuva pie mazām mājiņām bez logiem. Varde pārlēca slieksnim, sulainis
+iegāja līdz. Bet istabas stūrī pie pakšķa bija slepens caurums; tur varde ielēca un
+pazuda, bet sulainis palika pie cauruma domādams: "Vai te nu būs tas, ko meklēju?
+Varbūt gan, raudzīšu saukt."</p>
+
+<p align="JUSTIFY">Viņš sauca: .Aizej tur - nezinu, kur! atnesi to - nezinu, ko! nāc
+šurp, ja te esi!"</p>
+
+<p align="JUSTIFY">Līdz to bija izteicis, tūdaļ sāka zemes apakšā spēlēt un
+dancot, tāds troksnis, jādomā, vai pērkons ducina, vai kas. Sulainis vaicā tālāk:
+.,Atbildi man, vai esi tas, ko meklēju?"</p>
+
+<p align="JUSTIFY">Balss zemes apakšā atbild: "Esmu tas!"</p>
+
+<p align="JUSTIFY">"Nu ja esi tas, pasaki man, pa kuru ceļu iespēšu vistaisnāki
+mājā pārkļūt? Gada laikā man bija jāatnāk un jāpāriet."</p>
+
+<p align="JUSTIFY">Balss atbild: "Ja mēs taisni ejam, tad gan laikā pārejam, bet
+apkārt iedami, ātrāk nepāriesim par gadu. Tomēr taisni iet</p>
+
+<p align="JUSTIFY">nebūs viegli, tur gulēs liela: liela čūska uz ceļa, tā jau pa
+versti ar dzeloni cilvēkus pievelk un norij."</p>
+
+<p align="JUSTIFY">"Bet saki, vai tad nekādā ziņā nebūtu iespējams čūsku
+ievaldīt?"</p>
+
+<p align="JUSTIFY">"Iespējams! iespējams! Tā nu ir, ja māk, var gan. Iesoli
+čūskai visgardākos pasaules ēdienus un saki, ka ēdienus baudot, vēl spēlēs un
+dancos, tad viņa tevi nerīs. Par ēdieniem, zināms, nebēdā, es viņus apgādāšu.
+kādus vien liksi. Bet tiklīdz čūska ēdienus pabaudīs un vēl dzirdēs, ka spēlē un
+danco, viņa priekā nezinās, ko darīt. Tad esi gudrs un prasi čūskai, lai atdod par
+taviem ēdieniem, kuŗus baudot tik jauki spēlē un danco, to kastīti, kas viņai apakš
+krūtim. Viņa atdos, gan tu redzēsi, jo kas jau priecīgs, tas arī devīgs - veca
+lieta."</p>
+<b>
+
+</b><p align="JUSTIFY"><b>L </b>abi!" sulainis atsaka, "dosimies tad ceļā, kas tur
+būs, "</p>
+
+<p align="JUSTIFY">būs." Un abi aizgāja, sulainis pa priekšu, brīnumu balss no
+pakaļas gāja, gāja - uz reizi balss saka: "Nu vairs nav tālu, tūlin raus tevi
+klāt!"</p>
+
+<p align="JUSTIFY">Un tā rāva arī. Pierauj, čūska jau atplēš rīkli un grib sulaini
+rīt ; bet sulainis lūdzas : "Nerij, nerij negatavu kumosu - došu labāk savā
+vietā gardākos pasaules ēdienus izēsties kuŗus baudot vēl jauki spēlēs un
+dancos."</p>
+
+<p align="JUSTIFY">Čūska tūlin apstājās; bet sulainis iesaucās: "Aizej tur -
+nezinu, kur! atnesi to - nezinu, ko!" Līdz to bija izteicis, te galdi apklājās un
+gardākie pasaules ēdieni kūpēt kūpēja; bet turpat vēl tik jauki spēlēja un tik
+jautri dancoja, ka tikās vien klausīties. Čūska, ik nu gardumus iebaudīja, ik palika
+jautrāka. Sulainis prātoja: "Nu ir laiks!" Un tā tūlin iesāka runāt vai
+nevarot viņa gardos ēdienus arvienu paturēt un tai vietā atdot mazo zelta kastīti,
+kas tur apakš krūtim spīguļo?</p>
+
+<p align="JUSTIFY">"Ja, tūlin!" čūska iesaucās, "kas tāda kastīte
+pret tik gardi baudāmiem ēdieniem?"</p>
+
+<p align="JUSTIFY">Labi! sulainis paņēma kastīti un steidzās mājā. Bet ceļā tam
+iesitās prātā kastīti atvērt un paskatīties, kas gan tur iekšā? Atvēra - ak tu
+žēlīgais tētiņ! Sāka tikai kara vīri no kastītes laukā nākt kā siseņi, kā
+dūmi - nemaz izskaitīt, nemaz pārredzēt. Īsā laikā liela, liela lauka pilna, ka ne
+apgriezties. </p>
+
+<p align="JUSTIFY">Ā!" sulainis domāja, "nu esmu vīrā, pāriešu pie
+ķēniņa itin "</p>
+
+<p align="JUSTIFY">lepns." Pārgāja ar lielo kaŗa spēku pie ķēniņa, sieva iztek
+noraudājusies pretim: "Vīriņ, vīriņ! labi, ka laikā vēl pārradies jo
+ķēniņš kā rūgta nāve man uzmācās, lai ejot pie viņa, tu esot miris; un burvis,
+tas negantnieks, viņu vēl piekūda."</p>
+
+<p align="JUSTIFY">To dzirdēdams, sulainis palika dusmīgs un uzsauca ķēniņam, kam
+viņš tā darījis?</p>
+
+<p align="JUSTIFY">Bet ķēniņš sasauca arī savu kaŗa spēku un vaicāja burvim, ko
+būšot sulainim atteikt.</p>
+
+<p align="JUSTIFY">Burvis mācīja: "Atteic, ko tu gribi!"</p>
+
+<p align="JUSTIFY">Ķēniņš tā atteica sulainim; bet nu sulainis iesāka ar ķēniņu
+kaŗot Kaŗoja ilgi, beidzot ķēniņš pats pirmais krita, tad krita burvis un ķēniņa
+kaŗa spēks.</p>
+
+<p align="JUSTIFY">Nu sulainis palika par ķēniņu un dzīvoja ar savu sievu laimīgi.</p>
+
+<p align="JUSTIFY">Piezīme. Ej tur - nezin kur, atnes to - nezin ko" jautājumā
+salīdzini "Ievadu" (97,. 1. p.) un iepriekšējo pasaku piezīmes. <b>P. Š.</b></p><b>
+</b>
+
+
+</body></html>

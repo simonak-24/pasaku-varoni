@@ -1,0 +1,165 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>62</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="center"><font size="3"></font><font size="5"><strong>Dzirnavas par baznīcu.</strong></font></p><font size="5">
+
+</font><p><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p>1. A. 1248. T e i c ē j s P. A n t o n o v s K a p i ņ u p. L a t v j u k u l t. k r.
+</p>
+
+<p>Senejūs laikūs tuoļi aiz jyuru un aiz mežu beja vīns pavysam aizmiersts cīms. Tuo
+cīma dzeivuotuoji nikod nabeja pilsātā ni mīstiņā, par tū ka nu jūs cīma beja
+cīši tuoļi; tai pat nabeja pi jūs baznīcas. Kaut ļaudis nikod nabeja baznīcā,
+tūmār, zynuoja, kai lyugt Dīvu un vysu tū darīt, kas pīdar kristītam cylvākam.
+Vīnu reizi nu tuo cima meita gribēja īt pi veira un, kai pīdar kristītam cylvākam,
+vajadzēja pīīt pi grāku syudzēšonas. Itei meita sasalasīja un aizguoja meklēt
+baznīcu, ka izsyudzēt grākus. Tai myusu meita puorguoja daudz verstu un sateik jei
+daudz zemnīku, braucūt ar vazumim. Jei dūmuoja, ka jī brauc uz baznīcu. Zemnīki
+pībraucja pi patmalu un apstuoja. Meita dūmuoja, ka tī baznīca, īguoja taipat
+patmaļās un redz, kai zemnīki nosoj maisus, jei dūmuoja, ka zemnīki nas baznīcai
+upurus. Tai meita stuov patmaļās un skaita puotorus. Meita izdzierda, ka augši nazkas
+klīdz: "Ber!"</p>
+
+<p>Jei nūsabeida un dūmoj paša sevī, ka ībērs jai par koklu un tyuleņ izguoja uorā
+nu patmaļom un dreižuok aizguoja uz sovu sātu. Atīt meita uz sātu un nu juos vacī
+vaicoj : "Nu, Madaļa, izsyudzēji grākus?"</p>
+
+<p align="JUSTIFY">Na!" atbilda meita. "</p>
+
+<p>"Par kū na?" vaicoj jai vacī, tāvs ar muoti.</p>
+
+<p align="JUSTIFY">Jei jim atbild: "Es nūsabeidu! Svāta Jumprova stuov zemē aiz
+nazkaida lela skrituļa un vysu laiku runoj: Ļa-ta-ta! ļa-ta-ta, bet Jezus Kristus
+viersā klīdz: Ber! Es nūsabeidu un dūmuoju, ka man ībērs por koklu, bet na taida
+muļķite, tyuleņ izskrēju uorā, dūmoudama, lobuok es pi veira naīšu, bet tai
+grākus syudzēt nagribu ! "</p>
+
+<p align="JUSTIFY">"Ak tu, mulķe, mu&amp;127;ķe!" pascēja jai vacī, tāvs ar
+muoti, "tu beji na baznīcā, bet patmaļās!"</p>
+
+<p>Dūmoj meita: "Īšu es vēl reizi!" un aizguoja.</p>
+
+<p align="JUSTIFY">Guoja jei, guoja dīnu, guoja divi, trešā tyka pilsātā. Meita
+staigoj pa pilsātu, bet nazyna, kur baznīca. Redz jei, ka stuov vīna lela muoja. Meita
+īguoja tymā muojā un redz: tī taisa uodas. Meita nūsabeida, izskrēja uorā un
+atguoja uz sātu. Sātā tāvs vaicoj meitai: "Nu kai, meitiņ, izsyudzēji
+drākus?"</p>
+
+<p align="JUSTIFY">"Ej, navaicoj, tāvs!" soka meita, "es na baznīcā, bet
+taišņi elnē tyku! Tī es redzēju daudz uodu un vysas sīvītes ar lelim motim, veļ
+kai varbyut, ar vysom sapeitom bizem!"</p>
+
+<p align="JUSTIFY">Tāvs jai runoj: "Tu lobuok, meit, dzeivoj sātā, tev navajaga
+īt pi veira. Tu beji na baznīcā, bet kur uodas tais&amp;127;, un tī beja zvrga uodas
+ar astem, bet tu dūmuoj, ka sīvītes ar motim un sapeitom bizem!"</p>
+
+<p align="JUSTIFY">Tai meita nu tuos reizes vairuok naguoja grākus syudzēt un taipat
+naguoja pi veira.</p>
+</font>
+
+
+</body></html>

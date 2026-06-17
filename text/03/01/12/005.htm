@@ -1,0 +1,384 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Par zirgu pārvērstais jauneklis.</p>
+</b></font>
+
+<p align="JUSTIFY">5. A. 314. Taupmanis Rudbāržniekos LP, IV, 4s. </p>
+
+<p align="JUSTIFY">Kādam ķēniņam trīs dēli: divi gudri, trešais muļķis. Dēliem
+labas dienas pie tēva apnikušas, sākuši lūgties, lai laižot pasaulē. Labi!"
+tēvs atteicis un tūlin licis kuģi taisīt. Par nedēļu trīs kuģis bijis sasteigts.
+Divi gudrie brāļi nu iekāpuši kuģī un aizbraukuši; bet muļķīti neņēmuši un
+neņēmuši līdz: varot ar savu nejēdzību viņus nelaimē iegrūst!</p>
+
+<p align="JUSTIFY">Bet muļķītis asarās lūdzies tēvu, lai laižot jele viņu arī
+pasaulē.</p>
+
+<p align="JUSTIFY">Labi!" tēvs beidzot atteicis un licis vēl otru kuģi taisīt
+muļķītim. Par nedēļu trīs sasteiguši; muļķītis paņēmis trīs daiktus: cirvi,
+šķipeli, vegu (stangu), iekāpis kuģī un aizbraucis brāļiem pakaļ. Bet gabaliņu
+pabraucis, griezis atkal atpakaļ, sacīdams:</p>
+
+<p align="JUSTIFY">"Mem, vai jūs man nekā nedosit līdz: tēvs iedeva kuģi, pats
+paņēmu cirvi, vegu, bet jums arī kas jādod!"</p>
+
+<p align="JUSTIFY">Labi, dēls! še tev zobins, kas deviņi gadi kalts, deviņi gadi
+" " rūdīts, deviņi gadi trīts. Ar to zobinu visu ko vari pārcirst.</p>
+
+<p align="JUSTIFY">Muļķītis paņēmis zobinu, ielēcis atkal kuģī un nu aizbraucis.
+Kuģis brīnum vizējis, zobins brīnum spīdējis, brauciens brīnum vedies. Necik ilgi
+panācis brāļus.</p>
+
+<p align="JUSTIFY">"Kamdēļ nebraucat tālāk?" muļķītis uzprasīja.</p>
+
+<p align="JUSTIFY">Ja, liela straume esot piedzinusi viņu kuģi pie šīs stāvās
+klints, un nu jāgaidot, kamēr cits vējš gadīšoties, kas kuģi atdzītu nost. Tā
+gudrie brāļi atteikuši.</p>
+
+<p align="JUSTIFY">Bet patiesībā pavisam citādi bijis. Augšā uz klints bijusi muiža;
+un tai muižā bijis tāds ērzelis ar ugunīgām acim un briesmīgi stipru dvašu.
+Ērzelis ar acim redzējis jūdzēm tālu un ar dvašu varējis pieraut klāt, ko tik vien
+gribējis. Un šis pats ērzelis tad arī pierāvis ar dvašu gudro brāļu kuģi pie
+klints, ko šie nezinājuši.</p>
+
+<p align="JUSTIFY">Diezin cik ilgi gudrie brāļi tur nebūtu nīkuši, kas to lai pateic;
+bet muļķītim bijis padoms pie rokas, viņš iesaucies:</p>
+
+<p align="JUSTIFY">"Stāvi nu! cik ilgi tā stāvēsi? Jāiet taču uz klinti
+raudzīt, kas tur ir."</p>
+
+<p align="JUSTIFY">Un muļķītis tūlin paķēris vegu, cirvi, šķipeli un sācis
+klintī robīt pakāpienus. Ar cirvi robījis, ar vegu lauzis, ar šķipeli atsviedis
+gabalus nost. Otrā, trešā dienā jau uzticis augšā. Tur bijis liels, liels
+līdzenums. Gājis, gājis - beidzot atradis lielu dzelzs pili, bet durvis bijušas
+aizslēgtas ar tik lielu atslēgu, kā labs spainis. Ar zobinu tūliņ pārcirtis lielo
+atslēgu un iegājis iekšā. Trešā istabā saticis milzi; tas izsaucis:</p>
+
+<p align="JUSTIFY">Kā tu te tiki? Simtu gadu neviens nav ienācis pilī. Tūlin nāc
+laukā, iesim uz biksām!"</p>
+
+<p align="JUSTIFY">Ies arī. Bet milzis iesitis muļķīti līdz ceļiem zemē. Nekā
+darīt - muļķītim bijis jāsēd veselu pusdienu, kamēr kaut cik atpūties no belziena.</p>
+
+<p align="JUSTIFY">Beidzot milzis atgriezies uz otru pusi. Tai brīdī muļķītis ātri
+uzlēcis, saķēris milzi aiz kājām un apgāzis. Gribējis jau cirst ar savu zobinu
+milzim kaklu nost, bet šis sācis lūgties un solījies palikt par kalpu, necirtis arī -
+gājis projām. Nu milzis teicis, lai neejot tālāk, tur esot septiņ reiz tik liels
+milzis, nekā viņš, un dzīvojot septiņ reiz tik lielā pilī. Bet muļķītis gājis
+tomēr un atradis lielo pili. Tā bijusi aizslēgta ar tādu atslēgu, kā divi spaiņi.
+Ar zobinu ātri vien pārcirtis lielo atslēgu un iegājis iekšā. Trešā istabā
+saticis septiņ reiz tik lielu milzi; tas uzsaucis:</p>
+
+<p align="JUSTIFY">"Kā tu te tiki? Simtu gadu neviens nav ienācis manā pilī
+Tūlin nāc laukā, iesim uz biksām!"</p>
+
+<p align="JUSTIFY">Ies arī. Bet milzis iesitis to līdz gūžām zemē. Nu muļķītis
+sasēdējis kādu veselu dienu. Beidzot milzis aizgriezies uz otru pusi. Tai brīdī
+muļķītis ātri uzlēcis, saķēris slepus milzi aiz kājām un apgāzis. Gribējis jau
+cirst ar zobinu milzim kaklu nost, bet šis sācis lūgties un solījies palikt par kalpu;
+necirtis arī gājis projām. Nu milzis teicis, lai neejot tālāk, tur esot septiņ reiz
+tik liels milzis, nekā viņš un dzīvojot septiņ reiz tik lielā pilī. Bet muļķītis
+gājis tomēr un atradis lielo pili, tā bijusi aizslēgta ar tādu atslēgu, kā trīs
+spaiņi. Ar zobenu ātri vien pārcirtis lielo atslēgu un iegājis iekšā. Trešā
+istabā saticis septiņ reiz lielāku milzi: tas uzsaucis:</p>
+
+<p align="JUSTIFY">"Kā tu te tiki? Simtu gadu neviens nav ienācis manā pilī.
+Tūlin nāc laukā, iesim uz biksām!"</p>
+
+<p align="JUSTIFY">Ies arī. Bet milzis iesitis to līdz kaklam zemē. Nu muļķītis
+sasēdējis atpūzdamies līdz rītam. Beidzot milzis aizgriezies uz otru pusi. Tai
+brīdī muļķītis ātri uzlēcis, slepus saķēris milzi aiz kājām un apgāzis.
+Gribējis jau cirst ar zobinu milzim kaklu nost, bet šis sācis lūgties un solījies
+muļķītim palikt par kalpu; necirtis arī - gājis projām. Nu milzis teicis, lai
+neejot: tur esot muiža ar tādu ērzeli, kas ar dvašu vien pievelkot katru klāt. Bet
+muļķītis tomēr gājis. Par laimi ērzelis tai brīdī snaudis, kad iegājis muižā.
+To pamanīdams, muļķītis ātri, ātri piebēris ērzelim pilnu sili ar auzām un pats
+paslēpies aiz staļļa. Ērzelis atmodies un izēdis visas auzas; bet tad arī bijis
+pieēdis, tā ka nespēja nemaz vairs dvašot. Tik acis, tās gan arvien zvērojušas :
+varējis pat caur staļļa sienu redzēt, ka muļķītis tur stāv, bet tīši nelicies ne
+zinot, tamdēļ ka gardās auzas vairāk prātā stāvējušas.</p>
+
+<p align="JUSTIFY">Un tā nu vairāk nekā, gājis taisni muižas pilī apskatīties. Tur
+atradis trīs meitas, vienu daiļāku par otru. It īpaši jaunākā māsa muļķītim
+brīnum patikusi. Tūlin ierunāsies, vai jaunākā māsa negribot pie viņa par sievu
+nākt.</p>
+
+<p align="JUSTIFY">"Ja, ja - labprāt!" šī atteikusi, "bet vēl jau nemaz
+nezinu, vai velns tevi sveikā palaidīs.</p>
+
+<p align="JUSTIFY">"Kas par velnu?" muļķītis iesaucies.</p>
+
+<p align="JUSTIFY">"Gan redzēsi! Katru nakti velns pārnāk mājā un mums, māsām
+jāieskā viņam galva. Mēs esam ķēniņa meitas; velns mēs te ar varu atveda. Viņš
+neieredz nevienu svešnieku, tādēļ, līdz pārnāks, beigts jau esi. Bet te velnam ir
+tāda gudrības grāmata ; ja pēc tās dara, tad var palikt, par ko grib. Tādēļ
+paskatīsimies un pārvērtīsim tevi par adatu diega kamolā."</p>
+
+<p align="JUSTIFY">Labi. Vakarā meitas pārvērš muļķīti par adatu diega kamolā.
+Necik ilgi, velns mājā.</p>
+
+<p align="JUSTIFY">Kas te par svešu smaku esot?</p>
+
+<p align="JUSTIFY">"Nav smakas, nav, pats muldies!" meitas atteic. Velns tic un
+aiziet gulēt. Līdz labi aizmidzis, meitas pārvērtušas atkal muļķīti par cilvēku.
+Muļķītis iegājis pie velna, apvilcis ap gultu visapkārt krustaiņu zīmi un tad
+gāzis velnam ar to zobinu, ko māte bij devusi, pa ribām. Velns uzlēcis gultā stāvus,
+bet pār zīmi nespējis tikt. Nu muļķītis metis un metis ar zobinu; beidzot
+nogalinājis taču velnu.</p>
+
+<p align="JUSTIFY">No rīta paņēmis meitas, pabēris ērzelim auzas, lai neķibe lētu
+viņu un tad priecīgi visi četri aizgājuši pie brāļiem uz kuģien. Brāļi
+paņēmuši meitas, teikdami :</p>
+
+<p align="JUSTIFY">"Vadzi, mēs pagaidīsim tevi, ej vēl uz klints salu atpakaļ,
+paskatīties, kas tur tā spīguļo.</p>
+
+<p align="JUSTIFY">"Āre! tās jau lielā ērzeļa acis!" muļķītis atteicis.</p>
+
+<p align="JUSTIFY">"Nava acis, nava, tad tu nemaz to neesi ievērojis, ej
+taču!" Muļķītis gājis arī. Bet šie, blēži, tamēr projām ar abiem kuģiem,
+ar visām meitām. Jo ērzelis nu vairs nevilka viņus ar dvašu klāt, tādēļ, ka vēl
+bij izēdis tās auzas, ko muļķītis šorīt iebēris un nu labi saēdies tik slinks bij
+palicis, ka ne pakustēt.</p>
+
+<p align="JUSTIFY">Pēc liela laika muļķītis atnācis atpakaļ un nu apmanījis, ka
+šie piekrāpuši viņu. Ko nu? Gudrojis šā, gudrojis tā; beidzot iedomājies iet
+ērzelim padomu prasīt. Ērzelis teicis:</p>
+
+<p align="JUSTIFY">"Kamdēļ nenāci ātrāk man teikt: tagad nevaru vairs tavus
+brāļus saredzēt, par daudz tālu. Būtu tikai drusku tuvāki, tūlin ar dvašu atvilktu
+tādus blēžus atpakaļ. Bet nekas! Ej tur<b> </b>muižas dārzā, tur redzēsi trīs
+ābeles vienu sudraba, otru zelta, trešo dimantu; norauj no katras ābeles pa ābolam un
+atnes man, tik sargies ābolus ēst!"</p>
+
+<p align="JUSTIFY">Muļķītis tā darījis. Bet tas dimanta ābols brīnum iegribējies
+pasmeķēt - iekodis. Te - kas bijis, kas nebijis - tūlin nokritis gar zemi un palicis
+kā miris. No rīta tik atmodies. Bet ērzelis nu saņēmis no auna. Kamdēļ nesot
+klausījis, lai eimot vēl otrreiz āboliem pakaļ! Aizgājis, bet nu vairs nekodis
+ābolā.</p>
+
+<p align="JUSTIFY">Tiklīdz atnācis ar visiem trim āboliem, ērzelim nokrituši no
+muguras dzelzs segli. Tos seglus līdz šim neviens nevarējis viņam noņemt no muguras,
+bet nu paši nokrituši.</p>
+
+<p align="JUSTIFY">Tagad ērzelis aicinājis muļķīti viņam mugurā sēsties. Labi,
+sagrābis pavadu un sācis jāt.</p>
+
+<p align="JUSTIFY">Ērzelis nokrācies vien un tad meties no klints zemē jūŗā peldēt.
+Peldējis, peldējis ilgu laiku, beidzot iesaucies:</p>
+
+<p align="JUSTIFY">"Drusku jāatpūšas. Met, muļķīti, sudraba ābolu
+jūrā!" Muļķītis iemetis ābolu pār kamiesi jūŗā. To darot, gadījušies sala
+un uz salas ala.</p>
+
+<p align="JUSTIFY">Lien tai alā!" ērzelis teicis. "Tur būs visādi ēdēji,
+dzērēji, daždažādi trakuļi, tik neielaidies ar viņiem, nerunā ne vārdiņa. lai
+prasa, ko prasīdami. Bet ja tev ko dod, tad ņem vecu zirga ribu, citu ne!"</p>
+
+<p align="JUSTIFY">Kā ērzelis teicis, tā bijis. Līdz kāju iespēris alā tūlin
+visvisādi trakotāji pretim. Vecenes ar tādiem tēviņiem lēkājušas, arī meitas
+bijušas. Tās gribējušas arī viņu trakajā pūlī ieraut, bet šis ne un ne. No rīta
+tāda vecene atnākusi pie viņa - vienā rokā kumpis (dūcis) otrā zirga riba - un
+teikusi, lai vēloties, kuŗu no abiem gribot. Viņš paņēmis zirga ribu un, ne
+vārdiņa neteikdams, izlīdis pie ērzeļa.</p>
+
+<p align="JUSTIFY">Atkal peldējuši cauru dienu. Pret vakaru ērzelis iesaucies:
+"Drusku jāatpūšas! Met zelta ābolu jūŗā!"</p>
+
+<p align="JUSTIFY">Muļķītis iemetis ābolu pār kamiesi jūŗā. To darot, gadījusies
+sala un uz salas ala.</p>
+
+<p align="JUSTIFY">"Lien tai alā! Tur būs visādi ēdēji, dzērēji, daždažādi
+trakuļi; tik neielaidies ar viņiem, nerunā ne vārdiņa, lai prasa, ko prasīdami. Bet
+ja tev ko dod, tad ņem rīku drānu (trauku lupatu), citu ne!"</p>
+
+<p align="JUSTIFY">Kā ērzelis teicis, tā bijis. Līdz kāju iespēris alā, tūlin
+visvisādi trakotāji pretim: vecenes ar tādiem tēviņiem lēkājušas, arī meitas
+bijušas. Tās gribējušas arī viņu trakajā pūlī ieraut, bet šis ne un ne. No rīta
+tāda vecene atnākusi pie viņa - vienā rokā gaļa, otrā rīku drāna - un likusi
+vēlēties, kuŗu ņemšot. Viņš paņēmis rīku drānu un izlīdis pie ērzeļa.</p>
+
+<p align="JUSTIFY">Atkal peldējuši cauru dienu. Pret vakaru ērzelis iesaucies:
+"Drusku jāatpūšas! Met dimanta ābolu jūŗā!"</p>
+
+<p align="JUSTIFY">Muļķītis iemetis pār kamiesi jūŗā. Gadījusies sala un uz salas
+ala.</p>
+
+<p align="JUSTIFY">"Lien tai alā! Tur būs visādi ēdēji, dzērēji, daždažādi
+traku]i; tik neielaidies ar viņiem, nerunā ne vārdiņa. Bet ja tev ko dod, tad ņem
+sveci, citu ne!" </p>
+
+<p align="JUSTIFY">Līdz nu kāju iespēris alā, tūlin visvisādi trakotāji pretim:
+vecenes ar tādiem tēviņiem lēkājušas, arī meitas bijušas. Tās gribējušas arī
+viņu trakajā pūlī ieraut, bet šis ne un ne. No rīta tāda vecene atnākusi pie viņa
+- vienā rokā biezputra, otrā svece - kuŗu nu gribot. Muļķītis paņēmis sveci un
+izlīdis pie ērzeļa.</p>
+
+<p align="JUSTIFY">Tagad ērzelis vēl peldējis tādu laiku un tad sasniedzis jūŗai
+malu, necik tālu no muļķīša tēva pils.</p>
+
+<p align="JUSTIFY">Muļķītis nokāpis malā un gribējis tēva pilī iet; bet ērzelis
+pamācījis :</p>
+
+<p align="JUSTIFY">"Neej tagad vēl uz tēva pili; ej papriekšu uz to pili, kur
+kaimiņa ķēniņš dzīvo, tam daiļas meitas!"</p>
+
+<p align="JUSTIFY">Muļķītis arī aizgājis uz to pili par nepazīstamu un lūdzies
+darbu. Ķēniņš devis darbu. Bet muļķītis otrā dienā tīri pārbrīnījies;
+ieraudzījis dārzā to jaunāko meitu, kuru pats no velna muižas izpestījis, un kuŗa
+jau todien solījusies pie viņa nākt par sievu. Tūlin muļķītis jozīs pie ķēniņa
+iekšā, lai neliedzot viņam savu jaunāko meitu! Bet ķēniņš atcirtis: viņš šo
+tādu nemaz nepazīstot, un meitu arī nedošot! Labi viņnedēļ jau bijis jāatdod
+diviem abas vecākās meitas, tamdēļ ka tie viņa bērnus izglābuši no velna un pār
+jūŗu pārveduši mājā; bet trešo meitu kuŗam katram zenkum iegrūst, to gan
+nedarīšot. Muļķītis gan dievojies, ka īsteni viņš meitas izglābis; bet ķēniņš
+pasmējies: lai neturot viņu, vecu vīru, par vientiesi, tenkas lai raugot citiem
+iestāstīt.</p>
+
+<p align="JUSTIFY">Nekā darīt - veco ne pagalam piedabūt . . . Bet muļķītim bijis
+cits padomnieks pie rokas: ņēmis sarunāt ar savu brūti un aizgājuši uz vienu
+baznīcu klusītiņām salaulāties bez ķēniņa ziņas. Dzīvojis vēl kādu gadu pie
+ķēniņa un neteicis nemaz, ka viņš znots. Pēc gada muļķīša sievai piedzimis dēls
+un nu muļķītim - gribot negribot bijis jābēg pie sava tēva, jo ķēniņš gribējis
+viņu vai pakārt, ja tik rokā būtu dabūjis.</p>
+
+<p align="JUSTIFY">Tēvs pārlieku izbrīnījies, muļķīti ieraudzīdams, jo gudrie
+dēli, pārbraukdami, ieteikuši, ka muļķītis ar savu kuģi jūŗā noslīcis.
+Nebijuši nemaz gudrie brāļi tai brīdī mājā, kad muļķītis pie tēva ienācis; tik
+nakti pārradušies. Bet līdz naktī pārnākuši, tūlin sievas stāstījušas, saviem
+vīriem jaunas ziņas: muļķītis esot ieradies! Šie to padzirdējuši, pa nakti
+sačukstējušies muļķīti no miega uzraut un dziļā alā ieslodzīt. Un tā arī
+izdarījuši. No rīta tēvs agri agri uzlēcis pastāstīt saviem gudriem dēliem
+priekus: muļķītis pārnācis! Bet gudrie dēli izsmējuši tēvu: esot redzējis laikam
+pa sapņiem muļķīša garu. Ja tā būtu, tad lai rādot šurp muļķīti, viņi ātrāk
+neticot. Tēvs paņēmis gudros pie rokas, un vedis tur, kur muļķītis vakarā apgulies,
+bet - vai tie nav sasodīti brīnumi! - un patiesi muļķīša guļas vieta tukša. Vecais
+tēvs paraustījis plecus un neatteicis nekā, cik pats bijis izbrīnījies.</p>
+
+<p align="JUSTIFY">Muļķītis, nabadziņš, ilgi saraudājis tur alā par brāļu
+cietsirdību un pārdomājis, ko nu darīt. Te par laimi atminējies tās lietas, ko uz
+jūŗas salām sadabūjis. Tūlin izrāvis sveci no kabatas - tā acumirklī pati no sevis
+aizdegusies. Izņēmis arī rīku drānu - tā palikusi par galdu ar visādiem gardiem
+ēdieniem. Beidzot vēl izņēmis zirga ribu - tā palikusi par sudraba gultu ar
+mīkstiem, mīkstiem spilveņiem. Nu dzīvojis bez bēdām. Bet dabūjis ar sadzīvot
+veseli septiņi gadi tur alā. Par to laiku viņa dēls ķēniņa pilī bijis pieaudzis
+par smaļu puiku. Māte tam dāvinājusi trīs bumbas: sudraba, zelta, dimanta, ar tām
+puika katru dienu svaidījies. Bet vienreiz māte nogājusi apsērst savas māsas
+muļķīša tēva pilī un paņēmusi puiku līdz. Kamēr šī pa iekšu ciemojusies,
+puika dauzījies pa lauku ar savām bumbām. Uz vienu reizi ieskrējis raudādams: lai
+nākot palīgā, bumbas esot iekritušas dziļā alā. Vecais ķēniņš tūlin sasaucis
+cilvēkus un licis alā pakaļ līst. Un tos brīnumus tagad - atraduši muļķīti,
+bumbas meklēdami. Vecais ķēniņš tīri no priekiem apjucis; bet muļķītis
+izstāstījis visu smalki par saviem viltīgiem brāļiem. To dzirdēdams, vecais tēvs
+licis gudros brāļus nosodīt ar nāvi, bet muļķīti iecēlis savā vietā par
+ķēniņu.</p>
+
+<p align="JUSTIFY">Tagad arī muļķīša sievastēvs ticējis, ka muļķītis izglābis
+gan viņa meitas un tā licis tūlin kāzas rīkot, tādēļ ka toreiz nerīkojis.</p>
+
+
+</body></html>

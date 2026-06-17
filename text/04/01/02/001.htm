@@ -1,0 +1,225 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Slēpšanās no ķēniņa meitas.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 329. V. Zacarska no S. Garanča Viļānu Murānos.</p>
+
+<p align="JUSTIFY">Tuoli nu myusu senejūs laikūs dzeivuoja vīns medinīks. Nu reita
+leidz vokoram jis staiguoja pa mežim un šuovja zvērus un vysaidus putnus. Nu ituo dorba
+jis pats baruojās un baruoja sovu vacū muoti. Juo vuords beja Pīters un jis nabeja vēi
+precēt.s.</p>
+
+<p align="JUSTIFY">Vīnu reizi Pīters aizguoja uz lelu mežu. Tī jis staiguoja vy su
+dīnu, bet nikuo nanūšuovja. Saulīte jau guoja uz vokoru, bet Pīteram nabeja vēl
+nikuo, ni zvēra, ni putniņa. Myusu Pīters sasadusmuoja un īt ar plykom rūkom uz sātu
+un pats seyī lomuojas, ka jam itei dīna pavysam nalaimīga. Īt jis un redz, ka kūkā
+sd vonogs. Jis jau pajēmja rūkuos blisi un gribēja nūšaut vonogu, bet vonogs suoka
+runuot cylvāka bolsā: "Pagaīd, Pīter, nasit tu manis, es tev, kaut kad par itū
+paleidzēšu. Lobuok pajem nu manis vīnu spolvu. Kad tev dzeivē byus kaida nalaime, tu
+itū spolvu sadadzynoj, es tyulen atskrīšu un īdūšu tev sovu paleigu."</p>
+
+<p align="JUSTIFY">Tai vonogs, pasacīdams itūs vuordus, nūmetja sovu spoIvu, pasacēļa
+un aizskrēja pa gaisu, nazynuoms kur. Pīters pajēmja vonoga spolvu kārmanā un guoja
+tuoļuok staiguot pa mežu. It Pīters un dūmoj pats sevī: "Kas šūdīn par taidu
+nalaimi, ka navar nikuo nūšaut?"</p>
+
+<p align="JUSTIFY">Guoja, guoja Pīters. pīkusa un jam īsagribēja ēst. Jis atsasēda
+uz zemes un suoka ēst gabaliņu maizes. Maizi apēdušam īsagribēja jam dzert yudeņa.
+Jis pasacēļa un redz natuoli nu juo azars. Jis pīguoja pi tuo azara un suoka dzert
+yudeni. Padzēra un veras azarā. Tī zivtiņas tai svēlej! Jis tyuleņ sataisīja
+makšeri un suaka gyut zivis. Kad jis aizmetja pyrmū reizi, tai īzvylka zalta zivtiņu,
+kura suoka runuot kai cylvāks: "Palaid mani azarā, mīļais cylvāks, es tev par
+itū kaut kad dzeivē paleidzēšu un pajem nu manis vīnu spuoiņu, kuru tu, kad tev
+nūtiks nalaime, sadadzynoj. Tad es tyulen byušu pi tevis!"</p>
+
+<p align="JUSTIFY">Pīters dūmuoja, dūmuuja, pajēmja izruovja nu zalta zivtiņas vīnu
+spuoiņu un palaida zivtiņu azarā, bet pats guoja tuoļuok. Jis guoja, guoja un jau
+sasataisīja tymss. Kū jam darīt, kur nokti puorgulēt? Jis īkuopja vīnā kūkā, ka
+jū naktī naapāstu zvēri, un tai kūkā puorgulēja nakti. Reitā, kad izlēcja
+saulīte, Pīters nū</p>
+
+<p align="JUSTIFY">kuopja nu kūka un guoja tuoļuok pa mežu. Īt ja un redz lopsu. Jis
+tyulen aiz blises un gribēja lopsu nūšaut, bet lopsa suoka runuot: "Mīļais
+cylvāks, nasit tu manis, es tev kaut kad dzeivuodama paleidzēšu. Lobuok tu izraun nu
+munas astes vīnu spalviņu un kad tev vajadzēs muna paleiga, tu sadadzynoj itū
+spalviņu un es byušu pi tevis kluot!"</p>
+
+<p align="JUSTIFY">Pajēmja myusu Pīters nu lopsas astes vīnu spalviņu un guoja
+tuoļuok. C'ik tī jis guoja, dīnu, vai divi, un īguoja kaidā mīstiņā. Tymā
+mīstiņā jis īguoja pyrmā ustabiņā. Tymā ustabiņā jis īraudzēja pi cepļa vīnu
+veci. Pīters runuoja: "Dīvs paleidz, tev, vecīt!"</p>
+
+<p align="JUSTIFY">Vecs pacēļa golvu, pasavēra uz Pītera un pasacīja: "Taipat
+lai tev Dīvs paleidz!"</p>
+
+<p align="JUSTIFY">Pīters vaicoj večam: "Vai nav kaut kuo kuo paēst.?"</p>
+
+<p align="JUSTIFY">Vecs jam atbild: "Es, dēliņ, pats jau dīnas treis nikuo
+naēžu, par tū man nav nikuo."</p>
+
+<p align="JUSTIFY">Pīters, ilgi nadūmu,odams, izvylka nu kārmana zalta naudas un
+īdevja večam, sacīdams: "Ej, vecīt, uz mīstiņu un nūpierksi, kū paēst tev un
+man!"</p>
+
+<p align="JUSTIFY">Vēcs pajēmja naudu, aizguoja uz mīstiņu, pīpierka, kū vajag, un
+atnezja uz sātu. Sātā vecs ar Pīteri labi paēdja un palyka Pīters pi ituo veča uz
+naktis puorgulēt. Gulādams vecs izstuostījā Pīteram, ka jam beja divi dāli, kurus
+jaunuo kēniniņa pakuoŗa, un jei jau pakuora deviņdesmit deviņi cylvāki, kas vysi
+beja jauni puiši. Kēniniņa vēl naprecēta un grib precētīs, bet veira grib dabuot
+taida, kura jei navarēs atrast, kad jis nūsaglobuos. Kad jei atrūn, tad pakar. Kad
+naatrass, tys byus juos veirs.</p>
+
+<p align="JUSTIFY">Pīters ilgi dūmuoja pats sevī un pēčuok pasacīja večam, ka jis
+ari īs pi tuos kēninipas. Vecs cik jū lyudza naīt, bet nikai uavarēja īrunuot.
+Reitā pasacēļa Pīters un aizguoja uz tū pili, kurā dzeivuoja tei kēniniņa.
+Īraudzēja kēniņiņa Pīteri un soka: "Jau symtais puiss, kurs byus
+pakuorts!"</p>
+
+<p align="JUSTIFY">Pīters jai atbildēja: "Kēniniņa, varbyut, ka manis vierve
+naizturēs!"</p>
+
+<p align="JUSTIFY">"Kēniniņa izstuostīja Pīterim tai: "Tu treis reizes vari
+globuotīs. Kad es tevi atrasšu vysas treis reizes, tad pakuoršu, bet jo naatrasšu, tad
+tu byusi man par veiru."</p>
+
+<p align="JUSTIFY">Pīters pīkrita.</p>
+
+<p align="JUSTIFY">Atīt vokors. Pīters pajēmja vonoga spolvu un sadadzynuoja. Tyulen
+atskrēja pats vonogs. Pīters jam stuosta sovu nalaimi. Vanogs tyulen uzsādynuoja
+Pīteri uz sovas muguras un aiznesja augši, augši aiz muokuĪim suovā pereklī un ar
+suovim spuoim apsedzja. Nakti izguoja kēniniņa ar sovu stabulīti un suoka vērtīs</p>
+
+<p align="JUSTIFY">apleik zemi un dabasus. Īraudzēja vonogu perekli un nu Pītera rūkas
+vīnu pierkstu. Reitā atīt Pīters pi kēniniņas. Jei jam stuosta, ka jis beja pi
+vonoga pereklī. Ūtrā noktī Pīters pajē.nja sadadzynuoja zivtiņas spuoiņu un
+zivtiņa tyulen beja kluot pi Pītera. Pīters izstuostīja zivtiņai sovu nalaimi.
+Zivtiņa tyuleņ pasaucja nu azara lelu leidaku un pasacīja, ka leidaka nūreitu Pīteri.
+Leidaka nūreja Pīteri un staiguoja pa azara dziļumu. Nakti izguoja kēniniņa ar sovu
+stabulīti suoka vērtīs apleik vysu zemi un dabasus, bet nikur navarēja redzēt. Reitā
+Pīters pi kēniniņ.as. Kēniniņa jam soka: "Vīnu reizi naatrodu. Vēl reizi jo
+naatrosšu, tūlaik tu byusi par munu veiru!"</p>
+
+<p align="JUSTIFY">Trešā naktī Pīters sadadzynuoja lopsas spolvu. Lopsa tyulen
+atskrēja. Pīters izstuostīja lopsai sovu nalaimī. Lopsa pasacīja Pīteram:
+"Nabādoj, es tevi nūglobuošu, tevis nikas naatrass!"</p>
+
+<p align="JUSTIFY">Lopsa izroka zem pils 1elu dūbi un pasacīja Pīteram īleist tymā
+dūbē, bet paša skraidīja un vēŗās, kū darīs kēniniņa. Nakti atīt kēniniņa ar
+sovu stabulīti un suoka vērtīs apleik vysai zemei un dabasim, bet nikai navarēja
+atrast, kur ir Pīters. Sasadusmuoja kēniniņa uz sovas stabulītes, un nūsvīdja jū ar
+dusmem un sasyta. Reitā atīt Pīters pi kēniniņas. Kēniniņa jam soka: "Es tevis
+divi reizes naatrodu, tagad tu byusi muns veirs!"</p>
+
+<p align="JUSTIFY">Tai Pīters apsaprecēja ar kēniniņu un svoka dzeivuot boguoti tun
+laimīgi. Uz jūs kuozu beja daudz aužu, vysi ēdja un dzēŗa, bet mutē nivīnam nikuo
+natyka.</p>
+
+
+</body></html>

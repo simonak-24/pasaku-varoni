@@ -1,0 +1,280 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>1</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Puika pārnes velna dārgumus.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 328, Pločkalns ar Vīnderi Skrundā. Brīvzemnieka
+"Sborņik" 204. LP, VII, II, 2'5, 3, 1.</p>
+
+<p align="JUSTIFY">Vienam tēvam deviņi dēli. Viņš tos raidījis pasaulē darbu
+meklēt. Visi deviņi brāļi tad arī aiziet. Iet vienu dienu, otru, vienu mēnesi, otru,
+darba nekur dabūt, Jau sāk šiem gŗūti klāties: ēduši nekā nav, bet uz priekšu
+jāiet arvienu, kaut neatpūtušies. Beidzot vēlu vakarā iekūlušies biezā mežā, kur
+nevienas būdiņas, neviena kroga.</p>
+
+<p align="JUSTIFY">Te piepēži ieraudzīs tālumā uguni spīdam. Aizies turp, kur uguns
+spīd, atron mazu mājiņu; mājiņā dzīvo māte ar deviņām meitām. Māte un meitas
+laipni sagaidīja ciemiņus, cienādamas ar krietnām vakariņām, vīnu un kas vien tas
+labākais. Tomēr vakariņas bija salaistītas ar miega zālēm; bet viņi visi - tik
+māte, tik meitas - ar brāļiem ir tad kopā ēda un kopā dzēra. Pēc vakariņām māte
+uzmauca katram viesim baltu mici galvā un guldināja ikkatru vienai savai meitai blakus :
+vecāko brāli ar vecāko meitu, jaunāko ar jaunāko un tā visus pa pārim un pa kārtai
+vien. Katrs pāris arī bija - kā par brīnumiem - uz mata vienādā vecumā:
+izrādījās, ka katra pāŗa vīrietis ar tā pāŗa sievieti bija dzimis tai pašā
+dienā, tai pašā brīdī.</p>
+
+<p align="JUSTIFY">Tā nu nogula viņi. Bet jaunākā māsa brīnum smagi nopūtās.
+Blakus gulētājs, jaunākais brālis, vārdā Gustis, vaicāja: "Ko tu tā
+nopūties? Ko raizējies?"</p>
+
+<p align="JUSTIFY">Bet šī, viņu mīlēdama, atteica: "Mana māte ir briesmīga
+ragana un burve, bez tam vēl slepkava : katru, ko tik aizgrābj, saplosa un apēd. Tas
+pats arī notiks ar jums šonakt. Tomēr, ja tu jaudātu iegūt to zobinu, kas pie mātes
+gultas., tad gan izglābtos. Lejā ir upīte. Pārej pār upīti, ievelc ar zobinu zemē
+krustu sev aiz muguras, tad viņa tevi vairs nepanāks, nespēs upei pāri tikt. Bet
+kūtī ir vērsis ar zelta ragiem un no ieejas pa kreisi roki plauktā āmars; ja ar šo
+āmaru katram ragam trīsreiz pieklauvē, tad ragi nokrīt, no kritiena izceļas tāds
+troksnis, ka pusvalstība notrīc. Mātei gultas apakšā stāv kokles, ja tās tikai ar
+pirkstiņu aiztiksi, tūlin trīs stundas no vietas kaklē, kā tik domā. Bet aiz mātes
+gultas pie sienas karājas nazis jeb tutenis, to māte katrreiz lietā, audis
+galinādama."</p>
+
+<p align="JUSTIFY">Kad visi bija aizmiguši, Gustis piecēlās, paņēma mices, kas
+brāļiem galvā, uzmauca tās slepkavas meitām galvā, izmeta brāļus Pa istabas logu
+laukā, paķēra vecenes zobinu, kā līgava bija izmācījusi, un izlēca pats arī pa
+logu. Tīrā gaisā viņš sāka brāļus atmodināt. Bet Pa tām starpām arī vecene
+bija atmodusies, un nazi 'pagrābusi, nāca miceniekiem galvas nogriezt, domādama šos
+ciemiņus esam. Nogriezusi visām meitām galvas, apskatīsies: ciemiņu nava. Nu loba
+šiem pakaļ, bet nevarēja upei Pāri tikt, Gustis bij pasteidzies upmalā krustu
+uzvilkt. Tad ragana palika stāvam upmalā un sacīja: "Pagaidi tu man, Gusti, ja
+tevi nogrābšu, zobinu saplosīšu. Tu manu zobinu zagsi, manas meitas galināsi "</p>
+
+<p align="JUSTIFY">Bet Gustis ar brāļiem gāja tikai projām. Gāja, gāja - nogāja uz
+citu valsti. 'Tur viņus saņēma cieti, noveda pie ķēniņa. Ķēniņš saka: "Jūs
+septiņi vecākie brāļi ejiet cietumā, bet tu, Gusti, iesi pie raganas pēc vērša
+ragiem. Ja ragus nepārnes, tad taviem brāļiem jāmirst; ja pārnesīsi, atdošu savu
+meitu un valsti tev."</p>
+
+<p align="JUSTIFY">Gustim metās žēl brāļi, viņš apņēmās iet mēģināt, vai tad
+itin nenodzīs ragus. Aizgāja līdz raganas dzīvoklim, iezagās kūtī, paņēma no
+plaukta āmaru un sita pa ragiem. Ragi nokrita, bet pašam arī drebuļi kaulus satrieca:
+tik briesmīgs troksnis izcēlās, tā ka visa zeme notrīcēja. Gustis paķēra ragus un
+mudīgi, mudīgi skrēja upei pāri, bet ragana arī tūlin pakaļ. Tik tik vēl paspēja
+ar zobinu krustu sev aiz muguras uzvilkt un upītei pārlēkt. Nu ragana nejaudāja vairs
+pakal dzīties, tā apstājās pie upes un dusmās sacīja: "Paga, Gustiņ, gan es
+tevi reiz dabūšu rokā Tu izdarīji, ka es savas meitas apkāvu, tu manu zobenu nozagi
+un tagad manam bullim ragus nositi, gan es tevi reiz dabūšu rokā"</p>
+
+<p align="JUSTIFY">Bet Gustis vairs nenieka nebēdā, iet tikai ar saviem zelta ragiem pie
+ķēniņa. Aiznes ragus, ķēniņš netura vārda: ragus tas paņem labprāt, bet saka:
+"Tev vēl jāiet pie raganas. Ja pārnesīsi viņas tuteni, tad būsi mans znots, tad
+laidīšu tavus brāļus no cietuma ārā."</p>
+
+<p align="JUSTIFY">Nagi - tutenis raganai taisni aiz gultas. Bet ko darīt -- jāiet
+Gustim arī tutenim pakaļ. Ceļā viņš gudro, gudro, kā raganas tutenim piekļūt.
+Bija pašu laiku nakts, kad nonāca raganas mājas un par laimi šī guļ cietā miegā.
+Gustis ielīda viņas istabā, un cietu dūšu saņēmis, piegāja uz pirkstu galiem pie
+gultas - paņēma lēni tuteni no sienas. Vecene gan nemanīja neko, bet ir tad viņam
+sāka šaušalas pa kauliem iet. Tas jau bija tas pats nazis, ar ko ragana tik daudz
+cilvēku bija apkāvusi, un ja nu viņa atmostos, tad droši vien arī viņu nogalinātu.
+Bet līdz viņš arī labi bija izlīdis pa durvim laimīgi, te vecā ragana pakaļ.
+Tomēr drusku</p>
+
+<p align="JUSTIFY">tā bija nokavējusies. Gustis jau bija uzvilcis krustu aiz muguras ar
+zobinu un pārlēcis upītei. Šī palika stāvam upes malā un briesmu un dusmu pilna
+lamā, lād Gusti. Bet Gustis bez bēdām, viņš steidzas pie ķēniņa nazi nodot.
+Tomēr ķēniņš ir šoreiz vārda neturēja, sacīdams: "Ja pārnesīsi raganas
+ūdens nesamo trauku, tad došu visu, ko solīju." (Šis trauks bija dimanta
+akmeņa.)</p>
+
+<p align="JUSTIFY">Atkal Gustim raizes. Viņš iet, iet, bet nevar sagudrot, kā trauku
+dabūt. Aiziet pie raganas mitekļa, nezin ko iesākt. Nu skatās, nu klausās - neviena
+paša nemana. Līdīs augšā uz bēniņu, paslēpsies turpat. Kas ir? Ierauga: turpat
+istabas augšā ir meklējamais trauks. Ragana pati tai brīdī nebija mājā, tikai
+kalpone vien, vārīdama azaidu. Piepēži ragana pārloba mājā pārbaudīt kalpones
+virumu; bet tai virumā vira viņas pašas meitu miesas. Pabaudīja virumu un sacīja
+kalponei: "Par sāļu, ej pēc ūdens"'</p>
+
+<p align="JUSTIFY">Uzlīda bēniņā kalpone pēc trauka, aizgāja pēc ūdens. Bet Gustis
+prātoja: "Nu ir labi"</p>
+
+<p align="JUSTIFY">Viņš klusiņām līda kalponei paka un tikai vēro trauku. Tiklīdz
+kalpone pie akas noliecās pēc ūdens, Gustis deva tai pa kakla kaulu. Kalpone iegāzās
+akā, bet Gustis, paķēris trauku, uz upi prom. Tur viņš vēl laikā uzvilka krustu ar
+zobinu sev aiz muguras un pārlēca upītei. Atkal atloba ragana līdz upītei, apstājās
+un lamāja, lādēja bez gala. Gustis ar trauku neliekas ne zinot, iet pie ķēniņa.</p>
+
+<p align="JUSTIFY">Bet ragana steidz pie akas un velk savu kalponi laukā. Izvilka gan,
+bet kalpone bija jau nomirusi. Nu ņēmās ragana to atdzīvināt: piegāja klāt un pūta
+virsū pa muguras pusi. Kalpone uzpūtās. tīri vai pušu sprāgt gribēja, bet tomēr
+neatdzīvinājās vis. Vēl otrreiz ragana visā spēkā pūta. Kalpone vēl vairāk
+uzpūtās, likās, tūlin sprāgs pušu, un arī raganai pašai acis sprāga ārā, elpu
+vairs neatdabūs, bet kalpone kā nekust, tā nekust. Nu ragana apsēdās, pārdomādama,
+ko iesākt un lūk, tā atrod jaunus padomus. Apskrēja trīsreiz akai riņķī un tad
+ņēmās pa trešam lāgam kalponei virsū pūst. Pūta visā spēkā, te - vai redzi -
+sāks kalpone drusku kustēties un - atdzīvojās gan.</p>
+
+<p align="JUSTIFY">Bet pa tām starpām Gustis jau pie ķēniņa, atdod tam dimanta
+trauku, nodomādams: ,,Nu taču atsvabināšu savus brāļus no cietuma.</p>
+
+<p align="JUSTIFY">Tomēr ir šoreiz ķēniņš nepalika pie vārda un sacīja:
+"Atnes man kokles no raganas, tad došu visu. ko solīju"</p>
+
+<p align="JUSTIFY">Gusts pārdomāja: "Ko lai iesāku? Ikreizes ķēniņš mani
+piekrāpis, viņš piekrāps arī šoreiz vēl - taču brāļi man žēl."</p>
+
+<p align="JUSTIFY">Gāja gan Gustis pēc koklēm vēl. Bet šoreiz jo vairāk pa koklēm
+prātoia, jo drebuļi tam trīcināja visu miesu. Traki iedomāties, ja tikai ar
+pirkstiņu aiztiksi, kokles koklēs trīs stundas no vietas un stāvēt tās stāv pašas
+raganas gultas apakšā. Beidzot viņš apņēmās nogaidīt tādu laiku, kad ragana
+mājā nebūs, un tad aiznest kokles, jo kalpone viņam bijusi, nebijusi.</p>
+
+<p align="JUSTIFY">Aiziet līdz raganas mājām, ragana 'pašu laiku nav mājā. Ieiet
+istabā, ņems kokles; bet tiklīdz aizkustina - spēlē, ko tik māk. Vecā ragana
+pārskrien, Gustim nelabi pavisam: aizmukt nekur vairs, nu ir nagos. Ragana jau saka pilna
+prieka: "Nu vienreiz, Gustiņ, iekļuvi man nagos, tagad tev jāmirst. Bet izvēlies
+pats, kādā nāvē gribi mirt?"</p>
+
+<p align="JUSTIFY">Gusts domā: "Ko nu iesākt? Nelāgi" Te tam nāk padoms
+prātā, viņš saka raganai: "Pārnes atsprāklis egli no meža un sadedzini mani ar
+tās egles malku, cita nekā nevēlos."</p>
+
+<p align="JUSTIFY">Ragana paklausīja, ko lūdz, paņēma viņu, iebāza mucā - tai
+pašā, kuŗā raganas meitu gaļa bija bijusi -- nolika kalponi klāt viņu aplūkot un
+tad pati teciņus aizsteidzās uz mežu pēc egles. Mucā gulēdams, Gustis atminēsies,
+ka viņam tēvs reiz jostu iedevis, sacīdams: "Šo jostu nēsā vienmēr gar vidu
+apjoztu; ja tevi tad kādreiz kur sagūstītu, atjoz jostu tikai - būsi tūdaļ
+brīvs."</p>
+
+<p align="JUSTIFY">Viņš atjozās un patiesi bija tūdaļ brīvs. Nu paņēma kokles,
+aizgāja kā vīrs, koklēdams upei pāri un uzvilka ar zobinu krustu sev aiz muguras.
+Pārnāk ragana no meža, redz: ne Gusta vairs, nedz kokļu. Gan vēl loba Gustim pakaļ,
+bet Gustis jau upei pāri. Sāks vecene lamāties bez gala: "Tu blēdi Tevis dēj man
+bija jānokauj meitas, zelta ragus manam vērsim tu zagdams nozagi, manu zobinu, manu
+nazi, beidzot ir kokles nospēri"</p>
+
+<p align="JUSTIFY">Pilna dusmu pārskrēja ragana atpakaļ, sagrāba kalponi, saplosīja
+smalkos gabalos, izcepa un apēda Gusta vietā. To padarījusi, nezināja, ko pati būtu
+iesākusi, ko nē. Drīzi skrēja uz upīti, tur Gusta nekā, skrēja atkal uz mājām,
+istabā, kūtī, nekur miera atrast. Beidzot paķēra āmaru no plaukta, loba atkal uz
+upīti. Atskrien, sviedīs āmaru gaisā, Gustim pakaļ. Bet raganas āmars neķēra vis
+Gusti, augstu, galvai pāri, tas aizsprāga vairāk verstu Gustim uz ceļa priekšā.
+Gustis, iedams uz priekšu, atron nokritušo āmaru, paņem to un nodomā: "Kas var
+zināt, kur tāds kādreiz der."</p>
+
+<p align="JUSTIFY">Aiziet līdz ķēniņa pilij, atdod kokles ķēniņam. Ķēniņš aplam
+priecājās, ka nu viņa ienaidniece vienreiz pilnīgi aplaupīta, jo arī ķēniņš bija
+viņas nagos bijis un diezgan izcietis. Viņš izlaida brāļus no cietuma un darināja
+lielas kāzas. Gustis palika par ķēniņa valsts mantinieku un dzīvoja laimīgi jo
+laimīgi ar ķēniņa meitu.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

@@ -1,0 +1,291 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Stiprais Ansis.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">4. A. 650 A. A. Lerchis - Puškaitis Slampā. LP, IV, 1, (l, v. 1).</p>
+
+<p align="JUSTIFY">Vienam kalējam nav neviena dēla. Viņš sendienām sūrojas jau par
+to. Bet vienu vakaru nabadziņš<b> </b>gluži izmisis nosēdies uz lakti un lūdzies:
+"Dieviņ, mīļais, dod man šādu<b> </b>vai tādu dēlu! Kad tik būtu dēls!"</p>
+
+<p align="JUSTIFY">No rīta kalējs noies uz smēdi. Vadzi, kas tas? Varens puisis,
+noaudzis, kā ozols, sēž uz lakti.</p>
+
+<p align="JUSTIFY">"Kur tu te gadījies? Kas par vīru esi?" kalējs uzprasīs.</p>
+
+<p align="JUSTIFY">"Tēt, kas tā nu prasīs? Esmu taču jūsu dēls!"</p>
+
+<p>"Ko! vai patiesi?"</p>
+
+<p>"Nu, kā tad!"</p>
+
+<p align="JUSTIFY">"Ak, tu Dieviņ, tad ta laime! Sen vēlējos dēlu, nu reiz
+dabūju! Bet dēls, dzirdi, man netīk daudz vārīties. Grābsim tad arī tūliņ darbu
+nagos, sākdami kalt."</p>
+
+<p>"Kā tad! Es arī tāpat - kas darāms, darāms!"</p>
+
+<p align="JUSTIFY">Un tā tēvs tūliņ sagrābj stieni, ieliek ugunī un grib pušu
+skrotēt. Bet dēls norunā:</p>
+
+<p align="JUSTIFY">"Tēt, kādēļ darbu garumā vilkt? Nieka dzelzs gabalu tur vēl
+sildīt un grozīt, kur lai tā izķēmojamies? Redziet, kas tad kaiš tā?"</p>
+
+<p align="JUSTIFY">Uzliek uz celi, pasit vienreiz ar dūri - viens gabals nost; pasit vēl
+ar dūri - otrs gabals nost. Ievajagās īsāks gabaliņš, nu labi<b>, </b>pasit ar
+pirkstu - knauks! gabaliņš, cik mazs vien tīkas, nost.</p>
+
+<p>"Vai ne? Tā taču var ko padarīt."</p>
+
+<p align="JUSTIFY">To redzēdams, tēvs atplēš acis, brīnās un brīnās. Bet dēlam
+tamēr - tas nebij ne apskatījies - stienis sadrostēts vienos ķimpuļos. Un līdz
+brokastam sakalts tikdaudz, kur vecajam droši vien nedēļu būtu bijis jāstrādā.</p>
+
+<p align="JUSTIFY">Aizgāja brokastā. Māte izvārījusi tādu katliņu, kā jau arvienu.
+Bet kur dēlam ar to pietiks<b>? </b>Nebija ne ēdis, ne neēdis. Bada tiesai iekoda vienu
+pašu klaipu maizes, iestrēbās, cik katliņā bija, un raudzīja līdz pusdienai iztikt.</p>
+
+<p align="JUSTIFY">Pusdienā māte novārījusi nēša katliņu un cels kalējiem
+priekšā. Bet nekā: dēls izstrebj viens pats nēša katliņu un<b> </b>atkal noēd
+klaipu maizes. Tēvam pietrūkās - palika neēdis.</p>
+
+<p align="JUSTIFY">"Vadzi, dēls, tu strādā kā zvērs, bet ņem arī iekšā kā
+zvērs."</p>
+
+<p align="JUSTIFY">"Zināms, kas labi smeļ, tas arī labi var liet!"</p>
+
+<p align="JUSTIFY">Un tā tas nu gāja katru dienu: klaips maizes uz ēdiena, nēša
+katliņš uz strēbiena.</p>
+
+<p align="JUSTIFY">Bet pēc kāda laika tēvs taču apdomāsies: "Dēls, klausies,
+lai gan esam sakaluši pasauls, tad tomēr viena nelaime. Nevaru tevi vairs ilgāki
+pieēdināt. Ej tādēļ pie<b> </b>mūsu ķēniņa, tas<b> </b>var pulku dot ēst, pulku
+arī likt strādāt."</p>
+
+<p align="JUSTIFY">Dēls aiziet pie ķēniņa un nolīgst tā: ja varēšot visu izdarīt,
+tad ķēniņš dabū vienu pļauku no dēla; ja ne - tad dēls vienu pļauku no ķēniņa.</p>
+
+<p align="JUSTIFY">Labi. No rīta, citiem vīriem ķēniņš licis lielu, lielu vērsi<b> </b>nokaut.
+Šie nevar vērsi pievarēt. Dēls ļirgā pie zemes liekdamies un pieies arī klāt:
+"Un tad jūs, jēlnadži, patiesi nevarat šo bucenu pievārēt?"</p>
+
+<p>"Vai akls! Tev laba mute - raugi tu!"</p>
+
+<p>"Nost no kājām! Es tādus circeņus ar knipi pagodu!"</p>
+
+<p align="JUSTIFY">Citi atlec nost; vērsis nikni iemauŗojas un nāks dēlam virsū. Bet
+dēls knirkt! pa pieri ar knipi un vērsis nost kā muša.</p>
+
+<p align="JUSTIFY">Ķēniņš, tādu spēku dēlam redzēdams, paliek bāls uz vietas.
+"Nebūs labi - iegadās man pļauku no dēla dabūt, ko tad? Pag, pag, zinu gan, kā
+no viņa vaļā tikt: viņš jānogalina<b>."</b></p><b>
+</b>
+
+<p align="JUSTIFY">Un tā ķēniņš tūliņ uzsauc dēlam: "Klausies! Ko, dēls,
+diedi bez darba, paņem veco ķēveli, pārvedīsi man no meža tādu ozolu: pieci asu
+garumā, trīs<b> </b>asu resnumā."</p>
+
+<p align="JUSTIFY">Dēls paņem ķēveli un aiziet. Bet ķēniņš priecājas: "To
+zeņķis nezin, ka tai mežā lēvenis niknu zvēru. Kamēr ar ķēvi mocīsies, zvēri
+saklups bariem apkārt un noēdīs kā nabagu.</p>
+
+<p align="JUSTIFY">Bet dēlam cits grieziens; viņš tev ies mežā pa gaŗam laikam
+nižģināties. Piesien ķēvi, nogāž ozolu un dzenē, ne acis nepacēlis, ozolam zarus.
+Par to laiku ieŗūcas lāči, iekaucas vilki - dēls tik paklausās. Beidzot kraus
+vezumu. Bet kā pacels<b> </b>acis, vadzi: lāči ķēvi noēduši. Ko nu? Nekā darīt -
+grābj divus ēdoņus rokā un jūdz ozolam priekšā. Lāči ŗūc un dauzās kā traki,
+bet nieki nelīdzēja - bija jāpārvelk ozols ķēniņa sētas vidū<b>.</b></p><b>
+</b>
+
+<p align="JUSTIFY">Ķēniņš paskatās un nezin, ko darīt, ko<b> </b>iesākt. Bet otrā
+rītā ķēniņam padoms rokā: "Nekas, vadīšu viņu ar lāčiem uz ezeru pārvest<b>
+</b>man to velnu, kas zivis izzog un ļaudis dzelmē ievelk."</p>
+
+<p align="JUSTIFY">Labi, dēls aizbrauc ar lāčiem uz ezeru. Lāči negrib ūdenī brist,
+bet dēls paņem aiz ausim un iesviež ezerā, lai noblaišķ. Velns, izdzirdējis,
+pabāzīs galvu skatīties.</p>
+
+<p>"Vai re, kur zivju zaglis izlien!" dēls uzsauc velnam.</p>
+
+<p align="JUSTIFY">Velns par to vārdu krūtīs un vilks šo dzelmē, bet dēls paņem
+velnu aiz čupras, iznes velnu uz sausuma, piesien ratu pakaļā un brauc uz māju.</p>
+
+<p align="JUSTIFY">"Ače, kur ir zivju zaglis!" dēls pasaka ķēniņam
+pārbraukdams.</p>
+
+<p align="JUSTIFY">"Tas labi!" ķēniņš atbild. "Novij šodien labu
+pātagu, rītu brauksi ar velnu uz to<b> </b>un to zemi pēc vezuma zelta, ko turienes
+ķēniņš man parādā."</p>
+
+<p align="JUSTIFY">"Dod piecpadsmit birkavu linu, lai iznāk laba<b> </b>pātaga, ka
+var tālo ceļu godam izbraukāt," dēls<b> </b>ieteicas.</p>
+
+<p align="JUSTIFY">Ķēniņš iedod piecpadsmit birkavu linu un dēls ar velnu ņemas
+vīt. Izvij tās piecpadsmit - aukla tik pusē. Lai dodot vēl piecpadsmit birkavu. Izvij
+tos linus - nu pātaga varena. Lai dodot vēl piecpadsmit mucu darvas, ar ko auklu
+nodarvot. Izdarvo tās mucas - aukla tik pusē nodarvota. Lai dodot vēl piecpadsmit mucu.
+Izdarvo tās - nu pātaga spīd vien, tik trūka kā kāta. Bet dārzā ķēniņam smuidra
+ābele. Ko gaidīt? Izrauj to pašu un iesien par kātu. Otrā rītā dēls liek velnam
+aizjūgt lāčus. Šis aizjūdz un skatās, ko nu vēl teiks. Bet dēls uzsauc bargi:
+"Neskaties, ceļš tāls, sēdi par kučieri un laid vaļām! Bet pātagu es
+paturēšu, man bail, ka neizsit lāčiem acis."</p>
+
+<p align="JUSTIFY">Nu brauca, lai dimd. Drīz bija svešajā zemē klāt. Bet tās zemes
+ķēniņam bija tāda pļava: kā uzbrauc virsū, tā paliek kā piesiets. Šie uzbrauc uz
+nelāgo pļavu un nu nekur vairs pabūt. Ķēniņš, to redzēdams, sasauc savus
+kaŗavīrus un bendēs šos nost. Ķēniņš nāk pa priekšu, kaŗaspēks pakaļ. Velns
+jau baiļojas un biksta dēlu, lai cērtot ar pātagu kaŗavīriem, bet dēls, vadzi, vēl
+necērt vis. Kaŗavīri necik tālu. Velns trīc, lai cērtot; bet dēls vēl necērt vis.
+Kaŗavīri jau itin tuvu. Velns, kā sadedzis, lai cērtot; bet dēls tik uzsauc
+ķēniņam: "Vai dosi vezumu zelta mūsu ķēniņam, jeb nedosi?"</p>
+
+<p align="JUSTIFY">Ķēniņš dusmīgi atgriež dēlam muguru, kaŗavīriem pavēlēdams:
+"Grābjiet tos pluskas nagos!"</p>
+
+<p align="JUSTIFY">To dzirdēdams, dēls atvēsina pātagu un gāž ieplakaniski
+kaŗavīriem pa ciskām. Kaŗavīri visi gatavi, tik ķēniņš izmūk. Nu piebrauc pilij
+tuvāki, jo rati no liela cirtiena bija tikuši svabadi un aizsprāguši no nelāgās
+pļavas nost. Ķēniņš aši sarauga vēl lielāku kaŗaspēku un nāks pa otram lāgam
+šos slānīt. Bet dēls jau pie laika atvēsina pātagu, uzprasīdams: "Vai dosi ar
+labu zeltu?"</p>
+
+<p>Bet ķēniņš atkal pavēl kaŗavīriem šos grābt.</p>
+
+<p align="JUSTIFY">To dzirdēdams, dēls atvēsinās un gāž ar pātagu: tūliņ viss
+kaŗaspēks gar zemi un pilij arī jumts līdz pusei drupatās. Pātagas gals bija ķēris
+par nelaimi arī ēku. Bet ķēniņš atkal pamanījās izmukt. Nu tas sarauga ātrumā
+vēl lielāku kaŗaspēku un tad nāks no visas tiesas šos slānīt. Bet dēls arī vairs
+jokus neprot: kā gāž ar pātagu, tā kaŗaspēks gar zemi, velns ar ratiem gabalā un
+pilij viss jumts drupās.</p>
+
+<p align="JUSTIFY">To redzēdams, ķēniņš sāk lūgties, lai necērtot vairs, citādi
+izputināšot viņam visu pili, viņš zelta došot, cik tik spēšot pavest. Labi.</p>
+
+<p>Nu pārbrauc mājā ar tādu vezumu zelta kā brīnumi.</p>
+
+<p align="JUSTIFY">Bet pa to laiku, kamēr šie svešumā pēc zelta, mūsu ķēniņš
+mājās licis krāsni uztaisīt ar dzelžiem un akmiņiem, ka ne domāt tādu izārdīt,
+nedz apgāzt.</p>
+
+<p align="JUSTIFY">No rīta ķēniņš ielien krāsnī un sauc dēlam: "Tu visu
+izdarīji, man tā pļauka pienākas, bet sit ātri, citādi vari lielīties, ka esmu
+palicis tev parādā."</p>
+
+<p align="JUSTIFY">Dēls, kā nu cērt pa krāsni, tā krāsns aiziet ar visu ķēniņu
+caur diviem pils mūriem un vēl laukā lielu gabalu.</p>
+
+<p align="JUSTIFY">Ķēniņiene, to redzēdama, izskrien dēlam pakaļ lūgdamās:
+"Nesit otrreiz, došu tev savu meitu par sievu, bet nesit tikai, citādi mans vīrs
+miltos."</p>
+
+<p align="JUSTIFY">Dēls nu apņēma ķēniņa meitu un palika pēc viņa nāves pats par
+ķēniņu.</p>
+</font>
+
+
+</body></html>

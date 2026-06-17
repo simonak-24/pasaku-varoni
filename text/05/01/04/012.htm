@@ -1,0 +1,356 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>12</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Meklēšana pēc nepazīstamā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">12. A. 465. A. Pogu Jānis, Bechmanis, Bramberģniekos. LP, V, 319,
+(142. 1).</p>
+
+<p align="JUSTIFY">Pie kāda ķēniņa, kas esot burvis bijis, dzīvo kalps, kam tik
+daiļa sieva, kā zelta magone. Šo daiļumu ķēniņš iekāro kalpam atņemt, sacīdams'
+"Klau, kas man prātā: tava sieva daiļa! Bet vienā vietā esot Šis un tas, it
+nekas, to Pārved man, citādi dzīvs nepaliksi!"</p>
+
+<p align="JUSTIFY">Kalps pāriet pie sievas un raud gaužas asaras. Sieva glauda: "Ko
+raudi?"</p>
+
+<p align="JUSTIFY">Ja, tā un tā!</p>
+
+<p align="JUSTIFY">"Ai, zelta vīriņ, tas traki gan, bet ko ar ķēniņu izdarīt?
+Saaun kājas un šeit šī ripa; svied viņu pie zemēs un steidzies pakaļ, kur ripa
+ripo, tad aizkļūsi pie maniem brāļiem, lieliem kalna milžiem, tie tev pateiks, kur
+Šis un tas, it nekas meklējams. Bet brāļiem, tiem stipriniekiem, pliku roku nesniedzi
+un, iekams neesi nomazgājies, iekšā neej pie viņiem, citādi tevi nepazīs."</p>
+
+<p align="JUSTIFY">Labi! vīrs sataisās, ieripina ripu un nu tikai poš pakaļ, kur ripa
+ripo.</p>
+
+<p align="JUSTIFY">Bet līdz šis labi gabalā, te ķēniņa sulainis pie sievas zelta
+magonītes, klāt: lai nākot Pie ķēniņa! Sieva atbild: "Ietu, ietu, labprāt
+ietu, bet apskaties, cik slima esmu."</p>
+
+<p align="JUSTIFY">Labi. Bet ķēniņš netic un aizsūta ārstu pakaļ. Ārsts Pārnāk
+ar ziņu: "Zelta magone trūd tārpos - slima."</p>
+
+<p align="JUSTIFY">Beidzot ies pats ķēniņš. Aiziet - zelta magone pazudusi, istaba
+tukša.</p>
+
+<p align="JUSTIFY">Bet vīrs tamēr bija sasniedzis dziļu alas caurumu. Ripa ripo pa alas
+caurumu arvienu uz priekšu un beidzot apstājas pašā alā, lielas pils Priekšā. No
+pils iznāk trīs sulaiņi: ko gribot?</p>
+
+<p align="JUSTIFY">"Vai nevar ūdeni un dvieli dabūt?" </p>
+
+<p align="JUSTIFY">"Ja, tūlin Vīrs nomazgājas, noslaukās; sulaiņi prasa:
+"Ko vēl?" "Vediet mani pie kunga!"</p>
+
+<p align="JUSTIFY">Ieved -- nāk liels milzis pretim un trīs sulaiņi tura ar sekumiem
+viņam acu plakstienus paceltus, lai spta visi labi novērot. Milzis skatās, skatās -
+beidzot pazīst gan šo un sniegs roku pretim: "Labdien! māsas vīr."</p>
+
+<p align="JUSTIFY">Bet vīrs sniedz Pretim dzelzs roku. Milzis sveicinādams pakrata
+dzelzs roku labi un brīnas : "Tev vareni cieta oka!" Dzelzs roka tīri plakana
+paliek - tik tik nesaspaidīja drumslās.</p>
+
+<p align="JUSTIFY">"Nu, māsas vīr, vai nāci sērst jeb citā kādā
+vajadzībā?" milzis ieprasās.</p>
+
+<p align="JUSTIFY">Kur nu sērst? Nācu daudz lūgt, maz dabūt. s'ai te nepielnīt "</p>
+
+<p align="JUSTIFY">Šis un tas, it nekas?" .</p>
+
+<p align="JUSTIFY">,.,Pag, pag!" milzis atņurd un pasauc divpadsmit māsiņas. Tās
+attek naigi, naigi: ko gribot?</p>
+
+<p align="JUSTIFY">"Vai nezināt, kur Šis un tas, it nekas piemīt šim
+brīžam?" "Nē, nē - tagadin gan zinājām, bet piemirsām."</p>
+
+<p align="JUSTIFY">Nu milzis pasauc lielu vardi. Varde atlec plakt! plakt! - ko gribot?</p>
+
+<p align="JUSTIFY">"Pateic, kur Šis un tas, it nekas šim brīžam piemīt?"
+Viņa nezinot.</p>
+
+<p align="JUSTIFY">"Kā nezini?" milzis piktumā uzsauc un neganti izkuļ vardi
+"</p>
+
+<p align="JUSTIFY">dzelzs rīkstēm. Bet varde tomēr nezin un nezin. Neko darīt, milzis
+iedod vīram citu ripu un sūta pie viduvējā brāļa apvaicāties.</p>
+
+<p align="JUSTIFY">Ripa ripo Pa mežiem, ha purviem, beidzot ieripo alas caurumā un
+apstājas alas dibinā vēl lielā kas pils priekšā. Te iznāk seši sulaiņi,
+taujādami, ko gribot?</p>
+
+<p align="JUSTIFY">Vai nevar ūdeni un dvieli dabūt?" "</p>
+
+<p align="JUSTIFY">"Ja, tūlin!"</p>
+
+<p align="JUSTIFY">Vīrs nomazgājas, noslaukās; sulaiņi prasa: "Ko vēl?"
+"Vediet mani pie kunga!"</p>
+
+<p align="JUSTIFY">Ieved - nāk vēl lielāks milzis pretim un seši sulaiņi tura ar
+sekumiem acu plakstienus paceltus, lai spētu viesi labi novērot. Milzis skatās,
+skatās, beidzot pazīs gan šo un sniegs roku pretim: Labdien! māsas vīr."</p>
+
+<p align="JUSTIFY">" Bet vīrs pasniedz dzelzs roku. Milzis sveicinādams pakrata
+dzelzs roku labi un brīnas: "Tev vareni cieta roka!" Dzelzs roka pavisam
+plakana paliek, gandrīz drumslās.</p>
+
+<p align="JUSTIFY">"Nu, māsas vīr, vai nāci sērst, jeb kādā vajadzībā?"</p>
+
+<p align="JUSTIFY">"Kur nu sērst? Nācu daudz lūgt, maz dabūt. Vai te nepiemīt
+Šis un tas, it nekas?"</p>
+
+<p align="JUSTIFY">"Pag, pag!" milzis atņurd un pasauc divdesmit māsiņas.
+Tās attek naigi, naigi: ko gribot?</p>
+
+<p align="JUSTIFY">"Vai nezināt, kur Šis un<b> </b>tas, it nekas piemīt šim
+brīžam?" "Ne, ne - tagadin gan zinājām, bet piemirsām."</p>
+
+<p align="JUSTIFY">Nu milzis pasauc lielu vardi. Varde atlec plakt! plakt! ko gribot?</p>
+
+<p align="JUSTIFY">"Pateic, kur Šis un tas, it nekas šim brīžam piemīt?"
+Viņa nezinot.</p>
+
+<p align="JUSTIFY">"Kā nezini!" milzis piktumā uzsauc un neganti izkuļ vardi
+dzelzs rīkstēm. Bet varde tomēr nezin un nezin. Neko darīt, milzis iedod vīram citu
+ripu un sūta pie jaunākā brāļa apvaicāties. Ripa ripo pa mežiem, pa purviem, pa
+upēm, pa ezeriem, beidzot ieripo alas caurumā un apstājas alas dibinā vēl jo
+lielākas pils priekšā. Iznāk deviņi sulaiņi: ko gribot?</p>
+
+<p align="JUSTIFY">Vai nevar ūdeni ar dvieli dabūt?" "</p>
+
+<p align="JUSTIFY">"Ja, tūlin!"</p>
+
+<p align="JUSTIFY">Vīrs nomazgājas, noslaukās; sulaiņi prasa: "Ko vēl?"
+"Vediet mani pie kunga!"</p>
+
+<p align="JUSTIFY">Ieved - nāk vēl lielāks milzis pretim un deviņi sulaini tura ar
+sekumiem acu plakstienus paceltus, lai spētu viesi labi novērot. Milzis skatās,
+skatās, beidzot pazīs gan šo un sniegs roku pretim: Labdien! māsas vīr."</p>
+
+<p align="JUSTIFY">Bet vīrs pasniedz dzelzs roku. Milzis sveicinādams pakrata dzelzs
+roku labi un nobrīnas: "Tev vareni cieta roka!" bet dzelzs roka no tāda
+spiediena saplaisā drumslās.</p>
+
+<p align="JUSTIFY">"Nu, māsas vīr, vai nāci sērst, jeb kādā vajadzībā?"</p>
+
+<p align="JUSTIFY">"Kur nu sērst? Nācu daudz lūgt; maz dabūt. Vai te nepiemīt
+Šis un tas, it nekas?"</p>
+
+<p align="JUSTIFY">"Pag, pag!" milzis atņurd un pasauc divpadsmit māsiņas.
+Tās attek naigi, naigi: ko gribot?</p>
+
+<p align="JUSTIFY">"Vai nezināt, kur Šis un tas. it nekas šim brīžam
+piemīt?" "Nē, nē - tagadin gan zinājām, bet piemirsām."</p>
+
+<p align="JUSTIFY">Nu milzis pasauc lielu lielu vardi kā labu kumeļu. Varde atlec plakt!
+plakt! - ko gribot?</p>
+
+<p align="JUSTIFY">"Pateic, kur Šis un tas, it nekas šim brīžam piemīt?"</p>
+
+<p align="JUSTIFY">Viņa nezinot.</p>
+
+<p align="JUSTIFY">Kā nezinot?" milzis piktumā uzsauc un neganti kuļ dzelzs
+rīkstēm. Varde ciešas, ciešas, beidzot sāk teikt : "Žinu, žinu!"
+"Nu, ja žini, tad aiznes manu radu turp!"</p>
+
+<p align="JUSTIFY">Vīrs uzlec vardei mugurā un aizjāj lieliem lēcieniem vien kā pats
+nelabais pa mežiem, pa purviem, pa ezeriem, pa upēm. Jāj, jāj - beidzot varde
+apstājas pie pašas velna pils. Vīrs atlaiž vardi, lai lec mājā. Varde aizlec plakt!
+plakt! bet šis ieiet pilī, uzlien krāsns augšā un gaida. Patlaban aptumsa.<b> </b>Te
+necik ilgi, ieskrien pats velns: "Šis un tas, it nekas, kur esi? Dedzini uguni,
+klāj vakariņas!"</p>
+
+<p align="JUSTIFY">Viens divi ugunis aizdegas, galds apklājas, bet vairāk neredz neviena
+- tikai velnu. Velns paēd un tad iesaucas : "Šis un tas, it nekas, dzēs ugunis,
+noņem galdu!"</p>
+
+<p align="JUSTIFY">Tūlin galds noņemts, ugunis apdzisušas, un neviena neredz, kas to
+darījis. Bet vīrs krāsns augšā domā: "Pag, pag - es arī</p>
+
+<p align="JUSTIFY">varu iekost. Šis un tas, it nekas dedzini ugunis, klāj galdu!"
+Tūlin viss gadījies. Vīrs nokāpj no krāsns un sāk ēst. Ēd, ēd - beidzot
+iesauksies: "Šis un tas, it nekas! nāc, sēdi man blakus un ēd līdz!"</p>
+
+<p align="JUSTIFY">Šis un tas, it nekas nu vienreiz parādās saredzams un nosēžas
+blakus, brīnodamies: "Ai, cik tu labs kungs! Liec blakus sēdēt, dod ēst. Pie
+vecā kunga, divdesmit gadu kalpodams, to nepiedzīvoju nekad."</p>
+
+<p align="JUSTIFY">Tas labi! tad tikai ēd!" "</p>
+
+<p align="JUSTIFY">Ēd, ēd tādu brīdi, te vīrs atkal: Šis un tas, it nekas, vai
+nenāksi pie manis par sulaini?"</p>
+
+<p align="JUSTIFY">"Labprāt, labprāt! ai, cik tu esi labs kungs, vecais nekad tā
+nebildināja."</p>
+
+<p align="JUSTIFY">Tas labi! atliec tad vakariņas, nodzēs ugunis un nāc man "</p>
+
+<p align="JUSTIFY">līdz - iešu mājā."</p>
+
+<p align="JUSTIFY">Un abi, pa vardes pēdām turēdamies, steidzās mājā. Pret gaismu
+jau aizkļuvuši lielu gabalu; bet tur, netālu vairs, ierauga svešu ēku.</p>
+
+<p align="JUSTIFY">Šis un tas; it nekas! gribu nosnausties; stāvi man par "</p>
+
+<p align="JUSTIFY">sargu!" Ja, ja - viņš sargāšot gan.</p>
+
+<p align="JUSTIFY">Bet kamēr vīrs gul, sanāk ēkā pulku kaŗa vīru. Šis un tas redz
+viņus, bet kaŗa vīri neredz viņu. Kaŗa vīri, nezin ko tur meklē, ko nemeklē -
+beidzot ieraudzīs gulētāju un modinās augšā, lai dodot ēst. Bet tai pašā brīdī
+neredzamais Šis un tas, it nekas kŗauj modinātājam labu pliķi. Tas aiziet griezdamies
+un domā: gulētājs viņam sitis. Nu sabruks citi arī gulētājam virsū un domās
+atdarīt; bet še tev joki: kuŗš gultai tuvojas, tam šļaikt! pliķis gar ausi, ka
+aiziet griezdamies. Tomēr gulētājs pats tādā troksnī</p>
+
+<p align="JUSTIFY">atmožas un tūliņ pirmais vārds: "Šis un tas, it nekas, dod
+brokastu!"</p>
+
+<p align="JUSTIFY">Viens divi visi galdi klāti un nu vīrs, pats ēzdams, aicina arī
+kaŗa vīrus iebaudīt. Labi. Visi paēd un tad izšķiŗas ar godu: ka vīri aiziet savu
+ceļu, vīrs ar sulaini atkal savu. Iet, iet brīnum ceļa gabals gaŗais.</p>
+
+<p align="JUSTIFY">"Šis un tas, it nekas, - kājas piekusušas, raugi nest
+mani!" Sulainis paņem savu kungu pičpaunā un aiziet kā viesulis : vēl ne labi
+novakars, jau ķēniņa pilī mājā. Ieiet pie ķēniņa, ķēniņš pirmā vārdā
+tūlin: "Kur ir Šis un tas, it nekas? Vai pārvedi?" Pārvedu!"</p>
+
+<p align="JUSTIFY">"Vedi viņu iekšā!"</p>
+
+<p align="JUSTIFY">"Iekšā? Are, tepat jau viņš stāv!"</p>
+
+<p align="JUSTIFY">Ķēniņš izgrozās uz vienu pusi, otru neredz ne ēnas un Paliek
+pikts: kā varot viņu jokot? Vīrs atbild: "Piktojies, cik gribi, bet te viņš
+stāv; ko es darīšu, ka tev cāļu acis kas nespēj saredzēt."</p>
+
+<p align="JUSTIFY">Ak tu žēlīgais! Pēc tā vārda ķēniņš, vadzi, zils un melns un
+tūlin sabļauj sulaiņus balamuti cietumā mest. Bet kuŗš sulainis domā vīram
+pieķerties - Šis un tas, it nekas krauj pliķi, ka aiziet griezdamies. Nu ķēniņš
+sasauc kaŗa vīrus palīgā; bet vīrs arī vairs negaida: "Šis un tas, it nekas,
+kur mani kara vīri?"</p>
+
+<p align="JUSTIFY">Tūlin saskrēja vīra kara spēki un ķēniņa kaŗa spēks. Nu kaŗo
+nu kaŗo ilgu laiku; beidzot vīra spēks pārvarēja ķēniņa kaŗa spēku un pašu
+ķēniņu ieslodzīja darvas mucā sadedzināt.</p>
+
+<p align="JUSTIFY">Tas nu tas. Tagad vīrs gavilē: "Ķēniņš pagalam, ķēniņš
+pa galam! Šis un tas, it. nekas, gādā nu manu sievu, zelta magoni!" Viens, divi -
+sieva klāt.</p>
+
+<p align="JUSTIFY">"Šis un tas, it nekas, gādā manus sievas brāļus, lielos
+milžus, un darini dzīŗas!" Tūlin sievas brāļi šurp, galdi klāti. Nu dzīŗo,
+nu dzīŗo. Bet kas ir? Sievas brāļi iedzeŗas un sāk ķildoties tik sīvi, ka
+ķēniņa pils no karstuma aizdegas un nodeg; arī sievas brāļi sadeg līdz, tik
+izglābās, kā vīrs ar sievu un Šis un tas, it nekas.</p>
+
+<p align="JUSTIFY">Bet Šis un tas, it nekas uzcēla jaunu pili, vēl staltāku un tad
+dzīvoja vīrs ar sievu priekā un laimē.</p>
+
+
+</body></html>

@@ -1,0 +1,296 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Gars pudelē.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 331. H. Skujiņa, Andrs Ziemelis, Aumeisteros.</p>
+
+<p align="JUSTIFY">Reiz bijis viens zvejnieks un viņam piedzimis dēls, Bet zvejniekam
+nebijis naudas, ko krustabu rīkot. Viņš gājis uz jūŗu un izmetis tīklu. Kad
+zvejnieks tīklu izvilcis malā, tad viņā bijuši tikai akmeņi, gļotas, zāles un
+nevienas zivs. Zvejnieks bijis pagalam nobēdājies.</p>
+
+<p align="JUSTIFY">Viņš gaidījis otru dienu un gājis atkal uz jūŗu tīklu izmest.
+Bet otrā dienā nekas negadījies. Zvejnieks raudājis par savu nelaimi.</p>
+
+<p align="JUSTIFY">Trešā dienā zvejnieks atkal izmetis tīklu. Nu viņš izvilcis
+misiņa bundžu, tādu kā telēķi. Zvejnieks domājis: "Tai nu gan vajaga būt vai
+no tīra zelta."</p>
+
+<p align="JUSTIFY">Viņš notīrījis bundžu un ieraudzījis, ka tai virsū; ir
+Zālamāna štempele. Viņš taisījis bundžu vaļā. Bet tavu brīnumu! bundža gluži
+tukša, no viņas izveļas tādi kā dūmi vai migla un izjūk uz jūŗas.</p>
+
+<p align="JUSTIFY">Dūmi beidzot savēlušies lielā kamolā un no tā iznācis liels
+cilvēks un sacījis uz zvejnieku: "Es tevi ēdīšu!"</p>
+
+<p align="JUSTIFY">"Kā, no kurienes tu tāds iznāci?"</p>
+
+<p align="JUSTIFY">"Es biju bundžā un tu mani izlaidi. Bet es tevi ēdīšu!"
+"Kādēļ tad tu mani ēdīsi?"</p>
+
+<p align="JUSTIFY">"Ja, tā es biju nospriedis priekš 300 gadiem. Toreiz es domāju,
+ka to, kas mani no bundžas izlaidīs, to es padarīšu bagātu. Bet neviens mani
+neizlaida. Otrus 300 gadus nogulēju un domāju, kas mani tagad izlaidīs, tam es došu
+lielu slavu. Bet neviens mani neizlaida. Nogulēju trešos 300 gadus un nodomāju, kas nu
+mani izlaidīs - to es apēdīšu. Bet nu tu mani izlaidi un es tevi apēdīšu."</p>
+
+<p align="JUSTIFY">Zvejnieks uzreiz atķēries un sacījis: "To es neticu, ka jūs
+tai bundžā bijāt. Kā jūs, tik liels cilvēks, varējāt tai bundžā ieiet. Ne, to es
+neticu."</p>
+
+<p align="JUSTIFY">Bet milzis uzreiz sacījis: "Bet tad paskaties, ja tu netici, ka
+es reiz tur biju iekšā."</p>
+
+<p align="JUSTIFY">Milzis palicis arvienu mazāks un mazāks. No viņa nākuši tādi kā
+dūmi vai migla un tie sākuši iet atpakaļ bundžā. Beidzot milzis pavisam pazudis un
+dūmi sagājuši bundžā iekšā. Kad tie vīsi bijuši pazuduši, tad no bundžas viens
+sacījis: "Nu, vai tu redzi, ka es esmu atkal bundžā?"</p>
+
+<p align="JUSTIFY">Zvejnieks uzreiz aizgrūdis vāku priekšā un pārvilcis atkal
+Zālamāna štempeli. Nu milzis sācis kliegt un lūgties: "Vai, kā gribas ārā!
+Laid mani ārā. Es tevi aizvedīšu uz tādu dīķi, kur ir neredzētas zivis."</p>
+
+<p align="JUSTIFY">Zvejnieks apdomājies un izlaidis arī milzi no bundžas. Tas atkal kā
+dūmi cēlies no bundžas ārā un beidzot palicis atkal par lielu cilvēku. Nu milzis
+teicis: "Nāc man līdz!"</p>
+
+<p align="JUSTIFY">Milzis paņēmis zvejnieku pie rokas un - viens, divi, trīs to
+aizrāvis pie savādā dīķa, kuŗā bijušas zilas, zaļas, raibas un dzeltēnas zivis.</p>
+
+<p align="JUSTIFY">"Met tīklu! Bet tīklā būs tikai pa vienai zivij no katras
+sugas."</p>
+
+<p align="JUSTIFY">Kad milzīs tā noteicis, tad uzreiz pazudis. Zvejnieks izmetis tīklu.
+Viņš ievilcis tīklā četras zivis un tās aiznesis ķēniņam un pārdevis. Ķēniņš
+atdevis zivis pavāram un zvejniekam par katru aizmaksājīs 100 rubļu.</p>
+
+<p align="JUSTIFY">Zvejnieks bijis bezgala priecīgs. Viņš aizskrējis pie savas sievas
+un atdevis tai naudu, piekodinādams, lai sapērk visu, kā vajaga dēla krustabām.</p>
+
+<p align="JUSTIFY">Ķēniņa<b> </b>pils bijusi pilna viesu. Visi taisījušies uz
+dzīrēm. Atnestās zivis ķēniņš pavēlējis pavāram uz vakariņām izcept. Pavārs
+notīrijis zivis un priecājies ap tām, tik mīkstu un tauku zivu tas nebijis savā
+mūžā redzējis. Viņš tās uzlicis uz pannas un sācis cept. Kad zivim bijusi viena
+puse jau brūna apcepusi, tad pavārs piegājis un gribējis tās uz otru pusi griezt. Bet
+tiklīdz pavārs pirmo zivi apgriezis, ka atvēries mūris un ķēķī ienācis liels
+moris ar zelta zizli rokā un sacījis:</p>
+
+<p align="JUSTIFY">"Zivs, vai tu šitā pildi savu pienākumu?"</p>
+
+<p align="JUSTIFY">"Ja jūs savu nepildat, mēs savu ar nepildām!" -
+atteikušas zivis un sākušas pa pannu lēkāt un grozīties. Lielais moris sabēris
+zivis ugunī un pa to pašu caurumu mūrī aizgājis.</p>
+
+<p align="JUSTIFY">Otru dienu zvejnieks atkal izmetis tīklu dīķī un atkal izzvejojis
+četras zivis, kuŗas aiznesis ķēniņam un pārdevis. Ķēniņš par zivim aizmaksājis
+400 rubļu, un atdevis pavāram piekodinādams, lai viņam pasaka, kad zivis liks uz
+pannas. Pavārs darījis, kā viņam ķēniņš pavēlējis. Nu arī ķēniņš
+skatījies, kā zivis cep, jo viņš neticējis pavāram. kad tas stāstījis par lielo
+mori, kas zivis sabēris ugunī.</p>
+
+<p align="JUSTIFY">Tiklīdz zivis sākušas cept, tūdaļ arī sākušas pa pannu lēkāt
+un grozīties.<b> </b>Kad pavārs gribējis zivis uz otru pusi griezt, tad mūrī
+atdarījies, agrākā vietā, liels caurums- un ķēķī ienākusi liela smuka jaunava ar
+zelta zizli rokā un sacījusi:</p>
+
+<p align="JUSTIFY">"Zivs, vai tu šitā pildi savu pienākumu?"</p>
+
+<p align="JUSTIFY">"Ja jūs savu nepildat, mēs savu ar nepildām," -
+atbildējušas zivis.</p>
+
+<p align="JUSTIFY">Lielā jaunava piegājusi pie pannas, sabērusi zivis ugunī un atkal
+pa caurumu mūrī aizgājusi.</p>
+
+<p align="JUSTIFY">Trešā dienā zvejnieks atkal nesis ķēniņam zivis, bet ķēniņš
+tās nepircis un prasījis zvejniekam, lai aizved uz dīķi, kur viņš savādās zivis
+zvejo. Zvejnieks aizvedis ķēniņu uz dīķi. Ķēniņš ņēmis sev līdz pavadoni,
+sulaiņus, ēdienus un dzērienus. Naktī viņi piebraukuši pie dīķa. Nu arī
+ķēniņš sācis brīnēties, kur tad tas dīķis radies viņa zemē, kur agrāk nekāda
+ūdens nav bijis. Dīķī bijušas četras salas. "Tam vajaga būt apburtam,"
+domājis ķēniņš un ar savu pavadoni sācis iet ap dīķi. Beidzot viņi nokļuvuši
+pie tādas kā sētas. Gājuši tik tālāk. Beidzot atraduši arī vārtus, uz kuŗiem
+čīkstinājies vēja gailis. Vārti bijuši ciet. Ķēniņa pavadonis meklējis
+atslēgas, kuŗas tam bijušas klāt. Ar ceturto atslēgu. pavadonis atslēdzis svešās
+pils vārtus un viņi iegājuši pagalmā. Aiz pagalma bijis dārzs, kura vidū bijusi
+pils. Ķēniņš ar savu pavadoni iegājuši pilī. Viņi izgājuši daudz istabas, bet
+nekur neredzējuši neviena dzīva cilvēka. Durvis <b>uz </b>cisām istabām bijušas
+vaļā. No kādas istabas nākusi tāda kā vaidēšana un raudāšana. Ķēniņš ar
+pavadoni gājuši turp. Viņi iegājuši tādā istabā, kur sienas un griesti bijuši no
+tīra marmora un vidū augsts marmora stabs, kas nobeidzies ar cilvēka galvu. Galva
+raudājusi:</p>
+
+<p align="JUSTIFY">"Ak, pastardiena, pastardiena, kad es tevi sagaidīšu? Ak,
+mūžība, kad tu beigsies?"</p>
+
+<p align="JUSTIFY">"Labvakar, draugs!" Sacījis ķēniņš.</p>
+
+<p align="JUSTIFY">"Labvakar!" atbildējis raudātājs. "Kādēļ jūs tā
+raudat?" vaicājis ķēniņš.</p>
+
+<p align="JUSTIFY">Raudātājs attaisījis mēteli un parādījies. Tas bijis ar cilvēka
+augšu un zivs apakšu.</p>
+
+<p align="JUSTIFY">"Es esmu stabā iekalts," sacījis raudātājs. "Kas
+tevi tādu pataisīja"</p>
+
+<p align="JUSTIFY">Mana sieva!" "</p>
+
+<p align="JUSTIFY">Un raudātājs sācis stāstīt par savu likteni. Viņš bijis bagāts
+ķēniņš un apprecējis savu brāļa meitu. Brāļa sieva bijusi liela burve. Tai viņš
+aizliedzis darboties. Viņa sieva sākusi dzīvot ar viņa adjutantu. Kad viņš to
+uzgājis, tad iedūris savam adjutantam zobenu sānos. Bet viņš neesot vēl miris, tas
+guļot zārkā un to ēdinot un dzīvinot viņa sieva. Viņu esot nobūrusi sievas māte
+un līdz ar viņu arī visu to zemju audis, kurus viņš pārvaldījis. Zilās zivis
+dīķī esot noburti kristīgie, zaļās - angļi, raibās - dzeltānādas un dzeltānās
+- muhamedāņi. Tie visi esot viņa cilvēki. 'Tagad tie visi ir dīķī. Arī viņa zemes
+esot šurp atnestas - tās esot tās četras salas dīķa vidū. Viņš varot tikai tad
+dzīvs palikt, ja viņa sievu nokautu un ar tās asinim apslacītu viņa galvu. Viņa
+sievas mātei esot vara par visām zivim. Viņa tās varot attaisīt par cilvēkiem.
+Viņas abas tagad dzīvojot pagrabā un glabājot savu adjutantu. Ķēniņš apsolījies
+apburtam palīdzēt. Viņš ar savu pavadoni noslēpies pagraba tuvumā. Drīz vien
+nākusi jauna skaista sieviete. Viņi to saķēruši un ķēniņš tai ar zobenu nocirtis
+galvu. Tad viņi to aiznesuši pie apburtā un apslacījuši tā galvu ar asinim. Tūlin
+apburtais palicis par cilvēku un nokāpis no staba. Tad viņi gājuši uz pagrabu un
+sagūstījuši apburtā ķēniņa sievas māti. Ķēniņš teicis uz sievas mātes:
+"Sieva, ko tu tupi? Nāc līdz. Tu atnesi uz manas robežas sveša ķēniņa pili un
+zemi, tagad tā tev jānes atpakaļ."</p>
+
+<p align="JUSTIFY">Kad sievas māte vēl pretojusies, to izvilkuši ar varu no pagraba un
+aizvilkuši uz dīķi. Tur ķēniņš tai pavēlējis, lai aiznes svešās zemes un pilis
+savās vietās. Sievas māte gan negribējusi, gan negribējusi, bet tas nelīdzējis. To
+veduši ap dīķi un salām. Un viena sala pēc otras pacēlusies gaisā un aizgājusi.
+Dīķī palikušas tikai zivis. Nu pienākusi arī tam reize. Sievas māte kaut ko pie
+ūdens bubinājusi un no dīķa nākuši ārā cilvēks pēc cilvēka.</p>
+
+<p align="JUSTIFY">Kad pēdīgais cilvēks no dīķa iznācis, tad sievas māte uzreiz
+ielīdusi zemē un pazudusi. Arī dīķis tūlin palicis par sausu zemi un pils pazudusi.
+Ķēniņš ar savu pavadoni un svešo ķēniņu stāvējuši klaja lauka vidū.</p>
+
+<p align="JUSTIFY">"Bet kā es tagad prom tikšu!" - bēdājies ķēniņš. Bet
+tai pašā acumirklī tam blakus nostājies gars un teicis: "Nebēdā nekā! ..
+."</p>
+
+<p align="JUSTIFY">" Vai tu mani aiznesīsi?" prasījis ķēniņš garam, kurš
+agrāk bundžā bijis. </p>
+
+<p align="JUSTIFY">"Ko jūs maksāsit?" "Ko gribi?"</p>
+
+<p align="JUSTIFY">,,To, kas tev visjaunākais mājā būs."</p>
+
+<p align="JUSTIFY">Ne, ķēniņš to nesolījis, jo viņa sieva bijusi cerībās. Viņš
+teicis uz garu, ka iešot kājām. Gars atkal tūlin pazudis.</p>
+
+<p align="JUSTIFY">Ķēniņš gājis trīs gadi, kamēr tas mājā ticis. Kas par
+brīnumiem. Viņa sieva tam nākusi pretim ar mazo dēlu, kuŗš ķēniņam promesot
+piedzimis. No tās reizes ķēniņš savu pili nekad vairs neatstājis un dzīvojot tur
+laimīgi vēl tagad.</p>
+
+
+</body></html>

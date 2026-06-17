@@ -1,0 +1,157 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Duksis un Piksis</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Duksis un Piksis.</p>
+</b></font>
+
+<p><strong>2.</strong> A. 1791. J. Bankins «Šis un tas» I, l872, 28.</p>
+
+<p align="JUSTIFY">Divi saimnieki bija lieli zagļi. Tie viens saucās par Duksi un otrs
+par Piksi un abi dzīvoja attālu no citiem dziļi mežā; tie par naktīm staigāja
+apkārt zagdami un par dienu savu zagumu izlietāja.</p>
+
+<p align="JUSTIFY">Šie reizu nogāja uz nāburgiem, Duksis kūtī auna zagtu un Piksis
+dārzā pie kāpostiem. Bet saimnieks naktī dzird, ka kūtsduris nočīkst. Šis paceļ
+savu dēlu un stellē: "Anci! ej dēls, lūkā, kas tur ir kūtī! Sauc Duksi, rīdi
+un pucini, skati vai tur nav zagļi!"</p>
+
+<p align="JUSTIFY">Dēls, miegu no acīm berzēdams, negrib rausties no gultas; bet kad
+tēvs tam otru un trešu reizi uzsauc: "Vai iesi!" tad izvelkas pa istabas
+durīm. Šis nu sauc suni: "Duksi, Duksi, se, se, se!"</p>
+
+<p align="JUSTIFY">Bet Duksis nebija šoreiz mājās, tas bija aizvazājies uz kaimiņiem.
+Zaglis Duksis, to dzirdēdams un turēdams šo par savu biedru, saka: "Klusu, klusu,
+es tepat esmu!"</p>
+
+<p align="JUSTIFY">Ancis satrūcies, vēl otru reizu sauc: "Duksi, Duksi, se,
+se!" Zaglis kūtī vēl diktāki izsaucas: "Vai tu klusēsi, es tak šepat
+esmu!"</p>
+
+<p align="JUSTIFY">Nu Ancis nobijies ieskrien istabā un stāsta tēvam, ka pats vells
+ielīdis Duksī. Tēvs stellē dēlu pie Puntuļa Juŗa, kas liels grāmatnieks un labs
+buris, lai tas nāk un izdzen no Dukša jauno.</p>
+
+<p align="JUSTIFY">Ancis aizskrien pie tā; bet viņš ir slims un stīvs ar kājām, guļ
+gultā un nemaz nespēj pakustēties. Kad nu Anča aicināšana un lūgšana neko
+nelīdzēja, tad viņš paņēma to kā rudzu maisu pār pleciem un stiepa uz mājām; bet
+lai ar grūtu nastu žiglāki tiktu galā, gāja taisni caur kāpostu dārzu. Piksis,
+redzēdams vīru nākam ar vilci, un baltumu, Juŗa pakaļu, turēdams par auna galvu,
+prasīja: "Vai dabūji?"</p>
+
+<p align="JUSTIFY">Ancis atbild: "Dabūju gan!" - "Liec' zemē!"
+Piksis sacīja, "man nazis ķešā, kausim nost."</p>
+
+<p align="JUSTIFY">Puntuļu Juris, to dzirdēdams. Ančam no muguras zemē un laiž ar
+savām stīvajām kājām lesku leskām prom uz mājām. Ancis aiz bailēm ieskrien
+istabā; Duksis ar Piksi, viens ar aunu, otrs ar kāpostiem, aizmetas uz savām mājām.</p>
+
+<p align="JUSTIFY">Saimnieks, rītā uzcēlies, atrod savu suni Duksi gluži veselu, bez
+kāda ļaunuma, bet uziet, ka auns no kūts prom un kāposti dārzā nogriezti. Nu gan
+mana, ka nekāds velns nav bijis iekš Dukša, bet tik abi zagļi viens ar otru domājuši
+saziņoties un sarunāties.</p>
+
+
+</body></html>

@@ -1,0 +1,171 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dvēsele olā.</p>
+</b></font>
+
+<p align="JUSTIFY">2. A. 302. Nameitu Juris Diž-Drogas Pileniekos. Jkr. V. 54, 89. I. p.
+LP, VI, II, 23, 7. AŠ, II, ,100n.</p>
+
+<p align="JUSTIFY">Velns bija ķēniņam meitu nozadzis. Pie ķēniņa atnāca reiz
+izdienējis zaldāts un teica: "Dod man tikai vecu zobinu, es tavu meitu tev
+atdošu."</p>
+
+<p align="JUSTIFY">Ķēniņš zaldātam deva zobinu un piesolīja vē1 daudz naudas, ja
+princesi atved. Zaldāts apjozis veco zobinu, gāja ķēniņa meitu meklēt. Ejot pa
+ceļu, tas sastapa lauvu, žagatu un skudru strīdoties, kam lielāka daļa no maitas
+pienākas. Viņi lūdza zaldātu, lai izspriežot strīdiņu. Zaldāts sprieda:
+"Žagata lai ņem nosprāgušā ,zirga kājas, lauva lai ņem rumpi, skudra lai ņem
+galvu!" To pasludinājis, viņš izvilka savu veco zobinu, sacirta zirgu gabalos un
+izdalīja, kā bija teicis.</p>
+
+<p align="JUSTIFY">Žagata izrāva šķipsniņu no savas galvas spalvām, iedeva to
+zaldātam un teica, ja viņš to mutē ieņemšot, tad varēšot pa gaisu skriet
+deviņreiz ātrāki par žagatu.</p>
+
+<p align="JUSTIFY">Lauva izplūca no savas galvas spalvām pušķīti, iedeva zaldātam un
+teica, ja viņš to ieņemšot mutē, tad būšot deviņreiz stiprāks par visstiprāko
+lauvu.</p>
+
+<p align="JUSTIFY">Skudra paņēma savu oliņu un teica: ja viņš šo ieņemšot mutē,
+tad būšot deviņreiz mazāks par vismazāko skudru.</p>
+
+<p align="JUSTIFY">Zaldāts gāja tālāk un uzgāja velna mājas. Viņš ieņēma skudras
+oliņu mutē, sarāvās deviņreiz mazāks par skudru un ielīda velna mājā. Velns bija
+mājā un necik tālu no viņa sēdēja ķēniņa meita, uz kuŗu velns teica: "Rītu
+no tevis būs man labs brokastis."</p>
+
+<p align="JUSTIFY">To teicis, velns atlaidās, aizmiga un krāca, ka visa istaba
+trīcēja. Vecais zaldāts kā maza skudrīte pielīda pie ķēniņa meitas un
+iečukstēja tai ausī : "Kad velns uzceļas, tad stāj viņam virsū, lai saka, kur
+viņa spēks ir."</p>
+
+<p align="JUSTIFY">Kad velns uzcēlās, tad ķēniņa meita piegāja pie viņa un teica:
+"Saki, mīļais vīriņ, kur ir tavs spēks?"</p>
+
+<p align="JUSTIFY">Velns gan negribēja stāstīt, bet tad ķēniņa meita lūdzās :
+"Tu taču manu beidzamo lūgumu vari paklausīt, jo rītu tu tikpat mani
+apēdīsi."</p>
+
+<p align="JUSTIFY">Tad nu arī velns sāka stāstīt: "Necik tālu no šejienes
+jūŗā ir maza saliņa, uz saliņas liels ozols, zem ozola akmens, akmenī vanags,
+vanagā ola, olā divi svecītes. Kad tās svecītes nopūš. tad esmu pagalam."</p>
+
+<p>Vecais zaldāts, to dzirdējis, izgāja ārā, izņēma no mutes skudras oliņu un
+palika par cilvēku. Nu viņš ieņēma mutē pušķīti no žagatas spalvām, palika par
+žagatu, pacēlās gaisā un skrēja uz to saliņu. par kuŗu velns bija runājis. Saliņu
+sasniedzis, tas redzēja lielu ozolu, ap kuŗu briesmīgs viesulis plosījās. Zaldāts
+izņēma no mutes žagatas spalvas, palika par cilvēku un ieņēma lauvas spalvas mutē.
+Tūdaļ radās milzīgi spēki. Viņš sāka cirst lielo ozolu un tikai lielām pūlēm
+izdevās nocirst. Apakš ozola viņš atrada akmeni; akmeni pārskaldījis, viņā vanagu,
+kas tūlin aizskrēja gaisā. Nu izņēma lauvas spalvas, ieņēma žagatas spalvas mutē,
+pārvērtās par žagatu, panāca vanagu un nosita to. Tad izkrita ola un no olas divi
+svecītes. Svecītes izpūtis, za1dāts devās par žagatu atpakaļ uz velna māju,
+pārvērtās tur par cilvēku, paņēma ķēniņa meitu, aizveda pie ķēniņa, dabūja to
+par sievu.</p>
+
+
+</body></html>

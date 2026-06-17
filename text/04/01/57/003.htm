@@ -1,0 +1,158 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Kustonis iemanto ķēniņa meitu.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 441. Kreicberģis Dzirciemā. LP, V, 97, 3.</p>
+
+<p align="JUSTIFY">Vīrs ar sievu sēdēja pie vaļēja loga nobēdājušies par to, ha
+neviena bērna neesat. Drīz pēc tam abi nosēdās vakariņas ēst. Te ielēca pa logu
+liels krupis, rāpdamies arī pie galda tauku putru ēst. Sieva saīgnējās un gribēja
+ar lāpstīti krupi laukā mest; bet vīrs iesaucās: "Nesvied! Pieņemsim to pašu
+krupi bērna vietā, ja cita nav."</p>
+
+<p align="JUSTIFY">Labi. Pēc vakariņām krupis ielīda kaktā gulēt un palika arvienu
+pie viņiem. Te pēc kāda laika ķēniņš izlaiž tādu ziņu: "Kas pār pils upi
+tiltu uztaisīs un katrā tilta galā divas ābeles iestādīs,</p>
+
+<p align="JUSTIFY">tam atdošu savu vienīgo meitu par sievu."</p>
+
+<p align="JUSTIFY">Vīrs ar sievu - šo ziņu arī padzirdējuši - pārrunā,
+nopūzdamies: "Kaut mums būtu dēls, kas zin, vai neuzcirstu tiltu, bet kur tad
+tagad."</p>
+
+<p align="JUSTIFY">Tā runājot, krupis kaktā piepēži iesaucās: "Māt, māt!</p>
+
+<p align="JUSTIFY">Sieva pieskrien klāt: "Ko teiksi, dēliņ? Tu jau nu esi mūsu
+dēliņš, vairāk mums nava."</p>
+
+<p align="JUSTIFY">"A! māt, ja jūs mani par dēlu saucat, tad pateikšu ko jaunu.
+Rītu uzcirtīšu ķēniņam zelta tiltu un iedēstīšu ābeles."</p>
+
+<p align="JUSTIFY">"Vai patiesi? Vai tu to varēsi? Nu, ko tad!"</p>
+
+<p align="JUSTIFY">Un kamēr vīrs ar sievu gulēja, krupis izlīdis laukā un uzcēlis
+zelta tiltu, iedēstījis ābeles, ka nedabūja ne apskatīties. Bet nu ķēniņa meita
+ļoti nobēdājās, ka tagad riebīgs krupis jāprecot. Ķēniņš gan mierināja :
+"Ko var darīt, bērns, kad tas tā gadījies? Gan jau būs labi, gan!"</p>
+
+<p align="JUSTIFY">Bet meita raud un raud. Beidzot ķēniņš sadusmojās: "! kad tu
+te man ņaudi, tad pateikšu īsi, ka krupis nav vis kautkāds prasts lopiņš, tāds
+nespētu zelta tiltus celt - bet tūlin redzēsi, kas tas par vīru."</p>
+
+<p align="JUSTIFY">To teicis, ķēniņš lika pirti iekurināt un sāka krupi ļāva
+sutināt. Pasutināja vienu brīdi, papēra ar slotu - jau atsuta ķepiņas un izmaucās
+cilvēka kājas; pasutināja otru brīdi - jau nolupa krupja āda līdz pusei; sameta
+garu, pasutināja trešo brīdi - te krupja āda nolupa pavisam un nu gadījās skaists
+puisis tai vietā. Tagad ķēnina meitai patika staitais puisis un otrā dienā nosvinēja
+kāzas. Pēc kāzām ķēniņa znots palika vecā ķēniņa vietā par valdnieku un
+pieņēma arī veco vīru un sievu savā pilī, kas vinu todien par dēlu bija saukuši.</p>
+
+
+</body></html>

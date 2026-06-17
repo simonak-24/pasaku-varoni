@@ -1,0 +1,173 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Vakars, Pusnakts un Gaisma.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>&nbsp;</b></p>
+
+<p align="JUSTIFY"><b>3. </b>A.301B. L, Celms no Mīles Švalbes, Kroņa Misā. LP, VII,
+II, 19 IV, 5.</p>
+
+<p align="JUSTIFY">Vienam ķēniņam bija trīs daiļas meitas un viens viņam tās
+nozaga. 'rad ķ&amp;127;ņipš izsūtīja Gaismu, Vakaru, Pusnakti, trīs varenus vīrus,
+meitas meklēt, apsolīdams, kurš viņas atradīšot, tam atdošot jaunāko meitu par
+sievu. Visi trīs meklētāji, tūlin kā iedami, nogāja pie liela kalna un Gaisma te
+iesaucās : "Šinī kalnā iespraudīšu savu nazi: ja nazis būs spīdots, tad mums
+veiksies labi, ja aprūsēs, tad nelabi!"</p>
+
+<p align="JUSTIFY">To teicis, Gaisma kāpa kalnā un abi biedri tam pakaļ. Uzkāpa -
+atrada alu, dziļu alu. Šai alā biedri nolaida Gaismu pašā dibenā. Tur viņš atrada
+vispirms sudraba istabu un istabā meklējamo ķēniņa meitu, vecāko māsu.</p>
+
+<p align="JUSTIFY">Gaisma vaicāja tai: "Cik ilgi man vē1ēts te pa1ikt?"
+"Vienu cēlienu," meita atbildēja.</p>
+
+<p align="JUSTIFY">' Labi. Bet tur bija divējādas zāles traukos: spēka un nespēka.
+Kad meita gudrībā pārmainīja šos traukus: spēka zāles nolika nespēka vietā un
+nespēka - spēka vietā; bet Gaisma pa&amp;127;' to laiku paslēpās aizkrāsnī. Un
+kamēr tur vēl šo to apskatījās -jau cēliens pagalam, jau pārskrēja ve1ns.
+Pārskrien, ieklūp sudraba istabā: "Kas te par svešu smaku?"</p>
+
+<p align="JUSTIFY">"Nava sveša smaka, nava, papiņ!" meita &amp;127;mierina
+trakuli, .,jūs pa pasauli saskrējušies, pulka cilvēku nomaitājuši, jums tā smaka
+pašiem nāsīs."</p>
+
+<p align="JUSTIFY">Velns kautcik apmierinājās. Kad nu apmierinājies; meita
+ievaicāsies: "Nu, neziņ, papiņ, jums jau gan, laikam, pretinieka nemaz nava?"</p>
+
+<p align="JUSTIFY">"Pretinieka! pretinieka! Gaisma būtu bijis mans pretinieks, bet
+vārna ne viņa naga galiņa te nav atnesusi."</p>
+
+<p align="JUSTIFY">Vēl velns to vārdu nebija labi izteicis, te Gaisma aizkrāsnī
+iesauksies pretim :</p>
+
+<p align="JUSTIFY">"Ko tu melo, velns, nāc kauties!"</p>
+
+<p align="JUSTIFY">Tā tūlin velns - nezin vai sabijās, vai kas tur bija - mudīgi -
+mudīgi pie trauka klāt spēka zāles dzert, bet sadzērās nespēka zāles. Gaisma
+turpretim dzēra spēka zāles un nu palika tik stiprs, ka nebija ko cīnīties ar velnu,
+nocirta galvu itin viegli, jāsaka. Tagad izglābtā meita pārvērta sudraba istabu par
+olu, pasniedza Gaismam un staigāja tam pakaļ.</p>
+
+<p align="JUSTIFY">Gaisma gāja - aizgāja uz otru istabu, kur vidējā ķēniņa meita
+bija glabājama - zelta istabā. Še viss tāpat notiek. Beidzot ar abām māsām aizgāja
+uz trešo, dimanta istabu, kur jaunākā māsa bija glabājama. Tur arī notiek tāpat,
+bet te tikai vēl minēts, ka jaunākā māsa paņēma atslēgu, apgrieza trīs reizes ap
+pirkstu un tūlin dimanta istaba palika par olu.</p>
+
+<p align="JUSTIFY">[Visas trīs meitas nu tiek izglābtas un trīs varenie nu tās ,
+apprecē, pie kam Gaisma paņem jaunāko un dzīvo dimanta pilī.]</p>
+
+<p align="JUSTIFY">Piezīme. Šie trīs varianti ar simbolizētiem varoņiem ir bez
+šaubām cēlušies no grāmatām, jo Ausekļa laikos plaši daudzināja teiku par
+gaismas, pili. Šīs pasakas ir tomēr uzņemtas, jo viņas liekas būt tikai
+pārgrozītas tautas tradīcijas. Pavisam atmetot šādas pasakas un neuzrādot uz viņu
+nedrošajām pusēm, viņas varētu uz priekšu uzpeldēt varbūt atkal par aizmirstu un
+īstu tautas dzeju. P. Š.</p>
+
+
+</body></html>

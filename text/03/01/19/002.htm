@@ -1,0 +1,149 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Drošinieks sabaida laupītājus.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 326. 1653 B. J. Sadovskis, Preiļos, Br. Spūļa kr. </p>
+
+<p align="JUSTIFY">Senuok dzeivoja kungs, kas nazynuova, kaida ir baile. Vīnu reizi kungs
+soka uz sovu kolpu: "Brauksim maklāt bailes!" Kungs ar kolpu aizbrauca,
+braukdami dabrauca pi vīnas ustobiņas, kur daga moza guntiņa. Kungs soka uz kolpa:
+"Ej, pasaver, kas imā ira?"</p>
+
+<p align="JUSTIFY">Kolps īguoja ustobā, verasy ka uz beņķa stuov nabašnīks. Izguojis
+jis soka uz kunga: "Ustobā guļ nabašnīks, vīns pats, vairuok nabeja nikuo."</p>
+
+<p>Kungs soka: "Nes šur!"</p>
+
+<p align="JUSTIFY">Kolps iznesa, īlyka ļiņeikā, kai kungs vēlēja, un aizbrauca otkon
+oba divi tuoluok. Braukalēja jī leidz vālam vokoram, I braukdami īsavēra ceļa molā
+mozu ustobiņu, kur otkon daga moza guntiņa. Jī nūstuoja, īguoja oba divi ustobā un
+redzēja vēl ūtru nabašnīku. Kungs soka kolpam: "Nes i itū uz ļiņeiku!"</p>
+
+<p align="JUSTIFY">Tikuši liņeikā, jī brauca tuoluok, nadaudz braukuši, īsavēra
+trešū ustobiņu ar mozu uguntiņu. Dabraukuši ji redzēja, ka tamā ustobā beja daudz
+laužu, kas beja razbainīki. Kungs ar kolpu dasēja zyrgu, īguoja ustobā un lyudza, lai
+īlaiž puorgulāt par nakti. Jī īlaida.</p>
+
+<p align="JUSTIFY">Kungs vaicuoja: "Vai dūsit mums vakariņas?" Jī atbild:
+"Mums nikuo nava." </p>
+
+<p>Kungs padūmuova un soka kolpam: "Īnes vīnu nabašnīku!" Kolps īnese un
+nūlyka uz bluča. Kungs puorgrīz's pasavēra, ka jis sapyv's, un soka, lai īnes ūtru.
+Kolps īnesa un otkon nūlyka uz bluča. Puorgrīz's jis redzēja, ka itns ari beja
+sapyv's. Kungs nūpīcis soka: "Gyun vasalu!"</p>
+
+<p align="JUSTIFY">Razbainīki nūsabeida un skrēja uorā, kur kurs radzādams. Kungs
+redzēja, ka vysi razboinīki izbāga, un sacīja uz kolpu: "Jem jūs naudu un
+brauksim uz muojuom!"</p>
+
+<p>Tai kungs aizbrauca uz muoju, bailes naatradis.</p>
+
+
+</body></html>

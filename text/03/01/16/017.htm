@@ -1,0 +1,238 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>17</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Burvis un viņa māceklis.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">17. A. 553. 313. 325. W. Weryho "Podania lotewskie" 1.
+Varšavā, 182. g. No poļu valodas tulkota.</p>
+
+<p align="JUSTIFY">Tas bija ļotis sen atpakaļ.</p>
+
+<p align="JUSTIFY">Pelīte bija apņēmusi zvirbulīti barībā. Pēc kāda laika viņiem
+pietrūka pārtikas: bija atlicies tikai vairs viens pats graudiņš. Tad nu viņu starpā
+izcēlās liels strīdus: pelīte negribēja atdot graudiņu zvirbulītim, bet tas atkal
+viņai. Lai izšķirtu šo strīdu, viņi izvēlēja melno kraukli par tiesnesi. Tas to
+lietu izsprieda šā: kad jau pelīte esot uzņēmusies zvirbulīti baŗot, tad no šā
+graudiņa, jādodot zvirbulītim vismaz puse. Paziņojis šo spriedumu, melnais krauklis
+aizskrēja un nometās uz bagāta saimnieka klētim. Kad saimnieks ieraudzīja, viņam
+]oti patika skaistais putns. Paņēmis bultu, viņš gribēja to nošaut.</p>
+
+<p align="JUSTIFY">"Nešauj manis, saimniek es tevi par to apnesīšu pa visu
+pasauli, bet papriekšu tu mani pabaŗo triju gadu laikā ar gaļu!" Saimnieks nu
+baŗoja melno kraukli trīs gadi ar gaļu. Pēc trim</p>
+
+<p align="JUSTIFY">gadiem viņš sēdās tam kaklā un aizskrēja pāri par jūŗu.
+Krauklis nesa, nesa viņu un beidzot aiznesa līdz vaŗa pilsētai. Šeit krauklis
+nolaidās zemē un sacīja: "Šai pilsētā dzīvo mana māsa, ej laie viņas un
+palūdz, lai viņa tev dotu lakatiņu, citādi es nekad vairs nevarēšu pie viņas
+atskriet pasērsties."</p>
+
+<p align="JUSTIFY">Krauklis nosēdās uz vienas pļaviņas un aizmiga. Saimnieks aizgāja
+uz pilsētu, kur viņš satika vienu. meiteni, kas viņam uzprasīja: "Kas tu tāds
+esi?"</p>
+
+<p align="JUSTIFY">"Esmu tava brāļa biedrs, trīs gadi es viņu baŗoju, par ko
+viņš man apsolīja parādīt visu pasauli."</p>
+
+<p align="JUSTIFY">Meitene saskaitās un atteica: "Kā tu gan drīkstēji ar manu
+brāli jāt?"</p>
+
+<p align="JUSTIFY">"Mani sūtīja melnais krauklis, lai no tevis paņemot baltu
+lakatiņu," atbildēja saimnieks; "Ja nedosi, tad brālis nekad vairs pie tevis
+neatskries sērstu."</p>
+
+<p align="JUSTIFY">Meitene, pārdomājusi ilgāku laiku, beigās iedeva tam lakatiņu.
+Saimnieks atgriezās pie melnā kraukļa, sēdās tam atkal kaklā un aizskrēja uz
+sidraba pilsētu. Tur nonākot krauklis atkal palika uz kādas pļaviņas, bet saimnieku
+aizsūtīja uz pilsētu: "Ej uz to pilsētu, tur sastapsi manu otru māsu; palūdz no
+viņas pudelīti un pasaki, ja viņa tās nedos, tad es nekad nenākšu pie viņas
+sērstu."</p>
+
+<p align="JUSTIFY">Saimnieks ieiet sidraba pilsētā un sastop meiteni. "Kas tu tāds
+esi?" jautā meitene.</p>
+
+<p align="JUSTIFY">"Esmu melnā kraukļa biedrs." Kā tu drīksti jāt ar manu
+brāli?"</p>
+
+<p align="JUSTIFY">"Trīs gadi viņu baŗoju, par ko viņš apsolīja man parādīt
+visu pasauli. Tagad viņš lika man paņemt no tevis pudelīti, un ja tu tās nedotu, tad
+lika paziņot, ka brālis nekad vairs pie tevis neatnākšot ciemā." Meitene kādu
+brītiņu padomājusi, iedeva pudelīti.</p>
+
+<p align="JUSTIFY">Saimnieks atnāca pie melnā kraukļa, sēdās tam kaklā un nu abi
+aizskrēja uz zelta pilsētu. Tur nonākot, melnais krauklis atkal sūta saimnieku pie
+jaunākās māsas, un pieteic palūgt no viņas atslēgas: "Ja viņa tās nedotu, tad
+nekad pie viņas vairs neatskriešu."</p>
+
+<p align="JUSTIFY">Saimnieks izdarīja visu, ko krauklis bija pavēlējis. Meitene jautā:
+"Kā tu drīkstēji jāt ar manu brāli?"</p>
+
+<p align="JUSTIFY">"Es viņu baŗoju trīs gadi, par ko tavs brālis man apsolīja
+parādīt visu pasauli. Tagad viņš lika man paņemt no tevis atslēgas, citādi viņš
+nekad pie tevis neatskriešot." Meitene, padomājusi kādu brīdi; iedeva atslēgas.</p>
+
+<p align="JUSTIFY">Saimnieks atgriezās atpakaļ pie kraukļa un nu abi skrēja atkal uz
+māju. Pārlaidies atkal pār jūŗu, krauklis nolaidās zemē, un iedeva saimniekam
+lakatiņu, pudelīti un atslēgas un teica: "Ej nu uz māju, bet nedrīksti
+skatīties, kas ir pudelītē, kamēr vēl neesi mājā."</p>
+
+<p align="JUSTIFY">Saimnieks aizgāja, bet tikko piegāja pie sava purva, kā viņam jau
+gribējās apskatīties, kas īsti tai pudelītē esot. Viņš attaisīja pudelīti, un
+uzreiz ierauga savā priekšā sidraba pilsētu. Te uzreiz parādās arī velns un saka:
+"Vai tu gribi, ka es no tās pilsētas atkal iztaisītu pudelīti? Ko man par to
+dosi? Vai dosi man to, ko mājās pārnācis, atradīsi no jauna?" Saimnieks arī
+apsola. Pilsēta atkal pārvēršas par pudelīti, saimnieks paņem savu pudelīti un
+aiziet uz mājām. Te atrod savu jaunpiedzimušo dēlu. Atveŗ pudelīti - izceļas atkal
+sidraba pilsēta. Dēls saka uz tēvu: "Tev, tēt, būs te labi dzīvot, bet mani par
+to tu esi velnam atdevis. Es pārvērtīšos tagad par zirgu, man būs sidraba iemaukti,
+kad mani pārdosi, tad iemauktus paturi!" Dēls nu pārvērtās par skaistu zirgu, un
+tēvs viņu aizveda uz pilsētu un pārdeva par 120 rubļiem; bet iemauktus paņēma
+līdza uz māju. Kad tēvs pārnāk atkal mājā, viņš atrod dēlu jau uz krāsns
+sēdam. Otrā rītā dēls atkal pārvēršas par zirgu. Tēvs aizved to uz, pilsētu un
+pārdod par 240 rubļiem. Atnāk uz māju un atrod dēlu uz krāsns.</p>
+
+<p align="JUSTIFY">Trešā dienā dēls atkal tāpat pārvērtās par zirgu un tēvam par
+to aizmaksāja 360 rubļu; bet šoreiz viņš aizmirsa noņemt iemauktus. Par pircēju
+gadījies bija pats velns. Tas aizvedis zirgu uz savu māju, pabaŗoja to, sapina un tad
+pasauca savu dēlu un trīs meitas, lai arī tiem parādītu savu pirkto zirgu.</p>
+
+<p align="JUSTIFY">Tie nu sāka zirgu sist un lika tam pavadā apkārt dancot. Jaunākai
+meitai palika zirga žēl. Viņa lūdza tēvu, lai tam atpinot kājas, it kā tad tas
+labāki dancotu. Tēvs gan negribēja, bet tad viņa pati noņēma pineklus. Zirgs nu
+aizskrēja uz ezeru, pārvērtās tur par sidraba gredzenu un iekrita ūdenī.</p>
+
+<p align="JUSTIFY">Tur nu atnāk viena ķēniņa meita ar kalponēm trauku mazgātu.
+Vienā traukā iekrīt sidraba gredzentiņš, kuru ķēniņa meita paķeŗ, nevienam
+neredzot.</p>
+
+<p align="JUSTIFY">Vakarā pie ķēniņa salasās daudz velnu ciemā, lai kautkā
+atdabūtu no ķēniņa meitas gredzentiņu. Šeit viņi līksmo un spēlē līdz pašai
+pusnaktij un ķēniņa meita jautā, kā tiem pateikties? Visi prasa, lai dodot tiem
+atrasto sidraba gredzenu. Ķēniņa meita iedod tiem vienu sidraba rubli, bet pati aiziet
+gulēt ar visu gredzenu. Par nakti gredzens paliek atkal par jaunu puisi. Otrā vakarā
+velni no jauna sanāk, gan ar vijolēm, gan ar harmonikām. Pēc pusnakts prasa atkal par
+algu to pašu sidraba gredzenu. Ķēniņa meita nosviež tiem atkal rubli, bet gredzena
+nedod.</p>
+
+<p align="JUSTIFY">Tāpat arī trešā vakarā sanāk velni ar visādām spēlēm, lai
+dancotu un līksmotu. Pēc pusnakts ķēniņa meita atkal prasa, kādu maksu tie
+vēlētos?</p>
+
+<p align="JUSTIFY">"Dod mums savu gredzentiņu!"</p>
+
+<p align="JUSTIFY">Ķēniņa meita negrib dot, bet gredzentiņš tai iečukst: "Atdod
+arī mani viņiem, tikai nedod rokās, bet iemet cepurē!" Ķēniņa meita<b> </b>iemeta
+viena velna cepurē kāroto gredzenu, kurš tūlin pārvēršas par zirņu graudiņu,
+nokrīt zemē un pazūd. Velni gan izmeklējās ilgu laiku, bet neatrada un aizgāja.
+Zirņu graudiņš vēlāku atkal pārvērtās par jaunu puisi, atnāca pie ķēniņa
+meitas, pateicās viņai, ka tā viņu izglābusi no velniem, aizgāja uz mājām un tur
+dzīvo līdz šim.</p>
+
+
+</body></html>

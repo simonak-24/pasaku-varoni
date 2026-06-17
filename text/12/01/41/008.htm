@@ -1,0 +1,172 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Viszi?a dakteris</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Visziņa dakteris.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>8.</strong> A. 1641. Skolnieks J. Dundurs Nīcā. K. Lielozola
+kr.</p>
+
+<p align="JUSTIFY">Reiz dzīvoja viens žīdelis, kas bija kurpnieks, bet dikti
+nabadzīgs. Vienreiz viņš bija sadomājis palikč par brīnuma dakteri un pielika pie
+durvim šilti ar uzrakstu: "Brīnuma dakteris."</p>
+
+<p align="JUSTIFY">Tur gaŗām brauca viens kungs un brīnās: "Šorīt braucu
+gaŗām, bija vēl kurpneks, un tagad brīnuma dakteris. Jāiet būs iekšā, varbūt
+viņš ko zinās man pasacīt." Kungs arī ieiet.</p>
+
+<p align="JUSTIFY">Žīdelis bija izgrebis no koka tādu taurīti, paklausa pie krūtim un
+paraksta recepti. Kungs ieiet aptiekā iedod recepti, bet neviens nevar izlasīt.
+Aptieknieks saka savam pārdevējam: "Rauj velns, dod viņam caurejas zāles!"</p>
+
+<p align="JUSTIFY">Tā kungam iedod zāles un viņš brauc mājās. Tam kungam bija
+nozagti zirgi. Viņš brauc caur mežu un tur viņam tūliņ jāskrien krūmos. Pretī
+nāk ogotājas un kungs skrien vēl dziļāki mežā, bet tur iezviedzās zirgi. Kungs
+skrien uz priekšu un atrod savus nozagtos zirgus. Viņš paņem savus zirgus un pārbrauc
+mājās. Sieva nāk pretī un prasa: "Kur tu tā smirdi?"</p>
+
+<p>"Jā, sieviņ tā un tā - nekā nevar darīt."</p>
+
+<p align="JUSTIFY">Kungs ir ļoti priecīgs, iet pie brīnumu daktera un samaksā tam
+bagāti. Reiz sarodās vairāk kungu kopā un katrs stāsta savas bēdas. Viens kungs
+žēlojas, ka viņam visa nauda nozagta. Otrs kungs teic: "Es zinu brīnuma dakteri,
+kas man uzrādīja nozagtos zirgus. Gan arī naudu, viņš parādīs."</p>
+
+<p>No rīta abi kungi iet pie brīnuma dakteŗa un izstāsta, ka nauda nozagta. Žīdelis
+teic: "Varbūt varēs atrast. Atnāc rītu!" Kungs viņam iedod drusku naudas un
+aiziet mājās. Vakarā žīdelis nopērk šnabi, iededzina trīs sveces un pie katras
+sveces noliek šņabja glāzi un uziet augšas istabā. Naudas zagļi, baidīdamies no
+žīda, piecēluši trepes un skatās, ko žīds dara. Žīdelis ielej vienu glāzi,
+iedzeŗ un teic: "Šis ir pirmais."</p>
+
+<p>Zaglis domā, ka tas uz viņu teic, mūk no trepēm zemē. Nu uzkāpj otrs zaglis,
+žīdelis dzeŗ otru glāzi un teic: "Šis ir otrs." </p>
+
+<p>Zaglis domā, ka tas uz viņu zīmējas, mūk no trepēm zemē nu viņi sarunā, ka
+vajadzētu ar žīdu izlīgt. Trešais uzkāpj pa trepēm un piebungā. Žīdelis uz reiz
+nobīstas, kas nu? Zagļi teic, ka viņi atnesis visu naudu, lai tik neteic kungam, ka
+viņi zaguši. Tā viņi arī atnes naudu, samaksā vēl žīdelim un iet projām. No
+rīta agri žīdelis aprok to naudu dārzā. Nu atnāk svešais kungs. Žīdelis liek
+paņemt lāpstu, apzīmē, kur lai rok. Kungs patiešām atrod savu naudas maisu, nober
+pusi žīdelim un aizbrauc mājās.</p>
+
+<p>Pēc kāda laika atkal kungi sarunājas un katrs izsūdz savas bēdas. Viens kungs
+žēlojas, ka viņa meita vairs nerunā. Visu laiku runājusi, bet tagad vairs nemaz
+nerunā. Otrs kungs teic: "Es zinu brīnuma dakteri, tas man pateica, kur atrodas
+mana nozagtā nauda. Gan viņš varēs arī tavu meitu izdziedēt."</p>
+
+<p align="JUSTIFY">Nu kungi noiet, izstāsta žīdelim visu nelaimi. Žīdelis saka, lai
+vakarā atved to meitu pie viņa, varbūt ka vēl varēs dziedēt. Vakarā atved arī
+mēmo meitu un visi aiziet projām. Žīdelis pakur uguni un vāra pilnu grāpi ūdens.
+Kad ūdens jau labi karsts, viņš grābj meitu un grib sviest grāpī, bet meita no
+bailēm iekliedzās. Tā uz reiz viens pie durvim dauzās kā traks. Žīdelis palaiž
+meitu vaļā, attaisa durvis un ienāk meitas tēvs. Meita varējusi izrunāt. Tēvs nu ir
+laimīgs, iedod žīdelim naudu un brauc ar meitu mājās. Žīdelim nu ir naudas
+papilnam, un viņš nu vairs negrib zīlēt<font size="4">.</font></p><font size="4">
+</font>
+
+
+</body></html>

@@ -1,0 +1,370 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Brīnuma lampa.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">7. A. 561. J. Pločkalns Skrundā. LP. V, 217
+(100). </font></p><font size="3">
+
+<p align="JUSTIFY">Reiz kāds tēva dēls mantojis no vecākiem lielu bagātību; bet īsa
+laika izputinājis visu - tikai atlicis, ka tēva zobins pie sāniem, drusku sala uz galda
+un medīgs runcis apakš galda. Ko nu tāda tukšība citu darīs? Paņēms tas pašas
+trīs lietas un ies pasaule jaunu laimi meklēt. Iet, iet - ne īsti runcis ceļa zin, ne
+arī pats - iemaldās meža. Un tur tai meža dzird lielu troksni. Ies troksni skatīties
+- vai tu traks - ierauga: liels spēkots lauva cīnas ar velnu. Ko nu? Gandrīz grib
+atpakaļ mukt, bet lauva kliedz: "Nemūc! izrauj labāk zobinu un palīdzi velnu
+nomākt būs tev labuma, būs man."</p>
+
+<p align="JUSTIFY">Šis klausa arī; un nu par diviem itin ātri velnu patērēja. Lauva
+par to bez ziņas priecīgs; viņš saka: "Vai zini, ko tev teikšu? Tu man darīji
+labuma, es darīšu tev. Tepat aiz meža ir ķēniņa pilsēta un tam ķēniņam jākaro
+ar tādu pašu velnu ka man. Bet viņam, vīram, klājas nelabi : cik par nakti kara
+spēku sadabū, tik par dienu velns nomaitā un - es nezinu - vai tikai drīzumā vēl
+pats ķēniņš neiekļūs velnam nagos. Bet ko tu sa cītu, ja ietum par abiem ķēniņu
+pestīt? Ja šo velnu pārspējam, tad viņš jau nebūs stiprāks un tu tiktu par lielu
+vīru. Redzi, es zinu, tam ķēniņam ir savāds spieģelis ar cetrām skrūvēm: ka
+paskrūvē vienu skrūvi - atskrien tādi gari un izdara, ko vien liec; ja paskrūvē otru
+skrūvi - atskrien citi gari; ja trešo atkal citi ; ja ceturto - atkal citi. Un tiklīdz
+nu velnu pārvarētum, ķēniņš tev vaicātu: "Kādu algu gribi?" Atsaki:
+"To spieģeli ar četrām skrūvēm!" Viņš dos un tad tu, zināms, esi viros
+Nu, kas ir, vai ir dūša?"</p>
+
+<p>"A! kādēļ tad atkal ne? Iesim arī, kas tur put, put!"</p>
+
+<p align="JUSTIFY">Aiziet pie ķēniņa, ķēniņš prieka pilns par tik labsirdīgu
+glābēju; bet viņš tikai šaubas, vai viens virs to paspēšot, ko vesels tūkstots
+vakar, aizvakar nav iespējuši.</p>
+
+<p align="JUSTIFY">Tēva dēls atsaka: "Ko nu par nespēkiem bažīties? Vai es gan
+nezināšu, ko daru?"</p>
+
+<p align="JUSTIFY">"Labi, dēls! lai notiek! Bet ja velnu pārvarēsi - prasi man, ko
+vien iedomājies - visu tev maksāšu."</p>
+
+<p align="JUSTIFY">Un nu tēva dēls ar savu lauvu sāka strādāt. Bija gan ko rauties -
+nav vis joki ar tādu velnu. Tomēr viņi vairāk ar gudrību velnu nomāca, neka ar
+spēku. Tūliņ ka gāja, 1auva pielīda no muguras puses, uzklupa velnam čuprā, atrāva
+augšpēdu un tamēr tēva dēls ar zobinu klāt kapāt, kur vien pietiek. Tā nu gan
+domājams: kas tad nekapāt, ja otrs tura? Bet tik viegli nebija vis: velns jau spļāva
+briesmīgi ugunis - tā tā lieta. Tomēr beidzot velnu nogalināja taču un nu tēva
+dēls gāja algu prasīt ķēniņam : to spieģeli ar tām četrām skrūvēm. Ķēniņš
+gan saŗauca pieri, ka taisni spieģeli šis iedomājies, bet nekā nesacīja arī - kas
+jādod, jādod.</p>
+
+<p align="JUSTIFY">Un tēva dēls aiziet lepni jo lepni tālāk pasaulē : spieģlis roka,
+lauva vienā pusē, kaķis otrā pusē, spožs zobins pie sāniem - īsti ko redzēt. Iet,
+iet - atron beidzot jauku birstalu kalna gala starp divām upēm. "Pag!" viņš
+iesaucas, ,;tā tad jauka vieta - te varētu apmesties!"</p>
+
+<p align="JUSTIFY">Bet visi trīs pēc tāda gājiena nejauki izsalkuši un maizes nav ne
+drupačiņas - ko nu? "Nu tu debess brīnumi!" lauva atminas, "to zirgu
+jāj, to meklē. Par ko tev tas spieģelis? Vēl maizes dēļ rūpēties! Paskrūvē pirmo
+skrūvi!"</p>
+
+<p align="JUSTIFY">Labi! paskrūvē: pirmais gars cilvēku izskata klāt - ko pavēlot?</p>
+
+<p>"Mums visiem trim labus ēdienus, vairāk nekā!"</p>
+
+<p align="JUSTIFY">Un gars aizjož klupdams, krizdams. Necik ilgi ēdieni visgardākie
+klāt. Šie paēd. Bet otrā dienā tēva dēls vairs nezin, ko gara laika pēc būtu
+iesācis.</p>
+
+<p align="JUSTIFY">"Nu tu brīnumi!" lauva atkal atminas, "par ko tev tas
+spieģelis? Gada taču kādu pajumtu, kur tad piemitīsim? Paskrūvē otru skrūvi!"</p>
+
+<p align="JUSTIFY">Labi! paskrūvē otru: otrs gars cilvēku izskatā klāt - ko pavēlot?</p>
+
+<p>"Mums visiem trim labi jauku pili, vairāk nekā!"</p>
+
+<p align="JUSTIFY">Un gars aisjož klupdams, krizdams. Necik ilgi - nāk jauka dimanta
+pils pa gaisu šurp un noliekas pakalnā starp divām upēm. Tēva dēls tūliņ ieiet
+dimanta pilī atdusēties; bet lauva ārpusē paliek par durvju sargu un kaķis atkal
+istabā, krāsns augšā, par istabas sargu. Tas nu viss tik jauki ka brīnumi.</p>
+
+<p>Bet no rīta tēva dēls pārdomā, kas vēl būtu darāms.</p>
+
+<p align="JUSTIFY">"Kas darāms?" lauva ieteiksies, "par ko tev spieģelis?
+Gada taču ap dimanta pil pieklājīgu dārzu!"</p>
+
+<p align="JUSTIFY">Labi. Tēva dēls paskrūvē trešo skrūvi - atskrien trešais gars
+cilvēku izskatā: ko pavēlot?</p>
+
+<p>"Gādā ap dimanta pili pieklājīgu dārzu!"</p>
+
+<p align="JUSTIFY">Gars aizjož klupdams, krizdams. Ne cik ilgi - nāk šādi koki, nāk
+tādi koki pa gaisu un paši iedēstas vietā. Un brītiņu vēlāk salaižas dārzā ir
+visādi dziedātāju putni, sarodas arī visādi meža zvēri. Un nu bij citāda
+dzīvība: putni dziedāja, zvēri rūca, koki ziedēja --J ne atklausīties, ne
+atskatīties.</p>
+
+<p align="JUSTIFY">Bet no rīta tēva dēls atkal pārdomā, kas vēl būtu darāms. Kas
+darāms?" lauva ieteiksies, "zinu gan, kas darāms. Par "</p>
+
+<p align="JUSTIFY">ko tad tev spieģelis? Tev jāprecas: liec taču sievu atnest, lai
+pilnīga iedzīve. Tur upes galā, jūras malā, dzīvo ķēniņš; tam tik daiļa meita,
+kāda šinī pasaulē otra nav redzēta; tā tev īsti būtu ievēlama - liec
+atnest!"</p>
+
+<p align="JUSTIFY">Tēva dēls pagrieza ceturto skrūvi; atskrēja ceturtais gars cilvēku
+izskatā: ko pavēlot?</p>
+
+<p align="JUSTIFY">"Tur upes galā, jūŗas malā, dzīvo ķēniņš, kam daiļa
+meita - atnes to man par sievu!"</p>
+
+<p align="JUSTIFY">Gars aizjož klupdams, krizdams, un viens divi ķēniņa meita klāt.
+Tēva dēls apņēma ķēniņa meitu par sievu un dzīvoja laimīgi.</p>
+
+<p align="JUSTIFY">Bet vecais ķēniņš ļoti bēdājās meitas dēļ. Viņš izsūta
+kuģus pa ūdeņiem meklēt, izsūta kājniekus pa sausu zemi taujāt; bet meklētāji
+visi pārnāk bešā. Neko darīt - ies beidzot pie raganas izrunāties. Ragana zīlē,
+zīlē - beidzot uzzīlē, ka meita kalniņa galā, dimanta pilī pie vīra: lai dodot
+kuģi ar visiem ļaudim, viņa braukšot pa upi augšup meitu pārvilt mājā. ķēniņš
+gan saka: "Ko brauksi ar vienu kuģi, sieviete būdama? Sūtišu veselu kaŗa spēku
+dimanta piLi ārdīt!"</p>
+
+<p align="JUSTIFY">Bet ragana ne : tur dimanta pilī esot lauva par durvju sargu, tas
+viens pats saārdīšot kaŗa spēku; labāk lai atvēlot viņai ar viltību rīkoties,
+tad tur kas notikšot.</p>
+
+<p align="JUSTIFY">"Labi! lai paliek tava taisnība!" ķēniņš atteica un
+iedeva kuģi ar visiem ļaudim.</p>
+
+<p align="JUSTIFY">Nu ragana aizbrauca pa upi vien augšup, bet itin tuvu dimanta pilij
+nepiebrauca: atstāja kuģi ar ļaudim labu gabalu lejas</p>
+
+<p align="JUSTIFY">pusē un pati aizgāja par nabadzi dimanta pilī. Bet sazini Dievs, ka
+ragana to darīja. Kamēr viņa gar upmali staigāja, tēva dēla sieva dimanta pilī
+piepēži savārga; bet tēva dēls ar lauvu un kaķi tai dienā nebija mājā - bij
+aizgājuši medīt. Un, zināms, tāda izdevīgā brīdī ragana viegli iekļuva pilī pie
+slimnieces. Slimniece kunkstēja, vaidēja; bet šī labinās klāt: kas kaišot?</p>
+
+<p>"Tā un tā - spiež tīri nost, cik nelabi."</p>
+
+<p>"Ai, tā maza lieta! cik es, veca nabadze, pa pasauli staigādama neesmu
+paglābusi; drusku tikai nobraucīšu - būsi vesela." Un tiešām: līdz labi
+nobraucīja - palika vesela. Tas tēva</p>
+
+<p align="JUSTIFY">dēla sievai Dieva dots: lai paliekot par nakti, lai neejot projām
+vakara laika; pārnākšot viņas vīrs, tas tādu labdari, kā viņa, vai ar zeltu
+apbēršot. Nu, un ragana to jau tikai gaidīja - par nakti palikt. Tādēļ vien jau
+slimību bija uzraidījusi un atkal dziedinājusi, lai pieglaustos par labdari un viņai
+neliegtu pilī dažas dienas piemist. Vakara pārnāk vīrs - sieva pretim: "Vīriņ,
+vīriņ, kamēr tu nebiji mājā, gribēju gandrīz nomirt; par laimi šo nabadzi
+saķēru, tā slimību kā ar roku atņēma. Lai viņa par to labumu izsēršas pie mums -
+ko?"</p>
+
+<p align="JUSTIFY">"Jā, jel jā; vai es kādreiz labus cilvēkus neesmu
+ieredzējis?" Un tā nu ragana palika dimanta pilī. Otrā rītā tēva dēls at kal
+aiziet medīt. Bet ragana cauru dienu tikai apbrīno pils spo žumu un visu grib
+iztaujāt; beidzot itin tā nevainīgi ievaicāsies: "Dievs to zin, kur tādu pili
+ņēmis, kur neņēmis? Esmu redzējusi dažas pilis, bet tādu, kā šo, nudien, cilvēka
+rokas nebūs vis cē lušas. Vai tad tu, viņa sieva būdama, par to nebūsi
+ierunājusies?"</p>
+
+<p align="JUSTIFY">"Ne - neesmu vis! Bet vakarā varu jau apvaicāties, tas jau nav
+nekāds noziegums."</p>
+
+<p align="JUSTIFY">Vakarā pārnāk vīrs - šī pretim: "Ujā, vīriņ, kāds tu
+esi: tik ilgi dzīvojam kopā un tu man ne to neesi stsāstījis, kas mūsu pili cēlis.
+Vecā nabadze domā, ka pils laikam no debesim kritusi - vai tas varētu būt?"</p>
+
+<p align="JUSTIFY">"Kur nu no debesim. Bet man, ače, savāds spieģelis ar četrām
+skrūvēm; ja pagriež skrūves, tad atskrien gari un izdara visu, ko vien tikai vēlies -
+tie man šo pili atnesa."</p>
+
+<p align="JUSTIFY">"Ak t!" sieva nobrinas un vairak neko; bet gan nagana to
+dzirdejusi.</p>
+
+<p align="JUSTIFY">No rita teva dels ved aiziet medit. Bet lidz labi aizgajis, ragana
+spiegelim mugura: pagriez vienu skruvi, otru, trešu - visi gari sadeguši klat:
+ko pavelot?</p>
+
+<p align="JUSTIFY">"Aiznesiet šo dimanta pili šis upes gala, juras maia un
+nolieciet keniua pagalma!"</p>
+
+<p align="JUSTIFY">Tulin dimanta pils pacel,as gaisa ar visu teva dela sievu, ar raganu un
+aizlido ka taurinš ken2na pagalma. Teva dels medibas pacel acis un ierauga pili
+paša gajiena. Vinš tiri par'bistas; bei</p>
+
+<p align="JUSTIFY">Iauva saka: "Veca nabadze to darija! Kam veleji negelei pili mist?
+Bet izlieho vairs nesasme1si; atliek tikai ar gudribu iidzeties. Pargerbies svešs
+kautkuras drebes un ej gar upmali vien lejup pie sievias teva raudzit - tur Iaikam tava
+pils bus. Es palikšu teitan mazakais atlikušo pilsdarzu sargat un gaidišu
+tevi ar pili, ar sievu atpakal."</p>
+
+<p align="JUSTIFY">Labi, teva dels pargerbas gluzi svešs un aizgaja ar kaki gar
+upmaii vien. Bet drusku lejup, aiz meza, ieraudzija kugi ar jaudim; tie vaicaja: vai
+neesot saticis nabadzi? Ta solijusivs atpaka but, bet nevarot sagaidit.</p>
+
+<p>"Ka ]audis tad esot, ta vaicadami?"</p>
+
+<p>"Esam kenina ]audis, tur upes gaia, juras mala."</p>
+
+<p align="JUSTIFY">"Ai, kur tad labi! man atkal pie ta kenina jatiek. Esmu
+izdaudzinats pavars un dzirdeju, ka jusu zeme neviens nemakot labu edienu varit; tade(
+iešu pie kenina par pavaru iigt un jus vnretu mani labi pavest, jo ta nabadze, cik
+zinu, sen pargaja maja - to gaidat velti."</p>
+
+<p align="JUSTIFY">"Viss varetu but! Bet ja esi pavars, tad vari mums edienu, citadi
+neticam tev."</p>
+
+<p align="JUSTIFY">Labi, teva dels varija edienu. Bet vinš zinaja, ka sievas teva
+zeme sali pie edieniem nemaceja Iikt; tadel, edienu varidams, pielika druscin sals.
+Šo sali jau toreiz bija ieberis kabata, kad no teva majam iznaca. Kad kuga jaudis
+tadu edienu baudija, tie gribeja vai parstrebt2es. Bet teva dels skubinaja: "Grieziet
+kugi uz maju pusi un strebjiet braukdami, 1ai nekavejam laiku. Vai neteicu, ka esmu
+izdaudzinats pavars? Tagad tacu ticat?"</p>
+
+<p align="JUSTIFY">"Ticam, ticam!" visi iesaucas un tuiin sagrieza kugi maja
+braukt.</p>
+
+<p align="JUSTIFY">Aizbrauca pie sievas teva, jaunais pavars redz: dimanta pils stav
+sievas teva pilij biedros un vina sieva raud pils priekša rugtas asaras. Bet nu viram
+bailes, ka sieva, vinu ieraugot, nesiauc pie varda, citadi nodoms veja, ja jaudis to
+apmana. Bei-. dzot sagudroja ta. Apsedas upmala un izteica kalim, lai slapstidamies aiztek
+pie s'ievas pazinot visu, ko vien nodomajis darit un vel apvaicajoties, kur spiegelis
+palicis. Labi, lflalis ta izdara un drizi ar zinam atpakal: spiegelis esot raganai nagos;
+ragana šimbrizam ar visu spiegeli savas majas; tevs atkai esot briesmigi dusmigs, tam
+lai sargoties vardinu bilst; bet vinš ar sievu varešot naktis, kad citi miegu
+gul, dimanta pils priekša satikties. Labi, tas nu tas. Un kamer tur teva dels vel
+upmala kavejas, kuga jaudis nu satastijuši keninam, kadu slavenu pavaru
+parveduši. Keninš ieaicina pavaru pili un liek tulin pirmo edienu varit. Pavars
+izvara edienu pec sava prata - ar sali, ar pavalgu labi gardu - un ienes kerninam baudit.
+Keninš pabauda vienu karot:i, otru - vai akls! esot gan varens pavars - tadu projam</p>
+
+<p align="JUSTIFY">vairs nelaizot. Labi. Bet kenina prieki bija isi: jau otra nedela citi
+apmaniju.ši, ka jaunais pavars naktim lienot dimanta pili pio kenina meitas un
+runcis, tas atka1 padiekot arpuse pie durvim par sa!rgu. Keninš to padzirdejis, gluzi
+arprata: grib pavaru samait pites; bet citi ieruna: "Ko maitasi vinu atra nave? Tas
+nav neka, metisim iabak ar visu runci, zurku un pelu aia, tad dabus ilgaki
+pamocities."</p>
+
+<p align="JUSTIFY">Labi, iemeta tur. Tai zeme kakus nepazinuši ; tadej zurkam un
+pelem ietaisijušf ipašas alas. Šinis alas metuši visadas edienu
+atliekas, lai zurkas un peles barotos un nenaktu lauka cilvekiem pa kajam.</p>
+
+<p align="JUSTIFY">Tulin, zinams, zurku un pelu bars saskreja teva delu zurpas grauzt; bet
+runcis priecajas: "Nu tiku darba!" un apslanija grauzejas levenu leveniem.
+Beidzot zurkas ar pelem meta pratu pie malas un teceja zurku keninam sudzet, ka velns
+ieklupis ala viya pavaistniekus maitat. Zurku keninš izlida no savas pils un vaicaja
+tevra delam: "Kas tas par velnu, ko ielaidi teitan manus pavalstniekus apkaut?"</p>
+
+<p align="JUSTIFY">"Tas tikai ir velns, vinš apkaus jus visus, tevi ari; bet
+vinš nekaus nevienas, ja izpiZdisit vienu lietu: jums zurkam un pelem jaatnes no
+raganas mitekla mans spiegelis - tas viss!"</p>
+
+<p align="JUSTIFY">Labi, to ja! Un nakamo nakti viss zurku un pelu bars aizgaja karu c2l,t
+ar raganu. Bet nebija liels grutums raganu uzvaret: kamer ta aizmigusi guleja, kara speks
+sagrauza pašu raganu 'lupatas un atvilka spiegeli teva delam. Nu teva dels prieka
+pilns pagrieza skruves un paveleja gariem iznest vinu no aias dimanta pili pie sievas; tad
+pagrieza skruves un paveleja dimanta pili aiznest veca vieta, kur lauva pilsdarzu sargaja.
+Viens divi - viss notika. No ši laika teva dels ar savu sievu, ar lauvu un kaki
+dzivoja laimigas dienas.</p>
+</font>
+
+
+</body></html>

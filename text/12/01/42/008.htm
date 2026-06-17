@@ -1,0 +1,166 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Lab? p?rdo?ana</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Labā pārdošana.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>8.</strong> A. 1642. 1600. E. A.<b> </b>Simsons no O.
+Romančuka Rozentovas pag. Latvju kultūras p.</p>
+
+<p align="JUSTIFY">Vīnam tāvam beja treis dāli. Divi nūsadarbuoja ar lūpkūpību, bet
+trešais beja mulkis un nikuo nadarīja. Kad myra tāvs, tad vysu sovu montu atdevja tīm
+divim gudrim dālim, bet mozajam muļkīšam īdevja vīnu vērsi. Muļkis navarēja juo
+izturēt, soka bruoļim, ka jis vess sovu vērsi puordūt, jī pasasmēja un aizguoja pi
+sova dorba. Muļkis pajēmja sovu vērsi, aizvedja mežā un pīsēja pi lelas rasnas
+prīdes, un sacīja: "Pierc munu vērsi, atdūšu par symtu rubļu!"</p>
+
+<p align="JUSTIFY">Prīde atbildēja: "Skrip, skrip." Tad muļkis teicja:
+"Es reit atnuokšu pēc sovas naudas." Prīde atkon teicja: "Skrip, skrip,
+un muļkis vīns aizguoja uz sātu, bet vērsi pametja mežā. Sātā bruoļi vaicuoja:
+"Kam tu puordevi sovu vērsi?"</p>
+
+<p align="JUSTIFY">"Prīdei puordevu par symtu rubļu," atbildēja muļkis,
+"un reit dabūšu naudu."</p>
+
+<p align="JUSTIFY">Bruoļi otkon pasasmēja un aizguoja gulātu, jo beja jau vokors.
+Reitā muļkis pajēmja ciervi un nūguoja uz mežu. Pīguojis pi prīdes, jis vērša
+vairs naredzēja.</p>
+
+<p align="JUSTIFY">"Nūpierka," dūmuoja muļķis un prasēja nu prīdes:
+"atdūd munu naudu! Tu tak pajēmi munu vērsi!"</p>
+
+<p align="JUSTIFY">Prīde nikuo naatbildēja. Muļkis moz dūmuodams, uzreizes kai cierta
+prīdei ar ciervi, tai nauda suoka biert, bet muļķis nu bailem un prīcas suoka doncuot
+un aizskrēja uz sātu pastuostīt sovim bruolim, kai nu prīdes bierst nauda. Bruoļi
+tyuleņ apsavylka un kūpā ar muļki aizguoja uz mežu un, īraudzējuši daudz naudas,
+suoka jū lasīt. Muļķis napajēmja ni vīna rubļa, bet bruoļi, pīlasījuši cik vīn
+varēja, guoja uz sātu un ceļā satika krīvu ar lelu buordu. Krīvs vaicuoja nu
+bruoļim: "Kū jyus nasat? Atdūdit tyuleņ man, jo citaidi es jyusus
+nūsisšu!"</p>
+
+<p align="JUSTIFY">Bruoļi, nūsabeiduši, pametja naudu un aizskrēja uz sātu. Muļkis
+vīns palyka un dūmuoja: "Na, es lobuok tū krīvu nūsisšu un palaisšu jū zam
+tylta. Tai jis izdarīja: pajēmja krīvu aiz buordas nūsyta un pabuozja zam tylta. Tad
+pajēmja krīva zyrgu, salyka vysu naudu un aizvedja uz sātu. Tur soka sovim gudrim
+bruoļim: "Es nūsytu krīvu, pajēmju juo zyrgu un naudu, bet jums tagad naatdūšu
+ni zyrga, ni naudas!"</p>
+
+<p align="JUSTIFY">Bruoļi jam atbiļdēja: "Jo tu mums naatdūsi, tad mes
+pastuotīsim, ka tu nūsyti krīvu un pajēmi zyrgu."</p>
+
+<p align="JUSTIFY">Muļkis nūsabeida un suoka ar osorom lyugt bruoļu narunuot nivīnam.
+"Jemīt zyrgu, jemīt naudu, bet nasokīt, ka es nūsytu krīvu," soka jis.</p>
+
+<p align="JUSTIFY">Bruoļi pajēmja naudu un zyrgu un apsūlīja muļkam, ka nivīnam
+nastuostīs par nūtikšonu. Muļkis nūsuovja uozi, kuram beja leluoka buorda kai cytim,
+un nūlika zam gultas. Kad atguoja ļaudis vaicuot, kurs nūkova krīvu, muļkis
+atbildēja: "Es vainīgs," un paruodīja zam gultas uozi. Jī pasasmēja un
+aizguoja prūjom. Bruoļim palyka žāl muļkīša, un jī pajēma jū kūpā dzeivuot
+sadarīgi un boguoti: kū paši taisēja sev, tū devja ari muļkim un ļūti jū
+mīļuoja leidz pašai nuovei</p>
+
+
+</body></html>

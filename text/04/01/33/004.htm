@@ -1,0 +1,162 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Baltā un melnā līgava. A.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">4. A. 403 A.<b> </b>Liene Bērziņa Lielvārdē, Brīvzemnieka kr. LP,
+VII, 11, 7, 22, i.</p>
+
+<p align="JUSTIFY">Bija bezdievīga pamāte, tā verdzināja savu pameitu, kā vien
+varēdama, bet pašas meitu lutināja bez gala. Reiz pamāte sūta pameitu uz upi sietā
+ūdeni pārnest. Šī smeļ, smeļ, mocās - viss sietam cauri, veltīgs darbs. Te
+neviļot iesmēlās līdeciņa sietā. Šī grib ar to pašu skriet mājā, lai kaut ko
+jel pārnestu pamātei; Bet līdeciņa lūdzās: .,Labā meitiņa, laid mani ūdenī
+atpakaļ!"</p>
+
+<p align="JUSTIFY">Šai mocīt netīk - laidīs arī. Ielaiž upē - līdeciņa saka:
+"Še tev trīs laimes: Tu paliksi desmit reiz daiļāka, nekā līdz šim, ja
+raudāsi - zelta pērles tev pa acim ritēs. Kur vien iesi, zelta pēdas paliks tev
+pakaļ!'`</p>
+
+<p align="JUSTIFY">Kā līdeciņa teica, tā notika. Bet nu pamāte pavisam traka: šai
+tādi labumi gadījušies, viņas meitai nekā. Tas nu tas. Te vienu dienu gadās jaunajam
+ķēniņam tur gaŗām braukt. Brauc -ierauga zelta pēdas. Nu pa pēdām vien paka -
+sastop pameitu, ļoti daiļo meitu. Šī patlaban raud un zelta pērles birst kā pupas pa
+acim. Vaicā ķēniņš: kam raudat? Tā un tā - pamāte neieredzot</p>
+
+<p align="JUSTIFY">"Nekas, no šā brīža tev nebūs vairs jāraud - brauc man līdz
+- tu būsi mana sieva."</p>
+
+<p align="JUSTIFY">Aizbrauca līdz daiļā pameita uz ķēniņa pili, apprecējās. Bet
+pamātei nu vēl vairāk sirds ēdās: pluska tādā laimē - viņas meitai nekā.
+Gadījās vienu dienu ķēniņam mājā nebūt. Gan pamāte, ragana, to saodusi --- tā uz
+pili projām ar zobinu, lielu, gaŗu, asu. Aizskrien ar zobinu, nokauj savu pameitu, iemet
+ezerā, apģērbj savu meitu ķēniņienes drēbēm, ieguldina tikpat kā spilvenī.</p>
+
+<p align="JUSTIFY">Tomēr nokautā nepazuda vis - pārvērtās par zeltā pīlīti ezerā
+un raudāja zelta pērles trīs dienas no vietas: katru dienu pa pērlei. Trešajā dienā
+tā salasīja 3 saraudātas pērles - izperēja divi puisīšus un vienu vanskaru no tiem.
+Zeltmatu puisīši ikdienas iet rotāt ķēniņa dārzā un vanskars ripo līdz tiem
+mātes vietā par sargu. Pamāte, ragana, ierauga puisīšus laukā - tūlin ārā ar
+zobinu, nokāva tos. Gan vanskars laikā biedināja: "Mūkait, bēgait," bet
+puisīši, muļķīši, nejēdza to. Nokāva puisīšus, iemeta ezerā, bet vanskaru,
+ripotāju, ragana, blēde, ienesa istabā, iemeta aizkrāsnī. Ezerā pīle pazina
+nokautos, ņēma tos mērcēt avota ūdenī trīs dienas no vietas. Avota ūdens
+sadziedināja griezumu, atdzīvojās puisīši.</p>
+
+<p align="JUSTIFY">Par to laiku pārradās aridzan ķēniņš. Vanskars aizkrāsnī nu
+sāka ņurkšķēt: "Gultā raganas meita - ezerā ķēniņiene! Iešu, ripošu
+aicināt ķēniņieni, ar puisīšiem." Aizripoja vanskars uz ezeru, aicināja
+ķēniņieni. Atnāca pīlīte ar puisīšiem uz pili -ķēniņš satvēra to, paspieda
+vairāk, nekā bija domājis -- ļ katrs sapratīs -- neglaudīja ne pamāti, ne viņas
+meitu, bet ķēniņieni skūpstīt skūpstīja ar viņas puisīšiem. Nu smaidīja atkal
+laimīgas dienas ķēniņienei pilī.</p>
+
+
+</body></html>

@@ -1,0 +1,356 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Stiprinieks kauj velnus un raganas.</p>
+</font><font size="4">
+
+</font></b><p align="JUSTIFY"><b><font size="4"></font> 1. A. </b>300. J. Brunovs Grauzdē. LP, VI, 115, 20.</p>
+
+<p align="JUSTIFY">Vienam tēvam bijis dēls vārdā Stiprais. Kad Stiprais bija izaudzis,
+tas sacījis tēvam : "Tēt, parādi jele, cik lieli ir mūsu lauki."</p>
+
+<p align="JUSTIFY">Tēvs vedis rādīt. Bet lauka vidū augusi liela, liela egle. Stiprais
+vaicājis: ,,Kas tā par puķīti?" un izrāvis egli, pie galotnes ņemdams, ar
+visām saknēm. Tēvs brīnījies; bet Stiprais ar vienu roku turējis egli gaisā, ar
+otru nobraucījis zarus, teikdams: "Te man būs laba nūja, kad iešu
+pastaigāties."</p>
+
+<p align="JUSTIFY">Tas nu tas. Pārgājuši mājā - Stiprais izstaigājies prasījis
+mātei ēst. Māte gājusi paraudzīt ātrumā ko uzkost; bet tēvs sacījis :</p>
+
+<p align="JUSTIFY">"No nieka viņam nekā nav ko iesākt. Izvāri labāk biezputru
+mūsu piecu nēšu katlā."</p>
+
+<p align="JUSTIFY">Māte izvārījusi un patlaban gribējusi biezputru ēdamā podā likt;
+bet Stiprais sacījis: "Ko tad jūs te vēl smalstīsit? - Paēdīšu tāpat no
+katla."</p>
+
+<p align="JUSTIFY">Un tā licies klāt un izēdis visu. Bet tēvs, to redzēdams, saraucis
+pieri : "Nē, dēls, ja tā gribi ēst, tad nespēju tevi vairs turēt. Tev jāiet
+pie ķēniņa; tur tu varēsi pēc sava prāta izstrādāties un izēsties."</p>
+
+<p align="JUSTIFY">"Ja, ja, tēt, tas viss varētu notikt; bet tā jau gan neiešu,
+kad tikai man liks. Lai ķēniņš man nāk pakaļ, tad iešu."</p>
+
+<p align="JUSTIFY">Labi. Ķēniņš nu atsūtījis vienreiz, otrreiz - Stiprais kā neiet,
+tā neiet. Sūtījis seši zaldātus pakaļ - vēl negājis. Nu, ja tā ar labu nē -
+zaldāti domājuši ar varu aizdabūt; bet Stiprais pasmējies: "Ko es te ar jums,
+seskiem, ilgāki niekošos - še! Un tā krāvis katram zaldātam ar vienu pirkstu un
+nositis. Bet ķēniņš vēl otrreiz atsūtījis divpadsmit zaldātus., Stiprais ir šos
+nositis, bet tad apdomājies: "Tas taču neies - ķēniņam tik daudz apskaust
+ļaudis! Jāiet jau būs."</p>
+
+<p align="JUSTIFY">Labi. Aizgājis pie ķēniņa, sniedzis roku un vaicājis : "Nu,
+ķēniņ, ko laba teiksi man?"</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Paliec pie manis, man pulka darba!"</p>
+  <p align="JUSTIFY">"Ja, ja - manis dēļ!" šis atņurdējis un palicis arī.</p>
+</blockquote>
+
+<p align="JUSTIFY">Bet pēc kāda laika Stiprais sācis ķēniņam runāt, ka esot
+nodomājis viņa meitu precēt.</p>
+
+<p align="JUSTIFY">Ķēniņš atplētis acis: "Ai, dēls, ja tu manu meitu gribi, tad
+papriekšu tev jāiet pasaulē un jāpārved man zelta zirgs, zelta suns un zelta gailis -
+ātrāki meitu nedošu, lai tur kas."</p>
+
+<p align="JUSTIFY">"Labi!" Stiprais atteicis un tūlin aizsteidzies pie kalēja,
+lai nokaļot viņam labi stipru ceļa nūju, kas ne locas, ne lūzt.</p>
+
+<p align="JUSTIFY">Kalējs nokalis vienu birkavu smagu - tādu nūju; bet Stiprais cirtis
+nūju sev ap pirkstu - nūja pārlūzusi. Nu pielicis vēl birkavu un tad bijusi gan laba.</p>
+
+<p align="JUSTIFY">Bet projām iedams, Stiprais vēl iegājis pie ķēniņa meitas
+atvadīties un noteicis, ka lai viņu gaidot atpakaļ - pie cita lai no Dieva puses
+neejot.</p>
+
+<p align="JUSTIFY">Ķēniņa meita tad nosolījusies ari un iedevusi šim savu zelta
+gredzenu pirkstā.</p>
+
+<p align="JUSTIFY">Stiprais gājis, gājis - saticis lielu vīru, vaicājis, kas viņš
+tāds?</p>
+
+<p align="JUSTIFY">"Esmu Ūdeņudzinējs. Ja ar savu rungu ūdenī lieku, tad tūlin
+ūdens atšķiŗas, ka var sausām kājām pāriet."</p>
+
+<blockquote>
+  <blockquote>
+    <p align="JUSTIFY">Tad nāc līdz, tu esi labs!"</p>
+  </blockquote>
+</blockquote>
+
+<p align="JUSTIFY">Šis bijis ar to mierā. Gājuši abi divi un satikuši tādu vīru,
+kas stūmis kalnus lejā. Stiprais vaicājis: "Kas tu tāds esi?" "Esmu
+Kalnustūmējs!"</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Tad nāci līdz, tu esi labs!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Nu gājuši visi trīs un satikuši atkal lielu vīru. Stiprais
+apvaicājies: "Kas tu tāds esi?"</p>
+
+<p align="JUSTIFY">"Esmu Simtu-jūdžu-redzētājs un dzirdētājs. Es simtu jūdžu
+tālumā visu saredzu, visu nodzirdu."</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Tad nāc līdz, tu esi labs!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Nu gājuši visi četri un nogājuši līdz velna pilij; bet velna
+pilij visapkārt bijusi liela upe - nekā pārkļūt.</p>
+
+<p align="JUSTIFY">Tad Ūdeņudzinējs sitis ar savu rungu upei - uz reizi palicis sauss.
+Iegājuši velna pilī - tur sēdējusi veca vecene istabā. Tā bijusi velna māte; bet
+velns pats ar saviem dēliem, nezin, kur bijis aizkūlies.</p>
+
+<p align="JUSTIFY">Bet tur bijis viens tilts, pa ko ve1ni arvienu mājā jājuši. Šo
+tiltu Stiprais pavēlējis Simtu-jūdžu-redzētājam un dzirdētājam tūlin apsargāt,
+lai velni slepeni neuzbruktu; bet tos divus raidījis gulēt un pats arī nolicies
+pasnaust. Snaudis, snaudis - nekāds labs miegs nenācis. Beidzot izburzījis acis, klupis
+augšā un gājis labāk pārlūkot, kā pie tilta klājas. Aizgājis - še nu tev!
+Simtujūdžu-redzētājs un dzirdētājs gulējis aizmidzis.</p>
+
+<p align="JUSTIFY">Ujā! tās dusmas Stiprajam; bet apdomājies - neteicis nekā, <b>lai </b>arī
+izguļas miega pūznis! Un tā nu pats pagājis apakš tilta un sācis vērot, vai nāks
+šie, vai nenāks šonakt?</p>
+
+<p align="JUSTIFY">Vērojis, vērojis - ja, ap pusnakti nāks gan pats jaunākais velna
+dēls melnā zirgā un melns suns ar melnu gaili vēl līdz. Atjās <b>pie </b>tilta -
+zirgs neiet pāri.</p>
+
+<p align="JUSTIFY">"Kas tur ir?" velna dēls vaicājis. Zirgs, suns un gailis
+atbildējuši: "Apakš tilta stiprs vīrs, tas mūs nositīs."</p>
+
+<p align="JUSTIFY">"Lai tad viņš nāk ar mani spēkoties, ja viņš tik stiprais
+ir!" Stiprais gājis un, kā kŗāvis velna dēlam ar savu dzelzeni pa pieri, tā
+bijis uz vietas nost.</p>
+
+<p align="JUSTIFY">Nu paņēmis zirgu, suni un gaili, aizvedis velna pilī un ievietojis
+velna stallī.</p>
+
+<p align="JUSTIFY">Rītā vaicājis redzētājam, vai naktī esot ko redzējis? Neesot
+neko redzējis, šis atbildējis. Labi, kad nu ne, ne - sūtījis otrā naktī
+Kalnustūmēju. Bet ar Kalnustūmēju tāpat noticis kā ar to pirmo. Stiprajam gulētāja
+vietā bijis jānokauj viduvējā velna dēls un viņa zirgs, suns un gailis jāpārved
+velna stallī. Trešo nakti sargājis Ūdeņudzinējs - ar to tāpat. Stiprais nokāvis
+viņa vietā vecāko velna dēlu, bet zirgu, suni un gaili pārvedis velna stallī.</p>
+
+<p align="JUSTIFY">Ceturtā naktī pats Stiprais rīkojies tiltu sargāt. Bet viņš
+priekšlaik nolicis uz galda trīs šķīvjus, uz šķīvjiem glāzes un g1āzēs ūdeni,
+piesacīdams saviem biedriem: "Te jūs palieciet pie šīm glāzēm skatīdamies. Ja
+viņās ūdens paliek par asinim, tad maisiet un maisiet ūdeni, cik tikai varat, lai man,
+uz tilta cīnoties, spēks nāktu klāt."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Labi. Nogājis apakš tilta un sargājis. Ja - nāks pusnakts, jās
+  pats velns zelta zirgā, lai visa zeme rīb un zelta suns un zelta gailis vēl līdz.
+  Atjāj pie tilta - zelta zirgs zviedz, zelta suns rej, zelta gailis dzied un neiet pāri.</p>
+  <blockquote>
+    <p align="JUSTIFY">"Kas tur ir par nelaimi?" velns iesaucies.</p>
+  </blockquote>
+  <p align="JUSTIFY">Zelta zirgs, zelta suns un zelta gailis atbildējuši: "Apakš
+  tilta ir pats Stiprais, tas mūs nositīs."</p>
+</blockquote>
+
+<p align="JUSTIFY">"Lai tad tas daudzinātais Stiprais nāk ar mani
+izspēkoties!" Labi. Stiprais gājis arī un nu briesmīgi sīvi sākuši spaloties.
+Velns kŗāvis Stiprajam, Stiprais līdz pus lieliem sastidzis zemē. Tad kŗāvis
+Stiprais velnam, velns līdz krumšliem sastidzis zemē. Nu velns otrreiz gāzis
+Stiprajam, Stiprais jau pāri pa ceļiem sastidzis. Tad gāzis velnam pretim, velns līdz
+pus lieliem iestidzis. Velns vēl trešreiz spēris Stiprajam, un nu Stiprais līdz
+gūžām zemē iekšā. Tad Stiprais iesaucies: "Vai ir brīv vīram darbā
+atpūsties?"</p>
+
+<p align="JUSTIFY">"Ir!" velns atteicis, "zināma lieta, ka ir!"</p>
+
+<p align="JUSTIFY">Bet par to laiku pilī ūdens jau bijis pārvērties glāzēs par
+asinim un kūsājis malām pāri un šie, miegā izbadējušies pagāni, gulējuši.</p>
+
+<p align="JUSTIFY">Stiprais to manīdams, norāvis īsā atpūtas brītiņā savu cepuri
+un drāzis pils sienā, bet biedri neuzmodušies. Tad norāvis apavas un drāzis pils
+sienā - šie vēl neuzmodušies. Beidzot norāvis savu kakla drānu un drāzis pils
+sienā. Kakla drāna par laimi izcirtusies sienai cauri, ķerdama šiem gultu kājas un
+tad, tad miegaiņie uztraukušies vienreiz un, zināms, tūlin, nelaimi juzdami,
+maisījuši arī, ko jaudājuši.</p>
+
+<p align="JUSTIFY">Bet ik šie asinis diktāki kūluši, ik Stiprajam, acim redzot,
+pieradies spēks un nu ņēmies ar velnu pa otram lāgam. Velns tagad sitis, sitis šo,
+bet brīnumi, tavi brīnumi! Stiprais nemaz vairs neplacis zemē - pavisam otrādi vēl:
+ik uz sitiena cēlies no iestiguma ārā. Turpretim Stiprais velnu iedzinis pavisam zemē
+un tad gavilēdams iesaucies: "Lai nu velns velnu rauj!"</p>
+
+<p align="JUSTIFY">To padarījis, Stiprais paņēmis velna zelta zirgu, zelta suni un
+zelta gaili, aizvedis pilī un tad, biedrus pieaicinādams tuvāk, izpļaukājis šos
+labi, ka nebijuši modri. Bet rītā Stiprais katram iedevis vienu zirgu, vienu suni un
+vienu gaili, tos, ko velna dēliem bij atņēmis. Pats paturējis zelta zirgu, zelta suni
+un zelta gaili, un tad sēzdamies zirgiem mugurā, griezušies mājā.</p>
+
+<p align="JUSTIFY">Bet gabalu pajājušiem, Stiprais piepēži atminējies: "Kur tad
+mans zelta gredzens, ko ķēniņa meita pirkstā mauca? - Tas aizmirsies velna
+pilī."</p>
+
+<p align="JUSTIFY">Neka darīt biedrus sūtījis uz priekšu un pats pajājis to gabalu
+atpakaļ pēc gredzena. Aizjājis - bet kas ir? - Velna pils durvis aizslēgtas - ne
+domāt iekšā tikt vairs. Izdomājies, ko nu darīt? Te zelta zirgs, suns un gailis
+pamācījuši šo par mušu pārvērsties un pa atslēgas caurumu ielīst gredzenam,
+pakaļ. Labi. Palicis par mušu, ielīdis pa atslēgas caurumu un patlaban gribējis savu
+gredzenu ņemt. Te paskatījies: otrā istabā nosēdušās trīs velna meitas ar velna
+māti un spriež.</p>
+
+<p align="JUSTIFY">"Pag!" viņam iešāvies prātā, "jādzird taču, kas
+šīm te īsti spriežams?"</p>
+
+<p align="JUSTIFY">Un tā uzlaidies krāsns augšā un klausījies. Velna māte teikusi:
+"Mums tam Stiprajam jāatriebjas. Rīt palikšu, kur viņi jāj par baltu krogu, tad
+tie ieies iekšā un paliks."</p>
+
+<p align="JUSTIFY">"Tas nav nekas!" pirmā meita atteikusi, "bet es
+palikšu par karstu sauli viņus slāpināt; un tad tur gadīsies dzestra upīte; pie tās
+viņi tieksies dzert un tad paliks."</p>
+
+<p align="JUSTIFY">" Tas nav nekas!" otra meita atteikusi, "bet es palikšu
+par skaistu bumbieri ar bumbieriem galā; tos viņi tīkos ēst un paliks.`' "</p>
+
+<p align="JUSTIFY">Tas nav nekas!" trešā meita atteikusi, "bet es palikšu par
+zāļainu pļavu un uzsūtīšu tiem saldu miegu. Tad viņi palaidīs zirgus ganīties,
+bet paši apgulsies un paliks."</p>
+
+<p align="JUSTIFY">Stiprais, to padzirdējis, ātri paķēris gredzenu, izlīdis pa
+atslēgas caurumu, pārvērties par cilvēku, lēcis zelta zirgam mugurā, un ko vien
+mācējis, ar zelta suni un ar zelta gaili pūtis biedriem pakaļ.</p>
+
+<p align="JUSTIFY">Pieskrējis klāt un neteicis ne vārda. Jājuši, jājuši - ja, uz
+vienu reizi gadīsies balts krogs priekšā. Biedri tūliņ kā sadzelti - iet tik iekšā
+un iekšā; bet Stiprais nelaiž ne par ko. Pajāj atkal - sāk tā dedzināt, tā
+dedzināt karsta saule - jādomā, vai izceps! Un tik dzidra, dzestra upīte turpat kā
+pasūtīta. Ko tad nu? - Tas biedriem Dievā dots - tūlin dzert; bet Stiprais neļauj ne
+par ko. Pajāj atkal, Stiprais liek apskatīties, vai ir vēl upīte. Paskatās, - nav un
+dzert arī vairs negribas. Bet nu gadās bumbiere ar skaistiem bumbieŗiem. Šiem atkal
+kārums tos ēst; bet Stiprais nejauj. Pajāj atkal - gadās pļava, ka zied vien no
+ābula. un šiem tāds salds miegs, ka nevar ne zirgā vairs nosēdēt. Bet Stiprais
+skubina ar varu: "Te gulēt ne, jāsim tālāk!"</p>
+
+<p align="JUSTIFY">Aizjāj pie krusta ceļa, šiem miegs nezin, kur palicis, kur ne. Bet
+te pie krusta ceļa Stiprais šķīrās no biedriem, sacīdams: "Ņemiet katrs savu
+zirgu, suni un gaili un jājiet tagad, kur paši gribat, es arī jāšu savu ceļu."</p>
+
+<p align="JUSTIFY">Labi. Un tad Stiprais pārjājis pie ķēniņa ar zelta zirgu, zelta
+suni, zelta gaili un dabūjis ķēniņa meitu par sievu.</p>
+
+<p align="JUSTIFY">Piezīme : Nogalniekos teikts, ka kāds tēva dēls esot atradis tādu
+avotu, kur uguns degusi, bet nekas nesadedzis : tur vārījušās stipruma zāles un pašu
+avotu saukuši par "stiprības avotu". Dēls stiprības avota zāles 3 malkus
+nodzēries un palicis vareni stiprs. Gājis pasaulē un saticis Ozolustādītāju un
+Kalnuvēlēju. Cits viss līdzīgs citiem variantiem.</p>
+<font size="2">
+
+<p>&nbsp;</p>
+</font>
+
+
+</body></html>

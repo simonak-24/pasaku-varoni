@@ -1,0 +1,154 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Burvis zārkā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">8. M. Muzikants Rūjienas Tornejas Pinķertos. LP. V, 9,39.</p>
+
+<p align="JUSTIFY">Sen, sen atpakaļ - tas jau nu būs mazākais savi simts gadi- braucis
+viens vecīts no Rūjienas uz Pērnavu. Vakara krēslā caur Kuninas mežu braukdams,
+viņš nejauši ierauga cilvēku karājamies eglē, vai arī citā kokā, kur tas nu
+bijis. Vecītis domā: "A! diedelnieks, ko šis te man karāsies," un sāk tikai
+ar pātagu plītēt: "Nāc zemē, nāc zemē - brauksim uz Pērnavu!"</p>
+
+<p align="JUSTIFY">Tai pašā brīdī kārējies tiešām nonācis zemē - valgs esot
+pārtrūcis - pukodamies: "Kam nedevi man mieru? Vai gan domāji, ka še bez ziņas
+esmu karājies? Sargies tagad! Ja tevi rokā dabūšu - pakāršu pie tā paša koka, kur
+es biju karājies."</p>
+
+<p align="JUSTIFY">Vecītis, to dzirdēdams, nejauki sabijies: ielēcis zirgā un
+aizaulekšojis, ka sniegs vien noputējis. Bet kas ir? Jo nu mucis, jo kārējies dzinies
+pakaļ. Par laimi gadījusies maza mājiņa, kur uguns spīdējusi. Nu mudīgi, mudīgi
+piesējis zirgu un iesteidzies istabā pie cilvēkiem. Bet kur tu Dieviņ! Neviena
+cilvēka neatradis; tikai zārkā gulējis mirons un gaidi bijuši piekrauti ar ēdieniem
+un dzērieniem - tas viss. Nu vecītis nopratis, ka te ir bēres, tādēļ uzmucis krāsns
+augšā paslēpties, lai paka[ dzinējies neatrastu Toreiz pa bērēm esot bijis vēl
+tāds vecumu vecs ieradums: beidzamā naktī salikuši visādus ēdienus un dzērienus uz
+galda, atvēruši zārku un atstājuši mironu vienu pašu, lai vēl beidzamo reizi
+varētu netraucēts izmieloties un ar citiem mironiem jau iedraudzēties, kas arī
+nākuši ēdienus baudīt. Paši mājinieki turpretim aizgājuši kaimiņu mājā, vai
+citur kur izgulēties.</p>
+
+<p align="JUSTIFY">Un tā nu vecītis gaiši nopratis, ka bēres te ir, un ka tādēļ
+krāsns augšā jāguļ mierīgi, lai mironus netraucētu.</p>
+
+<p align="JUSTIFY">Bet tai pašā brīdī pakaļdzinējies atskrējis pie loga un saucis:
+"Dod man to ārā, kas tur istabā paslēpies, ja ne - iešu pats pakar."</p>
+
+<p align="JUSTIFY">Izsaucies tādu brīdi, neviens neatbildējis. Nu atvēris durvis un
+nācis iekšā : bet tagad mirons izlēcis no zārka un grūdis šo atpakaļ, jo zārkā
+gulētājs bijis miris labā nāvē, šis turpretim pats pakāries, tādēļ
+nesaderējuši. Cīnījušies, cīnījušies, beidzot izgrūdis gan šo laukā un tā
+tūlin gulies mierīgi atpakaļ savā zārkā.</p>
+
+<p align="JUSTIFY">Gaismā pārnākuši mājinieki no otras mājas un nu vecītis nokāpis
+no krāsns un izstāstījis, ko naktī piedzīvojis.</p>
+
+
+</body></html>

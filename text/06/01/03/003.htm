@@ -1,0 +1,176 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pateicīgais mirons.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 505. K. Vieglais no A. Andrejeviča Krapes pag. </p>
+
+<p align="JUSTIFY">Vienā mazā mājiņā dzīvoja vīrs ar sievu, un viņiem bija viens
+dēls. Viņu vienīgā manta bija kaziņa. Visa viņu mazā peļņa viņiem aizgāja par
+uzturu. Lai gan viņiem klājās tik gŗūti, tomēr viņi piedzīvoja lielu vecumu.
+Viņiem nomirstot,</p>
+
+<p align="JUSTIFY">šis tas taču bija palicis. Šis tēva un mātes mantas viņu
+vienīgais dēls pārdeva par simtu rubļiem un pats ar šo naudu aizgāja uz pilsētu,
+lai tur varētu labāki iepelnīties.</p>
+
+<p align="JUSTIFY">Iedams pa pilsētu, uz kāda nama viņš ieraudzījis melnu zārku.
+Viņš pabrīnējies, iegājis pie mājas saimnieka un tam prasījis, kādēļ zārks
+stāv uz jumta un nav paglabāts kapsētā? Saimnieks viņam atbildēja: "Arī pie
+mums miroņus parasti glabā kapsētā, bet šis i nomirējs man palika simtu rubļu
+parādā un tāpēc es viņu uzliku uz nama jumta. Un ja kādam tas nepatīk, tad lai tas
+man samaksā simtu rubļu, un tad tas zārku varēs ņemt un likt, kur grib."</p>
+
+<p align="JUSTIFY">Tad jauneklis samaksājis viņam simtu rubļu un zārku apraka
+kapsētā.</p>
+
+<p align="JUSTIFY">No pilsētas viņš aizgāja uz kuģi un tur iestājās dienestā, lai
+varētu labi pelnīties. Viņš bija ļoti uzcītīgs strādnieks un tāpēc tika arvienu
+paaugstināts, kamēr palika par kapteini. Kādreiz sacēlās liela vētra un tā uzsvieda
+kuģi uz kādas klints, un tā kuģis sadrupa. Katrs no kuģa ļaudim glābās, kā
+varēja, un arī kapteinis uzgulās uz dēļa un viļņi viņu mētāja šurpu turpu. Bet
+tad vētra sāka mazināties un kapteinis sāka ar kājām taustīt dibenu. Tas viņam
+arī izdevās. Pēdīgi kapteinis nonāca pie kādas mazas saliņas. Tur viņš apsēdās,
+lai nogaidītu rītu un nu arī pārdomāja. ko iesākt darīt.</p>
+
+<p align="JUSTIFY">No rīta viņš ieraudzīja krastu. un sāka gaidīt, vai nebrauks
+kāds zvejnieks. Pēc kāda laiciņa viņš arī ieraudzīja zvejnieku un sāka tam māt
+ar mutes lakatiņu un arī kliegt. Zvejnieks viņa saucienus izdzirdēja un aizveda pie
+sevis, savā mazajā mājiņā, kuŗā zvejnieks viens pats dzīvoja un kuŗai visapkārt
+bija tikai smiltis. Tad zvejnieks sacīja uz bijušo kapteini, lai paliek pie viņa
+dzīvot un palīdzēt zvejot. Zivis viņi varēšot nonest uz pilsētu. Dabūto naudu abi
+biedri izdalīšot uz pusēm. Jauneklis bija ar to mierā un tā viņi dzīvoja ļoti
+saticīgi un bieži vien savas zivis aiznesa uz pilsētu. Kādreiz viņi tur dabūja
+zināt, ka ķēniņa meitai jau ir bijuši vairāki vīri, un kuŗš pie tās gulēja
+pirmo nakti, tas nomira. Zvejnieks deva jauneklim padomu pieteikties par precinieku.
+Jauneklis arī aizgāja un pieteicās pie ķēniņa. Ķēniņš bija ar mieru. jo domāja,
+ka arī šis jauneklis pirmā naktī nomirs. Kad jauneklis vēl reiz atnāca mājās, tad
+zvejnieks deva viņam padomu, lai pirmā naktī viņš neiet agrāk gulēt, kā pulkstens
+12, jo ap to laiku arī viņš būšot tur.</p>
+
+<p align="JUSTIFY">Kad kāzas bija nodzertas un pienāca vakars, tad princese sauc savu
+jauno vīru gulēt, bet tas teica: "Guli vien!" un gaidīja nepacietīgi savu
+draugu zvejnieku. Taisni pulkstens 12 kāds pieklauvēja pie durvim, un istabā ienāca
+zvējnieks ar gaŗu zobenu, kas vilkās pa grīdu. Viņš lika parādīt princeses gultu,
+tad</p>
+
+<p align="JUSTIFY">lika atklāt deķi, izvilka zobenu un sacīja: "Kā visu līdz
+šim mēs esam dalījuši uz pusēm, tā arī tagad izdalīsim šo princesi. Es viņu
+pārcirtīšu, un tad tu varēsi ņemt kuŗu pusi gribēsi."</p>
+
+<p align="JUSTIFY">Kad princese to dzirdēja, tad viņa ļoti izbijās un izvēma
+briesmīgu čūsku. Zvejnieks šo čūsku nokāva un sacīja uz jaunekli: "Tagad tu
+vari dzīvot laimīgs, jo es tevi izglābu, tāpat kā tu mani reiz izglābi, jo es esmu
+tas mironis, kas gulēja zārkā uz jumta un tu mani paglabāji."</p>
+
+<p align="JUSTIFY">Tai pašā brīdī zvejnieks pazuda, bet jauneklis ar princesi dzīvoja
+laimīgi.</p>
+
+
+</body></html>

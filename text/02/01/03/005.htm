@@ -1,0 +1,257 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Pūķa kavējs dažādos apstākļos.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>5. </b>A. 302. 300. Kreicbergs Dzirciemā. LP, VI, 115, 23.</p>
+
+<p align="JUSTIFY">Reiz malkas cirtējs mežā cērt malku un ierauga: cauna skrien. Tā
+tūlin ar visu cirvi pakaļ. Bet kur nu muļķis? Izskraidījās muļķis palikdams,
+tikpat nenoķēra un vēl apmaldījās - to dabūja. Maldījās, maldījās - sāka
+aptumst un nu, gribot negribot, bija jāuzlien kokā, tādā kuplā kokā, un jāpaliek
+par nakti: Āre, zemē nedrīkstējis gulēt - gandrīz kāds nokož.</p>
+
+<p align="JUSTIFY">Bet tas varēja būt tā īsi priekš gaismas - šis dzird: apakšā
+nejauki ķildojas. Kad tevi jupis! kas tad tos tur ēd? Paskatās: ače, lauva, kurts,
+kaķis, ērglis, skudre, gailis, zvirbulis un muša nodabūjuši kritušu briedi un viens
+par otru diktāki: "Es apdziedāšu viņu!" "Nē, es apdziedāšu
+viņu!"</p>
+
+<p align="JUSTIFY">Nu visi tādi radi briedim, ka tur jāpabrīnās. Muša cauru mūžu
+esot stāvējusi nelaiķim aiz auss, kurts šad un tad esot gājis skrieties, skudre ar
+ērgli esot dzīvojuši tuvu kaimiņos, kaķim atkal sieva ar briedeni bijusi laba paziņa
+un gailis, tas tikai brīnās un sauc pa pulku : "Lai radi, kur radi, bet man tā
+labākā balss !"</p>
+
+<p align="JUSTIFY">Malkas cirtējs egles galā klausās, klausās, kas tur labs izjuks. Te
+vai viens, vai otrs, kas tur ieraudzījis - sauks šo zemē : "Nāc, iztiesā mūs!
+Kas lai dzied un, kas lai nedzied?"</p>
+
+<p align="JUSTIFY">Malkas cirtējs nolien, apdomā tādu brīdi - uz vienu reizi: "Ko
+es jums tur varu teikt? Man pašam jādzied, citādi jau briedi nepaglabāsim."</p>
+
+<p align="JUSTIFY">"Tas ir pareizi! tas ir kā likts!" šie tūlin visi vienā
+mutē. Un par tik gudru spriedumu katrs vēl ņemsies šim labi samaksāt, viņi atdošot
+katrs no sava spēka. Tiklīdz viņam kas ievajagas, lai tikai pieminot vienu, vai otru -
+tūdaļ spēšot palikt vai nu par lauvu, vai par mušu, vai arī par kurtu jeb gaili.</p>
+
+<p align="JUSTIFY">Labi! Malkas cirtējs apdziedāja briedi, 1ca viss mežs noklimstēja,
+un tad, palikdams par lauvu, ātri vien izkūlās no meža. Bet meža malā satiek
+cūkganu, tas, nabadziņš, raud un raud. "Kas tev, puisīti?"</p>
+
+<p align="JUSTIFY">"Ja, ko viņš būšot iesākt, ko neiesākt? Velns vai drīzumā
+visas cūkas apēdīšot.</p>
+
+<p align="JUSTIFY">"Ače, Dieviņ! kā tad viņš tevi tā apcēlis?"</p>
+
+<p align="JUSTIFY">"Ja, tur es neesmu vainīgs, tur pats ķēniņš vainīgs. Viņš
+bija priekš kādām dienām apmaldījies te mežā, nezinājis nekā laukā izkļūt. Te
+- kur gadījies, kur ne - esot piestājies svešs jaunskungs un ātrāk nevedis no meža
+ārā, kamēr apsolījies katru dienu vienu cūku dot, un kad cūkas aptrūkšot, tad
+ķēniņa meitu, pats savu bērnu. Are, nu viņš apēdīs cūkas un tad vēl paliks par
+znotu. Bet ķēniņš jau gan tādu velnu negribot ne acu galā par znotu; esot solījies
+kuŗam katram meitu atdot par sievu, kas tikai negantnieku nokaušot."</p>
+
+<p align="JUSTIFY">"Tā, tā! tad jau skaidri būs jārauga man tas cūku ēdējs
+rokā dabūt; es jau atkal par ķēniņa znotu, jāsaka, ka radīts, tur nav ne
+bēdas."</p>
+
+<p align="JUSTIFY">Aiziet pie ķēniņa - izsaka; ķēniņš: ja, ja! lai tad ganot zēna.
+vietā tās cūkas.</p>
+
+<p align="JUSTIFY">Labi! Gana pirmo dienu, nāks pret vakaru, velns klāt, paņem vienu
+cūku un mežā iekšā. Tā mans malkas cirtējs ātri, ātri pārurrina citas cūkas
+mājā, paliek par kurtu un poš ar līkumu velnam pretim. Satiekas - velns:
+"Labvakar! kurtiņ - ta tad man smags nesamais!"</p>
+
+<p align="JUSTIFY">"Vai smags, vai nesmags, par to nav vaļas runāt; bet aiz
+septiņiem mežiem, astotajā, patlaban viens vagārs drib kārties un nevar pakārties,
+trūkst dūšas. Skrej labāk to kampt, ko tu te ar nieka cūkām nodauzies?"</p>
+
+<p align="JUSTIFY">"Ko, kurtiņ, vai patiesi? Vai, brālīt, tad man jāsteidz. Še
+paturi to cūku drusku, tūlin būšu atpakaļ. Un ja man labi izdosies, tu dabūsi pusi
+no cūkas."</p>
+
+<p align="JUSTIFY">Velns aizskrēja. Bet kurts palika par malkas cirtēju un pārveda savu
+cūku veselu mājā.</p>
+
+<p align="JUSTIFY">Otrā dienā pret vakaru velns itin saīdzis atskrien un pakampj atkal
+cūku. Bet malkas cirtējs paliek par ērgli, aizsteidzas ar līkumu šim pretim un
+brīnās: "Kā jūs, jaunskungs, šodien cūku gaļu ēdat?"</p>
+
+<p align="JUSTIFY">"Ko darīt, ko darīt, ērgļu papiņ? Dažreiz badā mēs pat
+pinekļus kodaļājam un krampjus rijam."</p>
+
+<p align="JUSTIFY">"Ej, muļķi, ej, otrā pasaulē tagadin viens bērns brēkāja,
+viena neģēle noslīcinājusi mazo. Skrej tad labāk to rīt."</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Ko? vai patiesi?"</p>
+</blockquote>
+
+<p align="JUSTIFY">Un tā velns ātri, ātri pārplēsa ozolu vidū pušu, iegrūda tur
+cūku kā spīlēs un prom uz otru pasauli aizelsies. Bet malkas cirtējs izņēma cūku
+no ozola un pārgāja smiedamies.</p>
+
+<p align="JUSTIFY">Trešā dienā malkas cirtējs gana, gana - velns nerādās un vakars
+jau laukā. Pārdzen cūkas kūtenē, viņš iedomā: "Kad tikai nebēdnis nenāk
+naktī? Man jāpaliek par gaili laktā un jāgaida."</p>
+
+<p align="JUSTIFY">Un patiesi, it kā viens teicis būtu. Pusnaktī velns, badā izmiris,
+klāt un grabināsies gar kūtenes durvim. Bet tā mans gailis laiž dziesmu vaļā un
+velns, ne iesaukties nedabūjis, prom.</p>
+
+<p align="JUSTIFY">Tomēr - vai tev tāds negantnieks gan skraidīs tukšā? Nekā. Kā
+skrējis gar ķēniņa pili, tā izrāvis ķēniņa meitu taisni no gultas, un nu bija
+vēl lielāka skāde.</p>
+
+<p align="JUSTIFY">"Ak tu izčibējis!" ķēniņš rītā spļaudās; bet malkas
+cirtējs mierina: "Nekas, nekas, papiņ, atļaujiet tikai man!"</p>
+
+<p align="JUSTIFY">Un tā malkas cirtējs aiziet kalnā - tur velns bija ieskrējis ar
+meitu - atron mazu, mazu caurumu, paliek par skudri, uzsēžas vienam smilšu graudiņam
+jāteniski virsū un brauc lejā kā bezdibenī. Nonāk apakšā - liels klajums. Neko
+darīt - paliek par mušu un laižas taisnu ceļu uz viņu malu. Aizlaižas, ierauga
+glāžu pili un zagto ķēniņa meitu logā raudam. Šis paliek par malkas cirtēju un
+dodas pazīstams; bet meita baiļojas: "Vai dieniņ, vai dieniņ! kur tu esi
+ienācis? Pārnāks mans kungs, tas tevi saplēsīs!"</p>
+
+<p align="JUSTIFY">Un patiesi - drīzi arī nāk pats velns. Bet malkas cirtējs paliek
+par lauvu un velnam virsū. Uja! kā viņi abi nu kāvās: ādas un gaļas gabali pa gaisu
+vien gāja; bet lauva apēda velnu kā nabagu.</p>
+
+<p align="JUSTIFY">Nu ķēniņa meita bija priecīga un malkas cirtējs, zināms, arī :
+tikai tās bažas vēl atlika, kā augšzemē uzkļūt? Domāja, domāja - te ķēniņa
+meitai iešausies prātā: viņa esot atradusi, pa velna grāmatām šķirstīdama, ka tai
+un tai kokā esot dimanta oliņa. Ja to uznestu augšzemē, tad visa šī glāžu pils
+paceltos kalnā.</p>
+
+<p align="JUSTIFY">Labi! 'Tā mans malkas cirtējs tūlin paliek par zvirbuli, uzlaižas
+kokā, izņem no ligzdas dimanta olu un nones zemē. Atkal labi - bet kā nu ar olu no
+bezdibeņa izkļūt?</p>
+
+<p align="JUSTIFY">"Pag!" meita atkal atminas, "te velnam ir durvju sargs
+un tas šinī pasaulē kaķus nevar ieredzēt: kuŗu pamana, to izsviež augšzemē; raugi
+tā!"</p>
+
+<p align="JUSTIFY">Labi. Malkas cirtējs paliek par kaķi, ieņem olu mutē un lien durvju
+sargam pa kājām. Durvju sargs nav labi ieraudzījis - tūlin: "Skic, maita! skic
+,maita!" un sagrābis aiz astes, nes pa lielām, gaŗām trepēm uz augšu. Nes, nes
+ilgu laiku - gadās vara vārti, lieli, lieli vārti, un tā, atslēdzis vārtus, iespeŗ
+vē1 kaķim ar kāju un izsviež laukā, taisni taī pašā kalnā, kur šis, labi
+aizvakar par skudri ielīdis. </p>
+
+<p align="JUSTIFY">Tas nu tas. Bet līdz kaķis palicis par malkas cirtēju un olu nolicis
+zemē - tā glāžu pils ar visu ķēniņa meitu ceļas augšā un iznāk kalna galā.</p>
+
+<p align="JUSTIFY">Nu malkas cirtējs apņem ķēniņa meitu un nodzīvo savā glāžu
+pilī laimīgas dienas.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

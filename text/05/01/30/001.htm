@@ -1,0 +1,179 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>30</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Velna vārds.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 500. Skolniece A. Ābele 1892. g. Smiltenes - Blomu pag. V.
+Maldoņa kr.</p>
+
+<p align="JUSTIFY">Vienai mātei bija meita, kas bija izdaudzināta, ka viņa no salmiem
+varot zeltu savērpt. Ķēniņš, to dzirdējis, lika viņu uz pili aicināt un
+izvaicāja, vai viņa to varot izdarīt. Nekā jauna nedomādama, viņa gribēja
+palielīties un sacīja, ka viņa varot gan, ja tik labi daudz salmu esot. Bet patiesībā
+viņa gan nekā par to nezināja. Ķēniņš nu ieveda viņu lielā kambarī, kas viss
+bija pilns salmu, un sacīja: "Ja tu visus tos salmus par zeltu savērptu, tad
+dabūtu manu dēlu par vīru."</p>
+
+<p align="JUSTIFY">Meitu kambarī ieslēdzis, ķēniņš aizgāja. Meita nu nezināja, ko
+iesākt, un tik raudāja, pie ratiņa atsēdusies. Otrā rītā uzlēca spoža saule un
+viņa piecēlusies ieraudzīja pie loga vienu vecīti, kas to laipni uzrunāja:
+"Neraudi neko! Es tev palīdzēšu, ja izdosies."</p>
+
+<p align="JUSTIFY">Aizslēgtās durvis uzreiz, gluži negaidot, atvērās, un vecītis
+ienāca iekšā. Tur viņš nu runāja tālāku: "Kad ķēniņa dēls tevi apprecēs
+un kad tev būs pirmais bērns, apsoli man to atdot, tad es tev palīdzēšu."</p>
+
+<p align="JUSTIFY">Neko nedomādama, meita gluži mierīgi atteica: "Labprāt
+atdošu."</p>
+
+<p align="JUSTIFY">Vecītis bija ar to mierā un ķērās pie darba. Pēc neilga laika
+visi salmi bija savērpti par zeltu un vecītis atkal aizgāja. Vecais ķēniņš bija par
+to ļoti priecīgs un drīz vien sarīkoja spožas kāzas savam dēlam ar zelta vērpēju.</p>
+
+<p align="JUSTIFY">Pēc viena gada jaunai ķēniņienei piedzima maza meitiņa, par ko
+viņa ļoti priecājās. Drīz vien ieradās arī tas pats vecītis un prasīja, lai
+izpildot savu solījumu. Jaunā ķēniņiene par to gauži satrūkās un lūdza, lai aujot
+vēl kādas dienas apdomāties. Vecītis bija ar mieru un deva viņai vēl astoņas dienas
+laika, piebilzdams: "Ja tu tanīs astoņās dienās vari uzminēt, kas man ir vārda,
+tad tev bērnu atstāšu; bet ja tu neuzminēsi, tad bērns būs mans."</p>
+
+<p align="JUSTIFY">Ķēniņiene nu lika uzrakstīt visus vārdus no visādām grāmatām,
+bet kad vecītis atnāca, tad izrādījās, ka neviens nebija īstais. Bet noteiktais
+laiks vēl nebija pagājis un vecītis atkal aizgāja.</p>
+
+<p align="JUSTIFY">Tad ķēniņiene lika uzmālēt tādas bildes, kāds vecītis
+izskatījās, un izsūtīja šīs bildes pa visām malām ar lūgumu izzināt, kā to
+vecīti sauc. Tādu bildi bija dabūjis arī viens anu puika un apskatīja to, savus lopus
+ganīdams. Skatīdamies viņš pamanīja, ka turpat netālu, pie ugunskura, sēd tāds
+vecītis un runā: "Esmu priecīgs, ka neviens nezina, ka mani sauc par
+Lukulukulociņu."</p>
+
+<p align="JUSTIFY">Ganu puika to tūlin paziņoja ķēniņienei, ko pašulaik bija
+noklausījies. Ķēniņiene oti priecājās un bagāti apdāvināja nabaga gana puiku.
+Drīz pēc tam ienāca arī vecītis pie ķēniņienes un sacīja: "Atdod man tagad
+savu bērnu, jo noteiktā diena jau ir klātu."</p>
+
+<p align="JUSTIFY">Ķēniņiene atbild: "Es jau vēl neesmu visu vārdu
+izteikusi." "Nu, kā tad mani sauc," vecītis prasa.</p>
+
+<p align="JUSTIFY">"Par Lukulukulociņu," ķēniņiene atbild. </p>
+
+<p align="JUSTIFY">To izdzirdis, vecītis kliedza: "Laikam citi velni no elles tev
+būs to izstāstījuši."</p>
+
+<p align="JUSTIFY">Tad vecītis saņēma sev pie abām kājām, pārplēsa sevi vidū
+pušu un pazuda. Bet ķēniņiene nu dzīvoja laimīgi ar savu meitiņu.</p>
+
+<p align="JUSTIFY">Piezīme. vai nu šis variants ir cēlies no J. Zvaigznītes tulkotām
+Grimmu pasaciņām (Ievads, 112. 1. p.). vai arī Zvaigznīte ir ņēmis šo
+Lukulukulociņa no kādas tautas pasakas, to tagad vairs nevar droši noteikt. Šis
+variants tomēr stipri vien atšķiŗas no pazīstamās Grimmu pasakas. P. Š.</p>
+
+
+</body></html>

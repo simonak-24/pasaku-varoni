@@ -1,0 +1,171 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Pūķa kavējs dažādos apstākļos.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">6. A.<b> </b>300. Starķis no Ausekļa atl. rakstiem Lielvārdē. LP,
+V,<b> </b>135.</p>
+
+<p align="JUSTIFY">Reiz koklētājs, pa ceļu iedams, saticis velnu. Velns vaicāja: Kur
+iesi?"</p>
+
+<p align="JUSTIFY">" Pats nezinu! Viņi mani padzina, esot stīvi pirksti."</p>
+
+<p align="JUSTIFY">"Vai, brāl! iesim reizē - mums vienāds liktenis. Mani arī
+padzina citi velni."</p>
+
+<p align="JUSTIFY">Gājuši, gājuši - satikuši lāci. Lācis vaicā: "Kur jūs
+divati iesit?"</p>
+
+<p align="JUSTIFY">"Paši vēl nezinām, - mūs padzina."</p>
+
+<p align="JUSTIFY">"Vai, brāļi! iesim reizē - mums vienāds liktenis. Mani arī
+padzina citi lāči."</p>
+
+<p align="JUSTIFY">Gājuši, gājuši - iedomājušies māju celt. Labi. Uzcēluši māju
+un darinājuši alu, pilnu mucu. Bet piepēži pamanījuši, ka alus mucā dikti zūd. Ko
+nu? Norunājuši mucu sargāt.</p>
+
+<p align="JUSTIFY">Lācis sargājis pirmais, notupdamies mucai blakus. Ja necik ilgi -
+redz bābu nākam ar lielu platcirvi rokā. Lācis nolauzis koku un metis bābai, bet par
+nelaimi, zari vien ķēruši. Bāba nopurinājusies un tūlin ar platcirvi lācim mugurā.
+Nejauki sakapājusi lāci, nabadziņš tikai ar lielām mokām paspējis istabā iebēgt.</p>
+
+<p align="JUSTIFY">Otrā naktī gājis velns mucu sargāt. Te bāba klāt. Velns gan metis
+akmeņus, ko nebūt acīs, bet bāba ar platcirvi dod, kā dod velnam. Nejauki
+sakapājusi; velns ar lielām mokām iebēdzis istabā. Trešā naktī gājis koklētājs
+mucu sargāt, nosēdies mucai blakus un koklējis, lai plīst. Bāba atnākusi, pielīdusi
+itin tuvi un klausījusies abām ausim; bet šis tikai koklējis. Piepēži bāba sākusi
+priecāties par skaņām un priekos platcirvis izšļucis no rokām. Koklētājs ātri
+paķēris platcirvi, sakapājis bābu, pabāzis apakš sliekšņa un licies gulēt. Bet no
+rīta celdamies, ieraudzījis: bābas asinis iztecējušas par upi.</p>
+
+<p align="JUSTIFY">Koklētājs bridis pa upi un aizbridis pie kādas mājas, kur ārpusē
+jauna meita gauži bēdājusies. Meita sacījusi: "Kam tu bridi? Te dzīvo liels
+slepkava. Bet ja tu spētu šo bumbu un šo zobinu cilāt, tad slepkavu nomāktu!"</p>
+
+<p align="JUSTIFY">Koklētājs cēlis, cēlis - nevarējis pacelt. "</p>
+
+<p align="JUSTIFY">Nekas!" meita mierinājusi, "te aiz mājas pakša būs
+stipruma zāles - iedzeŗ tās!"</p>
+
+<p align="JUSTIFY">Koklētājs iedzēris un nu varējis bumbu kā nieku pacelt; zobins
+viņam bijis tik viegls kā skals. Tūlin pacēlis bumbu un metis mājas durvīs - durvis
+iegāzušās. Nu ķēris zobinu, nonāvējis slepkavu un pārvedis meitu pie ve1na un
+1āča.</p>
+
+<p align="JUSTIFY">Otrā dienā dzēruši kāzas. Bet kāzās kok1ētājs izjokojis velnu
+ar lāci, paskatījies pa logu un iesaucies: "Draugi! bāba nāk! bāba nāk!"</p>
+
+<p align="JUSTIFY">Velns ar lāci domājuši: "Ak tu bāba tāda - nu nāk atkal mūs
+slānīt!" un tā aizbēguši. Koklētājs tagad dzīvojis ar jauno sievu<font size="4"> </font><font size="3">viens pats mājā.</font><font size="4"></font></p><font size="4">
+</font>
+
+
+</body></html>

@@ -1,0 +1,291 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dažādi spēka vīri.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">2. A. 650 C. 1061. J. Ozols Secē. Brīvzemnieka kr, LP, VI, 416 (112,
+25).</p>
+
+<p align="JUSTIFY">Vienam tēvam trīs dēli: divi gudri, trešais muļķis.</p>
+
+<p align="JUSTIFY">Tēvs vecāko dēlu sadomāja sūtīt pie mācītāja par kučieri; bet
+vecākais nejaudāja kučiera amatu godam izpildīt - mācītājs pēc nedēļas laika
+pārtrieca atpakaļ. Nu tēvs sūtīja otru dēlu; bet to tāpat pārtrieca atpakaļ.
+Beidzot aizsūtīja muļķīti. Muļķītis aiziet, mācītājs vaicā: "Vai varēsi
+par kučieri izkalpot?"</p>
+
+<p align="JUSTIFY">"Par kučieri? To īsti nezinu, neesmu bijis nekad vēl par
+kučieri; bet cūkas ganīt, to gan pie tēva mācījos."</p>
+
+<p align="JUSTIFY">"Nu labi! Gani manis dēļ tad arī cūkas. Bet gada galā tas tev
+būs par algu, ka vēlēšu tev trīs knipus manā pierē iesist." Labi, salīga.</p>
+
+<p align="JUSTIFY">Te pēc kāda laika mācītājam nomirst māte un nu bērēm jākaujot
+deviņi lieli, baŗoti vērši.</p>
+
+<p align="JUSTIFY">Sanāca visi muižas ļaudis lielos vēršus kaut, bet vērši
+izsvaidīja viņus kā sēnalas, par ko muļķītis gardi gardi pasmējās. Mācītājs
+vaicā: "Par ko tu, muļķīti, smējies?"</p>
+
+<p align="JUSTIFY">"Smējos par taviem kāvējiem!"</p>
+
+<p align="JUSTIFY">"Nu, ja tu esi tik gudrs citus apsmiet, tad ej, kauj pats!"</p>
+
+<p align="JUSTIFY">"Jā, jā!" muļķītis atteic, ieiet laidarā, paņem vienam
+vērsim aiz ragiem, uzsit knipi - tas gatavs, paņem otram, uzsit knipi - tas gatavs; un
+tā pa kārtai vien, kamēr visi deviņi apkauti.</p>
+
+<p align="JUSTIFY">Mācītājs, savu cūkganu tik stipru redzēdams, ļoti izbijās.</p>
+
+<p align="JUSTIFY">"Kur tad es palikšu, kad muļķītis gada galā man sitīs?"
+viņš domā.</p>
+
+<p align="JUSTIFY">Un neko vairāk - tūliņ otrā svētdienā ziņo baznīcā, vai kāds
+nezinot kādu bailīgu vietu, kur muļķīti varētu aizsūtīt, lai tas galu dabūtu?</p>
+
+<p align="JUSTIFY">Nu minstinās viens, otrs - nevar atcerēties. Beidzot viens
+iesauksies: viņš zināšot gan! Tur tai un tai meža malā esot auzas, kur katru nakti
+aplam liels lācis ēdot - lai sūtot uz turieni muļķīti.</p>
+
+<p align="JUSTIFY">Labi, tas mācītājam brīnum pa prātam, tūliņ pārpoš mājā,
+pasauc muļķīti un saka tā: "Vai dzirdi. Trīs gadi atpakaļ man pazuda govs un nu
+tā esot manīta tur meža malā pie auzu gubiņām. Ej, gādā rokā šo
+paklīdušo!"</p>
+
+<p align="JUSTIFY">"Jā, jā!" muļķītis atsaka un aiziet. Bet ceļā viņam
+iešaujas prātā: "Govs, kas trīs gadi pa mežu blandījusies, tā jau vairs nav
+govs - tas ir meža zvērs. Tur vajaga laba metamā - tādu ievaldīt. Pag, nokalšu labu
+nūju."</p>
+
+<p align="JUSTIFY">Un viņš nokala trīspadsmit birkavu smagu nūju, aizgāja meža
+malā, ielīda auzu gubiņā un noslēpās, ka galva vien mazliet palika ārā.</p>
+
+<p align="JUSTIFY">Ap pusnakti - kas ir - līdīs gan gaidāmais no meža ārā - liels
+lācis - un sāks auzas mizot (ēst). Šim jau sirds silst vien. Un līdz nu ēzdams
+pienāca pie tās gubiņas, tā muļķītis zibins ātrumā satveŗ ar vienu roku lāci
+aiz ausim un ar otru roku tikai dod ka dod, birkavu nūju netaupīdams. Lācis redz: joki
+nebūs - sāks mierīgāks palikt. Bet muļķītim viena maksa, vai spārdies, vai
+lūdzies, ātrāki miera nemeta, kamēr ievadīja mācītāja kūtī.</p>
+
+<p align="JUSTIFY">Tomēr mācītājs, muļķīti tik stipru redzēdams, nu vēl vairāk
+izbijās. Kas tikai notikšot, ja tāds stiprinieks gada galā viņam trīs knipjus
+sitīšot? Jārauga - lai kas - tāds labāk nobendēt.</p>
+
+<p align="JUSTIFY">Bet uz kurieni nu sūtīt? Domā šā, domā tā; beidzot sagudro:
+"Vai dzirdi, muļķi? Trīs gadi atpakaļ mans sulainis aizmaldījās lielā lielā
+purvā. Tur tecēja viena upīte; tai upītē viņš peldējoties palika. Ej, uzmeklē man
+šo sulaini!"</p>
+
+<p align="JUSTIFY">"Jā, jā!" muļķītis atsaka un aiziet uz lielo purvu, kur
+atrada upīti un upītē laivu. Šinī laivā muļķītis noliekas pagulēt.</p>
+
+<p align="JUSTIFY">Guļ, guļ - te ap pusnakti dzird: viens nāk, ka zeme vien dimd.
+Paceļ galvu, ierauga: velns ar trim galvām.</p>
+
+<p align="JUSTIFY">"Ko nu?" viņš domā un tai ātrumā cita nekā neattop,
+noķeŗ velnu aiz bārdas un sāk slostīt ar savu dzelzs birkavu nūju. Velns gan būtu
+vēlējies vaļā tikt; bet muļķītis neatlaiž vis, ved uz mācītāja muižu.</p>
+
+<p align="JUSTIFY">Pārnāk mācītāja muižā, visi vēl guļ, neviens nelaiž šo
+iekšā un velns spīrējas kā traks, kaut tikai vaļā kļūtu. Neko darīt sāks ar
+radītāja pirkstu bungot pa durvim, lai celtos augšā. Bet kad tevi nelaime! Pabungoja
+laikam par stipru - durvis izgāzās un mācītājs nu izskrien vaimanas saukdams:
+"Laid savu velnu pie tā paša lāča kūtī un ļauj man gulēt!"</p>
+
+<p align="JUSTIFY">Labi, muļķītis ielaiž velnu pie lāča un aiziet pats arī gulēt.</p>
+
+<p align="JUSTIFY">Bet rītā mācītājs gudroja un gudroja, kur nu muļķīti sūtīt!</p>
+
+<p align="JUSTIFY">Sagudroja: sūtīs uz vienu muižu pie ķēniņa, lai iejūdz lāci
+ratos un lai brauc ar velnu abi divi.</p>
+
+<p align="JUSTIFY">Labi, muļķītis iejūdz lāci ratos, nosēdina velnu uz bukas par
+kučieri un aizbrauc kā katrs kungs lepni jo lepni. Nobrauc pie ķēniņa, ķēniņš
+saka: "Ej tur pie lielā ezera un izgulies vienu nakti tanī jaukā pilī, kas ezera
+malā!"</p>
+
+<p align="JUSTIFY">Bet tur tai pilī mita velni un gar ezera malu bija daudz daudz
+akmeņu. Īstenībā šie gan nebija nekādi akmeņi, bet apburti cilvēki. Priekš gadiem
+ap to vietu bijis tirgus un tā atkūlies velns, visus tirdzniekus pārvērtis par
+akmeņiem un pats apmeties jaukajā pilī, ķēniņam - tā sakot - pašā deguna
+priekšā. Ķēniņš toreiz gan izmocījies visvisādi nekaunīgo velnu aizdabūt, bet
+velti. Un muļķītim tādā velna pilī nu bija jāpārguļ. Labi.</p>
+
+<p align="JUSTIFY">Bet ko viņš dara? Līdz ko aizbrauc pilī - liek kučierim lāci
+atjūgt un nokalt sieciņu dzelzs riekstu. Vakarā šos riekstus viņš iebeŗ kreisajā
+kabatā un labus riekstus labajā kabatā; bet kučierim nesaka nekā, ko nodomājis
+darīt, lai tikai liekoties gulēt, viņam vēl nenākot miegs, pēc viņa lai
+neskatoties.</p>
+
+<p align="JUSTIFY">Velns ar lāci aiziet gulēt - šis paliek nomodā gaidīdams, kas
+īsti te izjuks. Gaida, gaida - līdz pusnaktij ne čiku, ne grabu.</p>
+
+<p align="JUSTIFY">Bet nebija ne pusnakts pāri - sāks tikai pils skanēt, dimdēt - kas
+vis ne? Tāds troksnis, lai Dievs pasargā. Muļķītis jau sagrābj vienā rokā birkavu
+nūju un gaida, lai tikai nāk. Ne cik ilgi, atveŗas durvis un nāk arī pats velns ar
+deviņām galvām: ko viņš te gaidot?</p>
+
+<p align="JUSTIFY">"Tevi gaidu!" muļķītis atsaka, "āre, kur atnesu tev
+riekstus pakosties."</p>
+
+<p align="JUSTIFY">Lai dodot šurp, kādi viņi esot! Muļķītis iedod vienu sauju dzelzs
+riekstu velnam, pats atkal kož īstus riekstus no labās kabatas. Velns kož dzelzs
+riekstus, ka ugunis šķīst, bet nevar sakost - muļķītis smejas.</p>
+
+<p align="JUSTIFY">"Kā tu vari smieties?" velns beidzot sapiktojas un klups
+muļķītim saros [matos]; bet muļķītis sagrābj velnu aiz bārdas, nolieca pie zemes
+un nocirta ar nūju trīs galvas vienā cirtienā<b>. </b>Velns ar sešām galvām tomēr
+paguva manīgi izvīties un pie laika ezerā ieskriet, ko muļķītis brīnum nožēloja.
+Bet, kas izmucis, izmucis - ūdenī pakaļ skriet nevar.</p>
+
+<p align="JUSTIFY">Tas nu tai naktī.</p>
+
+<p align="JUSTIFY">Otrā vakarā muļķītis liek savam kučierim nokalt dzelzs cilvēku,
+trijdeviņi birkavi smgu un iestāda to kaktā.</p>
+
+<p align="JUSTIFY">Pienāk pusnakts, sāk atkal pils dimdēt. Un nu ienāk velns ar
+divpadsmit galvām: ko viņš te gaidot, un kādēļ esot norāvis viņa brālim
+izgājušā naktī tās trīs galvas? Par to lai muļķītis tūliņ nākot spēkoties.</p>
+
+<p align="JUSTIFY">Bet muļķītis pasmejas: "Ko es ar tevi, tādu nejēgu,
+spēkošos? Vēl jau mans vectēvs tur kaktā nemož, kad tu te brēkā, kur nu es vēl
+spēka vīrs."</p>
+
+<p align="JUSTIFY">"Kas tas par vectēvu!" velns dusmās iesaucas un tā dzelzs
+cilvēkam mugurā, skaidri gabalos plosīt. Bet, kur tu dzelzi tik ātri saplosīsi? Nagus
+noplēsa, zobus atkoda - vēl vectēvs nemož. Beidzot, kā ņems vectēvu - sviedīs caur
+griestiem; bet muļķītis no sāniem pagrūda velnu un tā negantnieks ar visu vectēvu
+gar zemi. Vectēvs virsū, šis apakšā un nu muļķītis slotē, ka slotē ar birkavu
+nūju, kamēr galvas jau pusē pagalam.</p>
+
+<p align="JUSTIFY">Velns mana: labi vairs nav - sāks lūgties, lai atstājot dzīvu.</p>
+
+<p align="JUSTIFY">"Jā, jā!" muļķītis atsaka, "bet tad tu man atstāsi
+šo pili un atbursi tur ezera malā akmeņus par cilvēkiem!"</p>
+
+<p align="JUSTIFY">Labprāt, labprāt, lai tikai nesitot vairāk.</p>
+
+<p align="JUSTIFY">Un velns nu atdeva muļķītim vienu podu pilnu ar atslēgām, tās
+esot tās pils atslēgas. Bet muļķītis atsaka: "Te nav visas!"</p>
+
+<p align="JUSTIFY">Tad velns atnesa otru podu, arī pilnu ar atslēgām. Bet muļķītis
+atsaka: "Vēl nav visas!"</p>
+
+<p align="JUSTIFY">Tad velns vēl atnesa trešo podu, nu esot visas atslēgas!</p>
+
+<p align="JUSTIFY">Labi, muļķītis paņēma atslēgas un lika tirdziniekus atburt.</p>
+
+<p align="JUSTIFY">To padarījis, velns aizlasījās; bet muļķītis ar tirdziniekiem, <b>ar
+</b>pils atslēgām, aizgāja pie ķēniņa sacīdams: "Še tava pils un tavi ļaudis
+atpakaļ, es tos velnus izdzinu."</p>
+
+<p align="JUSTIFY">Ķēniņš priekā atdeva muļķītim savu meitu par sievu un iecēla
+savā vietā par valdnieku.</p>
+</font>
+
+
+</body></html>

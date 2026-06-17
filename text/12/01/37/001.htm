@@ -1,0 +1,217 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>37</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="center">Trīs noslīcināti popi.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>l. </b>A. 1601. Juris Ozoliņš Lubānas Vecainiekos, M. Celmiņa kr.</p>
+
+<p align="JUSTIFY">Miestā galdniekam bija ļoti skaista sieva. Tā bija arī ļoti
+runīga un viesmīlīga, tā tad nav brīnums, ka pie viņas, vīram mājā neesot,
+ieradās arvien pa miesta popam. Tā viņus pamieloja ar dažādiem cepešiem un
+dzērieniem, jeb, tā sakot, ar visu, ko vien popa sirds kārojās; bet divus popus reizē
+viņa nekad necienīja uzņemt, nedz tā pamielot. Galdnieks bija šādu sievas
+rīkošanos, kā mēdz teikt, saodis. Viņš jau kādas dienas runā par darīšanām, ka
+šim tur un tur jābraucot, un tas jāizdara. Vienā pēcpusdienā viņš jūdz zirgu un
+taisās ceļā. Kad sieva tam jautā, vai drīz varēšot izbraukāt tos ceļus, kad
+būšot mājā tikt, viņš atbild, ka tikai pēc trijām dienām, ja laimīgi ejot,
+tikšot mājā. Un tā vīrs aizbrauc, sievu vienu pašu mājā pamezdams.</p>
+
+<p align="JUSTIFY">Te arī vakarā viens pops, kā būtu odin saodis, ka skaistās sievas
+vīra nav mājā, tūliņ ierodas pie viņas. Durvis tapa aizslēgtas un tā iesāka popu
+pamielot gan ar mīlīgiem vārdiem, gan ar ēdieniem un dzērieniem, kā jau teikts, ar -
+ko vien popa sirds kārojās. Te par mazu brītiņu tiek pie durvim klauvēts. Galdnieka
+sieva nevēlās, lai nu būtu vai cits apmeklētājs vai viņas vīrs, ka tas popu še
+atrastu, un kad citas izejas no mājas nav, nedz citas paslēptuves ātrumā nevarēja
+atrast, tad tā noraidīja popu, lai tas kāpjot uz krāsns, un no turienes uz dēļiem,
+kas uz ārdim pret versmi salikti, un lai tur paslēpjoties.</p>
+
+<p align="JUSTIFY">Kad tas bija uzrāpies un apgulies, tad tā laida klauvētāju iekšā.
+Tas bija otrs pops un tāds pats vien apmeklētājs, kā pirmējais. Viesmīlīgi sieviņa
+uzņēma arī šo, tāpat laipni pamielodama. Nebija ilgi jāgaida, kad klauvēja atkal
+pie durvim. Atkal jaunā sieviņa grib paslēpt viesi un, citas vietas paslēpšanai
+nevarēdama atrast, uzsūta arī šo turpat uz dēļiem. Ne ko teikt, lai gan priekšā
+jau ir gulētājs, bet jāgulstas vien blakus, jo jaunā sieviņa jau laiž klauvētāju
+pa durvim iekšā.</p>
+
+<p align="JUSTIFY">Šis arī bija pops un gluži tāds pats viesis, kā pirmējie; bet
+šis nedabūja ne piecu vārdu parunāt, kad jau klauvēja pie durvim pats galdnieks un
+sauca, lai laižot iekšā. Ko nu darīt? Jāsūta arī trešais viesis turpat uz
+dēļiem, jo vīrs aiz durvim jau pukojās, ka tik ilgi jāgaida.</p>
+
+<p align="JUSTIFY">Vīrs, ienācis istabā, žēlojās, ka esot ļoti nosalis, jo bija
+auksts rudens laiks. Viņš nojauš, kur sieva tos putniņus noglabājusi, kas še
+sagājuši, jo viņš nebija nekur tālu aizbraucis un vakarā bija braucis miestā
+atpakaļ, iegājis šeņķī, no kuŗa savas mājas durvis varēja pārskatīt, un tur
+nolūkojies, līdz kamēr popi sanāk pie sievas. Tagad viņš sāk sievu bārt, ka neesot
+istabas kurinājusi, krāsns esot salta, neesot nekur i apsildīties nosalušam cilvēkam.
+Viņš ņem pats skaidas un dēļu galus, piebāž krāsni un liek uguni klāt, bet
+neattaisa ne krišku ne šīberi, lai dūmi varētu ārā iziet; viņam labāk patīk, ka
+tie iet iekšā, jo uz sievas paskubināšanu, ka vajagot tos attaisīt, viņš tai
+uzbrēc: "Duraks! vai nezini, kur dūmi, tur siltums, un man nosalušam siltuma tā
+kā tā vajag!"</p>
+
+<p align="JUSTIFY">Un turklāt draudē sievu pavisam sasist, ja vēl murdēšot. Šī
+sabijusies, arī paliek mierā, un galdnieks, dagriezis muguru pret krāsni, sildās un
+priecājas par patīkamo siltumu. Bet uz dēļiem gulošie popi vis nepriecājās par
+tādu siltumu; tie sāk klusām sarunāties, ka labāki krist sodā, ne vis še acim
+redzot noslāpt, tādēļ viens mēģina kāpt zemē, bet bija tā apreibis, ka nespēja
+vairs godīgi nokāpt, bet kritin nokrita galdnieka priekšā un bija gandrīz beigts;
+gluži stīvs jau nu gan bija, jo galdnieks to paņēmis, nobrīnējies, kas tas par putnu
+esot un no kurienes še radies, aizslēja aiz krāsns.</p>
+
+<p align="JUSTIFY">Tūliņ krita arī otrs zemē, ko galdnieks atkal aizkrāsnī
+noglabāja. Nokrita arī trešais; to galdnieks pieslēja kaktā, netālu no durvim, un
+pats aizgāja uz vienu zaldātu, no kuŗa viņš labi zināja, ka tas esot gatavs par
+čarku vai otru nosist. Tam viņš stāstīja, ka šā mājā esot viens pops, ko šis
+nekā nevarot laukā dabūt; lai nākot, viņu pasitot, un iemetot tuvējā ezeriņā,
+šis došot pusstopu šņabja. Zaldāts priecīgs, ka tik viegli varēs pie šņabja tikt,
+gāja tūliņ galdniekam pakaļ. Tiklīdz ko galdnieks parādīja kaktā pieslieto popu,
+tad zaldāts, bez kādas apskatīšanās un jautāšanas, meta tam ar nūju par galvu, ka
+ar reiz apgāzās, ņēma naiki par pleciem un stiepa uz ezeriņu. Nomodā esošam
+naktssargam necik tālu gaŗām ejot, sargs jautā: "E! ko tu tur nes?"</p>
+
+<p align="JUSTIFY">Zaldāts atbild īsi, ka popu nesot. Sargs domā, ka pops slims un
+nesams uz slimnīcu, arī vairāk neko neprasa. Pie ezera pienesis, zaldāts iemet popu
+ezerā un dodas mierīgi atpakaļ uz galdnieka māju, atprasīt savu peļņu. Bet
+galdnieks, kamēr šis pirmo popu uz ezeru stiepa, bija otru no aizkrāsnes izvilcis un
+tai pašā kaktā pieslējis. Kad zaldāts prasa peļņu, tad galdnieks rāda uz popu un
+saka: "Ko tad tu esi nesis, kad pops jau ir tev papriekš atpakaļ, un redzi, jau
+atkal kaktā stāv!"</p>
+
+<p align="JUSTIFY">Zaldāts domā, ka patiesi tas pats pops no ezera izlīdis un atgājis
+atpakaļ, ķer mudīgi nūju, met par galvu un stiepj atkal uz ezeru. Gar sargu ejot, tas
+atkal prasa: "Ko tu tur nes?"</p>
+
+<p align="JUSTIFY">Atkal bija atbilde, ka popu nesot. Nu sargs domā, ka nu neesot labais,
+ka popus uz to pusi vien nes vienu pēc otra, iet tādēļ popu nesējam pakaļ, nolūkot,
+kur šis tos liek. Redzēdams ka nesējs popu iemet ezerā un aiziet laikam pēc cita
+popa, sargs steidzās uz pašu vecāko popu, stāsta tam, ka nu velns nesot visus popus uz
+ezeru, nezin vai drīz tevi arī nenesīšot. Tā sabaidīts, popu vecākais ņem bībeli,
+iet uz ezermalu un sāk skaitīt pātarus, ezeru svētīdams, lai vairs velns nenes popus
+iekšā.</p>
+
+<p align="JUSTIFY">Kamēr zaldāts atgāja no otra popa nešanas, galdnieks bija atkal
+ievilcis trešo tai pašā kaktā un rāda atkal zaldātam, ka esot tas pats no ezera
+atbēdzis. Nu noskaitās zaldāts jo vairāk un iemetis ar nūju jo dūšīgāk par galvu,
+stiepa atkal šo projām uz ezeru. Nu vairs sargs viņu nezadināja, jo nebij vēl
+nonācis savā vietā.</p>
+
+<p align="JUSTIFY">Zaldāts popu pie ezera pienesis, meta to atkal iekšā, un do māja:
+"Pag, pag! noskatīšos, pa kurieni viņš lien aukā no ezera." Un tā viņš
+pieliecies skatās pār ūdens virsu, jo bija diezgan</p>
+
+<p>tumšs. Tūliņ viņš arī ieraudzīja. otrā malā vecāko popu, pātarus skaitām,
+un izsaucās: "Ak tu prakvasts, jau tik drīz izlīdis!" </p>
+
+<p align="JUSTIFY">Viņš aiztecēja ātri uz otru malu, grāba vecāko popu aiz krāgas
+un, spēcīgs tēviņš būdams, iemeta viņu ezerā, kur tas arī noslīka. Nu tikai
+viņš dabūja no galdnieka nosolīto pusstopu šņabja. Visi domāja, ka popus pats velns
+sarāvis ezerā par viņu grēkiem, un nevienam nenāca ne prātā, ka zaldāts to
+izdarījis; bet galdnieka sievu vairs neapmeklēja no šī laika sākot neviens pats pops.</p>
+
+
+</body></html>

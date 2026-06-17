@@ -1,0 +1,166 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="center"><font size="3"></font><font size="5"><strong>Sēzam, atdaries !</strong></font></p><font size="5">
+
+</font><p><font size="5"></font><font size="3">6. A. 676. H. Skujiņa, Andrs Ziemelis, Aumeisteros.</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam tēvam bijuši divi dēli. Tēvs mirstot vecākam dēlam
+novēlējis māju, jaunākam pirts istabiņu. Vecākais dēls bijis bagāts, jaunākais
+nabags. Jaunākais dēls gājis pa mežam, plēsis lūkus un sējis slotas. Tas viņš
+pārdevis un, ar badu kaudamies, vilcis savu un savas dzimtas dzīvību.</p>
+
+<p align="JUSTIFY">Reiz jaunākais brālis griezis mežā slotu žagarus. Uzreiz
+atskanējuši zirgu pakavu klaudzieni un ratu rībēšana. Pa meža ceļu braukusi lepna
+karīte, pilna ar melniem kungiem, un apstājusies pie maza kalniņa. Kungi izkāpuši no
+karītes. Viens piegājis pie kalniņa un trīs reiz teicis: ,;Dziedzerkalniņ',
+atveries!"</p>
+
+<p align="JUSTIFY">Tad kalniņš tūliņ atvēries un kungi ar visu karīti iebraukuši
+kalniņā. Nu atkal tas pats kungs trīs reiz teicis: "Dziedzerkalniņ',
+aizvēries!" Un kalniņš aizvēries.</p>
+
+<p align="JUSTIFY">Jaunākais brālis visu noklausījies, kā dara tie kungi, kas bijuši
+velni. Vinš pagaidījis, kamēr velni aizbrauc, un piegājis pie kalniņa. Kad jaunākais
+brālis trīs reiz noteicis tapāt kā velni, tad kalniņš atvēries. Jaunākais brālis
+iegājis grezna apakšzemes pilī. Viņš licis kalniņam aizvērties un sācis apskatīt
+lepno apakšzemes pili. Pilī bijusi liela zāle. Zālē bijuši gari galdi un uz tiem
+visādi dārgi ēdieni un dzērieni. Jaunākais brālis priekšu labi paēdis un tad
+gājis tālāku. Netālu no zāles bijis mantas kambaris. Tur bijis tik daudz zelta un
+sidraba, ka jaunākam brālim apžilbušas acis. Viņš piebēris ar zeltu pilnas ķešas.
+Tad teicis, lai kalniņš atveras un izgājis no tā lauka. Tad tas licis kalniņam
+aizvērties un laimīgi gājis uz māju.</p>
+
+<p align="JUSTIFY">Mājā jaunākais brālis gribējis naudu izmērīt. Naudas bija tik
+daudz, ka nav varējis saskaitīt. Viņam nav bijis mēra. Jaunāka brāļa sieva
+aizgājusi pie vecāka brāļa, saimnieka, pēc sieka. Saimnieks iedevis tai sieku, bet
+priekš laiku sieka dibenu izsmērējis ar svētkiem. Saimnieks gribējis zināt, ko
+nabaga brālis ar sieku mērīs.</p>
+
+<p align="JUSTIFY">Jaunākais brālis ar sieku izmērījis atnesto naudu un tad sieku
+aiznesis atkal atpakaļ. Bet pie sieka dibena bijis pielipis viens zelta dukāts un to
+jaunākais brālis nepamanījis. Dukātu uzgājis vecākais brālis un sapratis, ka
+jaunākais brālis ar sieku zelta naudu mērījis. Viņš sācis novērot jaunāka brāļa
+gaitas. Drīz vien arī vecākais brālis zinājis, kur jaunākais naudu ņem.</p>
+
+<p align="JUSTIFY">Tūliņ otrā rītā vecākais brālis aizgājis uz Dziedzerkalniņu.
+Viņš sācis naudu grābt līdzpaņemtā maisā. Tai laikā no meža atskanējuši pakavu
+klaudzieni. Velni braukuši uz apakšzemes pili, bet vecākais brālis nepaspējis no
+kalniņa iziet. Velni sanākuši pilī un apsēdušies ap galdiem, vecākais brālis
+palīdis apakš krēsla. Bet velni laikam saoduši dzīva cilvēka smaku un sākuši
+ostīties.</p>
+
+<p>"Te ir nelaba smaka!" velni viens pēc otra klieguši. </p>
+
+<p>Beidzot velni sākuši meklēt un arī atraduši saimnieku apakš krēsla paslēpušos.
+Velni to nomocījuši un izsvieduši no kalniņa. Otrā dienā saimnieku atraduši pie
+kalniņa beigtu.</p>
+
+<p>P i e z ī m e. Šī pasaka stāv tuvu iepriekšējam variantam. P. Š.</p>
+</font>
+
+
+</body></html>

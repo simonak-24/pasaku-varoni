@@ -1,0 +1,223 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ansītis un Grietiņa.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">8. A, 327 A. 1653 B. J. Simenovs Dolē, Brīvzemnieka kr. 57, VII, I,
+10068. AŠ, III, 7m.</p>
+
+<p align="JUSTIFY">Reiz bija tēvs, tam bija trīs dēli: divi gudri, trešais muļķis.
+Gudros dēlus raidīja tēvs maizi papelnīt; bet muļķis arī grib iet līdz. Neko
+darīt, laida arī muļķi. Iet, iet visi trīs brāļi aiziet līdz vienai ēkai ar
+dzelzs vārtiem. Pieklauvē, vārti atveŗas, tāda vecīte šos ielaiž iekšā.
+Ielaidusi, sāks vaicāt, ko šie te vēloties?</p>
+
+<p align="JUSTIFY">Brāļi atbild: "Darba!"</p>
+
+<p align="JUSTIFY">"Labi, tad paliekat pie manis, ēdināšu jūs ar pienu un riekstu
+kodoliem, došu naudas, cik vien jaudāsit nest."</p>
+
+<p align="JUSTIFY">Brāļi palika. Tad vecene visus trīs ieridēja tādā kūtī un nu
+baroja, cik vien pretim ņēma. Pēc kāda laika vecenei likās, ka diezgan šie baroti.
+Viņa aiziet uz kūti un saka: "Izbāžat pa šķirbu viens no jums mazo
+pirkstiņu!"</p>
+
+<p align="JUSTIFY">Gudrie brāļi baidījās to darīt, bet muļķītis izbāza skalganu
+pa šķirbu. Tumsā vecene nenoskārta, ko tur tai izbāza, viņa paņēma nazīti,
+nogrieza skalganam galu un aptaustīja, sacīdama: "Ne. vēl nav trekni, jābaro
+vēl!"</p>
+
+<p align="JUSTIFY">Pēc kāda laika vecene atkal kūtī, lai izbāžot mazo pirkstiņu.
+Muļķis saka gudriem brāļiem: "Bāžat nu jūs šoreiz!"</p>
+
+<p align="JUSTIFY">Bet gudrie baidījās to darīt. Tad muļķis atkal izbāza skalganu
+pirkstiņa vietā, ātrumā notraipīdams tam galiņu mazliet ar siekalām. Nogrieza
+vecene skalganam galu, aptaustīja: jau daudz maz esot gan tauku, bet diezgan vēl neesot,
+jāpabaŗojot vēl.</p>
+
+<p align="JUSTIFY">Pēc kāda laika vecene atkal kūtī: "Nu, bāžat kāds
+pirkstiņu laukā!"</p>
+
+<p align="JUSTIFY">Vajadzēja atkal muļķītim bāzt. Izbāza skalganu, bet nu
+notraipīja tam galu viscaur ar siekalām. Vecene nogriež skalganu, aptausta: "Nu
+pašu laiku. labi!" Lai viens no viņiem lienot ārā, būšot to vannā nomazgāt.
+Neko darīt, līdīs muļķis. Iesēdies vannā; nomazgājās un, gāja atpakaļ uz kūti.</p>
+
+<p align="JUSTIFY">Nu vecene sauca otru. Bet gudrie brāļi ne viens, ne otrs
+nedrīkstēja vannā iet. Ko nu? Bija jāiet muļķim pa otram lāgam. Vecene nemanīja
+nemaz, ka tas pats atnācis, jo visi trīs brīnum bija vienādi, kā jau pa laikam
+brāļi mēdz būt. Tā muļķis nomazgājās otrreiz un vēl trešreiz abu brāļu
+vietā.</p>
+
+<p align="JUSTIFY">Bet trešreiz vecene vairs nelaida muļķi atpakaļ uz kūti un
+sacīja: "Gulies garniski lizai virsū, tai, kas tur krāsns priekšā!" Krāsns
+jau trīs dienas no vietas bij kurināta. Tomēr muļķis</p>
+
+<p align="JUSTIFY">nemāk nu lizai uzgulties, arvien šķērsām iznāk. Gan māca, gan
+stāsta vecene, kā gulties, bet muļķis nejēdz un nejēdz. Neko darīt, gulsies vecene
+pati lizai virsū, lai ierādītu. Tiklīdz uzgulās, muļķis iešāva veceni pašu
+krāsnī un aiztaisīja durvis cieti jo cieti. Gan spārdījās, gan ārdījās vecene pa
+krāsni, vienus sānus pat izspēra bet briesmīgais karstums tomēr pievārēja, izcepa
+šī.</p>
+
+<p align="JUSTIFY">Ko nu brāļi vairs gaidīs? Spr ūk projām, saprotams. Izmuka pa
+dzelzs vārtiem, muļķis saka: "Ņemsim vārtus līdz!"</p>
+
+<p align="JUSTIFY">Gudrie atbild: "Labi, ja bez vārtiem spējam izmukt, kur nu vēl
+ar dzelzs vārtiem."</p>
+
+<p align="JUSTIFY">Bet muļķis tomēr ņēma un ņēma vārtus līdzi. Iet, iet aiziet
+līdz vienam mežam, uzbrūk nakts, jāliekas gulēt. Bet zemē gulēt brāļiem nelikās
+droši, salīda kokos. Arī muļķis uzlīda kokā,</p>
+
+<p align="JUSTIFY">paņemdams līdz ir savus vārtus. Gan brāļi nevēlēja, bet šis
+ņem un ņem.</p>
+
+<p align="JUSTIFY">Pa tām starpām bija pārnākuši vecenes dēli, velni, priecādamies,
+kā māte izcepusi gardu kumosu. Izrāvuši cepeti no krāsns, :sāks to rīt. Jau apēda
+gandrīz visu, te apmana pirkstiņā gredzenu un nu atjēdzas, ka paši savu māti
+aprijuši. Aizskrien uz kūti skatīties, kūtī neviena paša.</p>
+
+<p align="JUSTIFY">Nu dzinās brāļiem pakaļ panāca pie koka, kur brāļi gulēja.
+Tūlin iekurināja uguni un nometās apakš tā koka, gatavodami sev vakariņas. Muļķis
+kokā saka brāļiem: "Man briesmīgi mīst gribas, es mīzīšu tiem virsū."</p>
+
+<p align="JUSTIFY">Gudriem brāļiem palika bail, tie neļauj. Bet muļķis nemaz
+neklausās miezn virsū velniem. Velni par to brīnum priecājās, sacīdami: "Dievs
+par mums apžēlojies, siltu lietutiņu mums sūta."</p>
+
+<p align="JUSTIFY">Pēc tam muļķim iegribas dirst nu atkal velni nopriecājās:
+"Dievs mums dod mīkstus ķiļķenus." Bet kamēr muļķis tur rīkojas, grozas,
+locas izkrīt no rokām vārti un brīkšķēdami, brākšķēdami, līdzīgi pērkonam,
+nogāzās zemē, visus zarus kokam vēl noplēzdami. Velni bez g pārbijās, domādami
+debess sagāzusies; jo vārti tiem bija taisni virsū uzkrituši. Visi aizspruka, kur
+katrs zinādams.</p>
+
+<p align="JUSTIFY">Brāļi nolīda no koka un muļķis priekā sāks stabulēt. Te viens
+velns, drošāks par tiem citiem, nāks atpakaļ stabuli klausīties, aplam šim tīk
+klausīties. Beidzot ies muļķim klāt, lai iemācot viņam arī stabulēt. Muļķis
+saka: "Izstiep mēli!"</p>
+
+<p align="JUSTIFY">Velns izstiepa.</p>
+
+<p align="JUSTIFY">"Kas tev tur par melnumu mēlei, pagaidi, nokasīšu ar
+naželi."</p>
+
+<p align="JUSTIFY">Velns auj arī kasīt. Bet tiklīdz muļķis velna mēlei piekļuva,
+šņaukt nogrieza mēli pavisam nost. Velns aizskrēja citiem biedriem pakaļ un brēc,
+urinādams: "Ļer, er, er!"</p>
+
+<p align="JUSTIFY">Citi velni domā: "Tas jau nu ir tas, kas debesis sagāzis, skrien
+mums pakaļ."</p>
+
+<p align="JUSTIFY">Un ko tikai māk, projām, atstādami zirgus, ratus visu, visu. Brāļi
+nu sakrāva visas dārgās velnu lietas ratos un pārbrauca bagāti mājās.</p>
+
+
+</body></html>

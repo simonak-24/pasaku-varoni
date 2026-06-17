@@ -1,0 +1,175 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Mežonīgais vīrs.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">8. A. 502. 314. P. Š. Raunā.</p>
+
+<p align="JUSTIFY">Vienc ķēnīc gribš pats ar savu roku vienu dārzu piestādīt, un ta
+ir licis zaldātim, lei vaktē. Un tie zaldāti ir vienādi sēdēdami apsnaudušies, un
+koki bīši pa to laiku izrauti un izsviesti. Tā viņč licis vienu vecu seržantu, ko
+saukuši par Misīnbārdi, vaktēt un nosolīš, ka tūlin nokāršot, ja nenovaktēšot.
+Bet tam ar' tāpat koki bīši nozagti, un nu viņč ielikts cietumā.</p>
+
+<p align="JUSTIFY">Tas ķēniņa dēls ir ar sidraba bumbu bumbājies un tā bumba
+ieskrēsi pie seržanta cietumā. Tas dēls lūdzis, lei Misīnbārdis šim izduo(d) to
+bumbu; tas ar' apsolīš izdot, bet prasīš, lei šo izlaižot no cietuma. Rei viņč iet
+pie tēva, ka tēvs ir gultā aizmidzis, un lei izvelk tās atslēgas. Ka šo izlaidīs,
+tad atslēgas aiznesīs un akar atdos. Dēls arī visu tā izdarīš.</p>
+
+<p align="JUSTIFY">Ķēnīc nu sataisīš karātavas, kā to Misīnbārdu kārt, un
+sasaucis visus svešus ķēnīnus kopā. Iet nu pēc Misīnbārža, bet šā vai(rs)
+cietumā nav. Ķēnīc palicis briesmīgi dusmīgs un apsolīš tam tās karātavas, kas
+šo laukā izlaidis . Dēls, muļķis būdams atzinies un sacīš: "Es, tēt,<b> </b>izlaižu."</p>
+
+<p align="JUSTIFY">Kēnīc tūlin licis savu dēlu nokārt, abet citi ķēnīni to
+aizlieguši. Ta ķēnīc pavēlēš dēlam, lei šis iet, kur patīk, bet apakaļis
+vai(rs) lei nenāk. Dēls aiziedams saticis to seržantu un ta nu gāši abi divi. Tā
+viņi nonākuši cita ķēnīna valstībā. Viņim gribējies ēst un viņi lūguši
+svešajam ķēnīnam darbu un ēšanas, tas viņus arī pieņēmis. Ķēnīna dēls
+iegāš par staļļa puisi, seržants dagāš pie dārznieka, un tā nu viņi aba divi
+strādāši.</p>
+
+<p align="JUSTIFY">Šim ķēnīnam bīšas trīs meitas, kas bīšas padarīšas lielu
+grēku. Tās nu bīšas jāved par vieņu upi un tur cita pēc vienas jānomaitā. Bendes
+veduši vecāko meitu pa visu priekšu kā nu nobeigt, un ķēnīc licis zvanīt ar visim
+pulkstinirn. Bet mūsu ķēnīna dēls kāpis vienai baltai ķēvei mugurā, jāš no
+pakaļas, ņēmis nocirtis visim bendēm galvas un atnācis ar ķēnīna meitu akar
+mājā.</p>
+
+<p align="JUSTIFY">Rītā akar bijusi jāved vidējā meita. Ķēnīna dēls to
+drošināš un teicis, kā lei nemaz nebīstās. Šis šo izpestīs tāpat kā vecāko
+māsu. Pašam kēnīnam arī bīš liec (liels) prieks, ka gadījies tāds cilvēks, kas
+var izpestīt viņa meitas. Ka nu tā atnākusi mājā, ta viņa to lieliski
+apšķiņķosi.</p>
+
+<p align="JUSTIFY">Bet nu trešā dienā bīsi jāved pati jaunākā meita. Ķēnīc jau
+zināš, ka staļļa puisis izpestīš abas vecākās meitas, un lūdzis šim, lei nu
+gādā arī par to jaunāko. Šis šim pusvalstības būs atdot. Kā nu viņč ir gāš,
+tā atnācis akar ar visu mājā: uzcēlis uz baltās ķēves, licis jāšis atjāt un
+davedis pašam ķēnīnam pie durim klāt.</p>
+
+<p align="JUSTIFY">Ķēnīc vedis sta(ļa puisi tūlī(t) iekšā. Viņš bīš ar'
+maktīgi smuks puika. Licis tūlī(t) pārģērbt ķēnīna drēbēs šo staļļa puiku.
+Tad ķēnīc prasīš tai meitai, vai šī negribot precēt viņu. Meita atbildēsi:
+"Es jau, apakaļis jādama, gribēju uz viņu par to bilst, vai viņč negribētu
+mani precēt."</p>
+
+<p align="JUSTIFY">T ad ķēnīc prasīš šim pašam, vai šis gribot šā meitu precēt.
+Tā viņi nu apprecēšies un ķēnīc atdevis viņim pusi no savas vaistības.</p>
+
+<p align="JUSTIFY">Tas Nlisīnbārdis jau pie pirmās meitas izlicies par glābēju, bet
+ticis pieķerts pie blēdības un akar iemests cietumā.</p>
+<b>
+
+</b><p align="JUSTIFY"><b></b>Piezīme. Ši pasaka ir jau uzrakstīta ap 1890. gadu un ir
+uzglabājusies K. Mü hlenbacha atstatos rokrakstos. P. S.</p>
+
+
+</body></html>

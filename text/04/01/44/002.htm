@@ -1,0 +1,194 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Zaltis par precinieku.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 425 A. K. Žiema Ozolniekos pie Jelgavas. LP, III, 20. </p>
+
+<p align="JUSTIFY">Kādā karstā vasaras dienā, pašā dienasvidū, trīs meitas
+gājušas uz jūŗu mazgāties. Mazgājoties<b> </b>viena tikusi: "Nu, redzēs gan,
+kuŗa no mums pirmā apprecēsies!"</p>
+
+<p align="JUSTIFY">Otra atbildējusi: "Pirmā apprecēsies tā, kuŗa
+visskaistākā!" Trešā neteikusi nekā. Pēc kāda brīža trešā meita izkāpusi</p>
+
+<p align="JUSTIFY">pirmā no ūdens un taisījusies ģērbties. Bet līdz ko ņēmusi
+balto linu kreklu, tā sarāvusies : uz krekla gulējis zaltis. Meita lūgusi zalti. lai
+ejot nost; bet zaltis atbildējis: "Apsolies man par līgavu, tad iešu!"</p>
+
+<p align="JUSTIFY">"Kālab ne?" meita smējusies, "Atstāj tik manu
+kreklu!" Bet zaltis vēl negājis: lai dodot viņam savu gredzenu. Meita novilkusi
+gredzenu un iedevusi to zaltim. Acumirklī zaltis pazudis ar visu gredzenu jūŗas
+dziļumos. Mājā ejot, trešā meita raudājusi, bet tās divas mierinājušas: "Ko
+zaltis zin par līgavu?"</p>
+
+<p align="JUSTIFY">Pēc trim nedēļām zaltis nācis savai līgavai pakaļ. Viņš
+iznācis no jūŗas ar lielu godu, pats sēdējis zelta karītē, zelta kronis galvā.
+Iejūgs laistījies tīrā dimantā, gaŗa rinda to pavadījuši koklēdami, spēlēdami.</p>
+
+<p align="JUSTIFY">Līgava, to redzēdama, prasījusi saviem vecākiem: "Tēt,
+māmiņ, ko nu darīšu? Redz, kur zaltis nāk man pakaļ."</p>
+
+<p align="JUSTIFY">Vecāki pārbijušies, nezinājuši, ko atteikt, ko iesākt. Bet kāda
+vecenīte tos pamācījusi: "Ko zaltis zin par līgavu? Iedodiet tam kādu zosi, gan
+paliks mierā un aizies atpakaļ."</p>
+
+<p align="JUSTIFY">Vecāki iedevuši meitas vietā zosi. Zaltis priecīgs paņēmis zosi
+un braucis atpakaļ; bet ceļa malā zīle dziedājusi: "Zaltis, vīriņš, zostiņu
+ved!" Zaltis apmanījis, ka piekrāpts.</p>
+
+<p align="JUSTIFY">Pēc trim nedēļām zaltis otrreiz braucis līgavai pakaļ. Šoreiz
+tas bijis sapīcis un itin dusmīgi uzprasījis, lai atdodot līgavu. Bet tā pati
+vecenīte pamācījusi: "Ko zaltis zin par līgavu? Iedodiet tam kādu kazu, gan
+paliks mierā un aizies atpakaļ."</p>
+
+<p align="JUSTIFY">Vecāki iedevuši meitas vietā kazu. Zaltis priecīgs paņēmis kazu
+un braucis atpakaļ; bet ceļa malā zīle dziedājusi: "Zaltis, vīriņš, kaziņu
+ved, kaziņu ved!" Zaltis apmanījis, ka piekrāpts</p>
+
+<p align="JUSTIFY">Pēc trim nedēļām zaltis trešo reiz braucis līgavai pakaļ.
+Šoreiz tas bijis ļoti dusmīgs, viņš nikni uzsaucis, lai nu vairs nejokojoties,
+citādi klāšoties ļoti slikti."</p>
+
+<p align="JUSTIFY">Neko darīt, bijusi jādod īstā. Zaltis priecīgs paņēmis savu
+līgavu un braucis atpakaļ. Ceļa malā zīle dziedājusi: "Zaltis, vīriņš,
+līgavu ved! līgavu ved!"</p>
+
+<p align="JUSTIFY">Viss gaŗais trācis nozudis ar līgavu jūŗas ūdeņos.</p>
+
+<p align="JUSTIFY">Pirmā gadā līgavas māmuliņa gājusi uz jūŗu prasīt:
+"Meitiņ mīļā, saki jele, teici jele, kā tev klājas?"</p>
+
+<p align="JUSTIFY">Iznākusi varde no jūŗas sacīdama: "Tavai meitai klājas labi;
+viņa dzīvo skaistā Pilī un auklē savu mazo dēliņu!"</p>
+
+<p align="JUSTIFY">Māte priecājusies par tādu vēsti un gājusi uz māju.</p>
+
+<p align="JUSTIFY">Otrā gadā līgavas māmuliņa gājusi uz jūŗu prasīt:
+"Meitiņ mīļā, saki jele, teici jele, kā tev klājas?"</p>
+
+<p align="JUSTIFY">Iznācis vēzis no jūŗas sacīdams: "Tavai meitai klājas labi;
+viņa dzīvo skaistā pilī un auklē savu mazo meitiņu."</p>
+
+<p align="JUSTIFY">Trešā gadā līgavas māmuliņa gājusi uz jūŗu prasīt:
+"Meitiņ mīļā, saki jele, teici jele, kā tev klājas?"</p>
+
+<p align="JUSTIFY">To dzirdēdama, zalša līgava apkampusi savu zalti un lūgusi, lai
+laižot viņu ar saviem diviem bērniņiem pie mātes paciemoties. Zaltis gan negribējis,
+negribējis, bet beigās atlaidis ar uz trim nedēļām.</p>
+
+<p align="JUSTIFY">Zalša līgava nu paņēmusi savus divus bērniņus klēpī un
+izbraukusi pie māmuliņas. Divas vardes vilkušas ratus un līdaka bijusi par kučieri.
+Māmuliņa sagaidījusi meitu abām rokām un priecājusies par viņas abiem bērniņiem.</p>
+
+<p align="JUSTIFY">Trīs nedēļas zalša līgava paciemojusies, un tad gājusi atpakaļ
+uz jūŗu.</p>
+
+
+</body></html>

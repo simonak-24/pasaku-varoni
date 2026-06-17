@@ -1,0 +1,151 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font face="RimTimes" size="5">
+
+<p align="CENTER"><strong>Par akmeni palikušais cilvēks.</strong></p>
+</font><font face="RimTimes">
+
+<p align="JUSTIFY">&nbsp;</p>
+
+</font><p align="JUSTIFY"><font face="RimTimes"></font>1. A. 472. 760. J. Bankins "Šis un tas" I, 1872, 49.</p>
+
+<p align="JUSTIFY">Divi vīri, no baznīcas nākot, gājuši runādamies par kapsētu.
+Pirmais sacījis uz otru: "Ak, kas te par pulkiem aužu būs lielajā
+augšāmcelšanās dienā!"</p>
+
+<p align="JUSTIFY">Otrs neticīgais saka, ka tas nemaz neesot tiesa un nebūt nebūšot
+tā notikt. Pirmais tam nu stāsta un rāda, ka tā stāvot rakstīts bībelē, un tā
+esot mūsu ticība un cerība; bet otrs jo nikns atbild: "Lai tad es esmu nolādēts
+un par akminu palieku, ja tas būs tiesa."</p>
+
+<p align="JUSTIFY">Tikko šis tādus zaimošanas vārdus bija izsacījis no mutes. tas
+tūlin pazudās un no tā vairs nav ko redzēt. Pirmais runātājs aiziet pie mācītāja
+un izstāsta, kas noticis. Mācītājs to noraksta baznīcgrāmatā un tā šī lieta
+paliek.</p>
+
+<p align="JUSTIFY">Trīs simti gadu vēlāki, kapus no jauna rokot, kapsētā uziet akminu
+ar galvu, rokām un kājām, pilnīgu cilvēka tēlu. Šo tēlu aiznes no kapsētas uz
+mācītāja muižu, un tas to liek nolikt savā mazgājamā kambarī vienā kaktā, kur
+arī viņa ķēķenei gulta stāvēja. Tā ikvakarus, gulēt iedama, notura savu vakara
+lūgšanu un aizmet krustu priekšā.</p>
+
+<p align="JUSTIFY">Vienu vakaru tā redz, ka tēls kaktā tā kā pakustas un pasmejas.
+Kēķene ne par kādu naudu tur neiet gulētu, stāstīdama mācītājam, ka tēls kaktā
+pakustējies un pasmējies.</p>
+
+<p align="JUSTIFY">Mācītājs saaicina citus baznīckungus un tie nu sāk lūgt Dievu un
+svētīt. Un redzi! akmiņa tēls top dzīvs un sāk kustēt. Tas nu šiem izstāsta, ka
+priekš trīs simti gadiem pats nolādējies un tādēļ par akminu gulējis zemē. Kad
+šie tam prasīja, kādēļ viņš smējies, kad ķēķene vienā kaktā krustījās, tad
+viņš atbildēja: "Kad ķēķene vienā kaktā krustu meta priekšā, tad visi
+ļauni gari muka prom un devās uz citiem kaktiem; bet starp tiem viens bija klibs ar savu
+kāju, tas arvien lēca citiem no pakaļas, un es par to smējos."</p>
+
+<p align="JUSTIFY">Mācītāji to atkal no svētīja, un tēls sabruka un sabira par
+pīšļiem un putekļiem kaktā. Pēc tam šos trūdus aiznesa uz kapsētu un noglabāja,
+lai tie nu dus Dieva mierā.</p>
+
+
+</body></html>

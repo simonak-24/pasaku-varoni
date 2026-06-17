@@ -1,0 +1,201 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>17</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Burvju sacīkste.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. K. Žiema, Ozolniekos, pie Jelgavas. LP, III, 3.</p>
+
+<p align="JUSTIFY">Kādam puisim bij izdevies burvības mākslu noskatīties un
+izmācīties, bet savu mākslu diezin kā arī prazdams, tas tomēr citiem nekad ļaunu
+nedarīja.</p>
+
+<p align="JUSTIFY">Reiz tā pagasta kungam ievajaga uz savu otru, attālu muižu aiztikt.
+Kungs paņem minēto puisi par kučieri un aizbrauc. Pusceļā tiem pienāk vakars. Bet
+kas par to? Laiks gaišs, ceļš labs braukšot cauru nakti. Tā nu brauc līdz kādam
+ciematam. Te uz reizi - kur gadījies, kur ne - saceļas tāda vētra, tādi puteņi, ka
+nekur patikt. Neko darīt - jāgriežas iekšā pie kāda saimnieka un jāguļ par nakti.
+Ieiet iekšā - ja - saimnieks gan atvēl; bet ja kāda klizma notiekot, tad lai nesakot
+viņa vainu.</p>
+
+<p align="JUSTIFY">"Nu brīnumi!" kungs iesaucās, "kādēļ tad klizmai
+notikt?" "Jā," visi mājinieki nu, asaras slaucīdami, sāk izskaidrot,
+"rītu mūsu mājā puisim ar meitu kāzas. Un kāzu diena mums bēdīgāka par bēru
+dienu."</p>
+
+<p align="JUSTIFY">"Nu kādēļ tā?" kunga puisis iesaucas.</p>
+
+<p align="JUSTIFY">"Ja, redzi, puisīt, šinī ciemā dzīvo trīs burvji. Šie
+burvji katrā kāzu dienā nomaitā vai nu brūti, vai brūtgānu, vai citu kādu
+cilvēku. Atturēties viņiem pretim nav iespējams. Saki nu pats, kā te lai
+nebēdājas?"</p>
+
+<p align="JUSTIFY">Nu tu brīnumi!" Puisis iesaucās. "Esiet jūs kāzinieki
+itin "</p>
+
+<p align="JUSTIFY">mierīgi; pagādājiet tik man trīs vecus zirgus, krabiņus; es
+burvjiem parādīšu, ka viņi nemūžam vairs nebars."</p>
+
+<p align="JUSTIFY">Labi. No rīta kāzinieki taisās braukt pie laulībām. Puisis paņem
+krabiņus aiz pavadām un ved kāzinieku rindai pa priekšu. Līdz ko labi pa vārtiem
+ārā - satiek trīs večus. Kāzinieki sabīstas, tie pazīst večus par burvjiem. Bet
+puisis uzsit krabiņiem ar plaukstu pa krustu un tad saka uz večiem: "Ēdiet nabagi,
+grauziet, sātani, šos krabiņus, kamēr mēs atpakaļ brauksim!"</p>
+
+<p align="JUSTIFY">Acumirklī krabiņi no puiša sitiena izdziest un burvjiem gribot
+negribot jāgrauž maitas gaļa, ko zobi nes.</p>
+
+<p align="JUSTIFY">Atpakaļ braucot, krabiņi pa pusei jau nograuzti. Puisis saka:
+"Tagad es jūs no graušanas atlaižu!"</p>
+
+<p align="JUSTIFY">Burvji tūliņ uzceļas stāvus, bet lūdzas, lai dodot nodzerties,
+esot nejauki izslāpuši. Kāzinieki baidās dot; bet puisis pamāj, lai dodot droši;
+viņi būšot papriekšu dzert; un ja viņi ar dzērienu būšot ko spokojušies, tad lai
+tik paskatoties, kas tad notikšot.</p>
+
+<p align="JUSTIFY">Labi saimnieks ielaiž alu un pasniedz burvjiem; bet burvji saka:
+"Tā ne, tev saimniekam jādzer papriekšu!"</p>
+
+<p align="JUSTIFY">Nē, nē!" Puisis iesaucas, "šinī reizē es dzeršu
+papriekšu!" "</p>
+
+<p align="JUSTIFY">Puisis paņem kausu un dzeŗ. Bet tai pašā acu mirklī tam bļākt!
+asinis pa muti ārā. To redzot, puisis knaši, knaši piesit trīs reizes ar dūri pa
+krūtim un tad saka: "Saimniek, še, saņem kausu; būs tūlīt labi, man viņi nekā
+nepadarīs!"</p>
+
+<p align="JUSTIFY">Līdz ko asinis apstājas, puisis atkal paņem kausu, pagriežas pret
+burvjiem un sniedz tiem kausu, sacīdams: "Tagad būs jums dzert; ja ne, tad
+paliksiet uz vietas!" Neko darīt - burvjiem jādzer. Un līdz ko labi nodzērušies,
+te joki lielu lielie kājās. Katram burvim smeils rags gadījies pierē un nu nabadziņi
+ņemas badīties. Izbadās krāsni, domā nokusīs - nekā; izbadās sienas, domā
+nokusīs - nekā; beidzot ņemsies savā starpā. Tur bija gan briesmas. Tikmēr
+badījās, kamēr paši sevi viens otru nobadījās.</p>
+
+<p align="JUSTIFY">"Tā, nu esat no briesmoņiem atpestīti!" puisis iesaucas.
+"Mēs ar kungu nu varam aizbraukt!"</p>
+
+<p align="JUSTIFY">Kāzinieki gan grib nezin ko puisim par labumu atmaksāt; bet puisis
+tik atbild: "Maksas dēļ neesmu to darījis!"</p>
+
+<p align="JUSTIFY">Uz ceļa kungs prasa puisim: "Saki, kur tu tādu gudrību
+mācījies?"</p>
+
+<p align="JUSTIFY">""Mācīties kungs, var visu ko, tik nevajaga nevienam auna
+darīt! puisis atbild.</p>
+
+<p align="JUSTIFY">Tomēr kungs domā, pie sevis: "Kas taču tādam var uzticēties.
+Varu kādu reiz viņu itin nevilšus apkaitināt un ja tas tad ar mani tā izturās kā ar
+burvjiem, ko tad lai iesāku? Ē! bagāts diezgan esmu; likšu labāk otras muižas laukos
+viņam māju uztaisīt, atdošu, lai dzīvo, tad esmu drošs, ka tas mani neaiztiks."</p>
+
+<p align="JUSTIFY">Tā arī notika. Kungs iedāvināja puisim māju un padarīja caur to
+burvju pārmācītāju uz visu mūžu laimīgu.</p>
+
+
+</body></html>

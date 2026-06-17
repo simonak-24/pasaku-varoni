@@ -1,0 +1,199 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Burvis un viņa māceklis.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">4. A. 325. J. Dīcmanis, Lieģos. "Pasaku vācelīte" Nr. 11.
+LP, VII, II, 22, 3, 1.</p>
+
+<p align="JUSTIFY">Reiz gāja nabags vīriņš pa ceļu. Viņa dēls, gadu astoņpadsmit
+vai deviņpadsmit vecs, gāja viņam līdzi. Viņi iedami satika kādu kungu. Kungs
+apstājās un vecīti uzrunāja: "Mīļo vecīti, dod man savu dēlu par puisi!`</p>
+
+<p align="JUSTIFY">"Tad lai viņš arī iet, darba viņam nav un ēst mums arī nekā
+nav," vecītis itin priecīgs atbildēja, cerēdams, ka viens palicis, rasi daudz maz
+dabūs atspirgties.</p>
+
+<p align="JUSTIFY">Dēls no tēva atvadījās un aizgāja svešajam kungam līdz:. Kungs
+viņam nelika nekādus grūtus darbus strādāt: viņam tikai vajadzēja ikdienas sava
+kunga grāmatas pārkravāt un noputint, lai nesapelētu un nesapūtu. Bija kungam arī
+pulka grāmatu, daždažādu, gan laika grāmatu, gan mākslas grāmatu, gan arī
+burvības grāmatu. Puisim visvairāk iepatikās burvības grāmatas. Katru dienu
+grāmatas kravādams, viņš vairāk reizas lasīja cauri burvības pamācības. Drīzi
+vien viņš jau tiktālu bija iemācījies, ka prata no galvas dažas burvju un velna
+mākslas. Viņš pat mācēja dažādi pārvērsties, par lāci, vilku. balodi. Tad viņš
+atstāja no sava kunga un pārgāja mājās pie tēva. Mājās viņš atrada tēvu lielā
+nabadzībā. Te viņam ienāca labs padoms galvā, kā palīdzēt savam nabaga tēvam.
+Viņš pataisījās par labi nobaŗotu, treknu govi un lika tēvam viņu vest uz tirgu
+pārdot, bet tikai ne ar visiem apaušiem. Tēvs noveda savu trekno govi uz tirgu.
+Saradies daudz pircēju un liels pulks cilvēku, apstāja veco, jo govs rādījās būt
+diezgan krietna, vērtīga. Vecais sāka ar pircējiem līgt un pircēji solīja
+uzsolīdami. Pēdīgi viņš to pārdeva par 100 rubļiem. Pircējs, pārvedis govi
+mājās, ielika to stallī pie citām govim. Naktī, kad visi gulēja, jaunā govs
+nomaucās un pārskrēja pie vecā vīriņa, sava tēva. Tā vecītis bija dabūjis simtu
+rubļu, kas viņam kā zagšus ienākuši rokā.</p>
+
+<p align="JUSTIFY">Pēc kādām dienām dēls domāja: "Kas tad simts rubļu ir? Tas
+drīzi beigsies, tad būsim atkal nabagi, kā bijuši."</p>
+
+<p align="JUSTIFY">Viņam ienāca atkal labs padoms galvā, viņš pataisījās par
+skaistu, treknu, ļoti staltu zirgu` lika tēvam novest uz tirgu un pārdot.</p>
+
+<p align="JUSTIFY">"Bet no Dieva puses nepārdod mani ar visiem iemauktiem!"
+dēls tēvam pieteica.</p>
+
+<p align="JUSTIFY">Tēvs noveda savu stalto zirgu uz tirgu. Tur atkal sanāca pie vecā
+daudz, daudz pircēju. Vecā kumeliņš bija daudz košāks, staltāks, nekā visi citi
+zirgi. Pircēji solīja lielu maksu. Tur arī ieradās kāds kungs, kas sacīja vecītim:
+"Lai jūsu zirgs maksā, ko maksādams ; tikai pārdodiet man viņu ar visiem
+iemauktiem."</p>
+
+<p align="JUSTIFY">Šis pircējs bija dēla citreizējais kungs, pats velns, pie kuŗa
+dēls kalpodams bija izmācījies burvības mākslas. Kungs nemaz vairs no vecīša
+neatstāja un visādā ziņā gribēja nopirkt zirgu ar visiem iemauktiem. Pēdīgi viņam
+laimējās vecīti pierunāt, viņš nopirka zirgu ar visiem iemauktiem un pārveda savās
+mājās.</p>
+
+<p align="JUSTIFY">Še kungs viņu piesēja pils pagalmā pie žoga, ļoti priecīgs, ka
+bija dabūjis nopirkt zirgu ar visiem iemauktiem. Viņš, iekšā iegājis, pasacīja
+saviem sulaiņiem, ka tirgū esot skaistu zirgu nopircis, bet šodien pat gribot likt
+viņu nokaut. Kāda kalpone, šādu kunga runu dzirdējusi, piegāja, pa pagalmu pēc
+ūdens iedama, pie jaunā zirga, glaudīja to un teica: "Ak tu mīļo zirdziņ! Ko
+gan tu esi tā ļauna nodarījis, ka tevi kungs šodien pat grib likt nokaut?"</p>
+
+<p align="JUSTIFY">Kad zirgs dzirdēja meitu tā runājam, viņš lūdza viņam iemauktus
+nomaukt. Meitai bija zirga žēl. Viņa tūlin nomauca iemauktus. Tikko nomauca, te zirgs
+ar joni pa vārtiem ārā un projām.</p>
+
+<p align="JUSTIFY">Kungs skrēja pakaļ, cik vien spēja. Zirgs pataisījās par zaķi.
+Kungs pārvērtās par suni. Nu tik abi ņēmās skriet, viens mūk, otrs dzenas, bet suns
+nevar zaķa panākt, zaķis paliek par balodi un suns par vanagu. Nu tik abi atkal skrej,
+ko tik māk. Balodis ieskrēja kādas muižas kukņā un lūdza nama meitu: "Ja kāds
+ienāk un prasa, vai te kāds nav ieskrējis, atbildi tam, ka neviena neesi
+redzējusi."</p>
+
+<p align="JUSTIFY">Balodis palika par greznu gredzenu un teica uz nama meitu: "Uzmauc
+mani savā pirkstā, bet nepārdod gredzenu! Kad tev prasa, vai tu pārdod gredzenu, tad
+nosvied viņu zemē zem kājām un samin!"</p>
+
+<p align="JUSTIFY">Tai pašā acumirklī ienāca kāds vīrs kukņā un prasīja:
+"Vai te kas neieskrēja?"</p>
+
+<p align="JUSTIFY">"Ne, nekā neesmu redzējusi!" nama meita itin droši
+atteica. Kungs, ieraudzījis gredzenu meitai pirkstā, tūlin prasīja: "Mīļā
+jaunkundzīte! pārdodiet man savu gredzenu, es jums labi samaksāšu."</p>
+
+<p align="JUSTIFY">"Es viņa nepārdodu! nama meita atteica un tūlin nosvieda
+gredzenu zemē un uzmina ar kāju. Gredzens palika par mieža graudu un vīrs par gaili.
+Gailis mudīgi vien tecēja, gribēdams miežu graudu uzknābt, bet meita noķēra gaili
+un nocirta tam kaklu. Miežu grauds palika par cilvēku. Viņš meitai daudzreiz
+pateicās, tad aizgāja uz mājām pie tēva.</p>
+
+
+</body></html>

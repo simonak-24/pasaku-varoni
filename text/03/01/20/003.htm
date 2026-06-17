@@ -1,0 +1,173 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ansītis un Grietiņa.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 327 A. Konstantins Dāvids Apē, D. Ozoliņa "Raganas".
+Etn. III, 1893. 121. 1. p. LP, VlI, I, 1001. 1. p. AŠ, III, 7b.</p>
+
+<p align="JUSTIFY">Kāds gana puika ganījis govis pa meža malu nu tur viņam citas govis
+nozudušas. Viņš iet mežā un meklē, bet nevar dabūt. Tas domā, ka būs jau no meža
+laukā izgājušas, bet uz lopiem ejot, mana, ka ir apmaldījies, un nevar vairs no meža
+laukā tikt. Pa mežu staigādams, ierauga sukura mājiņu. Pie tās pieiedams, sāk to
+krimst. Te tūlin iznāk trīs raganas un viņu ved iekšā. Tās viņu labi pabaŗo, dod
+ēst, cik sirds nes, un vīnu dzert, cik gribas. Kad puika paēdis, tad tas lūdz, lai
+šam ceļu parādot uz māju. Viņas gan parāda, bet nelaiž vis viņu projām. Raganas
+viņu ieliek kādā aizgaldā, tā ka šis nekur nevar tikt, tikai mazu caurumiņu pirksta
+resnumā atstādamas, pa kuŗu lai drusku gaisma iespīdētu, un mazas durvtiņas, pa
+kuŗām tam ēdienu pasniedza. Tur raganas viņu labi baŗoja cepetim.</p>
+
+<p align="JUSTIFY">Kad tas nedēļas trīs bija ēdināts, tad raganas sacīja, lai
+izbāžot pirkstu pa mazo caurumiņu, lai varot redzēt, vai jau tiešām brangs. Puika,
+atradis mazu kauliņu, to izbāza pa caurumiņu sava pirksta vietā. Raganas, kauliņu
+aptaustījušas, saka: "Vēl kulains un neģeld cept!"</p>
+
+<p align="JUSTIFY">Raganas baŗo to vēl mēnesi, bet pēc tā puika atkal izbāž to
+pašu kauliņu. Puika raganām vēl par kaulainu, un viņas apņemas to vēl vienu mēnesi
+baŗot ar vēl jo labākiem ēdieniem.</p>
+
+<p align="JUSTIFY">Kad mēnesis galā, tad raganas liek, lai parādot tagad pirkstu.
+Šoreiz puika rāda savu pirkstu. Raganas saka: "Nu ir labs!" un veda to no
+aizgaldas laukā, vienai to tām viņš bija jācep. Tad pieved puiku pie krāsns un liek,
+lai gulstas pannā. Bet puika atbild, ka šis nemākot, lai šam parādot, kā esot
+jāgulstas. Bet tikko ragana uzgulusies, tad puika to tūlin iegrūda krāsnī, aizlika
+durvis priekšā, lai tur izceptu, un pats aizbēga.</p>
+
+<p align="JUSTIFY">Šī bija pati saimniece, citas raganas bija laukā izgājušas. Kad
+vakarā divas citas raganas pārnāca mājā, tad tās tūlin gāja pie krāsns un vilka
+pannu ar domāto puikas cepeti laukā, nebēdādamas par saimnieci, kur tā aizgājusi.
+Pie cepeša gredzenu ieraudzīdamas un to apskatījušas, pazina par savas saimnieces
+gredzenu un tūlin nomanīja, kas noticis. Viņas tūlin devās puikam paka un to arī
+drīzi panāca.</p>
+
+<p align="JUSTIFY">Raganas viņu veda atpakaļ un puiku gribēja tūlin izvārīt, bet
+šis droši atbildēja, ka šā vis viņas nevarot izvārīt. Viņas prasa: " Nu, kā
+tad tevi var izvārīt?"</p>
+
+<p align="JUSTIFY">Puika atbild: "Ietiniet mani desmit palagos un trīsdesmitpiecos
+kažokos un liekat katlā vēl vāku virsū!" tad tikai šo mīkstu izvārīšot.
+Raganas tā dara un pašas aiziet projām.</p>
+
+<p align="JUSTIFY">Puika, zinādams, ka šās projām aizgājušas, izlien no katla</p>
+
+<p align="JUSTIFY">laukā, atstādams drēbes katlā, lai tās vārās. Dabūjis pāra
+vīžu, tas apaun kājas, bet tā, ka papēdis ir priekšā un galva (purns) pakaļā. Tā
+saāvies, puika bēg, ko nagi nes, un pieskrien pie liela ezera un tur uzkāpj kādā
+augstā kokā, gribēdams tur pa nakti pārgulēt, jo vakars jau bija klāt. Raganas,
+vakarā mājā pārnākušas iet tūlin pie katla lūkot, vai jau būs mīksts
+izvārījies, bet viņas par lielu brīnumu atrod katlu tukšu un mana, ka puika ir viņas
+piemānījis un aizbēdzis. Tās dodas atkal puikam pa pēdām pakaļ, nemaz
+neraudzīdamās, ka pēdas bija otrādi, tikai pēc pēdu smakas. Viņas noskrien līdz
+ezeram, kur puika bij kokā. Tolaik mēness spoži spīdējis un puikas paksrēslis (ēna)
+bija tāli ezerā redzams. Raganas, pakrēsli ezerā ieraudzīdamas, domāja, ka puika
+ezera virsū guļ. Klāt nevarēdamas pietikt, viņas gribēja ezeru tukšu izdzert un
+dzēra, dzēra, kamēr pašas pušu pārplīsa. Pēc tam puika laimīgi pārgāja mājā.</p>
+
+
+</body></html>

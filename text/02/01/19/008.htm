@@ -1,0 +1,224 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Labie brāļi.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">8. A. 303. 1. Kauliņš Sausnejā, R. Auniņa "Ueber den lett. D r
+a c h e n - M y t h u s" 133. LP, VI, l25, 22. AŠ, II, 95e.</p>
+
+<p align="JUSTIFY">Vienreiz dzīvoja mazā mājiņā uipes malā tätiņč. Šos laikos
+wairs tādu mājiņu naradz, bat tas jau ar nau na vakar, na aizvakar noetics. Tätiņč
+goedīgs vīrs, lāga cilvāks viņam divi däli. Cirtuši malku, pilsētiņa turpat
+tivumā: vait nu tur navajag? Ko dien .sastrādāši, vakarā pārdod, ij pārtikas gana.</p>
+
+<p align="JUSTIFY">Jaunie äbi, nu puiku būšana, uz vietas jau nostāt navar: uipe,
+.mežs, mälcirsns: gan te, gan tur; nu tāedi jau lido kā lidot; saule vāl nau
+lākuise, bat šie jau aplobuši malu malas. Iedämi reiz radz: egles galā putns, bat
+tavu skaistu! Gudro, gudro, kas par putnu, bat vait nu tādam vārdu izgudroesi? Zalts un
+sudrabs laistīties laistās, un skät, tīri brīnums ko radzāt, uz spaerniem raksts:
+kas ädiškis šä priešku, tas būškis par ķeizaru un kas pakaļas galu, tas būškis
+par troņa mäntenieku. Nu tik lūkot putnu rokā dabīt! Bat vait nu taediem tev padoma
+trūks? Nebijis tāvs mūsu, saņāmuši kā caeli. Gan ķērcs un peras, knaeps ko
+prazdams, bat šiem ar nagi, sažņauguši ka nakuisti.</p>
+
+<p align="JUSTIFY">Bat kuiram nu palikt par ķaizaru? Meklä nu strīdam gala! Stīväjas
+viens aiz otra, ka vai pie kaušanās. Noelīgst: putnis jāpārdod. Aiznasuši vienam
+kungam, kam ar divi däli: "Še tev manta par dārgu naudu!"</p>
+
+<p align="JUSTIFY">Ij bez vārda runas, kas präsīts, maksāts. Kungs putnu patur.
+Iedevis pavāram, liek vāerīt, bat piesäcījs: "Virso tev naskätīties."</p>
+
+<p align="JUSTIFY">Pavārs iemets putnu katlā, pats aizgājs putrāmu maklāt. Bat
+tätiņa däliem putna päliek stipri žāl. Na laiski būdemi, uz muižu atpakaļ. Putnu
+no katla izņāmuši, vacākais apād priešku, jaunākais pakaļu. Nu tik läbi āetri uz
+māju projām, to jau zin, citāedi läbi nabūs. Izstāestījuši tätiņam, kas noetics,
+davuši naudu, tätiņč naudas najäms: dälus stipri sabāers par tādu nagoda darbu.</p>
+
+<p align="JUSTIFY">Däliem jo dieviņ, ka tätiņč naudas neņem, šie nosņemas iet par
+pasauli. Iet, iet vienu gabalu äbi kopā, daiet pie vienām kruisceläm. Viduo stāv
+vecits ar trim ziärgiem, trīs kuiceni, trim pīckām un trim buiteläm. Katram no
+tätiņa däliem iešķiņķojs pa zirgam, pa kucinam, pa pīckai un pa buitelei. Tās
+buiteles asot priekš tä, ka kad jūs izšķirškoeties, tad katrs no savas väräšot
+zināt, ka bräļam klājoties. Kad viens mirškis, tad otra brāla buitelä ūdens
+pališkis sarkans.</p>
+
+<p align="JUSTIFY">Atsvädīšies viens aizgājš pa labu roku, otrs pa kreisu, vecīts pa
+vidu. Vacākais bräels jājs ij jājs, beidzot iejājs vienā pilsätiņā un apsmeties
+pie vienas väverīšas. Kā vecenīte, tā ar visi pilsātnieki bijuši ļoeti bädīgi.
+Šis vaicājs, par ko ļautiņi tik noskumuši? Vecenīte ätbildäse, ka gan
+nabādaškoeties, par trim dienām ķēniņa meitai jajiet par bärību čūskai ar
+trejdeviņi galvām un ja viņa nējoete, tad visai tai valstībai jaiznīkst.</p>
+
+<p align="JUSTIFY">Otrā rītā tätiņa dāls devies uz pili pie ķäniņa un
+apsoelījies to izglābt, ja tikai viņa šam par sievu päliekoete. Dieviņ tu tätiņ
+ķäniņč no prieka vai uz aušku Iäcs, navien meitu doškis, ar par savu vietnieku
+iecelškis, lei tikai izglāebs.</p>
+
+<p align="JUSTIFY">Noliktā dienā kučurs aizveds ij meitu, ij 'glāebdju. Kad
+dabraukuši pie čūskas alas, glāebäjs sāecs šo karināt, pāsvieds kumusu, lei
+ķeroete. Nebijs viens divi, sākuise šij loecīties. Nadod tu dzirdāt tādu
+šņākšanu, snieguise vienu galvu, glāebäjs noecirts, otru, ij to noecirts. Bat nu
+palikuise nikna: izgrūduise piecas uz reizes, tätiņa dāls aplauzs visas tik pat kā
+säns un kuiru vien izstiepuise, apkapājs visas, ka nebijs ko radzāt.</p>
+
+<p align="JUSTIFY">Meitu aizsūtījs ķäniņam atpakaļ, päc gada laika šis nāškis
+atkan uz viņu, bat pats izgriezs no čūskas ga1vām mäles, sätins muits laketiņā un
+aizgājs. Väļāk kučurs atnāecs un galvas saläsījs rādījs ķäniņam säcīdams,
+ka šis ass tas glāebäjs un taedäļ meita šam piedaroete. Käniņč ar noeticäjs un
+meitai spieds ar kučuru kāzoeties. Lei gan viņa stipri taisnojuisäs, bat ka nakā, ta
+nakā, beidzot tik pat izlūguisās laika už gada un sešām nedäļām.: "Pagājs
+arī noeteiktais laiks, šā īstana vāl najūt; bat pašā tai dienā, kad ķäniņa
+meitai ar kučuru kāzas, šis ar ierädies. Noesmeties pie tās pašas vecenītes, bat
+licies gluži svešs. Jautājs, par ko visi tik priecīgi. Vecenīte ätteikuise: kat nu
+nepriecāškoeties, ķäniņa meita no čūskas izglābta un ar to, kas viņu izglāebs,
+šodien kāzas dzerot.</p>
+
+<p align="JUSTIFY">Puišam pielikumu tik pat kā guini pie pakulām. To izdzirds, devies
+uz pili un säcījs, ka šis tas īstais glāebäjs. Meita ar šo par usteno atzinuise,
+bat ķäniņč präsījs vā1 skaidrākas pierāedīšanas. Izņäms aizsainīti ar
+čūskas mälēm, teics: tur šā pierāedīšana, un ka no kučura saläsītas galvas
+bijušas bez mälēm, tā neviens ij na vārda pretij nepīkstäjs.</p>
+
+<p align="JUSTIFY">Kučurs tic saraustīts gabalu gabalos. Na cik ilgi päc laulāšanas
+ķäniņa znots ieraudzījis pa pils logu turpat na tālu mežmalā skaistu stirniņu.
+Paķärs rīku, uizläcs zirgam mugurā, ko vecīts šķiroeties viņam šķinķoja, un
+devies pakaļ, bat stirn.iņa ka miglit aizmiglīse.</p>
+
+<p align="JUSTIFY">Otrā dienā šij atkan' turpat meža malā. Licies atkan zirgam
+mugurā, bat napanāecs. Trešā dienā ādoete šij tīri tivu pie pils. Tätiņa dāls
+domājs, lei viņu Veļa māete paraunoete, tik skaista, nä, nu gan nemitäškos, kāmār
+dabīškis rokā; dzinies ka dzinies suinīts ar skrējs krizdams un klupdams, ij pašreiz
+panāecs, te šij. iešmūkoete mazā mājiņā. Zirgu pie slitas piesäjs, gājs ustubä
+ieškā; äträds vecenīti, kuiraj kläpie sädäse stirniņa. Šis präsījs stirniņas;
+bat vecenīte lūguise, lei šai padars kādu darbu, tad jau ar šij atdoškoete. Bat ka
+šis pielīcies, ta pälieks ar visu zirgu un suinīti par akmeni. Vecenīte ar stirniņu
+bijušas valns ar savu maeti un gribäšas tätiņa dālam par čūskas kavumu
+atsriebties. Jaunākais brāels pa šo laiku dzīvojs pie laba kunga, tā kā ij otru
+pavisam aizmirss. Bat reiz tak iedomājs; paņäms buiteli, ieraudzījs, ūdens tīri
+sarkans; nu zināms brāels ir beigts, no kunga atsäcījies, gājs brāeļa maklāt.
+Gädījies viņam ar tai pilsätiņā nokļūt, kur brāeļa sieva raudāese par savu
+pazudušo vīru un visi ļauds bādūjušies par savu labderi čūskas kāvaju. Päc ška
+izk1ausināšanas, kāds viņš bijis un kur viņč pälics, šis iegādājies, ka tas
+asot bijs šā brāels.</p>
+
+<p align="JUSTIFY">Otrā rītā ar jaunākais brāels ieraudzījis stirniņu uo dzinies
+pakaļ, kāmār pie vecenes viņu panāecs. Präsījs tūlin, lei atdodoete stirniņu un
+šā brāeli. Par brāeli vecene stipri lieguisās, bat par stirniņas atdošanu teikuise,
+lei tik padars šai kādu darbu, tad jau gan dabīškis. Bat no pilsātas ļaudiem
+dzirdājs, ka kad pie zemes pieliecoeties, tad par akmeni pāliekot, šis to na par kādu
+maksu nadärījs, tik vien teics, lai piesargājoeties, ka nanosits. Vecene radzadama, ka
+navarote šā piemāenīt, gāese ārā un smilkts pagrābuise, ko uz akmeņiem jūkaisa;
+tie sākuši tūlin kuistäteis un izcälies vacäkais brāels ar zirgu un suini.
+Jaunākais nu veceni nokävs un pāersējs smilkts par visiem tiem akmeņiem, kas
+apsūnojuši simtiem gadus tur bij guiläjuši. Izcālušies daždažādi vīri un
+täviņi; ar lielu baru un lielu prieku davušies nu uz pili. Brāļi tikuši par
+väldniekiem un tie citi par viņu kälpiem.</p>
+
+
+</body></html>

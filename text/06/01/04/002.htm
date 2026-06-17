@@ -1,0 +1,202 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Mirons izglābj savu labdari no slīkšanas.</p>
+</b></font>
+
+<p>&nbsp;</p>
+
+<p>2. A. 506. J. Pločkalns no Talaža, Meku pagastā pie Limbažiem. Fr. Brīvzemnieka
+kr. 126. piez.</p>
+
+<p align="JUSTIFY">Vienam tirgotājam bijuši divi dēli. Abi viņi aizbraukuši uz svešu
+zemi (Turciju), katrs ar trim kuģiem, piekŗautiem ar tēva precēm. Svešajā pilsētā
+viņi ieraudzījuši vienam namam tādu virsrakstu: "Še ir trīs meitas
+ieslodzītas. Kam tīkas, lai izpērk no cietuma. Viens tirgotāja dēls grib iet pie
+ķēniņa meitas atpirkt, otrs ne. Pirmais tomēr aiziet un atpērk par trīstūkstoši
+rubļiem; bet meitas, kauču skaistules, ir mēmas. Tālāk labdarīgais tirgotāja dēls
+atradis svešajā pilsētā karātavas, karātavās cilvēku, bet pie karātavām arī
+uzrakstu: "Šis cilvēks mira; neaizmaksājis savus parādus. Arī šo nomirušo
+parādnieku viņš atpircis. Bet otrs brālis pa tām starpām bija aizrakstījis tēvam,
+cik neprātīgi viņa dēls izturas. Tēvs paziņo turku ķēniņam, lai dēls vairs
+atpakaļ uz mājām negriežoties. Bet svešzemes ķēniņš māk taču jaunā tirgotāja
+labdarību cienīt, iedod tam divreiz tik daudz kuģu un naudas, nekā bijis priekš tam,
+noteikdams cieši, lai griežoties uz mājām ilgāki par vienu dienu nekur lai
+neuzkavējoties. Bet netālu no malas viņš saslimst. Kubi iegriežas ostā uz rēdiņu
+un tur viņš apprecē skaistāko no mēmajām meitām. Pēc tam braucis tālāk uz tēva
+pilsētu. pārdevis savu mantu, nopircis lielu namu un atvēris lielu pārdotavu. Māte,
+to padzirdējusi, pierunājusi tēvu, lai iet dēlu apraudzīt. Tēvs gājis, bet
+nesaticis dēlu ne pirmā, ne otrā gājienā, trešā, tad arī māte gājusi līdz, nu
+saticis gan. Tēvs, māte saredzējušies, apsveicinājušies ar dēlu un viņš visu
+laidis pār galvu, piedevis. Tad bagātais tirgotāja dēls atkal sadomājis braukt ar
+precēm uz citu svešu zemi un sieva nu iedevusi līdz zīda drānu, izrakstītu
+visapkārt ar nesaprotamiem vārdiem. Aizbrauca svešā zemē, turienes ķēniņš saņem
+tirgotāju kā savu znotu, iztaujādams, kur un kā viņa meitu dabūjis. Tirgotājs
+izstāsta visu un šis tad sūta trīs kuļus ar trim ģenerāliem meitai pakaļ, lai
+brauktu atpakaļ un dzīvotu tur ar visu savu vīru. Pārbrauc tirgotājs mājā lūk,
+sieva jau var parunāt ar abām jumpravām. Viņas visas trīs tikušas noburtas, tāpēc
+ka pretojušās ķēniņam par sievām palikt. Kad nu meitas dabūja dzirdēt par savu
+tēvu, tūdaļ brauca pie viņa projām. Bet jūŗā ģenerāli aiz skaudības, ka nieka
+tirgotājs būšot viņiem par kungu, sarunājās to noslīcināt un iemeta jūrā. Viņu
+izglābj putns, aiznesdams uz saviem spārniem klints kalnā. Tur putns pienes arī
+barību. Beidzot viņš savāca lielu pulku gaļas un sacīja: "Sakrauj visu šo
+krājumu man virsū un pats lai sēdies man virsū. Tiklīdz galvu pagriezīšu atpakaļ,
+iemet man gabalu gaļas rīklē." Labi. Putns pacēlās gaisā un skrēja pa jūŗu
+veselas divdesmit dienas. Skrēja, skrēja un tirgotājs tikai iemet šim pa kumosam
+mutē. Te patlaban krasts jau redzams - nav vairs gaļas. Gan putns griež galvu atpakaļ,
+gan beidzamos spēkus netaupa, bet jau , laižas zemu līdz ūdenim un drīzumā turpat
+kritīs jūŗā iekšā. Tad tirgotājs atšķēla savai pašai kājai gabalu gaļas,
+iemeta putnam mutē un nu putns sasniedza gan malu. Malā putns atkal izvēma kājas
+gabalu, pielika savai vietai, un tirgotājam kāja atkal vesela. Vēl putns pieteica:
+"Steidzies uz ķēniņa pili. Pa deviņi dieni tavu sievu laulās ar vienu ķēniņa
+ģenerāli. Tikai pārmaini savu apģērbu, citādi ģenerāļi tevi pazīs un nelaidīs
+iekšā. Pateicos tev, ka atpirki mani no karātavām; ķēniņa pilī ieiedams, apmeties
+pie pavāriem, tie tevi pieņems - viss būs labi. "To teicis, putns aizlaidās un
+tirgotājs atkal steigšus steidzās uz ķēniņa pili. Ceļā viņš satikās ar vienu
+strādnieku, gluži noplīsušu. Tirgotājs laka strādniekam: "Nāc, izmainīsim
+apģērbus!" Strādnieks baidās un negrib. Tirgotājs sola simtu dukātu piedevām -
+strādnieks vēl ne; tirgotājs sola pusotra simta dukātu- strādnieks vēl ne;
+tirgotājs sola pilni divisimti -strādnieks vēl ne. Beidzot tirgotājs aizgāja
+strādniekam līdz uz mājām un tur tad dabūja par savu apģērbu un par divsimti
+dukātiem piedevām gluži jaunu kunga apģērbu. Pārģērbās tirgotājs un gāja
+tālāk, sestajā dienā nonāca ķēniņa pilsētā. Iegāja pilsētā, salīga pie
+ķēniņa pavāra par darbinieku nest malku un ūdeni. Bet viņš bija veikls zēns,
+pavāri viņu drīzi iemīlēja, jau deva tīrīt nažus un dakšiņas. Bet viņš
+netīrīja vis nažus un dakšiņas - gāja labāk dārzā savas sievas loga priekšā
+dziedāt kādu dziesmu, ko pati tam bija agrāk iemācījusi. Sieva izsūta vienu kalponi
+paskatīties, kas dzied, bet viņš izturas ar kalponi tik rupji, ka tā atskrien
+atpakaļ. Tāpat notiek arī vēl ar otru kalponi. Neko darīt, ies pati sieva skatīties,
+kas tas dziedātājs. Iziet<b> </b>pie viņa - vaicās: "Kur tu tādu dziesmu
+mācījies? "Viņš atbild: "Ta un ta pilsētā no savas sievas." "Tad
+tu mani pazīsti?" Man liekas, ka esi mana sieva." Šī atbild: "Ja, esmu
+gan!" Nu šī aiziet pie ķēniņa: lai dodot to darbinieku no kukņas viņai par
+sulaini. Ķēniņš mierā. Kad abi bija kopā sagājuši, viņš ņēmās izstāstīt.
+kā izglābies no jūras briesmām. Arī ķēniņa meita pastāstīja, kā ar viņu
+noticis, piemetinādama: "Gan tevi meklēju, gan meklēju - nekur atrast; beidzot
+pienāks man ģenerāļi klāt; sacīdami: ,,Zvēri, ka no sava vīra atsakies<b> </b>un
+solies vienam no mums par sievu; ja ne - jūŗā iekšā!" Ļoti gribēju vēl ar
+savu tēvu, māti saredzēties<b>, </b>tādēļ apsolījos. Rītu mani laulās ar vienu
+ģenerāli. Bet pagaidi! Šovakar saradīsies viesi, klās galdus un tu nesīsi pirmo
+maltīti. Tiklīdz ienāc istabā, kur viesi, klūpi ar nesamo. Tad sūtīšu tevi pēc
+otras maltītes. Otru maltīti nesdams, pieej pie galda un paklūpi taisni apakš galda,
+bet ēdienu uzlej sev uz krūtim. Tad ievedīšu tevi sānu istabā, kur tik ilgi paliksi,
+kamēr saukšu." Labi. Viesi sabrauca un priecājās; sedza galdus un gaidīja
+ēdienus. Tirgotājs nesīs pirmo maltīti - klūp un uzlej ēdienu sev virsū; nesīs
+otru --- atkal izlej. Ķēniņa meita aizved viņu, liek pārģērbties vislabākās
+drēbēs un gaidīt, kamēr saukšot. Sāka citi sulaiņi nest ēdienus uz galda un viss
+gāja savu ceļu, kā vajadzīgs. Te ķēniņa meita piepēži ievaicāsies savam
+brūtgānam: "Man pazuda pūram atslēga - liku jaunu taisīt; pataisīja jauno pa
+tām starpām atradās vecā. Taisnība - jaunā ir skaista, tomēr vecākā labāki
+aprasta, krietnāki arī slēdzama. Kuŗu no abām atslēgām lai lietoju?"
+Ģenerālis atsaka: "Jaunā atslēga pakarama naglā, vecā lietojama." Tad
+ķēniņa meita mudīgi paceļas, iesauc no otras istabas tirgotāju lielistabā un saka:
+"Lūk, vecā atslēga, ko jūŗā iemetāt; bet tu ar saviem biedriem esat jaunā
+atslēga. "Tūlin ģenerāļiem ir kaŗotes no rokām izkrita. Bet ķēniņš bija
+ļoti bargs: -- pavēlēja visus trīs ģenerāļus pakārt, kauču gan tirgotājs par
+viņiem lūdza.</p>
+
+
+</body></html>

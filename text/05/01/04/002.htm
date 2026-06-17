@@ -1,0 +1,299 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Meklēšana pēc nepazīstamā.</p>
+</font>
+
+</b><p><b></b>&nbsp;</p>
+
+<p>2. A. 465. A. M. Šiliņa Tukuma tuvumā 1875 g. A. Bīlenšteina krājumā. LP, VI,
+1059 (7).</p>
+
+<p align="JUSTIFY">Viens ķēniņš pieņēmis zemnieku par savu medinieku, tam
+vajadzējis ķēniņam ikdienas putnus sagādāt.</p>
+
+<p align="JUSTIFY">Reiz medinieks, biezā mežā medīdams, ieraudzījis apakš koka
+skaistu sievišķi. Domājis: "Ko te meža biezumos sievišķis dara? Tai laikam
+vajaga no velna būt!"</p>
+
+<p align="JUSTIFY">Gribējis jau šaut, bet šī saukusi: "Draugs, nešauj, paglāb
+labāk mani!"</p>
+
+<p align="JUSTIFY">Nu sākuši sarunāties - kas ir? - dabūjis zināt: šī esot
+ķēniņa meita, un pašas māsas esot atdzinušas šo te, tādēļ ka skatījusies pa
+logu laukā.</p>
+
+<p align="JUSTIFY">Nu, ko nu vairāk? Vedis skaisto ķēniņa meitu uz mājām līdz,
+solījis precēt.</p>
+
+<p align="JUSTIFY">Bet ķēniņš, skaisto ieraudzījis, ņēmis mediniekam nost, pats
+gribējis to precēt. Tad ķēniņa meita atteikusi: viņa pie ķēniņa ne par ko
+neiešot; savu glābēju, medinieku, to precēšot. Ķēniņš nejauki saskaities un
+tūlin pavēlējis mediniekam: "Tev jāiet pasaulē uz septiņi gadi, septiņi
+mēneši, septiņi nedēļi, septiņi dieni, septiņi stundi, septiņi minūti un
+jāuzmeklē Nezinu kur un jāatnes Nezinu ko! Ja noliktā laikā uz minūti nebūsi
+mājā, tad pakāršu tevi."</p>
+
+<p align="JUSTIFY">Ķēniņš cerējis, ka medinieks tālā svešumā galu jau dabūšot
+un tad ķēniņa meita palikšot viņam.</p>
+
+<p align="JUSTIFY">Bet ķēniņa meita mierinājusi medinieku: "Nebēdā neko, še
+tev mans zelta gredzens, gan klāsies labi."</p>
+
+<p align="JUSTIFY">Medinieks nu gājis, gājis - pats nezinājis kur, un meklējis, pats
+nezinājis ko. Te vēlā vakarā ieraudzījis lielu namu savā priekšā. Pieklauvējis
+pie durvim, iznākusi vecīga sieviete iekšā</p>
+
+<p align="JUSTIFY">laist. Bet ieraudzījusi zelta gredzenu mediniekam pirkstā, tā
+iesaukusies: "Draugs, kur manas māsas gredzenu dabūji?"</p>
+
+<p align="JUSTIFY">Tā un tā - šis izstāstījis. Nu palicis par nakti. Rītā tā pati
+sieviete izvadījusi un teikusi: "Še; draugs, viens ābols to es tev dāvinu. Tas
+tev tecēs pa priekšu, rādīdams ceļu. Cik ātri viņš tek, tik ātri tu ej."</p>
+
+<p align="JUSTIFY">Un ābols ritējis pa priekšu vien, pa priekšu vien, beidzot
+pieritējis pie viena nama un apstājies. Medinieks dauzījies pie durvim, iznākusi
+jaunāka sieviete Par pirmo iekšā laist un tāpat vaicājusi: ,,Draugs, kur manas māsas
+gredzenu dabūji?"</p>
+
+<p align="JUSTIFY">Tā un tā. Nu palicis par nakti. Rītā tā sieviete izvadījusi šo
+un iedevusi zelta ābolu, sacīdama: "Tas ābols tev tecēs pa priekšu līdz vēl
+lielākam namam, un tur būs ķēdes trim rindām priekšā, viena rinda augstāka par
+otru. Pie kuras rindas ābols ritēdams piedauzīsies, tā sašķīdīs lupatās. Un tad
+tu pieraugi tur ietapt, ka ķēdēm nepieduries, jo tiklīdz ķēdes mazliet pakustināsi,
+tās tūlin žvākstēs un tad galu dabūsi."</p>
+
+<p align="JUSTIFY">Labi. Zelta ābols tek, tek un šis tikai pakal. Uz reizi gadās liels,
+liels nams un namam trim rindām ķēdes, trim rindām asas lietas visapkārt. Pirmā
+rinda gandrīz līdz zemei svērusies, otra jau augstāku un trešā itin paausti. Un kā
+nu ābols pilnā ņēmienā ritējis, tā piedauzījies pie zemākās rindas un šī
+bijusi lupatās; bet ābols pats arī sadragājies līdz. Medinieks domājis: "Te ir
+gan bailīgi, kad tikai nu varētu pa apakšu izlīst, ka augšķēdēm nepieduŗos."</p>
+
+<p align="JUSTIFY">Noģērbies pliks, iztaisījies labi viegls, līdis - izlīdis gan.
+Iegājis tai namā, pirmā istabā neviens nav bijis, otrā istabā arī neviens, trešā
+istabā iegājis, tur, kad arī vairāk ne, atradis lielu krāsni, tā bijusi auksta.
+Līdis tai pašā krāsns augšā un gulšņājis pa gaŗam laikam. Te uz vienu reizi
+ienāks viens kungs, saukdams: "Nekas! dod man ēst!"</p>
+
+<p align="JUSTIFY">Tā tūlīt gadās galds, krēsls, dārgi ēdieni, dzērieni, un nu
+šis ēd izgribējies. Paēd un aiziet atkal projām. Kā aiziet projām, viss atkal
+pazūd: istaba tukša kā bijusi. Bet medinieks arī gribējis dikti ēst. Neko vairāk,
+nolīdis no krāsns un sācis saukt tāpat kā tas: "Nekas! dod man ēst!"</p>
+
+<p align="JUSTIFY">Tiklīdz to izteicis, atkal gadījies galds, krēsls ēdieni dzē
+rieni, tie labākie, un nu ņēmies ēst īsti no tiesas. Paēdis, teicis :
+"Nekas!"</p>
+
+<p align="JUSTIFY">" Kā teicis: "Nekas!" tā viens pazemīgi vaicājis:
+"Kungs, ko pavēlat?"</p>
+
+<p align="JUSTIFY">Ienes man drānas!" "</p>
+
+<p align="JUSTIFY">"Tūlīt, kungs!" Nekas atbildējis un drānas klāt zibiņa
+ātrumā. Nu apģērbies un teicis: "Nekas! nāc man līdz!"</p>
+
+<p align="JUSTIFY">"Labprāt, kungs! Es gulēšu jums kabatā; un ja jums ko
+ievajadzētos, tad tikai piesitiet pie kabatas un pasauciet mani. tūlīt viss
+piepildīsies, ko vien vēlēsities . . . Jums es kalpošu līdz nāves stundai."</p>
+
+<p align="JUSTIFY">Labi! medinieks nu saposies un gājis projām. Un ceļā viņam nekas
+nav trūcis. Gribējies ēst, pasaucis: Nekas! - ēdieni klāt; gribējis gulēt,
+pasaucis: Nekas! - gulta klāt.</p>
+
+<p align="JUSTIFY">Un tā vienu dienu atkal ēdis pie sava galda, te jājis čigāns
+gaŗām ieraudzījis kāras lietas, sacījis: "Ko es manu, to es manu. Jums gardas
+lietas, tas Dievam tiesa; bet man arī laba lieta, ače, kančuka. Mainīsim, kungs, kas
+tur ir, ir! Jo redziet: ja es savai kančukai ir pa divi simti jūdzi pavēlu tam un tam
+uzcirst, tad viņa uzcērt. Vai tā tik nav pātaga? Es jau tādu iemainītu ir miegā
+gulēdams, ir saulgozī suzdams."</p>
+
+<p align="JUSTIFY">Šis vēl tā kā negrib, negrib; bet Nekas iečukst ausī:
+"Mijiet, kungs, es to čigānu piedzirdīšu, atstāšu grāvī guļam un atnākšu
+atkal pie jums atpakaļ."</p>
+
+<p align="JUSTIFY">Labi! samij. Medinieks nu aizbāž kančuku aiz zābaka, aiziet savu
+ceļu; čigāns atkal paliek ēdam un dzeŗam. Ēda, ēda, bet negausis tā pārēdās un
+piedzērās, ka iekrita grāvī un nelikās gar pasaules lietām vairs ne zinot. Bet Nekas
+tamēr bija atpakaļ pie sava kunga, lai čigāns pūst.</p>
+
+<p align="JUSTIFY">Un vienu dienu atkal medinieks sēdēja pie sava galda ceļa malā. Te
+gadījās žīdam gaŗām iet, cirvis tam bija pār plecu. Žīds ieraudzījis gardumus,
+nevar nociesties: "Ui, cieniges lieles kunges! kas jums par labumem? Mīsem uz šim
+ciritem. Tas cirites vise nocērt, ko vien lieku."</p>
+
+<p align="JUSTIFY">Šis negrib, negrib; bet Nekas iečukst: "Mijiet, kungs, es to
+žīdu piedzirdīšu un būšu pie jums atpakaļ."</p>
+
+<p align="JUSTIFY">Labi! izmainīja. Medinieks, paņēmis cirvi, aiziet savu ceļu; žīds
+paliek ēdam. Ēda, ēda. dzēra, dzēra, beidzot Piedzērās, palika guļam un Nekas
+tamēr bija atpakaļ pie sava kunga.</p>
+
+<p align="JUSTIFY">Un vienu dienu atkal medinieks sēdēja pie sava galda ceļa malā. Te
+gadījās vecam zaldātam garām iet ar dozīti rokā. Ieraudzījis gardumus, zaldāts kā
+sadedzis: lai mainot ēdienus un dzērienus ar viņa dozīti. Tā esot varena dozīte.
+Tiklīdz ieteicoties: "Dozīte, kaŗa spēks!" tūlin kaŗa spēks skaidrā
+sudrabā klāt.</p>
+
+<p align="JUSTIFY">Šis vēl tā kā negrib, negrib; bet Nekas iečukst: "Mijiet,
+kungs! es zaldātu piedzirdīšu, atstāšu grāvī un būšu pie jum atpakaļ."</p>
+
+<p align="JUSTIFY">Labi! izmainīja. Medinieks, paņēmis dozi, aiziet savu ceļu;
+zaldāts paliek ēdam. da, ēda, dzēra; dzēra, beidzot piedzērās, palika guļam un
+Nekas tamēr bija atpakaļ pie kunga.</p>
+
+<p align="JUSTIFY">Nu gājis, gājis - pēc ilga laika pārnācis ķēniņa pilsētā un
+dabūjis zināt, ka ķēniņš patlaban rīkojot kāzas, gribot to ķēniņa meitu
+precēt, ko medinieks paglābis mežā; jo septiņi gadi, mēneši, nedēļas, dienas
+drīzi beigšoties un medinieks vēl neesot rādījies, laikam, gan nepārnākšot vairs
+nekad.</p>
+
+<p align="JUSTIFY">Tad medinieks sapiktojies, uzsaucis savam Nekas: "Nekas! gādā,
+ka pa visu pilsētu ne uguns dzirkstele nav dabūjama! Ķēniņa kāzu ēdieniem jāpaliek
+neizvārītiem un kāzām jāizput bez manis!"</p>
+
+<p align="JUSTIFY">Labi! Nekas to izdarīja: nebija uguns nevienam, lai šķiļ, cik grib.
+Nu ķēniņš briesmīgi sadusmojies uz savu pavāru, aiztriecis projām un izsludinājis,
+ka pieņemšot jaunu pavāru. Tad medinieks apģērbies pavāra drēbēs Un piedāvājies
+ķēniņam par pavāru, par tādu pavāru, kas pratīšot uguni iešķilt, ēdienus
+izvārīt, kāzas sarīkot. Tūlīt pieņēmis teicamo pavāru. Un nu jaunais pavārs
+sācis strādāt un uzsaucis savam Nekas: "Šķil!" Tas iešķīlis, tad teicis:
+"Vāri!" Tas vārījis. Kamēr ēdieni vārījušies, ķēniņš sajūdzis
+zirgus un braucis ar ķēniņa meitu uz baznīcu laulāties. Bet medinieks uzsaucis:"
+Nekas! kā es būtu toreizējās medinieku drēbēs baznīcā priekšā!"</p>
+
+<p align="JUSTIFY">Acumirklī, kā to izteicis, šis jau baznīcā. Atbrauc ķēniņš,
+domā laulāties, ierauga šo. Tā pilnā kaklā: "Kur tu biji? Nu tu esi vienu
+veselu minūti par vēlu pārradies, likšu tevi kārt. Tagadiņ nobeidzās septiņi gadi,
+septiņi mēneši, septiņas nedēļas, septiņas dienas, septiņas stundas, septiņas
+minūtes un šī minūte ir jau pāri. Man tevi jākaŗ, vai grib, vai negrib!"</p>
+
+<p align="JUSTIFY">"Kad jākar, jākaŗ!" medinieks atteic un nesaka vairāk
+nekā. Un nu tūlīt papriekšu pakārsot medinieku un tad laulāšoties netraucēts,
+nekavēts.</p>
+
+<p align="JUSTIFY">Labi! ieraka stabus, viss pilsēts sapulcējās un velk šo
+karātavās. Bet līdz ko uzvelk, tā medinieks: "Cirvīti, cērt!"</p>
+
+<p align="JUSTIFY">Un tūlīt cirvītis nocērt karātavas stabus. Bet ķēniņš iepīcis
+liek jaunus stabus rakt. Ierok - tā medinieks: "Kančuka, čērt ķēniņam par
+mācību!"</p>
+
+<p align="JUSTIFY">Un tūlīt kančuka cērt un mizo ķēniņu, ka put vien. Bet
+ķēniņš nu sauks kaŗa spēku palīgā lai maitājot medinieku nost! Bet medinieks
+ieminas: "Dozīte, kaŗa spēku!"</p>
+
+<p align="JUSTIFY">Tā sudraba kara spēks klāt un apkauj ķēniņu, apkauj visu viņa
+kaŗa spēku.</p>
+
+<p align="JUSTIFY">Nu medinieks salaulājies ar ķēniņa meitu un pats palicis par
+ķēniņu tā ķēniņa vietā.</p>
+
+<p align="JUSTIFY">Piezīme. Vārda "Nekas" izskaidrošanai salīdzini
+iepriekšējo un sekošo variantu. P. Š.</p>
+
+
+</body></html>

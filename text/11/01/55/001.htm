@@ -1,0 +1,139 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>55</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <blockquote>
+        <font size="3"></font><p align="left"><font size="3"></font><font size="5"><strong>Viens keŗ vāveri, otrs iet
+        pēc poda. </strong></font></p><font size="5">
+      </font></blockquote><font size="5">
+    </font></blockquote><font size="5">
+  </font></blockquote><font size="5">
+</font></blockquote><font size="5">
+
+</font><p><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p>1. A. 1227. S k o l n i e k s D. T e r i s o n o v s L a t g a l ē.</p>
+
+<p align="JUSTIFY">Reiz divi vīrieši gāja kopā pa ceļu un bija jau nogājuši 20
+verstes. Pa mežu iedami, viņi ieraudzīja vienu vāveri un viens saka: "Es kāpšu
+kokā, bet tu ej uz ciemu pēc poda."</p>
+
+<p align="JUSTIFY">Otrs atbild: "Es kāpšu pēc vāveres, bet tu ej pēc poda."
+Beidzot abi izlīga. Viens aizgāja pēc poda, un otrs uzkāpa kokā pēc vāveres.
+Vāvere sabijusies pārlēca uz otru. Viņš sadusmojās un saka: "Ak tu maita, tu
+esi tik maza, bet vari tik tālu lekt. Es esmu liels, gan es ar varēšu pārlekt."</p>
+
+<p align="JUSTIFY">Kā nu šis leca, tā nokrita taisni uz celma un izplēta muti. Kad
+otrs atnāca un to redzēja, tad iesaucās : "Ak tu rīļa, viens pats visu
+apēdis," kā šis lika ar podu par zobiem, ta šim izbira vēl zobi.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Sibīrijā vēl tagad ēd vāveres, arī pie mums
+viņas senāk ēstas. F. Š.</p>
+</font>
+
+
+</body></html>

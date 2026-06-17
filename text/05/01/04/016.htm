@@ -1,0 +1,341 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+</b><p align="CENTER"><b>Meklēšana pēc nepazīstamā.</b></p>
+</font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">16. A. 465. A. 400. A. Bīlenšteins 1863. g. no J. Pelča Jaun - Auces
+Kalna Dzirkantos. LP, VI, 1048 (3).</p>
+
+<p align="JUSTIFY">Vienam tēvam bijis viens dēls, un tas bijis dikti slinks. Tēvs viņu
+raidījis art un iedevis tādu kūtru ķēvi - baltu. Un viņš nemaz nearis un tik
+stāvējis pie tā arkļa. Tā tas tēvs ņēmis pātagu un gājis pērt. Bet viņš
+ieraudzījis tēvu, bēdzis mežā un nomaldījies.</p>
+
+<p align="JUSTIFY">Un gājis , gājis --uzgājis lielu pilsētu. Tanī pilsētā bijis
+viens namnieks. Iegājis pi tā namnieka (un tas puišelis bijis smuks) tas namnieks viņu
+iemīlējis pārlieku. Tā viņš vienu dienu viņu vedis maltīti ēst: tad tas namnieks
+prasījis: vai nepatīkot pie viņa pa(r) audzēkni, pa(r) dēlu nākt? Viņš teicis:
+"Kā tad ne? Iešu gan!"</p>
+
+<p align="JUSTIFY">Un viņš paņēmis to puišeli, licis izmācīt visas skolas un vienu
+dienu prasījis: vai viņš negrib viņa meitu precēt?</p>
+
+<p align="JUSTIFY">Un apprecējis tā namnieka meitu lai. Vēl atdevis boteli tam znotam.
+Un teicis vienu dienu, ka brauks uz svešām zemēm dārgas preces iepirkt. Un abi divi
+aizbraukuši pie viena kalna. Tur bijis zelts un sudrabs tanī kalnā iekšā.
+Piekrāvuši lai to kuģi. Un tas sievas tēvs raidījis to znotu: vai nav tur kāds
+cilvēks kalna galā? lai redz, ko tur dara.</p>
+
+<p align="JUSTIFY">Tā uzgājis tai kalna galā, bet nekā neredzējis, nogājis atkal
+atpakaļ pie sievas tēva. Bet tas atkal raidījis uz tā kalna skatīties. Un kamēr
+uzgājis skatīties, sievas tēvs jau aizbraucis pa pus jūŗu projām.</p>
+
+<p align="JUSTIFY">Nu viņš dikti raudājis. tas znots, un gājis tam kalnam apkārt
+arvienu, uzgājis tādu mazu būdiņu, no žagariem taisītu. Iegājis iekšā tai
+būdiņā, tur bijis viens cilvēks. Tas prasījis: "Kā tu te esi atnācis?"</p>
+
+<p align="JUSTIFY">Teicis: "Viens namnieks mani piekrāpa." Kā tad viņš tevi
+piekrāpa?"</p>
+
+<p align="JUSTIFY">" "Viņš atdeva man savu meitu, boti lai - atbraucām preci
+pirkt - "</p>
+
+<p align="JUSTIFY">Viņš teica: "Tas pats mani arī piekrāpa tāpat." Ta(d)
+prasījis: "Ko tu te, vari ēst?"</p>
+
+<p align="JUSTIFY">"Man uznāk ik ēdiena laikā tāds galdiņš no zemes, tur man ir
+ēdiens virsū."</p>
+
+<p align="JUSTIFY">Ta(d) viņš prasījis: "Vai būs man arī'a" Tas atteicis:
+"Es došu no savas tiesas tev."</p>
+
+<p align="JUSTIFY">Un tā ēdiena laikā nācis tas galdiņš un bijis abiem vīriem ko
+paēst. Tā stāvējuši divi dienas tai būdiņā, un tad tas, kas pēc atnācis,
+prasījis: "Kas ta(d) dod to ēdienu uz augšu, vai Dievs, vai velns?"</p>
+
+<p align="JUSTIFY">Tas; kas tai būdinā, atteicis: "To es arī nezinu, kas viņu
+dod." Nu, un ta(d) ņēmuši kārklus un novijuši striķus - gaŗus. Kad nu
+galdiņš uznācis, piesējuši striķi pie vienas kājas un viņš (tas znots) nu laidies
+galdiņam līdz (lejup); bet striķa otru galu iedevis tam, kas tai būdiņā lai tura,
+piesacīdams: kad striķi apakšā kustināšot, tad lai velkot laukā.</p>
+
+<p align="JUSTIFY">Tā ielaidies. Bet striķa pietrūcis, nesniedzis dibina. Te
+atminējis, ka nazis kabatā. Tūlin pārgriezis striķi un nu nokritis ar visu galdiņu
+zemē uz lielu akmeni, vēl sasitis celi.</p>
+
+<p align="JUSTIFY">Tur bijuši lieli dzelzu vārti priekšā. pārkāpis pār vārtiem un
+ieāājis: bijis liels pilsāts un gaišs. Tad iznācis tāds resns kungs pretim un
+prasījis: "Vai tev nebija diezgan tā ēdiena? Kā tu kāpi te pie manim?"</p>
+
+<p align="JUSTIFY">Viņš teicis: .,Paldies, kungs, bija gan diezgan." Šis atteicis:
+"Paldies tu man nesaki."</p>
+
+<p align="JUSTIFY">Nu un tā viņš palicis pie tā kunga par puisi. Tas bijis velns, tas
+kungs.</p>
+
+<p align="JUSTIFY">Bet vienu dienu kungs braucis laukā, uz placi, un atdevis viņam visas
+tās atslēgas rokā, teikdams: "Pa visiem kambariem tu vari iet, bet pa tām mazām
+durtiņām tu neej!"</p>
+
+<p align="JUSTIFY">Bet puisis nelicies mierā un gājis pa tām mazām durtiņām laukā
+skatīties, kas tur būs.</p>
+
+<p align="JUSTIFY">Tur bijis liels tilts un viena upe un redzējis, ka trīs gulbji
+atskrējuši, nolikuši spalvas krasta malā, palikuši par tādām freilenēm un
+mazgājušās tanī upē. Un tā izmazgājušās, uzvilkuši atkal tās spalvas un
+skrējuši projām.</p>
+
+<p align="JUSTIFY">Ta(d) viņš gājis atpakaļ pa tām durim iekšā. Bet resnais kungs
+nācis pretim pārbraucis un teicis: "Vai es tev neteicu, lai tu neej pa tām
+durvītelēm? Ko tu tur redzēji, stāvēdams?"</p>
+
+<p align="JUSTIFY">"Redzēju trīs gulbji, ka atskrēja, nolika spalvas mazgājās un
+bija smukas freilenes."</p>
+
+<p align="JUSTIFY">Viņš teica: "Vai tev nepatīk kāda precēt?" "Kā tad
+ne? Patīk gan."</p>
+
+<p align="JUSTIFY">Viņš teicis: "Rītu, kad visas atskrej, noskaties, kur tās
+spalvas noliek; ta(d) kuŗa tā smukākā, tai paņem tās spalvas. Bet paņem sievišķa
+drānas līdz.</p>
+
+<p align="JUSTIFY">Ta(d) viņš aizgājis un redzējis, ka skrējuši atkal tie gulbji. Nu
+noskatījies, kur katra noliek savas spalvas, un tā piegājis un paņēmis tās
+smukākās spalvas. Ta(d) tā freilene teikusi: "Nu, māsiņas, nu man no jums
+jāšķiŗas!" un piegājusi devusi mutes viņām. Ta(d) šī apģērbusies
+sievišķa drānās un gājusi viņam līdz. Iegājuši iekšā, vecais viņus salaulājis
+un turējis pa(r) znotu.</p>
+
+<p align="JUSTIFY">Un ta(d) viņš vienu dienu prasījis, vai tas znots negrib apmeklēt
+sava tēva.</p>
+
+<p align="JUSTIFY">Viņš teicis: "Kā ta(d) ne? Bet es nezinu, ku(r) viņš tagad
+dzīvo."</p>
+
+<p align="JUSTIFY">Viņš teicis: "Viņš vai(rs) mājās nav, bet nu ir
+pirtī." Lai iet pasaukt lielo Jāni, lai ienāk! Znots iegājis stallī lielo Jāni
+saukt, nekā neredzējis. Iegājis pie vecā un teicis, ka nekā neredzējis, tur tanī
+stallī nekā neesot.</p>
+
+<p align="JUSTIFY">Ta(d) vecais teicis: "Ej tik stallī un sauc: "Jāni, kungs
+tevi aicina!" tad jau nāks."</p>
+
+<p align="JUSTIFY">Iegājis: "Jāni, kungs tevi aicina!"</p>
+
+<p align="JUSTIFY">Lai tūlīt iznācis liels Jānis: ko gribot? Vecais teicis: lai
+piebāž vienu maisu mantas pilnu un lai apsedlo ēzeļus, divi jāšanai tam trešam lai
+liek to mantu virsū. Labi! Apsedlojis ēzeļus, piebāzis maisu mantas, vadmalas, naudas
+lai. Tad uzsēdinājis uz ēzeļiem znotu un to meitu un teicis, lai tik auj ēzeļiem
+iet, kur tik iet.</p>
+
+<p align="JUSTIFY">Sajājuši veselu dienu. Vakarā apstājušies ēzeļi pie tādas
+pirts. Nu noņēmuši to mantu un ta(d) ēzeļi nogājuši projām Iegājuši pirtī, tur
+bijuši divi vecīši. Prasījis nakts mājas. Ta(d) viņi teikuši: "Kur ta(d) viņi
+gulēs, tādi kungi, tādā pirtī?"</p>
+
+<p align="JUSTIFY">Šis teicis: "Pārgulēs gan, lai būtu i vissliktāki." Bet
+šis prasījis, "vai ta(d) jums neviena bērna nav, ka(d) jūs pirtī esat
+ielikti?"</p>
+
+<p align="JUSTIFY">Vecīši teikuši, bijis gan viens dēls, to ņēmis vecais un iedzinis
+mežā!</p>
+
+<p align="JUSTIFY">Ta(d) viņš prasījis: "Kā ta(d) viņš mežā ieskrējis?</p>
+
+<p align="JUSTIFY">Vecīte teikusi: bijis dikti slinks; vecais licis art, nearis; gājis
+pērt un to iedzinis mežā. Nezinām, ku(r) i(r), ku(r) nav: es jau viņu pazītu gan,
+ka(d) redzētu." Viņam bijusi tāda kārpa pie</p>
+
+<p align="JUSTIFY">kakla Un tā viņš - to padzirdējis - norāvis elzdogu un rādījis
+to</p>
+
+<p align="JUSTIFY">kārpu: "Vai tāda bija tā kārpa jūsu dēlam?"</p>
+
+<p align="JUSTIFY">"Tāda jau bija gan!" bet vēl nepazinusi taču, ka tas
+viņas, dēls.</p>
+
+<p align="JUSTIFY">Bet šis teicis: "Es esmu jūsu dēls! Un tēvs mani iedzina
+mežā, ka(d) es nearu!"</p>
+
+<p align="JUSTIFY">Un ta(d) prasījis kā viņi izdzīti no tām mājām?</p>
+
+<p align="JUSTIFY">Viņi atteikuši: "Ienāca cits kungs, izdzina mūs,
+izmeloja." Šis teicis: "Gan mēs dabūsim tās mājas atpakaļis!"</p>
+
+<p align="JUSTIFY">Un dēls nogājis pie kunga, nopircis vienu zemes gabalu, uztaisījis
+muižu un nu bijis par kungu.</p>
+
+<p align="JUSTIFY">Bet vienu dienu šis nebijis mājās - tie vecie bijuši klāt tai
+muižā - un jaunā sieva sēdējusi pie galda šūdama. Un tā vecā skatījusies padēla
+skapi, vai veša neesot viņam mel(n)a. Bet tās gulbja spalvas, ko bija noņēmis pie
+tilta, bijušas skapī. Vecā izņēmusi spalvas no skapja un raudzīj(u)si, kas tās par
+spalvām? Ta(d) viņa (jaunā sieva) ieraudzījusi tās spalvas, iešāvusies un
+palikusies pa(r) gulbi un aizskrējusi projām.</p>
+
+<p align="JUSTIFY">Dēls pārbraucis un prasījis: ku(r) sieva esot?</p>
+
+<p align="JUSTIFY">Teikusi, ka aizskrējusi projām, pa(r) gulbi palikusi. Ta(d) viņš
+dikti raudājis un gājis meklēt savu sievu. Gājis gājis ieraudzījis, ka viens
+mazgājis deķi. Un tā viņš uzkāpis uz to deķi virsū, un tas deķis pacēlies un
+sācis skriet pa gaisu. Aizskrējis pa gaisu un ieraudzījis vienu pilsātu un vel(n)a
+māti nākam pretim. Velna W tte spērusi viņam, bet viņam bijis āmars līdzi.</p>
+
+<p align="JUSTIFY">Kā šī nu spērusi, tū viņš cirtis ar āmuru - pārcirtis pa
+vēdaru (velna mātei). Bet velna mātes pašas dēls teicis: "Māt! nesperat! Viņš
+pārcirtīs vēl, jo viņš ir stiprāks."</p>
+
+<p align="JUSTIFY">Un ta(dļ viņš redzējis, ka trīs gulbji skrējuši un atskrējuši,
+bijusi vina sieva lai tur. Tās bijušas vel(n)a apsēstas, tās freilenes. Ja, un tā
+atskrējušas un teikušas, lai meklē vienu namu, kur būs pulka gulbju; bet lai citur
+neietot nekur. Kur trīs gulbji būs, lai tur eitot.</p>
+
+<p align="JUSTIFY">Un iegājis tai namā, tur bijis pulka gulbju un pasaules istabu. Bet
+iegājis vienā istabā, tur bijuši trīs, tie gulbji Viņa sieva ieraudzīj(u)si un
+gājusi tūlīt klāt pie viņa. Un ta(d) paņēmis to sievu, gājis pie velna mātes un
+teicis, ka tā viņa māte. Bet vel(n)a māte vēl nedevusi (sievu), teikusi, ka rītā
+laidīs visus (gulbjus) laukā, lai ta(d) viņš zīmē, kuŗa iraid.</p>
+
+<p align="JUSTIFY">Un viņa, tā sieva, teikusi, lai viņš skatās, kura sies kurpi
+šnori, tā būs viņa, jo visas (visi gulbji) rītu būs cilvēku drānās. Bet lai
+skatās ātri, jo tas nebūs ilgi, kamēr viņa kurpā šnori sics, uz acumirkli.</p>
+
+<p align="JUSTIFY">Un tā nu no rīta laidusi (gulbjus) visus laukā. Izlaidusi - gulbji
+palikuši par sievišķiem cilvēku drānās. Bet trīs gājušas kopā un viena no tām
+trim sējusi kāju. Līdz to redzējis, tūlīt nokampis (sējēju) un teicis: "Tā
+ir mana sieva!"</p>
+
+<p align="JUSTIFY">Bet velna māte vēl nedevusi: vēl laidīs, lai viņš zīmē.</p>
+
+<p align="JUSTIFY">Un tad viņa, tā sieva, teikusi vīram : ka nu sies micai banti pie
+kakla; bet tas būs uz acumirkli, lai aši skatās virsū.</p>
+
+<p align="JUSTIFY">Kad no rīta laidusi atkal laukā, tās trīs nākušas papriekš un
+tā sējusi to banti. Ta(d) viņš aši nokampis un teicis: "Tā i(r) mana
+sieva."</p>
+
+<p align="JUSTIFY">Bet viņa (velna māte) vēl nedevusi.</p>
+
+<p align="JUSTIFY">Un tur uz viena kalna bijis liels ritens, tas griezies itin aši, tam
+bijusi liela vērsme.</p>
+
+<p align="JUSTIFY">Ta(d) viņa teikusi: "Ja viņš noturēs to riteni, tad dabūs
+savu sievu."</p>
+
+<p align="JUSTIFY">Tam ritenim bij(u)si tāda vērsme, ka cilvēku rāvis pa gabalam
+iekšā. Un tā viņš piegājis pie tā kalna, nevarējis ne ēnoties klāt tapt.</p>
+
+<p align="JUSTIFY">Bet viņš no zemes griezis tādus krustiņus un metis uz riteni.
+Ritenis arvienu palicis lēnāks un apstājies. Nu piegājis un sitis ar āmuru. Ritenis
+pārplīsis un no kalna izcēlies liels pilsāts, pilns aužu. Ļaudis bijuši visi
+vel(n)a apsēsti un tad palikuši visi tādi pat cilvēki, kā mēs, ka(d) tas ritenis
+saplīsis un tas pilsāts izcēlies. Un ta(d) tie ļaudis viņu izsaukuši par ķēniņu,
+pacēluši ; un viņš dabūjis savu sievu lai; un nu ir beigas.</p>
+
+
+</body></html>

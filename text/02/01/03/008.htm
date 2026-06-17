@@ -1,0 +1,175 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Pūķa kavējs dažādos apstākļos.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>8. A.300. V. Zacharskaja no 52 g. veca P. Vrubļevska Daugavpils
+Kapiņu pagastā. V. Podis krājumā.</p>
+
+<p align="JUSTIFY">Senējus laikūs pi vīna bēdeiga [nabaga] zemnīka beja vīns dāls,
+kurijis beja ļūti skaistais, jam vuords beja Uodums. Bet jis beja pats cīši gudrs
+puika, jū tai vysi, kuŗi jū zynuoja, skaitēja par lelu gudrinīku. Tāvs juo beja
+cīši bēdeigs [nabags] un navarēja sovu dālu saturēt, par tū dāls Uodums staiguoja
+gonūs.</p>
+
+<p align="JUSTIFY">Vīnu reizi pavasaras laikā Uodu,ms izdzyna lūpus gonūs mežā.
+Lūpi staiguoj, a jis ar taipat staiguoj un veras. Kai reizja tymā mežā guoja upe.
+Daīt Uodums pi tuos upis un īraudzēja ti apis molā lelu dūbi, un pi tuos dūbis sēd
+vīna cīši skaista meita. Uodumam īguoja pruotā pavaicuot nu ituos skaistys meitys, nu
+kurenis jei, un dēļ kuo jei tja sjād. Uodums ilgi nadūmuodams, daīt tyvuok <b>pi </b>tuos
+dūbis, un suoka vaicuot nu meitys. Meita rozstuostēja Uodumam sovu nalaimi. Kod beja
+senēji vaidi, tūlaik jū nu tāva dvorca [kr., pils] nūzoga čorts [baltkr., velns] un
+jei vēl tagan dzeivuoj pi čorta. Juos tāvs vēl tagan par ķēneņi. Tai meita
+stuostēja Uodumam.</p>
+
+<p align="JUSTIFY">Uodums vys klausēja meitys vuordus un golu-golā pascēja: "Tu
+tagan staiguoj brīva un vari īt pi sova tāva, tevi čorts naredzeis, kai tu nūbēgsi
+uz sovu sātu."</p>
+
+<p align="JUSTIFY">"Na," runuoj meita, "es navaru nikur nūskrīt. Mani
+čorts dadzeis un tūlaik nūsiss! . . . Es varu tikai tūlaik nu šanīnis nūbēgt, kod
+kas nebejs itymā upī atrass stabuleiti un treis reizys uz tuos stabuleitis aizspēlēs.
+Itei kara stabuleitja gul upī nu tuo laika, kad mani satvēra čorts."</p>
+
+<p align="JUSTIFY">Itūs vuordus pasceidama, skaistā ķēneņa meita uz vītys iznyka.
+Īkryta Uodumam golvā, kai dabuot nu upis tū kara stabuleiti un ratavuot [baltkr.
+ratavac’, glābt] tū skaistū ķēneņa meitu.</p>
+
+<p align="JUSTIFY">Vot suoka īt korstys dīnys vosorā. Uodums atdzeis lūpus uz mežu, a
+pats vys pa upi brodytruoj un meklēj tū stabuleiti. Ilgi Uodums meklēja, bet golu-golā
+iztyka un atroda tū stabuleiti. Uodums pajāmja tū stabuleiti, daguoja pi tuos pat
+dūbis, kur jis redzēja skaistū ķēneņa meitu, un suoka uz tuos stabuleitis spēlēt.
+Pyrmū reizi kai aizspēlēja, vysi putni apklusa, a mežs vyss aizrauduoja. Utru reizi
+kai aizspēlēja. vysa zem,e aiztreisēja un rauduošonys beja moz dzierdams. Trešū
+reizi kai aizspēlēja, vyss mežs suoka smītīs un taipat putneņi suoka dzīduot, un
+tymā stracī [reizā] izauoja nu tuos dūbis skaista ķēneņa meita, kura beja cīši
+priecīga, un ar tū pat lelu prīcu jei daguoja pi Uoduma, aptvēra jū un cīši
+bučuoja, runuodama: "Tu, ratavoji mani un munu dvēseli nu čorta alnis [elles].
+Tagan, ka gribi, es varu byut par tovu sīvu."</p>
+
+<p align="JUSTIFY">Uodums beja cīši prīceigs, ka skaista ķēneņa meita īdevja jam
+vuordu byut par juo sīvu. Jī abadiveji sazalasējās īt meklēt juos tāvu ķēneni,
+kab juos tāvs jū bogoslaveitu [ svētīt] uz prīceigys dzeivis. Na ilgi jī meklēja
+juos tāvu ķēneņu, par tū, ka ķēneņa meita labi zynuoja ceļi. Kod ji patyka pi
+juos tāva, kai īraudzēja ķēneņš sovu meitu, ka jei dzeiva, nu prīcys nazynuoja kū
+dareit. Meita rozstuostēja tāvam, ka jū ratavuoja gons. Uodums, kuru jei atvedja ar
+sevim un deve jam sovu vuordu byut jam par sīvu.</p>
+
+<p align="JUSTIFY">Prīceigs ķēneņš bogoslovēja meitu un Uodumu un tyulen nūsyntēja
+kolpu ar sudobra zyrgim un zalta karētu pēc Uoduma tāva. Kai īraudzēja bēdeigs
+zemanīks Uoduma tāvs, ka jū vad<b> </b>uz zalta karētys un sudobra zyrgu, jis
+brīsmeigi nūzabeida urt kod patyka ķēniņa dvorcā, kur īraudzēja, ka juo dāls
+Uodums precējas uz ķēneņa meitys, ti pat bēdeigs zemnīks nu lelys prīcys pakryta un
+nūmyra: jam raztryuka sirds.</p>
+
+<p align="JUSTIFY">Kēneņš ar ilgi nadzeivuoja, beja jau vacs un dreizi pēc kuozu
+nūmyra. Pēc nuovis kēneņa palyka ar vysu icēnesti provēt [kr., valdīt] Uodums ar
+sovu skaistū sīvu. Ļauds nu tuo laika tū hēnesti puorsaucja par gudruo Uoduma
+ķēnesti.</p>
+
+
+</body></html>

@@ -1,0 +1,163 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Ragana zārkā.</p>
+</font>
+
+</b><p align="CENTER"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">6. A. 307. J. Trejs Ēķengrāvē, Brīvzemnieka kr. LP, VII, I, 197.
+1. p. AŠ, III, l u.</p>
+
+<p align="JUSTIFY">Viens zemnieks lika kuģi taisīt un gribēja pasauli apceļot. Viņam
+par ceļa biedru brauca līdz tāds vecītis. Bet šis vecītis bijis pats Dievs.</p>
+
+<p align="JUSTIFY">Brauca, brauca - pietrūka ko ēst. Piebraukuši pie lielas pilsētas,
+zemnieks gāja vidū (iekšā) maizes pirkt. Bet vecītis &amp;127;ieteica, lai neejot
+tādā traktierī, kur stipri spēlēšot un dancošot. Zemnieks iegāja pilsētā; bet
+kad tam traktierim gaŗām gāja, kur spēlēja un dancoja, tad nevarēja nociesties vidū
+negājis. Un tur bija muzikanti, tur spēlēja un dancoja un traktiernieks visiem par
+velti deva ēst un dzert, kas tikai gribēja. Bet traktierniekam viena meita bija nomirusi
+un baznīcā nolikta.</p>
+
+<p align="JUSTIFY">Kad nu zemnieks iedzērās, traktiernieks vedinājās viņu saderēt,
+ka mirušo meitu nenosargāšot. Zemnieks, kā jau iedzēries, derēja, ka būšot
+nosargāt. Bet dzērumu izgulējis, zemnieks atjēdzās, kam vajadzējis derēt? Un
+raudādams gāja uz kuģi atpakaļ pie vecīša pēc padoma. Vecītis sacīja, lai prasot
+traktierniekam 12 maisu maizes sagrieztu mazos kancīšos (kumosos) un lai ienesot maisus
+baznīcā pie dievgalda. Naktī, tiklīdz meita ceļoties, šos maizes kancīšus pa
+vienam vien lai metot meitai mutē, tad šim nekā nepadarīšot.</p>
+
+<p align="JUSTIFY">Labi. Tā darījis, ienesis maizi baznīcā un gaidījis. Te ap
+pusnakti meita cēlās augšā no zārka, izstaigāja pa visu baznīcu meklēdama un
+beidzot ar atplēstu muti skrēja uz dievgaldu zemniekam virsū. Šis, nabadziņš,
+nobijies un sāka negantniecei pa vienam vien kancīšus mest mutē. Un tad rija arī
+nesātniece, lai Dievs pasargā. Jau viens maiss tukšs, otrs, trešs -- jau beidzamais
+kumoss rokā - te pašu laiku gailis arī dziedāja un meita tūlīt iekrita zārkā.</p>
+
+<p align="JUSTIFY">Rītā traktiernieks, domādams : zemnieks būs pagalam, nāca uz
+baznīcu viņa noskrubinātos kaulus izsviest laukā; bet zemnieks smaidīdams sēdēja uz
+saviem maisiem pie dievgalda. Nu traktiernieks aizmaksāja viņam daudz derības naudas un
+izlaida no baznīcas, lai iet uz kuģi atpakaļ.</p>
+
+<p align="JUSTIFY">Labi. Bet vakarā zemnieks atjēdzās, ka priekā bija aizmirsis maizi
+nopirkt - bija jāiet atkal uz pilsētu atpakaļ.</p>
+
+<p align="JUSTIFY">Divreiz vēl viņš iet maizi pirkt un divreiz vēl dabū baznīcā
+meitu sargāt, tādēļ ka ar traktiernieku dzērumā saderējis. Otrā reizē vecītis
+pamācījis, lai baznīcā ienesot 12 kubulu ūdens un to lai lejot meitai rīklē.</p>
+
+<p align="JUSTIFY">Labi. Trešo reizi licis zārkam blakus gulēt. Kad nu meita līdz
+gaiļiem netikusi zārkā atpakaļ, tad velns izskrējis no meitas ārā un aizgājis, ka
+zeme vien norībējusi. Tūlīt meita apsēdusies uz zārka malas un sākusi ar zemnieku
+runāt.</p>
+
+<p align="JUSTIFY">Gaismiņā traktiernieks nācis sarga kaulus laukā mest; bet
+ieraudzījis savu meitu veselu un dzīvu sēžam, apkampis zemnieku, atdevis vai visu savu
+naudu un meitu vēl par sievu.</p>
+
+
+</body></html>

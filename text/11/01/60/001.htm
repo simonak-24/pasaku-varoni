@@ -1,0 +1,152 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>60</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="center"><font size="3"></font><font size="5"><strong>Pats nocērt to zaru, uz kā sēd.</strong></font></p><font size="5">
+
+</font><p><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p>l. A. 1240. S k o l n i e k s A. G r i s ā n s B a u s k a s a p r.</p>
+
+<p align="JUSTIFY">Reiz pie viena saimnieka dzīvojis kāds nabadzīgs vācietis. Viņš
+nepratis ne labi latviski, ne labi vāciski runāt, tāpēc viņu saukuši par kārklu
+vācieti. Vienu dienu saimnieks saka vācietim, lai aiziet uz mežu sacirst žagarus, ko
+izkurināt krāsni. Vācietis, nevienam nekā nesacīdams, aiziet uz tuvējo kaimiņa
+mežu, iekāpj vienā eglē un uzsēžas uz resna zara un cērt to pašu zaru, uz kura
+sēd. Nāk no darba viens vecs vīrs un saka: "Ko tu te dari?"</p>
+
+<p>Vācietis atbild: "Žagarus cērtu."</p>
+
+<p align="JUSTIFY">"Vai tu esi traks! Ko tu cērt to pašu žagaru, uz kuŗa tu
+sēdi! Tu kritīsi un nositīsies."</p>
+
+<p align="JUSTIFY">Vācietis, nekā &amp;127;auna nedomādams un vecīša vārdus
+neievērodams, turpināja savu darbu tikai uz priekšu. Brāks! Zars lūzt un vācietis
+nokrīt uz galvas zemē. Nu steigšus skrien vīram paka&amp;127; kliegdams:
+"Dieviņ, Dieviņ, pasaki, kad es miršu."</p>
+
+<p align="JUSTIFY">Vīrs smiedamies saka: "Kāpēc tu mani neklausīji? Būtu
+klausījis, tad būtu dzīvojis ilgāk, bet tagad tu mirsi ātrāk. Kad tev galva sāks
+sāpēt un paliks salti, tad tu tūlīt mirsi."</p>
+
+<p align="JUSTIFY">Vācietis bēdīgs iet uz māju. Ceļā saceļas liels sniega putenis,
+nāk sniegs ar krusu. Vācietim sāka ģīmis un ausis sāpēt no liela saltuma. viņš
+iekrīt sniegā un sāk kliegt. Brauc gaŗām kungi, un vaicā: "Kas tev ir?"</p>
+
+<p align="JUSTIFY">Vācietis atbild: "Es mirstu." </p>
+
+<p align="JUSTIFY">"Kas tev ir par vainu?"</p>
+
+<p align="JUSTIFY">Galva sāpot un esot salti. Kungs redzēdams, ka ir muļķis, saka
+savam kučieram, lai sadod ar pātagu, lai ceļas augšā un lai iet uz māju. Kučiers
+labi spēcīgi trīs reizes uzskaita pa biksām par muļķību un saka, lai vesels iet
+mājā. "Paldies, kungi, ka atkal tikšu pie dzīvības."</p>
+
+<p align="JUSTIFY">Katrs izšķiŗas pa savu ceļu un aiziet laimīgs uz savu māju. Māja
+vācietis izstāsta par savu slimību un izārstēšanu.</p>
+</font>
+
+
+</body></html>

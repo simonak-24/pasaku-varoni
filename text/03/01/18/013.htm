@@ -1,0 +1,345 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>13</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Bezbailis meklē bailes.</p>
+</font>
+
+</b><p><b></b>&nbsp;</p>
+
+<p>13. A. 326. 301. B Grebeža. R. Tabines krājumā.</p>
+
+<p align="JUSTIFY">Sen-senejūs laikūs dzeivuoja vīnā cīmā saiminīks, un tam
+saiminīkam beja dāls, kas nikur naguoja, tikai sēdēja muojuos. Kad tys saiminīka
+dāls paiyka vacuoks, tad jis vīnu reizi uz vokara nūguoja laukā pi citim jaudim. Jis
+naguoja vys ti, kur jauni meitas un puiši dancuoja, bet atsarada pi vacus un klausējuos,
+kū vacī stuostēja.</p>
+
+<p align="JUSTIFY">Vīns vacs cylvāks stuostīja: "Es redzēju vylku un man beja
+cīši baist, ka tikai palyku dzeivs; atguoju uz muojuom un vaidēju treis dīnas."</p>
+
+<p align="JUSTIFY">Ūtrs stuosta: "Es redzēju nuovi ajūt ar iskapti uz placu; Man
+beja ļūti baist, ka tik kū palyku dzeivs, un vaidēju treis nedēļas." Trešais
+cylvāks sacēja:"Ap pušnakti es redzēju myrūni, tys myrūns gribēja mani
+nūžņaigt, man beja ūti baist. Pēc tuo es tyku vaļā un nu baimes vaidēju četrus
+mēnešus. Un tad es nikur vairuok naguoju vīns pats pa nakti."</p>
+
+<p align="JUSTIFY">Tys saiminīka dāls klausējuos, klausējuos, nūskrēja uz muojuom un
+suoka vaicuot nu tāva: "Tēt, kas tys ir baime? Es šūdīn dzierdēju, ka
+stuostēja par baimi."</p>
+
+<p align="JUSTIFY">Tāvs uz juo sacēja: "Juo īrauga kaidu vylku vai gunsgrāku, tys
+ir baime."</p>
+
+<p align="JUSTIFY">Nyu tys cylvāks aizzadūmuoja, kur atrast baimi. Vīnu svātdīnas
+reitu jis nūguoja uz baznīcu pi grāku syudzēšonas un pascīja baznīckungam: "Es
+gribu redzēt baimi."</p>
+
+<p align="JUSTIFY">Tad baznīckungs uz juo sacīja: "Palīc uz naktis baznīcā, un
+ap pušnaktim redzēsi baimi."</p>
+
+<p align="JUSTIFY">Tai nyu ari nūtyka. Visi audis izguoja nu baznīcas uorā, tad atguoja
+zakriceņs [ķesteris] un aizslēdze baznīcu. Tys cylvāks sēdēja, sēdēja baznīcā,
+leidz atguoja pušnakts. Veras jis: saīt tur veirīši boltuos drēbēs - un kas tī beja
+par veirīšim? Tī visi beja smuti. Un tī veirīši atnesja leidza ar sevi lelu, Ielu
+myrūņa kausu. Tad visi jī sakuopja uz varguonu un suoka kavētīs ar tū golvu. Veras,
+veras itys cylvāks, kuop ari uz varguonu un soka: "Pījemīt mani reizē
+kavētīs!"</p>
+
+<p align="JUSTIFY">Veirīši atbild: "Lyudzam, lyudzam!"</p>
+
+<p align="JUSTIFY">Tai jis suoka kavētīs reizē ar tīm veirīšim. "Dūdīt jyus
+man tū golvu vīnam patim kavētīs!"</p>
+
+<p align="JUSTIFY">Un jī jam īdeve itū golvu sacīdami: "Tik nanūsvīd ituos
+golvas zemē!"</p>
+
+<p align="JUSTIFY">Itys cylvāks kavējuos, kavējuos, tad svīde golvu zemē un tei golva
+saduza. Tī smuti pīsasēja jam kluotu, raustēja jū aiz drēbēm un sacēja: ,,Kam tu
+sadauzēji tū golvu?"</p>
+
+<p align="JUSTIFY">Baznīckungs beja īdevis tam cylvākam svētītu yudini. Jis
+radzādams, ka tī veirīši jū nūžņaigs, jēme tūs smutus un aplaistīja ar
+svētītu yudini. Tad tī veirīši lyudzuos: "Nalaisti myus, mes tevis
+naaiztiksim."</p>
+
+<p align="JUSTIFY">Jis ari vairuok jūs nalaistēja, tad nūkuopja vīns veirītis zemē,
+izbuoza garu, garu mēli un salaizēja vysus tūs kauliņus pa zemi. Myrūņa golva nyu
+otkon topa taida, kaida bejuse. Tad tī veirīši nūguoja prūjuom, bet baimes
+maklātuojs atsagula un gulēja mīrīgi.</p>
+
+<p align="JUSTIFY">Atguoja reits, izausa dīna, atguoja baznīckungs un vaicuoja:
+"Voi tu te redzēji baimi?"</p>
+
+<p align="JUSTIFY">"Naredzēju es nikaidas baimes. Beja atguojuši nazkaidi veirīši
+boltuos drēbēs, es ar jīm pasakavēju un jī man nikuo slykta nadarēja. Pasaki man,
+juo zini, kur atrast baimi."</p>
+
+<p align="JUSTIFY">Baznīckungs sacīja: "Ej uz kopu un sēdi, tur tu redzēs!
+baimi."</p>
+
+<p align="JUSTIFY">Atguoja vokors un baimes maklātuojs nūguoja uz kopu. Pīguojis pi
+kopu, jis īraudzēja dūbi vaļā, daguoja kluot un redzēja tur atvārtu škierstu
+[zārku]. Jis kuopja dūbē, guluos škierstā un guļ. Atguoja pušnakts - klausuos, ka
+nazkas atskrīn, ka zeme vīn reib. Pīskrēja kluot pi dūbes un vaicuoj : "Kas tur
+gu munā vītā? Līn dreižuok nu škiersta uorā!"</p>
+
+<p>Tad vaicuoja baimes maklātuojs: "Kas tu esi?"</p>
+
+<p align="JUSTIFY">Tys, kurs pīskrēja pi dūbes, atsacēja: "Es asmu baznīckungs.
+Laid mani tyu!en īkšā, jau dreiži gaiļi dzīduos."</p>
+
+<p align="JUSTIFY">"Kur tu skraidi pa pasau!i?" prasīja baimes maklātuojs.
+"Pasaki, kur tu beji."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Nascīšu. Laid mani munā vītā!" "Nalaisšu. Pasaki, kur
+  beji."</p>
+</blockquote>
+
+<p align="JUSTIFY">,,Bēju mīguojis uz vīnu cīmu, tamā cīmā beja kuozas, un<b> </b>es
+tai padarīju, ka jaunikis un jaunive palyka nadzeivi, un nyu jī gu nadzeivi."</p>
+
+<p align="JUSTIFY">Tod soka baimes maklātuojs: "Ej un padori, tai, kab tys jaunikis
+un jaunive palyktu dzeivi."</p>
+
+<p align="JUSTIFY">Tad sacīja tys baznīckugs: "Kad es skrīšu dūbē un tu nu
+dūbis uorā, to izraun man sveitai [kr. svita, svārki] koč dīdziņu. Nūej uz tū
+cīmu, kur es beju uz tuom kuozuom, paprosi nu salminīka škeiva, izlīc itū dīdziņu
+uz škeiva, sadadzynuoj tū, nūnes [palnus], kur guļ tī myrūni, un dalīc jīm pi
+daguna paūst, tad jī uz reizes paliks dzeivi. Kaidi bejuši, taidi i byus vasali."</p>
+
+<p align="JUSTIFY">Kad baznīckungs skrēja dūbē, tod jis izruovja baznīckunga sveitai
+stērbeles gobolu; bet arī baznīckungs, grybādams īraut baimes maklātuoju dūbē,
+izruovja jam gobolu nu sveitas. Tod aizzataisēja dūbe un palyka taida pat, kai vysas
+cytas dūbes, apaugušas ar zuoli.</p>
+
+<p align="JUSTIFY">Nyu baimes maklātuojs guoja uz tū cīmu, kur beja kuozas, un kur
+gulēja jaunikis ar jaunivi myruši. Jis nūguoja uz kuozuom, īguoja ustobā un redz, ka
+vysi ir ļūti nūskumīgi un bāduojas. Jis vaicuoja: "Kuo jius tik skumīgi
+asat?"</p>
+
+<p align="JUSTIFY">Saiminīks atbild: "Kad jaunikis ar jaunivi atbrauca nu baznīcas,
+paēda vakariņu, padejuova un nūguoja gulātu, to -- kas tyka, kas na? - oba divi
+nūmyra."</p>
+
+<p align="JUSTIFY">Baimes maklātuojs sacīja: "Es zvnu taidas zuoles, nu kurus par
+reizi paliks vasais jaunikis un jaunikja sīva."</p>
+
+<p align="JUSTIFY">Saiminīks soka: "Lyudzu izzuolēt, es jums aizmoksuošu divi
+symti."</p>
+
+<p>"Labi!" sacīja baimes maklātuojs, "Dūdīt šur maņ škeivi!"
+Myrušuo tāvs padevja jam škeivi un jis vysu izdarēja, kai baznīckungs sacīja.
+Myrušī uz reizes paiyka dzeivi un vasali, vysi nu prīcas nazynuoja, kū darēt, un
+aizmoksuoja baimes maklātuojam divi symti.</p>
+
+<p align="JUSTIFY">Bet tod audis pīsasēja [uzmācās] pi baimes maklātuoja sacīdami:
+"Može tu pats padarēji jūs nadzeivus."</p>
+
+<p align="JUSTIFY">Jis suoca gon runuot, kai beja nūticis, bet nikas juo naklausēja. Nyu
+atvede tīsnešus un suoka jū tīsuot. Baimes maklātuojs nūvedja ļaudis uz kopim, kur
+atroka tū dūbi vaļā. Kad nūjēmja škierstam vuoku, tad vysi redzēja, ka myrūns gu
+uz mutes un jam rūkā ir baimes maklātuoja sveitas gobols. .Tam otkon beja atlicis
+myrūņa sveitas gobols. Nyu saiminīks aizmoksuoja gluobējam vēl divi symti rublu.</p>
+
+<p align="JUSTIFY">Atguoja baimes maklātuojs pi baznīckunga, jis vaicuoja: "Voi
+redzēji baimi?"</p>
+
+<p>"Na, es naredzēju nikaidas baimes."</p>
+
+<p align="JUSTIFY">"Ka tu naredzēji nikaidas baimes, ej pa itū teirumu, tur tu
+atrassi akmini un pi tuo akmiņa byus caurums. Tu paplēs tū caurumu leluoku, īlīn
+tamā oIā, tur tu redzēsi baimi."</p>
+
+<p align="JUSTIFY">Tai i padarēja baimes maklātuojs. Guoja, guoja pa teirumu,
+īraudzēja lelu lelu akmini un pi tuo akmiņa olu. .jis pokosa olu leluoku un īkuopja
+pats olā. Kū tuoļuok leida, tū ola taisējuos plotuoka - beidzūt dakuopja leidz
+dybynam. Baimes maklātuojs</p>
+
+<p align="JUSTIFY">guoja, guoja pa taidu tymsu īlu, beidzūt pīguoju pi vīna kambara
+durvim, attaisēja tuos duravas valā, īguoje kambarī - veras, ka tur aiz golda sēd
+smuts ar trim golvuom. Puorguoja par tū kambari, īguoja ūtrā kambarī, tur veras --
+sēd smuts ar sešuom golvuom. Puorguoja par tū kambari trešā kambarī, tur veras, ka
+sēd smuts ar divpadsmit golvuom. Baimes maklātuojs paprasēja nu smuta: "Voi dūsi
+maņ ēst?"</p>
+
+<p align="JUSTIFY">Smuts atbildēja: "Ej tamā kambarī, tur uz golda stuov zūss ar
+nanūplāstuom spolvuom. Nūplēs zūsei spolvas, izcep un apēd!" Baimes maklātuojs
+īguoja tamā kambarī, veras - uz golda</p>
+
+<p align="JUSTIFY">stuov zūss. Jis pajem zūsi un plēš spolvas. Īguoja tamā kambarī
+meitiņa ar sorkonuom drēbēm, nūstuoja un veŗas uz baimes maklatuoja. Jis soka uz tuos
+meitiņas: "Kuo tu verīs, ka napaleidzi spolvu plēst?"</p>
+
+<p align="JUSTIFY">Meitiņa suoka plēst spolvas, bet tai beja jūti gari nogi un jei
+plēse spolvas ar visu gaļi. Jis soka: "Kam tu plēs ar vysu gaļi? ;j nūst, maņ
+tevis navajaga!"</p>
+
+<p>"Nazkad es arī tai varēja, kai tu, bet nyuleit vairuok navaru." Jis soka:
+"A kas nu mums stypruoks? Pasaspākuosim!" Meitioa soka: "Es asmu ar
+mīru."</p>
+
+<p align="JUSTIFY">"Īlīc tu rūkas itymā varštatā [poļu varsztat,
+skrūvbeņķis] un es tev jūs sagrīzšu. ,Juo tu izrausi rūkas nu varštata ar vysim
+nogim un nanūmaiksi [maikt, maigt, spiest, raut] uodas, tod redzēsim, kurs byus
+stypruoks, tu vai es."</p>
+
+<p align="JUSTIFY">Tei meitiņa īlyka rūkas varštatā un baimes maklātuojs sagrīza
+varštatu; bet meitiņa suoka klīgt un raut rūkas uorā. Jei nūlauzja rūkuom nogus,
+nūmaicja uodu un tad tik beidzūt izruovja rūkas uorā. Nyu jis sajēmja meitiņai aiz
+bizes, suoka sist un meitiņa klīgt, tod saskrēja vysi smuti un pataisēja tur lelu
+azaru. Bet baimes maklātuojs nasabeidja, tuodēļ, ka jam beja škapļeri [latīņu
+scapulare, katoļu plecu drāna] un rožonca [lūgšanu krelles] kluot. Jis uzmaucja
+rožoncu meitiņai uz kokla. Smuti beiduos ieist pi baimes maklātuoja un tikai apleik
+taisēja upes un azarus.</p>
+
+<p align="JUSTIFY">Meitiņa palyka par vylku, par verdivi [vardi] un vysaiži svaidējuos,
+bet baimes maklātuojs nalaidja juos valā. Smuti klīdzja uz meitiņas par gobolu:
+"Svīd zemē nu kakla tuos veizes, tad mēs tev izgluobsim!"</p>
+
+<p align="JUSTIFY">Bet meitiņa navarēja nūmaikt rožancu nu kokla, un baimes
+maklātuojs vylka jū uorā nu olas. Kad pīvylka kluot pi olas cauruma, daskrēja vīns
+smuts un gribēja atjemt meitiņu, bet baimes maklātuojs pagiva akmini, un kai laidja
+smutam golvā, smuts aizzaklīdzja un nūbāga prūjuom.</p>
+
+<p align="JUSTIFY">Kad baimes maklātuojs izguoja nu olas, tod jis nūvedja tū meitiņu
+da baznīckungam. Baznīckungs izvaicuoja vysu, kas beja nūticis, un suoka tu meitiņi
+svētīt. ,ļei otkon palyka par peili, par odotu un vysaiži svaidējuos, bet baimes
+maklātuojs turēja jū aiz motu un baznīckungs svētēja. Beidzūt jei palyka par Jūti
+šmuku meitiņi. Jai beja gradzyns uz piersta, kur beja pīrakstīts juos vuords Īva. Tod
+baznīckungs meitiņi nūkristīja un īlyka vuordu Īva. Tod tik meitiņa polyka pylnā
+pruotā, bet līdz tam 1aikam nikuo naatjēdzja un nikuo nasaprota. Nyu baimes maklātuojs
+lyudzja baznīckungu, kab jū salauluotu ar tū meitiņi, un baznīckungs arī salauluova.</p>
+
+<p align="JUSTIFY">Jaunikis ar jaunivi guoja uz sovu tāvu un izstuostīja jam vysu, kas
+beja nūticis. Tāvs pījēmja prīcīgi sovu dālu ar juo sīvu un vysi dzeivuoja
+prīcīgi.</p>
+
+<p align="JUSTIFY">Reiz jīm pītryuka maizes. Jaunais veirs aizjiudzja zyrgu, nūbraucja
+ar sīvu da kungam maizes pierkt un lyudzja kungu, lai puordūd maizes. Veiram beja uz
+piersta sīvas gradzyns. Kungs, radzādams tū gradzynu, vaicuoj: "Kur tu jēmi itū
+gradzynu?"</p>
+
+<p align="JUSTIFY">Veirs atbild : "Tys munas sīvas gradzyns." Kungs soka:
+"Ej un paruodi maņ sovu sīvu!"</p>
+
+<p align="JUSTIFY">Veirs izvedja uorā kungu un paruodēja jam sovu sīvu. Kungs pagiva
+maizes piercēja sīvai aiz rūkas un redz. ka jei juo meita. Kunga meitai kreisā rūkā
+nabeja mozuo piersteņa. Kuengs nu prīcas nazynuova, kū darēt. Meita arī nyu pazyna
+sovu tāvu un bučuoja jū nu prīcas.</p>
+
+<p align="JUSTIFY">Kungs izprosēja vysu, kas beja nūticis, un izstuostēja arī sovu
+nalaimi ar meitu. "Ka munai meitai beja divpadesmit godu, tod viņa beja pazaudējuse
+symtu gobolu zalta. Es Jūti aizzadusmuoju uz sovas meitas un pascēju: "Kab tevi
+pajemtu smuts ar divpadesmit golvuom!" Uz reizes meitiņa pazuda un septiņi godi es
+nabeju juos redzējis."</p>
+
+<p align="JUSTIFY">Nyu kungs nu prīcas atdevja znūtam vysas sovas muojas un vysu zemi.
+Un baimes maklātuojs dzeivuoja ar sovu sīvu, kunga meitu, boguoti un 1aimīgi. Viņi
+dzeivuoj 1aimīgi varbyut vēļ tagad, juo nav myruši.</p>
+
+
+</body></html>

@@ -1,0 +1,159 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Zaķu gans.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">10. A. 570. Alfreds, Tautas pasakas, 1893, 3 (1).</font></p><font size="3">
+
+<p align="JUSTIFY">Vecākiem bija divi dēli. Vecākais bija ļoti darbīgs un
+labsirdīgs, bet jaunākais slinks un nežēlīgs.</p>
+
+<p align="JUSTIFY">Reiz tēvs ar lielkungu salīga lielu pulku aitu ganīt. Pirmā dienā
+viņš sūtīja uzcītīgo dēlu uz muižu aitas ganīt. Jauneklis arī paklausīja un
+devās rīta agrumā ceļā. Uz muižu ejot, ceļš gāja gar vienu purvainu dīķi. Te
+viņš ieraudzīja vienu vecu, nespēcīgu vīru, līdz krūtim muklājā iestigušu, kas
+ar vāju balsi sauca pēc palīdzības. Jauneklim bija gan ļoti jāsteidzas, lai vēl
+laikā nonāktu muižā; taču viņš par veco iežēlojās un ar lieliem pūliņiem
+izvilka to no muklāja. Sirmgalvis iedeva tam par pateicību mazu sudraba svilpīti,
+sacīdams: "Cita nekā tev nevaru dot, bet ņem šo pašu svilpīti, vajadzībā būs
+derīga."</p>
+
+<p align="JUSTIFY">To sacījis vecais pazuda un jauneklis gāja savu ceļu tālāk.
+Muižā nonācis, viņš tūliņ lika paziņot lielkungam, ka esot atnācis aitas ganīt.
+Lielkungs lika izlaist lielu pulku aitu no kūtim uz ganībām un stingri piesacīja
+jauneklim uzmanīt, ka kāda aita nepazūd, citādi viņš dienas algas vietā dabūšot
+krietnu pērienu.</p>
+
+<p align="JUSTIFY">Ganība, kur aitas bija jāgana, izskatījās kā puķu leja, un
+jauneklis domāja, ka te viņam gluži maz darba būšot. Bet tikko aitas bija no
+laidariem ārā tikušas, tās tūliņ kā trakas iesāka skriet uz netālo mežu. Gans
+gan devās kliegdams vien viņām pakaļ, bet nevarēja nevienas panākt. Jau viņam
+uznāca bailes, ka nu pazudīšot visas aitas, kad vēl īstenā laikā iedomāja
+sirmgalvja padomu: "Ņem, būs vajadzībā derīga!"</p>
+
+<p align="JUSTIFY">Viņš paņēma svilpīti un sāka svilpt - te visas aitas atskrēja
+atpakaļ un ēda mierīgi līdz vēlam vakaram Vakarā viņš gāja, priecīgi svilpodams,
+uz muižu un visas aitas tam pakaļ.</p>
+
+<p align="JUSTIFY">Lielskungs to aicināja pie sevis un iedeva pilnu maku zelta par labo
+ganīšanu. Uzcītīgais dēls pārgāja priecīgs mājā un rādīja tēvam ko bija
+nopelnījis. Tēvs viņu par to ļoti uzslavēja.</p>
+
+<p align="JUSTIFY">Otrā dienā tēvs sūtīja slinko dēlu aitas ganīt. Gar muklāju
+ejot, arī viņš redzēja nespēcīgo sirmgalvi dūņās iestigušu, kas lūdzās pēc
+palīga. Bet sliņķim ne prātā nenāca tam palīdzēt; viņš to vēl izlamāja un
+aizvilkās palēniņām tāļāk.</p>
+
+<p align="JUSTIFY">Kad viņš nonāca muižā un aizdzina aitas uz ganību, tās piepeši
+sāka skriet uz mežu. Gan viņš sauca, gan skrēja aitām pakaļ, bet viss velti! Aitas
+saskrēja mežā un pazuda. Sliņķis tām arī tālāk pakaļ neskrēja, kā līdz meža
+malai. Tad viņš aizgāja pie lielkunga un izstāstīja, kas noticis. Lielskungs lika to
+krietni nomizot un aidzīt pie kāķa.</p>
+</font>
+
+
+</body></html>

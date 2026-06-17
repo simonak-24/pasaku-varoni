@@ -1,0 +1,378 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Sapnis</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Sapnis.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">9. A. 725. 502. 518. J. J a k u š k i n s R ē z
+e k n ē. L a t v j u k u l t ū r a s k r.</font><b><font size="4"></font></b></p><b><font size="4">
+</font>
+
+</b><p align="JUSTIFY"><b></b>Vienam tēvam bija trīs dēli. Katru rītu tēvs piecēlies
+prasījis saviem dēliem, kādus sapņus esot redzējuši. Divi vecākie brāļi
+izstāstīja visus savus sapņus, bet jaunākais nestāstīja nekad. Reiz tēvs, piegājis
+pie jaunākā dēla prasīja: "Nu, vai tu man stāstīsi sapņus, vai ne?"</p>
+
+<p align="JUSTIFY">Lai gan jaunākais dēls bija redzējis tādu sapni, ka izglābis
+ķēniņa dēlu no nāves un pats palicis par ķēniņu, tomēr savam tēvam nestāstīja.
+Un kad tēvs vēl reiz prasīja, vai stāstīšot šim sapņus vai ne, tad dēls viņam
+pateica: "Tu esi muļķis, ka man prasi, lai es sapņus stāstu. Es tak vēl nevienu
+neesmu redzējis savā mūžā, ko tad lai es tev stāstu? Vai lai es melotu?"</p>
+
+<p align="JUSTIFY">Tēvs uz dēla ļoti sadusmojās un aizveda uz krustceļiem, kur auga
+&amp;127;liels ozols, pakārt savu dēdu. Pie ozola, kad tēvs savam dēlam meta cilpu ap
+kaklu, viņiem brauca gaŗām kāds kungs un sacīja: "Kāpēc tu tādu skaistu
+puisēnu gribi pakārt?"</p>
+
+<p align="JUSTIFY">Puisēna tēvs atbildēja: "Ko lai es ar viņu daru, ka viņš man
+nav pastāstījis neviena sapņa? Vecākie divi dēli visu izstāsta, ko viņiem prasu;
+bet šis, kamēr piedzimis, nav stāstījis ne vienu."</p>
+
+<p align="JUSTIFY">Tad kungs saka puisēna tēvam: "Labāk tu viņu pārdod, es tev
+samaksāšu labu naudu, tad varbūt pie manis viņš stāstīs savus sapņus."</p>
+
+<p align="JUSTIFY">Puisēna tēvs saņēma par savu dēlu naudu un aizgāja mājā, bet
+kungs ar puisēnu aizbrauca. Puisēns pie kunga bija jau nodzīvojis labu laiku, bet vēl
+nebija pastāstījis nevienu sapni. Reizi kungs puisēnam prasīja, lai pastāstot kaut
+vienu sapni, jo par šo laiku varējis daudz pieredzēt. Puisēns atbildēja, ka vēl
+neesot redzējis nevienu sapni. Ar šādu atbildi kungs arī atmierinājās. Kad kungs
+prasīja otru reizi, tad arī puisēns tāpat atbildēja kā pirmo reizi. Nu kungs vēl
+deva viņam laiku. Pēc dažām dienām kungs prasīja puisēnam trešo reizi, tad
+puisēns atbildēja: "Kāpēc tad tu tik daudz mani prasi, lai es tev pastāstu
+sapņus? Es tak vēl neviena neesmu redzējis, ko tad lai es stāstu, vai lai
+meloju?"</p>
+
+<p align="JUSTIFY">Tad kungs atsaka: "Es tevi tāpēc nopirku, lai tu man stāstītu
+sapņus, bet tu man neesi pastāstījis neviena un tik ilgi jau dzīvo še."</p>
+
+<p>"Muļķis pārdeva, duraks nopirka. Nu ko lai es izdaru ar jums abiem, pārdevēju
+un pircēju?" atbildēja kungam puisēns. Kungs par tādu runu ļoti sadusmojās,
+aizveda viņu uz krustceļiem un gribēja ozola zarā pakārt. Te pa ceļu brauc ķēniņa
+dēls un prasa kungam: "Kāpēc tu tādu skaistu puisēnu gribi pakārt?"</p>
+
+<p align="JUSTIFY">Tad kungs atsaka: "Es viņu nopirku un gribēju, lai viņš man
+pastāstītu savus sapņus, bet viņš nestāstīja un galā nosauca mani par
+duraku."</p>
+
+<p align="JUSTIFY">"Nu tad tu viņu man pārdod, es samaksāšu labu naudu un pie
+manis viņš varbūt stāstīs sapņus."</p>
+
+<p align="JUSTIFY">Kungs arī pārdod, saņem naudu un aiziet uz māju. Bet ķēniņa
+dēls puisēnu iesēdināja savā karītē un aizbrauca.</p>
+
+<p align="JUSTIFY">Kādā rītā ķēniņa dēls prasa puisēnam, vai neesot redzējis par
+šo laiku sapņus.</p>
+
+<p align="JUSTIFY">"Neesmu redzējis savā mūžā nevienu sapni," puisēns
+atbild. Pēc dažām dienām ķēniņa dēls atkal prasīja puisēnam, lai pastāstot
+kādu sapni; bet puisēns atbildēja, ka sapņus vēl neesot redzējis. Un kad ķēniņa
+dēls prasīja vēl reizi, tad puisēns atbil dēja: "Kāpēc tad tu manus sapņus
+gribi izzināt? Es jau tev teicu, ka neesmu redzējis neviena sapņa."</p>
+
+<p align="JUSTIFY">Tad ķēniņa dēls teica uz puisēnu: "Es tak tādēļ tevi
+nopirku, lai tu man stāstītu sapņus."</p>
+
+<p align="JUSTIFY">"Muļķis bija pārdevējs, muļķis pircējs!" atsaka
+puisēns ķēniņa dēlam.</p>
+
+<p align="JUSTIFY">Kēniņa dēls par tādu runu ļoti sadusmojās un pavēlēja saviem
+sulaiņiem ielikt viņu cietumā. Cietumā puisēns nosēdēja vairāk gadu, bet tur
+viņam bija labāki dzīvot nekā pie tēva. Ķēniņa meita nesa viņam katru dienu ēst,
+šis puisēns viņai ļoti patika. Reiz ķēniņa meita sacīja savam brālim:
+"Atlaid šo skaisto puisēnu no cietuma."</p>
+
+<p align="JUSTIFY">Bet ķēniņa dēls atsaka: "Ja es esmu vārdu teicis, tad tam ir
+tā jānotiek!"</p>
+
+<p align="JUSTIFY">Un tad viņš pateica, kad šis precēšoties, tad šo puisēnu
+nonāvēšot. Ķēniņa meita sāka raudāt un vēl vairāk lūdza savu brāli, lai
+atlaistu šo puisēnu, kas jau bija vairāk gadu nosēdējis cietumā un izaudzis par
+lielu un skaistu vīru. Bet brālis neklausīja un ķēniņa meita nekā nevarēja
+izdarīt. Tad viņa aizgāja arī pie puisēna parunāties. Beidzot pienāca tas laiks, ka
+ķēniņa dēls brauca precībās. Tad cietumnieku ķēniņa dēls atstāja savai māsai
+pārzināt. Kad ķēniņa dēls bija projām, tad viņa māsa aizgāja pie cietumnieka,
+izlaida to ārā un atveda savā pilī, izrādīja tam visu un pastāstīja, ka brālis
+aizbraucis precībās.</p>
+
+<p align="JUSTIFY">Cietumnieks nu paņēmis ķēniņa plinti un aizgājis mežā
+medībās. Visu mežu izstaigājis, bet nekā nevarējis ieraudzīt, ko varētu nošaut.
+Viņš gāja pa mežu tālāk un ieraudzīja, ka divi velni kaujas un sit viens otram par
+galvu. Medinieks, piegājis pie velniem, redz, ka tie kaudamies ir izsituši tādu bedri,
+ka tur cilvēks ieietu, tad to nemaz nevarētu redzēt. Tad viņš velniem saka:
+"Dievs palīdz, mīļie draugi! Ko tad jūs te darāt?"</p>
+
+<p align="JUSTIFY">Velns galvas vien pacēla uz augšu un saka: "Paldies, dārgais
+cilvēks. Redzi, mēs te jau kaunamies daudz simtu gadu, un nevaram nekā saprast, kā
+varētu pareizi izdalīt šo neredzamo cepuri un ātri ejošos zābakus. Viens grib jemt
+abas lietas, bet otrs nedod. Varbūt, tu prastu to izdarīt, tad &amp;127;lūdzam
+parādīt."</p>
+
+<p align="JUSTIFY">Medinieks padomājis saka: "Nu labi! es sviedīšu šos divus
+dzelzs gabaliņus, kas papriekšu tos atradis, tam tad atdošu tās div lietas."</p>
+
+<p align="JUSTIFY">Tad medinieks ieliek savā plintē divas skrotes un izšaun divi reizes
+mežā uz krūmu pusi. Velni nu sāka meklēt un beidzot arī atrada, bet medinieks pa to
+laiku uzmauc galvā neredzamo cepuri, apaun kājās ātri ejošus zābakus un aizskrien uz
+pili pie savas ķēniņa meitas. Atraduši abas skrotes, velni atskrien kā viesuļi pie
+bedres, kur agrāk kāvās, bet tai vietā nav vairs neviena cilvēka, ne cepures, ne
+zābaku. Viens velns saka: "Redzi, brāl, cik gadu mēs kāvāmies par šo cepuri un
+zābakiem, bet nevarējām to pareizi izdalīt. Bet te par laimi atradās labs cilvēks,
+kas tās lietas pajēma un aizgāja."</p>
+
+<p align="JUSTIFY">Mednieks, ķēniņa meintas brūtgāns, ieiet ar visu savu cepuri
+galvā ķēniņa pilī un atsēstas savai brūtei blakam bet tā to nemaz neredz. Te uz
+reiz viņš noņem no galvas cepuri. Ieraudzīdama savu brūtgānu sēdam, viņa saka:
+"Vai, kad tad tu te atsēdies? Kā es neredzēju, kad tu atnāci?"</p>
+
+<p>" Varbūt tu biji stipri sadomājusies," atsaka ķēniņa meitas brūtgāns.
+Bet tagad tu man iedod ēst, tad es vēl iešu pastaigāti es."</p>
+
+<p align="JUSTIFY">Ķēniņa meita pavada savu brūtgānu ceļā. Šis vis nestaigā
+lēnitiņām, bet ka saņem dūšu un sāk soļot ar saviem ātrajiem zābakiem tā arī
+drīz vien panāk ķēniņa dēlu, kas vēl brauca precībās. Tad viņš izraun ķēniņa
+dēlam pātagu no rokām un iesit tam trīs reizes pa muguru, ka viņš no lielām sāpēm
+iekliedzas.</p>
+
+<p align="JUSTIFY">Ķēniņa dēls apskatās visapkārt, bet neredz nekā, kas tas bija
+par sitēju. Brauc atkal tālāku ķēniņa dēls un līdz ar viņu cietumnieks. Drīz
+viņi iebrauc otra ķēniņa valstī, tur par ķēniņieti bija ragana. Ķēniņa dēlam
+līdzi ieiet pilī arī cietumnieks, ko viņš nevarēja redz., tādēļ ka viņš
+nēsāja neredzamo cepuri galvā. Ķēniņa dēls sāk sarunāties ar raganu, vai viņa
+neietu šim par sievu. Bet ķēniņietes raganas māte saka: "Papriekšu, dēls, tu
+man padarīsi trīs darbus un tad tik atdošu tev savu meitu par sievu. Ja tu šos darbus
+neizpi1dīsi, tad tev nocirtīs galvu. Vispirms tu sašūsi tādus svārkus, kas nav no
+austas, ne arī no mestas drēbes. Tad tev būs jāsašuj tādas kurpes, kas manai meitai
+būtu kā pieaugušas pie kājas bez nevienas vīles. Pēdīgi tev jādabūn tādas
+puķītes, kuŗām viens ziediņš zelta, otrs sidraba."</p>
+
+<p align="JUSTIFY">Kēniņa dēlam jau bija bailes, ka viņš tādus darbus nevarēs
+izdarīt. Tad ķēniņa dēls aiziet no raganām meklēt tādu cilvēku , kas viņam
+varētu palīdzēt. Meklēja, meklēja, bet neviens tādus darbus neprata. Bet cietumnieks
+palika pie raganām un skatās ,ko tās darīs. Viena raganas meita aiziet un atved velnu,
+lai sašuj svārkus ne no austas, ne no mestas drēbes. Velns izvelk no maisa drēbi,
+uzmērīja un saka: "Ja jūs gribat, lai es sašuju divus svārkus, tad tie būs
+ļoti mazi, bet ja vienus, tad būs ļoti labi. Ragana pateica, lai tik vienus sašuj, bet
+tik labi. Velns tā arī padara. Kad svārki bija jau sašūti, tad velns tos pakāra
+vadzī un pats sāka sarunāties ar raganām. Pa to laiku ķēniņa dēla cietumnieks
+viegli pajem svārkus no vadža, salika tos kopā un paliek padusē. Velns jau taisās
+ceļā, bet te ragana prasa kur liki?" . "Kur tad svārkus atbildēja:
+"Pakāru vadzī, vai tad tur nav?"</p>
+
+<p align="JUSTIFY">Ragana meklēja, bet nevarēja atrast. Sāka meklēt velns, bet arī
+viņš neatrada. Tad norunāja, ka laikam peles būšot aizvilkušas. Velnam vajadzēja
+šūt otrus svārkus. Tad ragana prasa velnam, vai vēl neesot palicis kāds gabals no
+tās ādas, no kuŗas esot sašuvis vecākām meitām kurpes. Velns atsaka, ka esot to
+līdzi paņēmis. Ragana liek viņam arī tūliņ kurpes pašūt. Velns izvelk tūliņ
+ādu, izmērī un saka: "Ja šuj drusku mazākas tad iznāk divi pāŗi kurpju, bet
+ja lielākas, tad tikai viens pāris un gabals no ādas vēl atliek."</p>
+
+<p align="JUSTIFY">Ragana pateic, lai šuj tik vienu pāri, ka tik būtu labākas. Sašuj
+pāri kurpju un noliek tās ceplī, lai pakalst, un pats sāk sarunāties ar raganu.</p>
+
+<p align="JUSTIFY">Te šis agrākais ķēniņa dēla cietumnieks viegli pieiet pie cepļa
+noņem kurpes un paliek padusē. Velns pieiet pie cepļa kurpes noņemt un skatās, ka
+vairs nav. Meklēja gan, bet nevarēja atrast, un nospriež, ka peles būšot novilkušas
+tāpat kā svārkus. Velns ar raganu nezina neko darīt - jāšuj kaut no atlikušā ādas
+gabaliņa. Tad velns pajem ādas gabaliņu, izstaipa un pašuj ne visai labas kurpītes,
+bet labākas jau arī nekur nevar dabūt. Tagad ragana tūliņ noliek šās kurpītes, lai
+peles atkal nenovilktu. Velnam vairs nav vairāk darba pie raganām, un tas aiziet. Bet
+ķēniņa dēla cietumnieks paliek vēl pie raganām, lai varētu dabūt arī puķītes,
+kuŗām viens zelta ziediņš, otrs sudraba. Ragana saka savām meitām: "Nu tagad,
+meitiņas, ejiet tai salā, kas ir vienā ezerā, un paplēsiet puķītes, lai būtu
+preciniekiem ko parādīt.<b> </b>"</p>
+
+<p align="JUSTIFY">Ko ragana saka savām meitām, to nu noklausās arī agrākais
+ķēniņa dēla cietumnieks. Raganas meitas siet pa durvim ārā un arī cietumnieks dodas
+no pakaļas. Meitas aiziet pie ezera un taisās braukt ar laivu, bet ķēniņa dēla
+cietumnieks iekāpj papriekšu un gaida, kad tās sēdīsies laivā. Visas trīs meitas
+drīzi vien sasēdās laivā un sāka braukt. Piebrauc pie salas un cietumnieks pats
+Pirmais no laivas ārā um ga&amp;127;ida, kad izkāps raganas meitas. Viu&amp;127;as nu
+aiziet tanī dārzā, kur auga puķītes, viena ar zelta un otra sidraba ziediņiem.
+Viņām aiz iet līdz arī ķēniņa dēla cietumnieks. Katra meita noplēš puķītes pa
+saujiņai, bet cietumnieks pieplēš gandrīz visu klēpi. Nu raganas meitas iet atkal
+atpakaļ uz laivu, arī cietumnieks ir iekāpis laivā un brauc reizā ar šīm.</p>
+
+<p align="JUSTIFY">Tagad cietumnieks atstāj raganu un iet meklēt ķēniņa dēlu.
+Vispirms cietumnieks iet tuvākajā krogā un skatās: pie galda , sēd ķēniņa dēls,
+nolaidis galvu uz krūtim. Viņam ir lielas bailes ka nevar atrast neviena cilvēka, kas
+varētu dabūt ne austas ne mestas drēbes un uztaisīt kurpes bez nevienas vīlītes.
+Cietumnieks piegājis pie ķēniņa dēla un saka: "Kungs, kas tad tev ir noticis, ka
+tu tāds nobaidījies še sēdi?"</p>
+
+<p align="JUSTIFY">Ķēniņa dēls, pacēlis galvu uz augšu, paskatās viņam acīs un
+domā, ka šis ir tāds, kā tas puisis, ko viņš sāvā pilī ielika cietumā. Tā visu
+pārdomājis, ķēniņa dēls salka ienācējam: "Es esmu iekritis lielā nelaimē.
+Man vajag dabūt svārkus ne no austas un ne no mestas drēbes, un kurpes tādas, kur
+nebūtu nevienas vīlītes. Varbūt tu tādu cilvēku zini?"</p>
+
+<p>"Jā, es pats to varu izdarīt," atbild atnācējs. "Tik tev būs ļoti
+dārgi jāsamaksā."</p>
+
+<p align="JUSTIFY">Ķēniņa dēls tūliņ visu samaksāja, cik cietumnieks prasīja. Tad
+cietumnieks saka vēl ķēniņa dēlam: "Vai vairāk nekā nevajaga, kā tikai
+svārku un kurpju?"</p>
+
+<p align="JUSTIFY">Ķēniņa dēls padomājis saka: "Jā, pavisam būtu aizmirsis, ka
+man vēl vajaga dabūt puķītes, kuŗām būtu viens zelta, otrs sidraba ziediņš."</p>
+
+<p align="JUSTIFY">"Tās arī es varu dabūt," atbild cietumnieks, "tik
+puķītes izmaksās trīs reiz dārgāki kā svārki un kurpes."</p>
+
+<p align="JUSTIFY">"Nekas, es samaksāšu, man naudas pietiks!" atsaka ķēniņa
+dēls.</p>
+
+<p>"Nu tad rītā es tev būšu visu sagatavojis <b>un </b>gaidīšu." Ķēniņa
+dēls no liela prieka iedeva savam cietumniekam tik daudz zelta naudas, ka viņš tikko
+varēja panest, bet pats aiziet no kroga projām. Tagad cietumnieks, krogā būdams, pērk
+trīs mucas brandvīna un sadzirdina visus kroga ļaudis.</p>
+
+<p align="JUSTIFY">Otrā dienā ķēniņa dēls atnāk atkal krogā pēc svārkim, kurpēm
+un puķītēm, bet cietumnieks neatdod vis tik vienkārši. Viņš paņem papīru un iedod
+ķēniņa dēlam, lai uzraksta, ka visu viņam piedod. Ķēniņa dēls arī parakstīja un
+dabūja visas lietas. cietumnieks piesaka, lai ķēniņietei nerāda vis savas lietas
+pirmais, bet lai viņa papriekšu parāda savas meitas svārkus, kurpes un puķītes.
+"Citādi viņa varētu tev atjemt, ka tu nemaz nemanītu."</p>
+
+<p align="JUSTIFY">Ķēniņa dēls pajem nu visas lietas un aiziet pie raganas. Bet
+cietumnieks ar cepuri galvā aizskrien atpakaļ cietumā pie ķēniņa meitas. Iegājis
+istabā tūliņ nojem cepuri no galvas un parādās ķēniņa meitai. Tā ieraudzījusi
+cietumnieku, izsaucās : "Vai tu te? Nu paldies Dievam! Es jau biju pavisam
+nobēdājusies, domāju, ka tu vairs atpakaļ nenāksi. Ja būtu atbraucis mans brālis,
+tad viņš mani būtu nonāvējis, tādēļ, ka es tevi izlaidu no cietuma."</p>
+
+<p align="JUSTIFY">"Es tepat vien biju, tik drusku gribēju pastaigāties,"
+atbild cietumnieks.</p>
+
+<p align="JUSTIFY">Ķēniņa meita iedeva viņam ēst un tad ielika atkal cietumā,
+baidīdamās, ka brālis neatbrauktu. Otrā dienā atbrauc arī ķēniņa dēls ar raganas
+meitu. Pēc tam ķēniņa dēlam dzēra kāzas. Kāzu dienā viņš iedomājās par savu
+cietumnieku, ko viņš bija solījies pakārt. Viņš pasauc sulaiņus, lai tie to sodu
+izdarītu. Ķēniņa meita gan ļoti lūdza savu brāli, lai atlaiž cietumniekam nāves
+sodu, bet tas neko nelīdzēja. Sulaiņi sajēma cietumnieku un veda to uz karātavām.
+Ķēniņa dēls un meita, kā arī daudz kaŗavīri, gāja tiem līdz. Beidzot cietumnieks
+jau bija novests un bendes jau uzlika viņam divas cilpas uz kaklu. Tagad cietumnieks
+izvelk no kabatas vienu papīriņu, atdod to kādam kaŗavīram un pasaka, lai padodot to
+ķēniņa dēlam. Kaŗavīrs arī aiznes to zīmīti ķēniņam. Ķēniņa dēls apskatās
+un redz, ka viņš pats ir parakstījis, ka visu piedod. Tad viņš saka bendēm, lai
+cietumnieku atlaižot. Ķēniņa dēls pieiet klāt pie cietumnieka un prasa: "Vai
+tad tu tas biji, kas man krogā pataisīja svārkus un kurpes un atnesa puķītes ar zelta
+un sudraba ziediem?"</p>
+
+<p align="JUSTIFY">"Ja netici, tad es tev vēl varu parādīt tādas pašas
+puķītes, kādas tev iedevu!"</p>
+
+<p align="JUSTIFY">Pēc tam ķēniņa dēls ar savu cietumnieku aiziet uz cietumu, lai
+parādītu tās puķītes, kuŗas toreiz bija nodotas. Kad aizgāja uz cietumu, tad
+cietumnieks izvilka no gultas apakšas lielu klēpi puķīšu ar zelta un sidraba ziediem.
+Tagad ķēniņa dēls cietumniekam visu piedeva un apprecināja to ar savu māsu. Kāzas
+cietumnieks nodzēra tai pašā dienā, kad ķēniņa dēls. Cietumnieku ķēniņa dēls
+iecēla par ķēniņu, bet pats dzīvoja pie gatavas maizes. Tā nu puisēna sapnis bija
+piepildījies.</p>
+
+<p>P i e z ī m e. Šī pasaka ir tulkota rakstu valodā. P. Š</p>
+
+
+</body></html>

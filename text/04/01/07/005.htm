@@ -1,0 +1,163 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Nāve par krustmāti.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 332. A. Bīlenšteins Jaun-Auces Mizaišos. LP, VI. 129, 2. AŠ,
+III, 10d.</p>
+
+<p align="JUSTIFY">Vienreiz viens puisis dzīvojis saimniekam veselu gadu. pa vienu miežu
+graudu. Viņš to miežu graudu iesējis - tur viņam izaugusi kāda riekuža un otru gadu
+izaudzis gandrīz kāds sīks. Viņš no tā pabrūvējis alu un, uzsējis savu alus
+mučeli uz muguras - ejot projām. Tā iedams, satiekot vellu. Vells prasot: "Ku tu
+iesi ?"</p>
+
+<p align="JUSTIFY">Šis atsakot: "Man a tevi nekāda runa nav, tu esi vells!"</p>
+
+<p align="JUSTIFY">Tā ejot aka - satiekot Dievu. Dies prasot: ku šis iešot? Šis aka
+atsakot: "Man a tevi arī nekāda runa nav - tu nedari nemaz taisnības: vienam tu do
+pa daudz, otram nemaz." Tā ejot akal projām, satiekot Nāvi. Nāve arī prasot :
+kas šis tāds esot, ku iešot?</p>
+
+<p align="JUSTIFY">"Ja," šis sakot, "a tevi es runāju, tu dari visiem
+vienādi: tu ņem tāpat jaunu kā vecu, bagātu kā nabagu!"</p>
+
+<p align="JUSTIFY">Tā viņi apsēžoties grāmalē, dzeŗot to alu un tik runājot. Kā
+nu izdzēruši to alu, tā tas puisis teicis, taču vēl labi nevarot zināt, vai viņa
+esot Nāve, vai ne. Ja esat, tad lai parādot un ielienot tai mučelē! Kā nu šī
+ielienot, tā šis aizsitot prapi un nu šī vai nevar tikt laukā. Tā šis sanēsājis
+viņu septiņi gadi un neviens cilvēks nav miris.</p>
+
+<p align="JUSTIFY">Nu šī lūgusēs, lai laiž laukā. Šis ātrāki nelaiž, kamēr
+pateic, kā var dziedināt, ka šī nevar dabūt nokaut. Šī teicot, ka skaitot:</p>
+
+<p align="JUSTIFY">"Tēs mūs" un nesakot āmen, ta šī nevarot tikt klāt un,
+kad esot "</p>
+
+<p align="JUSTIFY">kāds slims, ka viņa stāvot kājgalī, tad nemiršot; bet ja stāvot
+galvas galā, tad miršot.</p>
+
+<p align="JUSTIFY">Viņš nu skaitot arvienu pātarus, bet nesakot nekad āmen un gājis
+tik pa tām mājām audis dziedināt. Kā kāds paliekot slims, kā redzot, ka tā Nāve
+stāv galvas galā, tā ņemot un apgriežot to gultu apkārt un nu šī paliek kāju
+galā. Nu šī paliek dusmīga, ka nevar dabūt neviena cilvēku nokaut . . .</p>
+
+<p align="JUSTIFY">Tā apģērbjoties pa cūku ganeli - ganot tās cūkas un tik raudīt.
+Šis puisis pieejot un prasot: "Kālab tu raudi?"</p>
+
+<p align="JUSTIFY">"Ja," šī sakot, "kā es neraudāšu? Mani saimniece
+per apkārt griezdama, ka es nevaru atminēt to beidzamo vārdu no .Tēs mūs."</p>
+
+<p align="JUSTIFY">Šis sakot: "Appas! tas beidzamais vārds ir āmen!"</p>
+
+<p align="JUSTIFY">Tā kā šis to vārdu izteicis, tā Nāve klāt un pārkodusi šim
+rīkli.</p>
+
+
+</body></html>

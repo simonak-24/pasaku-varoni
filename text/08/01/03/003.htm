@@ -1,0 +1,210 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Raganas šķiltavas.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">3. A. 562. H Skujiņš, Andrs Ziemelis, no 59
+gadi veca Augusta Kārkliņa, Mēra pagastā.</font></p><font size="3">
+
+<p align="JUSTIFY">Vienc zaldāts bīš nodienēš divdesmit pieci gadi, ticis no dienasta
+vaļā un nu nācis uz māju. Tā viņč, švilpēdams, dūšīgi vie gāš un iegāš
+mežā, kur šim nākusi pretī veca nejauka vecene un sākusi runāties, kur nu šis tik
+priecīgs un dūšīgs iedams un tā vē šo un to. Pēdīgi vecene sacīsi, vai šis šai
+negribot ko padarīt, šī šim labi samaksāšot. Jā, kāpē ne! Lai tik šī stāstot,
+kas jādarot. Nu vecene stāstīsi, ka tā un tā lieta esot. Šai vaigot škiltavu un
+tās šķiltavas esot tepatās alā. Tai alā esot trīs kambari un trešā kambarī,
+dzelzs lādē esot šķiltavas. Lai šis ielienot alā un iznesot šai šķiltavas. Ta vē
+vecene stāstījusi, ka katrā kambarī esot viena naudas lāde un lādei uz vāka tupot
+vienc sunc. Lai šis suni noceļot uz šās priekšauta, ta sunc šim nekā nedarīšot,
+un vecene iedevusi zaldātam savu priekšautu.</p>
+
+<p align="JUSTIFY">Zaldāts paņēmis priekšautu un līdis alā iekšā. Vinč iegāš
+pirmā kambarī un tur stāvēsi traki liela naudas lāde un uz lādes vāka tupēš tāds
+sunc, kam acis bīšas tik lielas, kā telēķi. Zaldāts uzcēlis suni uz vecenes
+priekšauta un apskatījies, kas tai lādē ir. Lāde bīsi pilla ar kapara naudu. Nu
+zaldāts grābis naudu un bēris, kur vie maz mācēdams, un piebēris sev visas malīnas
+ar naudu. Ta viņč akal uzcēlis suni apakaļ uz lādes vāka un gāš otrā kambarī.
+Tur bīsi akal tāda pati lāde un uz tās vāka bīš jau tāds sunc, kam acis bīšas
+kā dzirnavu akmini. Zaldāts nocēlis suni uz vecenes priekšauta un pacēlis vāku.
+Lāde bīsi pilla ar sidraba naudu. Nu zaldāts bēris visu kapara naudu laukā un
+sagrābies tik sidraba naudas. Tā viņč uzcēlis suni apakaļ uz 1ādes vāka un gāš
+trešā kambarī. Tur akai bīsi tāda pati lāde un uz tas vaka bīš jau skaudigi lielc
+sunc. Zaldāts nocēlis suni uz vecenes priekšauta un pacēlis vāku. Lāde bīsi pilla
+ar zelta naudu un tur bīšas šķiltavas ar'. Zaldāts paņēmis šķiltavas, gāzis visu
+sudraba naudu uz kula ārā un sagrābies tik zelta naudas vie. Ta nu zaldāts uzcēlis
+suni apakaļ uz vāka un gāš no alas laukā. Pie alas cauruma gaidīsi vecene un
+prasīsi zaldātam, lai atdodot šai šķiltavas. Zaldāts nedevis vecenei šķiltavas un
+prasīš šai. kam šai tās šķiltavas esot vaidzīgas. Vecene nestāstīsi. Nu zaldāts
+ar' saskaities un šņikst! ar zobenu vecenei galvu no(st) un pats prom.</p>
+
+<p align="JUSTIFY">Zaldāts aizgāš uz pilsētu un dzivāš laimīgas dienas. Viņč nu
+šķiedies ar naudu pa roku galam un dzīvāš, kā kāds lielc bagātnieks. Tā bīsi
+ķēnīna pilsēta, kur zaldāts tagadīnās dzīvāš, un ķēnīnam bīsi varēni smuka
+meita. Zaldāts iemīlējis ķēnīna meitu, bet šās par sievu nevarēš dabūt, jo pats
+bīš zemas kārtas cilvēks un tādam jau ķēnīc savas meitas nedos. Nu zaldāts ar
+tām raizēm sācis vēl trakāki uzdzīvāt un drīz vie šim visa nauda bīsi pagalam.
+Pēdīgi zaldāts bīš tā nodzīvājies, ka vairs nebīš ne graša pie dvēseles.
+Viņč nu reiz izvilcis no ķešas ški1tavīnas un sācis ar šām niekoties un reiz
+uzšķīlis. Tulītās mazākais sunc no tiem naudas alas suņiem bīš klā(t) un
+prasīš zaldātam, kā šim vaigot. Ā, nu zaldāts sapratis, kas par lietu, un sacīš
+suņam, ka šim naudas vajagot. Sunc tūlītās akal aizskrēš un drīz vie bīš akal ar
+naudu klā(t). Zaldāts sācis akal dzīvāt pa vecam. Bet zaldātam arvienu vairāk
+ķēnīna meita iepatikusies un šis visu nevisādīgi izdomājies, kā dabūt šo par
+sievu. Gan zaldāts izdomājies krustām škērsām, bet nekā nevarēš izdomāt.
+Pēdīgi zaldātam ienācis prātā: prasīšot suņam, jāču sunc varēšot atnest
+ķēnīna meitu pie šā mājā. Nu zaldāts akal atšķīlis suni un prasīš, vai šis
+nevarot atnest šur ķēnīna meitu. Sunc sacīš, ka varot gan. Nu katru vakaru sunc sev
+uz muguras atnesis ķēnīna meitu pie zaldāta un rītīnā akal šo aiznesis apakaļ uz
+pili. Tā nu jau tas gāš labu laiku un ķēnīna meita ar iemīlēsi zaldātu.</p>
+
+<p align="JUSTIFY">Pagāš vē labs laiks un ķēnīc reiz pamanīš, ka šā meita pa
+nakti nezin kur pazūd un tik ritina akai atrodas pili. Nu ķēnīc uzdevis savu meitu
+vaktēt. Pirmo nakti vaktis nekā nevarēšas novaktēt. Pilī ieskrēš lielc sunc,
+paķēris sev ķēnīna meitu uz muguras un ar visu prom. Otru nakti vaktis noskatīšas,
+kurā mājā sunc ienes ķēnēna meitu. Nu vakts uz tām durim uzvilcis krustu, lai
+rītā varētu ķēnīnam parādīt, pa kuŗām durim sunc ienesis ķēnīna meitu. Bet
+zaldāts pamanīš, ka ķēnīna vakts uzvelk uz šā durim krustu un nu tik šis gāš no
+vienām durim uz otrām un visur tik vilcis krustus. Rītā nācis ķēnīc skatīties, uz
+kuŗām durim tas krusts ir uzvilkts. Bet nu krusti no vietas vie. Ei, nu sazini, kuŗš
+ir ritīgais! Tā nekā ķēnīc nedabūš zināt. Bet nu ķēnīc izgudrēš viltību.
+Viņš piebēris mazu kulīti pillu ar miežim un atstāš mazu caurumīnu vaļā, tā kā
+mieži pa druskai birst laukā. To kulīti nu viņč piesēš ķēnīna meitai pie
+brunčiem tā, kā šī pati nemaz nemana un nezina.</p>
+
+<p align="JUSTIFY">Trešā vakarā akal sunc aizgāš pēc ķēnīna meitas un atnesis šo
+pie zaldāta. Rītā akal sunc aiznesis ķēnīna meitu apakaļ uz pili. Nu ķēnīc pa
+izbirušim miežim gāš un piegāš pie tās mājas, kur dzīvāš zaldāts. Nu ķēnīc
+zināš, uz kurieni sunc nes ķēnīna meitu.</p>
+
+<p align="JUSTIFY">Nu ķēnīc licis zaldātu iespundēt cietumā un sācis tincināt
+ķēnīna meitu, kas šai esot par kopību ar zaldātu. Ķēnīna meita sacīsi, ka šai
+zaldāts patīkot un visu izstāstīsi. Nu ķēnīc pārskaities, ka ķēnīna meita ir ar
+zaldātu kopniece, vēlēš šo ar iespundēt cietumā un abiem nospriedis karātavas.</p>
+
+<p align="JUSTIFY">Noliktā dienā zaldātu un ķēnīna meitu veduši uz karātavām un
+visa pilsēta sanākusi skatīties, kā ķēnīna meitu ar zaldātu pakārs. Ka nu
+zaldātu pieveduši pie karātavām, ta ķēnīc prasīš zaldātam, lai sakot savu
+pēdīgo vēlēšanos priekš nāves, un ja šim būšot iespējams, ta šis to
+vēlēšanos ar atļaušot. Nu zaldāts sacīš, ka šim tik viena velēšanās vie esot.
+Nu, lai sakot laukā, akal sacīš ķēnīc. Zaldāts sacīš, lai šim atļaunot vē reiz
+priekš nāves uztaisīt pīpi. Labi, lai uztaisot pīpi - atvēlēš ķēnīc.</p>
+
+<p align="JUSTIFY">Zaldāts izvilcis no kešas šķiltavas. šķīlis vienreiz, šķīlis
+divreiz, šķīlis trīsreiz. Nu visi trīs naudas alas suņi bīši klā un prasīši,
+kā vaigot. Zaldāts nu suņus uzrīdīš ķēnīnam un viņa sargim. Zaldāts nu tikmēr
+rīdīš suņus, kamēr norīdīš ķēnīnu un visus viņa sargus.</p>
+
+<p align="JUSTIFY">Nu zaldāts ar ķēnīna meitu bīši no karātavām vaļā. Zaldāts
+apprecēš ķēnīna meitu un pats palicis par ķēnīnu. Viņi dzīvāši laimīgi ilgus
+gadus.</p>
+
+<p align="JUSTIFY">P i e z i m e. Šis variants ir gan ļoti līdzīgs iepriekšējam, bet
+dažu sīkumu, kā savādās valodas dēļ, viņam tomēr paliek sava vērtība. P. Š.</p>
+</font>
+
+
+</body></html>

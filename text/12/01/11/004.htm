@@ -1,0 +1,152 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Kam b?s lab?ks sapnis</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Kam būs labāks sapnis.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>4.</b> A. 1530. V. Filšs no A. Kozlovska, Rēzeknē. Latvju kultūras
+krājumā.</p>
+
+<p align="JUSTIFY">Vīnu reizi guoja pa ceļu div cylvāki : čygons un zemnīks. Īdami
+pa ceļu jī runuoja, kaida kuram ir laimja. Jī sarunuoja, kas kū pa prīšku atrass uz
+ceļa, tys byus laimeiguoks: Tiai jī īt un verās. Čygons īraudzēja: uz zemis guļ
+komuleņš, nazkas nūgaisynuoja. Tymā komuleņā beja aizsīti tauki un svīksts.
+Čygons soka uz zemnīku: "Es esmu laimeigs un ēsšu vīns pots, a tev nikuo
+nav."</p>
+
+<p align="JUSTIFY">Zemnīkam ar cīši gribējās ēst, jis runoj uz čygonu: "Īsim
+tuoļuok, es varbyut ar dabuošu kaut kū."</p>
+
+<p align="JUSTIFY">"Labi!" pascēja čygons, un jī nūguoja tuoļuok Guoja jī
+guoja - verās čvgons : guļ uz ceļa buteļa brandīņa. Čygons pacēļa buteli ar
+brandīņi un runoj : "Es tuoļuok naīšu, jau taisās tymss, es gulēšu zam
+egleitis, tagan man ir brandīņš un svīksts ar taukim, bet tev nikuo nadūšu, tu esi
+nalaimeigs."</p>
+
+<p align="JUSTIFY">Atsasāda čygons pi kriumeņu un grib dzert tū brandīni un taipat
+ēst tū svīkstu ar taukim. Zemnīks ar atsasāda un soka uz čygonu: "Zyni kū,
+draugs? Itū nakti puorguleisim tai pat naēduši. Tad redzēsim sapynā, kai itū
+brandīņi dzert, tev vīnam patim, vai abadivējim, un taipat ar itim taukin un
+svīkstu."</p>
+
+<p align="JUSTIFY">Čygons ilgi dūmuoja un golu golā pascēja: "Labi!" Tai jī
+atsagula zam kriumeņu. Čugons dreižy aizmyga, a zemnīks apēdja vysus taukus, svīkstu
+un izdzēra brandīņi. Tad jis taipat atsagula guleit. Uz reita pazacēļa čygons un
+taipat zemnīks. Zemnīks vaicoj čygonam: "Nu, draugs, kū tu redzēji
+sapynā?"</p>
+
+<p align="JUSTIFY">Čygons suoka stuosteit, ka jis redzēja, ka beja dabasūs pi poša
+Dīva un ar Dīvu labi izdzēra duorgus vīnus. Zemnīks puortraucja čygona runu un soka:
+"Es ar taipat redzēju, ka tu staigoj ar Dīvu pa dabasim un labi ar Dīvu dzēri
+lobu brandīņu un ēdi lobas pušdīnis. Es padūmuoju, ka tu vairuok naīsi pi manis, es
+pajāmu itūs taukus ar svīkstu apēžu un izdzēru ari brandīņi."</p>
+
+<p align="JUSTIFY">Čygons palyka pavysam naēdis, pametja itū draugu zemnīku, a pats
+nūguoja uz cīmu praseit koč gabaleņu maizis. A zemnīks atguoja uz sovu sātu
+smīdamīs.</p>
+
+
+</body></html>

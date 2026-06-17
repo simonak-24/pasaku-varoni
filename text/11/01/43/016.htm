@@ -1,0 +1,134 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Velns ar lāci rijā.</strong></font></p><font size="5">
+
+</font><p align="CENTER"><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p>16. A. 1161. A. E. K r a s t i ņ š V ā r e n b r o k ā, F o l k l. k r ā t u v ē.
+</p>
+
+<p>Reiz vienā rijā bijuši spoki, ļaudis baidījušies un nevarējuši tur strādāt.
+Vienā vakarā tur ienāk lāčenieks un lūdzas naktsmāju. Saiminieks viņam dod
+naktsmāju ar tādu norunu, lai lāci ved uz riju pa nakti un pats var gulēt istabā.</p>
+
+<p align="JUSTIFY">No rīta iet lāčenieks uz riju pēc lāča paka&amp;127; un skatās,
+ka rijā visi ārdi salauzti un saplaukāti. Lāčinieks, nekā nezinādams, paņem lāci
+un aiziet. No tās&amp;127; reizes rijā vairs spoki nebaidījuši.</p>
+
+<p align="JUSTIFY">Tā saimnieka gans ganīja mežmalā cūkas. Izgājis no krūmiem viens
+jaunskungs, prasa ganam: "Vai tas kaķis vēl ir tai rijā?"</p>
+
+<p align="JUSTIFY">Gans saka: jā, esot vēl pieci bērni radušies. Jaunskungs sasitis
+plaukstas : "Nu mana naudiņa pagalam. Viens pats kaķis kā mani sagrāba, es tikko
+paliku pie dzīvības. Kur tad vēl pieci? Tur nav ko domāt ar tiem kaŗot. Ganiņ,
+paņem tu to naudu, tur apakš sliekšņa. Es tur vairs nevaru rādīties."</p>
+
+<p>Gans atradis to naudu, izņēmis nu nu palicis bagāts.</p>
+</font>
+
+
+</body></html>

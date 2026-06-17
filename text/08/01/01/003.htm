@@ -1,0 +1,195 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Čūskas gredzens.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">3. A. 560. M. O z o 1 s, D u r s u p ē. LP. IV,
+87 (18, 3). </font></p><font size="3">
+
+<p align="JUSTIFY">Vienam tēvam bijis dēls, vārdā Ļēpausis. Vienreiz tēvs iedevis
+Ļēpausim naudu nopirkt pilsētā maizi. Ļēpausis, caur mežu iedams, ieraudzījis
+vīru, kas sitis suni. Ļēpausim suņa bijis žēl, viņš to atpircis. Bet mājā<b> </b>māte
+nejauki Ļēpausi rājusi: neesot pašiem ko ēst - vēl vedot liekēžus mājā!</p>
+
+<p align="JUSTIFY">Otrā dienā tēvs atkal iedevis naudu maizi pirkt. Bet Ļēpausis
+saticis mežā vīru, kas sitis kaķi. Viņš atpircis kaķi un atkal pārvedis mājā.
+Māte vēl dusmīgāka.</p>
+
+<p align="JUSTIFY">Trešā dienā tēvs atkal iedevis naudu maizi pirkt. Bet
+Ļēpausis mežā saticis vīru, kas odzi sitis. Viņš atpircis odzi un nesis mājā. Bet
+odze uz ceļa izspļāvusi gredzentiņu, teikdama: "Uzmauc gredzenu pirkstā, tad
+viss notiks, ko vien vēlies; bet mani tu laid vaļā!"</p>
+
+<p align="JUSTIFY">Ļēpausis palaidis odzi, pagrozījis gredzenu un vēlējies:
+"Kaut mājā visi galdi </p>
+
+<p align="JUSTIFY">būtu pilni ar gardākajiem ēdieniem un dzērieniem!" Viss tā
+noticis un māte ar </p>
+
+<p align="JUSTIFY">tēvu nevarējuši izbrīnīties, kā tas gadījies. Drīzi arī
+Ļēpausis pārradies, pagrozījis gredzenu un vēl vairāk iepriecinājis vecākus;
+viņš vēlējies: "Kaut būdiņas vietā gadītos tāda pils no tīra zelta un
+dimanta!"</p>
+
+<p align="JUSTIFY">Tūliņ pils gadījusies. No tās dienas Ļēpausis ar vecākiem
+dzīvojis vienā labumā.</p>
+
+<p align="JUSTIFY">Bet vienreiz Ļēpauša kungs nācis no muižas apprasīties, kur
+viņš tādu p.ili ņēmis. Tā un tā - Ļēpausis izstāstījis, pie kam vēl
+lielījies,, ka esot pārāks par pašu kungu, varot ar ķēniņiem mērīties un vai
+nevarot kungs tādēļ savu meitu viņam par sievu atdot: Kungs domājis tā: "Kas
+tādā dimanta pilī manai meitai nekaitēs! Viņas pirmais brūtgāns aizkūlies
+svešumā un diezin, vai maz kādreiz vairs pārnāk - labāki būs; spiedīšu pie
+Ļēpauša aiziet."</p>
+
+<p align="JUSTIFY">Kungs pārgājis mājā un piespiedis meitu Ļēpausi precēt. Labi -
+meita gājusi ar'; bet prāts tai bijis pie pirmā brūtgāna.</p>
+
+<p align="JUSTIFY">Ne ilgi pēc kāzām Ļēpauša sieva nodabūjusi brīnumu gredzenu
+savos nagos, Tūliņ vēlējusies: "Kaut es būtu ar visu šo dimanta pili pie sava
+pirmā brūtgāna; bet Ļēpausis - kaut tas būtu iemūrēts uz augsta mūŗa viņus
+šīs vietas, ezera vidū, ka galva vien tik ārā!"</p>
+
+<p align="JUSTIFY">Acumirklī viss tā gadījies. Vecāki nu mituši atkal savā
+būdiņā, bet suns ar kaķi nesuši katru dienu Ļēpausim barību klāt: suns aiznesis,
+un kaķis, pa mūri rāpdamies, uznesis dabūto barību augšā. Cits jau neviens
+nevarējis mūŗa augšieni sasniegt. Beidzot suns ar kaķi taču apnikuši šo
+kopt; norunājuši labāk gredzenu uzmeklēt, lai tiktu no mokām vaļā. Nu meklējuši
+abi divi ilgu laiku pa puspasauli. Beidzot uzgājuši to vietu, kur Ļēpauša sieva
+piemitusi. Par dienu uzņēmusi labi suni un kaķi; bet par nakti izdzinusi laukā. Tomēr
+vienu vakaru kaķis dabūjis pa kāju apakšu atpakaļ atsprukt istabā un paslēpies,
+apakš Ļēpauša sievas gultas. Gulēt iedama, Ļēpauša sieva noglabājusi gredzenu
+mutē, kaķis to redzējis. Līdz ko nu aizmigusi, kaķis glaudījis ar pēdu šai lūpas.
+Beidzot no kaķa pēdas iegājusi viena spalviņa mutē. To pa miegam šī spļāvusi
+laukā, bet ar to arī izspļāvusi gredzenu.</p>
+
+<p align="JUSTIFY">Kaķis paķēris gredzenu un sācis ņaudēt. Šī atmodusies,
+pavērusi durvis un saukusi: "Skic! laukā skic!"</p>
+
+<p align="JUSTIFY">Kaķis izskrējis pie suņa un nu pa abiem nesuši gredzenu Ļēpausim.
+bijuši jau gandrīz pie mūŗa klāt, te abi nesēji sākuši ķildoties: viens gribējis
+nest, otrs gribējis. Ķildā gredzens izsprucis no mutes un iekritis ezerā.</p>
+
+<p align="JUSTIFY">Nekā darīt - peldējuši atpakaļ un staigājuši noskumuši. Otrā
+nedēļā sunim ar kaķi iegadījies gar kāzu namu iet. Laukā bijuši izsviesti: kauli,
+zivs ķidas, kas nekas, kā jau kur dzīras. Suns sācis grauzt kaulus, kaķis atkal
+ķidas ēst, Un, ko domāt - šinīs ķidās kaķis uzgājis savu gredzenu. Nu bijuši
+priecīgi; tūliņ peldējuši pie Ļēpauša un neķildojušies vairs nemaz; drīzāk
+suns vēl uzņēmis kaķi uz muguras un stiepis caur ūdeni, tādēļ ka bijis labāks
+peldētājs. Kaķis uznesis gredzenu Ļēpausim. Šis uzmaucis gredzenu pirkstā,
+pagrozījis un vēlējies: "Kaut šis mūris sadruptu lupu lupās; kaut mana dimanta
+pils atnāktu ar visu sievu turpat atpakaļ, kur 'bijusi!"</p>
+
+<p align="JUSTIFY">Acumirklī viss noticis. Sieva lūgusies kā traka, lai Ļēpausis
+piedodot, esot pārskatījusies; pirmais brūtgāns, kā nu labi redzējusi, nemaz arī
+viņu tā negribējis, kā cerējusi. Viņa vairs nekad tā nedarīšot. Ļēpausis
+piedevis un no tās dienas dzīvojis laimīgi jo laimīgi ar savu sievu, ar vecākiem, ar
+suni un kaķi.</p>
+</font>
+
+
+</body></html>

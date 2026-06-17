@@ -1,0 +1,222 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Varonis izglābj trīs nolaupītas princeses.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>l.<b> </b>301 A. A, Āliņš ar Teodoru Kārkluvalku Rikterē. LP,
+VII, II, 19. IV, 6.</p>
+
+<p align="JUSTIFY">Vienam ķēniņam velns nozadzis trīs meitas. Tad divi ķēniņa dēli
+dabū no ķēniņa 2 mucas naudas un apsolās meitas uzmeklēt. Meklēja - neatrada. Nu
+ķēniņš sūta izmanīgu karavīru ķēniņa dēliem par vadoni un tas nu tas
+darītājs, šie tikai biedros staigā līdz. Iet, iet - atron lielu mežu un mežā lielu
+pili, kur mūžīgi pulka vēršu bijuši.</p>
+
+<p align="JUSTIFY">Tie aiziet medit, viens mājā vāra ēst, ienāk svešnieks, lai
+pārceļot pār slieksni. Labi - pārceļ. Lai aizceļot aiz galda! Aizceļ. Lai dodot
+ēst. Labi. Ēd - apēd visu to vērsi. Lai vēl dodot. Neesot. Kā nav - sasitis pirmo
+ķēniņa dēlu krietni un aizgājis. Pārnāk tie - sasistajam sāp galva. Kādēļ? Esot
+dvingaina istaba bijusi . . . Bet izmanīgais kaŗavīrs svešinieku pašu sasitis
+asinaiņu, tas aizvilcies pusdzīvs.</p>
+
+<p align="JUSTIFY">Pa šīm asinspēdām meklētāji iet pakaļ un atron alu. Karavīrs
+nopin grozu, novij valgu, paņem maizi un gaļu līdz, piesien valgam augšgalā
+zvārguli, lai dzird, kad apakšā raustīs, un dodas lejup. Apakšā ierauga pili, kur
+pie vārtiem katrā pusē izsalkusi lauva. Kaŗavīrs pārgriež vienu kukuli maizes pa
+vidu Pasviež katram lauvam puskukuli un nu tie ielaiž šo pa vārtiem. Ieiet pagalmā -
+tur 3 mājas. Ieiet pirmā mājā, atron jaunāko ķēniņa meitu pie galda šujam.
+Kaŗavīrs dod labdienu - šī nesaņem, bet brīnās: "Kāds velns tevi te
+nesa?"</p>
+
+<p align="JUSTIFY">"Tāds pats kā tevi!" šis atbild.</p>
+
+<p align="JUSTIFY">Nu viņa parāda pie sienas zizli, deviņi podi smagu, un spēka un
+nespēka ūdeni. Kaŗavīrs dzeŗ no spēka ūdens vienu malku var jau pakustināt zizli,
+dzeŗ otru malku - jau cilā, dzer trešo -nu var kauties. Viņš pārmaina traukus un
+gaida velnu pārnākam. Meita piesaka: "Velnam būs sešas galvas un vienā cirtienā
+tev galvas jānocērt, otrreiz cirst ne, citādi velns atdzīvosies!"</p>
+
+<p align="JUSTIFY">Tā notiek. Otrā mājā divpadsmitgalvju velns un trešā mājā pats
+velnu ķēniņš, čūskas izskatā, stāv pieslēgts. Čūskai tāda svilpīte, tiklīdz
+pasvilpo - tūlin pulka velna puišu klāt, kas prasa, ko likšot darīt! Kaŗavīrs
+aiziet pie čūskas un saka: "Dodi man savu svilpīti, es tevi par to palaidīšu
+vaļā!"</p>
+
+<p align="JUSTIFY">Čūska dod. Bet nu kaŗavīrs saka čūskai: "Ko tu darīsi,
+vaļā tikusi bez vajadzības? Tevi taču neviens neslēdza." Čūska nesaka, ko tad
+darīšot, vaļā patikusi. Nu, ja nesaka,</p>
+
+<p align="JUSTIFY">kaŗavīrs tad arī nelaiž vaļā, un tā palika pieslēgta. Nu
+kaŗavīrs aizved meitas pie alas un liek uzvilkt augšā. Tie meitas uzvelk - pašu
+atstāj dibinā. Tad kaŗavīrs otrā dienā pasvilpo svilpīti, atskrien pulks velna
+puišu un iznes viņu virszemē. Kaŗavīrs pārnāk mājā.</p>
+
+<p align="JUSTIFY">Bet nu nāk kāzas vecākam ķēniņa dēlam ar jaunāko ķēniņa
+meitu. Tomēr</p>
+
+<p align="JUSTIFY">jaunākā meita, nedrīkstēdama teikt - tāpēc ka viltniekam
+zvērējusi - ka šis</p>
+
+<p align="JUSTIFY">nava īstais glābējs, rauga citādi atkratīties. Viņa saka
+uzmācīgajam brūtganam:</p>
+
+<p align="JUSTIFY">"Ātrāki kāzas nesvinēšu, iekams nebūsi apgādājis tādas
+kurpes, kas pašas maucas kājā, </p>
+
+<p align="JUSTIFY">un tādus lindrakus, kas paši velkas mugurā."</p>
+
+<p align="JUSTIFY">Vecākais ķēniņa dēls izskraidās - nevar nekur sadabūt. Bet šīs
+ziņas nāca ausīs arī kaŗavīram. Tas tūlin sasvilpo ar svilpīti velna puišus un
+liek uztaisīt kurpes, kas pašas kājā maucas, un lindrakus, kas paši mugurā velkas.
+Rīta agrumā kaŗavīrs aizsūta kurpes ar lindrakiem ķēniņa meitai - pats nenes - tā
+par to aplam priecīga un to vien domā : "Cits nebūs sūtījis, kā mans īstais
+glābējs."</p>
+
+<p align="JUSTIFY">Tamēr kad nu atnesējs nedrīkst teikt, ne arī saka. kas tas
+sūtītājs, tad ķēniņa jaunākā meita atsaka itin gudri tā: "Kurpes un lindraki
+būtu nu gan, bet vēl uz kāzām vajaga uztaisīt dimanta tiltu pār mūsu upi līdz
+pašām pils durvim."</p>
+
+<p align="JUSTIFY">Labi. Tas pāriet mājā, pasaka visu kaŗavīram. Tad naktī
+kaŗavīrs pasvilpo svilpīti, atsauc velna puišus un liek dimanta tiltu pār upi celt.
+lītā tilts laistās kā saule, un vecākais ķēniņa dēls manīgs pie ķēniņa šurp,
+viņš šonakt, visiem guļot, esot uzcēlis skaisto dimanta tiltu. Lai nu tūlin jūdzot
+zirgus - viņš braukšot pār savu tiltu ar jaunāko meitu uz karstām pēdām
+laulāties, citādi tā izgudrošot atkal kautko jaunu, lai kāzas novilcinātu.
+Ķēniņš ļaujas arī ierunāties. Nu sajūdz zirgus un kāzinieki brauc, ka viz vien,
+pār vareno dimanta tiltu. Bet kaŗavīrs gudrībā bija pārāks. Pašā tilta galā
+viņš aizsvilpojis velna puišus, tos citus pārlaidis atpakaļ, vienu vienīgu
+paturējis un tam pieteicis tā: "Ņem slotu, labi vecu slotu, un slauki upes malā,
+tilta galā, tīšām dūņas no niedrēm uz sausuma. Izslaucījis dūņas, gaidi
+kāziniekus braucam un drāz tad dubļaino slotu ar dūņām pašam brūtgānam
+acīs!"</p>
+
+<p align="JUSTIFY">Velna puisis arī tā dara. Kā brauks brūtgāna rati patlaban no
+tilta nost, tā slota ar dūņām šim taisni acīs un nu lepnais jaunkundziņš tāds,
+kā nekur likt; bet brūtei pašai ne dūņu pilītes nebij uzsprādzis.</p>
+
+<p align="JUSTIFY">Kāzinieki apstājās: "Kas tas?" ' Nu brūtgāns kaunā to
+vien māk izsaukt: "Kas tev to lika darīt?"</p>
+
+<p align="JUSTIFY">"Nabaga kaŗavīrs man lika to darīt!" "Kur viņš ir?
+Lai tūlin nāk uz pili!"</p>
+
+<p align="JUSTIFY">Labi. Šie visi griež zirgus atpakaļ uz pili un velna puisis atkal
+steidzas ar ziņu pie kaŗavīra. Atnāk kaŗavīrs uz pili brūte to ierauga un tā
+pilnā kaklā: "Tas ir mans glābējs!"</p>
+
+<p align="JUSTIFY">Ķēniņš nu izprasa: "Kā? kas? kapēc tūlin man neteici?"
+"Kā es varēju teikt? Man jau šiem viltniekiem,, ķēniņa dēliem, uz plikiem
+ceļa galiem bija jāzvērē, lai saku, ka šie tie glābēji."</p>
+
+<p align="JUSTIFY">Tagad viss nāca gaismā. Abus ķēniņa dēlus tad lika nosodīt, bet
+kaŗavīru salaulāt ar jaunāko ķēniņa meitu.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

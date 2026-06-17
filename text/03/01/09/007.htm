@@ -1,0 +1,365 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Maģiskā bēgšana ar aizliegto kastīti.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">7. A. 325. 313 B un G. LP. Džūkstē - Pienavā, LP, I, 6. A, III, 40.
+</p>
+
+<p align="JUSTIFY">Reiz dzīvoja pārticis saimnieks, kas bija kaislīgs medinieks.</p>
+
+<p align="JUSTIFY">Kādu pavasaru tas uzplēš labu meža gabalu un iesēj auzas. Auzas
+aug smaļi; bet ko līdz, katru rītu novāžotas. Saimnieks apņemas vienu nakti taču
+sargāt un paņem bisi, 3 sudraba lodes, ar kuŗām pat velnu spēj nošaut, un nosēžas
+zem veca ozola tuvu pie auzu lauka. Pusnaktī ozolā sāk tik kāds purināties. Viņš
+paskatās un ierauga galotnē lielu melnu ērgli. Auzu sargs paķeŗ bisi un dod melnam
+virsū; bet šis tik nopurinās un tup kā tupējis.</p>
+
+<p align="JUSTIFY">"Brīnumi!" šāvējs izsaucas, "ja es, tāds
+strēlnieks būdams , ar pašu sudraba lodi tevi nenogāzu, tad jau no labajiem neesi
+vis."</p>
+
+<p align="JUSTIFY">Šauj vēl reiz - tāpat. Jau bij gatavs trešo reizi šaut, te ērglis
+sāk cilvēka balsī lūgties: "Brāl, nešauj! Neesmu vainīgs, ka auzas tā
+novāžotas. Biju kaŗā, kur ievainoja manu labo spārnu, tā ka tikko spēju līdz šam
+kokam aizlaisties. Paņem redeli, nocel mani no koka un kopj, kamēr atveseļošos, jo -
+to tici droši - maksa būs bagātīga."</p>
+
+<p align="JUSTIFY">Labi. Saimnieks izcep cepli maizes, nokauj vērsi un mielo slimnieku uz
+labāko. Ērglis apēd to cepli, norubina arī vērsi; bet kā slims, tā slims. Ko
+gaidīt, cep otru cepli, kauj otru vērsi. Bet ērglis, kā slims, tā slims. Trešo
+vērsi pusē noēdot sāk laisties, bet visu noēdis pilnīgi bij vesels.</p>
+
+<p align="JUSTIFY">Nu ērglis saka uz saimnieku: "Sēdies man mugurā, nesīšu tevi
+uz savām mājām un aizmaksāšu par kopšanu."</p>
+
+<p align="JUSTIFY">Viņš paņem saimnieku, paceļas tik augstu, ka zeme izskatās vērša
+ādas lielumā, un tad laiž saimnieku vaļā. Bet tikko vēl trīs pēdas virs zemes
+trūkst, ērglis sagrābj kritēju pa jaunu un paceļas tik augstu, ka zeme izskatās
+knapi cepures lielumā; palaiž atkal saimnieku vaļā un ļauj viņam krist divas pēdas
+no zemes. Vēl trešo reizi ērglis uznes to tik augstu, ka visa zeme tik pogas lielumā
+izskatās, un tad no šī milzīgā augstuma sviež nabadziņu zemē. Saimnieks domā, ka
+tagad patiesi gals `klāt, jo vēl viena pēda un nelaimīgais būtu uzkritis uz lielu
+akmeni. Ērglis atkal laikā saķeŗ kritēju un aiznes zibeņa ātrumā uz kādu
+tuksnesi.</p>
+
+<p align="JUSTIFY">Atpūties ērglis saka: "Šie trīs kritieni bij tavas trīs
+lodes, jo pie auzu novāžošanas nebiju nemaz vainīgs. Nu esam tiktālu līdzīgi.
+Atpūtīsimies mazu lietu, un tad nesīšu tevi uz manu pili, lai aizmaksātu par manu
+kopšanu slimās dienās."</p>
+
+<p align="JUSTIFY">Pēc tam ērglis aiznes saimnieku uz kādu lepnu pili, kur pārvēršas
+par cilvēku un saka: "Šī manas māsas pils."</p>
+
+<p align="JUSTIFY">Abi ieiet pilī un pamielojas uz labāko. Tad ērglis prasa saimniekam:
+"Nu, vai neskriesim atkal?" </p>
+
+<p align="JUSTIFY">"Ja, bet kā skriet, tev jau vairs nav spārnu?" "Nekas,
+iesim tik aiz vārtiem."</p>
+
+<p align="JUSTIFY">Un patiesi, vārtus attaisot, senākais ērglis saņem atkal saimnieku
+un aiznes līdz otrai māsas pilij kur viss tāpat notiek. Beidzot tie notiek lielā,
+melnā pilī, kas bija ērgļa pils. Ērglis izvadā savu viesi pa malu malām, viss tikai
+mirdz un laistās zeltā, sudrabā. Pēc trijām dienām saimnieks saņem apkopšanas
+maksu, kuli naudas un lopu pūsli. Pie tam noteikts pūsli ātrāk vaļā netaisīt, kā
+mājā. Ērglis parāda ceļu un saka vēl atvadoties: "Ej tik pa šo ceļu taisni
+vien, tas nobeigsies pie tavām mājām!"</p>
+
+<p align="JUSTIFY">Saimnieks iet visu nakti, bet otrā rītā, saulītei lecot to pārvar
+snaudiens. Viņš apsēžas uz kādu celmu un domā atpūsties; bet te uz reizi savāda
+kārība to viļināt viļina pūsli paskatīties. Domā mazliet sienamo attaisīt un
+tikai caur mazu starpiņu pažūrēt. Tikko mezgls atraisīts, te no pūšļa izlec
+tūkstots vēršu, ka biz vien. Gan nu skrien priekšā, bet kur tu nu vairs iedzīsi jeb
+pārdzīsi? Nekā darīt. Gana savus vēršus un raud nopuņķojies. Pie visas nelaimes -
+kas vēl tas trakākais -- ceļš pazudis.</p>
+
+<p align="JUSTIFY">Trešā dienā ērglis par laimi klāt un uzbļauj: "Vai es tev
+neteicu Lai netaisi pūsli vaļā? Bet vēl nekas, apsolies tik man to dot, ko mājā
+atstāji nedzīvu, tad būs tūdaļ vērši, būs arī ceļš."</p>
+
+<p align="JUSTIFY">Labi. Ērglis paņem pūsli, tura vēršiem priekšā un - ko domājat
+-- kuŗš nāk, tas iznīkst, kurš nāk, tas iznīkst, kamēr visi pūslī iekšā. Arī
+ceļš atronas. Laimīgs, priecīgs, tas iet svilpodams trīs dienas no vietas, kamēr
+trešajā dienā jau saredz savas mājas, no kurām aulekšo jājējs uz stirnas viņam
+taisni gaŗām Jājējam klēpī sēd puika, kas cepuri vicinādams uzsauc: "Ar Dievu
+tēt esat nu gan mani labā dienestā nodevuši!"</p>
+
+<p align="JUSTIFY">"Kas par tēvu? Man neviena dēla vairs nav!" Saimnieks
+atbild un domā tik, kā drīzāk mājā kļūt. Sieva stāv patlabaj: durvīs un vīru
+ieraudzīdama raud prieka asaras. Pie tam arī tūdaļ stāsta, ka dēls, kuŗu visi māju
+ļaudis par Kurzemnieku saukuši, toreiz, viņam ar ērgli aizlaižoties, pēc trijām
+dienām atkal atmodies un atdzīvojies, jo bijis tikai pamiris. Tēvs nu tik atjēdz, ko
+ērglim caur nezināšanu apsolījis, un nu tik saprot, kas uz stirnas jājis. Bet kur
+izlieto sasmelsi? Raud un gaudies cik gribēdams, viena maksa. Nabadziņš gan nožēlo,
+ka tik tālu par velna ērgli ielaidies, bet apdomā atkal: "Kas darīja, pats
+darīja.</p>
+
+<p align="JUSTIFY">Tā guģējoties, tas atminas sava pūšļa. Attaisa un tūkstots tādu
+vēršu izbizo, ka prieks ko skatīties.</p>
+
+<p align="JUSTIFY">Jājējs pārnes Kurzemnieku puiku pilī un auj vispirms trīs dienas
+atpūsties. Trešās dienas vakarā uzdod šādu darbu: trīs pūravietas lielu meža
+gabalu izlauzt, uzart, rudzus izaudzināt, nopļaut, izkult, samalt un no rīta brokastī
+siltu maizi priekšā celt.</p>
+
+<p align="JUSTIFY">Puika iziet. Ārā tumšs, lai acis izduŗ. Bēdīgs tas nosēžas un
+raud rūgtas asaras. Te ērgļa jaunākā meita - kur gadījusies, kur ne - pielien un
+uzrunā šitā puiku: "Vai dzirdi? Tu man esi patīkams un mīļš, gribu tādēļ
+izlīdzēt. Ej tik gulēt manā gult, gan es visu pa nakti, tēvam nezinot,
+padarīšu."</p>
+
+<p align="JUSTIFY">No rīta puika ienes savam pavēlētājam siltu maizi. Šis
+brīnīdamies iesaucas: "Vai akls! esi gan stiprs Kurzemnieku puika. Nu, ej tagad
+gulēt un ienāci nākamo nakti."</p>
+
+<p align="JUSTIFY">Nākamo nakti ērglis, puiku ieraugot, uzprasa: "Nu, vai ienāci,
+Kurzemnieku puik'?"</p>
+
+<p align="JUSTIFY">Ienācu!" "Tad ej šonakt uz jūrmalu. Tur jūrmalā ir
+meldri, kādi reti jūŗā redzami. Meldros būs melna pīle. Noķer to un pārnes man
+citurīt uz brokastu."</p>
+
+<p align="JUSTIFY">' Puika iziet. Ārā tik tumšs, ka ne pagalam redzēt. Viņš sāk
+raudāt; bet te meita atkal klāt, mierina un saka: "Ej tik manā gultā, lai tēvs
+nekā nemanītu. Man gan šis darbs nāksies gŗūtāki, bet nekas."</p>
+
+<p align="JUSTIFY">No rīta puika ienes savam kungam izceptu pīli. Šis paskatās un
+saka: "Ja, esi patiesi apbrīnojams Kurzemnieku puika. Nākamo nakti ienāc pašā
+pusnaktī."</p>
+
+<p align="JUSTIFY">Nākamo nakti kungs dusmīgi pavēl uz jūŗu iet, kur esot pašā
+vidū kuģis un uz kuģa balts zaķis, lai to noķeŗot šim uz brokastu. Puika tikko
+durvis atveŗ, jau meita klāt un čukstēdama saka:</p>
+
+<p align="JUSTIFY">"Šonakt tev jānāk man līdz. Mēs iesim pa gaŗu, gaŗu laipu.
+Uz laipas tevi knaibīs, grūstīs; ūdeņi šalks, bangas putos un raudzīs tevi no
+laipas gāzt; bet turies pie manis, jo jāiet mums taču uz labu laimi, lai arī pagŗūti
+klātos."</p>
+
+<p align="JUSTIFY">Abi itin laimīgi sasniedz kuģi. Pie kuģa meita saka: "Es nu
+iešu zaķi ķert; tu paliec uz kuģa un nelaid neviena gaŗām. Lai nāk kas nākdams,
+sit nost bez žēlastības! Meita ielien kuģa apakšā un ilgi, ilgi meklē. Te uz reizi
+izlien veca, veca vecenīte, kur jādomā, tā nevar vairs pieci skaitīt. Šī lūdz
+karstām asarām, lai atļaujot uz kuģa malas nosēsties un kaut cik elpas aizņemties.
+Puika domā: "Te jau vēl laika diezgan sist, gan nelaist!" Viņš atvēlē
+Tikko vecene kuģa malā, te acumirklī šī pārvēršas līdaciņā un plunks! ūdenī.</p>
+
+<p align="JUSTIFY">Meita gan uzskrien un sauc: "Sit, sit! vecene ir tas zaķis,"
+bet par vēlu.</p>
+
+<p align="JUSTIFY">"Tā šis mūsu gājiens nu bij par velti. Bet nekas, nes mani
+citurīt iekšā pie tēva, pārvērtīšos pati par zaķi. Ienesot svied mani labi stipri
+pie zemes."</p>
+
+<p align="JUSTIFY">Puika ienes un nosviež zaķi, ka noblaikšķ vien. Te zaķis paliek
+par vistu un vista par olu, ola beigās par graudu. Tiklīdz kā ola par graudu, te tēvs
+pārvēršas par gaili. Kā tēvs par gaili, tā meita par lapsu un nokož gailim galvu.</p>
+
+<p align="JUSTIFY">Meita pārspēja tēvu, ko neviens nebūtu domājis.</p>
+
+<p align="JUSTIFY">Otrā rītā Kurzemnieku puika ieiet pie sava kunga un atron šo ļoti
+slimu. Kungs, tikko zēnu ieraudzījis, uzbļauj: "Prasi no manis, ko gribi; tik
+posies, ka tiec no šejienes projām! Šās trīs naktis bij tavi trīs gadi."
+(Viņam puika bijis jāatlaiž, jo citādi vesels nekad nebūtu ticis.)</p>
+
+<p align="JUSTIFY">Kurzemnieku puika tūlīt neprasa vis algas, bet papriekšu iet
+jaunākai meitai, viņa izlīdzētājai, padomu prasīt. Šī tūlīt saka: ,,Ak tu
+muļķīti! prasi nu tikai, lai atdod mani pašu tevim. Tu redzi, ka vecais tagad
+spīlēs. Ej, pasaki viņam mūsu nodomu un tad laidīsim ļekas vaļām. Paka jau tik tā
+kā tā mums dzīsies, jo pāris jūdžu gājušiem, vecais - to tici droši - būs atkal
+vesels un tad tik sataisies!"</p>
+
+<p align="JUSTIFY">Puika dara, kā pamācīts; bet vecais visā savā slimībā vai zemes
+gaisā speŗ.</p>
+
+<p align="JUSTIFY">"Tu maita! Labprāt visu pus pili atdotu bet to tik ne!"
+"Kad ne, ne, palikšu tad pie jums," puika vienaldzīgi atbild. Vecais
+redzēdams, ka joki nebūs, atlaiž arī meitu un piesaka; lai steidzoties.</p>
+
+<p align="JUSTIFY">Jaunie ļaudis aiziet. Gabalu gājušiem, meita saka: Mums dzenas
+pakaļ! Es palikšu par aitu un tu par ganu. Ja tev prasa, vai nav divi redzēti, tad
+atbildi: "Ganu savu vienīgo avi jau trīs gadus, bet no tam nekā nezinu."</p>
+
+<p align="JUSTIFY">Ne ilgi liels vilkacis klāt un uzprasa: "Vai neredzēji divus
+gaŗām ejam?"</p>
+
+<p align="JUSTIFY">"Trīs gadus ganu savu vienīgo avi, bet garām gājējus nekad
+neesmu pamanījis," zēns atbild un neliekas gar vilkaci vairāk ne zinot.</p>
+
+<p align="JUSTIFY">Vilkacis aizčāpo atpakaļ pie velna, kunga, kas šim tūdaļ uzprasa:
+"Nu, vai redzēji? vai panāci?``</p>
+
+<p align="JUSTIFY">"Redzēju ganu ar avi, vairāk nekā." "Ak tu lops, tie
+jau bij tie paši!"</p>
+
+<p align="JUSTIFY">Kungs nu sūta pašu vecāko vilkaci; bet meita tagad paliek par
+baznīcu un viņš par mācītāju uz kanceles.</p>
+
+<p align="JUSTIFY">Vilkacis ieiet baznīcā un jautā: "Vai neredzējāt divus garām
+ejam?"</p>
+
+<p align="JUSTIFY">Mācītājs atbild strupi un īsi: "Esmu te jau 30 gadu par
+mācītāju, bet gaŗām gājējus gar baznīcu neesmu redzējis."</p>
+
+<p align="JUSTIFY">Vilkacis atkal atiet atpakaļ un vēsta, ka tikai baznīcu ar
+mācītāju redzējis. Te kungs speŗ šim par ausi, uzbļaudams: "Vai nevarēji
+kanceli ar visu mācītāju atnest. Tie jau bij tie ķeŗamie!"</p>
+
+<p align="JUSTIFY">Nu dzenas pats tēvs jaunajiem pakaļ. Meita to tūlīt nomana, paliek
+nemierīga un bailīgi uzsauc savam Kurzemnieku puikam: "Es palikšu par upi un tu
+par pīli; bet knaši, knaši! Tomēr papriekšu pārlauzīšu savu gredzenu, no kuŗa es
+vienu un tu otru pusi paturēsim. Ja varbūt tagad es tūlīt vēl netieku tev līdz, tad,
+mājās pāriedams, nedodi nevienam pašam labdienu un arī nesaņem ne no viena cita, kā
+tik no labi pazīstama."</p>
+
+<p align="JUSTIFY">Ne ilgi, te vareni liels vilkacis klāt uzprasīdams: "Vai
+neredzēji divus garām ejam?"</p>
+
+<p align="JUSTIFY">"Ne! trīs gadi te peldu, bet nekā neesmu redzējis."</p>
+
+<p align="JUSTIFY">Lielais vilkacis pie upes klāt un sāk lakt. Turpretim upe lokot
+paliek katrā acumirklī lielāka un lielāka. Vilkacis redz, ka izlakt nevarēs, saka:
+"Labi, labi, ja tad 3 gadi te esi peldējis, tad lai arī šī upe 3 gadi no šīs
+dienas paliek par upi!"</p>
+
+<p align="JUSTIFY">Pēc šiem vārdiem vilkacis aiziet. Puika citu nekā nevar darīt,
+paliek no pīles atkal par cilvēku un iet uz savām mājām pie tēva, kamēr 3, gadi
+aiztecētu.</p>
+
+<p align="JUSTIFY">Tēvs vareni priecājas par dēla laimīgo pārnākšanu. Un, kā lai
+arī nepriecājas? Tūkstots vēršu, maišelis naudas un beidzot arī vēl dēls.</p>
+
+<p align="JUSTIFY">Viss būtu nu tiktālu labi, ja tikai Kurzemnieku puika ar laiku to
+nebūtu piemirsis, ko meita noteikusi: nepazīstamam labdienas nedod. Tā jau nu mūžam
+iet, kad svarīgas lietas, neko neparēķina. Tāpat arī mūsu puika. Šis, piemirsdams,
+no kāda veca ubaga saņem labdienas un caur to, tai pašā acumirklī, aizmirst savu
+meitiņu. Pie tam pazaudē arī - diezin kur -- viņas doto pusgredzenu.</p>
+
+<p align="JUSTIFY">To bij meitenes tēvs, puikam nezinot un nemanot, izdarījis. Vecais
+ubags nebijis vis ubags, bet senākais puikas kungs jeb ērglis, kas toreiz puikas tēvam
+kokā tupējis.</p>
+
+<p align="JUSTIFY">Pēc trim gadiem upe pārvēršas par vēl jo skaistāku meitu, nekā
+tā priekš tam bij bijusi. Meita no tās dienas bij atpestīta un atraisīta no visām
+pesteļu mācībām un burvībām. Tagad tā bij tāda pati, kā katrs cilvēks.</p>
+
+<p align="JUSTIFY">Skaistā meitiņa apmetās dzīvot Kurzemnieku puikas māju tuvumā,
+lai jau šis viņu ieraudzītu un pazītu; bet viss par velti. Te kādā dienā
+Kurzemnieku puika pārnāk izslāpis no medībām. Pie akas tas lūdz šai nodzerties.
+Meitiņa pasniedz šim dzērienu, bet pieliek nemanot pie dzēriena kādu zālīti. Puika
+nodzēries ierauga krūzā pusgredzenu. Viņa izņem no kabatas savu pusi un pieliek klāt
+-- viens, kas viens. Un, nu tikai pēc šā dzēriena puikam ieronas atmiņa par upi, par
+pīli, par gredzenu un vilkačiem. Viņš apkampj meiteni un lūdzas piedošanu, ka
+neizpildījis, ko viņa pavēlējusi, tas ir: nedot svešam labdienas.</p>
+
+<p>Abi pēc tam apprecējas un dzīvo vēl šodien itin laimīgi, ja nav pa to starpu
+miruši.</p>
+
+
+</body></html>

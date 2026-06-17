@@ -1,0 +1,182 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>11</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Baltā un melnā līgava. A.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">11. A. 403. A, Štrauss Ērbērģniekos. LP, III, 39..</p>
+
+<p align="JUSTIFY">Kāda nabaga atraikne gājusi gar upi un ieraudzījusi trīs Laimiņas
+mazgājamies. Atraikne paņēmusi drēbes un tās paturējusi tamēr klēpī. Laimas
+izkāpušas no upes un meklējušas savas drēbes, prašinādamas atraiknei, vai nezinot,
+kur drēbes palikušas?</p>
+
+<p align="JUSTIFY">Kamēr mazgājāties, es viņas paglabāju savā klēpī!"
+atraikne "</p>
+
+<p align="JUSTIFY">atbildējusi:</p>
+
+<p align="JUSTIFY">"Tas labi " Laimas atteikušas un steigušās a ģērbties,
+bijušas gatavas, tad viena Laima par to labumu, iedevusi atraiknei apavas, otra sagšu,
+trešā lindrakus, un acumirklī nozudušas kā ūdenī.</p>
+
+<p align="JUSTIFY">Atraikne gājusi uz māju. Bet kas tas? No apaviem sākuši zelta
+gabali birt. Viņa salasījusi vienu riekužu, otru riekužu; pie bērusi vienu kabatu,
+otru kabatu: nekur likt, nekur paglabāt, kas zelta. Pēc tāda brīža braucis kāds
+kungs gaŗām. Tas uzsaucis: Salasi jel tos zelta gabalus!"</p>
+
+<p align="JUSTIFY">"Es nevaru beigt lasīt - lasi tu."</p>
+
+<p align="JUSTIFY">Kungs lasījis, lasījis, bet nespējis arī visu salasīt. Nu tas
+ieņēmis atraikni savos ratos un pārvedis savā pilī. Rati līdz pilij arī bijuši
+pilni ar zeltu. Atraikne nu dzīvojusi pilī laimīgas dienas un nekā tai netrūcis.</p>
+
+<p align="JUSTIFY">Bet nu gadījies reiz, ka kungam bijis jāaiziet uz karu. Projām ejot,
+tas pieteicis atraiknei: "Neej tu no pils ātrāki ārā, kamēr būšu mājā, lai
+skauģi tevi nenomāc!"</p>
+
+<p align="JUSTIFY">Atraikne negājusi. Bet kāda ragana Sen jau glūnējusi uz atraiknes
+laimi. Otrā, trešā nedēļā neģēle atnākusi pie atraiknes un tik ilgi to krāpusi,
+kamēr to izkrāpusi no pils ārā. Aiz pils vārtiem ragana nobūrusi atraikni par
+pīlīti un iegrūdusi to purvā. Pīlīte purvā izdējusi trīs oliņas un izperējusi
+divus bērniņus. Viena oliņa bijusi vanckaris. Bet ragana slepeni nozagusi bērniņus,
+aiznesusi tos krāsnī nonāvēt un tad atnesusi nedzīvus atpakaļ. Pīlīte gauži
+raudājusi pēc bērniņiem ilgu laiku. Beidzot, tā aiznesusi viņus baznīcā un katru
+nakti gājusi skatīties.</p>
+
+<p align="JUSTIFY">Kungs no kaŗa pārnācis, izmeklējies atraikni pa malu malām nekur
+atrast. Beidzot tas iegājis baznīcā meklēt; bet neatradis vairāk nekā, kā divus
+nedzīvus pīlēnus. Viņam iešāvies prātā likt pīlēnus apsargāt. Tā arī noticis.
+Pirmo nakti puisis, pīlēnus sargādams, redzējis, ka sudraba pīlīte atlaidusies pie
+bērniņiem un tos ilgi glaudījusi, izliedama sudraba asaras. Viņš gribējis to
+noķert, bet pīlīte žigli aizlaidusies.</p>
+
+<p align="JUSTIFY">Kungs tādai valodai neticējis.</p>
+
+<p align="JUSTIFY">Otrā naktī puisis atkal redzējis, ka zelta pīlīte atlaidusies pie
+bērniņiem un tos ilgi glaudījusi, liedama zelta asaras. Viņš gribējis to noķert,
+bet pīlīte žigli aizlaidusies.</p>
+
+<p align="JUSTIFY">To dzirdēdams, kungs taisījies iet pats sargāt.</p>
+
+<p align="JUSTIFY">Trešā naktī atlaidusies dimanta pīlīte pie bērniņiem un tos ilgi
+glaudījusi, liedama dimanta asaras. Kungs labi pamanījies un noķēris dimanta pīlīti
+aiz kājas. Pīlīte lūgusies, lai to laižot vaļā un lai apglabājot viņas
+bērniņus. Kungs atteicis: .,Labi, es apglabāšu tavus bērniņus, bet tanī dienā tev
+vajaga arī atlaisties pie kapa."</p>
+
+<p align="JUSTIFY">Pīlīte apsolījusies. Noteiktajā dienā pīlīte gadījusies pie
+kapa. Apglabājot pīlīte atkal gribējusi aizlaisties, bet kungs to pamanījies un
+noķēris pīlītei aiz čupra. Bet līdz ko mazuliet pakausi paspiedis, tā dimanta
+pīlīte palikusi par cilvēku -- senāko atraikni.</p>
+
+<p align="JUSTIFY">Atraikne nu dzīvojusi atkal pilī un naudas tai nekad netrūcis: tik
+apāvusi apavas - tūlīt biruši zelta gabali ārā.</p>
+
+
+</body></html>

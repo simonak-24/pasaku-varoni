@@ -1,0 +1,307 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pūķa kāvējs ar suņiem.</p>
+</b></font>
+
+<p align="JUSTIFY">6. A. 300. 304. V. Vīdneris Skrundā, Brīvzemnieka kr. LP, VI, 125,
+4. AŠ, II, 96f.</p>
+
+<p align="JUSTIFY">Vecos laikos vienā pilsētā dzīvojis miesnieks un tam bijis uzticams
+zellis. Reiz miesnieks iedevis zellim trīssimti naudas gabalu un raidījis uz zemēm
+lopus uzpirkt. Labi! - zellis gājis. Bet viņam gadījies pa lielu mežu iet un tur
+saticis vecu vīriņu; tas stāvējis ar melnu suni uz ceļa un vaicājis zellim, kur
+viņš ejot? "Lopus pirkt!" šis atteicis.</p>
+
+<p align="JUSTIFY">"Ej, niekus, ko tu lopus pirksi? Pērc labāk manu melno suni! Tam
+ir ļoti labs tikums: ja tu kādreiz nāvē kristu, viņš tevi no nāves modinās; ja tev
+kādreiz galvu nocirstu, viņš tev galvu pieliks; un kā piedevas šim sunim vēl domu
+līdz šo plāksteri, tas pievelk visu un savelk visu."</p>
+
+<p align="JUSTIFY">" Labi!" zellis atteica, "manis dēļ - pirkšu arī
+jūsu suni; bet cik prasat par viņu?"</p>
+
+<p align="JUSTIFY">Trīssimti naudas gabalus!" "</p>
+
+<p align="JUSTIFY">Nu zellis kaulās, kaulās - nevar nokaulēt - dos arī un salīgst.
+Salīgst, aizmaskā un iet uz mājām atpakaļ. Pāriet, meistars prasa: "Vai daudz
+lopu sapirki?"</p>
+
+<p align="JUSTIFY">" Kur nu daudz? ! Vairāk ne, kā vienu lopiņu, melnu suni."
+Meistars sarāj zelli par tik aplamu pircienu, un iedevis citus trīssimti naudas gabalus,
+raida otrreiz lopus pirkt.</p>
+
+<p align="JUSTIFY">Zellis aiziet; bet mežā tai pašā vietā satiek to pašu vevīti ar
+citu melnu suni, lai pērkot to lai. Šis suns esot tāds: "Ja tu būtu cietumā, vai
+pat aiz dzelzs durvim un šo stabulīti tikai pastabulēsi - tūlin viņš pestīs
+ārā."</p>
+
+<p align="JUSTIFY">Zellis domā: "Lai iet kā iedams, ja suns tāds - pirkšu arī!``
+un nopircis.</p>
+
+<p align="JUSTIFY">Pāriet nu mājā meistars prasa: "Vai daudz lopu nopirki?"
+"Kur nu daudz! Vairāk ne, kā vienu lopiņu. šo melno suni." Meistars, to
+dzirdēdams paliek dusmīgs un dauza savu zelli bez gala: vai gluži neprātīgs esot,
+suņus vien pirkdams, vai viņam nauda no debesim krītot tik daudz un kā nekā. Bet labi
+izsunījis iedeva atkal citus trīssimti naudas gabalus un raidīja vēl trešreiz lopus
+pirkt; tikai to noteicis, ja vēl šoreiz naudu izšķērdīšot. tad lai savas acis te
+mājā nerādot.</p>
+
+<p align="JUSTIFY">Labi! - zellis aiziet, apņemdamies nekādā ziņā vairs suņus
+nepirkt. Bet iet, iet - kā ieiet mežā - satiek to pašu vecīti, lai pērkot vēl to
+trešo suni, tas tikai esot suns. Kad tikai uzsaucot: pi! - tad kaut tur būtu cik šim
+apkārt - visi pagalam.</p>
+
+<p align="JUSTIFY">Zellis negrib, negrib pirkt - pēdīgi saspeŗas un nopērk arī. Bet
+nu vecais saka: "Še piedevām vēl šis zobins līdz! Un nu ievēro labi, kur suņi
+tek, tur ej pakaļ; kur viņi ierejas, tur ej raudzīt!"</p>
+
+<p align="JUSTIFY">To teicis, vecis iegriezās mežā.; bet suņi sāka tecēt uz priekšu
+un zellis tiem steidzās pakaļ. Gāja, gāja - piepēži ieklausās: suņi labā
+attālumā jau ierejas vienreiz. Piesteidzas klāt - šie lielā biezumā izkārpījuši
+zemi brangā dziļumā un tur apakšā durvis redzamas. Tā viņš pavēl durvis uzlauzt.
+Kā uzlauž, ierauga gaŗu gaņģi un gaņģa galā durvis uz visām pusēm. Nu pavēl
+tās atkal uzlauzt - ierauga istabas un istabās daudz mantas un dārgu lietu; bet pašā
+dibins istabā atrada trīs jaunus sievišķus. Tās, šo ieraudzīdamas, iekliedzas
+pavisam balsā: "Kur tu esi te gadījies, cilvēks? Bēdz pie laika projām! -
+Pārnāks mūsu kungi - tie tevi nonāvēs."</p>
+
+<p align="JUSTIFY">Tad zellis vaicāja, kas viņas tādas, un kas tie par kungiem? Meitas
+atteica: "Mēs esam lielkunga meitas un šie kungi, kaste pārnāks, ir trīs
+brāļi, kas zog, laupa un slepkavo."</p>
+
+<p align="JUSTIFY">Zellis sacīja: "Nu ja visi zog, laupa, slepkavo, tad teitan
+nekāda dzīve nava. Vai nevēlaties, lai es jūs aizvācu labāk pie jūsu tēva?"</p>
+
+<p align="JUSTIFY">Tad šīs par to nezin kā pateicās un lūgšus lūdza, ja varot, lai
+to darot - tēvs pūliņus bagātīgi aizmaksāšot.</p>
+
+<p align="JUSTIFY">Labi. Un turpat kādā sānu alā atradis trīs labus zirgus un stiprus
+ratus, sakŗāva lielus vezumus ar labāko mantu un aizbrauca ar tām trim meitām
+projām. Bet tiklīdz izbrauca no apakšzemes alas ārā, satika vienu cilvēku, tas
+noprasīja, kur šis braucot? "Kur braucu? - Pa ceļu braucu!" zellis
+atbildēja. Tomēr svešajam tādi joki nepatika - ieklupa zellim krūtīs un būtu
+vēlējies to miltos saberzt; bet zellis uzsauca savam trešajam sunim: "Pi!" un
+tā tas aiz apkakles grābdams, nogāza svešo gar zemi un pārkoda rīkli.</p>
+
+<p align="JUSTIFY">Nu brauca bez bēdām atkal tālāk. Pabrauca gabalu, te otrs vīrs,
+vēl bargāks, atkal krūtīs; bet zellis uzsauca: "Pi!" un suns to lai norēja.</p>
+
+<p align="JUSTIFY">Brauca atkal. Gabalu braukuši, trešais vīrs, tiem diviem brālis un
+pēc izskata jo varens, uzkrīt šim tik nejauši kā negaiss un aizspiež rīkli, ka
+nevar sunim ne vārda pateikt, ne pi! izsaukt. Un zellis nedabūja ne apskatīties labi -
+stiprinieks to bija aizrāvis alā atpakaļ un ieslodzījis cietumā.</p>
+
+<p align="JUSTIFY">Nu, likās, zellim būs gan nāve; bet nekā. Viņš atminas vecīša
+stabulīti un pastabulē to. Kā pastabulē, tā otrs suns tūlin klāt, izlauž cietuma
+durvis un palaiž zelli Dieva pasaulē. Zellis paticis sāk iet uz turieni, kur mantas
+vezumi ar meitām palikuši; bet mazu gabaliņu pagājis, ierauga: lielais stiprinieks
+brauc ar mantu un meitām uz savu alu atpakaļ. Bet nu zellis uzsauca savam trešam sunim:
+"Pi!" un suns tad norēja to tāpat kā tos divus brāļus.</p>
+
+<p align="JUSTIFY">Pēc tam viņš grieza mantas vezumu zirgus atpakaļ un aizveda meitas
+pie lielkunga. Lielskungs, savus zudušos bērnus ieraudzīdams, nezināja pārliecīgā
+priekā, ko būtu izdarījis ar zelli: piesolīja bezgalīgu mantu, atdeva vienu meitu par
+sievu, ko neko. Bet zellis aizbildinājās: "Ko es ar naudu apkŗaušos? Man pašam
+trīs vezumi mantas, un precības domas man vēl jāliek pie malas. - Es tā puslaicīgi
+nosapņoju, ka mani vēl lielāks darbs gaida, un tad varbūt, ja Dievs dos veselību, kas
+zin, neapprecēšos."</p>
+
+<p align="JUSTIFY">"Neko darīt - kad nu ne, ne!" lielskungs atteica un noskumis
+izvadīja ar savām meitām zelli pa vārtiem.</p>
+
+<p align="JUSTIFY">Zellis pārbrauca pie meistara, meistars to sagaidīja ar platām acim,
+kur to mantu esot grābis?</p>
+
+<p align="JUSTIFY">" Tā un tā!" zellis izstāstīja "lopus nepirku, pirku
+suņus - ieguvu mantu par tavu naudu. Še nu un dzīvo bez bēdām!"</p>
+
+<p align="JUSTIFY">Meistars, to dzirdēdams, gribēja zellim vai kājas bučot - tik daudz
+mantas! Un no tās dienas meistars nelika zellim itin nekā darīt: lai tikai ēd un
+pastaigājas.</p>
+
+<p align="JUSTIFY">Labi! Kas zellim par vajadzību strādāt? - Staigā arī kā
+muižkungs, rokas sānos iespiedis. Staigāja, staigāja, bet drīzi viņam tādi labumi
+apnika, ka nekur šauties. Katru vakaru sāka dusmoties pats uz sevi, ka tik gaŗa diena
+un, ka suņi nemaz neved viņu tālāk, sāka mudīgi vien uz priekšu tecēt un zellis, <b>zi</b>nāms,
+tiem pakaļ. Tecēja vienu dienu, otru, trešu - vēl neapstājās; beidzot ietecēja
+svešā ķēniņa pilsētā un tur tad apstājās nokusuši. Bet viss šis pilsēts bija
+ļoti skumīgs. Tad zellis vaicā savam māju saimniekam: "Kas te jums par
+skumjām?"</p>
+
+<p align="JUSTIFY">Tas atbild: "Mums, visam pilsētam lielas bēdas: mūsu ķēniņam
+viena vienīga meita, tai reiz būs jāsēž ķēniņa goda krēslā un nu šodien viņai,
+nabadzītei, nāve acu priekšā. To vedīs viņā kalnā pūķim atdot; tas mīt lejā,
+dobjā ozolā un kā no dobuma nāks ārā, tā meitu aprīs. Ķēniņš - ko tur teikt -
+priekš gadiem pats arī gandrīz tīšām iegrūda savu bērnu pūķa rīklē; bet kad
+apdomā, citādi nebija līdzams. Viņam toreiz bija liels kaŗš <b>un </b>kaŗā
+mūsējus tik briesmīgi spaidīja, ka gribot, negribot bija jāmeklē palīdzība. Tad
+šis pats pūķis apsolīja mūsu ienaidnieku saārdīt un saārdīja arī, bet ķēniņam
+bija jāapņemas katru gadu par to pūķim vienu meitu ozolā atdot. Nu, un šimbrīžam
+pūķis visas citas meitas jau ir apslānījis, nu tikai vienīgā ķēniņa meita
+atlikusi un tā nu šodien vedama."</p>
+
+<p align="JUSTIFY">To dzirdot, zellis cēlās un klusiņām aizgāja ar saviem suņiem
+kalnā pie ozola. Noiet - pūķis vēl guļ dobumā itin mierīgi un nemaz šo ne manīt
+nepamana. Nu zellis ņēma vecīša plāksteri, ap traipīja ozola stumbri visapkārt, ka
+līp vien, un tad ar suņiem pakāpās dažus soļus atpakaļ kalna malā nogaidīdams,
+kas te labs izjuks. Ja, ne visai ilgi - pilsētā iesāka zvanīt un ķēniņa kučieris
+patlaban ved ķēniņa meitu. Atved, noliek pie ozola kalna galā un pats aizmūk, lai
+pūķis ēd, kas viņam daļas! Bet ķēniņa meita paģība aiz bailēm. Un tūlin arī
+ozols sāka kustēties un drebēt, pūķis līda no dobuma ārā ar divpadsmit galvām
+laizīdamies. Bet tiklīdz izlīda, plāksteris viņu pierāva tik cieti pie ozola, kā ne
+pakustēt. Nu zellis lēca ar vecīša zobinu pūķim klāt un apšķaidīja visas
+divpadsmit galvas. Bet ķēniņa meita to neredzēja, tā ar vien vēl gulēja paģībusi.
+Tad zellis atžirdzināja nabadzīti, sacīdams: "Celies! - tas, kas tavu nāvi
+meklēja, tas pats nāvē kritis !"</p>
+
+<p align="JUSTIFY">Meita, pie pilnas jēgas tikusi, tad krita savam glābējam gar kaklu,
+noskūpstīja to, iedeva savu zelta gredzenu par mīlestības zīmi un tad abi šķīrās.
+Meita iekāpa ratos mājā braukt un šis pagāja nokalnā atpūsties pēc tik briesmīgi
+smagiem cirtieniem. Pūķa galvas bijušas tik sīkstas, ka sviedri aumaļām lijuši,
+kamēr apcirtis visas.</p>
+
+<p align="JUSTIFY">Un, nolicies garšļauku, viņš tūdalin aizmidzis ar suņiem. Bet
+kučieris, to manīdams, teicis: "Man vajaga nocirstās pūķa galvas savākt."</p>
+
+<p align="JUSTIFY">Kēniņa meita gan brīnījusies: "Ja tas nevāca, kas viņas
+nocirtis, ko tad tu vāksi?"</p>
+
+<p align="JUSTIFY">Bet šis ne un ne, kāpj no ratiem, ārā un vāc galvas ratos vienu
+pēc otras. Un savācis galvas, viņš aiziet otrpus kalna pie aizmigušā glābēja, ka
+meita to neredz, un nocērt ar to pašu pūķa zobinu gulētājam galvu. Nu, atnācis pie
+ratiem, tas saka tā: "Ja neteiksi ķēniņam, ka es tevi izglābu, un pūķi
+nomaitāju, tad tev lai nāve uz vietas."</p>
+
+<p align="JUSTIFY">Ķēniņa meita redz: izlocīties nevar - apsola arī melot.</p>
+
+<p align="JUSTIFY">Nu pārbrauc mājā - ķēniņš bez gala priecīgs, ka meita atpakaļ
+un - padzirdējis, ka kučieris tās glābējs, nemaz tālāk vairs netirda, tūlin
+saderina kučieri ar savu meitu.</p>
+
+<p align="JUSTIFY">Tas nu bij tas. Bet nokautais zellis nepalika vis nāves miegā ilgi.
+Viņa pirmāk pirktais suns tikko atmodās un kungu nedzīvu pamanījis, knaši izvilka
+viņam no kabatas vecīša plāksteri, aptraipīja pārcirtumu ar to, salika kaklu ar
+galvu kopā un tūlin pušums sarāvās, ka ne rēta nepalika - zellis bija dzīvs.</p>
+
+<p align="JUSTIFY">Nu viņš pārģērbās lepnākās drānās un steidzās uz ķēniņa
+pili. Aizgāja tur - ķēniņš jau kāzas kučierim sarīkojis un to vien visiem stāsta,
+pūķa galvas rādīdams, cik brīnišķīgi labais kučieris viņa meitu izpestījis no
+nāves. Bet kad ķēniņš arī zellim pūka galvas rādīja, tas sāka brīnīties, kas
+tās par galvām bez nevienām mēlēm?</p>
+
+<p align="JUSTIFY">Kēniņš apskatās - jā: nav vis mēļu. Nu, kur tās varētu būt?
+"Kur var būt? - Manā kulē!" zellis pasmejas un parāda visas pūķa mēles.
+Todien, pūķi kaudāms, vipš bija izgriezis mēles. Nu ķēniņš apmanīja, kas
+kučieris par viltnieku, un taisījās viņu sodīt; bet kučieris pats priekšlaiku jau
+pasteidzās pakārties.</p>
+
+<p align="JUSTIFY">Un zellis nu apņēma ķēniņa meitu un dzīvoja kā jau ķēniņš.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

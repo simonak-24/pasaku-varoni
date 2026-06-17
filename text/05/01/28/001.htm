@@ -1,0 +1,200 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>28</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Bārenīte un mātes meita aukstumā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 480. P.<b> </b>Srnelteris 1898. g. no 70 gadu vecas Trokšu
+Māras Varakļānos.</p>
+
+<p align="JUSTIFY">Beja buoreneitja, godu septiņu vaca mjeitiņa. Jei guoja pa ceļu un
+beja jai tik vaci svuorcjeņi mugorā. Ceļa molā stuovēja krysts ar mūku [krucifiksu],
+ar buorineitjai žāl beja Dīveņa. Jei sacēja: "Kai tev, Dīveņ, nav solts, ka tu
+esi plyks? Maņ ir svuorcjeņi un krekleņš, i to [un tomēr] maņ vēļ ir solts."</p>
+
+<p align="JUSTIFY">Mjeitiņa nūvalk sovus svuorcjņus un uzkar jūs uz krysta ar mūku.
+Kad jei atīt sātā bez svuorcjeņu, sveša muotja syt jū vaicuodoma: "Kur liki
+svuorceņus?"</p>
+
+<p align="JUSTIFY">Buorineitja atsoka: "Atdevu Dīvjeņam."</p>
+
+<p align="JUSTIFY">Daguoja vokors, pamuotja izdzyna buorineiti, lai īt ari poša tī, kur
+svuorcjeņi. Tod aiztaisēja durovas cīšy, ka buorineitja navarātu vairs tikt īškā.</p>
+
+<p align="JUSTIFY">Mjeitiņa nūguoja un atsagula pi krysta. Atīt Soltums un vaicaj:
+"Kū tu te, mjeitiņ, dori?"</p>
+
+<p align="JUSTIFY">"Guļu," atsoka buorineitja. Voi tev nava solts?"</p>
+
+<p align="JUSTIFY">" "Solts gon, bet kū lai doru? Soltumam juosaļ [jāsaldē],
+maņ juocīš!"</p>
+
+<p align="JUSTIFY">Tod Soltums atņesja jai kažūku mt apsjadzja, ka vairs nasoltu.</p>
+
+<p align="JUSTIFY">Buorineitja otkon guļ, par šalti atīt Zīmeļs un vaicoj: "Kū
+tu, mjeitiņ, te dori'?"</p>
+
+<p align="JUSTIFY">" Guļu," atsoka mjeitiņa. </p>
+
+<p align="JUSTIFY">"Voi nava tev solts?"</p>
+
+<p align="JUSTIFY">" Solts gon bet kū lai doru? Jums juosaldei, maņ juocīš !</p>
+
+<p align="JUSTIFY">Tod Zīmels pīņesja buoriņai vysaida monta un vysaidu drābu,
+atdjavja vysu tū mjeitiņai un sasjadzja jū, ka nasoltu.</p>
+
+<p align="JUSTIFY">Gaismai austūt, atīt Ausaklys un vaicoj buorineitjai: "Kū tu,
+mjeitiņ, tja dori?"</p>
+
+<p align="JUSTIFY">"Guļu," atsacēja mjeitiņa. Voi nava tev solts?"</p>
+
+<p align="JUSTIFY">"Solts gon bet kū lai doru? Jums juosaldei, maņ juocīš</p>
+
+<p align="JUSTIFY">Tod Ausaklys īdjavja jai lobu zyrgu, lobus rot's, kučeri un vēl vysa
+kuo. Nūbraucja buoriņa ar vy su tū montu uz sātu. Svešai muotjai dusmes, ka buoriņa
+niu tik boguota. Syuteis jei ari sovu mjeitu iz krystu.</p>
+
+<p align="JUSTIFY">Ka jau tei nalāgs dabuojusja, kū ta tnuna mjeita nadabyus "</p>
+
+<p align="JUSTIFY">Jei savalk sovu mieitu jaunovos dŗābjās, aptyn kūdeļu ap kuojam,
+apaun syltus zuoboks, apvalk lobu kažūku, sasadz ar vylnartom, nūvad pošu iz krystu un
+atstuoj tī, saceidama: "Gul vīn, mjeitiņ, nasasalsi!"</p>
+
+<p align="JUSTIFY">Atīt Soltums, vaicoj: "Kū tu, mjeitiņ, tja dori?"
+"Guļu."</p>
+
+<p align="JUSTIFY">"Voi nava tev solts?"</p>
+
+<p align="JUSTIFY">Solts gon, ka tev koč (kaut) rūkas atkolstu!" atsoka mjeitiņa
+Soltumam.</p>
+
+<p align="JUSTIFY">Soltums atkaltej muotes mjeitai rūkas. Jei gu otkon, par šalti atīt
+Zīmeļs un vaicoj meitai: "Kū tu, mjeitiņ, tja dori?" "Guļu."</p>
+
+<p align="JUSTIFY">"Voi nava tev solts?"</p>
+
+<p align="JUSTIFY">"Solts gon, ka tev koč kuojas atkolstu!" atsoka mjeita
+Zīmeļam. Zīmeļs atkaltej jai kuojas. Gaismai austūt, atīt Ausaklys .un vaicoj:
+"Kū tu, mjeitiņ, tia dori?"</p>
+
+<p align="JUSTIFY">"Guļu."</p>
+
+<p align="JUSTIFY">"Voi nava tev solts?" </p>
+
+<p align="JUSTIFY">"Solts gon, ka tev koč ac's izspīstu!" atsoka mjeita
+Ausakļam: Ausaklys izspīž jai ac's. Mjeita guļ niu sasolusja un nadzeiva pi krysta.
+Muotja naīt vys pakaļ, bet gaida, cikom mjeita atbrauks ar montu. Gaida, gaida, bet
+mjeita nabrauc vys. Nasagaidējusja, syuta veiru: "Brauc un vierīs, voi nav tik
+mjeitiņa sasolusja!"</p>
+
+<p align="JUSTIFY">Nūbrauc, vierās: mjeitiņa guļ jau vysa sasteivējusja nu<b> </b>soltuma.</p>
+
+<p align="JUSTIFY">Dīvjeņs dūd djeivējam, na tam cīma skaudējam.</p>
+
+
+</body></html>

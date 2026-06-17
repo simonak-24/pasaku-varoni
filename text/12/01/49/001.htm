@@ -1,0 +1,219 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>49</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Laupītāji līķu kambarī.</p>
+</font></b>
+
+<p align="JUSTIFY"><strong>l. </strong>A. 1654. Juris Bērzons, Zīdaros. A. Bīlenšteina
+kr. LP, VI, 885 (132, 1).</p>
+
+<p align="JUSTIFY">Kādā mežā bija krogs - Krepeļu krogs. Septiņas verstes no
+Krepeļu kroga pa labi roki bija viena māja un septiņas verstes no Krepeļu krogapa
+kreisi roki bija otra māja. Tai pirmajā mājā dzīvoja toreiz kalps Juris; otrā mājā
+atkal dzīvoja kalps Jānis. Un šie abi kalpi vienā svētdienas pēcpusdienā
+sagadījās Krepeļu krogā. Nu dzēra, dzēra - vēlāk grib prom iet. Juris par vienu
+mārku vairāk nodzēris, nekā kabatā, nevar aizmaksāt. Tā nabadziņš krīt Jānim
+klāt: vai nevarot to mārku aizdot?</p>
+
+<p>"Varu gan, bet kad tu man atdosi?"</p>
+
+<p align="JUSTIFY">"Ai, Jāni, ko nu pēc tam bēdāties? Nākamu svētdienu tepat
+satiksimies - atdošu, ja patīk, divi mārkas. Tai ziņā esmu vīrs, kas vīrs."</p>
+
+<p align="JUSTIFY">Labi, Jānis aizmaksā. Atnāk nākamā svētdiena, Jānis poš uz
+Krepeļu krogu. Aiziet, gaida, gaida - Juŗa nekā.</p>
+
+<p align="JUSTIFY">Bet Juris mājā saka uz savu sievu: "Sieviņ, man gudrība naudas
+nemaksā! Es arvienu zinu, ko es daru. Un tagad es labi paēdīšu, iekāpšu gultā un
+gulēšu; kad Jānis varbūt šodien nāk un prasa pēc savas mārkas, tad saki, ka es jau
+trešo dienu bez valodas guļu - diezin, vai celsies." Labi.</p>
+
+<p align="JUSTIFY">Pa tām starpām Jānis, nevar ēdams Juŗa sagaidīt, ņem kājas pa
+pleciem un stiep vēl tās septiņas verstes līdz Juŗa mājai. Aiziet un prasa:
+"Kur Juris? Viņš no manim izgājušā svētdienā aizņēmās mārku, solījās
+Krepeļu krogā šodien atdot - nekā."</p>
+
+<p align="JUSTIFY">Tā Juŗa sievai tūliņ teicamais vaļā, beŗ kā pupas: "Ai,
+Jāni, Jāni, nebāzies slimam cilvēkam virsū. Viņš jau trešo 'dienu bez valodas! Kad
+būs vesels, atdos tavas mārkas, atdos visu; bet kad nomirs, tad, zināms, mīļo Jāni,
+tad lai šķipele parādus maksā."</p>
+
+<p align="JUSTIFY">Nākamā nedēļā gadās Jāņam uz muižu darbos iet, satiek no Juŗa
+mājas vienu puisi un prasa: "Kā tad nu manam draugam Juŗam klājas? Vai ir jau
+labāks?"</p>
+
+<p align="JUSTIFY">Puisis brīnās: "Kā? Vai tad viņš kādureiz sliktāks
+bija?" </p>
+
+<p align="JUSTIFY">"Kā tad ne? Svētdien biju parādu meklēt, bet sieva teica, ka
+bez valodas."</p>
+
+<p align="JUSTIFY">"Tad sieva tevi izmuļkojusi. Viņam ir valoda, viņam
+veselība!"</p>
+
+<p align="JUSTIFY">Nu nākamā svētdienā Jāņam prāts vairs nav mierīgs, ies pie
+Juŗa.</p>
+
+<p align="JUSTIFY">Bet Juris arī šai svētdienā pie laika apmanījās, viņš sacīja:
+"Sieva, vai zini, ko nu darīšu ar Jāni? Mums uz bēniņiem ir zārks, to
+aiznesīšu uz kaulu kambari, iegulšos par nomirušu tur iekšā, un kad Jānis atnāk
+pēc mārkas, tad saki, ka esmu nomiris jau - guļu kaulu kambarī zārkā. Un ja viņš
+netic, lai nāk apskatīties."</p>
+
+<p align="JUSTIFY">Labi, Juris kaulu kambarī guļ, guļ (kambaris bija meža vidū), te
+pašu laiku divpadsmit laupītāji nosituši bagātu kungu, nolaupījuši seši tūkstoši
+rubļu naudas, zelta gredzenu un nāks šinī kaulu kambarī laupījumu izdalīties.
+Ienāk, sāk dalīt, naudu izdala viegli, bet gredzenu nekā nevar. Nu tiepjas, tiepjas -
+viens grib, otrs grib, te uz reizi vecākais laupītājs saka, uz Juŗa zārku rādīdams:
+"Kas šo zārku ar lielo cirvi vienā cirtienā pārcirtīs, tam lai paliek
+gredzens!"</p>
+
+<p align="JUSTIFY">Tā mans Juris noprot: labi nebūs! - speŗ vāku vaļā un kliedz:
+"Vai jūs, negantie prauli, ne miroņus vairs mierā neliksit! E, miroņi, ceļaties
+augšā, tiem vajaga mācības!"</p>
+
+<p align="JUSTIFY">Laupītāji, to padzirdējuši, nedabūja ne krustu aizmest. Aizspruka
+pa kaklu, pa galvu taisni mežā iekšā, atstādami naudu un gredzenu turpat. Nu Juris
+bij laimīgs bez gala, nu gramsta naudu, nu sēž uz zārka malas, nu skaita, nu gudro -
+nezin pats ko būtu izdarījis.</p>
+
+<p align="JUSTIFY">Uz reizi ienāk Jānis: "Ko tu te dari? Atdod manu mārku!" </p>
+
+<p align="JUSTIFY">"Ai, Jāni, še nu trīstūkstoši tev, trīstūkstoši man - to
+mums pats Dievs piešķīra svētdienas dienā!"</p>
+
+<p align="JUSTIFY">Labi, Jānis paņem trīstūkstoti tencinādams un prasa atkal:
+"Bet nu atdod man mārku, divreiz septiņas verstes divreiz esmu nostaigājies pēc
+viņa, vai vēl mani staidzināsi?"</p>
+
+<p>Juris saka: "Tu tikdaudz jau esi dabūjis, ko vēl gribēji?" </p>
+
+<p>"Ne tā!" Jānis saka, ,,tagadin teici, ka tos tūkstošus esot Dievs devis,
+un tu taču tad vēl nekā man neesi atdevis!"</p>
+
+<p>Tā viņi tur ķildojās, ķildojās, kamēr iesāka plūkties.</p>
+
+<p align="JUSTIFY">Bet laupītājiem bija savas naudas diezgan žēl. Viņi sagudro: tam
+drošākajam būtu jāiet atpakļ apskatīties, vai tur daudz miroņu sacēlušies. Labi,
+drošais aizlien prātīgi, prātīgi un dzird pa iekšpusi lielu burkšķi. Bet viņš
+vēl neliksies mierā, līdīs pie lodziņa pažūrēt, cik īsti miroņu tur ir.</p>
+
+<p align="JUSTIFY">Pielien, bāž galvu pa lodziņu iekšā un redz, ka tur briesmīgi
+kaujas un par mārkām vien runā. Un tiklīdz šis galvu labi pabāzis, tā viens viņam
+norauj cepuri: "Še tev tā cepure tās mārkas vietā!"</p>
+
+<p align="JUSTIFY">Laupītājs, nabadziņš, briesmīgi sabijies, skrien elsdams, pūzdams
+atpakaļ pie citiem un stāsta atspēries: "Ak tu brīnumi, cik tur miroņu bija
+sacēlušies! Briesmīgi pulku! Tik daudz, ka mūsu nauda katram tikai pa mārkai iznāca
+un ir tad vēl viens bez mārkas bij palicis. Tam notvēra to pašu manu cepuri un
+iegrūda, lai apmierinātu<font size="4">.</font></p><font size="4">
+</font>
+
+<p>Piezīme. Tādu pašu pasaku uzrakstījis Upītis Gatartiešos, Brīvzemnieka
+krājumā. L. P.</p>
+
+
+</body></html>

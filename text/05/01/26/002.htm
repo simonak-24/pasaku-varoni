@@ -1,0 +1,187 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Bārenīte un mātes meita mežā pie raganas.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 480. Runtuļu Vilis Vilcē. Jkr. V, 55 (26). LP VII, II. 27, 8,
+2. </p>
+
+<p align="JUSTIFY">Vienai atraitnei bija divas meitas: viena īsta, otra pameita. Īsto
+meitu pamāte visādi lutināja un godīja, bet pameitai nelika mieru ne dienu, ne nakti.
+Vienādi vien tai bija jāstrādā un, lai gan viņa bija. ļoti čakla, tad tomēr
+vairāk nekā nedabūja, kā tikai kaulus un garozas krimst.</p>
+
+<p align="JUSTIFY">Vienu dienu pamāte izcepa maizi, izsvieda vienu klaipiņu pa durvim un
+uzbļāva pameitai: "Še kukulis! skrej uz elli pie velna mātes!"</p>
+
+<p align="JUSTIFY">Pameita skrēja kukulītim pakai - skrēja, skrēja, bet kukulītis kā
+neapstājas, tā neapstājas - tek un tek arvienu uz priekšu. Pameita beidzot nonāca uz
+lielu, lielu pļavu. Pašā pļavas vidū stāvēja maza, maza veca pirtiņa. Pameita
+lēnām atvēra pirts durvis un iegāja iekšā. Pirtiņā dzīvoja veca, veca sieviņa,
+izlūzušiem zobiem. Pameita padeva labu dienu un ievaicājās, vai nevajagot kopējiņas.
+Vecene atteica: "iztikt jau varētu gan tāpat, bet tā kā tu izskaties mundra
+meitiņa, tad paliec jau paliec!"</p>
+
+<p align="JUSTIFY">Pameita palika. Bez vecenes vēl bija pirtī gailītis, sunīti<b>, </b>kaķītis
+un gotiņa. Pameita brīnum labi iztika ar lopiņiem: gailītim arvien pagādāja
+briedošus graudiņus un ūdentiņu dzeršanai; sunītim nekad neaizmirsa kauliņus
+atmest; kaķītim arvien ieslauca šķīvītī pieniņu un gosniņai pagādāja zaļu
+zālīti. Pati vecene bija velna māte un lūkoja pameitu visādi samaitāt, bet
+nevarēja, jo lopiņi meitiņu ļoti mīlēja un deva tai arvienu gudrus padomus, kā no
+vecenes izsargāties. Vecene sāka nomanīt lopiņu draudzību, tādēļ iedeva pameitai
+rīksti un sacīja: "Kad tu ej gosniņu slaukt, tad sasukā to, jo tad viņa dos
+vairāk piena. Un kad tas kaķis tev glaužas apkārt, tad sasukā arī to!"</p>
+
+<p align="JUSTIFY">Pameita paņēma rīksti un apsolījās darīt, kā pavēlēts, bet
+nedarīja vis tā! Par to lopiņi viņu mīlēja vēl vairāk. Tā pagāja visa nedēļa,
+atnāca sestdiena. Vecene sacīja uz pameitu: "Šodien izkurē man pirtiņu, nevajaga
+jau diezin kā kurēt: iesvied tikai kādus salmiņus, kādus kauliņus un būs siltuma
+diezgan. Tāpat saplūc kādas nātriņas un saslen slotiņā, ar ko mani nopērt."</p>
+
+<p align="JUSTIFY">Meitiņa izgāja ārā to padarīt. Te kaķītis klātu un saka:</p>
+
+<p align="JUSTIFY">"Meitiņ, meitiņ neklausi vis veceni, bet izkurē pirtiņu labu
+siltu; aiztec uz mežu un pārnes mīkstu, mīkstu slotiņu."</p>
+
+<p align="JUSTIFY">Pameita klausīja kaķītim. Nomazgājusies vecene ieveda pameitu
+lielā lielā istabā apakš zemes. Istabas sienas bija izliktas ar zeltu un dārgiem
+akmiņiem, ka acis apžilba skatoties. Istabas vidū stāvēja trīs lielas lādes: zila,
+zaļa, sarkana. Visas mirdzēja vien, bet par visām jaukākā bija sarkanā. Vecene
+rādīja uz lādēm un sacīja: "Te nu būs tava alga. Izvēlies, kuŗu lādi
+gribi!"</p>
+
+<p align="JUSTIFY">Meitiņa skatījās, skatījās - nezināja, kuŗu vēlēties. Beidzot
+taisījās rādīt uz sarkano. Bet te ienāca kaķītis, uzlēca uz zaļo lādi un lēnām
+mala: "Ņem šo, ņem šo!"</p>
+
+<p align="JUSTIFY">Meitiņa tūdaļ vēlējās zaļo lādi. Vecene attaisīja lādes vāku
+lāde bija pilna zelta dukātu, tad piesita kāju pie zemes, tūdaļ[ izskrēja no zemes
+kariete ar sešiem lieliem, melniem zirgiem un kučieri. Lāde pati ievēlās karietē.
+Pameita iekāpa viņā un laida atpakaļ pie pamātes.</p>
+
+<p align="JUSTIFY">Pameita izstāstīja pamātei, ka velna māte viņai lādi par
+kalpošanu iedevusi; bet par lopiņiem neminēja ne vārda. Nu iegribējās arī īstai
+meitai zeltu izpelnīties. Tā nogāja smiedamās un lielīdamās, ka būšot ar divdesmit
+zirgiem pārbraukt un divreiz tik lielu lādi pārvest. Atrada arī pirtiņu un velna
+māte pieņēma viņu par kopēju. Kaķītis un sunītis glaudījās apkārt, bet šī tos
+aizspēra ar kāja projām, uzsaukdama: "Nost, smūdži!"</p>
+
+<p align="JUSTIFY">Lopiņi sadusmojās un nedeva tai nekāda padoma. Atnāca sestdiena,
+kad vecene jāpeŗ. Īstā meita saŗāva labu kušķi nātru un ņēmās veceni kapāt
+aukstā lāvā. Vecene neteica ne vārda, bet nopērusies ieveda meitu istabā apakš
+zemes un teica, lai izvēlas kuŗu lādi grib Meita ātri neapdomādamās iesaucās, ka
+gribot sarkano lādi. Vecene piesita atkal ar kāju, atskrēja tā pati kariete un meita
+aizbrauca ar visu lādi projām. Pie vārtiem to jau sagaidīja māte. Gribēja celt lādi
+no karietes ārā, skatīties, kas būs iekšā. bet tikko pieķērās pie lādes, te
+vāks ar lielu troksni atsprāga vaļā, lielas uguns liesmas izšāvās no lādes un
+pārvērta māti un meitu pelnos. Tā tad nu pameitai piederēja lielas mājas un vēl
+lāde ar naudu. Viņa apprecējās un dzīvoja laimīgi.</p>
+
+
+</body></html>

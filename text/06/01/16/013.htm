@@ -1,0 +1,198 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>13</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">13. A. 53. H. Skujiņa, Andrs Ziemelis, no 46 g. vecas Emīlijas
+Tralliņas Aumeisteŗos.</p>
+
+<p align="JUSTIFY">Vienam tēvam bīši trīs dēli. Abi vecākie bīši prāta cilvēki,
+bet jaunākais bīš paviegls un šo iesaukuši par Muļķīti. Tēvs palicis slims un ka
+jau bīš tuvu miršanai, ta piesacīš, lei šo visi trīs dēli pirmās trīs naktis
+kapsētā vaktējot. Tēvs drīz vie bīš pagalam un šo aprakuši.</p>
+
+<p align="JUSTIFY">Pirmo nakti biš jāiet vecākam dēlam tēva kaps vaktēt, bet šim
+bīš bailes pa nakti kapsētā palikt un šis pierunāš Muļķīti, lei ejot šā
+vietā. Muļķīts aizgāš ar', apsēdies uz kapa un raudāš. Ap pusnakti tēvs cēlies
+augšā un prasīš Muļķīšam, kāpēc šis raudot. Muļķīts sacīš, ka šim esot
+šā varēn žēl. Nu tēvs sacīš, lei šis vais neraudot, un iedevis Muļķīšam
+sidraba zirgu. Lei šis to zirgu vedot vie uz māju un liekot stallī iekšā, zirgam ēst
+nevaigot dot. Ta vē tēvs piesacīš, lei nevienam nebilstot ne vārdīna. Muļķīts ar'
+darīš, kā tevs vēlēš.</p>
+
+<p align="JUSTIFY">Otru nakti bīš jāiet vaktēt vidējam dēlam. Bet šis ar vis
+negāš un pierunāš Muļķīti, lei šis novaktējot arī šā vietā. Muķīts aizgāš
+ar un akal, apsēdies uz kapa un raudāš. Ap pusnakti akal iēvs cēlies augšā un
+prasīš, kāpē šis raudot. Muļķīts sacīš, ka šim esot šā žēl. Nu tēvs
+sacīš, lei vais nežēlojot un neraudot un iedevis Muļķīšam zelta zirgu. Lei to
+vedot uz māju, liekot stallī, ēst zirgam nevaigot, bet lei nevienam pašam ar'
+nestāstot, ka šim tāds zirgs esot. Muļķīts akal darīš, kā tēvs vēlēš.</p>
+
+<p align="JUSTIFY">Trešu nakti Muļķīšam bīš pašam jāiet tēva kaps vaktēt.
+Viņš aizgāš, uzsēdies uz kapa un raudāš. Ap pusnakti tēvs cēlies augšā un
+prasīš, kāpēc šis raudot. Muļķīts sacīš, ka šim esot šā žēl. Tēvs nu
+sacīš, lei vais neraudot, un iedevis Muļķīšam dimanta zirgu. Lei šis zirgu vedot uz
+māju, liekot stallī, ēst zirgam nevaigot, bet lei šis nevienam ne bilstin nebilstot,
+ka šim tāds zirgs esot. Muļķīts visu izdarīš, kā jau tēvs vēlēš.</p>
+
+<p align="JUSTIFY">Drīz vie ķēnīc izlaidis ziņu, ka šis atdošot tam savu princesi
+par sievu, kas varēšot šai uzjāt pakaļā glāžu kalnā. Abi vecākie brāļi ar'
+sataisīšies uz jāšanu. Vienc uzkāpis cūkai mugurā un otrs kazai un aizjāši. Kā
+nu šie no mājas laukā, tā Muļķīts ar sidraba zirgam mugurā un aizjāš ar uz
+kalnu. Kā nu šis panācis abus vecākos brāļus, kas uz cūkas un kazas jāši, tā
+uzšāvis ar pātagu cūkai un kazai. un abi brāļi ievēlušies grāvī. Muļķīts
+drāzis kalnā augšā, bet tik līdz puskalnam vie ticis, zirgs sācis šļūdēt un
+Muķīšam bīš jājā apakaļis. Šis laidis uz māju un ka abi vecākie isjāši
+mājā, ta varēn sodīšies par to jājēju, kas šos iegāzis grāvī un pats uz sidraba
+zirga uzjāš līdz puskalnam. Nu Muļķīts sacīš, ka šis jau ar esot to jājēju
+redzēš. Kur ta šis esot varēš redzēt, prasīši akal vecākie. Muļķīc sacīš, ka
+šis esot pakāpies uz rijas jumta un noskatījies. Nu abi vecākie ņēmuši un
+noplēsuši riju, lei vais Muļķīšam nebūtu ko pakāpties un noskatīties.</p>
+
+<p align="JUSTIFY">Otru dienu akal abi vecākie aizjāši uz glāžu kalnu. Vienc jāš
+tāpatēm uz cūkas un otrs uz kazas. Kā šie izgāši no mājas, tā Muļķīts ar
+kāpis zelta zirgam mugurā un jāš uz glāžu kalnu.</p>
+
+<p align="JUSTIFY">Kalnā Muļķīts akal panācis abus vecākos un drāzis akal ar
+pātagu cūkai un kazai un abi vecākie iegāzušies grāvī. Bet Muļķīts kā drāzis,
+tā uzdrāzies lielā pus' kalnā, bet ta zirgs sācis šļūdēt un Muļķīšam bīš
+jāgriež apakaļ un jāja zemē. Muļķīts pirmais bīš mājā un ka vecākie jāši
+mājā, ta akal sodīšies ar to jātnieku, kas jāš uz zelta. zirga un iegāzis šos
+grāvī, Muļķīc sacīš, ka šis jau ar esot visu redzēš. Brāļi prasīši, kā ta
+šis varēš redzēt. Nu, šis esot pakāpies uz klēts jumta un visu noskatījies. Nu
+brāļi pārskaitušies un noārdīši klēti, lei Muļķīšam vais nav ko pakāpties un
+lūrēties.</p>
+
+<p align="JUSTIFY">Trešu dienu akal abi vecākie aizjāši uz glāžu kalnu. Vienc
+tāpatēm jāš uz cūkas un otrs jāš uz kazas. Kā šie izjāši no mājas, tā
+Muļķīts kāpis dimanta zirgam mugurā un jāš uz glāžu kalnu. Ceļā akal šim
+gadīšies abi vecākie. Muļķīts uzšāvis ar pātagu cūkai un kazai un abi vecākie
+iegāzušies grāvī. Muļķīts kā nu jāš, tā uzjāš pašā kalna galā un novilcis
+princesei no pirsta gredzenu. Ta akal jāš tūlītās zemē un uz māju prom. Ka nu
+vecākie atjāši mājā, ta sodīšies par to dimanta jājēju, kas šos iegāzis grāvī
+un pats uzjāš kalna galā. Muļķīts nu vais nekā nesacīš un aptinis pirstu ar
+lupatām, lei vecākie nemana, ka šim princeses gredzens pirstā.</p>
+
+<p align="JUSTIFY">Ķēnīc gaidīš, gaidīš dimanta jājēju, ka šis māks uz pili ar
+princesi kāzas dzert, bet šā ne jutin. Nu ķēnīc sasaucis visus savus pavalstniekus
+kopā un meklēš rokā to kam ir pirstā princeses gredzenc. Bet nevarēš un nevarēš
+dabūt. Abi vecākie ar aizgāši, bet Muļķīts palicis mājā. Ķēnīc piegāš pie
+abim vecākim un prasīš, vai no šo mājas esot visi atnākuši. Vecākie atbildēši,
+ka visi gan gluži neesot, bet Muļķīts vie jau mājā palicis un no tā jau neesot
+nekādas jēgas. Bet ķēnīc neatlaidies un stellēš Muļķīšam ziņu, lei tūlītās
+nāk uz pili. Muļķīts atnācis ar visu satīto pirstu un ka ķēnīc pamanīš satīto
+pirstu, tā prasīš, kas šim tur esot. Muķīc sacīš, ka šim esot pirsts pušu. Ta
+ķēnīc akal sacīš, lei šis tinot pirstu vaļā. Muķīc sacīš; ka šim sāpot un
+nevarot vaļā tīt. Bet ķēnīc neatlaidies un Muļķīšam bīš jātin gribīšam
+nogribīšam pirsts vaļā. Ka nu šis attinis pirstu vaļā, tā ķēnīc ar tūlītās
+pamanīš princeses gredzenu un vedis Muļķīti uz pili pie princeses. Muļķīts
+nodzēris ar princesi lepnas kāzas un dzīvāš laimīgi.</p>
+
+
+</body></html>

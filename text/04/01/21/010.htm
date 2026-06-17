@@ -1,0 +1,153 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Velns zog dvēseles.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">10. D. Ozoliņš Jaun-Rozē. LP, V, 46, 24.</p>
+
+<p align="JUSTIFY">Vīns veirs brauc iz krūgu um radz: divi melli suņi iz ceļa
+plāšas.</p>
+
+<p align="JUSTIFY">,,Kū jūs plāšatīs?"</p>
+
+<p align="JUSTIFY">"Mēs pūra [purva] dēļ plāšamīs."</p>
+
+<p align="JUSTIFY">Kas tur kū plāstīs? Līlam suņam līlais, mozam mozais "</p>
+
+<p align="JUSTIFY">pūrs." Drusku vālāk veiram pīnāca vīns cits veirs,
+sacīdams: "Tis beja lobi, ka izšķīri tūs pūrus. Es zinu - tev desmit pūdi
+linu. Kod iz Reigu brouc - tev pi mallā Gaiļa nūsvērs vasalu birkavu. Tis par tū
+lobumu."</p>
+
+<p align="JUSTIFY">Veirs aizbrauca Reigā, un patīsi pī mallā Gaiļa tam nūsvāra
+desmit pūdus par vasalu binkavu. Otpokoļ broucot tis pats veirs atkon pīstājās un
+aizvada veiru kuozās. Bet ite vusi cilvāki suoktlši kautīs. Ori valls joucīs storpā
+un nūsitis brūtguonu. Brūthuana dvāsali valls ūlā īlaidis un aizbraucis ar veiru.
+Bet veiram beja ceļā leidz sērmūšņa vāza [vēza, kūja]. Valls, tū īroudzējs,
+socījs: "Kod mun or tū raiz po golvu sistu, tod muni nūsistu."</p>
+
+<p align="JUSTIFY">Veirs gribēja nū valla voļā tikt. tuodāļ tis deva tam ar
+sērmūšyas vāzu po ļapu un nūsita. Veirs paņēma ūlu ar brūtguona dvāsali,
+atbrouca kuozās otpokoļ, un īloida brūtguonam otkal dvāsali mutē - polika dzeivs.
+Brūtguons nū prīka moksāja veiram simtu rubļu un polaida muojās.</p>
+
+<p align="JUSTIFY">Bet kod nu veirs brouca gor tū vītu, kur tūreiz tī suņi
+plāsušīs, tod sotics tū ūtru vallu. Tis bej prīcīgs, ko viņa īnaidnīku nūsitis,
+tuoda socīja iz veiru: "Brouc iz pilsātu otpokoļ, es gribu tevi bogātu
+darīt."</p>
+
+<p align="JUSTIFY">Lobi. Pilsātā tī īguoja vīnā ēdīnu būdī un lobi sosaādās un
+sosadzērās. Pēc oizvoda veiru pī līlas naudas kostes, Ioi nu ņamūt, bet valls pats
+oizbāga. Veirs pībuoza sovus karmaņus [kabatas] pilnus ar noudu. Bet kod tevi! Īnuoca
+pats noudas kungs, sosāja veiru un lika ar vusu noudu koratavās pakārt. Bet koratavās
+veirs atskatījās pār plecu un īroudzēja sav leidzās solmu kūli karajūtīs. Un tis
+breinums! Pots otrodīs smukā mežā un na vus koratavās.</p>
+
+
+</body></html>

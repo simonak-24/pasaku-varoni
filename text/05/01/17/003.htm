@@ -1,0 +1,187 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vīrs par elles katla kurinātāju.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 475. Treimaņu Jānis Bērzmuižas Dzeņos. Jkr. IV, 14. 1, p. 5.
+LP, VII, I, 625 1. p. 12.</p>
+
+<p align="JUSTIFY">Melnajā muižā (tagadējā Upesmuižā pie Līves Bērzes) dzīvojis
+briesmīgs velna pilns kungs. Tam bijis kučieris Krumultiņš vārdā. Šim vajadzējis
+katru nakti ar kungu izbraukt. Tik ko pa muižas vārtiem laukā, skrējuši zirgi
+kŗākdami, šņākdami, rūkdami gaisā pa upi pāri uz mežu projām. Krumultiņa sieva
+gan reizu reizēm savam vīram prasījusi: "Kur kungs brauc katru nakti?"</p>
+
+<p align="JUSTIFY">Krumultiņš tikai. noņurdējis vien. Lai gan manījis, uz kurieni
+briesmīgais brauciens vedot, tomēr īsti nezinājis, kas galā notiekot, kad kungs viņu
+vienu pašu mežā atstājis. Kungs arī bijis viņam cieti aizliedzis ko runāt par to;
+ko viņš redz un dzird. Un ar laiku jau ar pašu velnu apron, tā arī Krumultiņam
+gājis. Viņš nakti no nakts ar kungu braukdams, pagalam apradis un beidzot iekārojies
+arī zināt, kur kungs tad aiziet, kad mežā nobrauc.</p>
+
+<p align="JUSTIFY">Kādu nakti stipra vētra plosījusies un bijis tik tumšs, tik tumšs,
+ka tumšāks vairs nevarējis būt; bet kungs licis atkal zirgus jūgt un braukt. No
+Melnās muižas izbraukuši kādos desmitos un braukuši, ka rūcis vien. Noskrējuši
+meža vidū zemē, kungs izkāpis no karietes un steidzies pilniem soļiem projām --
+Krumultiņš tam pakaļ, jo lielas tumsas dēj nebijis ko bīties, ka kungs to redzētu.
+Otrām kārtām, viņš zinājis, ka velna pilniem cilvēkiem nav brīv atpakaļ
+skatīties. Gabalu gājuši, tie atradušies pie kādas lielas dzelzs ēkas - pie elles.
+Tur gulējis liels, liels melns suns durvju priekšā. Kungs sunim pārkāpis, suns
+nelicies ne zinot : bet kad Krumultiņš sunim pāri kāpis, tad tas galvu pacēlis
+ieņurdējies. Nu iegājis ellē un redzējis gaŗu rindu katlu, pilnus</p>
+
+<p align="JUSTIFY">ar vagāriem vāroties un vienā ieraudzījis arī savu kungu
+vārāmies. Krumultiņam palicis bail un viņš iesprucis pie pašām durvim kaktiņā.
+Tur aptupies un visu noskātījies. Uguns beigusies kurēties, nu skrējuši vagārīši
+un muižas kuņģeļi ar malku no pasekņiem un alām uguni atkal uzkurt. Kad vagāri
+bijuši labi savārījušies, tad tie izkāpuši no katliem, sēdušies pie galda, kas no
+viena gala līdz otram galam ar gaļu un baltu maizi bijis nokrauts, un ēduši, ka
+šņakšķējis vien, nu neviens neskatījies otram acīs. Krumultiņam arī iekārojies
+pēc uzkožamā, viņš pielīdis pie galda un nogrābis dažas baltas maizes pladiņas un
+iegrūdis tās azotē; tad izvilcis naželi un nogriezis lupatiņu no gaļas, bet viņam
+griežot iesūrstējies gurnu vaigs. Arī šo lupatiņu iegrūdis azotē, jo viņam
+bijuši paltraki sajosti ar jostu, kur cimdus, pīpi un kas tikai vajadzīgs, varējis
+iebāzt.</p>
+
+<p align="JUSTIFY">Kad nu Melnās muižas kungs pirmais gājis pa durvim ārā, tad devies
+Krumultiņš tam pakal. Izejot kungs pār melno suni pārkāpis. - Suns gulējis klusu,
+bet kad Krumultiņš viņam pāri kāpis, tad tas nejauki ieņurdējies, tā ka kungs
+galvu drusku sānis pagriezis, pilnam atpakaļ nepaskatījies. Kad pie zirgiem atnākuši,
+tad kungs kāpis karietē un Krumultiņš uz buku. Kungs dusmīgi un bargā balsī
+uzprasījis: "Kur tu biji?"</p>
+
+<p align="JUSTIFY">Krumultiņš, ļoti apķērīgs būdams, atbildējis: "Es biju
+sevis pēc!"</p>
+
+<p align="JUSTIFY">Nu braukuši uz Melno muižu tik briesmīgi kā nekad, gar krūmiem un
+koku galiem skrāpēdamies un plēzdamies, ka brīkšķējis vien.</p>
+
+<p align="JUSTIFY">Kad mājās pārbraukuši, kungs iegājis zālē, bet Krumultiņš
+nojūdzis zirgus un ielaidis stallī. Tad iegājis pie savas sievas un teicis: "Ilba,
+sieviņ, nu es zinu, kur mūsu kungs brauc. Ir jau taisnība, ko ļaudis runā, ka viņš
+velna pilns."</p>
+
+<p align="JUSTIFY">Un nu ņēmis no azotes ārā baltu maizi; bet tavu brīnumu! Tā
+bijusi pārvērtusies par zirgu strampuļiem un gaļas ļipatiņa, kuŗu ellē nogriezis,
+palikusi par cilvēka miesu. Kad nu Krumultiņam vēl arvienu gurnā sūrstēja, tad Ilba
+jipatiņu paņēmusi un uzliKusi to uz jēlumu, kur tā uz matu derējusi. Tā tas esot un
+būšot arvienu tiem velna pilniem vagāriem, kas nežēlīgi ļaudis kavuši, mocījuši
+un dirājuši - tiem visiem ellē jāvārās! Un tiem vagārīšiem, kas spieķojuši, un
+tiem muižas kuņģeļiem, kas kungiem bijuši kā klēpju sunīši, tiem ellē ugunis
+jākur.</p>
+
+<p align="JUSTIFY">Bet arī šim velna pilnam kungam pienāca pēdējā stundiņa: atrada
+viņu apgrieztu kaklu savā gultā. Izrīkoja lieliskas bēres, tomēr miera tas neatrada
+savā kapā, viņam jāspoko un savi darbi, kuŗus tas šai pasaulē izdarījis,
+jāatgādina. Liela trumpēšana notiekot apakš Melnās muižas tilta; tur naktī
+sabraucot no malu malām, arī no Velna bedres ejot uz Melno muižu rindām vien un
+dzīvojot tur līdz gaiļiem, ka tikai žvakšķot.</p>
+
+
+</body></html>

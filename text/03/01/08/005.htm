@@ -1,0 +1,178 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Maģiskā bēgšana ar meitenes palīdzību.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 313 A. M. Skrupska no vecas māmiņas Neretā, Folkloras archīva
+kr.</p>
+
+<p align="JUSTIFY">Reiz vienam ķēniņam pazuda vienīgā meita. Tika gan daudz meklēts,
+bet nekur viņas nevarēja dabūt. Nu viņš izsludina, kas atradīs un atvedīs, tam
+viņš to dos par sievu un pusi no savas valsts.</p>
+
+<p align="JUSTIFY">Apņemas daudz meklēt, izmeklējas, bet nekā. Nu jāj viens princis
+pa mežu un domā, kā varētu zināt, kur atrodas zudusī princese? Viņš ierauga meža
+mājā guļam vienu nespēcīgu nabagu, kas lūdzas, lai viņu paēdinot un pārvedot
+līdz viņa norādītai vietai. Princis, būdams labsirdīgs, paņem, paēdina, uzceļ to
+uz sava zirga un pārnes līdz norādītai vietai. Vecītis teic: "Par tavu labu
+sirdi es tev pateikšu, kur atrodas zudusī princese, un kā tev pie viņas izdosies
+pietikt. Še tev es iedošu vienu ābolu, vienu susekli un vienu pūsli, pildītu ar
+ūdeni. Pajāj uz dienvidu pusi, tur tu uziesi vienu dimanta aku un pie tās akas būs
+piesiets viens zirgs. Paņem, atraisi to un jāj par trim valstim, bet kad tu piejāsi pie
+pirmās valsts, tad tevi tur nelaidīs cauri jāt. Bet parādi tik ābolu, tad tevi
+laidīs. Kad tu piejāsi pie otras valsts, tad parādi susekli un pie trešās
+pūsli."</p>
+
+<p align="JUSTIFY">Princis iet uz dienvidu pusi, atron aku ar visu zirgu, atraisa un jāj.
+Piejāj pie pirmās valsts, tūlin divi kaŗavīri ar zobeniem rokā aiztur un teic,
+tālāk neesot brīvu iet. Bet princis parāda ābolu, tūlin kaŗavīri atņem zobenus
+nost un izlaiž cauri. Piejāj pie otras valsts, tur tāpat nelaiž; bet princis parāda
+susekli - tūlin izlaiž. Piejāj pie trešās, parāda pūsli - tūlin izlaiž.</p>
+
+<p align="JUSTIFY">Tad viņš jāj un piejāj pie viena skaista dārza. Ap to dārzu ir
+visapkārt apvilktas drātis, un kā pieduŗas, tā zvana pa visiem dārza stūŗiem.
+Princis atskrien ar savu zirgu un pāri ir gan bet no brīnumiem paliek stāvot. Cik
+skaists šis dārzs cik skaisti puķes zied un putni dzied! Te viņš pamana, ka nāk
+starp krūmiem skaista princese baltā apģērbā. Princese, svešnieku ieraudzījusi,
+brīnās un teic: "Steidzaties, cik ātri vien varat, ārā no šā dārza, jo
+citādi nāks pūķis un jūs saplosīs, kā tas jau noticis ar citiem, kas še
+iemaldījušies."</p>
+
+<p align="JUSTIFY">Princis atbild: "Es neesu iemaldījies, bet esu nācis, lai
+varētu jūs atsvabināt."</p>
+
+<p align="JUSTIFY">Princese saka: "Tas nav iespējams, mūs pamanis, dzīsies paka
+panāks un saplosīs."</p>
+
+<p align="JUSTIFY">Princis pastāv, ka šonakt pat esot jābēg. Princese paslēpj princi
+līdz vakaram un teic: "Kad uzlēks mēness, tad bēgsim." Nu mēness ir
+uzlēcis, bēgļi uzkāpj zirgam mugurā, atskrienās un lec par drātim pāri, bet zirgam
+drusku aizķeŗas kāja un nu sāk zvanīt pa visām malām. Šie gan skrien, cik tik
+jaudā; bet princese atskatās un ierauga, ka pūķis dzenas pakal un nāk vienmēr un
+vienmēr tuvāk. Princese iesaucas: "Nu mēs būsim pagalam, es jau jūtu pūķa
+karstumu, ko viņš izlaiž no savas mutes."</p>
+
+<p align="JUSTIFY">Princis teic: "Ņem šo ābolu un met mums aiz muguras!"
+Princese paķeŗ un met - tūliņ atronas liels kalns, un kamēr pūķis pārveļas pār
+to kalnu, tikmēr bēgļi jau tālu, tālu. Bet pūķis tomēr dzenas - ugunis vien
+šķīst. Princese atskatās un ierauga pūķi itin tuvu. Princese teic: "Ņem un met
+šo susekli!"</p>
+
+<p align="JUSTIFY">Princese paņem un nomet - tūlin atronas liels mežs. Kamēr pūķis
+pārspraužas pār mežu, tikmēr bēgļi atkal lielā gabalā. Pūķis tomēr steidzas
+panākt un ir jau netāļu no bēgļiem, kad princis teic: ,.Met šo pūsli!"</p>
+
+<p align="JUSTIFY">Princese nomet pūsli - tūliņ atrodas liels ezers. Nu pūķis
+pieskrien pie ezera, sāk dzert un dzeŗ, kamēr pārplīst un paliek guļam. Nu princis
+pārjāj mājā un pieved pie ķēniņa viņa meitu. Ķēniņš ir priecīgs, ka viņa
+meita ir no velna nagiem izrauta. Viņš tura doto vārdu un dod glābējam meitu par
+sievu un pusi no savas vaists.</p>
+
+
+</body></html>

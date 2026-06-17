@@ -1,0 +1,176 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>39</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Divi precinieki.</p>
+</b></font>
+
+<p><strong>1. </strong>A. 1631. J. Bankins «Šis un tas» II, 1875, 1.</p>
+
+<p align="JUSTIFY">Vienreiz kāds muižniekdēls jāja uz citu muižu sievas precēt. Pa
+ceļu jājot, viņš panāca pilsētnieku, kas arī uz to pašu muižu jāja precēties.
+Tie nu abi jāja kopā. Kādu gabalu jājušiem, pienāk vakars, un viņi apmetās krogā
+par nakti gulēt. Padevuši zirgiem auzas, liekas paši pie zemes.</p>
+
+<p align="JUSTIFY">Pilsētnieks, skauzdams muižniekam šo daiļo meitiņu, iet slepeni
+stadalā, un ka lai muižniekam zirgs no bada nosprāgtu, atgriež šā zirgu no siles
+apkārt, nāk atpakaļ un tad liekas gulēt. Muižnieks, to manīdams iet, kad
+pilsētnieks aizmidzis, stadalā, atdīrā tā zirgam virsējo lūpu kā ķipi, nāk
+atpakaļ un tad liekas gar zetmi.</p>
+
+<p align="JUSTIFY">Rīta abi pamodušies, iet stadalā raudzīt, ko zirgi dara.
+Pilsētnieks saka: "Tavs zirgs laikam negrib auzas ēst, jo tas atgriezies no
+siles."</p>
+
+<p align="JUSTIFY">Muižnieks atbild: "Tava taisnība! Bet tavs zirgs laikam smejas
+par manu zirgu."</p>
+
+<p align="JUSTIFY">Abi savaldīdami savas dusmas, jāj tālāku, kamēr tiem atkal vakars
+pienāk, bet šoreiz ne krogs, ne kāda māja nav redzama, kādēļ viņi sapin zirgus
+zāļainā pļavā, paši sakūruši uguni, liekas gulēt.</p>
+
+<p align="JUSTIFY">Pilsētnieks ar tādām pašām skaudīgām domām kā vakar uz
+muižnieku, iet un iedzen viņa zirgu muklājā un tad pats nāk atkal gulētu. Muižnieks
+iet un nodīrā tā zirga kājām ādu no pašiem vēzīšiem līdz ceļgaliem un liekas
+tad gulēt.</p>
+
+<p align="JUSTIFY">Rītā pamodušies iet zirgu meklētu. Pilsētnieks muižnieku
+izzobodams, saka: "Tavs zirgs ir iekritis muklajā."</p>
+
+<p align="JUSTIFY">Muižnieks atbild: "Are, tavs atkal ir atbraucījis bikses, lai
+varētu manu vilkt ārā!"</p>
+
+<p align="JUSTIFY">Pilsētnieks nobraucīja zirgam bikses un laida vaļā, ka skrandas
+vien karājās. Muižnieks, izvilcis savu no muklāja, steidzās tam no pakaļas, lai
+varētu viņu panākt. Viņš to panāca pie pašas muižas, kur tas zirgu bendem atdevis,
+gāja kājām muižā.</p>
+
+<p align="JUSTIFY">Muižas preilene mīlēja vairāk smalko pilsētnieku nekā parupjo
+muižnieku. Muižnieks pēcpusdienu iet sierēt dārzā un ierauga arī pašu laiku
+pilsētnieku nākam, tas aši aizstājies aiz ogulājiem, iztupējās un uzliek savu
+cepuri čupai virsū. Kad pilsētnieks tur pienāk, tad viņš uz to saka: "Es še
+noķēru zelta putnu. Lai brūte tevi labāki mīļotu, nāc turi to un saki, ka tu viņu
+noķēri: Es iešu pa tam viņu paziņot."</p>
+
+<p align="JUSTIFY">Pilsētnieks paklausa tam, un kad preilene atnāk, tad teic:
+"Sirsniņ! še zelta putnu noķēru, bet nevaru viens pats dabūt rokā; tādēļ
+nāc man palīgā, kad es celšu cepuri, tad tu ķer!"</p>
+
+<p align="JUSTIFY">Kā sacīts, tā darīts. Ak vai! preilenei smalkās ŗociņas nu bija
+kā ar mīklu noķepētas; bet šī mīļo pilsētnieku tāpat kā papriekšu. Jau bija
+norunāts svētdien braukt laulāties un kāzas dzert.</p>
+
+<p align="JUSTIFY">Tad muižnieks saka, ka pilsētnieks pie laulības būšot traks
+palikt. Šie to netic. Kad nu mācītājs tos sāk svētīt, tad muižnieks, nodedzinājis
+sarkanu dzelzi, klusām aizbāž pilsētniekam aiz zābaka stilba. Šis nevarēdams
+izciest, kāju uz grīdas sizdams, sāk kliegt: "Deg, deg"!" skrien pa
+durīm ārā un krūmos iekšā.</p>
+
+<p>Ļaudis sāk skatīties un rēgāties, bet nekur uguni nemanā. Preilene nu tiešām
+tic, ka pilsētnieks traks palicis, dod roku muižniekam, liekas ar to laulāties un
+dzīvo vēl līdz šo baltu dienu itin mīļi un laimīgi.</p>
+
+
+</body></html>

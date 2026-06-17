@@ -1,0 +1,221 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5"><strong>Ar brīnuma augļiem atdabūtās burvju
+lietas.</strong></font></p><font size="5">
+</font><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">3. A. 566. A. Lerchis - Puškaitis, Džūkstē -
+Pienavā. LP. II, 77 (72).</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz kādam puisim mežā nojukušas pēdas, viņš samaldījies trīs
+dienas un naktis, kamēr tad itin nejauši ceturtajā dienā saticis vecīgu vīru. Šis
+ieved puisi jaukā pilī, dod paēst, nodzerties un tad saka tā: "Paliec, puisīt,
+pie manis vienu gadu. Pēc gada laika došu tev mīklas minēt. Ja mīklas uzminēsi, tad
+tiksi laimīgs, ja ne, tad nu gan tā būs, ka būs. Ēst un dzert tev netrūks, dabūsi
+tādus ēdienus un dzērienus, ko vēl savā mūžā neesi baudījis. Vai esi tā
+mierā?"</p>
+
+<p align="JUSTIFY">"Nemaz nezinu!" puisis atbild.</p>
+
+<p align="JUSTIFY">"Nu, ja nezini, tad varu tev pateikt tik to, ka mājā netiksi un
+ceļa neatradīsi. Apdomā nu pats, kas labāki: vai mūžīgi maldīties, jeb pie manis
+palikt."</p>
+
+<p align="JUSTIFY">Neko darīt, jāpaliek. Pirmā dienā puisim gāja labi, otrā arī
+nekas nekaitēja, bet trešajā dienā nabadziņu ieslēdz pagrabā, lai smok, kamēr
+vecais mīklas uzdos.</p>
+
+<p align="JUSTIFY">Gads drīzi gāja uz beigām, puisis vēl vārgst pagrabā. Tata
+piķis! Un ej nu vēl sazini, kā ar mīklu minēšanu izdodas! Puisim tīri galva reibst.
+Bet ko tu taisnam padarīsi? Kamēr šis tā sūrojas, bēdājas, te palīdzība klāt.
+Kurmis, melns noracies, izlien no zemes un saka tā: "Nebēdājies, lien tik nu
+ārā! Tu redzi, kādu lielu caurumu esmu izracis. Veselu gadu ņēmos, kamēr tādu
+izraku. Grūti gan gāja, sviedri pilēja, bet ko darīt? Tava Laimiņa pavēlēja rakt -
+jārok. Steidzies ārā līst, kamēr dienas gaisma neaust un vecais nemanītu. Tad vēl!
+Aiz pils ir liels dobs ozols. Ielien dobumā, paslēpies un atdari ausis. Vakara, tumsā
+steidzies atpakaļ savā pagrabā. Es tad aizbēršu caurumu un viss būs labi."</p>
+
+<p align="JUSTIFY">Puisis izlien no pagraba, paslēpjas dobumā un nu klausās abām
+ausīm. Līdz pusdienai viss klusu. Bet dienasvidū uz ozola atlaižas spīdoši melns
+krauklis, nopurinās un tad sāk pats pie sevis runāt: "Tā, tā - rītu būs gads
+pagalam! Kādas mīklas lai uzdodu? Uzdošu tā: lai viņš pasaka, no kā šī zirga
+ādas galdadrāna taisīta. Jāapmāna tik acis, lai zirga āda izskatītos pēc
+trīnītes, tad jau neuzminēs. Tad lai pasaka, no kā šis zirga galvas pods taisīts.
+Jāapmāna tik acis, lai zirga galva izskatītos pēc māla trauka, tad jau neuzminēs.
+Tad lai pasaka, no kā šī zirga kājas karote taisīta. Jāapmāna tik acis, lai zirga
+kāja izskatītos pēc koka, tad jau neuzminēs."</p>
+
+<p align="JUSTIFY">Krauklis aizlaidās, puisim pietika. Vakarā tas ielien savā pagrabā
+un neliekas ne zinot. No rīta gads pagalam. Vecais atslēdz pagraba durvis un sauc ārā,
+lai mīklas minētu; no kurmja tam ne jausmas.</p>
+
+<p align="JUSTIFY">"Saki man, no kā šī galdadrāna taisīta?"</p>
+
+<p align="JUSTIFY">"No zirga ādas!" puisis atbild.</p>
+
+<p align="JUSTIFY">"Ak tu rezgalis - uzminēja! Par uzminējumu ņem šo maku, kurā
+nekad naudas netrūkst. Bet saki man, no kā šis pods taisīts?"</p>
+
+<p align="JUSTIFY">"No zirga galvas!" puisis atbild.</p>
+
+<p align="JUSTIFY">"Ak tu rezgalis - uzminēja! Par otru uzminējumu ņem šos
+svārkus, kas, mugurā uzvilkti, padara katru par neredzamu. Bet saki beidzot, no kā šī
+karote taisīta?"</p>
+
+<p>"No zirga kājas!" puisis atbild.</p>
+
+<p align="JUSTIFY">"Ak tu rezgalis - uzminēja. Par trešo uzminējumu ņem šo
+tauri. Ja vienā galā papūtīsi, tad sanāks liels kara spēks, ja otrā galā, tad kara
+spēks pazudīs "</p>
+
+<p align="JUSTIFY">Vecais atdod savas trīs lietas, labi nospļaujas un tad uzbļauj, lai
+puisis steidzoties projām no viņa acīm. Puisis aiziet smiedamies. Otrā, trešā dienā
+tas sasniedz ķēniņa pili un salīgst tur kalpot. Bet drīzā laikā ķēniņa meita
+izodusi, ka puisim trīs tik dārgas lietas: naudas maciņš, svārki, taurīte. Viņa
+pagādā zagļus un liek puiša mantas sev nozagt. No rīta puisis nomana gan, kas tas
+vainīgais; bet ko tu paša ķēniņa meitai padarīsi?</p>
+
+<p align="JUSTIFY">Kādas dienas vēlāk puisim iegadās mežā darbs. Te itin nevilšus,
+tas uziet ābeli ar saldiem āboliem. Viņš norauj vienu ābolu un apēd. Bet līdz ko
+apēdis, te brīnumi lielie: tam gadās pierē tik liels rags, ka ne domāt no biezumiem
+ārā tikt. Neko darīt jālien četrāpus. Nu lien, nu kūņojas, kamēr lielām mokām
+aizvelkas līdz mazam apariņam, kas sarkanām ogām, kā nosēts. Puisis sāk ogas ēst.
+Un nu atkal brīnumi: no ogām rags nozudis, ka ne redzēt. Labi, tagad puisim amats
+rokā. Viņš saplūc ogas, sarauj ābolus un steidzas uz pili. Ķēniņa meita to satiek
+durvīs.</p>
+
+<p align="JUSTIFY">"Kur, puisīt, tādus ābolus ņēmi?"</p>
+
+<p align="JUSTIFY">"Kur ņēmu? Mežā ņēmu!"</p>
+
+<p>"Dod man ar'!"</p>
+
+<p align="JUSTIFY">"Kādēļ ne? Še ēd vesela "</p>
+
+<p align="JUSTIFY">Meita paņem ābolus, ieiet savā istabā un sāk ēst. Te acumirklī
+pierē tāds rags līdz griestiem. Ķēniņš sasauc visuvisādus dakterus, lai ragu
+noņemtu. Bet nelīdz, kā ragu nogriež, tā desmit ragi tai vietā. Nu pilna galva
+ragiem. To redzēdams, ķēniņš savās bēdās nezin vairs ko darīt. Viņš apsola tam
+savu meitu par sievu atdot, kas ragus noņems. Nu sanāk pasauls dakteŗu; nevar neviens.
+Beidzot ies puisis. Viņš izdzen visus no ķēniņa meitas istabas ārā un tad noprasa
+ragainītei īsi: "Vai zagi manas trīs lietas?"</p>
+
+<p>"Pati gan nezagu, bet liku nozagt!"</p>
+
+<p>"Tā, tā. Tie nu ir tie ragi par taviem nedarbiem. Vai vēl tā darīsi?"</p>
+
+<p>"Tici droši, puisīt, ne mūžam vairs ne."</p>
+
+<p align="JUSTIFY">"Nu, tad varu tevi precēt. Tūlīt noņemšu tev ragus un tad
+turēsim kāzas. Še apēd tās ogas- būs labi."</p>
+
+<p align="JUSTIFY">Ķēniņa meita apēd ogas - ragi acumirklī nozūd. Puisis nu apprec
+ķēniņa meitu un manto, pēc sievas tēva nāves, valdību.</p>
+</font>
+
+
+</body></html>

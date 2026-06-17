@@ -1,0 +1,243 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Galdiņ, klājies.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">8. A. 563. P. Ikaunieks, Varakļānos, J. Rupjā
+krājumā.</font></p><font size="3">
+
+<p align="JUSTIFY">Dzeivova dāls ar muoti, jī beja nabadzeigi cylvāki. I vot reizi
+muote soka dālam: "Dāls, ej atnes nū klēts myltus!"</p>
+
+<p align="JUSTIFY">Dāls, pajēme grūzu, aizguoja pēc miltim. Atpakaļ nasūtīs, vējs
+iznosova vysus myltus. Atīt dāls uz ustobu, muote vaicoj: "Dāls, vai myltus
+atnesi?"</p>
+
+<p align="JUSTIFY">Dāls soka: "Vot, nasūt iz ustobu, vējs vysus myltus
+izkaisēja."</p>
+
+<p align="JUSTIFY">"Vai dāls! Kū nyu mes ēssim, mums nava maizes un byus
+juonūmierst bodā. Dāls, ej tyuliņ uz vēju un prosi, lai atdūd tovus myltus."</p>
+
+<p align="JUSTIFY">Muote sataisēja dālam kuli i īlyka sjimā buteli ydeņa. Jis laižas
+īt. Īt, īt - aizīt pī vēja un soka: "Voi, kaids tu nažēleigs esi, kam tu maņ
+vysus myltus izkaisēji, tagad myus juonūmierst bodā abim ar muoti."</p>
+
+<p align="JUSTIFY">Vējs soka: "Nabadoj nkū, es tev īdūšu taidu goldautu, jo tev
+gribēsīs ēst, tu tik pakluoj iz golda un soki: "goldaut, pabaroj mani," iz
+golda tyuleņ byus vysaidu ēdīņu un dzērīņu."</p>
+
+<p align="JUSTIFY">Dāls pajēma goldautu un laidēs īt. Īt, īt - pīīt vokors, jam ir
+juomeklej naktsmuoju. Jis īīt vīnā krūgā un prosa nu krūdzinīka, lai jam dūd
+naktsmuojas. Krūdzinīks jam tyuleņ īdeve naktsmuojas. Jam vokorā īsagribējuos ēst,
+jis tyuleņ pakluoj goldautu iz golda un soka: "Goldaut, pabaroj mani!" Iz golda
+tyuleņ atsarūn vysaidi dzērīņi un ēdīņi. Jis paēds pasoka goldautam :
+"Goldaut, satinīs kūpā!"</p>
+
+<p align="JUSTIFY">Itū beja nūvārūjis kuods krūga dzāruojs. Dāls kai apsagulstas,
+jis daboj cytu goldautu, īlīk dālam pazusē un tū izvalk. Dāls reitā pīsacēlis i
+soka: "Galdaut, izkluojīs un pabaroj mani!"</p>
+
+<p align="JUSTIFY">Goldauts nikuo nadora. Jis tyuleņ pajēme goldautu aizīt pī vēja.</p>
+
+<p align="JUSTIFY">"Vēj', kam tu mani apmuonēji! Es jou trešū dīnu naasmu
+ēdis."</p>
+
+<p align="JUSTIFY">Vējs tam atsacēja: "Dāls, nabādoj nikuo, es tev īdūšu uozi,
+tu tik pasoki uožam: "Uozi, kaisi naudu," uozs tyuleņ suoks kaiseit naudu.</p>
+
+<p align="JUSTIFY">Dāls, pajēmis uozi, dūdas ceļā. Īt, īt - pīīt jam vokors,
+juomeklēj naktsmuojas. I vot jis īīt vīnā krūgā un prosa nū krūdzinīka
+nakstmuoju, kur puorgulēt. Krūdzinīks jam īdūd naktsmuojas. Jam vokora īsagribas
+ēst, jis tyuleņ soka uožam: "Uozi, kaisi naudu," uozs tyuleņ suok kaiseit
+naudu. Dāls pajēmis naudu, pīpierk vysaidu dzērīņu un ēdīņu. Īturējis
+vakariņas, dāls aizīt gulātu.</p>
+
+<p align="JUSTIFY">Ītama laikā krūdzinīka kolps beja vysu nūvāruojis. Tikleidz dāls
+apsagulstas, jis pajam uozi un puormaina ar sovu uozi. Reitā dāls pīsacēlis, soka iz
+uozi: "Uozi, kaisi naudu," bet uozs nikuo nadora. Jis tyuleņ, pajēmis uozi,
+dūdas prūjom pi vēja. Aizguojis jis soka: "Vēj, kam tu mani apmuonēji! Uozs
+nimoz nakaisa naudas."</p>
+
+<p align="JUSTIFY">Vējs iz jū stipri sasadusmuoja: "Man nava tev kū dūt, ja gribi
+es tev īdūšu rungu un jo tev daīs ar kū kautīs, tad tyk pasoki rungai: "Runga,
+struodoj," jei tyuleņ suoks syst."</p>
+
+<p align="JUSTIFY">Dāls, pajēmis rungu, laižās īt. Īt, īt - pīīt jam vokors, jis
+pī tuo poša krūga. Tagad jam juoguļ pa nakti itamā krūgā. Jis īīt pī
+krūdzinīka un prosa, lai jam dūtu naktsmuoju. Krūdzinīks tyuleņ deve naktsmuojas.
+Jis gulātu īdams pīsacēja rungai: "Jo kas īs kluotu, tu tyuleņ suoc syst."</p>
+
+<p align="JUSTIFY">Krūdzinīka kolps itū beja nūvārūjis i dūmova: "Kam jam itei
+runga?" Jis tyuleņ dabova cytu rungu un gribēja puormeit. Tikleidz jis guoja pī
+rungas, runga tyuleņ suoka syst. Dāls, ītu izdzierdis pīcēlēs, jis tik paskubinova:
+"Runga, struodoj, cykom pasaceis, kur palyka uozs un goldauts."</p>
+
+<p align="JUSTIFY">Kolps suoka lyugtīs, lai jū palaiž vaļā, lai nasyt, jis atdūs
+vysu kū, goldautu, i uozi. Runga puorstuoja syst. Kolps tyuleņ dabova uoža un goldauta.
+Dāls pasaceja uožam: "Uozi, kaisi naudu!", uozs pīkaisēja jam naudas, cyk
+nagrib.</p>
+
+<p align="JUSTIFY">Jis pajēme sev kučuri ar trejim zirgim un brauce laimeigs uz sātu.
+Jis puorbraucis da sātai, satyka muoti i vaicova: "Muot, kai stipra, vasala?"</p>
+
+<p align="JUSTIFY">Muote jam atsacēja: "I vot, dāls, šai un tai tik puordzeivovu.
+Ēžu sēnis un ūgas. Es jau dūmovu, ka tu vairs pavysam naatbrauksi."</p>
+
+<p align="JUSTIFY">"Vot, muote, myus navajadzēs pavysam struoduot. Man ir taids
+goldauts, jo es jam pasacēšu: "Goldaut, pabaroj mani", jis tyuleņ izktluosīs
+iz golda un myus byus vysa kuo gona."</p>
+
+<p align="JUSTIFY">Muote suoka breinētīs. "A voi, dāls! kam tu taidim nīkim tici?
+Es kū paša naasmu ar sovom acīm redzējuse, myužam natycu."</p>
+
+<p align="JUSTIFY">Dāls pajem goldautu un soka: "Goldaut, pabaroj mani", iz
+golda tyuleņ rūnas vysaidi ēdīņi un dzērīņi. Ji abi ar muoti sāst pī golda,
+paēd un padzer. Muote, paāduse pī dāla, vaicova: "Kū tu, dāls, ar tū uozi
+dareisi, myus nav ni pļovas, ni ganeibas, ar kū mes jū barūsim."</p>
+
+<p align="JUSTIFY">"Vot, muote, itys uozs juobaroj labi, jis myus, jo vajadzēs
+naudas, tyuleņ kaiseis."</p>
+
+<p align="JUSTIFY">"A voi, dāls, kū tu tādu nīku tici! Taidu uožu mežā, cyk
+nagrib."</p>
+
+<p align="JUSTIFY">Dāls uožam tyuleņ pasacēja: "Uozi, kaisi naudu," uozs
+pīkaiseja naudas, cyk nagrib.</p>
+
+<p align="JUSTIFY">Muote īsavāruse rungu i dālam prasēja: "Dāls, kam tev tuo
+runga ?"</p>
+
+<p align="JUSTIFY">"A vot, muote, juo myusus, kurs gribēs abižīt, [kr.: o b i ž a
+t j - apvainot], tad tik pasaceisim rungai: "Runga, struodoj!" jei tyuleņ suoks
+syst, kam tik saceisi."</p>
+
+<p align="JUSTIFY">"A voi, dāls, kū tu taidu nīku tici, mežā taidu rungu, cyk
+nagribi ira. Cikom es ar sovam acim naradzu, myužam natycu."</p>
+
+<p align="JUSTIFY">"I vot, muote, es ar itū rungu ceļā izvarēju vysus sovus
+pretinīkus."</p>
+
+<p align="JUSTIFY">Itū beja dabuojuši zinuot cīma ļauds, ka jam ira taida, runga, uozs
+un galdauts. Reiz vīnā naktī sarunova, kai nu juo nūzagt ituos vysas montas, kuras jam
+vējs īdeve. Jī pīcūs gobolūs sasasējuši, laidēs īt iz jū, pajemt ituos montas
+un jūs abus ar muoti nūnuovēt. Pīguojuši pī dāla ustobas durovom, ji lauzēs
+īškā. Tikleidz tyka ustobā, jī gribēja pa prīšku nūnuovēt muoti un tod dālu.
+Muote suoka klīgt. Dāla, itū izdzierdis, pīsacēlēs, dabuoja rungas un sacēja:
+"Runga, struodoj!" Runga kā suoka syst cytam par godvu, cytam par kuojom, kur
+tik kuram truopējās. Zagļi suoka lyugtīs, lai jūs palaiž vaļā, jī dabuos visa
+kuo, kū tik vajadzēs. Dāls jim sacēja: "Jo jyus man dabyusit divu lobu zyrgu un
+gūvu, es jyus palaisšu vaļā."</p>
+
+<p align="JUSTIFY">Zagļi itū apjēmēs dareit. Jis pavēlēje rungai apstuot, runga
+apstuojās un zagļi tyuleņ devēs pēc apsūlitom montom. Pec kaida laika vysas montas
+beja kluot. Tagad jis gūvem un zyrgam iztaisēja klāvu un uožam deve vītu ustobā. Tai
+jī abi ar muoti dzeivoj šūdīņ, jo vakar nanūmira.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,366 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Sapnis</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Sapnis.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">13. A. 725. 545. 502. A. L e r c h i s - P u š k
+a i t i s D ž ū k s t ē. LP, IV, 119.<b> </b>(26, 1).</font><font size="4"></font></p><font size="4">
+</font>
+
+<p align="JUSTIFY">Vienam ķēniņam trīs princeses. Tās divas - abas vecākās māsas -
+ir tādas puslaicīgas, bet jaunākā māsa, tā tik daiļa un balta, ka patiesi ko
+redzēt. Un, zināms, pie sievišķa tā nu vienreiz ir: kuŗai ar augumu palaimējies,
+tai tūliņ ar precību citādi atšķiŗas. Jaunākai māsai nāk precinieks uz
+precinieka - vecākām māsām ne rādīties nerādās. Šīs abas tālabad zobus vien
+griež, kā tik varētu jaunākai māsai saskaust, lai precinieki rimtu. Nu gudro šā,
+gudro tā - beidzot iešot pie raganas pēc padoma. Aiziet tur - tā tūliņ: "Es
+jūsu jaunākai māsai ieburšu, ka viņa paliek uz tādu ļaužu kājām!"</p>
+
+<p align="JUSTIFY">Labi. Tā paiet savs laiks. Uz vienu reizi ķēniņš ar ķēniņieni
+sāk čukstēt un raizēties. Vecākās māsas itin labi saprot, kas vecākiem sirdi
+spiež, bet neliekas ne zinot. Beidzot ķēniņš saka: "Tur nekā darīt! Čužas
+vislabāki iznīcina ar uguni, negodu vislabāki apsedz ar nāvi. Tādēļ, iekams negods
+apgāna mūs visus, lai labāki jaunākā meita tad mirst."</p>
+
+<p align="JUSTIFY">No rīta bendem bija vest jaunāko māsu uz mežu nolietāt. Šī raud
+elsodama un nodievojas, cik saprazdama, bet vecākās māsas neiet nabadzīti ne izvadīt.
+Bendem turpretim daudz mīkstāka sirds, tas mazākai&amp;127; paraud līdz,
+&amp;127;iesacīdamies: "Ko lai dara? Ķēniņa griba jāizpilda!"</p>
+
+<p align="JUSTIFY">"Var gan darīt!" raudātāja ierunā. "Palaid mežā
+mani vaļā, es jau kāju mājā nesperšu!"</p>
+
+<p align="JUSTIFY">"Neiet, kaut arī gribētu, Ķēniņš jau pavēlēja acis un
+sirdi pārnest parādīt, kur tad tās ņemšu?"</p>
+
+<p align="JUSTIFY">"Tā maza lieta. Padabū cūciņu, nokauj to, izņem sirsniņu,
+izņem acis un pārnes tēvu apmierināt!" '</p>
+
+<p>"Vai, tā gan labi! Tas bija gudri - tā var darīt!" Vakarā bende pārnes
+cūciņas acis un cūciņas sirdi parādīt ķēniņam. Ķēniņš tic un vairāk neko
+netaujā.</p>
+
+<p align="JUSTIFY">Bet nabaga princese, kauču gan dzīva palikusi, tomēr labu dienu
+mežā nepieredzēja vis. Pienāk nakts, mežā tik briesmīgi tumšs un vilki vēl kauc
+un pūces aurē; nabadzīte piespiežas pie egles un tai tik bail, tik bail; ka nedrīkst
+ne pakustēt. Nu stāv, nu stāv - beidzot miegs pārvarējis: nokrīt pie egles. Bet itin
+agri, gaismiņai svīstot, viens bēdulei lēni gar kamiesi čubinās, modinādams
+augšā. Princese paskatās - tavus brīnumus! - pelēks runcītis pie viņas gadījies.</p>
+
+<p align="JUSTIFY">Runčelis saka: "Mem, ko brīnaties? Esmu jūsu dēls. Cik tad
+atkal ilgi ir, kad piedzimu? Nāciet tik nu man līdz, es jūs izvedīšu mežiem cauri,
+otrā malā. Tur uztaisīšu jūms būdu un tad paraudzīšu ko ēst!"</p>
+
+<p align="JUSTIFY">Labi. Aiziet nu tur. Runčelis tūliņ savij zarus, saplēš sūnas,
+noliek labi mīksti visapkārt un būda gatava. Nu raudzīšot ēst. Māte jau ieteicas,
+kur te mežā ēdiens dabūšot, bet runcītis atsak: "Ķo te bēdājat? Cik te tālu
+ķēniņa pils - padabūšu cepešus!"</p>
+
+<p>"Vai, dēliņ, pie mana tēva neej, neej!"</p>
+
+<p>"Ne, jel ne! Tas jau atkal cits ķēniņš, pie kā es iešu, tas nemaz vēl
+tēvā nav - pavisam jauns, nu tik ko taisās precēties." To sacījis, runcis samet
+kumpumu un laiž uz ķēniņa pili. Ieiet kukņā - patlaban zoss izcepta. Ko nu gaidīt?
+Pakampj zosi un griež pa logu ārā. Necik ilgi ar zosi pie mātes klāt. Bet pavārs
+meklē zosi spļaudams. Ķēniņš prasa ēst - nav un nav. Nekā darīt - ķēniņš tai
+dienā iekož konebūt un tā paliek. Pienāk otra diena, pavārs izcepis cāli un nu
+patlaban nesīs ķēniņam iekšā, tik vēl jāietek noliekamā istabiņā pēc sāls.
+Bet par to laiku runcis atkal izgriež cāli pa logu un prom pie mātes. Iznāk pavārs,
+saņem rokas un nevar ne vārda parunāt. Iznāk pats ķēniņš, tas arī rausta plecus -
+nevar ne gudrs :ne muļķis tikt. Beidzot ķēniņš iedomājas: "Pag, tā to lietu
+nevar pamest. Jāizzin ir<b>, </b>lai kas. Vai dzirdi ko, pavār? Rītu es ielīdīšu
+aizkrāsnī un glūnēšu. Tu izcep atkal zosi un līdz ko gatava - tīši aiziesi
+projām! Gan tad es redzēšu, kur mani cepeši paliek!"</p>
+
+<p align="JUSTIFY">Labi - tā notiek. Līdz ko mu pavārs labi aizgājis, te runcis
+šodien atkal zosij mugurā, Bet tagad vīram neizdevās. Ķēniņš mudīgi no
+aizkrāsnes ārā, notveŗ runci pie astes un uzprasa: "Kur manus cepešus
+liec?"</p>
+
+<p align="JUSTIFY">"Kur lieku? Tev, ķēniņ, taču vajadzēja zināt, ka man ir
+māte. Un kas tas par dēlu, kas savai mātei ne cepešus nevīžos pagādāt?"</p>
+
+<p align="JUSTIFY">"Kas tava māte ir?"</p>
+
+<p>"Pelēka kaķe!"</p>
+
+<p align="JUSTIFY">"Kur tava māte dzīvo?" </p>
+
+<p>"Pelēkā kaķe dzīvo mežā, sūnu būdiņā</p>
+
+<p align="JUSTIFY">"Tā, bet zosi tu šodien vairs nevari savai mātei dabūt." </p>
+
+<p align="JUSTIFY">"Kādēļ tā?"</p>
+
+<p>"Tādēļ ka pats gribu ēst!"</p>
+
+<p align="JUSTIFY">"Vadzi, ķēniņ, nemuldies, tev izies plāni, ja ar mani
+ieķildosies. Es zinu itin labi, ka tu rītu iesi uz svešu zemi sievu precēt; bet ja
+neņemsi mani līdz, tici droši - ne tu sievu dabūsi, ne arī mājā vairs pārnāksi.
+To tev pasaku!"</p>
+
+<p align="JUSTIFY">"Nu tad nāc man līdz svešumā, ja tik gudrs esi!" </p>
+
+<p align="JUSTIFY">"lešu gan, bet papriekšu tev jādod manai mātei iztika uz
+veseliem divi mēnešiem. Kad būšu aizstiepis visu, cik vajadzīgs, un mātei atdevis -
+nākšu atpakaļ un tad taisīsimies ceļā!"</p>
+
+<p align="JUSTIFY">Ķēniņš tā mierā. Nu stiepa runcis mātei trīs dienas, trīs
+naktis visvisādus gardumus. Sanesa tikdaudz: lai trīs mēnešus ēd, arī nenoēdīs.</p>
+
+<p align="JUSTIFY">To padarījis, runcis atpakaļ un nu abi divi ar jauno ķēniņu
+aizbrauca uz svešo zemi. Uz ceļa runcis saka: "Viņā zemē es ar citiem vairs
+nerunāšu, ar tevi gan, kur citi nedzirdēs. Tādēļ liec cienā manus vārdus! Redzi,
+tam ķēniņam, kur nobrauksim, ir trīs meitas. Tur tai zemē tāda paraša: kad
+ciemiņš nobrauc, tad vecākā meita papriekšu dod ēst; otrā dienā vidējā meita,
+trešā - jaunākā meita. Bet nepiemirsti, ēd droši, kad jaunākā cienā; neēd nemaz,
+kad vecākās cienā, jo tur būs nāves zāles klāt. Tikdaudz tagad, vēlāk varbūt
+pateikšu vēl ko, ja būs vajadzīgs."</p>
+
+<p align="JUSTIFY">Labi. Nobrauc tur. Vecais ķēniņš un meitas brīnum mīļi sagaida
+šos. Nāk ēdiena laiks - vecākai meitai vairs nav tik mīlīgs vaigs. Drīzi galds
+apklāts: lai nu nākot ēst! Runcis paskatās savam ķēniņam acīs un vairāk nekā.
+Ķēniņš atminas runča padomu un neiet vis pie galda. Kādēļ tā darot? Kādēļ
+apsmādējot pacieņu?</p>
+
+<p align="JUSTIFY">Ne, to lai nedomājot, viņš nemaz neapsmādējot, bet nejauki esot
+sakratīts braucot. Nemaz sirds tādēļ nekārojot. Labi - tas ēdiens aiziet gaŗām.
+Paiet tas cēliens - nu klās vidējā māsa galdu un aicinās ciemiņu ēst. Runcis atkal
+paskatās acīs un vairāk nekā. Ķēniņš atminas un neies vis pie galda. Kā dēļ tā
+darot? Kas tas par ciemiņu esot, kas nemaz nemielojoties?</p>
+
+<p align="JUSTIFY">Jā, ko lai darot? Viņš patencinot par visu labu, bet vidus vēl esot
+sagriezies drusku, lai neņemot jaunā!</p>
+
+<p>Nekā darīt - tā ēdiena starpa atkal aiziet gaŗām.</p>
+
+<p align="JUSTIFY">Drīzi nāk trešais ēdiena laiks; bet tagad ir runcis ir ķēniņš
+tā izsalkuši, ka nemaz sagaidīt. Par laimi jaunākā meita nāk arī ar ēdienu un
+tūliņ aicina ciemiņus klāt sēsties. Runcis pamet ar aicina, ka nu var droši ēst.
+Ķēniņš piesēžas, bet runcis paliek apakš galda uŗādams, lai viņam arī dod. Nu
+ēd, nu ēd: viens kumoss pašam, otrs runcim apakš galda. Bet jaunākā māsa stāv un
+tik skubina, lai nekaunoties, lai ēdot pilnu launagu. Ciemiņi domā: "Vai skubini,
+vai neskubini, tikpat visu noēdīsim!" Un noēda arī.</p>
+
+<p align="JUSTIFY">Otrā dienā vecais ķēniņš ar savu dēlu aicina ciemiņu pamedīt.
+"Labi, labi!" ciemiņš atsaka, bet bez sava runča viņš neejot ne pēdu no
+vietas. Varot runci ņemt līdzi, ja gribot, šim atbild un nu visi aiziet. Mežā runcis
+ar savu ķēniņu atšķiŗas no citiem, lai dabūtu izrunāties. Runcis saka:
+"Vakarā vecākā ķēniņa meita tev būs pataisījusi gultu, bet tur tu neguli;
+izliecies par ļoti nogurušu un pakrīti turpat kūts augšā!"</p>
+
+<p>"Labi, runcīti, labi - darīšu gan tā!"</p>
+
+<p align="JUSTIFY">Jā, un runcim taisnība: vakarā guļamā laikā aicina šo gultā;
+bet šis pie laika jau nolicies kūts augšā un metiet ne par ko. Tā paliek. Bet vecā
+ķēniņa dēls, nekā nezinādams, tāpat pakritīs uztaisītā gultā, kamēr ciemiņš
+nāks gulēt, ne sapņodams, ka gultai sava liga. Pēc tāda brīža vecākā māsa,
+gaŗām iedama, pamana, ka pašas brālis gultā iegulies.</p>
+
+<p align="JUSTIFY">,,Brālīt! Neguli tur!" šī pieskrien klāt, bet jau par vēlu.
+Brālis pagalam. Kam nu vainu dot? Kam citam? Ciemiņam. No rīta vecākā māsa pie tēva
+iekšā: "Tēt, mūsu ciemiņš šonakt mūsu vienīgo brāli nolietājis. Vai tādam
+to piedot?"</p>
+
+<p align="JUSTIFY">Ķēniņam, to dzirdot, pāriet sausas dusmas; viņš sagrābj ciemiņu
+un iemet cietumā, lai pūst. Šis nu died cietumā; bet runcis pieiet pie cietuma
+lodziņa, sacīdams: "Pagalam tu nu esi, pats taču redzi! Bet preci manu māti, tad
+tevi glābšu."</p>
+
+<p>"Kas tava māte ir?"</p>
+
+<p>"Pelēka kaķe!"</p>
+
+<p align="JUSTIFY">"Vai! vai tad man lemts ar kaķi dzīvot!" </p>
+
+<p align="JUSTIFY">"Kas tad tur ir? Vai tad ar kaķi nevar nodzīvot </p>
+
+<p align="JUSTIFY">"Nevar, nevar, runcīt!"</p>
+
+<p align="JUSTIFY">No rīta ķēniņš apdomājies: viņš labāk likšot ciemiņu dēla
+dēļ pakārt. Nekā darīt - slēdz cietumu vaļā un ved pie kārtavām. Runcis tek
+savam kungam līdz un prasa: "Vai precēsi manu māti, tad glābšu?"</p>
+
+<p align="JUSTIFY">"Kas tava māte ir ir?" </p>
+
+<p align="JUSTIFY">"Pelēka kaķe!"</p>
+
+<p>"Vai! vai tad man lemts ar kaķi dzīvot?</p>
+
+<p align="JUSTIFY">"Kas tad tur ir? Vai ar kaķi nevar dzīvot"</p>
+
+<p align="JUSTIFY">"Nevar, nevar, runcīt!"</p>
+
+<p>Bet tai pašā brīdī runcis sacel spurtus gaisā, sāk rūkt un pieaug suņa
+lielumā. Ļaudis jau brīnās. Pie kārātavām runcis atkal prasa savam kungam: </p>
+
+<p>"Vai precēsi manu māti, tad glābšu?" </p>
+
+<p>"Kas tava māte ir ir ." </p>
+
+<p>"Pelēka kaķe!"</p>
+
+<p align="JUSTIFY">"Ja man tiešam lemts ar kaķi dzīvot, tad taču būs
+jādzīvo!" </p>
+
+<p>"Labi, ka apdomājies!"</p>
+
+<p align="JUSTIFY">Un tai pašā brīdī runcis saceļ spurus gaisā, sāk rūkt un pieaug
+kumeļa lielumā. Ļaudis jau sabaidās un vecais ķēniņš uzsauc saviem ļaudim:
+"Kariet viņu ātri! Ko brīnaties?"</p>
+
+<p align="JUSTIFY">Bet lielais runcis dikti uzsauc : "Tiklīdz manu kungu kārsit -
+ādas vien jums te paliks, tā es saplosīšu jūs! Vecākā princese ar vidējo princesi
+pašas ielikušas gultā nāves zāles, pašas savu brāli nobendējušas un par to manu
+kungu kārt! Ejiet raudzīt, vai nebūs apakš pagalvja nāves zāļu sainītis."</p>
+
+<p align="JUSTIFY">Aiziet ķēniņš raudzīt - jā, ir gan sainītis ar nāves zālēm
+apakš brāļa pagalvja.</p>
+
+<p align="JUSTIFY">To redzēdams, ķēniņš liek savās dusmās abas vecākās meitas
+pakārt, bet savam ciemiņam piedāvā savu jaunāko meitu par sievu. Tomēr nu jau bija
+par vēlu.</p>
+
+<p align="JUSTIFY">"Man pašam brūte, pelēka kaķe, mājā, to solījos
+precēt!" ciemiņš atsaka un aiziet ar savu runci uz māju.</p>
+
+<p align="JUSTIFY">Mājā ķēniņš prasa runcim: "Kur mana brūte ir? Ved nu pie
+viņas ! "</p>
+
+<p align="JUSTIFY">"Kad būs laulības, tad būs brūte; rīko tik kāzas!" </p>
+
+<p>To sacīdams, runcis aiziet.</p>
+
+<p align="JUSTIFY">Labi. Kāzas sarīkotas, laulībām tūliņ jāsākas, bet vēl ne
+runča, ne brūtes. Vēl pagaida tādu brītiņu. Uz vienu reizi redz : runcis nāk un
+vaska skapītis tam uz astes. Ienāk iekšā, visi brīnās, kas tas par vaska skapīti.
+Bet runcis nolaiž asti ar skapīti pie zemes un tad atslēdz skapīti, izlaizdams tādu
+daiļu princesi, kā sauli. Ķēniņš apķeŗ daiļo princesi un nezin runcim, kā pa</p>
+
+<p align="JUSTIFY">teikties; bet runcis saka: "Pēc laulībām tu tiec labi tādu no
+pils savest deviņas asis apses malkas; tad iekraujiet mani malkā un pielaidiet uguni,
+lai sadegu."</p>
+
+<p align="JUSTIFY">"Vai, runcīt, kā lai ar tevi tā apietas?" </p>
+
+<p align="JUSTIFY">"Neļurksti - tā vajaga!"</p>
+
+<p align="JUSTIFY">Labi, ja vajaga, dara arī. Kad malka aizdedzināta - runcis bļauj:
+"Skrieniet nu visi mājā! Kas manu balsu dzirdēsit, kad es degdams bļaušos, tas
+paliks kurls!"</p>
+
+<p align="JUSTIFY">Visi pārskrien mājā un gaida uguni izdziestam. Pret vakaru uguns
+vairs nekūp un nu ies skatīties, kas ar runci noticis. Aiziet - nekā. Sāk rušināt pa
+pelniem uz labu laimi, te - brīnumi kādi nav! - no viņiem izceļas stalts, slaiks
+princis.</p>
+
+<p align="JUSTIFY">Nu sākas īstenās kāzas, diveišu uz reizi: ķēniņš apprecēja to
+brūti, ko runcis skapītī atvedis, un staltais princis, senākais runcis, ķēniņa
+māsu.</p>
+
+
+</body></html>

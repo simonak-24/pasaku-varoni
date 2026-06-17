@@ -1,0 +1,225 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Labie brāļi.</p>
+</b></font>
+
+<p align="JUSTIFY">3. A<b>. </b>303. K. Tarzieris Tirzā, Brīvzemnieka Sborņik116. LP,
+VII, II, 0, I, 1.</p>
+
+<p align="JUSTIFY">Reiz bija viens mežsargs, tam bija divi dēli. Tie izaudzināja katrs
+sev divi lācēnus un norunāja iet pasaulē gudrībā pieņemties. Papriekšu aizgāja
+vecākais dēls. Aiziedams viņš iedūra nazi vecā celmā un pieteica brālim: "Ja
+norunātā dienā nepārnāku, tad izrauj nazi no celma, aplūko, vai nav norūsējis. Ja
+asmeņa galiņš aprūsējis, tad man būs uzbrukusi kāda klizma pašā ceļa sākumā,
+ja viducī, tad pusceļā; ja pie paša spala, tad taisni pašu laiku atradīšos
+klizmā."</p>
+
+<p align="JUSTIFY">To teicis viņš aizgāja. (gāja, gāja dienu, nakti - nonāca vienu
+vakaru tādā pilsētā, kur visi noskumuši. Šai pilsētā bija ezers, no tā ezera
+visiem bija jādabū ūdens. Bet ja kādu gadu ezeram neziedoja meitu, tad nedeva arī ne
+pilītes ūdens. Šoreiz bija pienākusi kārta pašam ķēniņam, tam bija jāziedo sava
+paša meita. Mežsarga dēls, to padzirdējis, lika teikt ķēniņam: "Nebēdājies,
+ķēniņ, gan meitu izglābšu."</p>
+
+<p align="JUSTIFY">Ķēniņš palika priecīgs, solījās viņu par savu pēnācēju
+iecelt, savu meitu par sievu atdot, ja vien izglābšot.</p>
+
+<p align="JUSTIFY">Otrā rītā, tā ap pulksten deviņiem, vajadzēja ķēniņa meitu
+vest projām, un visiem ļaudim bija jāiet skatīties. Pats nelabais tad atkūlās
+ziedojamo saņemt, ar atplēstu rīkli to gaidīt gaidīdams. Bet brašais jauneklis
+vilcinājās līdz pulksten desmitiem. Nelabais gan vaicā: "Ko tik ilgi te mani
+uzkavē? Kur ķēniņa meita"</p>
+
+<p align="JUSTIFY">Jauneklis atbild: "Ače, te ir!"</p>
+
+<p align="JUSTIFY">Nu nelabais tieksies meitu kampt, bet jauneklis kā uzkliegs saviem
+lāčiem : "Pij !" tā lāči nelabajam virsū, saplosīdami to smalkos gabalos.</p>
+
+<p align="JUSTIFY">Pēc tam jauneklis sacīja : "Tagad nevienas dvēselītes vairs
+nevajadzēs ezeram ziedot, tāpēc ka šis nelabais, ko sīkos miltos saberzu, bija pats
+beidzamais. Ūdens ezerā netrūks, kamēr vien šī pasaule pastāvēs."</p>
+
+<p align="JUSTIFY">Ķēniņš nu atdeva jauneklim ir meitu par sievu, ir pašu valsti.
+Pēc kāda</p>
+
+<p align="JUSTIFY">laika jaunais ķēniņš gāja medīt un ņēma līdz arī sa vus
+lāčus. Medīja, medīja - </p>
+
+<p align="JUSTIFY">aplenca lielu, lielu stirnu. Dzenāja ilgi jo ilgi to stirnu -
+nevarēja rokā dabūt. Pakaļ </p>
+
+<p align="JUSTIFY">dzīdamies, viņš bija iekūlies vēl lielā, dziļā purvā. Aptumsa.
+Ko nu vairs darīsi?</p>
+
+<p align="JUSTIFY">Palika turpat par nakti, salasīja sausumus, iekurināja uguni,
+piesēja abus lāčus un apsēdās uguns malā. Te - kur gadī jusies, kur ne - atlīdīs
+viena vecene,</p>
+
+<p align="JUSTIFY">lūgs arī apsildīties. Šis atvēl. Vecene tērzē, tērzē ar viņu
+- sāks uzteikt lāčus un pa </p>
+
+<p align="JUSTIFY">glaudīt tos. Pēc tam viņa pašu lai ātri ātri paglaudīja
+sacīdama : "Paliec par akmeni!" </p>
+
+<p align="JUSTIFY">Tūlin viņi visi pārvērtās par akmeņiem, nevarēja vairs mājā
+pārtikt.</p>
+
+<p align="JUSTIFY">Jaunākais mežsarga dēls gaidīja, gaidīja savu brāli, beidzot
+norunātā dienā aizies pie celma, izraus nazi, ierauga - nazis norūsējis 1īdz pašam
+spalam. Nu viņš steidz projām pa to pašu ceļu, kur brālis aizgājis, varbūt, ka
+vēl brālis glābjams. Gāja, gāja nogāja uz to pašu pilsētu, kur brālis ķēniņa
+meitu glāba no nāves. Pilsētā viņu saņēma gavilēdami: jo viņa brālis, pilsētas
+ķēniņš, bija todien aizgājis medīt savas dzimtenes apģērbā un tā kā vēl
+brāļi abi bija uz mata vienādi, tad pilsētnieki šo brāli domāja pašu ķēniņu
+esam. Jaunā ķēniņiene viņu saņēma laipni, jo laipni, apvaicādamās gan par šo,
+gan par to. Viņa sacīja: "Jau dažu 1abu nedēļu bēdājos pēc tevis, kur esi
+palicis, kā tev klājas?"</p>
+
+<p align="JUSTIFY">Jaunākais mežsarga dēls neatteica ne vārda; viņš nevarēja gudrs
+tikt, par ko viņu īsti te ieskata. Viņu aicināja pie ķēniņa galda vakariņās, bet
+arī tur viņš neatbildēja ne vārda. Ja vaicāja, kāpēc tādās dziļās domās esot
+iekritis, tad tikai atteica : "Tāpat, pats ar sevi."</p>
+
+<p align="JUSTIFY">Pēc vakariņām jaunā ķēniņiene ved viņu gulēt. Šis iet arī un
+visu dara, ko tikai liek. Bet kad bija nolikušies gulēt, tad viņš iedūra savu zobinu
+griestos taisni gultas vidū. Šī vaicās: "Kāpēc tā dari?"</p>
+
+<p align="JUSTIFY">Viņš atbild: "Tā mana daļa."</p>
+
+<p align="JUSTIFY">Otrā rītā pēc brokasta viņš aizgāja medīt, medīja, medīja
+aplenca lielu stirnu. Papriekšu dzinās stirnai tāpat kājām pakaļ. pēc jāšus
+jādams uz saviem lāčiem; bet nevarēja un nevarēja rokā dabūt. Klajumā arvienu bija
+par atstatu, mežā atkal aiz kokiem. Tamēr dzinās, iemaldījās lielā, dziļā purvā.
+Aptumsa. Ko nu vairs? Bija jāpaliek turpat pa nakti. Un tā bija tā pati vieta, kur
+todien viņa brālis bija apmeties pa nakti. Turpat arī gulēja trīs lieli akmeņi un
+dega maza uguntiņa. Viņš iekūra labi lielu uguni, nosēdās ugunij blakus un
+sildījās. Te piegadīsies atkal tā pati vecene, lūgdama, lai jaujot sasildīties. Jau
+gribēja atvēlēt, te izlīda tāds mazs puiķelis no ciņa un iečukstēja tam ausī:
+"Neielaidies ar Tivu, tad gals tivu!"</p>
+
+<p align="JUSTIFY">Tagad viņš saprata, ka vecene ir pārģērbies ķēms un rīdīja
+lāčus virsū. Tiklīdz lāči gribēja uzbrukt, te ķēms sāka lūgties, sacīdams, ka
+esot paša nelabā tēvs. Mežsarga dēls apsolīja viņu palaist, ja pasacīšot, kas tie
+par akmeņiem tur. Vecene nu izstāstīja, kas par akmeņiem, kā tie atdzīvināmi,
+iedeva arī viņam dzīvības ūdeni un tad akmeņi palika par viņa brāli ar divi
+lāčiem. Bet tiklīdz vecais brālis veceni pie uguns ieraudzīja, tūlin laida savus
+lāčus virsū, lāči to saplosīja.</p>
+
+<p align="JUSTIFY">Abi brāļi tagad griezās atpakaļ, viens otram izstāstīdami, ko
+pieredzējuši. Kad vecākais brālis padzirdēja, ka sieva šo noturējusi par viņu, tad
+aiz dusmām nonāvēja savu brāli. Bet kad pārnāca pilsētā un dabūja no sievas
+zināt, ka brālis savu zobinu pār gultu griestos iecirtis, tad palika žēl, ka brāli
+nevainīgu nokāvis. Viņš aplaistīja nokauto ar to pašu dzīvības ūdeni, brālis
+atkal atdzīvojās. Pēc tam viņi abi pārbrauca mājā, atveda ir savus vecākus,
+jaunākais brālis vēl apprecēja ķēniņienes māsu, un tad abi brāļi valdīja
+pārmaiņus : savu laiku viens, savu - otrs, un dzīvoja labi jo labi.</p>
+
+<p align="JUSTIFY">Piezīme. Šeit Tiva liekas būt uzrakstītāja izdomāts vārds, bet
+pasakas saturs, kā redzams, nav grozīts. P. Š.</p>
+
+
+</body></html>

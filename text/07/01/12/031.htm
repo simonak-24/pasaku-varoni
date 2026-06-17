@@ -1,0 +1,201 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title> pasakas/gr07/0701231.txt</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+
+<p align="center"><big><big><strong>Pateicīgie kustoņi.</strong></big></big><br>
+</p>
+
+<p align="left">31. A. 513 B. 554. Alfrēds, "Pasakas" 1893, 19, 8.<br>
+</p>
+
+<p align="left">Kādiem vecākiem bija trīs dēli. Divi bija gudri un izmanīgi zēni,
+bet trešais dumjš kā miesta teļš.<br>
+Kādreiz tās zemes ķēniņš lika izsludināt pa visu valsti, ka tam, kas izgudrošot
+tādu kuģi, ar kuŗu var kā putns. pa gaisu laisties, viņš došot savu meitu par sievu
+un pus ķēniņa valsti pūrā. Daudz gudri vīri, šādu izsludinājumu zināt
+dabūjuši, steidzās uz galvas pilsētu, lai varētu kopīgi apspriesties un pie darba
+ķerties. Arī abi gudrie brāļi gatavojās uz pili noliet. Dumjais arī gribēja līdzi
+iet, bet ne brāļiem to gribējās līdzi ņemt, ne arī vecākiem palaist, jo tie
+domāja, ka viņš ar savu muļķību vairāk posta un nelaimes padarīšot nekā labuma.<br>
+Gudrie brāļi aizgāja. Dumjais palika mājās, aizkrāsnē tupēdams un raudādams.<br>
+Kad brāļi bija jau labu gabalu aizgājuši, tad dumjais no aizkrāsnes izlīdis,
+saģērbās un, nevienam nezinot, arī aizgāja brāļiem pakaļ.<br>
+Gabalu nogājis, viņš satika kādu vecu vīru. Vecais tam prasīja, uz kurieni ejot.<br>
+Dumjais tam atbildēja: "Uz galvas pilsētu pie ķēniņa eju, gaisa kuģi
+būvēt."<br>
+Vecais atbildēja: "Uz galvas pilsētu tev gluži veltīgi iet. Tur viņi tikpat
+gaisa kuģi: neuztaisīs, bet ja tu mani paklausīsi, tad tu īsā laikā varēsi
+aizbraukt ar gaisa kuģi pie ķēniņa. Vai tu redzi to lielo ozolu, kas tur stāv? Noej
+pie tā un iecērt ar šo cirvīti (pie šiem vārdiem vecais tam iedeva mazu cirvīti)
+trīs reizes tam kokam, tad krīti pats pie zemes un palieci kādu laiciņu mierīgi
+guļot. Kad tu atkal uzcelsies, tad gaisa kuģis būs gatavs."<br>
+Dumjais šo pavēli uz mata izpildīja. Trīs reizes ozolā iecirtis, viņš pakrita pie
+zemes un drīz bija aizmidzis.<br>
+Pēc kāda laika tam izlikās, it kā kāds to modinātu. Atmodies un miegu no acim
+izberzējis, viņš ieraudzīja savā priekšā smuku, spārnotu kuģi stāvam. Dumjais
+uzkāpa veikli uz kuģa. Tas arī tūlīt pacēlās spārnos un laidās uz galvas
+pilsētas pusi.<br>
+Kad dumjais tādā vīzē jau labu gabalu bija nobraucis, tad viņš ieraudzīja kādu
+vīru, kas uz muguras nesa brīnum lielu maisu ar ēdamām lietām. Maisu no muguras
+noņēmis, tas apsēdās ceļa malā un ar vienu kumosu visu apēda. Dumjais to
+redzēdams, ļoti izbrīnījās un aicināja lielo ēdēju pie sevis kuģī. Kad tas bija
+kuģī iekāpis, tad dumjais tam prasīja, kā viņš tik daudz maizes varējis apēst.<br>
+"Tas vēl nekas," svešais atbildēja, "es vēl daudz vairāk varētu
+apēst, bet nav ko ēst."<br>
+Gabaliņu pabraukušiem, dumjais ieraudzīja citu vīru, kas pa ceļu gāja. Turpat
+ceļmalā bija krietns ezers. Gājējs piegāja pie ezera un ar vienu vilcienu izdzēra
+visu ūdeni un vēl žēlojās, ka slāpstot. Arī šo vīru dumjais uzņēma pie sevis
+kuģī un visi trīs turpināja braukšanu.<br>
+Vēl kādu gabaliņu pabraukušiem, dumjais ieraudzīja divus vīrus ejot. Vienam bija
+liela plinte plecos, otrs bija vienu kāju pār pleciem pārlicis, bet tomēr gāja
+diezgan ātri. Te uzreiz abi apstājās. Pirmais gājējs noņēma plinti no pleciem,
+mērķēja un izšāva. Tūlīt arī otrais nolaida kāju zemē un zibeņa ātrumā
+aizskrēja un par mazu brīdi atnesa lielu putnu, ko pirmais bija nošāvis.<br>
+Dumjais viņus aicināja pie sevis, un kad tie uz kuģa bija uzkāpuši, tad viņš
+vaicāja, vai tā vieta, kur tas putns bijis, esot tālu bijusi. Tie atbildēja, ka tas
+esot tālā zemes malā uz kāda koka sēdējis. Dumjais nevarēja beigt brīnīties, ka
+pirmais varējis tik tālu redzēt un otrais īsā laikā tur aiziet un medījumu atnest.<br>
+Tā nu viņi visi pieci brauca ar gaisa kuģi pie ķēniņa. Un tālāk skrēja veiklais
+kuģis pār laukiem un mežiem, pār upēm un jūŗām, līdz beidzot nonāca pie
+ķēniņa pils.<br>
+Tur nonākuši, tie nolaidās zemē un dumjais gāja pie ķēniņa paziņot, ka viņš
+esot tādu kuģi uztaisījis, ar kuŗu varat pa gaisu braukt. Ķēniņš par to tapa
+gauži priecīgs, saaicināja visus savus gudriniekus un tiem stāstīja, kas bija
+noticis.<br>
+Ļaudis nu pulkiem sanāca kuģi un. viņa izgudrotāju apbrīnot un uzslavēt. Ļaužu
+pulkā bija arī abi gudrie brāļi. Tie savu brāli tūlīt pazina un, viņa laimi
+apskauzdami, ņēmās to pie ķēniņa apmelot, teikdami, ka šie esot gaisa kuģi
+izgudrojuši un uzbūvējuši, bet šis cilvēks viņiem to izvīlis un aizbēdzis. Viņš
+arī esot agrāk lielījies, ka varot apēst veselu klēti maizes un nodzert veselu dīķi
+vīna. Ja tas tik gudrs un spēcīgs esot, tad lai nu arī izdarot, ko lielījies.<br>
+Dumjais par to ne mazumu iztrūkās, bet viņa biedri, tas lielais ēdējs un lielais
+dzērājs, sacīja: "Nebēdā nekā. Izlūdzies tik, lai ķēniņš atvēl mums tev
+līdzi ēst; mēs to maizi apēdīsim un arī to vīnu izdzersim."<br>
+Dumjais aizgāja pie ķēniņa un teica: "Es gan viens pats varu visu to maizi apēst
+un to vīnu izdzert, bet mani biedri ir arī ļoti izsalkuši; tāpēc esi tik labs, un
+atvēli arī viņiem kādu kumosu iebaudīt un kādu malku nodzert."<br>
+Ķēniņš bija ar to mierā un lika dumjo un viņa divus draugus aizvest uz to maizes
+klēti. Abi otri biedri palika uz kuģa par sargiem.<br>
+Pusstundas laikā bija maizes klēts tukša un kad ķēniņš ar saviem pavadoņiem
+atnāca, tad dumjais sacīja: "Ķēniņ! labprāt būtu vēl ēduši, bet viss
+krājums ir jau pagalam. Bet nu vedi mūs uz to vīna pagrabu, lai savas izkaltušās
+rīkles varam drusku atveldzēt."<br>
+Tas notika un īsā laikā bija vīna mucas tukšas kā nabaga kabatas. Ķēniņš
+nezināja aiz brīnumiem, ko sacīt, ko ne.<br>
+Bet gudrie brāli dumjo vēlreiz apmeloja, teikdami, ka esot lielījies kādu aizjūras
+ērgli ar zelta kroni galvā nošaut un drīzā laikā šurpu atnest. Ķēniņš dumjajam
+stingri noteica, stundas laikā ērgli ar zelta kroni atnest.<br>
+Dumjais satrūkās par tādu pavēli, bet lielais šāvējs un viņa biedrs, lielais
+skrējējs, sacīja: "Nebēdā nekā. Mēs to lietu tavā vietā izdarīsim."<br>
+Lielais šāvējs paņēmis savu plinti, uzkāpa kādā ļoti augstā kalnā un sāka pēc
+ērgļa skatīties. Viņš to ieraudzīja tālu aiz jūŗas kādā augstā kokā sēdam.
+Plinti pacēlis, viņš izšāva un ērglis nokrita beigts zemē. Veiklais skrējējs
+tūdaļ laida kājas vaļā un maz minūtēs apskrēja ap jūŗu un atnesa nošauto ērgli
+ar zelta kroni galvā.<br>
+Tā dumjais izpildīja ķēniņa pavēli. Pēdējais par to bija gaužam priecīgs, deva
+dumjajam savu meitu par sievu un apstiprināja to par savu pēcnācēju; bet gudros
+brāļus lika aizdzīt par ratu. </p>
+
+
+</body></html>

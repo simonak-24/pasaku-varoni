@@ -1,0 +1,299 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>l</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="center"><font size="3"></font><font size="5"><strong>Čūskas gredzens.</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">1. A. 560. A. Lerchis - Puškaitis, Pienavā. LP.
+IV, 83 (18, 1). </font></p><font size="3">
+
+<p align="JUSTIFY">Viens tēvs mirdams atstāj savam dēlam trīs dukātus. Kamēr dēls
+vēl nav pieaudzis, māte paņem dukātus glabāt. Dēls puiša gados vienreiz saka
+mātei, lai iedodot vienu tēva dukātu, būšot iet uz pilsētu kautko nopirkt, Māte
+iedod un dēls aiziet. Bet uz ceļa satiek vecu sieviņu ar sunīti; vecene saka:
+"Dēls, pērci manu sunīti - nebūs jānožēlo!"</p>
+
+<p>"Cik maksā?" </p>
+
+<p>"Dukātu!" </p>
+
+<p>Labi. Dēls pārved sunīti mājā, bet mātei nemaz pa prātam: pašiem neesot ko
+ēst, .kur nu vēl suņus piebarosi.</p>
+
+<p align="JUSTIFY">"Lai, lai, mem', mums sunīša nebija - kā nu bez sunīša
+dzīvot? Visiem ir sunīši, mums arī"</p>
+
+<p align="JUSTIFY">Māte apmierinās. Necik ilgi, pēc kādām dienām, dēls prasa otru
+tēva dukātu.. Māte jau negrib dot: būšot atkal iztviekot. Beidzot taču iedod arī un
+dēls nu aiziet uz pilsētas pusi. Šīpus pilsētas satiek to pašu sieviņu ar kaķi.</p>
+
+<p align="JUSTIFY">"Dēls, pērc manu kaķīti - nebūs jānožēlo!" Cik
+maksā?"</p>
+
+<p>Dukātu." Labi. Dēls pārnes kaķīti mājā; bet tagad māte rājas, cik ieiet:
+neesot ko mutē bāzt - pērkot tik liekēžus. Trešo dukātu gan vairs nedošot.</p>
+
+<p align="JUSTIFY">"Lai, lai, mem', mums kaķīša nebija - kā nu bez incīša
+dzīvot? Visiem ir incīši, kaķīši - mums arī!"</p>
+
+<p align="JUSTIFY">Māte apmierinās; bet trešo dukātu tomēr nesolās dot. Pēc kādām
+dienām dēlam atkal iegribas pilsētā notikt. Bet labi<b> </b>zin: māto dukātu nedos,
+tādēļ paņem pats dukātu un aiziet ar sunīti uti kaķīti. Satiek atkal sieviņu. Bet
+šoreiz tai tukšas rokas: tik stāv nodurtu galvu un skatās uz zemi. Dēls prasa:
+"Sieviņ, ko tā skaties?"</p>
+
+<p align="JUSTIFY">"Jā, te divi pēdas apakš zemes ir pagrabs; ja tu atrušinātu
+zemi un uzceltu pagraba lūku, tad ietiktu pagrabā pie mirušās ķēniņa meitas, kurai
+dārgs gredzens uz pirksta. To gredzenu labprāt vēlos redzēt."</p>
+
+<p align="JUSTIFY">Labi. Dēls atrušina zemi, iekāpj pēc gredzena un iznes sieviņai.
+Sieviņa apskatās, apskatās - beidzot prasa: "Dēls, pērc šo gredzenu - nebūs
+jānožēlo!"</p>
+
+<p align="JUSTIFY">"Cik maksā?" </p>
+
+<p align="JUSTIFY">"Dukātu!" </p>
+
+<p align="JUSTIFY">Labi - beidzamais dukāts!" "</p>
+
+<p align="JUSTIFY">Sieviņa paņem dukātu un aiziet, noteikdama tūliņ pagraba lūku
+taisīt ciet.</p>
+
+<p align="JUSTIFY">Bet dēls iedomājās vēl reiz pagrabu apskatīties, viņš ielien.
+Tomēr tai pašā brīdī lūks plaukt! aizcērtas un šis nu paliek, kā cietumā: ne
+lūku vairs uzcelt, ne šī ne tā. Tā paiet labs brīdis. Uz vienu reizi atminās pirmo
+gredzenu uz pirksta.</p>
+
+<p align="JUSTIFY">"Skāde!" viņš domā, gredzenu virpinādams, "ar suni
+un kaķi man izgāja labi, bet ar šo nieka gredzenu nogāja pavisam greizi, nevajadzēja
+ne pirkt."</p>
+
+<p align="JUSTIFY">To sacīdams, dēls izdzird, ka suns ar kaķi brīnum kašņājas gar
+lūku.</p>
+
+<p align="JUSTIFY">"Nabaga lopiņi, jūs jau nevarēsit lūku uzcelt. Cik bēdīgi!
+kaut jel kāds gadītos, kas mani te izpestītu."</p>
+
+<p align="JUSTIFY">Šos vārdus izteicot, pieskrien seši vīriņi un uzceļ lūku. Dēls
+brīnīdamies paskatās: "Kur jūs te gadījāties?"</p>
+
+<p align="JUSTIFY">"Tavs gredzens mūs tagadiņ sauca. Līdz ko gredzenu pavirpināsi
+un tai brīdī kaut ko vēlēsies, tūliņ mums jāmāk šurp un viss jāizdara."</p>
+
+<p align="JUSTIFY">"Tā, tā! tad' jau brīnum labi. Tagad varat <b>iet; </b>bet ja
+kādreiz ievajadzēsies kaut kas - tūliņ pavirpināšu."</p>
+
+<p align="JUSTIFY">Vīriņi pazūd ; bet dēls ar sunīti un kaķīti ņemas iet taisni
+vien projām. Trīs dienas gājuši, sasniedz ķēniņa pili, kur apprasās pēc darba.</p>
+
+<p align="JUSTIFY">ķēniņam šimbrīžam cita darba neesot; bet sulaiņa vietu gan varot
+dot.</p>
+
+<p align="JUSTIFY">Kas par to - tā arī esot laba! Un nu līgst vašām ar tādu norunu:
+ķēniņam arī jāmitinot sulaiņa lopiņi: sunītis un kaķītis. Labi - tā paliek.</p>
+
+<p>Dēls tagad dzīvo brangu laiku bez bēdām.</p>
+
+<p align="JUSTIFY">Bet. vienu dienu mūsu sulainis iedomājas labākas drēbes. Nekas:
+iziet dārzā, pavirpina gredzenu - seši vīriņi klāt: ko vajagot?</p>
+
+<p align="JUSTIFY">Labākas drānas!" "</p>
+
+<p align="JUSTIFY">Acumirklī sulainim drānas, ka spīd un laistās. Tik par nelaimi,
+ķēniņa vecāka meita pa logu noskatījusies visu, ko sulainis darījis, kā ar
+vīriņiem runājis - itin visu. Tai tas brīnum skauž, ka nevar arī tik ātri pie
+labām drānām tikt. Un - ko domāt Ķēniņa meita nu tik tīko katru dienu pēc
+sulaiņa gredzena, Vien; .iz par dienasvidus laiku, kamēr sulainis aizmidzis, ķēniņa
+meita</p>
+
+<p align="JUSTIFY">slepus pielien uz pirkstu galiem un nomauc gredzenu. Sulainis vēlāk
+meklē gredzenu visās pakaktēs. Beidzot ieprasīsies sunītim, kaķītim, vai nezinot?
+Jā, zinot gan - esot redzējuši ķēniņa meitai uz pirksta! Sulainis tūliņ zaglei
+uzstāj atdot gredzenu ar godu; ja ne - apsūdzēšot ķēniņam. Kas tā par dzīvi!
+Ķēniņa meitai tādi pārmetumi, vadzi, meklēs sirdi: viņa apņemas sulainim
+atriebties.</p>
+
+<p align="JUSTIFY">Un vienu nakti, kur ķēniņa nebija mājā, ķēniņa meita pieceļas
+un pielaiž sulaiņa istabai uguni, lai miegā būdams sadegtu. Bet sunītis ar kaķīti
+vēl laikā pamodina sulaini un izglābj no uguns briesmām; tik sadeg, kā tās drānas,
+ko vīriņ, i nesuši. Pārnāk nu ķēniņš, tas traks uz sulaini: esot nodedzinājis
+savu istabu, laikam vēl dedzināšot ir viņa pili. Citu neko ar tādu - cietumā! Nabaga
+sulainis nevainīgs gul cietumā. Cietums par nelaimi vēl uz ezera salas, kur sunītim,
+kaķītim gŗūti pietikt. Nabaga lopi smilkstēdami, ņaudēdami novazājās gar
+ķēniņa pagalmu dažas dienas. Te uz vienu reizi kaķītis pamana, ka uz ķēniņa
+meitas loga ir kaut kas spožs.</p>
+
+<p align="JUSTIFY">"Tas cits nav, kā mūsu kunga gredzens!" kaķītis iesaucas
+un nu tik glūn, kaut durvis kāds vārstītu. Necik ilgi - ķēniņa meita pati vārsta
+durvis: kaķis viens divi, pa kājām kuld.amies, ietiek istabā un iznes gredzenu.
+Sunītis no prieka laiž, riņķus mezdams, kaķītim pretim, saukdams: "Dod manā
+mutē, dod manā matē! es gribu gredzenu nest!"</p>
+
+<p align="JUSTIFY">Kaķītis nomet gredzenu zemē: sunītis ieķeŗ mutē un nu abi maļas
+no prieka. Kaķītis, kūkumus mezdams, drīzi skrien sunītim pakaļ; sunītis riedams
+riņķo kaķītim paka!. Ķēniņa meita paskatās: ko tie sulaiņa lopiņi tā trako! Kas
+ir - ierauga: sunītim rejot, izkrīt gredzens no mutes. Tā šī tūliņ klāt; paķeŗ
+gredzenu, nomazgā un iebāž pati savā mutē, lai nekad neviens vairs nedabūtu. Bet
+otrā dienā pret vakaru kaķītim atkal padoms rokā: viņš ielien klusītiņām
+ķēniņa meitas istabā un paslēpjas pagultē. Līdz ko nu ķēniņa meita aizmigusi,
+kaķītis ar pēdiņu kutina - viņa lūpas. Ķēniņa meita pa miegam jau vienreiz
+pakodaļā lūpas, kā niez. Necik ilgi - kutina atkal; šī pakodaļā lūpas otrreiz.
+Kutina atkal; šī pakodaļā lūpas un atmožas. Bet viena maza spalviņa no kaķīša
+pēdiņas iegājuse mutē. Ķēniņa meita spļaus spalviņu laukā. Kā spļauj spalviņu
+- izspļauj arī gredzenu gultā. Šī grābstās pēc gredzena; bet kaķītis sen jau
+paķēris gredzenu un .atkal paslēpies pagultē. No rīta kaķītis, no istabas
+iztikdams, aiznes gredzenu pie sunīša, sacīdams : "Nu vairs neplosīsimies,
+tūliņ peldēsim pie mūsu kunga uz ezera salu!"</p>
+
+<p align="JUSTIFY">Nu peld, nu peld; pusezeru peldējuši, kaķītis nokusis, sāk
+kŗākt.</p>
+
+<p align="JUSTIFY">"Vai, incīt', tev gŗūta atpūta, dod gredzenu man, būs
+vieglāki peldēt."</p>
+
+<p align="JUSTIFY">Kaķītis grib atdot gredzenu sunīša mutē, bet tai pašā brīdī
+pļunkt! iekrīt ezera dibenā: samisējies nabadziņam. Nekā darīt jāpeld atpakaļ.
+Bet ezera dibenā gredzenu ierij zivs. Šo zivi otrā dienā izzvejo ķēniņa zvejnieks
+un atdod vārīt ķēniņam uz pusdienu. Pavārs izšķērž zivi un ķidas izmet
+mēslenīcā. Par laimi kaķītim iegribas ķidas ēst. Iedams atron zudušo gredzenu. Ko
+nu gaidīt - tūliņ pie sunīša ar prieka vēsti projām. Bet sunītis saka: "Dod
+man tūliņ gredzenu mutē; es viņu pārnesīšu, tu nevari tik labi peldēt, var atkal
+izkrist."</p>
+
+<p align="JUSTIFY">Labi. Šoreiz lopiņi pārpeld itin laimīgi pie cietuma. Cietumnieks,
+ieraudzījis savus lopiņus, paveŗ dogu un priecājas Bet kaķītis uzskrien gar sienu
+vien līdz logam un atdod gredzenu. Acumirklī sulainis uzmauc gredzenu, pavirpina un
+vēlās: "Kaut vīriņi iznestu mani ar sunīti, kaķīti viņpus ezera uz
+sausuma!"</p>
+
+<p>Tai pašā brīdī viss notiekas.</p>
+
+<p>"Kaut vīriņi mani apģērbtu vienā zeltā."</p>
+
+<p align="JUSTIFY">Tai pašā brīdī viss notiekas un cietumnieks tagad spīd un laistās
+pārāk par visiem ķēniņiem.</p>
+
+<p align="JUSTIFY">Nu ieiet pie ķēniņa pilī un sakās precinieks esam, gribot
+ķēniņa jaunāko meitu precēt. Ķēniņš domā: "Tāds znots skaidrā zeltā
+būtu gan par gadu; kas tik spoži ģērbies, tas nebūs nieka vīrs - lai iet!"</p>
+
+<p align="JUSTIFY">Sarunā ar jaunāko ķēniņa meitu par kāzām. Bet otra māsa, kas
+sulaini tā nīdējusi, gredzenu zagdama, pirkstus vien kož, ka nav tikusi. pie tik lepna
+brūtgāna.</p>
+
+<p align="JUSTIFY">Kad nu sarunāts, te brūtgāns vēl iziet laukā, pavirpina gredzenu
+un vēlās: </p>
+
+<p align="JUSTIFY">"Kaut dimanta pils te rastos, kur kāzas svētīt!" Tūliņ
+gadās. Nu nosvin kāzas un dzīvo </p>
+
+<p align="JUSTIFY">laimīgi. Bet sunīti</p>
+
+<p align="JUSTIFY">un kaķīti jaunais pāris tura labi jo labi, par to ka savu kungu tā
+glābuši.</p>
+</font>
+
+
+</body></html>

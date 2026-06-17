@@ -1,0 +1,168 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Mirons kāzās.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">4.<b> </b>J. Zukovskis no 67 g. vecas J. Žustienes Blīdenē. Jkr..
+II, 14 (21). LP, VII, I, 152 (3).</p>
+
+<p align="JUSTIFY">Vienās mājās bija kāzas, un tā tur ari atbrauca viens vecs
+podnieks un lūdza nakts māju. Bet kāzu turētāji nau viņam rūmes de(v)uši,
+teikdami, ka viņiem nau rūmes tai mājā, viņi de(v)uši tam vecītim vakariņas un
+teikuši, lai viņš brauc projā. Un podnieks aizbraucis no tā kāzu nama prom. Tumsība
+viņam uzgai(j)se. Un tā viņš uzbraucis vienu kalniņu un domā(j)s, ka tur ir celmi.
+Bet tie ir bi(j)ši krusti, un kalniņš kapi. Tā i viņs nojūdzis savu ķēvīti un
+apgulies pie viena krustiņa. Un tā viņš i gulei(j)s stundas vēr(e)t. Tā atnācis
+viens a baltu pal'gu aptinies cilvēks un teicis uz podnieka: "Celies augšā, man te
+jāgul ira!"</p>
+
+<p align="JUSTIFY">Vecītis prasī(j)s: "Ku tu biji, un kas tu tāds esi?"</p>
+
+<p align="JUSTIFY">Bet baltais cilvēks to neteicis ne par ko. Tā viņi stridē(j)šies
+stundas vēr(e)t, un vecītis nau atkāpies no tās guļas vietas. Nu mirons (baltais
+vīrs) teicis: viņš i bi(j)s kāzās. Vecitis prasī(j)s, ko viņš tur darī(j)s. Šis
+teicis: "Es to jauno pāri nomir(e)dināju."</p>
+
+<p align="JUSTIFY">Nu viņš i prasī(j)s, tas vecītis: "Kā viņus var
+atdzīvināt?" "Apakš klēts, ku viņi guļ, tur ira divi stieeļi un apakš
+tiem stieģeļiem divi apšu lapas vienu 1apu rīvē vienam, otru otram pie deguna; tā
+viņi paliks dzīvi. Laid nu mani iekšā!" teicis vecītim.</p>
+
+<p align="JUSTIFY">Bet vecītis atteicis: "Es tevi nelaidīšu, kamēr tu man jausi
+no sava pal’ga vienu stūri nogriezt."</p>
+
+<p align="JUSTIFY">Tas mironis teicis, lai viņš griež arī to stūri, un lai laiž
+viņu iekšā tai kapā. LTn tā nu viņš i to pal’ga stūri nogriezis, un tā
+mironis priekš acim pazudis.</p>
+
+<p align="JUSTIFY">Vecītis nu gaismiņā uzcēlios, savu ķēvīti iejūdzis un to vietu
+labi apzīmei(j)s, braucis uz kāzām. Nobraucis uz kāzām -- visi kāzinieki noskumuši.
+Viņi teikuši, ka jaunais pāris - brūte ar brūtgānu --- nomiruši. Vecītis teicis:
+"Es jums teikšu zāles. Apakš klēts, ku viņi guļ, tur i divi stieģeļi, apakš
+stieģeļiem divi apšu lapas, ņemat un rīvējat katram vienu lapu pie deguga, ta viņi
+paliks dzīvi!"</p>
+
+<p align="JUSTIFY">Tā kāzinieki ņēmuši tās lapas un rīvei(j)ši katram pie deguna
+vienu lapu un tā viņi palikuši dzīvi. Kā nu palikuši dzīvi, ta to vecīti ņēmuši
+cieti un teikuši, ka viņš i viņus nobūris un veduši viņu uz muižu pāklaušināt
+Pāklaušināšanā vecītis atbildei(j)s: "Ja nu jūs mani neticīt, ta iesim uz
+kapiem, es jums parādīšu to vietu, ku es gulēju uz tiem kapiem; te ir ari tas pal'ga
+stūris ko es no tā miroņa pal'ga nogriezu, kas to jauno pāri nomir(e)dināja un man to
+izteica, kā viņus var atdzīvināt."</p>
+
+<p align="JUSTIFY">Nu rakuši kapu augšā un atraduši, ka mironim trūkst gan viena
+pal’ga stūra, un vecīša palga sttīris pasējis uz mata pie nogrieztā pal’ga
+stūra klāt. Ta braukuši atkal visi uz kāzām apakaļ - vecītis arī līdza - un
+dzēruši kāzas priecīgi uz priekšu.</p>
+
+<p align="JUSTIFY">Un es tur arī biju, es iegulos pakulās. Sāka poli šaudīt un
+ielādēja mani lielajā gabalā un atšāva te, ku tagad esmu.</p>
+
+
+</body></html>

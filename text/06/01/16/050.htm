@@ -1,0 +1,215 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>50</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">50. A. 530. Ātreņu Kārlis Rundālē. Jkr. V, 26 (3). LP, VII, II,
+26, 1, 2.</p>
+
+<p align="JUSTIFY">Dzīvoja vecītis, kam bija trīs dēli: divi gudri, trešais muļķis.
+Tēvs mīlēja visus trīs, izmācīja visus grāmatā, mācīja viņiem; ko pats zināja.
+Bet kamēr divi brāļi bija veikli un gādīgi, trešais bija lēns un domīgs. Pirmie
+zināja mežā beidzamo lizdu, prata rīkoties ar stopu un cilpām, izņēma putniņiem
+bērniņus un nepārnāca nekad bez medījuma. Trešais gāja tāpat mežā, zināja arī
+putnu lizdiņas, bet nepārnesa no meža nekad nekā. Viņš apsēdās tur zem kāda koka,
+klausījās uz putniņiem un skatījās, kā tie darbojās un pakaisīja viņiem kādas
+maizes drusciņas. Brāļi viņu nosauca par muļķi, rāja, izsmēja viņu un
+apvaicājās. vai neesot viņu kodusi kāda zīle? Tēvs gan apsauca brāļus, lai viņu
+liekot mierā, bet tas nekā nelīdzēja. Tā brāļi dzīvoja dienu no dienas.</p>
+
+<p align="JUSTIFY">Reiz pārnesa arī Jānītis jaunu strazdu, kas bija no koka cauruma,
+no savas lizdas izkritis un kāju pārlauzis. Brāļi ņēma viņam strazdu nost un
+gribēja to cept; Jānītis turējās pretim, nedeva viņiem strazdu un tēvs izšķīra
+strīdiņu, noteikdams, ka strazds Jānīša. Šis nu ķēra strazdam mušas, kopa viņu,
+kamēr kāja sadzija, bet tad viņu aiznesa atkal uz mežu, un palaida pie tā koka, kur
+to atradis. Drīz sapulcējās ap viņu viņa vecākie brāļi un māsas, priecājās par
+viņu, paņēma to savā starpā un saskrēja kokā.</p>
+
+<p align="JUSTIFY">Vecītis manīja, ka viņa beidzamā stundiņa tuvojas un lūdza
+mīļam Dievam, lai esot tam žēlīgs un atļaujot arī pēc miršanas gādāt par
+Jānīti. Dievs gan teica ka pats gādājot par vientiesīšiem, bet galā tomēr
+apsolījās izpildītu vecīša lūgumu. Nu vecītis sapulcēja savus bērnus un sacīja
+uz tiem: "Bērni, kad es nomirstu, tad nāciet katrs pēc kārtas uz manu kapu
+skaitīt pātarus!"</p>
+
+<p>"Labi, tēt," dēli atbildēja, "izpildīsim."</p>
+
+<p align="JUSTIFY">Tai pašā laikā iznāk ziņa no ķēniņa, ka princese, viņa meita,
+likusi uztaisīt brīnišķu pili ar divpadsmit pīlāriem, divpadsmit karogu izkārtnēm
+un zvērējusi, ka viņa atzīšot tik to par savu brūtgānu, kas straujā zirgā
+jādams, viņu sēdot priekš pils zem troņa, nobučošot.</p>
+
+<p align="JUSTIFY">Šī ziņa iztraucē jaunus audis, tie nepacietībā galda nolikto
+dienu, sapņodami par princesi, kam jel laimēšoties nākt ķēniņa godā. Arī mūsu
+trīs brāļi to vien gudro. Bet muļķītis neaizmirsa, ko tēvs bija vēlējies.</p>
+
+<p align="JUSTIFY">"Brāļi," atgādināja viņš, "tēvs ir miris - kas
+ies uz kapu?" Kas grib, tas lai iet!" viņam atbildēja brāļi. Muļķītis aiz
+gāja. Atnāca otra nakts; muļķītis atkal atgādina: "Tagad, brāļi, jūsu reize
+- es vakar biju, kurš nu ies?"</p>
+
+<p align="JUSTIFY">"Kas grib, lai tas iet! Bet mūs netraucē, nemalsies mūsu
+lietās," brāļi atbild.</p>
+
+<p align="JUSTIFY">Muļķītis atkal iziet uz kapu. Bet brāļi, sagriezuši cepures uz
+vienu ausi, izjāja zirgus, taisās un ģērbjas vislabākās drānās, lai varētu jo
+labāki izrādīties.</p>
+
+<p align="JUSTIFY">Pienāk trešā nakts. Brāļi atbild muļķīšam to pašu un
+muļķītis atkal aiziet uz kapu. Bet arī viņa prāts nesas uz princesi. Viņš pavada
+savas dienas pa mežu. Še viņu sagaida strazds. kas viņu pazīst, uzlaižas tam uz
+pleca, vabolītes un citus gardumus gaidīdams, un stāsta par princesi, cik viņa jautra,
+kā viņa smejas, kā viņa dzied.</p>
+
+<p align="JUSTIFY">Pienāk arī noliktā diena salasīties pie ķēniņa pils gudrie
+brāļi, vēl reizi izjājuši savus zirgus, prasa viens otram: "Vai ņemt muļķīti
+arī līdzi?"</p>
+
+<p align="JUSTIFY">Nospriež, viņam būs palikt mājā, viņš tiem tur tikai par kaunu
+varētu būt. Brāļi aizjāj,, bet muļķītim pārlieku gribas redzēt slaveno princesi,
+viņš sāk gauži raudāt. Lai savas skumjas apmierinātu, viņš dodas uz tēva kapu,
+cerēdams, ka tur Dieva lūgšana jo spēcīga.</p>
+
+<p align="JUSTIFY">Tēvs, dzirdēdams viņu raudam iznāk no sava kapa un viņu uzrunā:
+"Nebēdājies, es tevi izpestīšu no tavām skumjām!"</p>
+
+<p align="JUSTIFY">Šo teikdams, vecis skaņi iesvelpjas. Kur bijis, kur nebijis atskrien
+zirgs: zeme dimd apakš tā kājām, no nāsim nāk veldra liesmaina dvaša. Atskrējis
+pie veča, zirgs paliek kā ierakts un prasa: "Ko vēlies?"</p>
+
+<p align="JUSTIFY">Vecītis liek muļķītim pa zirga vienu ausi ielīst, pa otru izlīst.
+Izlīdis, tas pārvērties par brašu zēnu glītā apģērbā, sēžas zirgā un jāj
+tiešām uz princeses pili. Te viņu visi apbrīno; bet vēl vairāk izbrīnās,
+redzēdami, ka zirgam pilnos rikšos, tas nobučo princesi.</p>
+
+<p align="JUSTIFY">"Kas! Kas! ķeriet!" dzird saucam, bet no viņa nav vairs ne
+vēsts. Acumirklī ir viņš nozudis ar savu straujo zirgu. Atjājis atpakaļ pie tēva
+kapa, palaidis zirgu, viņš sirsnīgi pateicas tēvam, lūgdams padomu arī nākamiem
+laikiem. Mājās pārnācis viņš izliekas, itkā nebūtu bijis itnekur un nekā
+nezinātu. Brāļi stāsta, ko tie redzējuši, viņš klausās, itkā viņam tas tīri
+kas jauns.</p>
+
+<p align="JUSTIFY">Otrā dienā atkal sapulce pie princeses pils. ļaužu te vai vairāk
+nekā vakar. Brāļi, arī muļķītis, ir jau tur. Viņš nosēžas klusākajā
+vietiņā, izturas klusi, mierīgi, itkā tas itnekā nezinātu, kas bučojis princesi.
+Princese meklē savu bučotāju, savu brūtgānu; viņa grib viņu rādīt visai sapulcei,
+apsola pusi no savas valsts, bet brūtgāns nerādās un nerādās. Sāk meklēt viņu
+starp ģenerāļiem, augstmaņiem - meklētā nav. Muļķītis sēž pa to laiku un gaida,
+lai pienāk brūte pati. Viņš domā: "Es mīlēju viņu jau sen, es bučoju viņu,
+brašs jauneklis būdams, lai viņa mani mīl, arī prastos svārkos ieraudzījusi."</p>
+
+<p align="JUSTIFY">Beidzot pieceļas no troņa princese pati, pārskata visus lielākā
+uzmanībā un ierauga arī savu brūtgānu.</p>
+
+<p align="JUSTIFY">Pēc kāzām viņš uzņēma valdību, bija gudrs un stingrs
+valdinieks, nevarēja ne domāt ka to kādreiz saukuši par muļķa Jānīti. Princese
+arī nekad nenožēloja, ka viņa dabūjusi tādu vīru.</p>
+
+
+</body></html>

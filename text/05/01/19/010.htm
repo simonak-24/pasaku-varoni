@@ -1,0 +1,156 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Vīrs ceļo uz elli.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">10. A. 477. V. Zacharska, no 37 g. veca A. Vēvera Sakstagala pag.
+Kultūras balss kr.</p>
+
+<p align="JUSTIFY">Pī vīna saimnīka dzeivuoja vīns gūdīgs kolps; labi struoduoja un
+klausīja sovu saimnīku. Saimnīks jū cīši mīluoja un žāluoja. Vīnu reizi kolps
+palyka navasals un suoka prasīt sovu saiminīku paleidzēt jam, ka paliktu vasals.
+Saiminīks cīši žāluoja sovu kolpu un pasaucja pī juo doktorus, kuri pasacīja, ka
+izzuolēt navar, kolps miers zemē. Saiminīks soka sovam kolpam : "Navaru es tev
+dūt nikaida paleiga, doktors pasacīja, ka tu miersi zemē; kaut tu man cīši duorgs,
+bet tev vajadzēs pamest itū pasauli."</p>
+
+<p align="JUSTIFY">Kolps izsklausīja saiminīka vuordus, sasadusmuojas un soka tai:
+"Jo es itū zynuotu, ka tu, saiminīks, navari dūt man paleiga, es nikod tev
+nakalpuotu, lobuok kolpuotu valnam!"</p>
+
+<p align="JUSTIFY">Kai izrunuoja slymais kolps itūs vuordus, veras: jau stuov uz
+slīkšņa valns ar rogim un smejas. Sasabeida kolps, bet valns jam pa klusiņam soka:
+"Celīs un ej pi manis struoduotu, es tevi tyulen izzuolēšu un tu paliksi vasals.</p>
+
+<p align="JUSTIFY">Pasacēļa kolps un nūguoja valnam struoduotu. Kolps pi valna
+struodoj, struodoj - pavisam pīkusa bet dorbam vys gola nau. Jau kolps suocja prasīt
+valnu, ka jū atlaistu, bet valns veras uz kolpa, smejas un dūd kolpam vēl gryutuoku
+dorbu. Veras kolps, ka ar valnu navar sasarunuot un nūmūcīs jū leidz nuovei ar dorbu.
+Sadūmuoja kolps : "Apmuonīšu valnu."</p>
+
+<p align="JUSTIFY">Suocja runuot kolps valnam: "Brauksim pi muna vacuo saiminīka,
+jam ir daudz zalta, pajemsi nu juo!"</p>
+
+<p align="JUSTIFY">"Labi!" pasacīja valns.</p>
+
+<p align="JUSTIFY">Nūbraucja jī obadivēji. Atbrauc jī uz pilsātu, veras: staigoj
+daudz ļaužu. Daīt jī pi vīnas sātas, kolps soka valnam: "Tu mani pagaidi uorā,
+es aizīšu itymā ustobā, un otkon dreiži izīšu.</p>
+
+<p align="JUSTIFY">"Labi," - pasacīja valns. Kolps īguoja ustobā, bet valns
+palyka uorā juo gaidūt. Kolps sēd ustobā, bet valns vys juo gaida. Sēd kolps vairuok
+kai pus dīnas. Apnyka valnam gaidīt kolpu uorā, un dumoj valns: "Išu es ustobā
+pasavārtu, kū dora muns kolps." Itai īguoja valns ustobas sincēs, nū viersas
+suocja krist zeme un pīmīdzja valnu, tai ka pīleida smilkšņu pylna mute un valns ar
+smilkšņim nūspruoga, bet kolps nūguoja pi sova vacā saiminīka un otkon suocja pi juo
+struoduot un naprasīja nu saiminīka nikaidas moksas par sovu dorbu. Saiminīks jū tagad
+tur žāluoj un mīļuoj.</p>
+
+
+</body></html>

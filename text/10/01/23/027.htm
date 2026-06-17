@@ -1,0 +1,183 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>1002327</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Cilvēku sodi.</font><font size="4"></font></p><font size="4">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">27. A.<b> </b>840. Bitaks ar A.<b> </b>Budzi
+Litenā. LP, VlI, I, 98, 14.</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz dzīvoja nabadzīgā būdiņā vīrs, sieva un dēls. Vīrs
+nomira. Pēc bērēm pie mātes atnāca velns, prasīdams, lai pārdodot savu dēlu. Dēls
+bija tikai 3 gadi vecs. Tā sacīja: "Ko tu darīsi ar tik jaunu bērnu?"</p>
+
+<p align="JUSTIFY">Velns sacīja, ka šim esot tāds darbs, kas tikai mazam bērnam
+padarāms. Nu, kad tā - pārdeva arī dēlu par maisu naudas. Velns dēlu aiznesa uz trim
+gadiem peklē. Aiznesa un nolika par uguns kurinātāju, piesacīdams tā kurināt, ka
+sprakstot vien. Puisēns kurina, kurina, bet velns aizbraucis uz visu gadu projām. Te
+viņš kurinādams sāks ievērot, ka katlā viņa paša nelaiķa tēvs vārās. Palika
+žēl puisēnam tēva - izdzēsa uguni, lika tēvam kāpt laukā no katla. Tēvs izkāpa
+un izrādīja dēlam šādas velna istabas, tādas; pēdīgi ieveda tai istabā, kur liels
+katls vārījās, un lika dēlam galvu katla šķidrumā mērkt. Dēls iemērc galvu,
+galva aplipusi ar zeltu. Tēvs parāda kaktā lupatus, lai aptinot galvu ar tiem. Aptina.
+Pēc gada pārbrauks velns, tēvs atkal mudīgi katlā iekšā. Velns vaicā: "Vai
+viss kārtībā?"</p>
+
+<blockquote>
+  <p>Esot viss.</p>
+  <p align="JUSTIFY">"Vai ēdis arī esi?" </p>
+  <p>Esot ēdis.</p>
+  <p>"Nu, ja esi ēdis, tad labi - bet nāc ēdīsim vēl!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Puisēns gāja un paēda. Kad bija paēduši, tad velns atkal aizbrauca
+uz otru gadu. Tūliņ puisēns apdzēsa uguni, tēvs atkal izkāpa no katla, ieveda dēlu
+tai istabā, kur lielais katls vārījās, un teica, lai iemērcoties katlā līdz jostas
+vietai. Dēls iemērcās, aplipa līdz jostas vietai ar zeltu un aptinās ar lupatiem, lai
+zelts nemirdzētu. Pārbrauc velns, tēvs katlā atpakaļ un dēls sakurina uguni par
+jaunu. Velns vaicā: "Vai viss labi padarīts?"</p>
+
+<blockquote>
+  <p>Esot. </p>
+  <p>"Vai ēdis arī esi?" </p>
+  <p>Esot gan.</p>
+  <p>"Labi, labi, bet nāc, ēdīsim vēl!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Puika gāja. Ēdot velns vaicā: "Kāpēc esi galvu un krūtis ar
+lupatiem aptinis?"</p>
+
+<p align="JUSTIFY">Puisēns saka: "Man pie krāsns deg, neesmu ieradis gar uguni
+vienmēr pūlēties."</p>
+
+<p align="JUSTIFY">Velns tic tam un vēl uzteic puiku: "Divi gadi labi nokalpoji,
+nokalpo trešo arī tikpat labi!"</p>
+
+<p align="JUSTIFY">To sacījis, tas aizbrauc uz trešo gadu projām. Tūliņ puisēns
+apdzēsa uguni, tēvs izkāpa no katla, aizveda pie lielā katla un teica, lai iemērcot
+visu augumu katlā. Dēls iemērcās un aplipa viscaur ar zeltu. Nu tēvs padabūja
+paprāvu mēteli, noplīsušu, un ietērpa puisēnu no galvas līdz kāju galiem tanī,
+piemācīdams: "Kad velns pārbrauks, viņš tevi vedīs vaŗa, sidraba, zelta
+istabā un dos maisu naudas, bet tu neņem nekā, šo mēteli noplīsušo izrunā tam, tas
+viss."</p>
+
+<p align="JUSTIFY">Pārbrauca velns, tēvs katlā atpakaļ, un velns nu vadā dēlu pa
+vaŗa, sidraba, zelta istabām, skubinādams, lai grābjot naudu. cik vien tīkot. Bet
+dēls atsacīja: Tā nauda ir smaga, negribu!"</p>
+
+<blockquote>
+  <p>Tad velns saskaitās ļoti: vai nekā negribot ņemt?</p>
+</blockquote>
+
+<p align="JUSTIFY">"Gribu gan!" - lai dodot to noplīsušo mēteli, kas šim
+mugurā. Velns nu vēl vairāk sapīka un skaidri uguni spļāva, bet mēteli atdeva taču
+un tad puiku pa logu izmeta laukā, uz lielu klajumu izsvieda. Puika nu gāja, gāja
+taisni uz mājām - te ierauga: liels baltu aitu pulks nāk šim pakaļ. Tās bija
+cilvēku dvēseles, ko puisēns bija iznesis ārā no katla - aiz noplīsušā mēteļa.</p>
+</font>
+
+
+</body></html>

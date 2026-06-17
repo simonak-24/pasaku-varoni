@@ -1,0 +1,253 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+
+<blockquote>
+  <blockquote>
+    <font size="5"><b><p align="CENTER">Pūķa kāvējs ar suņiem.</p>
+    </b></font><p>3. A.952.300. J. Ezers no Baužu Jāņa Kaletu Ozolos, Jkr., V, II, 134. 1.
+    p. LP, VII, II, 20, II, 3. AŠ, II, 96g. </p>
+  </blockquote>
+</blockquote>
+
+<p align="JUSTIFY">Kādam tēvam bija trīs dēli - divi krietni, trešais tāds
+Dievdotais. Dievadotais pavadīja savu laiku, pa mežu ganīdams un tur ar meža
+radījumiem apdraudzēdamies, ar viņiem cik dažu labu reizi savu maizes kuli dalīdams.
+Brāļi viņu muļķoja, kur vien satikdami. Tēvs bīdamies, ka brāļi kādreiz Dievdoto
+nenomāc, saka uz viņu: "Ņem, dēls, savas trīs avitiņas un ej pats uz savu roku
+strādāt! Man tevis vairs nevajaga."</p>
+<font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">Dievdotais, avitiņas dzīdams, satiekas ar kādu
+sirmgalvi, kas ved saitē trīs suņus.</font></p><font size="3">
+
+<blockquote>
+  <p align="JUSTIFY">Mainīsim!" vecis uzrunā. "</p>
+  <p>Dievdotajam suņi aplam patīk. "Lai iet!" viņš atbild.</p>
+</blockquote>
+
+<p align="JUSTIFY">Viņi pārmaina un iet katrs savu ceļu. Gabaliņu pagājis, Dievdotais
+atminas, ka vecis nav pateicis suņu vārdus.</p>
+
+<p align="JUSTIFY">"Veco tēv!" viņš sauc tam pakaļ, "aizmirsu prasīt,
+kā suņus sauc."</p>
+
+<p>Vecis atbild : "Ja tev, dēls, klājas gŗūti, tad saki : "Stiprs kā
+mūris, Ātrs kā domas, Ciets kā tērauds!" un tev būs līdzēts.` Saulei
+norietot, Dievdotais ar saviem trim suņiem apmaldās</p>
+
+<p align="JUSTIFY">mežā. Iet, iet līdz vēlai naktij, bet kā nevar, tā nevar pajumta
+uziet. Beidzot viņš redz tālumā uguntiņu spīdam. Iet turp - saburbējusi būda,
+iekšā veca vecene. "Vai, dēls, kā tu še atkūlies? Man ir divpadsmit dēlu, tie
+ir visi slepkavas; kad viņi pārnāks, viņi tevi nokaus."</p>
+
+<p align="JUSTIFY">"Rādi tik guļas vietu; iekām tie būs domājuši mani nokaut,
+būs paši jau izputējuši."</p>
+
+<p align="JUSTIFY">Dievdotais apgulstas pie krāsns. Tikko viņš iemidzis, pārbrauc
+seši dēli, ka nožvadz vien. "Kas tas tāds?" viņi prasa ienākdami.</p>
+
+<blockquote>
+  <p>Vecene atteic: "Nomaldījies ceļinieks."</p>
+</blockquote>
+
+<p align="JUSTIFY">Viens izrāvis kumpi (līku zobenu) - Dievdotajam klāt. Šis atmostas.
+"Lūdzami," viņš saka, "ļaujiet man vēl priekš nāves trīs vārdus
+izrunāt."</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Runā." "Stiprs kā mūris, Ātrs kā domas, Ciets kā
+  tērauds!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Suņi no pagultas ārā, saplēš slepkavas. Pēc brīža pārbrauc
+otri seši. Dievdotais ar saviem suņiem viņiem pretī - miesas gabali vien nošķīst.</p>
+
+<p align="JUSTIFY">Rītu atprasa Dievdotais no vecenes atslēgas. "Tev nenotiks
+nekas," viņš saka, "tu mani uzņēmi - es ņemšu kādas drānas, daļu no
+zelta un sudraba un zirgu."</p>
+
+<p align="JUSTIFY">Vecene gan vilcinās dot, bet nekas nelīdz. Apģērbies labākās
+drānās, piebēris kabatas ar zeltu un sudrabu, paņēmis bik1āko zirgu, viņš aizjāj
+kā ķēniņš pa mežu. Bet tavu nelaimi! nevar un nevar atrast ceļu, kas izvestu no
+meža. Viņam atkal jāmaldās. Naktī viņš ierauga tālumā spīguļojam pulka uguņu.
+Aizjāj, kur ugunis, un atrod krāšņu pi1i. Še saņem to laipni sta1ts kungs, kas
+ierāda zirgam stalli, pašam guļas vietu un suņus ieslēdz dzelzs būdā. No rīta
+svešais kungs vadā Dievdoto pa visām malām, rādīdams savu bagātību, stāstīdams,
+ka viņam esot septiņdesmit vīru, kas visi izsūtīti pie darba. Drīz tie būšot
+mājā.</p>
+
+<p align="JUSTIFY">Beidzot ieiet abi ģērbkambarī. Laipnais kungs uzvedina drēbes
+mainīt. Dievdotais mierā. Tiklīdz šis izģērbies, kungs ārā un krapts! Durvis
+cieti! Dievdotais, slazdos būdams, redz savu dzīvību jau pīķa galā. Pēc kāda laika
+atveŗ viņa cietuma durvis. "Nāc ārā," laipnais kungs sauc.</p>
+
+<p align="JUSTIFY">Dievdotais redz: abpus durvim ir nostājušies gaŗās rindās kunga
+kalpi milnām rokās, rindu galā dziļa bedre un bedres vidū karātavu stabs.
+Dievdotajam jāiet turp.</p>
+
+<p align="JUSTIFY">Dievdotais lūdzas: "Iekām mani nomaitājat, atļaujiet man
+izrunāt trīs vārdus."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Manis dēļ runā desmit, bet pakārts jau tiksi!" laipnais kungs
+  "</p>
+</blockquote>
+
+<p>atbild. ;,Stiprs kā mūris, Ātrs kā domas, Ciets kā tērauds!" sauc Dievdotais
+- un suņi klāt, saplēš slepkavas, ka lupatas vien nokust.</p>
+
+<p align="JUSTIFY">Dievdotais, redzējis kādi briesmu darbi še strādāti, aizjāj,
+sagrābis daudz naudas. Jāj vienā jāšanā, kamēr nokļūst jūrmalā. Tur uziet
+savādu būdu ar vienu gultu, vienu galdu, uz kā deg svece. Dievdotais apmetas te
+pārgulēt. Gultā atlicies, dzird braucēju pie durvim pieturam. Ienāk daiļa sieviete.
+Abi skatās un brīnās. Dievdotajam sirds vien pukst. Pēdīgi viņš uzsāk valodu:
+"Kur tu, dailenīt, tik vēlu?"</p>
+
+<p align="JUSTIFY">"Esmu šās zemes ķēniņa meita. Velni spaida par daudz mana
+tēva valsti. Lai varētu no tiem glābties, atveda mani viņiem par upuri."</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Nebīsties, mīļā, ar tiem iztiksim," tā Dievdotais saka.
+  Abi guļ. Pienāk pusnakts. Velns ar sešām galvām iekšā. "Stiprs kā mūris,
+  Ātrs kā domas, Ciets kā tērauds!" Dievdotais sauc. Velnam kauli vien nograb.
+  "</p>
+</blockquote>
+
+<p align="JUSTIFY">Vēl neesam glābti," princese saka, "drīz nāks velns ar
+divpadsmit galvām mūs raudzīt un savu brāli mājā vest."</p>
+
+<p align="JUSTIFY">Nebija ilgi arī - jau nāca otrs : jūra šņāca un kŗāca, viļņi
+verstim augstu cēlās gaisā, bet Dievdotais gulēdams sauca: "Stiprs kā mūris,
+Ātrs kā domas, Ciets kā tērauds!" un velns bija beigts.</p>
+
+<p align="JUSTIFY">Rītū atbrauc raudzīt ķēniņa meitas vedējs. Abi iziet ārā, bet
+suņi paliek istabā guļot. Redzēdams princesi dzīvu un zinā dams Dievdoto viņas
+glābēju, vedējs tam ar rungu pauks! pa pieri un šis izstiepjas vien.</p>
+
+<p align="JUSTIFY">Vedējs saka uz princesi: "Ja neteiksi tēvam, ka es tevi
+izglābis, tad arī tevi nositīšu."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Princese saka "Taupi tikai manu dzīvību, darīšu visu."
+  Suņi atmodušies, redz, kas noticis.</p>
+</blockquote>
+
+<p>"Mūsu kungs beigts!" saka Stiprs kā mūris Ātrajam kā domas - "skrej
+pa trim ķēniņu valstim, atnes avota ūdeni un zāles!"</p>
+
+<p align="JUSTIFY">"Labi!" šis atteic. Drīzi jo drīzi ir atnests avota
+ūdens, atnestas zāles. Avota ūdeni iepilina mutē un ar zālēm ierīvē vātis.</p>
+
+<p align="JUSTIFY">Dievdotais ceļas kājās. Visi tagad iet pa pēdām uz ķēniņa pili.
+Te jau taisās princesei kāzas turēt. Bet viņa, ieraudzījusi Dievdoto, nevar vairs
+valdīties un atklāj visu tēvam.</p>
+
+<p align="JUSTIFY">Vedējs dabūn to sodu, ko agrāk devis Dievdotajam un Dievdotais dabū
+ķēniņa meitu. Pēc sievas tēva nāves paliek Dievdotai par ķēniņu un valda līdz ar
+savu sievu.</p>
+</font>
+
+
+</body></html>

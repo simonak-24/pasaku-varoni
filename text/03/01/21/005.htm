@@ -1,0 +1,141 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Cilvēku bērni pie sumpurniem.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 327 A. K. Blaus Ērgļos Brīvzemnieka kr., 72. piez.</p>
+
+<p align="JUSTIFY">Sumpurņi bija tādi paši ļaudis, kā visi citi, tikai viņiem bija
+suņa purns. Reiz viņi noķēruši vienu meiteni, pārveduši mājā un barojuši ar
+riekstiem un saldu pienu. Kad nu viņi kādu laiku noķerto meiteni tā bija ēdinājuši,
+tad viņi pārgrieza tai mazo pirkstiņu, lai redzētu, vai viņa ir jau diezgan trekna.</p>
+
+<p align="JUSTIFY">Atraduši meiteni diezgan nobarotu, viņi nosprieda to izcept krāsnī.
+Sumpurņu māte izkurināja krāsni un aizsūtīja pašu meiteni uz kaimiņiem pēc lizes.
+Kaimiņu saimniece saprata, ka meiteni pašu grib cept krāsnī, pamācīja to, ja
+sumpurņu māte vēlot viņai uz lizes gulties, tad lai gulstoties šķērsām. Ja viņa
+vēl arvien mācot ar vārdiem, kā lai gulstoties, tad lai lūdzot viņu pašu parādīt,
+kā jādara. Kad sumpurņu māte uzgulstoties uz lizes, tad lai steigšus iegrūžot viņu
+krāsnī; lai aiztaisot krāsns durvis cieti un lai bēgot pati projām.</p>
+
+<p align="JUSTIFY">Meitene pārnes lizi mājā un izdara visu tā, kā kaimiņu saimniece
+bija mācījusi. Meitene iegrūž sumpurņu māti krāsnī un aiztaisa krāsns durvis
+cieti. Sumpurniene redzēdama, ka netiks vairs laukā, kliedz vēl pēdējo reizi saviem
+dēliem: "Dēli, dēli, naudas pods padzirnē!"</p>
+
+<p align="JUSTIFY">Bet dēli bija aizgājuši kur tālu projām un mātes kliedzienu nemaz
+nedzirdēja. Turpretī meitene nu dabūja zināt, kur sumpurniene naudu paslēpusi,
+paņēma to visu naudas podu sev līdz.</p>
+
+<p align="JUSTIFY">Bēgot meitene uzvelk ačgārniski vīzes kājā un piebeŗ savas
+vīzes ar pelniem, lai sumpurņi nevarētu pēdu saostīt. Tā nu meitenei izdodas
+laimīgi aizbēgt ar visu lielo mantu, un nu viņa dzīvo laimīgi savā dzimtenē.</p>
+
+
+</body></html>

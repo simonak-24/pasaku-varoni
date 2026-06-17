@@ -1,0 +1,160 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Stiprais Ansis.</p>
+</b></font><font size="3">
+
+<p>2. A. 650 A. J. Bankins "Šis un tas" II, 1875. 3.</p>
+
+<p align="JUSTIFY">Reiz dzīvoja itin vecs vīrs ar savu veceni, kam bērnu nebija. Vecis
+reizu satikās mežā ar kādu citu veci. Svešais to apsveicinājis prasa: "Kādēļ
+tu, mīļais, esi tik bēdīgs?"</p>
+
+<p align="JUSTIFY">Mūsu vecis atbild: "Ko lai citu daru? Es jauns apprecējos, tagad
+jau mūžu nodzīvojis, bet man neviena bērna nav bijis."</p>
+
+<p align="JUSTIFY">Svešais to iepriecinādams, atbild: "Nebēdājies neko! Rītā
+agri ņem bišu stropu un ienes krūmos! Pēc trim dienām ej lūkāt, tad tur atradīsi
+puisēnu, to tev būs saukt par Elkšņu Mārtiņu."</p>
+
+<p align="JUSTIFY">Kā sacīts, tā darīts. Vecis iet pēc trim dienām uz krūmiem un
+par lielu brīnumu atrod zēnu itin smuku no uzskatas. Vecis, to izņēmis no bišu
+stropa, dodas priecīgs uz mājām un audzē to lielu. Kad Mārtiņš ir 20 gadu vecs, tad
+viņš sader pie saimnieka par kalpu.</p>
+
+<p align="JUSTIFY">Saimnieks tam iedod švaku zirdziņu un stellē to uz mežu pēc
+malkas. Viņš nobraucis mežā, sakurina uguni un pīpē tabaku, pie uguns sēdēdams;
+tamēr citi piekrauj vezumus un sāk braukt uz mājām. Mārtiņš izrauj veselu egli ar
+visām saknēm un liek to uz savām ragavām, bet par ķibeli zirgs to nespēj vilkt.
+Saskaities tas dod zirgam tā ar malkas gabalu par ribām, ka tas uz reizu pagalam. Nu
+liek pats egli uz pleciem un velk to uz mājām.</p>
+
+<p align="JUSTIFY">Saimnieks, zirga pēc sadusmojies, liek Mārtiņam iet akas tīrītu.
+Tas aiziet un sāk tīrīt aku, bet te saimnieks klāt un met dzirnu akminu virsū.
+Mārtiņš, pirkstu izstiepis, noķeŗ krītošo akminu tā ka tas kā gredzens paliek
+stāvot uz pirksta. Viņš akminu augsti gaisā turēdams smiedamies, saka: "Paldies,
+paldies, par šo vecmodes gredzenu!"</p>
+
+<p align="JUSTIFY">Saimnieks jo dusmīgs stellē Mārtiņu otrā dienā uz sudmalām, kur
+velli mituši.</p>
+
+<p align="JUSTIFY">Mārtiņš, liels muzikants būdams, ņem savas pijoles līdza. Tur
+nobraucis, uziet daudz vellus un sāk spēlēt. Velli, smuku mūziku dzirdējuši, sāk
+lūgties, lai viņš tos arī mācot spēlēt.</p>
+
+<p align="JUSTIFY">"Kāpēc nē," Mārtiņš atbildēja, "bet jums ir resni
+pirksti. Pasniedziet man tos, es viņus apgriezīšu, tad gan varēsim sākt
+mācīties."</p>
+
+<p align="JUSTIFY">Velli, uz spēlēšanu kārīgi, ļaujas ar svārpstu izurbtos caurumos
+pirkstus iebāzt un ar ķīļiem ieķīlēt. Mārtiņš nu ar verdošu ūdeni nobrucina
+visus vellus, un viņam nu tagad pieder dzirnavas, jo dzimtskungs, kam dzirnavas
+piederēja, bija nosolījis tam dzirnavas atdot, kas vellus izdzīšot. Mārtiņš nu
+ņēma savu veco tēvu un māti pie sevis un dzīvoja laimīgs līdz pat savai miršanai.</p>
+</font>
+
+
+</body></html>

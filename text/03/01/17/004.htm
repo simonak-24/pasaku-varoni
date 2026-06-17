@@ -1,0 +1,148 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Burvju sacīkste.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">4. L. Ozole, Sērpilī. A. Bērzkalnes krājumā. </p>
+
+<p align="JUSTIFY">Pēcīti māte vienumēr sūtīja ziemu uz riju pēc gaļas. Tur bija
+tumšs un tādēļ Pēcītim bija drusku bailes. Vienumēr, tikko viņš iegāja rijā, no
+gaļas nolēca melns runcis, uzskrēja uz krāsns un tad lūrēja ar savām zaļām acim
+pāri par krāsns malu.</p>
+
+<p align="JUSTIFY">Kādu pusdienu, kad cepa gaļu, ienāca veca sieviņa un lūdza
+Pēcītim, lai dodot drusku gaļas. Jā, zēns ir ar mieru, un pacienā vecenīti. Tā tas
+iet ilgu laiku un Pēcītis šad tad iedod vecenītei kaut ko. Uz ziemassvētkiem atnāk
+sieviņa un dāvina zēnam smuku sarkanu cepurīti, kas tam ļoti patīk. Pēcītis
+novēro, kur tik viņš iet ar sarkano cepurīti galvā, neviens viņu neredz. Vienu dienu
+ejot rijā, viņš redz - uz gaļas sēž kaimiņu saimnieks. "Ko tad tu, vectētiņ,
+te meklē?" iesaucās zēns.</p>
+
+<p align="JUSTIFY">Dzirdot vārdus, kaimiņš tūlin pārvērtās par runci un uzskrēja
+uz krāsns augšas; jo viņš bija burvis. Tagad Pēcītis saprata, ka arī kaimiņu
+saimnieks sarkanās cepurītes dēļ viņu nebija redzējis.</p>
+
+<p align="JUSTIFY">Otrā dienā viņš atkal uzlika cepurīti un iegāja rijā. Ne vārda
+neteicis, viņš sakampa veco vīru aiz bārdas. Tas ļoti pārbijās, bet tomēr
+neredzēja, kas viņu tura. Tad Pēcītis teica, ka laidīšot vaļā, lai tikai viņš
+katru reizi, kad Pēcītis paņem galu, ieliekot atkal citu vietā. Kaimiņš jau
+neredzēja, kas viņu tura, un arī apsolījās.</p>
+
+<p align="JUSTIFY">Nākošu reizi zēns neņem vis galu tā kā citām reizēm, bet paņem
+veselu šķiņķi. Māte izbrīnās un saka, ka ja tik daudz ēdīšot,</p>
+
+<p align="JUSTIFY">tad jau gaļas drīzi vien pietrūkšot. Pēcītis tik pasmīn un saka:
+"Nekas, gan jau būs labi."</p>
+
+<p align="JUSTIFY">Tā viņš nesa katru reizi pa lielam gabalam. Kaimiņu saimnieks lika
+atkal citus vietā. Nu varēja ēst daudz gaļas un visi lielīja, cik Pēcītis esot labs
+saimnieks.</p>
+
+
+</body></html>

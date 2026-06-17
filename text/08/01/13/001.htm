@@ -1,0 +1,183 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>l3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Zaķu gans.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">1. A. 570. Māturu Atis, Grāvendālē. LP. VI,
+995 (147).</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam kungam bijis simts zaķu, un viņš nevarējis nevienu ganu
+dabūt, kas spētu to simtu noganīt. Bet vienu dienu taču atnācis kāds ganu zēns, kas
+apņēmies viņus noganīt. Kungs vaicājis: "Ja tu noganīsi, cik tad maksas
+gribēsi?"</p>
+
+<p align="JUSTIFY">"Sieku naudas - ne vairāk, ne mazāk!" Labi, solījis arī
+to sieku.</p>
+
+<p align="JUSTIFY">Bet krusstēvs zēnam bija iedāvinājis mazu stabulīti; ar to varēja
+brīnuma lietas ganos izdarīt. Un tā tai dienā, līdz ko ganāmos zaķus izdzinis,
+kungs pakaļ, uzstādams, lai dzenot zaķus mežā ganīt, ne te klajumā! Bet kur nu
+zaķus mežā noganīsi? Kā iedzen - visi izklīst pa malu malām, ka ne redzēt. Cits
+tagad būtu nezin kā sabijies, bet zēns par to ne ausis nepaceļ. Viņš izņem savu
+krusttēva stabulīti, pastabulē drusku - zaķi bizo kopā kā putenis un paliek tik
+rāmi kā sapīti, neklīst ne traki vairs.</p>
+
+<p align="JUSTIFY">Tā viņš saganījis labu laiku. Bet kungs brīnum ēdies par to, ka
+šim zaķi neklīstot un - ko domāt - pierunājis savu gaspažu, lai tā ejot zēnam - ja
+vairāk ne - vienu zaķi izkrāpt, arī viņam pietikšot.</p>
+
+<p align="JUSTIFY">Labi, gaspaža apvelkas vecās drēbēs, ka nepazīst, aiziet pie gana
+un plijas un lūdzas kā rūgta nāve virsū, lai jel vienu vienīgu zaķīti pārdodot.
+Zēns pārdomā, pārdomā - beidzot pārdos arī vienu. Gaspaža ieliek zaķi kurvī un
+smiedamās stiepj mājā. Bet tiklīdz nu būtu turpat pie vārtiem, te zēns pastabulē
+savu stabulīti un tā zaķis klupdams, krizdams no kurvja ārā un atpakaļ pie citiem
+zaķiem.</p>
+
+<p align="JUSTIFY">Gaspaža noplātās vien un izstāsta kungam, kā noticis. Bet kungs
+domā: "Viņa īsti gudri nav pratusi izdarīt, tādēļ iešu pats."</p>
+
+<p align="JUSTIFY">Otrā dienā kungs apvelkas vecās drēbēs; uzkāpj vecai ķēvei
+mugurā un jās zaķi izkrāpt. Aizjāj pavisam nepazīstams: vai nevarot par labu maksu
+vienu zaķi pārdot? Kālāb ne? Ja viņš nobučojot savai ķēvei asti, tad tūliņ.
+Neko darīt, jābučo, ja grib zaķi dabūt. Un tā nu nobučo to asti, paņem zaķi un
+jās mājā. Bet līdz labi pie vārtiem, te tilu, tilu! zēns iestabulējas un zaķis
+nāk griezdamies atpakaļ.</p>
+
+<p align="JUSTIFY">Kungs dusmās nezin vairs, ko būtu izdarījis. Tūliņ sauc zēnu
+mājā un par to spīti liek viņam izēst pilnu istabu ar mīklu. Zēns saka: "Es
+izēdīšu gan, bet kas man par to kļūs? Vai dosi tad man savu meitu par sievu?"</p>
+
+<p align="JUSTIFY">Kungs domājis: "Tikpat viņš ēzdams pārēdīsies un nobeigsies
+- varu droši vien meitu piesolīt," un piesolījis arī.</p>
+
+<p align="JUSTIFY">Bet ko zēns? Kad to dabūjis dzirdēt - augšlēkām uz mīklas istabu
+prom, stabulīte no kabatas ārā un nu reizes trīs papīkstina stabulīti tai modē, kā
+peles un žurkas mēdz pīkstēt. Un tā, līdz to padarījis - kur gadījušās kur ne -
+peles un žurkas lēveņiem vien, lēveņiem pie mīklas šurp un tikai ņemas. Necik ilgi
+- mīkla istabā patērēta, ka nav ne godīgas smakas, jāsaka, vairs.</p>
+
+<p align="JUSTIFY">Otrā rītā kungs nāks lūkot, kas ar mīklas ēdēju noticis -
+atron: darbs padarīts un zēns tik vesels, ka smej vien. Nu šis sadusmojas vēl vairāk
+un nedos vis apsolīto meitu. Ja varot pilnu maisu melu piemelot, tad dabūšot viņa
+meitu! Labi, zēns mierā.</p>
+
+<p align="JUSTIFY">Otrā dienā kungs tīšām saaicina visus savus radus un tad visu
+priekšā liks zēnam melus melot. Sanāk radi, atnes maisu un nu zēns sāks:
+"Gaspaža atnāca pie manis zaķi pirkt, nopirka, nesa mājā, uzpūtu stabulīti,
+zaķis atbēga atpakaļ - tie ir vieni meli. Otrā dienā pats kungs, zaķi pirkdams,
+nobučoja ķēvei - - "</p>
+
+<p align="JUSTIFY">"Diezgan melots! diezgan melots! Še mana meita!" kungs
+iejaucās starpā un neļāva zēnam izteikt, ka ķēvei asti bučojis, jo tas šim radu
+priekšā būtu par lielu kaunu bijis.</p>
+
+<p align="JUSTIFY">Un tā nu attapīgais ganu zēns apņēma kunga meitu par sievu un
+dzīvoja laimīgi.</p>
+</font>
+
+
+</body></html>

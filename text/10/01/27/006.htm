@@ -1,0 +1,151 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>1002706</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Labi meli.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">6. A.852. Antonija Slesarova Tukumā. Folkloras
+krātuvē.</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz vienam tēvam bijuši trīs dēli. Vienu dienu visi trīs
+aizgājuši mežā malku cirst. Bijuši krietni nosaluši, saraudzījuši žagarus un
+gribējuši iekurt uguni, lai sasildītos, bet nevienam nav bijis nekādu uguns lietu
+līdz. Te meža malā ieraudzījuši uguni spīdam. Visi trīs nogudrojuši, ka jāiet
+uguns palūgt.</p>
+
+<p align="JUSTIFY">Vecākais dēls gājis, gājis un atradis vienu veci pie ugunskura
+sēžam. Šis nu uzprasījis, lai iedodot uguni. Bet vecis saka, ka ātrāk uguni
+nedošot, kamēr izstāstīšot tam kādu melu stāstu. Ja nevarēšot pateikt, tad
+izgriezīšot no muguras viņam trīs rindas ādas. Vecākais brālis pagalam nobijies un
+aizbildinājies, ka neesot jau nekāds liels pasaku stāstītājs un neprotot šim nekā
+pastāstīt. Ka neprot, neprot. Vecis izgriezis tam trīs sloksnes ādas no muguras un
+palaidis to. Vecākais brālis nu atnācis bez uguns un ar izgrieztu muguru.</p>
+
+<p align="JUSTIFY">Gājis vidējais brālis un arī tas atnācis ar izgrieztu muguru un
+bez uguns.</p>
+
+<p align="JUSTIFY">Nu nosprieduši, ka jāiet ir jaunākam brālim pēc uguns. Šis nu ir
+arī ar mieru un aiziet pie veča. Vecis prasa, lai šim labi krietni samelojot, tad
+dabūšot uguni. Jaunākais nu sācis tad melot. Reiz viņa tēvs sūtījis uz tīrumu
+art. Šis aris, aris, kamēr sacēlusies liela vētra un uznācis briesmīgs lietus.
+Gudrojis, kur varētu paglābties. Te redzējis vagas vidū lielu ozolu ar cauru vidu.
+Piesējis savu ķēvi pie saknes un pats ielīdis ozolā. Bet te pamanījis, ka ozols, par
+to laiku, kamēr lietus pārstājis, aizaudzis. Šis nu prātojis, kā tikt laukā.
+Atminējis, ka mājās ir viņa tēva dotais cirītis. Mudīgi aizskrējis uz mājām un
+izcirties no ozola un tā laimīgi ticis ārā. Te notikusi nelaime. Ķēve paklupusi aiz
+vienas peļķes un pārtrūkusi vidū pušu. Šis paņēmis mietu, izbāzis ķēvei cauri,
+sastūmis abas daļas kopā un ķēve bijusi atkal vesela. Netālu no mājām miets sācis
+augt nu izaudzis līdz pašām debesim. Viņš sadomājis uzrāpties uz debesim. Kamēr
+rāpies, tamēr apakšējais gals sācis pūt nost un nu nekādi nevar tikt zemē.
+Atminējies, ka tēvam mājās lini. Pārskrējis mājās, novijis striķi un laimīgi
+nolaidies zemē.</p>
+
+<p align="JUSTIFY">Vecis ļoti priecājies par jauko melošanu un iedevis stāstītājam
+uguni. Šis pārgājis pie vecākiem brāļiem un nu dabūjuši krietni sasildīties.</p>
+</font>
+
+
+</body></html>

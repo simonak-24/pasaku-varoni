@@ -1,0 +1,151 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>31</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pelnrušķīte pie ķēniņa.</p>
+</b></font>
+
+<p>&nbsp;</p>
+
+<p>31. A. 510 B. V. Podis Latgalē.</p>
+
+<p align="JUSTIFY">Vīnu reizi dzeivuoja dāds un buoba. Viņim beja dāls un meita. Dāls
+gribēja apprecēt sovu muosu. Tad muosa sacīja: "Kai es varu īt pi tevis, pi sova
+bruola?"</p>
+
+<p align="JUSTIFY">"Jo tu naīsi pi manis par sīvu," atbiļdēja bruoļs,
+"tad es tevi nūnuovēšu."</p>
+
+<p align="JUSTIFY">Muosa, naatrozdama izejas nu nuoves, sacīja: "Īšu, tik nūpierc
+maņ vaiņagu!"</p>
+
+<p align="JUSTIFY">Bruoļs aizbraucja uz pilsātu, bet muosa aizguaja pi galdnīka.
+Gaļdnīkam viņa īdevja rubli naudas un pavēlēja iztaisīt kūka tālu, cylvākam
+leidzīgu, ar tukšu vydu.</p>
+
+<p align="JUSTIFY">Kad tāls beja pagatavuots, tad muosa īleida viņa vydā. Bet bruoļs,
+atbraucis nu piļsātas, redzēja, ka muosas vairuok nabeja sātā. Viņš sāduos zyrgam
+mugurā un braucja meklēt sovas muosas. Braucūt viņš panuocja kūka tālu, kurs beja
+apvylkts drēbēs, tai ka cvlvāks, kurs nabeja juo redzējis, navarēja pazeit, vai tur
+ir vaca vecinīte, vai kaut kas cyts. Bruoļs vaicuoja kūka tālam: "Vai tu
+naredzēji te ejūt skaistas meitas?"</p>
+
+<p align="JUSTIFY">"Es eju pa šū ceļu jau treis dīnas," atbiļdēja
+vecinīte, "bet naasu redzējuse ni vīna cylvāka."</p>
+
+<p align="JUSTIFY">Bruoļs meklēja, meklēja muosas, tūmār naatroda. Tai vajadzēja
+braukt uz muojom tukšā, bez muosas. Bet muosa, tagadejuo vecīte, aizguoja uz kaidu
+napazeistamu kungu prasītūs, lai viņu pījem par gani, vai dīnas meitu, kū kungs ari
+izpiļdēja. Izdzynuse gonīrs cyukas, vecīte izleida nu kūka tālā un ganēja cyukas.
+Īraudzējis tū, kungs pajēmja zūbynu un nūcierta kūka tālam golvu, lai šei
+skaistuo meita navarātu viņā leist atpakaļ. Gane īraudzējuse, ka kungs tālam
+nūcierta golvu, palyka ļūti skumīga. Kungs pīguoja pi viņas kluot un vaicuoja:
+"Kuopēc tu beji īleiduse kūka tālā?"</p>
+
+<p align="JUSTIFY">Gane vysu kungam izstuostēja nu gola leidz golam. Kungam tyka žāl
+tik skaistuos meitas un tuopēc pajēmja jū par sovu sīvu.</p>
+
+
+</body></html>

@@ -1,0 +1,161 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Kad kokiem lapas nobirs.</strong></font></p><font size="5">
+
+</font><p align="CENTER"><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p align="JUSTIFY">3. A. 1153. T e i c ē j s 75. g. v e c s J. Z e l č s M a k a š ā n
+u p a g a s t ā. L a t v j u k u l t ū r a s k r.</p>
+
+<p align="JUSTIFY">Zemnieks, pa ceļu iedams, nokūst un atsēstas ceļmalā uz liela
+akmeņa apūsties. Atnāk velns un uzkliedz: "Kā tu drīksti uz mana krēsla
+sēdēt?"</p>
+
+<p align="JUSTIFY">Zemnieks atbild droši: "Ko tu kliedz? Vai tu gribi, lai es tevi
+par putekļiem saberžu?"</p>
+
+<p align="JUSTIFY">Velnam jau metas bailes un viņš nu runā mierīgā balsī: </p>
+
+<p align="JUSTIFY">"Kas tev no tā par labumu būs?"</p>
+
+<p align="JUSTIFY">"Labums būs tas, ka es varēšu mierīgi sēdēt un
+atpūsties." </p>
+
+<p align="JUSTIFY">"Kur tu tā iedams?"</p>
+
+<p align="JUSTIFY">"Biju pie drauga naudas aizjemties, bet neatradu mājā." </p>
+
+<p align="JUSTIFY">"Ja tu būsi ar mani labs, tad es varu tev naudu aizdot." </p>
+
+<p align="JUSTIFY">"Labi, dod tik šurpu!"</p>
+
+<p align="JUSTIFY">"Bet rudenī, kad kokiem nobirst lapas, tu man atkal šepat atnes
+to naudu!"</p>
+
+<p>"Labi, esmu ar mieru."</p>
+
+<p align="JUSTIFY">Velns nu atnes zemniekam lielu maisu naudas, un tas, saņēmis naudu,
+iet mierīgi uz māju. Atnāk jau rudens, bet zemnieks nemaz nedomā par savu parādu.
+Velns gaida, gaida, bet zemnieks kā nenāk, tā nenāk. Ziemā zemniekam iznāk atkal
+braukt pa to pašu ceļu uz savu draugu. Piebraucot pie lielā akmeņa, nāk viņam velns
+pretī un saka: "Laiks jau ir sen pagājis, bet tu man vēl neesi savu parādu
+aizmaksājis."</p>
+
+<p align="JUSTIFY">Zemnieks atbild: </p>
+
+<p align="JUSTIFY">"Gaidi, kad būs laiks, tad es savu parādu samaksāšu."</p>
+
+<p align="JUSTIFY">"Bet kokiem jau sen ir lapas nobirušas." </p>
+
+<p align="JUSTIFY">"Egles un priedes ir tomēr vēl zaļas."</p>
+
+<p align="JUSTIFY">Tā nu velns gaida vēl šodien, kad arī eglēm un priedēm nobirs
+skujas, lai varētu dabūt savu naudu atpakaļ.</p>
+</font>
+
+
+</body></html>

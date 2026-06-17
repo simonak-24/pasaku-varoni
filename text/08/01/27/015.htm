@@ -1,0 +1,150 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>15</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dažādi spēka vīri.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">15. A. 650 C. V. Zacharska no A.<b> </b>Beļaka Rozentovas pag.</p>
+
+<p align="JUSTIFY">Senejuos laikuos vīnā cīmā nūmyra sīvai veirs. Sīva palyka vīna
+un navarēja nikai puordzeivuot, cīši bēdīga beja. Vīnu reizi jei sadūmuoja:
+"Īšu uz mežu un tī dzeivuošu, baruošūs ar ūgom un sēnem."</p>
+
+<p align="JUSTIFY">Tai kai sadūmuoja, tai i padarēja. Nūguoja mežā un tur kaidu laiku
+tai dzeivuoja. Dīvs jai deva dālu, lelu styprinīku, un tys dāls auga ni pa dīnom, bet
+pa stundom. Izauga lels, styprs un šmuks veirs. Dāls sadūmuoja iztaiseit ustobiņu, kur
+vareišūt dzeivuot ar sovu muoti. Pīnesja kuoršu un syunu i sataisēja ustobiņu,
+taišņi ceļa molā, uz ļūti skaistas vītas. Pa tū ceļu pastuoveigi braukuoja
+vysaidi muižinīki un kēņini. Vīnu raizi styprinīks sadūmuoja tīm muižinīkim
+padarīt smīklu. Pajēmja lelus prīdus un egles aiz viersyuņu un saguozja uz ceļa
+škārs garums, tai kai navarēja nikai puorbraukt. Pats atsasāduos uz vīnas egles gola
+un dzīd. Veras: brauc muižinīki un kēniņš. Jis pazaslēpjas aiz kūkim un skotuos,
+kas byus. Tī pībrauca un breinuos, kas tys ira. Kod jī brauca uz pilsātu, ceļš beja
+breivs, bet tagad navar nimoz puorbraukt. Jī suoka runuot: "Ja kas byutu tū ceļu
+atsvabinuojis, mes jam labi samoksuotu."</p>
+
+<p align="JUSTIFY">Styprinīks izdzierdēja un pazajēmjās atsvabynuot ceļu. Muižinīki
+veras, ka tys styprinīks izskotuos vēl kai puika, viņi nimoz i ticēt nagrybēja, ka
+tys atsvabinuos ceļu. Bet veras, ka jis tīšom vysu izdorēja un paruodēja vēl kaidu
+jis ustobu sataisēja. Kēniņam tys puika patyka un jis jū ar muoti pajēmja da sevis.
+Paruodīja jam sovas treis meitas un soka: "Jem sev vīnu por sīvu, kuru tu tyk
+grybi."</p>
+
+<p align="JUSTIFY">Styprinīks izmeklēja pašu jaunuokū un šmukuokū un apsaprēcējuos
+ar jū. Kēniņš īdeva jam pusi sovas kēnists un tai jī dzeivuoja, koleidz citi
+kēniņi sazadusmuojuos un suoka celt vaidus.</p>
+
+<p align="JUSTIFY">Styprinīks sameklēja sev zyrgu, nūsāduos un aizbrauca kaŗuot. Bet
+sīvai dreiži dzyma dāls, vēl stypruoks kai juo tāvs. Jis tai auga, koleidz tāvs
+atbrauca nu kara. Radzādams taidu stypru dālu, tāvs sadūmuoja pazavērt, kurs nu jīm
+obējim ir stypruoks: jis voi juo dāls. Dāls pajēmja tāva zyrgu aiz astes un
+izkratēja jam kaulus nu uodys. Tū radzādams, tāvs pabrīnuojuos, ka dāls stypruoks
+kai jis. Un tai jī dzeivuoja labi un mīrīgi, vysus sovus īnaidnīkus varēja nūsyst
+un daudz montu sev dabūt.</p>
+</font>
+
+
+</body></html>

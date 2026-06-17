@@ -1,0 +1,194 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vienacīte, Divacīte, Trijacīte.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 511. Ernsts Birznieks no Fr. Šulca Dzirciemā. Jkr. III, 35
+(12). LP, VII, II, 27, 1, 1.</p>
+
+<p align="JUSTIFY">Meitiņai nomira māte, viņa palika sērdienīte. Tēvs pēc kāda
+laika apprecēja citu sievu, pārveda sērdienītei pamāti. Šai jau pamātei bija trīs
+meitas ; vienai bija viena acs, otrai divas, trešai trīs. Pamātes meitas visas bija
+ļoti slinkas, viņas nevīžoja ne salmiņu pacelt; sērdienītei viņas bija jāapkalpo
+un šī to arī darīja nekurnēdama. Bez tam vēl ne pamāte, ne viņas meitas
+neieraudzīja sērdienīti ne acu galā. Sērdienītei bez visām mājas kopšanām vēl
+bija jāgana govis.</p>
+
+<p align="JUSTIFY">Reiz pamātei ienāca prātā dot sērdienītei līdzi ganos vilnu
+vērpt. Sērdienīte paņēma vilnu, aizdzina govis ganos un sāka raudāt, kā viņa
+govis ganot lai savērpj trīs mārciņas vilnas. Viņai raudot pienāca Raibuļa un
+prasīja: kālab tā raudot? Sērdienīte izstāstīja tā un tā: "Pamāte man
+iedeva trīs mārciņas vilnas, tās man ganos jāsavērpj, Kā lai es to izdaru?"</p>
+
+<p align="JUSTIFY">"Tur es tev varu palīdzēt," raibā govs teica, "bāz
+man vilnu pa muti iekšā tad nāks pavediens pa nāsim laukā un tīsies ap ragiem. Tas
+,būs tik daudz kā redzēt ---- vilna savērpta."</p>
+
+<p align="JUSTIFY">Sērdienīte tā darīja un pēc maza joniņa visa vilna bija
+pārstrādāta dzijā. Pamāte mājās nevarēja ar savām meitām diezgan vien
+izbrīnīties, kā sērdienīte varējusi tik ātri savērpt. Otrā dienā viņa sūtīja
+pirmo meitu ar vienu aci sērdienītei līdzi ganos noskatīties, kas viņai palīdz. Pret
+brokasta laiku govis iznāca klajumā un sāka atgremot saplūkto zāli. Sērdienīte un
+mātes meita apsēdās iekost brokastu. Pēc brokasta sērdienīte sāka dziedāt šūpļa
+dziesmiņu :</p>
+
+<p align="JUSTIFY">"Miga, miga vien' actiņa, </p>
+
+<p align="JUSTIFY">Drīz aizmiga otr' actiņa!"</p>
+
+<p align="JUSTIFY">Tikko viņa to bija izdziedājusi, kad mātes meita jau krāca dziļā
+miegā. Sērdienīte žigli, žigli paķēra vilnu un prom pie Raibuļas.. Viens, divi,
+trīs - vilna bija apēsta, savērpta un dzija notīta: Kad slinkā mātes meita pamodās,
+tad jau vajadzēja dzīt lopus pusdienā. Mājas māte prasīja savai meitai, kas
+sērdienītei palīdzējis vilnu savērpt, bet šī nezināja nekā pateikt.</p>
+
+<p align="JUSTIFY">Otrā dienā gāja otra mātes meita ar divām acim sērdienītei
+līdzi ganos. Bet ar to arī bija tāpat. Tikko sērdienīte uzdziedāja savu šūpļa
+dziesmiņu:</p>
+
+<p align="JUSTIFY">,,Miga, miga vien' actiņa,</p>
+
+<p align="JUSTIFY">Drīz aizmiga otr' actiņa!"</p>
+
+<p align="JUSTIFY">Kad jau miega pūzne, mātes meita, krāca, ka rībēja vien. Arī šī
+neredzēja, kā sērdienīte savērpa vilnu. Trešā dienā bija trešai mātea meitai ar
+trim acim jāpavada sērdienīte ganos. Kad govis atkal apstājās brokasta laikā un
+ganītājas pašas bija iekodušas brokastu, sērdienīte sāka dziedāt :</p>
+
+<p align="JUSTIFY">"Miga, miga vien' actiņa, </p>
+
+<p align="JUSTIFY">Drīz aizmiga otr' actiņa!"</p>
+
+<p align="JUSTIFY">Mātes meitai aizvērās pierē abas acis, bet pakausī trešā acs
+palika vaļā. Sērdienīte par nelaimi nezināja, ka mātes meitai vēl trešā acs.
+Sērdienīte tūlin steidzās atkal pie Raibuļas un vilna drīzi jo drīzi bija
+savērpta, Tagad mātes meita zināja mājās pateikt, kā sērdienīte tik ātri varēja
+vilnu savērpt. Pamāte tūlin lika Raibuļu nokaut. Sērdienīte gan raudāja, gan
+raudāja, bet Raibuļu tikpat nokāva.</p>
+
+<p align="JUSTIFY">Sērdienīte paņēma Raibuļas sirdi un paglabāja pie vārtiem zemē.
+Tur nu izauga ļoti skaista zelta ābele lieliem spožiem zelta āboliem. Bet zelta
+ābolus cits neviens nevarēja dabūt kā sērdienīte. Kad cits kāds gāja ābolus raut,
+zelta ābele cēlās gaisos un neļāvās; bet kad sērdienīte gāja, tad viņa vēl
+liecās pretī.</p>
+
+<p align="JUSTIFY">Reiz jāja bagāts princis caur sērdienītes tēva mājām. Viņš
+ieraudzīja zelta ābeli un gribēja vienu ābolu; bet tikko viņš pēc ābola sniedzās,
+ābele cēlās gaisos. Princis izsauca visus mājeniekus ārā un solījās to precēt,
+kas viņam pasniegs vienu ābolu. Visas trīs mātes meitas gribēja skaisto princi kā
+ēst, tādēļ visas trīs pēc kārtas vien devās pēc āboliem, bet ābele cēlās
+gaisos. Nokaunējušāmies tām vajadzēja atkāpties. Nu gāja sērdienīte. Zelta ābele
+pati noliecās pretī, lai sērdinīte rauj ābolus, cik patīk. Princis aizveda
+sērdienīti sev līdzi un to apprecēja.</p>
+
+<p align="JUSTIFY">Piezīme. Citi atstāstītāji saka, ka sērdienītei raudot pienācis
+vecs vīriņš un pamācījis, lai bāž vilnu raibaļai mutē. E. Birznieks.</p>
+
+
+</body></html>

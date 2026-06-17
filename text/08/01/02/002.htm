@@ -1,0 +1,537 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5"><strong>Brīnuma lampa.</strong></font></p><font size="5">
+</font><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">2. A. 561. No Marijas Romaņenk, dz. 1794. g.,
+Ludzas apriņķa Stiglovas draudzē. W. Weryho, Podania, Lotewskie, 1892. g.</font></p><font size="3">
+
+<p align="JUSTIFY">Dzīvoja kurpnieks: ar sievu, kuŗiem bija dēls vārdā Ļada. Viņš
+bija diezgan skaists puisēns un tam pat jau bija desmit gadu, bet viņš vēl nekā
+nedarīja.</p>
+
+<p align="JUSTIFY">Kādu reiz tēvs viņam teica: "Pamēģini salāpīt mātei
+kurpes, jo es jau esmu ļoti vecs, drīzi miršu, un kas tad notiks ar tevi un māti, ka
+tu neko nepratīsi strādāt? Kā tad jūs dzīvosit?"</p>
+
+<p>"Gan Dievs dos," atbild dēls.</p>
+
+<p align="JUSTIFY">"Iemācies kurpnieka darbu! Dievs tam nekā nedod, kas
+nestrādā."</p>
+
+<p align="JUSTIFY">Ļada tomēr tēvam neklausīja. Kad tēvs nomira, tad māte raudādama
+pārmeta: "Ai dēliņ, tu neko neesi iemācījies! Kā tad mani uzturēsi?"</p>
+
+<p align="JUSTIFY">"Gan Dievs dos," Ļada parasti atbildēja un aizskrēja
+rotaļāties ar saviem biedriem.</p>
+
+<p align="JUSTIFY">Te ierodas burvis un jautā ļaudim : "Kam tas puisēns, kas
+vienā krekliņā rotaļājas kalniņā?"</p>
+
+<p align="JUSTIFY">Ļaudis viņam atbild. ka šis puisēns esot nomirušā kurp nieka
+dēls, un ka viņš neko neprotot, bet tikai dauzoties apkārt. "A, tas nu mana
+brāļa dēls," teica burvis. "Es savā laikā, saskaitos ar brāli, aizceļoju
+uz Ameriku un tagad tur man ir pieci veikali. Pašlaik atbraucu uz dzimteni, lai
+samierinātos ar brāli."</p>
+
+<p>"Ļada, mans brālēn, nāc šurp pie manis!" teica burvis. Puisēns piegāja
+pie viņa. Ļaudis, kas tur bija klāt, pamācīja puisēnu, lai viņš noskūpstot tēva
+brālim ,roku. Burvis iedod puisēnam divi rubļi, lai par tiem viņa māte nopirkot
+ēdienu un pataisot viņam pusdienu.</p>
+
+<p align="JUSTIFY">"Manam tēvam brāļu nemaz nebija," teica Lada.</p>
+
+<p align="JUSTIFY">"Ej, ej, muļķīt, aiznes tik mātei naudu!"</p>
+
+<p align="JUSTIFY">Ļada nodevis mātei naudu, izstāstīja visu to; ko bija no burvja
+dzirdējis.</p>
+
+<p align="JUSTIFY">Māte aizgāja uz tirgu, nopirka par iedoto naudu ēdienus, un
+pārnākusi mājā, pataisīja pusdienu. Viņai tikai divdesmit kapeiku bija palicis
+pāri.</p>
+
+<p align="JUSTIFY">Pusdiena jau bija gatava un iesākās pat jau sestā stunda, bet tēva
+brāli nevarēja sagaidīt. Māte dusmojās par savu dēlu, it kā viņš būtu tikai
+samelojis. Uz vakaram pēc pulksten sešiem burvis arī ieradās.</p>
+
+<p align="JUSTIFY">Sasveicinājies viņš tūliņ teica: "Ak, mans mīļais brālīt,
+mēs bijām saskaitušies, es nu atbraucu un gribēju lūgt no tevis piedošanu., bet tu
+jau esi nomiris! Parādi man, vedekliņ, vietu, kur viņš pie galda sēdēja."</p>
+
+<p align="JUSTIFY">Brāļa sieva to arī parādīja. Nosēdies pie galda, burvis sāka
+raudāt. Kurpnieka sieva, ļoti priecādamās par tādu viesu, tamēr brīnījās, ka
+viņas vīrs nekad un nekā .par brāli neesot runājis.</p>
+
+<p align="JUSTIFY">Pēc noturētās pusdienas, burvis lūdz, lai māte atjautu, adam kopā
+ar viņu aiziet uz tirgu. Tā nu viņi aizgāja. Burvis tirgū puisēnam nopirka
+zābaciņus un glītu apģērbu, tagad puisēns jaunajā apģērbā bija līdzīgs
+kundzēnam. Kad tie pārnāca mājās, māte dēlu nepazina un jautāja: "Kas tas par
+kungu atnācis ar savu dēlu?"</p>
+
+<p>Burvis palika kurpnieka istabā par nakti.</p>
+
+<p align="JUSTIFY">Rītā viņš teica: "Atļauj man, vedekliņ, tavu dēlu līdza
+paņemt, es iemācīšu viņu tingoties. Viņam pie manis nebūs garš laiks, jo man ir
+augļu dārzi ar dažādiem augļiem."</p>
+
+<p>Māte tomēr negrib no sava dēla šķirties.</p>
+
+<p align="JUSTIFY">"Es dodu tev trīssimti rubļu, bet kad atgriezīšos mājā, tad
+atsūtīšu vēl vairāk."</p>
+
+<p align="JUSTIFY">Māte nu arī ar mieru un tikai lūdz, lai rakstot bieži vēstules.
+Tikko viņi bija tikuši no sādžas laukā, kā uzreiz tie atradās lielā augļu
+dārzā. Šinī dārzā bija mazs kalniņš un uz kalniņa atradās vecs, liels akmens.
+Burvis teica puisēnam: "Novel to akmeni."</p>
+
+<p align="JUSTIFY">"Es to nemaz nevaru kustināt." </p>
+
+<p align="JUSTIFY">"Es tev pavēlu novelt," bargi iesaucās burvis un iesita
+puisēnam ar plaukstu par pleciem. Ļada gan mocījās, bet tomēr nespēja akmens
+pakustināt. Burvis ar vienu roku apgāza akmeni un pavēlēja puisēnam; nokāpt pa tām
+trepēm zemē, kas atradās apakš akmeņa, un sacīja "Tur pirmajā istabā
+ieraudzīsi lielu suni uz skrīnes guļam. Šis suns būs melns ar lielām acim kā
+bļodām, no viņa nebaidies, paņem bik trīs maisiņus līdza, nocel suni no skrīnes un
+noliec uz grīdsegas; atver skrīni, kur tu atradīsi dārgakmeņus, piepildi ar tiem
+savus maisiņus, aiztaisi atkal skrīni cieti, apsedz to ar grīdsegu un uzliec atkal uz
+tā suni!"</p>
+
+<p align="JUSTIFY">"Tālāk ieej otrā istabā, kur atrodas vēl lielāks suns un ar
+vēl lielākām acim; nebīsties no viņa, bet uzklājis uz grīdas grīdsegu, nosēdini
+uz tās suni, atver skrīni, kur atradīsi vēl krāšņākus un dārgākus akmeņus,
+piepildi ar tiem otru maisiņu, aizslēdz skrīni, uzliec uz tās grīdsegu un uzcel uz
+tā atkal lielo suni! Pēc tam ej trešā istabā. Tur uz škrīnes atradīsi vēl
+lielāku suni, kam acis būs tik lielas, kā šķīvji. Viņš paskatīsies uz tevis, bet
+tu nebīsties no viņa. Noliec atkal grīdsegu uz grīdas, nocel suni, atver skrīni, kur
+atradīsi vēl dārgākus un skaistākus dārgakmeņus. Ar tiem tu piepildi trešo
+maisiņu, aizslēdz skrīni, apsedz to ar deķi un uzliec atkal suni virsū! Tad paslēp
+maisiņus padusē, ieej ceturtā istabā, kur uz loga atradīsi vecu lakatu, un tanī
+ietītu vecu lukturīti. To tu paņem līdza, tālāk vairs neej, bet nāc tūliņ šurp
+pie manis!"</p>
+
+<p align="JUSTIFY">Puisēns arī visu izpildīja, kas bija pavēlēts, un kāpa jau pa
+trepēm augšā, bet te burvis viņam uzsauca: "Atdod man tos trīs maisiņus un
+lukturīti!"</p>
+
+<p align="JUSTIFY">"Tās lietas man pašam arī noderēs," atbildēja puisēns.
+Burvis, ļoti sadusmojies, uzvēla izejai atkal lielo akmeni virsū un sacīja: "Tad
+ej turpat bojā!"</p>
+
+<p align="JUSTIFY">Puisēns, sēdēdams uz trepēm, iesāka raudāt: "Tagad suņi
+mani saplēsīs."</p>
+
+<p align="JUSTIFY">Viņš gribēja ar lakatiņu noslaucīt asaras, bet te uzreiz no
+lukturīša izlēca mazs vīriņš un teica: "Es izpildu tā pavēles; kam pieder
+šis lukturītis."</p>
+
+<p>Puisēns iesaucās: "Mīļais, brālīt, aiznes mani pie mātes!"</p>
+
+<p align="JUSTIFY">Vīriņš novilka no sava pirksta gredzentiņu un sacīja:
+"Paberzē tikai šo gredzenu un uzreiz kaut kas radīsies, kas tevi nonesīs tur, kur
+vēlies, bet tikai nestāsti par to nevienam!"</p>
+
+<p align="JUSTIFY">Puisēns paberzēja gredzentiņu un tika tūliņ iznests no alas ārā.
+Izrādījās ka šis kalniņš atradās turpat pie paša mājiņas. Kad Ļada atkal ienāk
+istabā, māte viņam jautā: "Kur tu biji?" "Pie tēva brāļa."</p>
+
+<p>"Kāpēc tik ātri nāc mājā?"</p>
+
+<p align="JUSTIFY">"Man nepatikās pie viņa ilgāk sērst un tādēļ atnācu
+atpakaļ uz māju."</p>
+
+<p align="JUSTIFY">Atraisījis vienu maisiņu, teica: "Aiznes, māmiņ, un pārdod;
+šos akmentiņus!"</p>
+
+<p align="JUSTIFY">"Cik lai par tiem prasu?" Ņem, cik tev dod."</p>
+
+<p>"Es baidos vai tu neesi par burvi palicis. Kad tik tu būtu godīgs
+cilvēks!"</p>
+
+<p>"Izņemot Dievu, nekā cita nezinu." "Bet kur tu ņēmi šos
+akmentiņus?" Man Dievs tos iedeva."</p>
+
+<p>"Māte aiznesa dārgakmeņus uz tirgu. Par vienu akmentiņu kungi dodot tūkstoš
+rubļu, esot atraduši, ka tie esot ļoti dārgi.</p>
+
+<p align="JUSTIFY">Pa to laiku Ļada paberza ar pirkstiem lukturīti, no kuŗa tūliņ
+izskrēja mazs vīriņš un jautāja: "Ko vēlies?"</p>
+
+<p align="JUSTIFY">"Es vēlos, lai man rastos divstāvu māja ar balkonu un parādes
+trepēm.</p>
+
+<p>Acumirklī viņa priekšā stāvēja tāda māja, kādu bija vēlējies. Māte,
+pārdevusi dārgakmeņus, pārnāk mājā, bet te, savas mazās istabiņas vietā,
+-ierauga karaļa pili, pa kuŗu staigā viņas dēls. "Kam šī māja pieder?"
+jautā māte.</p>
+
+<p>"Man," dēls atbild. </p>
+
+<p>"Kā tas viss noticis?" </p>
+
+<p align="JUSTIFY">"Man Dievs to deva." </p>
+
+<p align="JUSTIFY">"Ai, ai, dēliņ, vai tēva brālis nav tevi padarījis par
+burvi?" </p>
+
+<p align="JUSTIFY">"Izņemot Dievu, nekā cita nezinu."</p>
+
+<p align="JUSTIFY">Ļadam tika zināms, ka karaļa meita gribot ceļot pa pasauli, jo
+piecpadsmit gadu no vietas tēvs viņu bija noturējis aizslēgtu tumšā istabā; beigās
+karaļa meita teikusi tēvam: "Ja tu man neļausi apskatīt pasauli, tad es pati sev
+galu padarīšu."</p>
+
+<p align="JUSTIFY">Karalis nu pavēlēja notīrīt ceļu, un arī Ļada notīrīja ceļu
+sava nama priekšā. Tad karalis ar savu meitu izbrauca ceļot. Ļada atkal paberza
+,lukturīti, un tūliņ ieradās mazais vīriņš.</p>
+
+<p align="JUSTIFY">Ļada tam teica: "Es vēlos, lai man rastos tāds zirgs, kuŗam
+viena spalva būtu sudraba, otra zelta, tad lai viņam būtu iemauti un zelta segli,
+izgreznoti ar dārgakmeņiem. Un ka atpūšoties</p>
+
+<p align="JUSTIFY">zirgam no purna knistu pērles. Gribu runāt visās valodās, lai
+varētu sarunāties .ar karali un viņa meitu."</p>
+
+<p align="JUSTIFY">Karalis brauc gaŗām un viņam tuvojas Ļada. Karalis ar meitu
+ieraudzījuši jājēju, sveicina to, un sniedz viņam roku. Ļada nobučoja karaļa
+meitai roku.</p>
+
+<p align="JUSTIFY">Viņš karaļa meitai bija ļoti iepaticies un viņa sevī
+pārdomājusi, kaut jel viņai izdotos iegūt tādu mīļāko.</p>
+
+<p align="JUSTIFY">"Tēt," viņa teica karalim, "tu negribēji man pasauli
+rādīt, lai gan še ceļo šādi karaļdēli."</p>
+
+<p align="JUSTIFY">"Šo karaļdēlu es redzu pirmo reizi," atbild karalis,
+"droša vien viņš ir kāds svešinieks."</p>
+
+<p align="JUSTIFY">Karalis uzaicināja Ļadu uz pusdienas maltīti. Ļada no pusdienas
+atsakās, aizbildinādamies ar to, ka viņš jau esot citur ielūgts. Tad karalis viņam
+teica: "Ja negribi pie manis nākt uz pusdienu, tad atnāc uz vakariņām, pie mums
+būs mūzika un dancošana."</p>
+
+<p align="JUSTIFY">Ļada pārnāca mājā, atkal paberza lukturīti, pēc kam ieradās
+mazais vīriņš.</p>
+
+<p align="JUSTIFY">"Izdari tā, ka karaļmeita mani iemīlētu un tikai ar manim
+dejotu."</p>
+
+<p align="JUSTIFY">Uz balli bija ieradies viens karaļdēls no svešām zemēm, bet
+karaļmeita dejoja tikai ar Ļadu, kaut gan karalis viņai 'bija teicis, dejot kā ar
+vienu, tā ar otru.</p>
+
+<p>"Nē, es vēlos dejot tikai ar Ļadu."</p>
+
+<p align="JUSTIFY">Kad Ļada gribēja aizceļot projām, karalis tam jautāja: "Kas
+tu gan esi?"</p>
+
+<p align="JUSTIFY">"To izzināsi rītā," atbildēja Ļada.</p>
+
+<p align="JUSTIFY">Karalis viņu uzaicināja atbraukt atkal rītā. Ļada, mājā
+pārnācis, sūta savu māti pie karaļa bildināt viņa meitu. Viņš man atkal
+paberzēja lukturīti, un tūliņ ieradās mazais vīriņš.</p>
+
+<p align="JUSTIFY">"Izdari tā, lai mana māte būtu skaisti ģērbusies un lai viņa
+prastu ar karali sarunāties un uzliec uz zelta šķīvīša dārgus akmeņus!"</p>
+
+<p align="JUSTIFY">Māte iemākusi karaļa pili. nostājas pie durvim. Visi galma ļaudis
+brīnīdamies jautā, kas pār lielumāti stāvot pie durvim. Karalis, sūta ģenerāli
+apjautāties, ko viņa vēloties.</p>
+
+<p>"Man ir darīšana pie karaļa " atbild lielmāte.</p>
+
+<p align="JUSTIFY">Ģenerālis aizveda viņu pie karaļa; viņa nu nodeva karalim dēla
+sūtītās dāvanas.</p>
+
+<p align="JUSTIFY">"Ko tad es viņam varētu dāvināt?"</p>
+
+<p align="JUSTIFY">"Atdod viņam savu meitu!"</p>
+
+<p align="JUSTIFY">"Bet kādas cilts Jūs esat, karaļu jeb firstu?" jautāja
+karalis. "Neesmu nedz karaļu, nedz firstu cilts, bet esmu kurpnieka sieva un Ļada
+ir mans dēls."</p>
+
+<p>"Ha, ha, ha, gribat, lai atdodu savu meitu kurpnieka dēlam!"</p>
+
+<p align="JUSTIFY">Otrā rītā Ļadas māte atkal ieradās pie karaļa un atnesa vēl
+vairāk dārgu akmeņu. Karalis viņu nepazīst, paņēmis dāvanas, jautā, kā viņš
+varētu par to visu pateikties.</p>
+
+<p align="JUSTIFY">"Man nekas nav vajadzīgs, tikai atdodiet manam dēlam savu
+meitu."</p>
+
+<p align="JUSTIFY">"Bet kādas cilts jūs esat?" </p>
+
+<p align="JUSTIFY">"Esmu kurpnieka sieva."</p>
+
+<p align="JUSTIFY">Karalis skaļi pasmejas, bet meitai par to nekā neteicis, gaida
+ierodoties skaisto karaļdēlu.</p>
+
+<p align="JUSTIFY">Ļada sūta māti trešo reizi un iedod vēl krāšņākus
+dārgakmeņus karalim par dāvanu. Ļadas māte, ienākusi pilī, nostājas istabas
+durvīs, kuŗā pašulaik dejo. Neviens neuzdrošinājās viņai tuvoties, jo tā
+izskatās kā lielmāte no augstas cilts. Karalis aicina viņu pie sevis un viņa atdod
+karalim dāvanas. Karalis par tām ļoti priecājas, jo tās bija vērtīgākas par viņa
+valsti.</p>
+
+<p>"Ko par tām vēlētos?" jautā karalis.</p>
+
+<p align="JUSTIFY">"Atdodiet savu meitu manam dēlam par sievu!" </p>
+
+<p>"Kādas cilts tad jūs esat?"</p>
+
+<p align="JUSTIFY">"Esmu kurpnieka sieva un ,.ada ir mans dēls." "Tad lai
+viņš atnāk rītā pie mums!"</p>
+
+<p align="JUSTIFY">Māte, pārnākusi mājā, pastāstīja dēlam, ,ka rītā karalis
+viņu esot uzaicinājis pie sevis. Rītā Ļada paberzē lukturīti, un atkal ierodas
+mazais vīriņš. Ļada viņam pavēlēja, lai kas sataisītu viņam zirgu, un viņu pašu
+padarītu par tik skaistu, ka kara]meita negribētu no viņa ne šķirties.</p>
+
+<p align="JUSTIFY">Ļada ierodas karaļa pilī, ģenerālis viņam palīdz nokāpt no
+zirga, pavada viņu zem rokas pie karaļa. Karalis jautā, ko viņš vēlētos.</p>
+
+<p align="JUSTIFY">"Esmu ieradies kara[meitu bildināt." </p>
+
+<p align="JUSTIFY">"Bet kādas cilts esi?"</p>
+
+<p>"Mana māte tev jau būs stāstījusi, ka esmu kurpnieka dēls." </p>
+
+<p>"A!, atceros, labi, atnāc pēc trim dienām, tad dabūsi galīgu atbildi."</p>
+
+<p align="JUSTIFY">Ļada aizgāja, bet pa to laiku karalis, pret meitas gribu, izdeva
+viņu pie svešās zemes karaļdēla.</p>
+
+<p align="JUSTIFY">Pēc trim dienām Ļada, paberzējis lukturīti, jautā: "Vai
+karaļmeita būs man par sievu?"</p>
+
+<p>"Viņa jau izprecēta svešas zemes karaļdēlam."</p>
+
+<p align="JUSTIFY">"Ja tas ir tā noticis, tad atnes man karaļmeitu šurp, bet
+karaļdēlu ieslēdz istabā!"</p>
+
+<p align="JUSTIFY">Mazais vīriņš šo pavēli izpildīja; karaļmeita pavadīja nakti
+pie Ļadas uz salmiem. Rītā agri Ļada, paberzē lukturīti un Pavēl, lai karaļmeita
+tiktu aiznesta uz pili - un ielikta viņas gultā, bet karaļdēls atkal izlaists no
+istabiņas.</p>
+
+<p align="JUSTIFY">Karaļa pilī sanākušie viesi dzeŗ kāzas, bet jaunais pāris nekur
+nav redzaims. Karaliis aiziet pie viņiem un atrod abus raudam. Karalis jautā, kādēļ
+viņi raudot, bet viņi klusē. Tas pats notiek vēl pēc divām naktim. Ceturtā dienā
+karalis iet pie karaļmeitas un atkal atrod to gultā raudam. Karalis prasa, lai sakot,
+kas par iemeslu, piedraudēdams nocirst galvu, ja tā negribētu stāstīt. Meita
+izstāsta, ka viņa trīs naktis no vietas esot atradusies svešā vietā un pati nezinot
+pie kā; un viņas vīrs droši vien esot aizmucis projām.</p>
+
+<p align="JUSTIFY">Karalis pavēlēja uzaicināt Ļadu. Šis tūlin paberza savu
+lukturīti, pēc kam ieradās mazais vīriņš, kuŗam Ļada deva šādu pavēli. "Pagādā
+man zirgu, jo es iešu pie karaļa; gribu 'būt tik skaists, ka kara]meita ar marti
+salaulātos."</p>
+
+<p align="JUSTIFY">Ļada ierodas pie karaļa, kas viņam uzprasa: "Vai tikai tevis
+dēļ šis viss nav noticis?"</p>
+
+<p align="JUSTIFY">"Jā gan, manis dēļ! Kāpēc tad solījies man atdot savu meitu
+par sievu un pievīli?"</p>
+
+<p align="JUSTIFY">"Klausies, mīļais Ļada, ja tu triju dienu laikā uzbūvēsi
+otru ,tādu pili, kā mana, un ka lielajā pils istabā, tāpat kā pie manis, astotais
+logs būs nepabeigts, tad atdošu tev savu meitu."</p>
+
+<p align="JUSTIFY">"Čirk, čirk!" pie lukturīša un pils ir gatava, līdzīga
+karaļa pilij. Jaunā pils atrodas iepretim karaļa pilij. Karalis uzaicina Ļadu, kas
+atbrauc pie viņa zelta karītē. Nosvinēja kāzas. Trīs dienas papriecājušies,
+ceturtā ..ada kopā ar karali un divpadsmit ģenerāļiem izbrauc medībās. Kamēr Ļada
+ir prom, tikmēr pie pils logiem ierodas burvis un mēģina pierunāt karaļmeitu, lai tā
+no viņa nopirktu jaunu lukturīti, jeb pārmainītu veco ar jaunu. Kara]meita teica
+Ļadas mātei: "Manam vīram ir vecs lukturītis, ,pārmainīsim to ar jaunu!"</p>
+
+<p align="JUSTIFY">Ataicinājusi burvi, karaļmeita izvēlējās vislabāko no jauniem
+lukturīšiem, bet veco atdeva viņam.</p>
+
+<p>"Ko lai tev piemaksāju?"</p>
+
+<p align="JUSTIFY">"Nekā nevajaga, es paņemšu tikai veco lukturīti, varbūt man
+izdosies to izlabot."</p>
+
+<p align="JUSTIFY">Tuvojas vakars. Burvis "čirk, čirk!" pie lukturīša:
+viņam priekšā nostājas mazais vīriņš un saka: "Visu izdaru tam, kā rokās
+atrodas šis lukturītis."</p>
+
+<p align="JUSTIFY">Burvis pavēl vīriņam paņemt šo pili ar visu, kas viņā ir, un
+aiznest uz Amerikas valsti.</p>
+
+<p align="JUSTIFY">Ļada, pārnācis no medībām, vairs neatrod ne pils, ne mātes, ne
+sievas, un domā: "Droši vien sieva ir atdevusi kādam lukturīti."</p>
+
+<p align="JUSTIFY">Karalis sadusmojies saka uz Ļadu: "Klausies, Ļada, ja tu par
+trim nedēļām nedabūsi atpakaļ manas meitas, tad sapūsi cietumā." .</p>
+
+<p align="JUSTIFY">Ļada, cietumā sēdot, atcerējās, ka viņam uz pirksta ir mazā
+vīriņa gredzentiņš. Slaukot asaras ar roku, no gredzentiņa izskrien mazs vīriņš un
+saka: "Visu izdaru tam, kam pieder šis gredzentiņš."</p>
+
+<p align="JUSTIFY">Ļada pavēl: "Aiznes mani uz Amerikas valsti, pie manas sievas un
+mātes!`</p>
+
+<p align="JUSTIFY">Ļada ieradās savā pilī, sieva un māte nāk viņam priecīgi
+sveicinādamas pretī.</p>
+
+<p align="JUSTIFY">"Ko tad' jūs izdarījāt? Atdevāt manu lukturīti un ar to
+iedzināt mani un sevi postā."</p>
+
+<p align="JUSTIFY">Sieva viņam pastāsta, ka arī tagad burvis staigājot zem pils logiem
+un 'lūkojot viņu pārrunāt iziet pie viņa par sievu. Ļada viņai ieteic pataisīt
+pusdienas maltīti un ataicināt pie sevis burvi: "Noskūpsti viņu, sēsties viņam
+klēpī un saki: "Ļadas vairs nav, tagad vari mani apprecēt!"</p>
+
+<p align="JUSTIFY">Pa to laiku Ļada paslēpās zem gultas. Burvja staigā ap pils logiem,
+Ļadas sieva .aicina viņu pusdienā. Burvis priecādamies ienāk, Ļadas sieva iet viņam
+pretī, apkampj, noskūpsta, nosēdina pie galda un saka: "Esmu paradusi vīnu dzert,
+vai tu nevarētu man kaut kur vīnu dabūt?"</p>
+
+<p align="JUSTIFY">"Mam ir gan viena muca laba vīna, kas jau priekš simtu gadiem
+atrodas vīna pagrabā; iešu pēc tā."</p>
+
+<p align="JUSTIFY">Burvis aizskrēja pēc vīna, bet Ļada iznācis pavēl sievai savā
+glāzītē iebērt nāvīgas zāles, priekš dzeršanas saskandināt ar glāzītēm un
+vēlāk tās pārmainīt. Burvis jau bija klāt, un Ļadas sieva arī bija izdarījusi
+visu, ko viņai vīrs bija pavēlējis. Burvis, izdzēris pusglāzītes, brīnījās, ka
+tas esot tik stiprs.</p>
+
+<p align="JUSTIFY">Dzer tik līdz dibenam!" lūdza kara]meita. "</p>
+
+<p align="JUSTIFY">Burvis arī izdzēra glāzi līdz dibenam un nokrita zemē. Ļada nu
+izskrēja no gultas ,apakšas, nocirta burvim galvu un atraisīja viņam no paduses
+lukturīti. "Čirk, čirk," izlec vīriņš. "Paņem šo cilvēku un iemet
+viņu purvā!"</p>
+
+<p align="JUSTIFY">Karalis pa to laiku atradās savā pilī un dusmojās uz kareivjiem, ka
+viņi ;izlaiduši Ļadu no cietuma.</p>
+
+<p align="JUSTIFY">Ļada atkal "čirk, čirk!" paberž lukturīti un pavēl:
+"Aiznes mūs ar visu pili un dārzu uz veco vietu!"</p>
+
+<p align="JUSTIFY">Karalis, rītā agri piecēlies, raud par meitas pazušanu. bet
+piegājis pie loga, ierauga Ļadas pili vecajā vietā, kur redz pa dārzu staigājam
+dažādus zvērus, dzird putnu dziesmas; redz zosis., pīles un .gulbjus dīķī peldami;
+dārzā tek upe, pār kuŗu iet liels tilts pāri, pa tiltu kungi pastaigājas. Karalis nu
+iet priecīgs Ļadam un savai meitai pretī.</p>
+
+<p align="JUSTIFY">"Tagad dzīvosim mierīgi!" teica Ļada, "jo tas, kas
+mums ir kaitējis, gul nedzīvs purvā; bet es ar šī lukturīša palīdzību izdarīšu
+visu, ,ko vien iegribēšu, pat kaŗā uzvārēšu."</p>
+
+<p align="JUSTIFY">Iesākās kaŗš, Ļada paberza gredzentiņu un lukturīti un nu
+izlēca divi braši vīriņi. Ļada viņiem pavēl iet kaŗā un kauties par karali ,un
+viņu. Tie uzvar visus ienaidniekus un karalis ar .adu no tā laika dzīvo laimīgi.</p>
+
+<p align="JUSTIFY">Piezīme. Šī ir pazīstamā Tūkstoš un vienas nakts pasaka, kur
+Ļada ir tikai Aladina vārda sagrozījums. P. Š.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,237 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>18</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Bezbailis meklē bailes.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 326. J. Pločkalns un Vīdneris, Skrundā. Brīvzemnieka kr., 58.
+LP, VII, I, 203 AS, III, 6a.</p>
+
+<p align="JUSTIFY">Vienam tēvam bijuši trīs dēli: divi gudri, bet trešais muļķis.
+Muļķis bija izmācījies kurpnieka amatā un viņš bijis ļoti slinks, bet aplam
+drošs. Viņš gan bija dzirdējis, ka cilvēkiem esot bailes, bet pats par tām nekā
+nezināja. Un tad saņēmies iet bailes meklēt.</p>
+
+<p align="JUSTIFY">Gājis, gājis - beidzot aizgājis līdz vienam ķēniņa pilsētam. Nu
+staigājis pa pilsētu un tikai izskatījies audis. Piepēži viens vaicājis : "Ko
+tu meklē?"</p>
+
+<p align="JUSTIFY">Muļķis atbild: "Bailes meklēju!"</p>
+
+<p align="JUSTIFY">"Labi, gan tu pazīsi, kas ir bailes. Nāc līdz man pie
+ķēniņa!" Aizgājis pie ķēniņa, ķēniņš aplam priecājies un aizsūtījis to
+uz vienu apgrimušu pili. Muļķis bijis mierā tur iet; tikai kaulējies, lai dodot
+miltus un gaļu līdz, ka var vārīt ķilķenus un vienu zaldātu, kas viņu apkalpotu:
+ienestu ūdeni un malku. To visu devuši muļķi un tad aizveduši uz pili, parādījuši
+to vietu, kur šis visnotaļ bailes būšot atrast. Muļķis vareni priecājies: "Nu
+taču vienreiz piedzīvošu, ko ilgam esmu meklējis!"</p>
+
+<p align="JUSTIFY">Arī viss ķēniņa pilsēts priecājies, ka gadījies tāds muļķis,
+kas uz apburto pili gājis; jo pilsētam bijusi gatavā nelaime ar velniem, kad tai pilī
+cilvēka nebijis. Un kad nu tur bija atstājuši, tad muļķis gājis namā (kukņā)
+ķiļķenus vārīt, bet zaldātu sūtījis pēc malkas. Zaldāts aizgājis un muļķis
+vāra, ka vāra ķiļķenus.</p>
+
+<p align="JUSTIFY">Te piepēži viņš redz: pa skursteni nokrīt viena roka. Muļķis
+priecīgs: "Redzi, kur būs laba ķellīte (lāpstiņa) kukņai (namam) sienmalu
+izlāpīt!"</p>
+
+<p align="JUSTIFY">Pēc tam nokritusi kāja. Muļķis atkal priecīgs: "Redzi, kur
+būs labs āmars - strādniekam bez āmara tiešām gŗūti iztikt!" Un vēl otra
+roka nokritusi - muļķis atkal teicis : "Te būs lāpstiņa manam palīgam!"</p>
+
+<p align="JUSTIFY">Arī otra kāja nokritusi - muļķis teicis: "Mūrnieka palīgam
+bez āmara arī nevedas!"</p>
+
+<p align="JUSTIFY">Bet nu nokritusi galva. Muļķis teicis: "Ūdens smeļamais kauss
+arī derīgs!"</p>
+
+<p align="JUSTIFY">Beidzot nokritis ir rumpis un nu muļķis priecājies: "Tā tad
+būs laba mulda, kur kaķus sataisīt, sienmalu mūrējot!"</p>
+
+<p align="JUSTIFY">Pēc tam izgājis laukā skatīties, kur viņa zaldāts, un
+ieraudzījis, ka zaldāts aizdurvē pie sienas sasalis. Muļķis paņēmis to, ienesis
+namā un teicis : "Un tad tu tā esi sasalis - pagaidi es tevi atsildīšu!"</p>
+
+<p align="JUSTIFY">Nolicis zaldātu pie uguns un sildījis; bet pa to starpu viņš redz:
+nokritušās kājas, rokas, galva, rumpis pieraujas viens otram klāt un atdzīvojas. Nu
+viņš izrāvis savu zobinu, nocirtis atdzīvinātam rumpim galvu un, savus ķiļķenus
+nocēlis, gājis pils lielajā istabā tos ēst. Tad ienācis cits velns ar divām
+galvām, vaicādams: "Ko te dari?"</p>
+
+<p align="JUSTIFY">Muļķis izrāvis savu zobinu, nocirtis velnam abas galvas, iemetis
+tās pagrabā un ēdis atkal savus ķiļķenus. Tad ienācis trešais velns ar trim
+galvām. Arī tam muļķis nocirtis galvas un ēdis atkal. Vēl ceturtais velns ienācis
+ar četrām galvām; muļķis tāpat padarījis. Tad ienācis piektais un vaicājis
+muļķim: "Vai māki kārtis spēlēt?"</p>
+
+<p align="JUSTIFY">"Māku gan."</p>
+
+<p align="JUSTIFY">Un nu sākuši spēlēt kārtis. Muļķis reizi no reizes vinnējis,
+bet velns naudas nemaksā un nemaksā. Muļķis izrāvis savu zobinu un nocirtis tam abas
+rokas - velns nevarējis pretim atturēties beidzot muļķis nocirtis visas galvas un
+iemetis pagrabā.</p>
+
+<p align="JUSTIFY">Tad ienācis sestais velns ar sešām galvām, vaicādams muļķim:
+"Vai māki kārtis spēlēt?"</p>
+
+<p align="JUSTIFY">"Māku gan!"</p>
+
+<p align="JUSTIFY">Sākuši spēlēt, muļķis atkal vinnējis, bet velns naudas nemaksā.
+Muļķis izrāvis zobinu, nocirtis velnam vispirms abas rokas, tad visas galvas un iemetis
+tās pagrabā. Tad ienācis septītais velns deviņām galvām un vaicājis muļķim:
+"Vai te mani seši biedri nava bijuši?"</p>
+
+<p align="JUSTIFY">"Nava neviena bijis."</p>
+
+<p align="JUSTIFY">Bet šis velns bijis tik briesmīgs, ka runājot liesmas šāvušās pa
+muti laukā un galvas bijušas daža pēc suņa, daža pēc lauvas, bet visbriesmīgāka
+bijusi tam balss. Tas sniedzis muļķim stabuli un teicis: "Ej laukā,
+pastabulē!"</p>
+
+<p align="JUSTIFY">Muļķis izgājis un stabulējis, lai nāktu velna biedri šurp. Bet
+nenācis neviens pats - visi taču gulēja pagrabā nokauti. Muļķis ienācis atpakaļ un
+teicis: "Nenāk neviens pats!"</p>
+
+<p align="JUSTIFY">Velns sacījis: "Stabulēdams paspiedi vienu federi, tad izsprāgs
+lode un būs tāds briesmīgs troksnis, ka visa pasaule notrīcēs. To viņi sadzirdēs un
+skries šurp, lai kur būdami."</p>
+
+<p align="JUSTIFY">Muļķis izgājis un izmēģinājis, vai tas ir tā; un
+pārliecinājies, ka ir gan tā, nācis atpakaļ un sacījis: "Nenāk neviens
+pats."</p>
+
+<p align="JUSTIFY">Nu velns prasījis savu stabuli atpakaļ, bet muļķis nedevis vis,
+sācis labāk stabulēt, paspiedis federi un ietriecis lodi velnam krūtīs. Vēl otrreiz
+muļķis pastabulējis un nogāzis velnu gar zemi. Tad nocirtis tam visas galvas un
+iemetis pagrabā,</p>
+
+<p align="JUSTIFY">Bet nu gadījusies jauna sieviete turpat un stāstījusi muļķim:
+"Katru nakti no pulksten 11 līdz 12 es palieku par cilvēku, bet pēc tam par zosi.
+Šī ir aplādēta pils; te seši velni ir mana tēva brāļi, bet septītais,
+deviņgalvis, ir pats tēvs. Es esmu tēvam viena vienīgā meita; pēc stundas laika
+būšu atkal zoss. Bet no pagraba, kur velnus iemeti, rāpsies ārā dažādi tārpi,
+nelāgi kukaiņi, siseņi un citi tādi radījumi. Tos visus pieraugi nokaut, neviena
+paša nepamet dzīva. Tad arī es nākšu un man būs sīksts, ļoti sīksts kakls, bet
+cīties kaklu vienā cirtienā nocirst, tad izglābsi mūs visus un šo pili lai."</p>
+
+<p align="JUSTIFY">Un nu viņa ievedusi muļķi citā istabā, kur stāvējušas dažādas
+pudeles uz loga; vienu no tām viņa paņēmusi un devusi muļķim nodzerties. Nodzēries
+- manījis, ka no tā dzēriena septiņreiz stiprāks palicis, nekā papriekšu. Pēc tam
+sieviete pazudusi un nu muļķis devies pie darba. Līduši ārā gan nelāgi kukaiņi,
+gan siseņi, bet viņš visus nomaitājis. Beidzot iznākusi zoss, viņš vienā cirtienā
+nocirtis galvu un nu piepēži tā pārvērtusies par skaistu sievieti, apķērusies šim
+gar kaklu un pateikusies, ka izglābis viņu ar visu pili. Un nu dzirdējis tādu troksni,
+itkā visa zeme trīcētu - itkā pērkoņa dumpi un tad pils izcēlusies no zemes
+apakšas. Nu atnācis ķēniņš, uzlicis muļķim kroni galvā, iecēlis to par ķēniņu
+un znotu. Un tai pašā brīdī tad apgrimusi tā ķēniņa pils, kas to pili bij
+apbūris, aplādējis. Bet šis ķēniņš ar savu znotu valdot ir šodien, ja neesot
+miruši.</p>
+
+
+</body></html>

@@ -1,0 +1,213 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>l</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Īkšķītis.</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">1. A. 700. O. Preiss no 64. g. vecas L. Preises
+Vecgulbenē.</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz dzīvojuši vīrs ar sievu, kam nebijis neviena bērna. Kādā
+diena viņi, par šo likstu žēlodamies, izsaukušies: kaut viņiem būtu dēls, kaut
+īkšķa lielumā. Pēc gada viņiem arī patiesi piedzimis dēls, bet bijis tik mazs ka
+īkšķis. Tēvs ar māti tomēr priecājušies arī par tādu dēlu.</p>
+
+<p align="JUSTIFY">Reiz, kad tēvs tīrumā ecējis, māte sūtījusi viņam ar dēlu
+launagu. Īkšķītis aiznesis tēvam launagu un teicis : "Tēt, iecel mani baltas
+ķēves ausi. Kamēr tu ēdīsi, es ecēšu."</p>
+
+<p align="JUSTIFY">Labi. Tēvs iecēlis arī. Te gadījies garām braukt kungam. Tas
+redzējis, ka saimnieks pats sēd grāvmalā un ēd, bet zirgi vieni paši ecē tīrumu.
+Kungs pieturējis zirgu un prasījis saimniekam: kas šim to lauku ecējot? Saimnieks
+atbildējis, ka dēls. Kur tas dēls esot? "Baltās ķēves ausī," atteicis
+tēvs.</p>
+
+<p align="JUSTIFY">Kungs prasījis, lai pārdodot šim savu dēlu. Saimnieks negribējis
+to ne par kādu naudu darīt, bet dēls pats uzrāpies tēvam pa kāju uz roku līdz
+plecam un čukstējis ausī, lai pārdodot vien par labu naudu, gan šis zināšot, kā
+tikšot atpakaļ.</p>
+
+<p align="JUSTIFY">Labi. Tēvs pārdevis arī dēlu par pūru zelta naudas, bet kungs
+paņēmis dēlu, iebāzis tabakas makā un aizbraucis.</p>
+
+<p align="JUSTIFY">Caur mežu braucot, Īkšķītis izlīdis no maka un izlēcis no
+karietes. Pašreiz lijis lietus, tādēļ Īkšķītis palīdis zem bekas. Drīz pie bekas
+pienākuši divi laupītāji un norunājuši, ka iešot pie tuvākā kaimiņa zagt gaļu
+no skursteņa. Pašlaik viņi gājuši projām, te Īkšķītis no bekas apakšas
+uzsaucis: "Ei, vīri, ņemiet mani arī līdz!"</p>
+
+<p align="JUSTIFY">Šie tīri nobijušies, bet ieraudzījuši, ka kliedzējs tik mazs,
+apmierinājušies un labprāt ņēmuši līdz, jo tik mazs labi varēšot ielīst
+skurstenī, un padot šiem gaļu.</p>
+
+<p align="JUSTIFY">Labi. Gājuši arī visi trīs. Īkšķītis iekāpis skurstenī, metis
+šiem zemē gaļu un saucis skaļā balsī: "Vai diezgan?"</p>
+
+<p align="JUSTIFY">Šie uzsaukuši, lai runājot klusāk, bet Īkšķītis nelicies ne
+zinis. Mezdams otru gabalu, viņš saucis vēl skaļāk: "Nu, vai būs diezgan?"</p>
+
+<p align="JUSTIFY">Saimnieks to padzirdējis, nācis ara bārdamies un suņus rīdīdams.
+Zagļi aizbēguši, bet Īkšķītis aiz bailēm iekritis skurstenī un pa skursteni
+taisni samazgu katlā iekšā.</p>
+
+<p align="JUSTIFY">No rīta meitas, govīm samazgas nesdamas, aiznesušas arī
+Īkšķīti, un Raibaļa to ar visām samazgām iedzērusi. Pusdienās, kad meita
+sēdusies Raibaļu slaukt, Īkšķītis govs vēdera saucis: "Pirms pabaro, tad i
+čirkstini!"</p>
+
+<p align="JUSTIFY">Meita nobijusies un aizskrējusi stāstīt saimniecei, ka Raibaļai
+esot velns vēdera, kas runājot. Saimniece atnākuši pati slaukt, bet ka sākuši
+slaukt, tā Īkšķītis atkal saucis: "Pabaro, tad i čirkstini!"</p>
+
+<p align="JUSTIFY">Saimniece arī nobijusies. Nekā darīt, govs jākauj nost. Nokāvuši
+govi, izskatījuši visas iekšas, bet nekā neatraduši.</p>
+
+<p align="JUSTIFY">Te gadījies mājā ienākt kādam nabagam, kas lūdzis, lai atmetot
+viņam arī kādu mazumiņu. Saimniece iedevusi nabagam plaušas ar visu sirdi. Nabags
+ielicis tos savā kulītē un gājis tencinādams projām. Necik tālu nepagājis, dzird
+kulītē runājam: "Ubadziņ, nabadziņ, kur tu mani liksi? Ja tu zemē neliksi, tad
+tev labi nebūs."</p>
+
+<p align="JUSTIFY">Ubags nobijies, noņēmis kulīti no pleca, izņēmis plaušas,
+apskatījies un domājis : "Labi plausnīši, žēl zemē mest."</p>
+
+<p align="JUSTIFY">Licis atpakaļ. Tikko nabags pāris solu pagājis, te dzird atkal no
+kulītes: "Ubadziņ, nabadziņ, kur tu mani liksi? Ja tu zemē neliksi, tad tev labi
+neies."</p>
+
+<p align="JUSTIFY">Ubags noņēmis atkal tarbiņu un apskatījis plaušas. "Labi
+plausniņi, žēl zemē mest," noteicis un licis atpakaļ.</p>
+
+<p align="JUSTIFY">Bet tikko kustējies uz priekšu, dzird to pašu balsi kulītē. Nabags
+noskaities. Metis plaušas pret akmeni un gājis tālāk.</p>
+
+<p align="JUSTIFY">Drīz gadījies vilkam iet gar šo akmeni. Tas bijis ļoti badains.
+Ieraudzījis plaušas, viņš tas tūliņ norijis gandrīz dzīvas. Līdz ar plaušām
+norijis arī Īkšķīti.</p>
+
+<p align="JUSTIFY">Otrā dienā vilks gājis pie ganiem aitu zagt. Tikko vilks tuvojies
+aitām, te Īkšķītis viņa vēdera saucis: "Gani, gani, vilks pie lopiem!"</p>
+
+<p align="JUSTIFY">Vilks trinis pakaļu pie zemes un teicis: "Klusi, pakaļa, klusi,
+es tev došu gaļu ēst."</p>
+
+<p align="JUSTIFY">Bet tikko vilks atkal tuvojies aitām, tā Īkšķītis viņa vēderā
+atkal saucis: "Gani, gani, vilks pie lopiem!"</p>
+
+<p align="JUSTIFY">Gani to padzirdējuši, skrējuši vilkam pakaļ un noķēruši. Nu
+gani aizveduši vilku uz māju un ieslodzījuši pirtī. Vilks pirti gudrojis, ka nu tikt
+laukā. Īkšķītis viņa vēderā to mācījis, lai piegriežot pakaļu pie lodziņa,
+šis izlidošot ārā un attaisīšot vilkam pirts durvis. Vilks paklausījis.
+Īkšķītis pats gan izlīdis, bet vilku atstājis iekšā.</p>
+
+<p align="JUSTIFY">Īkšķītis aizgājis uz māju pie tēva un mātes, un nu visi vēl
+šodien dzīvojot laimīgi ar kunga naudu, ja tik neesot nomiruši.</p>
+<b>
+
+</b><p><b>P </b>i e z ī m e. Arī leišu pasakas mazais Īkšķītis palien zem bekas. P. Š.</p>
+</font>
+
+
+</body></html>

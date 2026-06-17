@@ -1,0 +1,163 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Izskolotais v?rsis</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Izskolotais vērsis.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>6. </strong>A. 1675. E. A. Simsons no Juoņa Plēkšņas
+Rēzeknē. Latvju kultūras kr.</p>
+
+<p align="JUSTIFY">Dzeivuoja vīns zemnīks. Pi juo beja lels vērss, bet beja taids
+sirdīgs un ni cik naklausīja sova saiminīka. Vīnu reizi īt zemnīks, sastopa sovu
+sābri un runoj jām par sovu vērsi, ka jis taids un taids, "mani naklausa, es juo
+nikai navaru izmuocīt."</p>
+
+<p align="JUSTIFY">Sābris jam atbildēja: "Dūd man sovu vērsi, es jū izmuocīšu
+par cylvāku."</p>
+
+<p align="JUSTIFY">"Labi," pasacīja zemnīks un atdevja sovu vērsi sābram
+izmuocīt par cylvāku. Sābris pajēmja vērsi, atvedja uz sovu sātu, nūkova un gaļu
+apēdja. Tai puorīt daudz laika. Zemnīks vys gaida, kad sābris juo vērsi izmuocīs par
+cylvāku un atdūs jam. Nasagaida zemnīks un īt pi sābra valcuotu. Atīt zemnīks pi
+sābra un vaicoj: "Nu, sābris, kai ta byus ar muma vērsi, muocuos jis par cylvāku,
+vai na?"</p>
+
+<p align="JUSTIFY">Sābris jam atbildēja: "Jis jau tagad ir cylvāks un vēļ kaids
+lels - barons. Dzeivoj pilsātā cīši boguots, vysaida monta pi juo daudz ir. Jo gribi,
+nūbrauc uz jū vīsūs."</p>
+
+<p align="JUSTIFY">Prīcīgs palyka zemnīks, ka juo vērss palyka par cylvāku, un vēj
+par baronu un tai boguoti dzeivoj. Nūīt zemnīks uz sātu un stuosta sovai sīvai:
+"Vērss myusu jau izmrlocīts par lelu cylvāku, par baronu un dzeivoj pilsātā
+cīši boguots."</p>
+
+<p align="JUSTIFY">Jis dūmuoja nūbraukt uz jū vīsūs. Sadūmuoja ari zemnīks:
+"Braukšu es uz pilsātu pi sova vērša vīsūs."</p>
+
+<p align="JUSTIFY">Aizjyudzja zyrgu, sāduos rotūs un nūbrauc uz pilsātu. Pilsātā jis
+suoka vaicuot nu jaužu, kur dzeivoj vērss - barons. Pilsātā baronu vysi ļauds zynuoja
+un jam paruodīja, ka taidā un taid:ā muojā jis dzeivoj. Atīt zemnīks uz tū muoju,
+kur dzeivoj vērss - barons. Izīt kolps un runoj zemnīkam: "Uzgaidit kaidu
+pusstundis, par tū, ka barons vēļ guļ."</p>
+
+<p align="JUSTIFY">Bet zemnīks suoka lomuotīs ar kolpu, par kū jis jū nalaiž pi
+vērša, runuodams: "Kū, es navaru bez pīsateikšonas īīt pi sova vērša?"</p>
+
+<p align="JUSTIFY">Tymā laikā, kad zemnīks ar kolpu klīdzja, izdzierda barons un
+izguoja. Verās, ka nazkaids, napazeistams jam zemnīks, lomuojas ar juo kolpu un skaita
+baronu par sovu vērsi. Sasadusmuoja barons uz ituo zemnīka, satvēŗa jū aiz apakles un
+izgryudja uorā.</p>
+
+<p align="JUSTIFY">Stuov izgryusts zemnīks nu uorīnes pi barona lūga un ruoda ar
+kulaku, runuodams tai: "Vo tev, barons - vērss! Senuok tu pi manis sytīs ar rogim,
+bet tagad ar nogim . . ."</p>
+
+<p align="JUSTIFY">Tai zemnīks, nūlaidis golvu, nūguoja uz sovu zyrgu un nūbraucja uz
+sovu sātu. Dzeivoj un tagad pīmin izmuocītu vērsi<font size="4">.</font></p><font size="4">
+</font>
+
+
+</body></html>

@@ -1,0 +1,142 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Mednieks izglābj princesi.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>2. A. </b>304. K. Ansons Vētrenieku Bičulos, A. Bīlenšteina kr. LP,
+VI, 125, 13. AŠ, II, 96c.</p>
+
+<p align="JUSTIFY">Viens tēva dēls, meža malā dzīvodams, ķēra visvisādus meža
+zvērus, putnus un ieradināja pie sevis. Par dienu viņš tos dzina, lai paši iet
+barību medīt, par nakti atkal sasauca pajumtā. Tā viņš ar viņiem ilgus laikus
+sadzīvoja. Bet vienreiz bija iedomājies pasauli redzēt un nu aizgāja ar saviem
+zvēriem un putniem tālu, tālu uz ķēniņa pilsētu. Šis pilsēts notālēm viņam
+izlikās kā izmiris, jo neredzēja neviena cilvēka ārpusē kustamies. Bet kad iegāja
+iekšā, bija gan cilvēki, tikai tādi bēdīgi, dikti noskumuši. Viņš vaicāja, kas
+viņiem kaišot? Tie atbildēja: "Šā pilsēta tuvumā uzturas milzu čūska un tai
+ikkatru dienu vajaga vienu cilvēku par upuri dot." Tagad reize esot pienākusi
+pašai ķēniņa meitai, tādēļ visi bēdājoties.</p>
+
+<p align="JUSTIFY">Tēva dēls, šos vārdus dzirdēdams, palika domīgs: kā varētu to
+čūsku pārvarēt? Un visu labi pārdomājis, viņš aizgāja pie ķēķēniņa pilī,
+sacīdams : "Es varu visniknākos nezvērus uzvarēt, ir pat čūskas un pūķus un
+uzvarēšu arī šo čūsku."</p>
+
+<p align="JUSTIFY">Ķēniņš par to &amp;127;oti priecājās un apsolīja savu meitu par
+sievu atdot, arī lielu zemes gabalu vēl, ja to iespēšot.</p>
+
+<p align="JUSTIFY">Un nu tēva dēls, savus zvērus un putnus pulkā sasaucis, paslepšu
+aizgāja čūskai itin tuvu - tā gulējusi smilšu klajumā, smiltīs - un tad pavēlēja
+visiem putniem smiltis gan kašņāt, gan ar spārniem plēvināties, lai saceltos liels
+smilšu mākulis un apputinātu čūsku, ka nevar ne elpot, ne redzēt. Labi. Putni tā
+darīja un nu sacēlās tāds mākulis kā melna debess; bet zvēri tikmēr pieskrēja pa
+mākoni čūskai klāt un saplosīja to gabalos. Nu tēva dēls, par zīmi, ka tiešām
+čūsku nobeidzis, izgrieza mēli no čūskas galvas un iegāja pilsētā. Ķēniņš
+viņu saņēma augsti un atdeva savu meitu par sievu.</p>
+
+
+</body></html>

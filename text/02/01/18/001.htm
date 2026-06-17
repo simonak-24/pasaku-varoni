@@ -1,0 +1,197 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>18</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Dvēsele olā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>1. A. </b>302. .1. Bankins "Šis un tas" II, 1875, 21.</p>
+
+<p align="JUSTIFY">Reizu kādam ķēniņam bija pazudusi viņa vienīgā meita. Viens no
+viņa zaldātiem </p>
+
+<p align="JUSTIFY">apņēmās to uzmeklēt un dabūt. Tas nu devies uz lielu ezeru, kāpa
+laivā un aizbrauca</p>
+
+<p align="JUSTIFY">pāri uz salu, kas bija ezera vidū. Uz šās salas bija skaista pils,
+kur dzīvoja zudusī ķēniņa </p>
+
+<p align="JUSTIFY">meita. Zaldāts, to redzēt dabūjis, tūlin gribēja vest projām, bet
+ķēniņa meita sacīja: </p>
+
+<p align="JUSTIFY">"Mans vīrs un kungs ir pats vells, kad viņš tevi manīs, tad
+tevi nokaus."</p>
+
+<p align="JUSTIFY">Zaldāts viņai atbildēja: ,,Kuš, kuš, nesaki neko! Izprasi un
+iztaujā, kur viņa dvēsele stāv, un tad pastāsti man!" To sacījis viņš palīda
+zem gultas.</p>
+
+<p align="JUSTIFY">Vells, ienācis istabā prasīja: "Kas te par svešu smaku?"
+Sieva atbildēja: ,,Es nekā nezinu. Bet saki, mīļais vīriņ, kur tava dvēsele
+stāv?"</p>
+
+<p align="JUSTIFY">Vells viņai atteica: "Tur sētmalā ir liels bluķis, tas ir mana
+dvēsele."</p>
+
+<p align="JUSTIFY">Sieva paņēma bluķi, ievēla istabā un ielika pie vella gultas
+kaktā. Vells, </p>
+
+<p align="JUSTIFY">ienācis istabā, atkal jautāja: "Kas tas par bluķi?" Sieva
+atsacīja: "Tā tak, vīriņ,</p>
+
+<p align="JUSTIFY">ir tava dvēsele!"</p>
+
+<p align="JUSTIFY">Ko mana dvēsele?" vells dusmīgi izsaucās, ņēma bluķi un
+"</p>
+
+<p align="JUSTIFY">iesvieda krāsnī.</p>
+
+<p align="JUSTIFY">Sieva nu raudādama uz to sacīja: "Es pie tevis jau desmit gadu
+dzīvojusi, bet tu man nekad vēl neesi teicis, kur stāv tava dvēsele."</p>
+
+<p align="JUSTIFY">Vells tai atbildēja: "Tur sētmalā ir salmu kūlis, tā ir man
+dvēsele."</p>
+
+<p align="JUSTIFY">Sieva to paņēma, ienesa istabā un ielika vella gultā. Vells to
+Ieskatīdams, lasīja: "Kas tas tāds par ķēmu?"</p>
+
+<p align="JUSTIFY">Sieva atkal viņam atbildēja: "Tā jau ir tava dvēsele."
+Vells paņēma salmu kūli un iebāza krāsnī.</p>
+
+<p align="JUSTIFY">Sieva atka1, raudādama un glaudīdama, vīram mīļi lūdzās, 1ai
+sakot, kur viņa dvēsele stāvot. Vells gan negribēja to darīt, bet kad tā ar savām
+lūgšanām viņu vienmēr mocīja, tad reizu mieru gribēdams dabūt, sacīja:
+"Desmitā kalnā ir stallis apakš zemes, kur melns vērsis dzīvo iekšā, vērša
+vēderā dzīvo pīle, kuras vēderā ir ola, kam ir deguns iekšā un tas ir mana
+dvēsele. Bet nesaki nevienam, citādi es tevi apēdīšu! `</p>
+
+<p align="JUSTIFY">Zaldāts, visu noklausījies, izlīda no pagultes un steidzās atpakaļ
+pie sava ķēniņa. Tur viņš salasīja pulka cilvēku un tad gāja šā kalna meklētu.
+Kad viņi to bija atraduši, tad sāka tur rakt. Bet vellam mājā palika jau tā slimi ap
+sirdi. Racēji arvien raka dziļāki kamēr tie danāca pie staļļa. Tagad vells sacīja
+uz sievu: "Tu laikam esi izpļāpājusi, kur mana dvēsele!" Šī atteica:
+"Es nevienam pašam to neesmu stāstījusi.` -- Vells saslima un nu vairs nevarēja
+celties no gultas.</p>
+
+<p align="JUSTIFY">Nu viens racējs jau bija iegājis stallī, un spēra vēršam ar vāli
+par pieri. Vells atkal teica uz sievu: "Tu, sirsniņ, gan laikam esi
+izstāstījusi." </p>
+
+<p align="JUSTIFY">Bet šī atbildēja: "Neviens cilvēciņš par to ne zināt
+nezina. </p>
+
+<p align="JUSTIFY">Vells nu bija pie pašas miršanas, kad racējs vērsi bija uz
+šķērdis, pīli izņēmis, </p>
+
+<p align="JUSTIFY">tai vēderu pārtriezis, olu izņēmis un to pār plēsis. Pašu laiku
+vells arī nomira, </p>
+
+<p align="JUSTIFY">un tā beidzās viņa dzīvība.</p>
+
+<p align="JUSTIFY">Strādnieki nu steidzās uz vella pili, ņēma sava ķēniņa meitu un
+gāja uz mājām itin priecīgi un līksmi.</p>
+
+
+</body></html>

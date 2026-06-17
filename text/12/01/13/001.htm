@@ -1,0 +1,164 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>13</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Zoss dalīšana.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>1. </b>A. 1533 M. Jaunzeme no Vilemsona Vec - Mīlgrāvi. P. Birkerts,
+Latvju t. anekdotes, II, 220. 1858.</p>
+
+<p align="JUSTIFY">Reiz dzīvojis vecs saimnieks. Viņam māja bijusi galīgi nopuvusi,
+domājis jaunu celt, bet koku nav. Gudro, kur ņemt. Redz, tajos laikos, kad vajadzēja ko
+jaunu saimniekam būvēt, tad kokus deva kungs. Šis nu domā, kā būtu labāki. Paņem
+savu zostiņu līdz, ko pacienāt cienīgtēvu un cienīgmāti. Kungs arī pieņem šo.
+Šis izstāsta, ka šim vajagot koku, ko jaunu istabu celt, vecā galīgi sapuvusi. Tad
+tas atminas, ka šim zoss ir līdzi, dod to cienīgtēvam. Bet cienīgtēvs paskatās uz
+šo un saka: "Bet mēs taču esam pieci un kā tad ar vienu zostiņu lai
+izdalāmies?"</p>
+
+<p align="JUSTIFY">"Nekas, cienīgtēvs, ņemiet mani par dalītāju ,es zinu, kā to
+darīt."</p>
+
+<p>"Nāc un rādi, kā to darīt!"</p>
+
+<p align="JUSTIFY">Kad zoss bija noplūkta, vecais ķērās pie dalīšanas : nogriež
+galvu ar visu kaklu un dod to pašam kungam: "Jums, kā visu cienīgo kungu galvam -
+tā gudrība un visas varas būšana par to mazo lopiņu." Tad viņš nogriež vienu
+un otru spārnu, dod cienīgai ar pašas meitu, teikdams : "Tas jums ar daiļo
+meitiņu - lai jūsu dvēselītes spēj laisties pa debešu debešiem." Tad viņš
+nogriež abas kājas un dod abiem kunga dēliem: "Tas cienīgā dēliem, lai jūs
+varat būt labi čakli un veikli. Bet šis viss atlikums lai paliek man pašam par to
+dalīšanu."</p>
+
+<p align="JUSTIFY">Kungs ar savu cienīgo pabrīnās vien par tādu dalījumu, un no
+priekiem tam dod kokus, cik tik vajadzīgs. Šis arī vairs nav muļķis un uzcēlis sev
+māju kā kunga pili - lielu; pāris skursteņu, lieliem logiem un platām durvim. Citi
+kaimiņi to redz un prasa, kur šis tādu varējis uzcelt, ka nav bijis ne plika graša
+pie dvēseles. Šie redz, ka tas viss dabūts par vienu zosi. Vienam večukam ienāk
+prātā: "Pag, man ir sešas zosis, ja es aiznesīšu tās, tad kungs man arī dos
+kokus."</p>
+
+<p align="JUSTIFY">Viņš aiznes visas zosis kungam un lūdz to, lai dodot šim kokus, ko
+jaunu kūti uzcelt.</p>
+
+<p align="JUSTIFY">"Labi, labi, bet, mīļo saimniek, kā lai nu varam? Tev sešas
+zosis un mēs esam pieci."</p>
+
+<p align="JUSTIFY">Saimnieks, nabags, nezin, ko darīt. Kungs atminas, ka nesen pie viņa
+bijis saimnieks, kas tik savādi bija dalījis zosi un tik labi visiem iznācis. Lai
+pasaucot bo šurp. Šis arī atnāk un tam uzdod izdalīt sešas zosis šiem pieciem
+līdzīgās daļās. Šis padomā un, ilgi neprātodams, saka: "Nu, kad tā, tad tā.
+Šo darām šā! Ņemsim pa trim. Jūs, kungs, ar cienīgmāti un viena zostiņa ir trīs,
+Jūs abi dēli un atkal viena zostiņa - trīs, bet šī zostiņa un abas jaunkundzītes
+atkal trīs. Tikai nu vēl šīs divas zosis! Darīsim tā! Es un viņas abas atkal trīs.
+Tā nu ir visiem līdzīgi izdalīts."</p>
+
+<p align="JUSTIFY">Visi acis vien izplēta. Par tādu joku kungs nedevis vis lūdzējam
+kokus, bet gan šim par labo dalīšanu. Tā šis uzcēla sev jaunu kūti, bet otrs palika
+tukšā. Tā viņam laimējās un no nabaga saimnieka viņš kļuva par bagātu lielmani.</p>
+
+
+</body></html>

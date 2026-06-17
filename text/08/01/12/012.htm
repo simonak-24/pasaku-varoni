@@ -1,0 +1,179 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>12</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Ar brīnuma lietām iegūtā ķēniņa meita.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">12. A. 569a. V. Zacharska no H. Ančupānes,
+Makašānu pag. Latvju kultūras kr.</font></p><font size="3">
+
+<p align="JUSTIFY">Senejūs laikūs braucja treis zemnīki uz pilsātu un vedja kotrs pa
+vazumam lynu puardūšonai. Braukdami jī sadūmuoja ceļā apstuot, pabaruot zyrgus un
+atsapyust. Apstuoja jī pi vīna azara, padevja zyrgim auzas, paši uzkūdja maizi ar
+sātā vuorītū gaļu. Pec ituo lykuos pi rotim atsapyust, pagulēt. Vīns nu zemnīkim,
+kai lykuos, cīši aizmyga un nadzierdēja, kai divi zemnīki jū pametja un, pajēmuši
+juo zyrgu ar vysu preci, nūbraucja uz pilsātu.</p>
+
+<p align="JUSTIFY">Pazamūda zemnīks un redz, ka jis guļ azara molā, vīns pats; nav
+juo draugu, nav ari zyrga. Pīsacēļa zemnīks nu zemes, stuov uz vītas un dūmoj pats
+sevī, kū tagad darīt: nav ni zyrga, ni preces. Īt zemnīks, nūlaidis golvu, pa azara
+molu, runuodams pats sevī: "Vartbyut mani Dīvs par grākim nūstruopēja!"</p>
+
+<p align="JUSTIFY">Te redz zemnīks, ka pretī jam īt vacs vecelīts un vaicoj:
+"Kuodēļ tu, dēliņ, nūlaidis golvu, ej, kas ar tevi nūtyka?"</p>
+
+<p align="JUSTIFY">Zemnīks rauduodams izstuostīja vecelīšam, kas ar jū nūtyka un ka
+jū pametja juo ceļa draugi. Veceļs itys bija pats Dīvs, kurs pasacīja zemnīkam:
+"Nabādoj!" un īdevja jam sovas sližas [sniega kurpes], runuodams: "Kur
+tev vajadzēs, tu stuojīs uz itīs sližus un pasoki treis vuordus: "Nūvedīt mani
+tur, kur es gribu!" Sližas tevi nūvess un vysu tu varēsi izdarīt un dabuot!"</p>
+
+<p align="JUSTIFY">Tai vecelits īdevja zemnīkam sližas un pats nūguoja sovu ceļu
+tuoļuok. Zemnīks pastatīja uz zemes sližas, sāduos uz jū, sacīdams: "Sližas,
+nūvedīt mani tur, kur muns zyrgs un vazums ar lynim!"</p>
+
+<p align="JUSTIFY">Kad zemnīks pasacēja itūs vuordus - veras: jau jū sližas atvedja
+uz pilsātu tur, kur stuovēja juo ceļa draugi un puordevja lynus. Zemnīks dabuoja sovu
+zyrgu un naudu par puordūtim lynim un braucja uz sātu. Braukdams zemnīks īraudzēja
+vīnā būdē daudz duorgu akmeņu. Zemnīks dūmoj : "Ka es dabuotu taidus
+akmeņus," un pasacīja: "Sližas munas, vai es navaru dabuot taidu
+akmeņu?"</p>
+
+<p align="JUSTIFY">Napaspēja zemnīks pasacīt, kai jau pi juo atsaroda taidi akmeņi.</p>
+
+<p align="JUSTIFY">Zemnīks beja naprecēts un dzeivuoja ar sovu vacū muoti, kuru jis
+cīši mīļuoja un žāluoja. Brauc tagad zemnīks uz sātu cīši prīcīgs. Pībrauc
+jis pi vīnas muižas un redz tur daudz ļaužu un pībraukušu doktoru. Zemnīks vaicoj
+ļaudim: "Kas te ir?"</p>
+
+<p align="JUSTIFY">Jam atbildēja: "Muižinīka meita mierst zemē un nikaidi doktori
+jai navar paleidzēt."</p>
+
+<p align="JUSTIFY">Zemnīks ībraucja muižas pogolmā un prosa kolpam, kab jis pasacītu
+muižinīkam, ka jis tyuleņ izzuolēs juo meitu. Kolps tyuleņ pasacīja sovam kungam:
+"Vīns zemnīks, kurs gaida jyusu uz pogolma, runuoja, ka jis tyuleņ izzuolēs jyusu
+meitu."</p>
+
+<p align="JUSTIFY">Muižinīks tyuleņ izguoja uorā, pasaucja zemnīku pi sevis um soka:
+"Jo tu izzuolēsi munu meitu, tad es tev atdūšu jū par sīvu!"</p>
+
+<p align="JUSTIFY">"Labi!" pasajēmjās zemnīks, izguoja uorā pi sova zyrga un
+soka sližom: "Sližas munas, paleidzīt man izzuolēt muižinīka meitu!"</p>
+
+<p align="JUSTIFY">Sližas tyuleņ nūvedja zemnīku uz baznīcu un pasacīja zemnīkam:
+"Pajem buteli svētītuo yudeņa!"</p>
+
+<p align="JUSTIFY">Zemnīks pajēmja buteli svētītuo yudeni un sližas nūvedja ju
+atpokaļ uz tū muižu, kur beja slyma meita. Zemnīks īguoja tymā kambarī, kur gulēja
+slyma, īdevja jai padziert svētītuo yudeņa un apmozguoja jū. Muižinīka meita
+tyuleņ palyka vasala. Muižinīks un vysi doktori breinuojās. Muižinīks beja cīši
+prīcīgs un atdevja sovu meitu zemnīkam par sīvu. Sataisīja lelas kuozas . . . Nu tuo
+laika zemnīks dzeivoj par lelu kungu un lobuokū doktoru. Tuos sližas jis tur pi sevis
+un zuolej ļaudis nu vysaidom slimībom, bet tū naudu, kuru jis pelnej, atdūd ubogim.</p>
+</font>
+
+
+</body></html>

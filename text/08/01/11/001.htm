@@ -1,0 +1,296 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>11</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Ar vienu burvju lietu iekaŗo otru.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">l. A. 569. J. Ozoliņš, Lubānas Vecainiekos. M.
+Celmiņa krāj.</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz dzīvoja divi brāļi kopā vienā mājā. Kaut gan viņi
+uzcītīgi strādāja, tomēr viņiem nekas nelaimējās. Un beidzot rādījās, ka viņi
+pat maizi nevarēs nopelnīt. Par šādu nebūšanu noskaitušies, viņi apņēmās iet
+laimi meklēt. Dažādas lietas un pārtiku apgādājuši, viņi laidās ceļot. Tie
+gāja, kur tikai acis metuši gan pa lieliem ceļiem, gan pa maziem un pat pa kāju
+celiņiem lielos mežos.</p>
+
+<p align="JUSTIFY">Tā caur vienu lielu mežu iedami, viņi uzgāja mazu istabiņu;
+zināms, ka garām jau negāja, gāja iekšā. Bet būda, kā rādījās, bija gluži
+tukša. Kad nu vakars pašulaik bija klāt, ta viņi taisījās tur nakti pavadīt.
+Vecākais brālis ņēma savu līdzpaņemto bībeli, sēdās pie vienīgā galdiņa un
+iesāka tai lasīt. Jaunākais klausīdamies atstiepās iepretim uz sola un pēc maza
+laiciņa jau bija iemidzis. Tā vecākajam brāļam nopietni lasot, uz reiz tapa galda
+otra mala pacelta un viena roka parādījās un balss sauca, lai ejot tūliņ projām no
+šejienes, citādi nebūšot labi. Lasītājs likās šo biedināšanu nemaz nedzirdot,
+bet lasīja svētajā grāmatā jo projām. Parādījās otra roka un balss tāpat
+biedināja, bet ir to lasītājs nelika ne dzirdat. Nu izcēla līdējs jau vienu kāju un
+biedināja vēl reiz; bet kad lasītājs nepaklausīja, tad tas izlīda pavisam no savas
+alas un, kā rādījās, bija pats Sātans. Nu tas uzaicināja lasītāju uz
+trīskārtīgu laušanos, ar tādu norunu, ka, ja velns vinnēšot lasītāju tad vīram
+jāatstājot tūliņ mājiņa, bet ja lasītājs vinnēšot velnu, tad tas atdošot tam
+visu savu mantu, kas vien šim alā esot. Lasītājs, iesauca savu Dievu par palīgu un
+ķērās velnam krūtīs. Tīri ar brīnumu viņš velnu nosvieda tik pat kā ganu zēnu
+gar zemi. Sākās drīzumā otra cīņa, ko arī lasītājs ar Dieva palīgu vinnēja.</p>
+
+<p align="JUSTIFY">Bet nu velns palika domīgs un teica, ka priekš trešā cīniņa
+vajagot ar kādu malciņu atspirdzināties. Viņš paņēma no plaukta divas butelītes,
+sēdās pie galda un nolika sev to priekšā, kurai bija spēka zāles piejauktas, bet
+lasītājam to ar nespēka zālēm. Tanī pašā reizē jaunākais brālis, maigi
+gulēdams, dikti iekrācās. Velns paskatās atpakaļ un jautā: "Kas tad tur tev
+guļ?"</p>
+
+<p align="JUSTIFY">Lasītājs ķer mudīgi butelītes un tās klusām pārmij un tad tikai
+vēl atbild, ka tur guļot šā jaunākais brālis. Pēc tam tie iedzēra ikkatrs sev
+priekšā stāvošo butelīti, pie kam velns nemaz lasītāja viltību nenomanīja. Nu
+sākās trešā cīņa, ko lasītājs, caur spēka zālēm stiprināts, it viegli
+savinnēja. Velns atzina, ka esot paspēlējis, paņēma sveci, atvāza galda virsu un
+kāpa pagrabā, lasītāju uzaicinādams, lai ejot līdz, savas vinnētās mantas
+apskatīt. Lasītājs arī paklausīja un gāja līdz, bet drošības pēc piesēja
+paslepen pie ieejas krampja diega galu, no kuŗa viņam vesels kamols bija līdz. Caur
+garu gaņģi vezdams, velns atslēdza vienas dubultas durvis un rādīja viņam vienu
+kambari, kurā bija daudz vaŗa un sudraba naudas. No tā kambara izgājis un to
+aizslēdzis, velns viņam atdeva atslēgu. Tāpat tas rādīja vēl otru un trešu
+kambari, kuros bija daudz zelta naudas un daudz citas par citu krāšņākas sudraba un
+zelta lietas. Arī šo abu kambaru atslēgas velns viņam atdeva; bet tik līdz ko
+atslēgas bija atdevis, tad pats velns uz vietas pazuda ar visu sveci, tā ka lasītājs
+palika gluži tumsā. Viņš par to maz ko bēdāja, bet sāka tik savu diegu kamolu tīt
+kopā, un tā viņš atkal ieeju atrada un izkāpa no alas istabiņā pie jaunākā
+brāļa, kas vēl uz sola gulēja.</p>
+
+<p align="JUSTIFY">Kad jau pašulaik gaisma ausa, tad viņš cēla jaunāko brāli augšā
+un izstāstīja tam; kāda šim laime gadījusies. Nu viņi gāja no lielā meža laukā,
+sarunāja par labu maksu daudz malačus ar zirgiem, un brauca ar visiem uz zināmo būdu
+pēc lielās mantas. Kad jau bija visu to bezgalīgo mantu sakrāvuši vezumos, tad
+vecākais brālis ņēmās jaunākajam izskaidrot, ka tikai šim tā manta piederot.
+Jaunākais brālis neesot, to dabūjot, nekādā vīzē palīdzīgs bijis, tā tad arī
+šis viņam no tās mantas neko nedošot.</p>
+
+<p align="JUSTIFY">Jaunākais brālis arī neko daudz nestrīdējās, bet apņēmās iet
+viens pats tālāk un meklēt savu laimi. Tāpat arī tagad viņš gājis viens pats pa
+visiem kāju celiņiem un stidziņām un uzgājis arī vienu citu mājiņu. Arī šī
+bijusi gandrīz tukša, tikai bijis galdiņš un kaktā vecs kastrolis ar kulīti uz
+vadža. No ceļošanas piekusis, viņš domājās kādu laiciņu še atpūsties. Pēc
+neilga laika viņš dzird atbraucam kungus, ka zvani vien atžvārdz. Kungi pieturēja
+taisni istabiņas priekšā. Nu laimes meklētājs manījās tikt aizkrāsnē, lai kungi
+viņu nepamanītu. Kungi sagāja istabā un, sasēdušies pie galda uzsauca: "Kastrol
+ar kulīti, gādājiet, ka tiek ēdieni un dzērieni uz galda!"</p>
+
+<p align="JUSTIFY">Te uz reiz kastrolis bij tāds sulainis, ka jādomā, un kulīte tāda
+ķēkša, kā reti redzēta. Nu tie nesa, ko tik kungi vēlējās, un kad kungi bija
+paēduši, tad atkal uz kungu pavēli, galdu nokopa un palika atkal par kastroli un
+kulīti savā kaktā.</p>
+
+<p align="JUSTIFY">Laimes meklētājs noskatījās visus šos brīnumus par krāsni, un
+kad kungi aizbrauca un ne zvanus vairs nedzirdēja, tad līda viņš no aizkrāsnes laukā
+un domāja: "Paga, mēģināšu es arī tāpat, kā tie kungi!"</p>
+
+<p align="JUSTIFY">Un viņš sēdās pie galda, uzsauca: "Kastrol ar kulīti,
+gādājiet, ka tiek ēdieni un dzērieni uz galda!"</p>
+
+<p align="JUSTIFY">Te par brīnumu kastrolis un kulīte paklausīja arī viņam un nesa
+viņam ēdienus un dzērienus, ko šis ceļa nogājies, arī krietni vien pucēja. Kad
+bija krietni dūšu uzpravījis ar saldo vīnu, tad viņš ņēmās ķēkšu un sulaini
+pārrunāt, lai nākot šim līdz, un solīja tiem visādus priekus un līksmības, un lai
+darot gandrīz, ko paši gribot, šis jau nebūšot nemaz tik bargs, kā šie kungi esot.
+Kastrolis ar kulīti arī ļāvās pierunāties un gāja viņam līdz, jeb tā sakot par
+kastroli un kulīti palikuši, ļāvās nesties līdz. Priecīgs, ka šādus derīgus
+rīkus dabūjis, viņš devās uz māju.</p>
+
+<p align="JUSTIFY">Bija jau labu gabalu gājis, tad nāca viņam pretī viens sirmgalvis,
+ar cirvi uz pleca. Kad tas ar viņu satikās, tad sāka sirmgalvis gauži lūgties, lai
+dodot šim ēst. Gan laimes meklētājs vēl liedzās, ka šim neesot ko dot; bet kad
+sirmgalvis stāstīja, ka neesot vai trīs dienas ēdis, tad viņam iežēlojās tā, un
+viņš sauca kastrolim un kulītei, lai gādājot ēdienus un dzērienus. Kad bija
+sirmgalvi pamielojis, un šis noskatījies laimes meklētāja brīnuma kastrolī un
+kulītē, tad sāka tas prasīties, lai laimes meklētājs mijot ar šā cirvi. Laimes
+meklētājs prasīja: "Bet ko tad ar tavu cirvi var darīt?"</p>
+
+<p align="JUSTIFY">Tas atbildēja: ai, tas cirvis esot labs, ja ar to cērtot krustiski uz
+zemes un sakot, kāda māja lai rodoties, tad tā drīzā laikā esot gatava, pat tāda,
+kā otras pasaulē nebūšot. Laimes meklētājs domāja, ka labāki esot kastrolis ar
+kulīti nekā cirvis, un tādēļ pretojās un negribēja mīt, bet kad kastrolis viņam
+dūra pie sāniem un iečukstēja ausī, lai mijot vien, šie būšot drīz atbēgt
+atpakaļ, tad viņš arī samija ar vecīša cirvi.</p>
+
+<p align="JUSTIFY">Vecītis aizgāja uz savu pusi, un šis lēniem soļiem soļoja uz
+priekšu uz savu pusi. Vēl nebija ne veselu dienu tā soļojis, kad jau kastrolis ar
+kulīti bija atkal pie viņa klāt, un nu viņš gāja priecīgi atkal tālāk.</p>
+
+<p align="JUSTIFY">Otrā dienā sastapa atkal vienu vecīti, kam bija liela kūja rokā.
+Arī šis tāpat lūdzās, lai dodot ēst. Kad bija pamielojis, tad prasījās arī šis,
+lai mijot ar šā kūju. Laimes meklētājs prasīja: "Bet ko tad ar tavu kūju var
+darīt?"</p>
+
+<p align="JUSTIFY">Un tas izskaidroja, ka ar to varot katru ienaidnieku, kas nākot
+pretī, nosist pie zemes, pat lielāku pulku, ja vajadzīgs. Un tāpat uz kastroļa
+pamācīšanu, lai mijot vien, samija arī ar šo un beigās kastrolis ar kulīti atbēga
+atkal atpakaļ.</p>
+
+<p align="JUSTIFY">Tāpat trešā dienā sastapa vecīti, ar pātagu par pleciem Arī šo
+iemija tāpat pret kastroli un kulīti, kas tāpat atpakaļ atbēga. Ar šo pātagu, pēc
+vecīša teikšanas, varot piecelt miroņus, kas jau ilgāku laiku gulējuši beigti. Tā
+nu laimīgais gāja priecīgs uz savu māju.</p>
+
+<p align="JUSTIFY">Pie tēva mājas piegājis, viņš tās vairs neatrada tādas, kā bija
+atstājis. Mazas, nabadzīgas mājiņas vietā bija ļoti lepna pils, ko apsrgāja
+zaldātu pulki. Viņš satika uz ceļa pazīstamu vecu nāburgu un prasīja viņam, kas to
+tādu pili esot cēlis. Tas viņam stāstīja, ka tas esot viņa vecākais brālis, kas
+piepeši pie lielas bagātības ticis, veco mājiņu noplēsis un šo pili uzbūvējis un
+zaldātus pircis kas viņu ar visu bagātību apsargājot.</p>
+
+<p align="JUSTIFY">Viņš negāja vis pie vecā brāļa iekšā ciemoties, bet nogaidīja
+vakaru. Kad jau tumšs metās un visi bija pie miera aizgājuši, tad ņēma viņš savu
+cirvi nostājās pretī brāļa pilij un cirta krustiski uz zemes, sacīdams, lai rodoties
+tāda pils, kas daudz lepnāka un skaistāka ne kā šā brāļa pils. Un patiesi, nebija
+ilgi jāgaida, kad jau pils bija gatava; tā izauga daudz ātrāki nekā pēc lietus
+sēnes. Nu viņš gāja iekšā un ierīkojās pēc patikšanas. Pats viņš nogūlās
+mīkstā gultā, un kastroli, kam tagad abiem ar kulīti, nevajadzēja vis kaktā gulēt,
+bet varēja arvien brīvā staigāt, nolika uz vakti pie durvim.</p>
+
+<p align="JUSTIFY">Tik līdz saule lēca, tad cēla brāli sulainis augšā un teica, lai
+ejot skatīties to brīnuma pili, kas šonakt te pretim esot radusies. Kad viņš uz
+balkona uzgāja, tad viņiem acis apžilba, ieraugot skaisto pili, kas rīta saulē it
+ļoti spīguļoja. Viņš tūlīt sūtīja vienu jātnieku, lai ejot apklaušināties kas
+tas par drošenieku, kas uz šā zemes un bez šā atļaujas tādu pili cēlis. Kad
+kastrolis to redzēja nākam, tad viņš modināja savu kungu un ziņoja, ka no brāļa
+pils viens jātnieks nākot taisni uz šejieni; bet jaunākais brālis necēlās ne no
+gultas, tikai pavēlēja kastroļam, lai ņemot brīnuma kūju un lai sitot pie zemes.
+Tiklīdz kastrolis, jātniekam tuvumā tikušam, sita pretī ar kūju uz zemes, tad tas
+novēlās kā ods no vēsmas zemē un palika guļot, kamēr zirgs aizrikšoja atpakaļ.
+Vecākais brālis to redzēdams, sūtīja atkal veselu duci, lai jājot apvaicāties.
+Atkal kastrolis ziņoja, ka nu jājot jau vairāk zaldāti uz šejieni, bet arī šos
+jaunākais brālis pavēlēja kastrolim, lai sitot pie zemes ko arī kastrolis izdarīja.
+Nu vecais brālis, noskaities sūtīja gandrīz visu savu zaldātu pulku un pavēlēja ar
+joni uzbrukt jaunajai pilei. Bet nekā! Arī šos kastrolis nosita uz sava kunga pavēli
+visus pie zemes. Nu vecākais brālis redzēja, ka ar varu nav nekas izdarāms pie jaunā
+nāburga, tādēļ viņš sēdās viens pats vāģos un brauca pazemīgi pie nāburga. Nu
+kastrolis ziņoja kungam, ka tagad nākot pats brālis, un prasīja, ko ar to lai darot.
+Kungs pavēlēja, lai laižot viņu nākt, tikai lai gādājot knaši šim staltas
+ģenerāļa drēbes. Kad bija apģērbies tad aizdedzās lepni cigāru un, pašapzinīgi
+šurp un turp soļodams, sagaidīja vecāko brāli, kas viņu, pazemīgi apsveicinājis,
+nemaz i nepazina. Jaunākais brālis sauca kastroli un kulīti, lai apgādājot ēdienus
+un dzērienus, ar ko pirmo viesi pamielot; bet viesis steidzās jautāt, kā šis esot
+iedrošinājies uz šā zemes pili celt, un kas šis tāds esot. Jaunākais brālis
+izsaucās: "Nu, vai tad tu mani vairs nepazīsti, savu brāli, kas toreiz, kad tu
+savu laimi atradi, gulēja turpat uz sola? Toreiz, kad tu man no savas laimes nekā
+nedevi, tad gāju es arī savu laimi meklēt un nu to esmu atradis."</p>
+
+<p align="JUSTIFY">Nu tikai vecākais brālis atjēdzās, ka esot gan šā brālis. Par to
+laiku kastrolis ar kulīti bija ēdienus un dzērienus uz galda salikuši, un nu abi
+brāļi sēdās pie galda un iesāka ēst un dzert. Tā priecīgi pie galda sēdot,
+iedomājās vecais brālis savus, pie zemes gulošos zaldātus un izsaucās: "Bet
+kādēļ tev, brāl, vajadzēja manus zaldātus nobeigt?"</p>
+
+<p align="JUSTIFY">Jaunais brālis teica, lai nebēdājoties par to neko, gan būšot
+labi. Viņš deva kastroļam brīnuma pātagu rokā un sacīja, lai ikkatram pasistam
+zaldātam reiz iesitot. Un kuram kastrolis sita, tas bij augšā spirgts un vesels. Par
+mazu brīdi bija visi augšā un purinājās cits citam smiltis no mugurām. Nu deva arī
+zaldātiem brangas dzīres, un abi brāļi dzīvoja kopā laimīgi, priecīgi un
+saderīgi.</p>
+</font>
+
+
+</body></html>

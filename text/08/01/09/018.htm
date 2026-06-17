@@ -1,0 +1,196 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>i8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Burvju putns.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">18. A. 567. 303. J. Ozols, Saukā. Brīvzemnieka
+kr. LP. VI, 593 (117, 3).</font></p><font size="3">
+
+<p align="JUSTIFY">Vienā būdiņā dzīvoja nabags tēvs ar divi dēliem. Viņiem nebija
+ne zirga, ne citas mantas - pat malku tie nešus sanesa no meža.</p>
+
+<p align="JUSTIFY">Bet netāli turpat dzīvoja ļoti bagāts vīrs, tas par šiem nabagiem
+ņirgājās vien un visādi zaimoja.</p>
+
+<p align="JUSTIFY">Reiz nabaga tēva dēli atkal gāja mežā malku saraudzīt. Un tur
+bija upīte. Jaunākais dēls, dzert gribēdams, noliecas upītes krastā patlaban kā
+ūdeni kampt - te ierauga ūdenī divi zelta oliņas un tūliņ sniedzas ņemt. Bet ik
+domā ņemt, ik ūdens sakustas un oliņas pazūd. Nu abi gudro, kas tā par nelaimi -
+redz un nevar dabūt. Kamēr tur gudro, vecākais paskatīsies uz augšu, ierauga kokā
+skaistu putnu perēkli un tur tās zelta oliņas iekšā, ūdenī oliņas bija
+atspoguļojušās.</p>
+
+<p>Nu tas viens uzkāpj kokā, izņem oliņas un nes mājā.</p>
+
+<p align="JUSTIFY">Bet bagātais, padzirdējis par zelta oliņām, tūliņ klāt un sola
+un pērk, lai maksā, ko maksādamas. Labi, pārdod par lielu naudu. Te otrā, trešā
+dienā dēli atkal iet pēc malkas un atkal tai pašā vieta grib dzert. Kā pieliecas,
+ierauga dimanta oliņas ūdenī: Nu izņem tās no ligzda, pārnes mājā - bagātais
+atkal klāt un sola un pērk, lai maksā, ko maksādamas. Labi, pārdod par vēl lielāku
+naudu.</p>
+
+<p align="JUSTIFY">Bet nu dēli nākamā naktī sataisās ir pašu putnu no ligzda
+izņemt. Aizgāja, noķēra, pārnesa mājā - rītā sāks putnu labi apskatīties un
+atron, ka uz viena putna spārna rakstīts: kas spārnus apēdīs, tas spļaus zeltu, un
+uz kakla atkal rakstīts: kas manu kaklu apēdīs, tas tiks par ķēniņu.</p>
+
+<p align="JUSTIFY">Bagātais, to padzirdējis, nu atskrēja elsdams: lai pārdodot putnu,
+lai pārdodot putnu. Šie nepārdod. Bet beidzot, kad nemaz no bagātā glābties, tie
+apsolās arī cepeti piesūtīt. Bagātais apmierinās un gaida savu cepeti. Bet dēli tev
+dos gan tā putna cepeti - nekā. Noķēra zvirbuli, izcepa to un aizsūtīja bagātajam,
+paši turpretim apēda īsto cepeti: viens putna galvu, otrs putna spārnus - un tad
+aizgāja pasaulē.</p>
+
+<p align="JUSTIFY">[Ceļā tam brālim, kas putna galvu apēdis, pazūd cepure un tas
+iznāk no meža ar kailu galvu. Bet tās zemes ļaudis bija sastrīdējušies, ķēniņu
+vēlēdami. Beidzot bija nosprieduši celt to par savu ķēniņu, kas neko nezinādams
+nāks gaŗām ar kailu galvu.</p>
+
+<p align="JUSTIFY">Redzēdami nākam to brāli ar kailu galvu, ļaudis to tūliņ saņēma
+un iecēla par ķēniņu.]</p>
+
+<p align="JUSTIFY">Bet otrs brālis gāja, gāja - satika labu, labu vecīti, tas iedeva
+šim zirgu, zobinu un baltu sunīti. Nu viņš jāja, jāja - nojāja tādā pilsētā,
+kur ķēniņa vienīgā meita divpadsmit galvu čūskai jāatdod. Ko nu viņš? Viņš
+otrā dienā jau iepriekš aizjāj kalnā un gaida ķēniņa meitu. Pēc brīža kučieris
+atvedis gan un atdod čūskai, lai rij. Tā šis, to redzēdams, klūp ar zirgu, ar suni,
+ar zobinu čūskai virsū un nokauj to. Ķēniņa meita izglābta! Un šī nu tik
+priecīga, tik priecīga - tūliņ pārlauž savu gredzenu pa vidu, un vienu pusi patura,
+otru atdod glābējam, tad pārplēš zīdautu pa vidu, vienu pusi patura, otru atdod
+glābējam un norunā, ka pēc gada laika abi svinēšot kāzas. Labi, tā nu izšķiras.
+Kučieris paņem ķēniņa meitu, ved atkal dzīvu atpakaļ, bet šis izgriež čūskai
+mēles pabāž zem akmeņa un tad salīgst pie viena krodzenieka kalpot. Tas gads
+jānogaida - kur tad citur iesi?</p>
+
+<p align="JUSTIFY">Bet mājā braucot, kučieris taisījies ķēniņa meitu nomaitāt, ja
+neteikšot tēvam, ka viņš esot tas īstenais glābējs. Neko darīt dzīvība dārga -
+apsolījusies tēvam melot.</p>
+
+<p align="JUSTIFY">Tā gads drīzi beidzies un vienu dienu krodzenieks stāstīs savam
+puisim, ķēniņa meitas glābējam: "Vai neiesim paskatīties, kā ķēniņa
+kučieris, kas pērn ķēniņa meitu izglāba, šodien kāzas svinēs ar izglābto?"</p>
+
+<p align="JUSTIFY">Šis atsaka: "Ko es tur kājas lauzīšu neaicināts? Ja
+ķēniņš ar savu meitu atnāks man pakaļ, tad tik iešu."</p>
+
+<p align="JUSTIFY">Krodzenieks nesapratis, bet dēls tūliņ iedod savam sunītim
+pārlauzto gredzenu, pārplēsto zīdautu un pieteic, lai aiznesot tos ķēniņa meitas
+klēpī ielikt. Sunītis aiznes - ķēniņa meita ar tēvu un ar viltīgo brūtgānu
+krogā klāt: kur viņš brūtes pusgredzenu un puszīdautu ņēmis?</p>
+
+<p align="JUSTIFY">Tā un tā - šis izstāsta; bet kučieris tiepjas: "Tas nav
+tiesa, tas nav tiesa!"</p>
+
+<p align="JUSTIFY">Nu, ja nav tiesa, lai tad parādot čūskas mēles! Šim nekā - nobāl
+vien; bet dēls aizveda ķēniņu kalnā un parādīja visas divpadsmit mēles.</p>
+
+<p align="JUSTIFY">Tagad ķēniņš ticēja un atdeva dēlam savu meitu; bet viltīgo
+kučieri nosodīja.</p>
+</font>
+
+
+</body></html>

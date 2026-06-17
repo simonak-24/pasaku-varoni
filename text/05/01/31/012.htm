@@ -1,0 +1,168 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>12</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Trīs vecītes par palīgiem.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">12. A. 501. H. Corbiks no 67. g. vecas Līnes Buķevicas, Elejas
+Zeltiņos.</p>
+
+<p align="JUSTIFY">Reiz dzīvojusi slinka meita. Viņa nav mācījusies ne kārst, ne
+vērpt, ne aust. Māte gan to bārusi, situsi, bet tas nelīdzējis. Kādā dienā
+ķēniņš izsludinājis, ka viņam vajadzīga dūšīga</p>
+
+<p align="JUSTIFY">kārsēja, vērpēja un audēja - tāda, kura var pa trim naktim
+sakārst, savērpt un izaust veselu istabu vilnas.</p>
+
+<p align="JUSTIFY">Kuŗa to izdarīšot, to viņš ņemšot par sievu. Visā valstī tāda
+meita nav atrasta.</p>
+
+<p align="JUSTIFY">Slinkās meitas māte to izdzirdusi un aiz dusmām aizvedusi ķēniņam
+savu meitu. Varenā kārsēja nosēdināta kādā istabā viena un raudājusi. Raudājusi,
+raudājusi jau ilgu laiku. Ap pusnakti atvērušās durvis un ienākusi kāda vecene. Tā
+bijusi ļoti nejauka: lielām, kaulainām, sastrādātām rokām.</p>
+
+<p align="JUSTIFY">"Ko tu, meitiņ, raudi?" viņa vaicājusi.</p>
+
+<p align="JUSTIFY">"Ja., māmiņ, es nemaz nemāku kārst un vērpt, kur nu lai tādu
+istabu pa vienu nakti sakāršu?"</p>
+
+<p align="JUSTIFY">"Nekas, meit', būs labi", teikusi vecene: "liecies uz
+auss, tikai apsoli mani lūgt kāzās."</p>
+
+<p align="JUSTIFY">Meita apsolījusies. No rīta tā pamodusies un redzējusi, ka viss
+bijis sakārsts. Nākošā naktī tā atkal iesēdināta istabā. Atkal visas durvis
+aizslēgtas. Meita nosēdusies un raudājusi. Ap pusnakti durvis atvērušās, un
+ienākusi vecene ar gaŗu apakšlūpu, pavisam nejauka.</p>
+
+<p align="JUSTIFY">"Ko tu, meitiņ, raudi?" viņa vaicājusi.</p>
+
+<p align="JUSTIFY">"Jā, kā es neraudāšu?" meita atteikusi: "es nemaz
+nemāku vērpt, kur lai nu vēl savērpju tādu istabu pilnu ar vilnu?" "Nekas,
+meit, ej tik gulēt, tik apsolies mani ielūgt savās kāzās, un viss būs labi."</p>
+
+<p align="JUSTIFY">Meita apsolījusies un likusies gulēt. No rīta viņa redzējusi, ka
+viss bijis savērpts. Trešā naktī atkārtojies tas pats, kas divās pirmajās. Tagad
+ienākusi vecene, nejauku vaigu un ar tādām kājām kā šķipeles. Meitai atkal
+vajadzējis apsolīties to lūgt kāzās, un no rīta audekls bijis noausts.</p>
+
+<p align="JUSTIFY">Tagad meitai bijušas ar ķēniņa dēlu kāzas. Priekš kāzām tā
+viņam lūgusi atļaut uzlūgt savas trīs vecās krustmātes. Ķēniņš to atļāvis.</p>
+
+<p align="JUSTIFY">Ienākušas trīs vecenes. Ķēniņa dēls prasījis, kādēļ viņām
+tāds savāds izskats, no kā tas nākas? Uz to pirmā atteikusi, ka viņai esot lielas
+rokas no vilnas kāršanas. Otra teikusi, viņai esot lielas lūpas no pirkstu un linu
+slapināšanas. Trešā sacījusi, ka viņai esot lielas kājas no aušanas.</p>
+
+<p align="JUSTIFY">Tagad princis sapratis, ka viņas būs bijušas darba darītājas, bet
+neko nav teicis, nodzēris kāzas un dzīvojis ar savu sievu laimīgi.</p>
+
+<p align="JUSTIFY">Visas trīs vecenes bijušas Laimes mātes.</p>
+
+
+</body></html>

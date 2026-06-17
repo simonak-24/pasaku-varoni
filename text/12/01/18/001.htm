@@ -1,0 +1,171 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>18</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Viltība un lētticība.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>1. </b>A. 1539. Huebšmaņu Edžus Zaļeniekos. Jkr. V. 3l. L. P. VII,
+II, 25, 3. 12.</p>
+
+<p align="JUSTIFY">Vienā pavasara rītā strādāja zemnieciņš, uzcītīgi ardams
+ceļmalā. Viņa nodzītais zirdziņš vairs nemaz negrib iet ap launaga laiku, un tik ar
+lieliem negaliem ir vēl padzenams uz priekšu. .Arājs, apstājies vagas galā, lai
+ļautu zirdziņam atvilkties, ierauga braucam lielkungu. Te zemnieciņam šaujas prātā
+joks: viņš ceļos nometies, liekas ko meklējam. Lielskungs, gaŗām braukdams, redz, ka
+zemnieciņš izņem no patlaban izmestajiem zirga mēsliem spožu dalderi un, to
+apskatījis, smīnēdams iebāž kulē. Viņš izbrīnējies prasa: "Kā tur ticis
+dalderis?"</p>
+
+<p align="JUSTIFY">"Jā, redziet, cienīgs lielskungs," saka zemnieciņš,
+"man ar saimniecību negrib un negrib iet uz priekšu; ja man nebūtu šā labā
+zirdziņa, tad jau ne maizes kumosa man nebūtu. Viņš izsviež mēslojot katru reizi
+dalderi līdzi."</p>
+
+<p align="JUSTIFY">Šie vārdi bija kā uguns pakulās, lielkungam deg pēc zirģeļa.
+Viņš domā: "Ja zirgelis, pie zemnieka slikti mizdams, dod dalderi, tad pie pilnas
+siles tas dos 10 daldeŗu."</p>
+
+<p align="JUSTIFY">Lielskungs prasa zemnieķelim, vai tas negribot pārdot zirģeli? Tas
+par to negrib ne dzirdēt, bet kad lielskungs viņam pārlieku virsū mācas, tas atdod
+tam zirģeli par sieku naudas. Lielskungs liek zirģeli pārvest uz muižu un salūdz
+daudz augstu kungu, lai tie apbrīnotu viņa daldeŗu zirģeli. Viesi, stallī sanākuši
+lielā skaitā, gaida ziņkārīgi un nepacietīgi uz acumirkļa, kur zirdziņš sāks
+birdināt daldeŗus. Kungiem arī nav ilgi jāgaida, labi paēdušais zirģelis izmet
+mēslus, bet - tavu brīnumu! - nav un nav daldeŗu. Kungs un viesi saskaišas un
+pēdējie izklīst dusmīgi.</p>
+
+<p align="JUSTIFY">Kungs sabozies dodas uz otru rītu, labu nūju rokā, uz zemnieka
+mājām, lai viņu pārmācītu. Rijā ieejot, kungs redz: zemnieks sēž mierīgi, tam
+priekšā katliņš, kuŗā vārās ūdens, uguns nesildīts. Kungs aizmirst pavisam savu
+nodomu un vēlas nopirkt brīnīšķīgo katliņu, ko tam zemnieks beigās atdod par sieku
+naudas. Lielskungs atkal salūdz viesus; bet tie, velti izgaidījušies katliņu
+vārāmies ,aizbrauc vēl dusmīgāki, nekā pirmo reizi.</p>
+
+<p align="JUSTIFY">Tagad nu kungs bija tik dusmīgs, ka vai no ādas sprāga, skrēja uz
+zemnieka mājeli, lai varētu pārmācīt viltnieku. Lielskungs, pienācis pie rijas,
+dzird, ka zemnieks baŗas ar savu sievu, ka visa rija skan. Rijā ienācis, viņš
+nogaida, kamēr sapikotie beigtu bārties. Bet kas nu? Tas bija tik tas ievads, beigas
+bija jo briesmīgas. Zemnieks, sakaitināts par sievas bezkaunību, pakampj lielu dunci un
+iegrūž to sievai sānos. Tā saļimst! Lielkungs, sabijies, sāk bļaut uz zemnieka, ko
+tas esot padarījis. Bet šis tik skaļi iesmejas, paņem kādu stabulīti, pieliek to
+sievai pie mutes, iepūš tai dvašu - un sieva uzceļas spirgta, vesela. Lielskungs nu
+par visu negalu grib pirkt! brīnišķīgo stabulīti, lai varētu pārmācīt savu dusmu
+pūci. Galā arī atdod zemnieks stabulīti par sieku naudas.</p>
+
+<p align="JUSTIFY">Lielskungs nu trešu reizi salūdz viesus un noduŗ savu sievu viņiem
+klāt esot. Sapulcējušies iztrūksts par tādu slepkavību, bet lielskungs tik pasmīn
+un pūš savai sievai dvašu nāsīs. Tomēr, kā ļaudis teic, viņa neesot vis
+uzcēlusies, bet kungs aizdzīts uz to riju, kur tam neticies vis iet (Sibiriju).</p>
+
+<p align="JUSTIFY">Tā nu nāca mūsu zemnieciņš pie bagātības un zināja izsargāties
+no lielkunga bardzības. Ne zirgs, ne katliņš, ne stabulīte nebija burvīgi. Dalderi
+bija pats zemnieks ielicis zirga mēslos, katliņu bija darījis vārošu, tai ielikdams
+nokaitušas dzelzis, stabulīti par burvīgu un dūrienu par nekaitīgu darījis,
+piesiedams sievai pie sāniem ar asinim pildītu pūsli un viņu pašu nemaz neaiķerdams
+ar dunci.</p>
+
+
+</body></html>

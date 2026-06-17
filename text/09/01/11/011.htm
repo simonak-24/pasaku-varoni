@@ -1,0 +1,143 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>11</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Sēzam, atdaries !</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">11. A. 676. A. Lerchis-Puškaitis
+Džūkstē-Pienavā. LP, I, 73, 4.</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz dzīvo bagāts saimnieks un nabags saimnieks. Bagātais ar savu
+naudu vienādi lielījās un nabagu citādi nesaukā, kā par plikdīdu. Kādu dienu
+nabagais saimnieks aiziet uz mežu čiekurus lasīt un atrod tur būdiņu. Viņš
+nosēžas kadiķu krūmā un domā: "Vai iet iekšā, vai neiet?"</p>
+
+<p align="JUSTIFY">Tai pašā brīdī piejāj seši jājēji pie būdiņas durvīm un
+uzsauc: "Šitā, šitā atveries!"</p>
+
+<p align="JUSTIFY">Durvis tūdaļ atveras un jājēji saiet iekšā. Pēc brīža tie
+atkal iznāk un sauc : "Šitā, šitā aizveries!"</p>
+
+<p align="JUSTIFY">Kad jājēji aizjājuši, tad nabagais saimnieks izlien no kadiķa un
+arī uzsauc: "Šitā, šitā atveries!"</p>
+
+<p align="JUSTIFY">Durvis tūdaļ atveras un viņš ieiet istabā; tā pilna zelta
+dukātiem. Ko nu gaidīt? Izber čiekurus un piegrābj maišeli ar dukātiem. Mājā
+laimīgais domā dukātus izmērīt, bet nav sieka. Jāiet no bagāta saimnieka sieks
+palūgt. Bet siekam dibina šķirba ; viens dukāts mērījot tur iekrīt un paliek. Sieku
+atnes atpakaļ. Bet bagātais kaimiņš domā: "Diezin, ko plikdīda siekā
+mērījis; sieks labi jāizkrata, lai tīrs paliktu."</p>
+
+<p align="JUSTIFY">Bet kratot izkrīt spožs dukāts. Tas nu šim skauž. Viņš aiziet
+pie nabaga apvaicāties. Nabagais kaimiņš izstāsta visu, ka atgadījies. Ak tu manu
+dieniņu, tas bagātajam kā uguns pie pakulām! Viņš tūdaļ sarauga maisus, sajūdz
+zirgus un brauc uz būdiņu. Nu pieber visus maisus dukātiem. Bet prieku pārņemts, tas,
+projām braucot, aizmirst iesaukties: "Šitā, šitā, aizveries!" Durvis paliek
+vaļā; te seši jājēji tūdaļ klāt un sakapā bagāto kaimiņu gabalos. Tā klājās
+mantas kārīgajam kaimiņam.</p>
+</font>
+
+
+</body></html>

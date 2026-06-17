@@ -1,0 +1,163 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Maģiskā bēgšana ar aizliegto kastīti.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 313 B. Gaiķis Zemītē. LP, IV, 5, I. AŠ, III, 4u.</p>
+
+<p align="JUSTIFY">Kādam saimniekam labība patlaban nobriedusi; viņš iziet
+apskatīties un pārdomāt, kuŗu dienu sākt pļaut. Te ierauga lielu putnu pa labību
+brienam; putns dažā labā vietā labību pavisam nošļokājis. Saimniekam uziet dusmas;
+tūlin paķer rungu un putnam virsū: "Es tev rādīšu, labību nošļokāt!"</p>
+
+<p align="JUSTIFY">Bet putns žēlīgi lūdzies: "Nesit vis! Kas tev no tam atlēks?
+Labāk kop mani, tad iedošu tev to, kas vairāk vērts nekā visi tavi Lauki, visas tavas
+mājas."</p>
+
+<p align="JUSTIFY">Saimnieks tic; un tā liek putnu pār kamiesi un pārstiepj mājā
+aizgaldā. Nu baŗo un baŗo; bet putns nežēlīgi pulku ēd. Pēc nedēļas laika
+saimnieks saka itin pikti uz putnu: "Klausies, nesātnieks, visas avis man jau
+pagalam. Tu ēd bez apziņas - vairāk nedošu!" </p>
+
+<p align="JUSTIFY">"Ciet klusu, neesi vientiesis! Ātrāk tev nemaksāšu, kamēr
+visu būsi atdevis manā vēderā."</p>
+
+<p align="JUSTIFY">Saimnieks atkal baro tādu laiku. "Klausies, nesātnieks, visas
+govis jau pagalam - vairāk nedošu!"</p>
+
+<p align="JUSTIFY">"Ciet klusu! Ātrāk nemaksāšu, kamēr visu būsi atdevis."
+</p>
+
+<p align="JUSTIFY">Saimnieks atkal baŗo tādu laiku. "Klausies, nesātnieks, visi
+zirgi pagalam - nav vairs ko dot!"</p>
+
+<p align="JUSTIFY">Tagad putns mudīgi izkāpj no aizgalda, sacīdams : "Nāc līdz
+uz mežu!"</p>
+
+<p align="JUSTIFY">Aiziet uz mežu, putns no biezumiem iznes tādu kastīti un saka: ,Te
+ir mana atmaksa! ātrāk kastīti vaļā netaisi, kamēr mājā."</p>
+
+<p align="JUSTIFY">Saimnieks patencina un nāk uz mājām. Meža malā viņš apgriežas
+paskatīties, vai putns tik neredz; bet ej sazini, kur putns jau. "Pag!" viņš
+domā, "drusku jāpaglūn pa šķirbīti, kas tad tur īsti varētu būt tādā
+kastelē!"</p>
+
+<p align="JUSTIFY">Lēnītiņām paveŗ kastītei drusku vāku, bet tai pašā brīdī
+izskrien skaista pils un aiziet pa gaisu projām. Saimnieks iebļaujas nelabi un drāž
+pilij pakaļ, bet kur tu saskriesi? Tomēr pēc bļāviena gadās aiz muguras liels vīrs
+- tas bijis velns senākais putns - sacīdams: "Te nu bija - iedevu par nelaimi
+tādam skaisto pili; vai nemaz nevarēji nociesties?"</p>
+
+<p align="JUSTIFY">To sacījis, lielais vīrs noķeŗ pili un atkal .ieliek kastītē. Bet
+tagad saimnieks uz ceļa vairs neskatās; viņš pāriet mājā un tad tik taisa kastīti
+vaļām. Tūlin izveļas zelta pils un nostājas sētsvidū. Saimnieks tagad dzīvo savā
+pilī un nebēdā nekā.</p>
+
+
+</body></html>

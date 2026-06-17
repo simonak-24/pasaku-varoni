@@ -1,0 +1,165 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Velna bilde.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">5.<b> </b>St. Ulanovska Viļānos. Zbior wiadomosci do antropologii
+krajowei. Krakavā 1895, 25fi. l. p.</p>
+
+<p align="JUSTIFY">Bjeja sjeņuok kaļvs, i bjeja jam obrozu [svētbilžu] daudz, i valna
+obrozs bjeja. Jis vysod, kai cjeļas, muti nūmozguojs i puotors nūskaitjējs, to biksis
+atvalk i valnam čūkstu paruoda. Valns aizzasyrdas, ka jis Dīva lyudz, a šam čūkstu
+ruoda, i soka: "Paga, paga! es tjevi izvuicjeišu!"</p>
+
+<p align="JUSTIFY">Kaļvs jau Dīva palyudza i atsagulās, a valns pajēmja par nakti juo
+zuobokys, apmaucja kuojā i nūguoja iz kupča kramu [baltkr. krama, bods], vysu morntu
+saņasja kaļva klētī. Cjeļas kupcs reitā, vieras, ka lauka [kr., bods] izlauzta i
+monts iznasts! Jis pasaucj'a sudņiku, dzanas pa pādim i vieras, 'ka pādi daīt da kaZva
+klēts. Vot jī īt ustobā i soka iz kaļvi: "A kur tu bjeji staiguojis
+šūnakt?"</p>
+
+<p align="JUSTIFY">Jis atsoka, jis nabjeja staiguojis nikur, jis toļko [tikai] tagad nu
+gultas cje]as, muti parnazguojis, puotoru paskaitjējis, kai is dorbu īt. Jī soka, ka
+īškūš iz klēti pazavart, kas ta š,am tī iraida! Daīt pi durovu, atmēŗēj pādu -
+juo zuoboki ir. Nu, jī attaisa vaļā, vieras, ka pylna klēts da grīstu pīlykta loba!
+Kaļvs roūzabeidja, a.ugšpjēdjeņ atkryta nu bails!</p>
+<b>
+
+</b><p align="JUSTIFY"><b>A </b>sjeņuok bjeja taidi laiki, ka zagļi vys kuora par zagšonu. Nu,
+ku ta niu byus? Pajēmja kaļvi, aiztaisjēja paļicā, sabraucja jau vysi lyluokī
+nūsūdjīt j'ū, i nūsūdjēja, kab pakuort. Tai i pakuora jū. Daskrīņ tūlaik valns
+i soka: "A kas, kaļvjeit? Voi labi ira Dīva lyugt, maņ čūkstu ruodjēt? Voi
+daŗēškys tai? Voi ruodjēškys vjāļ?"</p>
+
+<p align="JUSTIFY">"A naruodjēškys, cikom vīn dzjeivs dzjedvuoškys!" soka
+kaļvs. Nu, tai djevja jam valns ar cjeļu čūkstā i lyka, lai jis īt iz smjēdi koltu,
+a tī, iz juo vītā, pakuora cysu kiuli.</p>
+
+<p align="JUSTIFY">Brauc jau tūs tīsys vjeiri iz sātu i klausās, ka kaļvs smjēdē,
+soka iz kučeri: ,,Ej, pazavjer, kas tī kaļ?"</p>
+
+<p align="JUSTIFY">Jis atīt, soka: "Kaļvs kaļ!"</p>
+
+<p align="JUSTIFY">Jī navīŗēj jam, īt poši pazavārtu i vaicoj: "Kas ta tja par
+breinums? Tjevi pakuoruši, a tu kal?"</p>
+
+<p align="JUSTIFY">Jis nūjēmja capuri i soka tai: "Kas vainīgs, tū pakuora, a es
+n,avainīgs, to mani aptaka] [atpaka]?] atpruovja!"</p>
+
+<p align="JUSTIFY">I īsuoka jis stuostjēt, kai jis Dīva lyudzja, a va1nam čūkstu
+ruodjēja, i valns par tū aizzasirdjēja i jam par sirdim tai padarēja, ka jis par
+zagļi palyka, nabjejis vainīgs.</p>
+
+<p align="JUSTIFY">Pa tam i pīruna ira: "Dīva lyudz, a valnam čūksta
+naruodi!"</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

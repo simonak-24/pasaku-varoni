@@ -1,0 +1,177 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Blēdīgā sieva.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">4. A. 566. A. Smagars, Līksnas pag.</font></p><font size="3">
+
+<p align="JUSTIFY">Vīnam tāvam beja treis dāli. Kod tāvs nūmyra, dāli izdālēja
+montu, obim vacuokim bruoļim datyka vyss monts, bet jaunuokam dālam nikas napīkryta.
+Viņš aizguoja uz upmali un pyna teiklu, ar kū ziv's zvējuot. Dāls īsvīž teiklu
+pyrmū reizi, valk uorā un izvalk sapyvušu kaķi, valk ūtrreiz un izvalk sapyvušu
+suni, un valk vēl trešū reiz, un izvalk sapyvušu teļu.</p>
+
+<p align="JUSTIFY">Jaunuokais dāls sadusmuojuos, ka jam naīt zvejuošona, nūsvīdja
+teiklu upē, guoja tuoļuok pa upes krostu un īraudzēja aiz upes skaistu pili Dāls
+nūdūmuoja īt tur un meklēt dorbu, bet viņš navar par upi tikt puori. Ilguoku laiku
+meklējis, viņš atrūn nadziļu vītu, bet leidz kū īt puori, upe palīk dziļuoka.
+Dāls suoka klīgt un nu pils atskrēja kungs un soka: "Juo tu man kolpuosi vīnu
+godu, tad izgluobšu."</p>
+
+<p align="JUSTIFY">Dāls apsūlējuos, upe palyka sakla un dāls nūguoja uz pili. Pilī
+viņš nūdzeivuoja ilgus godus, un gribēja bēgt, bet leidz kū guoja puor upi, upe
+palyka otkon dziļa un dāls aizguoja uz pili atpakaļ. Kod dāls nūdzeivuoja vairuok
+godu kungs viņam teica: "Kū gribi, vai naudas, vai zūbynu ar zylu kraklu?"</p>
+
+<p align="JUSTIFY">Dāls pajēma zylu kraklu, apvylka tū un apjūzja zūbynu. Kad
+papurinuoja kraklu, tad vyss, kas beja prīškā, pakryta. Un ka cierta ar zūbynu - vysim
+golvas zemē. Viņš atvadījuos nu kunga um guoja prūjom. Pīguojis pi upes, viņš
+papurinuoja kraklu, upe palyka sausa, un dāls sausom kuojom puorguoja puori. Īdams
+tuoļuok, viņš satyka vylku kas gribēja viņam uzbrukt, bet dāls puparynuoja kraklu -
+vylks pi zemes, un ar zūbynu nūcierta jam golvu. </p>
+
+<p align="JUSTIFY">Staiguodams pa pasauli, dāls izdzierda, ka šuos zemes kēniņam grib
+uzbrukt īnaidnīks. Kēniņš beja izlaidis taidu runu: "Kas uzvarēs īnaidnīku,
+tam atdūs vīnu trešu daļu nu zemes un sovu meitu par sīvu."</p>
+
+<p align="JUSTIFY">Dāls dūdas uz pili un īt uz karu, bet kēniņam lels breinums, vai
+vīns cylvāks var karuot ar tik daudz veiru. Bet dāls tik papurinuoja zylū kraklu un
+vysi karaveiri pi zemes. Un kai cārt ar zūbynu - vysim golvas zemē.</p>
+
+<p align="JUSTIFY">Dāls tad apprecej kēniņa meitu un dabuoj vīnu trešū daļu vysas
+kēniņa valsts. Bet viņa sīva mīl cytu. Viņa grib nu veira izmuonēt kraklu un
+zūbynu. Viņa soka: "Veiriņ, dūd man sovu kraklu, es viņu izmozguošu."</p>
+
+<p align="JUSTIFY">Bet veirs kraklu nadeva. Reizi tūmār veirs kraklu nūvylka, sīva
+pajēma kraklu un zūbynu, un aiznesja tūs sovam bryuguonam. Dāls nyu puortaisījuos par
+zyrgu, un sacīja uz kolpu: "Jem mani un puordūd jaunajam kēniņam!"</p>
+
+<p align="JUSTIFY">Jaunais kēniņš gribēja zyrgu nūpierkt, bet sīva soka: "Šis
+zyrgs ir tova nuove."</p>
+
+<p align="JUSTIFY">Tyulin līk šū zyrgu nūkaut un sadadzynuot. Bet kēniņa kolpyune
+pīguoja pi zyrga un soka: "Mīlais zirdziņ, cik man ir tevis žāl. Reitu tevi kaus
+un dadzynuos."</p>
+
+<p align="JUSTIFY">Zyrgs soka: "Kod mani kaus, tev muna ašņa pyrmuo lase nūkriss
+uz prīkšauta. Tu viņu nūnes un apraus pi kēniņa istabas lūga."</p>
+
+<p align="JUSTIFY">Kolpyune tū izdarīja. Nuokūšu reit pi lūga izauga skaists kūks.
+Sīva otkan pavēlēja kūku cierst zemē. Kolpyune arī šūreiz aizguoja pi kūka, bet
+kūks jai teica: "Kod mani cierss, tev zuobokā īkriss, moza škambiņa, bet tu tū
+škambiņu aiznes uz azaru, kurā kēneņš peldējas!"</p>
+
+<p align="JUSTIFY">Vīnu dīnu jaunais kēniņš guoja medībuos gar azaru. Jis azarā
+īraudzēja skaistu peili. Viņš izšuova - peile sasyta spuornus un suoka grymt.
+Kēniņš nūvylka kraklu, nūlyka zūbynu un peldēja pēc peiles. Bet kai tik kēniņš
+beja labi tuoļi nu krosta, peile sasyta spuornus, izskrēja uz krostu un palyka par
+cylvāku. Jis apvylka kraklu, apjūzja zūbynu, nūgalynuoja jaunū kēniņu. Bet savu
+sīvu pīsēja divim zyrgam pi astem un viņu zyrgi saraustīja gobolu gabolūs.</p>
+</font>
+
+
+</body></html>

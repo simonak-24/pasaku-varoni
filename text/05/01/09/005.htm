@@ -1,0 +1,162 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dzīve debesīs.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">5. Teicēja V. Kromene. Kultūras balss kr.</p>
+
+<p align="JUSTIFY">Reiz dzeivuoja vec's ar savu vecīti. Obi jī beja jau vaci Reiz
+vecīts īstatīja zierni, bet vecīte pupu. Zierns auga, auga un saleika, bet pupa izauga
+leidz dabasim. Vecs ar vecīti pa pupu izkuopia dabasūs. Tur jī īraudzēja mozu
+muojiņu, īguoia īškā un<b> </b>pasaprasīja puorgulēt. Tuos muojiņas saiminīks,
+arī vecīts, soka: "Labpruot es jyusus pījemtu, ka tik jyus naāstu munu
+peiragu!"</p>
+
+<p align="JUSTIFY">"Na, na, mēs naēssim," atbildēja veči un palyka tymā
+muojiņā uz nakts muojom. Vecīts paruodīja jīm vītu, kur gulēt, un pats aizguoja
+prūjom. Veči palyka itymā muojiņā un atsagula. Gulēja, gulēja veciņa un soka:
+"Voi, voi man ēst gribīs!"</p>
+
+<p align="JUSTIFY">Tad veciņa pajēmja vīnu peiragu un apēdja. Reitā atguoja vecīts,
+saiminīks, un prosa: "Vai jyus naēdēt munu peiragu?</p>
+
+<p align="JUSTIFY">"Na, na," atbildēja veciņa un aizguoja ar sovu veci
+tuoļuok. Pīguoja vokors. Veči īguoja cytā muojiņā pasaprasīt uz nakts muojom. Tur
+iī atroda otkon taidu pašu vecīti, kai pyrmā muojiņā, un prasījas puorgulēt.
+Vecīts ilaidja un pīsacīja, ka naāstu nu juo duorza uobūļu, bet pats aizguoja
+prūjom. Palyka veči vīni paši muojiņā un atsagula. Gulēja, gulēja veciņa un soka:
+"Vai, vai man gribīs paraudzīt veča uobūļu!" un apēdja vīnu.</p>
+
+<p align="JUSTIFY">Reitā vecīts atīt un prosa: "Vai naēdēt munu uobūļu?"</p>
+
+<p align="JUSTIFY">"Na, na," atbildēja veciņa un aizguoja ar sovu vecīti
+tuoļuok. Guoja, guoja jī un otkon pīnuocja vokors. Otkon jī īraudzēja mozu muojiņu
+un īguoja pasaprasīt puorgulēt. Tur otkon atroda taidu pašu vecīti, kai agruokuos
+divējuos muojiņuos. Vciši prosa: "Vai navar puorgulēt?"</p>
+
+<p align="JUSTIFY">"Labpruot," atbildēja vecīts, "bet ka jyus
+nasavyzynutu ar munim ratiņim!"</p>
+
+<p align="JUSTIFY">"Na, nasavyzynuosint," atbildēja veči un palyka uz nakts
+muojom. Tuos muojas vecīts atstuoja īguojējus un aizguoja prūjom. Veči atsagula un
+guļ, bet veciņai mīgs naīt, jai gribīs pasavyzynuot ratiiūs. Pīcēļa veciņa sovu
+veci, sāduos jī obadivēji ratiņūs un gribēja vyzvnuotīs, bet te ratiņi salyuza.
+Veči nūlyka molā salauztūs ratiņus un otkon atsagula. Reitā vecīts atīt un prosa:
+"Vai vyzynuojātīs munūs ratiņūs?"</p>
+
+<p align="JUSTIFY">"Na, mes nasavyzvnuojām," atbildēja veciņa.</p>
+
+<p align="JUSTIFY">Tad vecs pīvedja vecini pi salauztim ratiņim un ruoda. Veciņai
+nabeja, kuo atsarunuot un jei soka: "Mes tik drusku gribējam pasavyzynuot!"</p>
+
+<p align="JUSTIFY">Sasadusmuoja vecīts un nūsvīdja večus nu dabasim. Veči krizdami
+sasasyta un nūmyra.</p>
+
+
+</body></html>

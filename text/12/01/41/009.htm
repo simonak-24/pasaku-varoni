@@ -1,0 +1,210 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Viszi?a dakteris</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Visziņa dakteris.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>9.</strong> A. 1641. Draugs Līvānos. "Myusu t. teikas un
+pasokas." Nr. 5.</p>
+
+<p align="JUSTIFY">Reizi dzeivuoja nabadzīgs veirs. Jis aizzajēme ar ūgļu&amp;127;
+dadzynuošonu, un brauce uz pilsātu sovu preci puordūt. Tī jis satyka sovu pazeistamu
+nu dzimtenes cīma, un jī obi nu prīcas suoce runuot - pļuopuot.</p>
+
+<p>"Cik te daudzi kungi!" teice ūgšu dadzynuotuojs. ,,Ji laikam vysi muocīti,
+gudri veiri. Gribātūs man arī par taidu byut. </p>
+
+<p>"Malns jau tu esi dīzgon," atteice bīdrs, "nūpierc tik vēļ malnas
+drēbes, tad byusi taids pat muocīts, gudrs veirs, kai cyti." </p>
+
+<p>Tai ūgļu dadzynuotuojs ari padarēja un atbrauce uz sātu bez palāka groša.</p>
+
+<p>"Nu vai daudz naudas daduoji?" vaicoj sīva.</p>
+
+<p align="JUSTIFY">"Tagad mums, saimnīciņ, vyss byus!" jis atsoka. "Tagad
+asmu gudrs, muocīts veirs."</p>
+
+<p align="JUSTIFY">"Radzu jau, radzu!" sīva atcārt: "pīsasvucīs ols,
+suoc muldēt!"</p>
+
+<p align="JUSTIFY">Tymā laikā kēniņam nūzoga gradzynu. Jis aicynuoja pi sevis daudzi
+muocītu veiru, lai paleidzātu gradzy nu dabuot rūkā. Tū dzierdēja arī ūgļu
+dadzynuotuojs un tyuleņ laidēs da ķēniņam. Kēniņš sasarunuoja ar muocītim veirim,
+daguoja ari da ūglu dadzynuotuojam.</p>
+
+<p>"Kas tu taids esi?" vaicoj ķēniņš.</p>
+
+<p align="JUSTIFY">"Asmu gudrs, muocīts veirs un lobs paragūnis," atbild
+ūgļu dadzynuotuojs.</p>
+
+<p>"Juo tai, tad paruodi man zagli," teice kēniņš.</p>
+
+<p align="JUSTIFY">"Nava jau, prūtams, taidu nūslāpumu, kuru navarātu
+atkluot," soka ūgļu dadzynuotuojs. "Bet es jau septiņi godi ceļu gruomotu
+kaudzes, tūmār vītas man vēl nav. Juo zagli grib atrast, tad vajaga daudzi laika un
+daudzi tad papeiru juopīroksta."</p>
+
+<p align="JUSTIFY">Jam atvēlēja laiku un deve papeiru, cik vajag, lai tik atrūd zagli.
+Jīs īguoja sbvā ustobā, kēniņa pilī, un dreiži vīn vysi nūmanēja, ka tys nava
+nikaids muļķis - muocītuojs, bet zyna daudzi vairuok par cytim, pīrakstējis vasalu
+kaudzi papeiru, ka teiri baile, Un izlasīt ari nivīns cylvāks navar, taidi sovaidi vīn
+tī leikumi. Bet laiks skrīn namonūt un par zagli ni vēstes. Kēniņš suoce
+šaubītīs un pīsacēja ūgļu dadzynuotuojam, ja trejuos dīnuos zagļa naatrass, tad
+byus slikti.</p>
+
+<p align="JUSTIFY">"Sylts nuok ar sildīšonu, lobs atr gaidīšonu," ūgļu
+dadzynuotuojs soka. "Kai lai dabuoj ūgles, cikom vēļ molka nava izdaguse?"</p>
+
+<p align="JUSTIFY">Bet kēniņš nagrib ni dzierdēt. Nyu ūgļu dadzynuotuojs nūprota,
+ka nav vairs labi. Kū beja darīt? Ķēniņš šū malnū gudrīa veiru beja licis
+apkolpuot sovim sulaiņim, kas arī vysi kūpā kēniņa gradzynu beja nūzoguši. Kad
+pyrmais nū jīm īnuoce vakareņu goldu nūkūpt, ūgļu dadzynuotuojs pasavēre uz jū,
+pagrīzja golvu un nūsapyuzdams sacēja: "Redz, jau pyrmais!"</p>
+
+<p align="JUSTIFY">Ar tū jis gribēja teikt, ka pyrmais vokors jau kluot; bet sulainis
+nūdūmuoja, ka mainais gudrinīks runoj par jū.</p>
+
+<p align="JUSTIFY">"Ir gon šis gudrinīks!" teice sulainis uz bīdrim, un
+pastuostēja, kū tys jam teice.</p>
+
+<p align="JUSTIFY">Nuokūšu dīn ūtrs sulainis ari gaida, vai muocītais ko nasacīs par
+viņu. Un leidz kai sulainis vakareņu goldu nūkūpe, muocītais veirs smagi, smagi
+nūsapyuzdams sacēja: ,,Redzi, ari ūtrs!"</p>
+
+<p align="JUSTIFY">Nyu trešais sulainis napacītīgi gaida, kū šam muocītais teiks.
+Jam nabadzeņam, izguoja vēl slyktuok, kai pyrmajim. Trešajā dīnā šis īt ar traukim
+nu ustobas uorā, te muocītais veirs, rūkas salicis, īsasauc: "Un redzi ari
+trešais!" Pi tam jis tik gryuši un smagi nūsapyute, kai kad syrds pušu pleistu.</p>
+
+<p align="JUSTIFY">Sulainis nūīt pi sovim bīdrim pusdzeivs, pusnūmiris un teic:
+Skaidra līta, muocītais veirs zyna vysu."</p>
+
+<p align="JUSTIFY">Nyu jī vysi nūguoja da ūgļu dadzynuotuojam, krita ceļūs juo
+prīškā un suoka lyugtīs, lai jū nanūdūd ķēneņam. Izklau&amp;127;sēja muocītais
+veirs nūzīdznīkus, un syrds jam apsažāluoja. Apsajēme jis vainīgū naizdūt un lyka
+atnest zogtū gradzynu un bļūdu bīzas pūtras. Tī atnese. Muocītais veirs ījauce
+gradzynu putrā un pavēlēja sulaiņim jū sadūt pašam leluokojam vieršam kēniņa
+klāvā.</p>
+
+<p align="JUSTIFY">Kēniņš reitā īnuok pi ūgļu dadzynuotuoja un buorgi vaicoj, vai
+tys dabuoja zagli rūkā, vai na.</p>
+
+<p align="JUSTIFY">"Beja gon kū rakstīt un meklēt!" jis gudri atsoka.
+"Tagad zynu; zaglis nav cylvāks."</p>
+
+<p align="JUSTIFY">"Nu, kas tad?" ķēniņš napacītīgi vaicoj. </p>
+
+<p align="JUSTIFY">"Tovs viersis!" atbild ūgļu dadzynuotuojs.</p>
+
+<p align="JUSTIFY">Viersi izvede nu klāva, nūkova un vādarā patīši atroda gradzynu.
+Ķēniņš beja jūti prīcīgs; deve ūgļu dadzynuotuojam vītu, duovynuoja zyrgu, muoju
+un vēļ symtu dalderu naudas pīdavom.</p>
+
+<p align="JUSTIFY">Piezīme. Gluži tādu pasaku ir piesūtījis Kr. Barona biedrībai J.
+Karēlis no Baižkalna. P. Š.</p>
+
+
+</body></html>

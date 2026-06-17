@@ -1,0 +1,193 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>27</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5">
+
+<p align="CENTER"><strong>Abi dzīvē un nāvē savienotie draugi.</strong></p>
+</font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">27. A. 470. V. Zacharska no 73 g. veca A. Bertanoviča Preiļos, V.
+Podis krājumā.</p>
+
+<p align="JUSTIFY">Vīnu reizi dzeivuoia uz šuo pasauļa vīna veciņa ar sovu dālu.
+Itei veciņa beja cīši skūpa, bet juos dāls beja cīši lobs cylvāks: jis žāluoja
+bēdīgus ļaudis, un cik jis varēja, devja jim paleigu.</p>
+
+<p align="JUSTIFY">Vīnu reizi zam zīmys svātkim: kūču dīnas vokorā, kod veciņa ar
+dālu taisījuos ēst vakareņus, tymā stracī atguoja pi jūs vīns nabadzeņš vecs,
+kurijis pazaprasējuos uz nakts muoju. Veciņa nagribēja laist veceiti nabadzeņu, bet
+dāls beja lobys sirdis, jam tyka žāl no ubodziņa, jis izprasūja muoti, kab jei
+īlaistu tū nabogu uz naktsmuoju, Veciņa paklausēja dāla un pascēja: "Labi, lai
+puorgul nakti!"</p>
+
+<p align="JUSTIFY">Vecs nūzavylka, dāls pasādynuoja jū pi golda reizjā ar sevim ēst
+vakareņus un beja cīši prīceigs. ka ar jū gaida lelys svātdīnis svešs cylvāks,
+vēl bēdeigs nabadzeņš. Ūtrā dīnā nu reita Pazacēļa vecs un jau grib īt
+prūjuom, bet dāls jū napalaidja un proturēja treis dīnys, baruoja jū un runuoja ar
+jū prīcuodamīs.</p>
+
+<p align="JUSTIFY">Caturtā dīnā vecs taisuos īt un runoj uz dālu: "Nu dāls,
+itū gods es beju pi tevis gostūs, a uz cyta gods tu byusi pi manis gostūs. Kod tu uz
+cyta gods vēļ kūču dīnā sēsīs pi golda, pīmin mani veču, tū straci es
+atsyuteišu pēc tevis zyrgu, kurijis atvess tevi pi manis."</p>
+
+<p align="JUSTIFY">Tai vecs nūguoja pa sovu ceļi. Dāls ar sovu muoti puordzeivuoja tū
+laiku un gaidēja otkon tū zīmys svātku kūču dīnas vokoru, kod dāls ar muoti
+sādās pi golda ēst vakareņus. Dāls runoj uz moti: "Pīmin, muomeņ, Pārnū gods
+beja itymā dīnā pi myusu veceits, kai beja abi ar jū gaidīt tū lelu svātdīni!
+Vēļ? jis mani uz ituos dīnys Prasēja pi sevis gostūs, runuoja, ka atsyuteis zyrgu
+pēc manis. Īšu pazavārtūs uorā, varbyut ka ir zyrgs atsyuteits.</p>
+
+<p align="JUSTIFY">Tai dāls bez capuris ar plyku golvu izguoja uorā pazavārtūs,
+veruos: pi juo ustobys durovu stuov zyrgs. Jis vēj naticēja sovim acim, daguoja kluot un
+sāduos uz zyrga, kai itys zyrgs nūnesja jū pa gaisu. Golu golā zyrgs apstuoja pi mozys
+vacys ustobeņis un dāls īraudzēja pazeistamu veceitja vaigu, kurijis izguoja
+sazatoptīs ar gostu. Dāls nūkuopja nu zyrga un vecs īvedja jū sovā ustobeņī. Tī
+jī obadivēji paēdja vakareņus un nūguoja gulātu. Ūtrās dīnā dāls taisuos īt uz
+sovu sātu bet vecs jū nalaiž, tai dāls puorbeja pi veča gostūs sešys dīnys. Itei
+tai pazaruodēja dālam, bet jis puorbeja pi veča na sešys dīnys, a sešys godus.
+Septeitūs dīnās vecs īt uz teiruma struoduot, a gostam pascēja, lai jis pastaigoj un
+pazaveruos, kas pi juo ir. Tai vecs nūguoja uz teiruma struoduotu, a gosts palyka juo
+ustobā. Vot dāls dūmoj: "Pazavieršūs es, kas ir pi veča ustobā tymūs
+kambarūs."</p>
+
+<p align="JUSTIFY">Tymā stracī dāls attaisēja vīnas durovys nu kambara un veruos: tī
+lels kotlys, a tymā kotlā vāra daguts un tymā dagutā daudz daudz ļaužu. Tī jis
+īraudzēja arī sovu muoti. Muotja taipat īraudzēja sovu dālu un suoka prasēt jū,
+kab jis jū rotavuotu. Dālam tyka žāl sovys muotis un jis padevja sovai muotei rūku,
+bet nikai jīt navarēja izvilkt. Tai dāls palyka cīši skumeigs. Tymā stracī atīt nu
+dorba vecs un vaicoj sovam vīsam, par kū jis taids skumeigs. Vīss izstuostēja večam
+par vysu taidu nalaimi ar juo muoti. Tūlaik vecs soka dālam: "Nabādoj, ej uz
+duorzu, ti stuov cysys [salmi], pajem vīnu cysu, atnez uz šanīni un vīnu golu turi tu,
+a ūtru padūd sovai muotei."</p>
+
+<p align="JUSTIFY">Dāls tai padora, izguoja uorā, dabuoja vīnu cysu un atnezja padūt
+sovai muotei. Muotja ar obejim rūkom izzatvēra aiz cysys, un dāls jū suoka ceļt
+augšā, a tī cik beja kotlā, ļaužu, sazatvēŗa aiz juo muotis un tai pat gribēja,
+kab jūs ar ratavuotu lobais cylvāks. Bet muotja beja cīši dusmeiga un suoka jūs ar
+kuojom sist un lomuotīs runuodama: "Itys muns dēleņš, kur grib ratavuot
+mani."</p>
+
+<p align="JUSTIFY">Ap tū laikti cysa rozaruovja un muotja ar vysim cytim otkon tyka tymā
+pat kotlā. Atīt dāls pi veceitja un stuosta jam taidu gadējumu. Tūlaik vecs soka
+dālam: "Tu esi lobs cylvāks un taidēļ tova lobuma es gribēju ispestīt tovu
+muoti un tūs ]auds, kur tī vard tymā kotlā, bet tai kai tova muotja vēl tagan tei
+poša dusmeiga, un jai beja žāl, ka tu izvilksi cytus jauds, tod lai jei vard tymā
+dagutā, a tu byusi maņ par eistu dālu un dzeivuosi ar manim vīnu vīt."</p>
+
+<p align="JUSTIFY">Nu tuos dīnys vecs ar lobū dālu dzeivoj laimeigs. Dusmeiguo muotja,
+koleidz dāls beja gostūs pi veča septeņus godus, a na septeņus dīnus, nūmyra, un
+pēc sovys nuovis tyka tymā daguta kotlā un vard tī dīnus un naktis. Tī muotja ar
+sovu dālu sazatopa. Dāls koč dzeivoj ar veču labi, bet jam vys žāl sovys muotis, jis
+kotru dīnu prosa veceiti, kab jis paleidzeitu ratovuot juo muoti, bet vecīts vys jam
+runoj, lai jei tī pazavuica. Bet golu golā vecs jū ratavuoia nu tuo korstuo kotla, un
+jei tagan dzeivoj ar sovu dālu. Bet jei jau nav taida dusmeiga un skūpa.</p>
+
+<p align="JUSTIFY">Vecs itys beja pats Dīvs, kurijis vacūs laikūs pats staiguoja pa
+šū zemi un vysu redzēja, kas kū nalobu darēja.</p>
+
+
+</body></html>

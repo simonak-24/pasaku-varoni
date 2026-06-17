@@ -1,0 +1,492 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Maģiskā bēgšana un aizmirstā līgava.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">6. A. 313 B. C. A. Gari-Juone no 55. ;. v. Kromanes Brigitas Bikovas
+pag. Kultūras balss kr.</p>
+
+<p align="JUSTIFY">Agruok dzeivuoja vīns baguots saimnīks, vuordā Jezups. Vysod kad
+nūkyuļa labību, jis, pametja kulā leidz ūtram reitam. Aizīt ūtrā reitā un redz,
+ka uz rudzim sēd krauklis un ād rudzus. Saiminīks palyka dusmīgs un gribēja kraukli
+nūsist. Atsamērēja sist, a krauklis lyudzjās : "Nasit, saiminīks, es jau treis
+godi kai tovus rudzus ādu!"</p>
+
+<p align="JUSTIFY">Saiminīks palyka vēļ dusmīguoks un gribēja nūsist uz vītas, a
+jis vēļ stypruok lyudzjās: "Saiminīks, nasit manis! Es tev samoksuošu, tikai
+vēļ treis godus pabaruoj mani!"</p>
+
+<p align="JUSTIFY">Saiminīks paklausīja kraukli un atvedja pi sevis. Vīnu godu jis
+īlyka kraukli mīžu orūdā, ūtru godu rudzu orūdā un trešu godu īlyka kvīšu
+orūdā. Kad treis godi beja paguojuši, krauklis soka saiminīkam: "Sēstīs man
+mugurā un brauksim pi munom muosom, juos tev atleidzynuos."</p>
+
+<p align="JUSTIFY">Zemnīks sādās kraukļam mugurā un jis jū aizvedja pi vacuokuos
+muosas, kuras mozuo ustabiņa grīzjās uz vystas kuojas. Pīskrējis pi ustobiņas,
+krauklis nūsalaidja, palyka par cylvāku un guoja obeji ustobā. Muosa soka: "Oi,
+bruolīt, cik ilgi tevis naredzēju! Kur tu beji?"</p>
+
+<p align="JUSTIFY">Bruols soka: "Es beju pi ituo cylvāka, jis mani šešus godus
+baruoja, samoksuoj jam par tū!"</p>
+
+<p align="JUSTIFY">Pamīluoja jei obējus, pasavēŗa kastē un soka: "Man nava tik
+daudzi kū par sešim godim samoksuot."</p>
+
+<p align="JUSTIFY">Bruols izguoja uorā, palyka par kraukli, uzsādynuoja saiminīku sev
+mugurā un aizskrēja pi vidējuos muosas. Pīskrējis pi ustabas, nūsalaidja, palyka par
+cylvāku un obēji īguoja ustobiņā, kura grīzjās uz vystas kuojas. Bruoli
+iraudzējuse, muosa soka: ,,Oi, bruolīt, cik es tevis ilgi naredzēju!"</p>
+
+<p align="JUSTIFY">Tod jei sataisīja maltīti un pamīluoja obējus. Kad ji beja
+paāduši, jis sacīja: "Muosiņ, samoksuoj itam cylvākam, jis mani sešus godus
+baruoja."</p>
+
+<p align="JUSTIFY">Muosa paceļ skreinei vuoku, pasaver un soka: "Man nava tik daudzi
+naudas, kai par sešim godim samoksuot!"</p>
+
+<p align="JUSTIFY">Tod jis atsavadīja ar muosu, izguoja uorā, palyka par kraukli un soka
+uz saiminīku: "Sēstīs man mugurā!"</p>
+
+<p align="JUSTIFY">Nyu jī aizskrēja pi jaunuokuos muosas, kuras muojiņa taipat
+grīzjās uz vystas kuojas. Jis otkon, pīskrējis pi muojiņas, pasataisēja par cylvāku
+un obēji iguoja ustobiņā. Muosa soka: "Oi, bruolīt, cik es tevi ilgi
+naredzēju!"</p>
+
+<p align="JUSTIFY">Pataisīja jei maltīti, obējus pabaruoja un bruols soka:
+"Muosiņ, samoksuoj itam cylvākam, jis mani sešus godus baruoja." Muosja,
+nateikdama ni vuorda, pajēmja atslāgu, izjēmja nu leluos skreines mozu skreinīti un
+sacīja padūdama: "Pajem šū kastīti (skreinīti) un nataisi vaļā leidz sātai.
+Ka aizīsi sātā, izej uz kaida šmukuoka kalniņa un tūlaik taisi skreinīti
+vaļā!"</p>
+
+<p align="JUSTIFY">Tod izjēmja nu sovim motim (golvas) kemmi un teicja: "Jo byus
+kaids yudins vai upe, īsvīd kemmi, izzataisīš tylts un tu puorīsi."</p>
+
+<p align="JUSTIFY">Saiminīks laidjās ceļā. Īt vīnu dīnu, īt ūtru, īt, īt, bet
+sāta vēļ tuoli. Daguoja pi jyurmolas un jam cīši gribējās pasavērt skreinītē.
+Jis napacītja un attaisīja skreinīti, par reizi izzataisīja taida skaista muoja,
+kaidas jis vēļ nikod nabeja redzējis, un muojā vysa kuo gona, kuo tikai gribi, a uorā
+tikt navar: durovas īīt taišņi jyurā. Nu tuolīnes jis redz tyvuojas vīns kuģis,
+tys<b> </b>kuģis pīīt pi muojas un vīns kuģinīks īīt pi juo. Saiminīks sēdēja
+muojā cīši bēdīgs. Kuģinīks soka: "Cylvāks, kuo tu bāduojīs?"</p>
+
+<p align="JUSTIFY">Tys atsoka: "Kai es nasabāduošu, ka navaru tikt uorā? Kai tik
+pa slīksni speru, kreitu jyurā."</p>
+
+<p align="JUSTIFY">"Nabāduoj," soka kuģinīks, "atdūd man tū, kuo tu
+muojā nazyni, es tev atdūšu šū muoju un vysu kas muojā ir."</p>
+
+<p align="JUSTIFY">Tys beja valns. Cylvāks dūmuoja, dūmuoja, vasalas sešas stundes par
+vysu kas muojā ir: par sīvu, bārnirn, zyrgim, gūvim, cyukom un vysim dzeivnīkim, un
+jam iykuos, ka jis vysu zyna, kas muojās ir, un golu golā soka: "Jem ar!"</p>
+
+<p align="JUSTIFY">Tyulin valns pajēmja muoju, saškatynuoja komūlī, īlyka skreinītē
+un atdevis saimnīkam, soka: "Jem un ej uz sātu!"</p>
+
+<p align="JUSTIFY">Jezups pajēmja skreinīti, pasyta padusē un Laidjās uz sātu Ilgi
+guoja un daguoja pi sovas sātas, jam izskrīn prīkšā dāls Juonīts, kuram beja jau
+četri godi, un soka: "Tēt, tu jau mani atdevi, es; jau vairs ilgi pi tevis navaru
+dzeivuot!"</p>
+
+<p align="JUSTIFY">Par dāla pazaudēšonu Jezups stypri nūskuma, pacēļa sincēs
+(priekšiņā) greidu un īsvīdja skreinīti zam greidas pīlykdams: "Man vairuok
+navajaga nikuo.</p>
+
+<p align="JUSTIFY">Tai guoja gods pēc goda un puika beja jau pīcpadsmit godu, tūreiz
+atsasveicynuoja ar sovim vacuokim, muosom un laidjās ceļā. Īdams jis pīguoja pi
+vīnas ustabiņas. Īguoja ustabiņā, ustabiņā uz cepļa sēdēja vīna vaca vecenīte.
+Jis padevja vecenītei iobvokoru un vecenīte lyudzja, lai jis puorguļ par nakti. Puisis
+izstuostīja vecenītei vysas sovas bādas, tod vecenīte sacīja:</p>
+
+<p align="JUSTIFY">"Aizej, dāls, uz jyurmolu, tur byus vīns lels akmens, tu
+nūzaglobuoj aiz leluo akmeņa, te atskrīs divpadsmit bolūdīņu. Vīnpadsmit
+bolūdīņu nūliks drēbes uz akmiņa, a divpadsmituo pi akmiņa. Juos drēbes tu pajem
+un paglobuoj, kad cytas bolūdīnes aizskrīs, tod jei prasīs: " Voi esi vacs, voi
+pusmyuža, voi jauns, kas munas drēbes pajēmi? Jo esi vacs, tod paliksi par munu eistū
+tāvu, jo pusmyuža, tod par munu eistū dzjadzi (onkuli), jo jauns, tod par munu eistū
+bryuguonu." Kad bolūdīne pādējū pasacīs, tod tu atsasauc un atdūd
+drēbes."</p>
+
+<p align="JUSTIFY">Jis paklausīja vecītes un aizguoja uz jyurmolu, nūsaglobuoja aiz
+leluo akmiņa. Dreiž atskrēja divpadsmit bolūdiņu. Vīnpadsmit nūlyka drēbes uz
+akmiņa, bet divpadsmytuo pi akmiņa, jis tuos divpadsmytuos drēbes nūzoga. Kad cytas
+bolūdīnes aizskrēja, tod jei prasīja: "Voi esi vacs, voi pusmyuža, voi jauns? Jo
+esi vacs, tod byusi muns eistais tāvs, jo esi pusmyuža, tod muns eistais dzjadzja, juo
+jauns, tod muns eistais bryuguons."</p>
+
+<p align="JUSTIFY">Kai tikai bolūdīne pasacīja pādējū, jis atsasaucja un atdevja
+drēbes. Bolūdīne jū puornese par jyuru un sacīja: "Mes asam divpadsmit muosas
+kai vīna, es asmu vvsjaunuokuo. Myusim ir divpadsmit kambaru, vīnpadsmit durovom ir
+sudobra klindzīši, a munom durovom zalta klindzīts. Tu atrassi munu kambari pēc
+klindzīša."</p>
+
+<p align="JUSTIFY">Bolūdīne aizskrēja, paruodījuse muoju, uz kuru jam juoīt. Jis
+nūguoja pi tuos muojas un īraudzēja augstu sātmali ar osim mītu golim un uz ikkotra
+mīta izvārta cylvāka golva. Jam tyka bails, bet jis guoja, paguoja garum vīnpadsmit
+kambarim ar sudobra klindzīšim un īguoja iškā tamā, kuram beja zalta klindzīts
+Bolūdīne soka: "Tagad tu īsi pi muna tāva, jis tev sacīs: "Sēstīs
+krāslā," bet tu nasasēst tamā krāslā, jo tod jis tev aizdūs taidu dorbu, ka tu
+navarēsi izdarēt."</p>
+
+<p align="JUSTIFY">Un jis aizguoja pi bolūdīnes tāva, vacuo valna. Valns īraudzījs
+soka: "Ot, lobs, muns dāls, ka atguoji pi manis!"</p>
+
+<p align="JUSTIFY">Tod jis padevja jam ēst un krāslu, uz ko atsasēst. "Es sātā
+vysod, kuojom stuovādams, ādu, sacīja jis un nasasāda. Tūreiz valns sasadusmuojis,
+nūsaspļaun un aizskrīn ka kadaki [zābaku galvas] vīn nūklaudz. Dāls dūmuoj:
+"Ka valna nava, tod var atsasēst krāslā," un atsasāst. Valns tyulin puisi
+gluostīdams soka: "Lobs dāls, lobs! Ej par nakti uz jyurmolu, tī izbyra jyurā
+vīna mogoņu buca [muca], sakausti bucu, salosi mogonas, saber bucā, aiztaisi bucu
+cīši kai beja."</p>
+
+<p align="JUSTIFY">Vēļ īdevja leidza kūka ciervīti, vasarīti un ēvelīti. Dāls
+nūskumis aizguoja pi bolūdīnes un pastuostīja par vysu, kū juos tāvs sacīja un jei
+jam pasacīja: "Ej gulātu!"</p>
+
+<p align="JUSTIFY">Tod bolūdīne pajēmja sovu svelpīti, izguoja uorā un aizsvelpja.
+Par reizi pīskrēja pulks mozūs čortiņu un bolūdīne jim gasacīja: "Ejat uz
+jyurmolu, tur ir jyurā izbyrušas mogonas un sapleisuse buca, sakaustīt bucu, salosīt
+mogonas, saberīt bucā iškā un tys jums juoizdora leidz pusnaktei."</p>
+
+<p align="JUSTIFY">"Labi" - atsacīja čortiņr un aizguoja pi dorba.</p>
+
+<p align="JUSTIFY">Uz reita gusi jei izmūdynuoja Juonīti un sacīja: "Ej tagad uz
+jyurmolu un kausti bucu, kad tikai muns tāvs taukstīs bucu, sit vīn jam ar vasari par
+pierstim."</p>
+
+<p align="JUSTIFY">Dreiži pēc tuo aizguoja reitā ari valns uz jyurmolu, saraustīja
+placus un nūsabreinuoja, ka jis tū par nakti padarīja, un suoka taukstīt bucu. Dāls
+tikai metja vīn valnam ar vasari par pierstim. Lai gon valnam piersti suopēja, bet jis
+vys sacīja: "Labi, dāls, labi!"</p>
+
+<p align="JUSTIFY">Nyu jis otkon atguoja pi bolūdīnes. "Tagad tu aizīsi pi muna
+tāva, jis tev liks sēstīs krāslā, bet tu krāslā nasasēst, jo tad jis aizdūs tev
+taidu doriu, kā naspēsi izdārīt," sacīja bolūdīne.</p>
+
+<p align="JUSTIFY">Jis aizīt pi tāva, valns soka: "Sēstīs, dāls, krāslā,
+sēstīs!" "Es vysod ādu stuovūt!" tm nasasāda.</p>
+
+<p align="JUSTIFY">Valns sasadusmuoja, nūsaspļuovja, un aizskrēja, ka kadaki vīn
+nūklaudzēja. Dāls nasasāda, tikai dasadyuŗa pi krāsla un uz reizes valns gluosta juo
+golvu un soka: "Lobs, dāls, lobs!"</p>
+
+<p align="JUSTIFY">Jis atsasāda. Valns jam uzlyka izcierst meža gobolu, leidumu izart,
+pīsēt kvīšu, kvīšus nūkult, samalt, izcept pluociņus, a rm bolkom iztaisīt muoju.
+lzcapiūs pluociņus vajag salikt jaunajā muojā uz plauktim. Tys vyss dorbs juopadora
+leidz reitam. Tod valns jam īdevja kūka ciervīti, zuodžīti, kūka vasarīti un kūka
+ēveli. Tagad jis bēdīgs aizguoja pi bolūdīnes un pastuostīja vysu, kū tāvs jam
+beja sacējis. Bolūdīne soka: "Ej gulātu!"</p>
+
+<p align="JUSTIFY">Jei pajēmja sovu svelpīti, izguoja uorā un aizsvelpja. Uz reizes
+pīskrīn vēļ mozūs čortiņu. Bolūdīne soka: "Leidz pusnaktei ejte izcērtīt
+meža gobolu, izarīt leidumu, pīsējīt kvīšus, tūs izkūlīt, izcepīt pluociņus,
+un iztaisījuši nu bolkoīn jaunu muoju salīkat pluociņus pa plauktim!"</p>
+
+<p align="JUSTIFY">"Labi!" atsacīja čortyi un aizguoja dorbā. Zam gaismu jei
+izmūdynuoja dālu un soka: "Ej uz tū muoju un reitā, kad aizīs muns tāvs un
+raudzēs, voi sīnas ir gludas, tad tu dūd viņam ar vasarīti par pierstim!"</p>
+
+<p align="JUSTIFY">Reitā atīt valns un rauga sīnas, voi ir gludas, a jis atsavalk un
+dūd vīn pa pierstim ar vasarīti, bet valns, placus raustīdams, soka: ,;Labi, dāls,
+labi!"</p>
+
+<p align="JUSTIFY">Dāls aizīt vēļ pi bolūdīnes un vysu pastuosta. Jei soka: "Ka
+tu aizīsi pi muna tāva, tod nasasēst krāslā, bet ēd stuovūt, jo tu atsasēsi, tod
+jis aizdūs taidu dorbu, ka tu naspēsi izdarīt!"</p>
+
+<p align="JUSTIFY">Īt vēļ jis pi valna. Valns dūd jam ēst un soka: "Lobs, dāls,
+lobs, sēstīs!"</p>
+
+<p align="JUSTIFY">"Es vysod ādu stuovūt!" atsacīja dāls un nasasāda. Valns
+sasadusmuojis, nusaspļuovja un aizskrēja, ka kadaki vīn nūklaudzēja. Dāls ād, ād,
+aizmierst un atsasāst krāslā. Par reizi valns kluotu un soka: "Ot lobs dāls, tu
+tagad izmuocīsi munu jaunū 4 godu zyrgu."</p>
+
+<p align="JUSTIFY">DāIs sevī dūmuoja: "Kas man tī kū muocīt? Es na taidus
+zyrgus asmu muocījis."</p>
+
+<p align="JUSTIFY">Jis īt pi bolūdīnes, un pastuosta, kaidu dorbu tāvs aizdevja
+izdarīt.</p>
+
+<p align="JUSTIFY">"Jis pats byus par zyrgu," soka bolūdīne un īdūd jam
+sadlus, dzelžu āmuri un soka: "Ka izvess zyrgu nu klāva, dūs sadlus, tūs tu
+najem, pasoki, ka tev ir sovi. Ar tīm sadlim, kur tev dūs, zyrgs izaceļs gaisā. Kad
+zyrgs celsīs gaisā, tod tu tikai dūd vīn ar vasari aušu storpā, cikom jis nūsalaiss
+zemē."</p>
+
+<p align="JUSTIFY">Pēc tam mozī čortiņi izvad lelu apsadluotu zyrgu uorā, a jis i
+soka: "Jemīt sovus sadlus un īmovus nūst, man ir pašam sovi sadli un
+īmovi."</p>
+
+<p align="JUSTIFY">Kad sadlus nūjēmja, jis apsadluoja ar sovim, sādās zyrgam mugurā
+un izjuoja pa vuortim. Kai tikai izjuoja pa vuortim, tyuliņ zyrgs ceļas gaisā, bet jis
+syt vīn aušu storpā, syt vīn aušu storpā ar vasani, cikom sasyta golvu. Tūreiz
+zyrgs mežā nūsalaidja taišņi uz zemes un atguoja kai vysi zyrgi pa zemes ceļu uz
+muojom. Viņš otkon īguoja pi bolūdīnes un par vysu pastuostīja. Jei soka: "Ej
+nyu sēstīs krāslā un ēd mīrīgi!"</p>
+
+<p align="JUSTIFY">Jis aizguoja, atsasāda krāslā, mīrīgi paēdja. Te īīt valns ar
+lupotom apsītu golvu un līlēj dālu: "Ot lobs muns dāls, ot lobs! ka zyrgu
+izmuocīji! Man ir divpadsmit meitu, kuru tu gribēsi, tū i jem, bet vysas meitas kai
+vīna."</p>
+
+<p align="JUSTIFY">Īdams pi bolūdīnes, jis dūmuoja sevī: "Es izlasīšu sev kuru
+cytu," a bolūdīne vysu tū par reizi zynuoja. Jis īīt gi bolūdīnes un soka:
+"Tāvs sacīja izlasīt, kuru es gribūt."</p>
+
+<p align="JUSTIFY">"Zynu gon, ka tu gribi cytu, bet na mani izlasīt. Jem, kuru
+gribi, bet es asmu nu vysom gudruokuo," sacīja bolūdīne.</p>
+
+<p align="JUSTIFY">"Kai tod es zynuošu, kura tu esi?" vaicuoja jis.</p>
+
+<p align="JUSTIFY">"Tāvs vysas myusus nūstuodīs rindā. Kad tu trešu -reizi īsi
+apsavārdams, man uz daguna izzamess myusa. Es ar lakatiņu myusu nūdzeišu, tod tu ej un
+pajem mani" - pamuocīja bolūdīne, "bet tāvs manis žāluos un par reizi
+naatdūs, tod pataisīs myusus par divpadsmit balūdīnēm, mes byusim vīnaidā spolvā
+un vīnaida auguma."</p>
+
+<p align="JUSTIFY">"Kai es zynuošu, kura tu esi?" otkon vaicuoja jis.</p>
+
+<p align="JUSTIFY">"Kad tu trešu reizi īsi apsavārdams, tod es paceļšu
+spourniņu un nu ker mani," runuoja bolūdīne.</p>
+
+<p align="JUSTIFY">Valns izvad sovu divpadsmit meitu un pasiota vysas vīnā streipē un
+soka: "Ej, dāls, izlosi, kura tev pateik!"</p>
+
+<p align="JUSTIFY">Meitas beja vīnaida auguma, vīnalduos kleituos, vīnaidim motim, ar
+vuordu vysas kai vīna. Dāls īt vīnu reizi apsaver, ūtru reizi, a valns vys skubynuoj:
+"Nu jem, kuru tu gribi, jem dreižuok!"</p>
+
+<p align="JUSTIFY">Trešu reizi īt garum rindai un vīna pavācynuoja ar lakatiņu, tod
+dāls par reizi pīguoja un pajēmja pašu jaunuokū. Valns soka: Vai! Tu pajēmi munu
+vysujaunuokū un vysugudruokū meitu!</p>
+
+<p align="JUSTIFY">" Nu vēļ izlosi nu divpadsmit bolūdīnem vīnu, kura tev
+patiks. "Labi," atsoka dāls. Valns vysas sovas divpadsmit meitas puortaisa par
+bolūdīnem, pabuorsta graudus un salaiž, lai losa. Bolūdīnes vysas kai vīna, --
+kņuopuoj graudus. Jis staiguoj apleik un veras, kuru jemt. lt vīnu reiz, īt ūtru, a
+valns skubynuoj: "Nu jem dreižuok, jem tū, kura tev pateik!"</p>
+
+<p align="JUSTIFY">Īt jis trešu reizi apkourt un redz, ka vīna pacēļa spuorniņu, jis
+tyuliņ i soka: "Es jemšu tū, kura pacēla spuorniņu!" un tū pajēmja.
+"</p>
+
+<p align="JUSTIFY">"Vai, tu pajēmi munu vysujaunuokū un vysugudruokū meitu!
+žāluodams izsauce valns, "nu jem ar!" un vēl īdevja divējus zalta
+gradzynus. Pēc tam izstaiguoja kotrs sovu molu. Bolūdīne ar sovu veiru aizguoja uz
+kambartiņu, jei soka: "Šūnakt mums juobāg pa ceļu, cytaidi tāvs var aizdūt
+taidu dorbu, ka navarēsim izpildīt."</p>
+
+<p align="JUSTIFY">Tod jei nūspļuovja slīkas treis reizes, vīnu reizi pi gultas, ūtru
+reiži ustobas vydā un trešu reizi pi slīkšņa, a gradzynu izlyka uz lūga. Sāstas
+obēji vīsolā un brauc nu elles prūjom, bet gradzynus aizmiersa pajemt. Reitā Lucipers
+atsamūdīs syuta mozūs veļniņus: "Eite pasaverīt, voi jī nasaceļ, jī var
+aizbēgt!"</p>
+
+<p align="JUSTIFY">Veļniņi aizskrīn pi bolūdīnes kambara durovom un prosa: "Voi
+jyus jau ceļatīs?"</p>
+
+<p align="JUSTIFY">Slīkas kambarī atbild: "Mes ceļamīs!"</p>
+
+<p align="JUSTIFY">Tai mozī aizskrīn pi vacuo un pastuosta, ka jau ceļūtīs. "Juo
+jau ceļas, tod var aizskrīt, eite un sorguojīt," pasacīja valns. Mozi veļniņi
+otkon aizīt pi durovom un prosa: "Kū jyus dorat?"</p>
+
+<p align="JUSTIFY">"Mes mozguojamīs," atbild slīkas kambarī. Jī
+aizskrējuši "</p>
+
+<p align="JUSTIFY">pastuosta večam, ka jau mozguojūtīs.</p>
+
+<p align="JUSTIFY">"Jo jau mozguojas, tod var aizskrīt, eite un sorguojīt!"
+Vēļ veļniņi aizīt pi durovom un prosa: "Kū jyus dorat?" "Mes
+gērbamīs" - atbild slīkas. Jī aizskrīn un pastuosta tāvam, ka jī gērbas.
+"Jo gērbas, tod var aizskrīt, eite un sorguojīt !"</p>
+
+<p align="JUSTIFY">Vēj reizi skrīn veļniņi un vaicuoj: "Kū jyus dorat?"</p>
+
+<p align="JUSTIFY">Nikas nikuo naatbild, vyss klusu. Atskrīn mozī un pastuosta, ka
+kambarī klusums, nikas nikuo naatbild.</p>
+
+<p align="JUSTIFY">"Nu tod ir prūjom, dzenītīs dreižuok pakaļ!" pavēlēja
+va cais valns. Mozī velniņi skrīn, skrīn, nikuo naredz, a bolūdīne bāgdama vysu
+laiku klausējās, jei dreiži nūzalaiž zemē un soka: "Dzanās!"</p>
+
+<p align="JUSTIFY">" Bolūdīne tyuliņ pataisa jū par baznīcu, a pate palīk par
+baznīckungu. Veļniņi daskrīn pi baznīcas, īt īškā, vysur apsaver un nikuo naredz,
+tikai dzierd bolsu, kurs sauc: "Ko jyus gribit? Eite šur, es jvvsus nukristīšu un
+puorsvētēšu!"</p>
+
+<p align="JUSTIFY">Tū dzierdādami, velniņi iznesja nu baznīcas uorā, ka nūdipēja
+vīņ, un laidjās taišņi uz muojom. Atskrējuši pastuostīja, ka nikuo naredzējuši
+pa ceļam, tikai bejuse vīna vaca baznīca un tamā iškā baznīckungs.</p>
+
+<p align="JUSTIFY">"Tī paši i beja, jums vajadzēja pajemt kod vīnu syuniņu nu
+baznīcas un jī byutu kluot," -- sacīja vacais valns, "tagad dzenītīs
+dreižuok pēc jīm!"</p>
+
+<p align="JUSTIFY">Velniņi skrīn, skrīn, nikuo naredz, a bolūdīne ar sovu veiru jau
+beja gobolā, jei pasaklausa, pīsalīc pi zemes un soka: "Dzanās!" Tyulin jī
+palīk par cyuku ar divpadsmit syvānim un gonuos pa teirumu. Velniņi, jūs nadadzynuši,
+grīžas atpakaļ]. Valns vaicuoj: "Kū jyus redzējāt?"</p>
+
+<p align="JUSTIFY">"Redzējām cyuku ar divpadsmit syvānim," atbild jī.</p>
+
+<p align="JUSTIFY">"Tī paši i beja, jums vajadzēja pajemt kod vīnu syvāl u un
+jī byutu kluot."</p>
+
+<p align="JUSTIFY">"Nyu dzeišūs pats," nūdūmuoja vacais valns un laidjās
+ceļā. Bolūdīne ar sovu veiru jau beja gobolā, jei pasaklausa un soka: "Muns
+tāvs dzanās!" Jī vēļ skrīn, skrīn, jei pasaklausa un soka: "Jau natuoļi.
+Tagad jī nusalaiž zemē, bolūdīne nu vīsola iztaisa upi ar augstim krostim, paši
+palīk par bolūžim un maudojas pa upi. Daskrīn valns pi upes dzer, dzer yudini, navar
+upes izdzert un soka: "Bārni, dzeivuojīt Laimīgi! Pajemīt sovus gradzynus!"</p>
+
+<p align="JUSTIFY">Tod jī pa yudins zamašku lovuos, lovuos pi gradzynim, a valns uz
+krosta tur gradzynus rūkā. Bolūdīne dašlyucja pi krosta, lēcja un izruovja obējus
+gradzynus valnam nu rūkas, valns sasatryuka, raun ar puotogu un izsyt krostam rūbu, bet
+bolūdīne ar gradzynim aizpeldēja naaizkarta. Valns radzādams, ka nikuo navar padarīt
+soka: "Dzeivuojīt, bārni, laimīgi, es vairuok pēc jums nasadzeišu!"</p>
+
+<p align="JUSTIFY">Jī obēji aizguoja uz tū ustobiņu, kur dzeivuoja tei vecenīte, te
+jis atstuoja bolūdīni tm pats aizguoja uz sovu sātu. Jam aizejūt. bolūdīne soka:
+"Ka tu aizīsi uz sātu, tod tu sovas mozuos muosiņas nabučuoj! Jo tu jū
+pabučuosi, tod par manim pavysam aizmierssi."</p>
+
+<p align="JUSTIFY">Jis aizguoja uz sātu, tāvs i muote cīši bēja prīcīgi, ka
+atsagrīzja jūs dāls; saskrēja juo bruoļi, muosas, vysi prīcuojās, runuoj,
+sasavasaluoja, sasabučuoja, a jam beja vēj vīna moza muosiņa, kuru jis nazynuoja.
+Mazuo muosiņa nu šūpeļa tai gauži vēres uz bruolīti. Muote soka: "Pasaveŗ uz
+muosiņas!"</p>
+
+<p align="JUSTIFY">Jis pīguoja tyvuok, moziņuo pīglaudja pi bruolīša, jis jū
+nūbučuoja, un tyuliņ aizmiersa bolūdīni. Tāvs izguoja sincēs, pacēļa greidu,
+izjēmja skreinīti, izguoja uz skaista kalniņa, attaisīja un par reizi pasataisīja
+skaista muoja, tamā muojā vysa kuo dīzgon, kū tik sirds kāruoj. Jis dzeivuoja un
+prīcuojās.</p>
+
+<p align="JUSTIFY">Juonīts sadūmuoja precētīs un sadarynuoja sev šmuku dzaltuoniti.
+Sataisīja kuozas, sasaucja daudzi gostu, vysi ēdja, dzēŗa un prīcuojās. Te Juonīts
+pamanīja, ka aiz lūga lidinēj divi bolūži, lūgs beja vaļā, gosti pabēŗa uz golda
+druponas un bolūži īsalaidja par lūgu ustobā, nūsametja uz golda un ēdja. Ād, ād,
+vīns bolūds īcierš ūtram un soka: "Ēd, ēd, aizmierst sovu sīvu, kai Juonīts
+aizmiersa sovu sīvu!"</p>
+
+<p align="JUSTIFY">Tai treis reizes kņopja vīns bolūds ūtram, sacīja tūs pošus
+vuordus un tod aizskrēja. Tūreiz Juonīts īdūmuoja, ka jam jau ir leigaviņa, a tagad
+jis cytu sadarinuoja. Jis tryukstas nu golda un soka: "Man jau seņ ir
+leigaviņa!"</p>
+
+<p align="JUSTIFY">Cyti dūmuoja, ka jis ir glups palicis un pīrunuoja jū
+nūsamīrinuot, bet jis nivīna nasaklausa, līk tāvam sajyugt zyrgu un aizvest jū uz
+vecenītes muojiņu, kurā palyka juo leigaviņa. Jī dreiži aizbraucja pi vecenītes,
+atvedja bolūdīni uz sovu muoju nūtaisīja kuozas par jaunu. Cik tod prīcas beja! Ni
+saprast ni izstuostīt!</p>
+
+
+</body></html>

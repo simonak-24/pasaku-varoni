@@ -1,0 +1,196 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vienacīte, Divacīte, Trijacīte.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">4. A. 511. J. Dīcmanis Lieģos, "Pasaku vācelīte", 23. LP,
+VII, II, 27, 1, 2.</p>
+
+<p align="JUSTIFY">Reiz bija nabaga sērdienīte, tai nebija ne tēva, ne mātes, jo abi
+bija jau miruši. Meiteni pieņēma viens saimnieks par ganu. Saimniece deva viņai
+ikdienas ganos pakulas līdz, kas viņai bija jāsavērpj bez ratiņa, jo saimniece
+ratiņu viņai nedeva. Meitene, ganīdama lopus, ļoti raudāja baidīdamās vakarā
+sitienus dabūt no saimnieces, ja pakulas nesavērpšot. Viņai tā raudot, pienāca govs
+un prasīja: "Mīļais nabaga bērniņ! Ko tu tā gauži raudi?"</p>
+
+<p align="JUSTIFY">Kā man neraudāt? Saimniece man šorīt iedeva pakulas līdz, lai
+līdz vakaram savērpju, bet ratiņa man neiedeva."</p>
+
+<p align="JUSTIFY">Govs teica: "Neraudi vis, bērniņ! Bāz tikai man pakulas mutē,
+es viņas ēdīšu un tad nāks man smalka, smalka dzija pa nāsim ārā."</p>
+
+<p align="JUSTIFY">Meitene nu bāza pakulas govij mutē, šī tās saēda un pa nāsim
+dzija nāca ārā, ko meitene tina gabalos. Tādējādi meitene itin ātri savērpa
+pakulas. Vakarā, kad lopus pārdzina, tad viņa dzijas atdeva saimniecei. Saimniece
+nevarēja izbrīnīties, kā meitene varējusi bez ratiņa pakulas savērpt. Viņa nu
+gudroja kā varētu to dabūt zināt.</p>
+
+<p align="JUSTIFY">Otrā dienā saimniece sūtīja citu meitu ganos, la;i noskatās kā
+meitene savērpjot pakulas. Kad nu meitene redzēja sūtīto meitu nākam, tad viņa
+atlika pakulas pie malas. Šī nu arī atnāca un meitene tai teica: "Nāc, es tev
+ieskāšu galvu!"</p>
+
+<p>Kad nu meitene bija galvu ielikusi viņas klēpī, tad tā dziedāja:</p>
+
+<p align="JUSTIFY">"Migu, migu vien' actiņa Migu otra arīdzan!"</p>
+
+<p align="JUSTIFY">Redzēdama, ka šī bija aizmigusi, meitene savērpa savas pakulas, bet
+meita nedabūja nemaz manīt, kā meitene savērpa pakulas. Vakarā, kad pārdzina govis,
+meitene atkal deva dzijas saimniecei. Saimniece paklusi prasīja meitai, vai viņa esot
+redzējusi, kā meitene savērpusi dzijas, bet meita atteica, ka neesot redzējusi. .</p>
+
+<p align="JUSTIFY">Trešo dienu saimniece sūtīja uz ganiem savu pašas meitu
+noskatīties, kā ganu meitene savērpj pakulas. Bet šai bija trīs acis. Kad meitene
+redzēja saimnieces meitu nākam, tad viņa tāpat kā agrāk atlika pakulas pie malas.
+Atnākušai meitene sacīja: "Nāc, es tev ieskāšu galvu!"</p>
+
+<p align="JUSTIFY">Kad saimnieces meita bija ielikusi galvu viņas klēpi, tad tā
+dziedāja tāpat kā kalponei:</p>
+
+<p align="JUSTIFY">"Migu, migu vien' actiņa Migu otra arīdzan!"</p>
+
+<p align="JUSTIFY">Divas acis meitene gan aizmidzināja bet trešā palika nomodā. Ar
+trešo aci saimnieces meita visu skaidri noskatījās, kā govs pienāca un saēda
+pakulas, kā nāca govij pa nāsim dzija laukā, kā meitene to savāca un satina gabalos.
+Vakarā, kad lopus pārdzina, meitene atdeva saimniecei dzijas. Bet meitene nezināja, ka
+saimnieces meitai trīs acis un ka tā noskatījusies viņu pakulas vērpjam. Saimnieces
+meita nu visu izstāstīja savai mātei, kā meitene savērpjot pakulas. No rīta
+saimniece lika minēto govi nokaut.</p>
+
+<p align="JUSTIFY">Meitenei nu atkal bija jādzen lopi ganos un jāņem arī pakulas līdz
+ko vērpt.</p>
+
+<p align="JUSTIFY">Tā, ganīdama lopus, viņa gauži raudāja Tad pienāca pie viņas
+vecs, vecs vīriņš (tas bija pats Dievs) un prasīja: "Mīļo bērniņ, kāpēc tu
+tā gauži raudi?"</p>
+
+<p align="JUSTIFY">"Jā, kā man neraudāt? Saimniece man šorīt iedeva pakulas
+līdz, lai es savērpju, bet ratiņa neiedeva. Līdz šim man viena govs līdzēja
+savērpt, bet saimniece šorīt lika to nokaut. Kā es, nabadzīte, lai nu
+savērpju?"</p>
+
+<p align="JUSTIFY">Tad vecais vīriņš teica: "Paņem no nokautās govs vienu desu,
+ieroc to zemē, tad tur izaugs zelta ābelīte ar zelta āboliem." Ābelīte
+izskatījās brīnum smuka; bet tiklīdz kāds tiecās no</p>
+
+<p align="JUSTIFY">raut kādu ābolu, tad ābelīte ātri paliecās uz priekšu tālāk.
+No sērdienītes ābelīte nemuka. Meitenei nu tikai vajadzēja pakulas pakabināt uz
+kādu ābeles zaru, tad pakulas tūliņ savērpās. Nu meitenei vairs nebija rūpes par
+pakulu vērpšanu. Saimniece arī nevarēja vairs dabūt zināt, kā meitene tās
+savērpj. Tā nu tas gāja labu laiku, līdz visas pakulas bija savērptas.</p>
+
+<p align="JUSTIFY">Reiz tai mājai brauca; gaŗām pats ķēniņa dēls un lūdza, lai
+dodot viņam arī kādu zelta ābolu. Saimniece nu sūta savu meitu pretī, bet tai āboli
+nedodas rokā. Gribot negribot, bija jāsauc bārenīte palīgā. Ķēniņa dēls paņēma
+skaisto bārenīti savā karietē un aizbrauca uz savu pili. Līdz ar bārenīti aizgāja
+arī zelta ābelīte uz pili: Bārenīte nu dzīvoja laimīgi, bet saimniece ar savu meitu
+palika savā nabaga mājiņā.</p>
+
+
+</body></html>

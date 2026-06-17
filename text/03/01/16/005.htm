@@ -1,0 +1,204 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Burvis un viņa māceklis.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 325. K. Žiema, Ozolniekos, pie Jelgavas. LP, III. 12. AŠ, III,
+5a.</p>
+
+<p align="JUSTIFY">Kāds tēvs vedis savu dēlu amatā nodot. Ceļā tiem piestājies
+svešs vīrs sacīdams: "Dod savu dēlu man līdz, es viņu trijos gados izmācīšu
+vissmalkākā amatā."</p>
+
+<p align="JUSTIFY">"Tēvs devis. Bet vēlāk tas dabūjis zināt, ka aizdevis dēlu
+pie velna. Nu gājis atprasīt, bet velns atteicis: "Uz trim gadiem esi iedevis,
+trīs gadi viņu paturēšu. Pa šiem trim gadiem tev trīs reizes jānāk savs dēls
+zīmēt. Ja trīs reizes varēsi uzzīmēt, tad trešajā gadā dabūsi bez runas savu
+dēlu atpakaļ; ja, ne tad redzēsim, ko ar dēlu izdarīšu."</p>
+
+<p align="JUSTIFY">Nelīdzējis nekā, bijis tas jāatstāj pie velna.</p>
+
+<p align="JUSTIFY">Iesākumā velns ielicis dēlu vienu pašu kādā augšistabā. Bet
+caur griestiem tas varējis sadzirdēt, ka apakšā vienmēr ālējas, trokšņo. Viņam
+iekārojies redzēt, kas tie tādi par trokšņotājiem. Sadabūjis svārpstu, sācis
+griestos urbt caurumu. Pa caurumu nu gaiši redzējis, ka vienpadsmit zēni darbojušies,
+visvisādi pārvērzdamies: gan par baložiem, gan par seskiem, gan par vistām, gan par
+lapsām. Bet tai pašā brīdī ienācis velns, sagrābis dēlu aiz čupra un ievedis pie
+tiem vienpadsmit, sacīdams: "No šī brīža tev būs mācīties tāpat
+pārvērsties kā šiem."</p>
+
+<p align="JUSTIFY">Īsā laikā dēls izmācījies ar.</p>
+
+<p align="JUSTIFY">Pēc gada laika tēvs atnācis, savu dēlu pirmo reizi zīmēt. Velns
+pavēlējis visiem divpadsmit par ziliem baložiem pārvērsties un tad ielaidis tēvu
+iekšā, lai baložu pulkā parādot, kuŗš viņa dēls. Bet dēlam izdevies nemanot
+tādu zīmi padot, ko tēvs sapratis. Tēvs ka grābis baložu pulkā, tā uzķēris
+īsto, parādījis savu dēlu. Velns nospļāvies vien teikdams: "Uzķēri gan; bet
+nu nāc citu gadu zīmēt."</p>
+
+<p align="JUSTIFY">Pēc gada laika tēvs atnācis savu dēlu otru reizi zīmēt. Velns
+pavēlējis visiem divpadsmit par melniem vēršiem pārvērsties un tad ielaidis tēvu
+iekšā, lai parādot, kuŗš viņa dēls. Bet dēlam izdevies nemanot tādu zīmi padot,
+ko tēvs sapratis. Tēvs kā līdis vēršu pulkā iekšā, tā uzķēris īsto,
+parādījis savu dēlu. Velns</p>
+
+<p align="JUSTIFY">nospļāvies vien sacīdams: "Uzķēri gan; bet nu nāc citu gadu
+zīmēt."</p>
+
+<p align="JUSTIFY">Pēc gada laika tēvs atnācis savu dēlu trešo reizi zīmēt. Velns
+pavēlējis visiem divpadsmit par vilkiem pārvērsties un tad ielaidis tēvu iekšā, lai
+parādot, ķuŗš viņa dēls. Bet dēlam izdevies nemanot tādu zīmi padot, ko tēvs
+sapratis. Un nu tēvs kā līdis vilku pulkā iekšā, tā uzķēris īsto, parādījis
+savu dēlu. Velns nospļāvies, dusmīgi sacīdams: "Ņem savu dēlu un ej, kur
+nācis!"</p>
+
+<p align="JUSTIFY">Tēvs ar dēlu aizgājuši. Bet ceļā tiem iegribējies ēst. Dēls
+teicis: "Par ko mums salkt? Es palikšu par āzi; ved mani pie saitiņas un pārdod
+mani par pusdienas tiesu. Tik saitiņu nepārdod līdz, jo vēl esam velna robežās,
+tādēļ jāsargās."</p>
+
+<p align="JUSTIFY">Labi, tā izdarījuši. Pircējs gan par varu kaulējies pēc
+saitiņas, bet tēvs nepārdevis.</p>
+
+<p align="JUSTIFY">Un līdz ko tēvs bijis aizkāpis kādu gabalu, te dēls atkal bijis
+klāt. Nu paēduši pusdienu un gājuši tālāk. Pret vakaru tiem atkal gribējies ēst.
+Dēls teicis: "Par ko mums salkt? Nopelnīsim tādu naudu, ka gadiem ko ēst. Es
+palikšu par dzeltēnu ērzeli; ved mani pie pavadas caur to muižu, kas drīzi nāks, un
+pārdod ērzeli par trim muciņām zelta naudas. Tik pavadu nepārdod līdz, jo vēl esam
+velna robežās, tādēļ jāsargās.</p>
+
+<p align="JUSTIFY">Labi. tā izdarījuši. Caur muižu ejot, ērzelis zviedzis vien. No
+pils tūlīt iznācis liels kungs un nopircis ērzeli par trim muciņām zelta naudas.
+Kungs paņēmis ērzeli pie pavadas un aizvedis. Tagad tēvs gan apķēries, ka pavadas
+nedrīkstējis atdot, bet bijis jau par vēlu. Neko darīt, gājis ar savu naudu uz māju.</p>
+
+<p align="JUSTIFY">Kungs nu uzlēcis ērzelim mugurā, jājis un sitis, jājis un sitis.
+Vakarā ielicis ērzeli stallī. Bet par nakti ērzelis dabūjis laimīgi nomaukties. No
+rīta kungs atkal gribējis jādelēt, tomēr nedabūjis: Līdz ko atvēris staļļa
+durvis, tā ērzeļa vietā izskrējis zaķis. To redzēdams, kungs acumirklī palicis par
+kurtu un laidies zaķim pakaļ. Bet kā šis par kurtu, tā zaķis palicis par briedi. Bet
+tai pašā acumirklī kurts palicis par lāci un ķēris briedi rokā. Kā šis par lāci,
+tā briedis par asari upē. Bet tai pašā acumirklī lācis palicis par līdaku un
+raudzījis asari rokā dabūt. Pašā tai brīdī gājusi gar upmalu daiļa meita. Asaris,
+nevarēdams no līdakas glābties, pārvērties par gredzenu uz meitas pirksta. Bet tai
+pašā acumirklī līdaka pārvērtusies par puisi. Puisis prasījis meitai, lai atdodot
+viņa gredzenu; bet meita to neatdevusi. Puisis solījis meitai sieku naudas; bet meita
+neatdevusi. Beidzot puisis solījis meitu nolietāt, ja neatdošot gredzenu. Meita
+sabijusies un iesviedusi gredzenu miežos. Acumirklī gredzens palicis par miezi. Bet kā
+šis par miezi, tā puisis par gaili, lai miezi apēstu. Bet kamēr gailis tūļājies,
+miezis pārvērties par sesku un nokodis gailim galvu. Tagad sesks palicis par tēva
+dēlu. Tēva dēls piegājis meitai klāt, pateicies simtkārtīgi, ka neatdevusi gredzenu
+puisim, un tad bildinājis meitu par savu līgavu.</p>
+
+<p align="JUSTIFY">Tēvs pa to laiku bijis jau mājā ar savām naudas muciņām, bet vēl
+nebijis ne naudas izskaitījis, kad dēls ar savu līgavu arī pārradušies. Nu
+nosvinējuši kāzas un dzīvojuši laimīgi.</p>
+
+
+</body></html>

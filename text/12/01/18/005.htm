@@ -1,0 +1,206 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Vilt?ba un l?ttic?ba</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Viltība un lētticība</p>
+</font>
+
+</b><p><b>5. </b>A. 1539. Skolnieks J. Gross no 83. g. veca J. Švāņa, kas pasaku dzirdējis
+Jelgavā turku kaŗa laikā. J. Corbika kr.</p>
+
+<p align="JUSTIFY">Vienā rītā, tā ap launaga laiku, kāds zemnieks ved savu zirdziņu
+pie kalēja. Te ierauga: brauc lielskungs ar diviem zirgiem pakaļ. Zemniekam tūlīt joki
+prātā. Tas paliek zirdziņam divi dalderi apakš astes. Kā zirgs paceltu asti, tā
+daldeŗi birtu aukā. Tikko nu lielskungs klāt, zemnieks pakutina zirgu un tam aste
+gaisā, pie tam daldeŗi izbirst uz ceļa. Lielkungam, to redzot, uguns pakulās - lai
+pārdodot zirģeli viņam. Zemnieks negrib, negrib, bet kad lielskungs sola simtu
+daldeŗu, atdod arī šim zirģeli.</p>
+
+<p align="JUSTIFY">Lielskungs nu ļoti priecīgs. Tas salūdz daudz augstu kungu, lai šie
+nu apbrīnotu viņa zirgu. Iegājuši visi stallī, kur lielskungs paklājis palagu, lai
+visi redz, ka viņš nerunā niekus. Gaida, gaida - zirģelis gan met mēslus, bet
+daldeŗu nav. Nu visi paliek dusmīgi, bet kungs aizskrien pie zemnieka, lai to par tādu
+bezkaunību pārmācītu:</p>
+
+<p align="JUSTIFY">Bet zemnieks .jau visu to paredzējis un tāpēc saka savai sievai:
+"Vaidzi, siev, še apsien šīs asiņu desas ap kaklu. Kad atnāks lielskungs, mēs
+sāksim strīdēties, un es tev ieduršu kaklā. Tu izliecies par beigtu, tad es paņemšu
+kokli un sākšu koklēt. Tad tu celies augšā un sāc dancot."</p>
+
+<p align="JUSTIFY">Pienāk lielskungs un saka: "Vaidzi, tu jau mani esi ļoti
+piešmaucis."</p>
+
+<p align="JUSTIFY">Bet zemnieks tūlīt pretī: "Jā, redziet, cienīgs lielskungs,
+pie jums tur laikam tā lupte citāda, un varbūt jūs nemākat zirgu ēdināt."</p>
+
+<p align="JUSTIFY">Bet lielskungs nav pierunājams, lai nākot tik šim līdz uz muižu
+saņemt pērienu. Labi. Zemnieks saka sievai, lai tā padod viņam &amp;127;kažoku, bet
+sieva vilcinās. Zemnieks ņem tūlīt dūci un duŗ sievu nost. Tā nokrīt gar zemi, un
+asinis plūst aumaļam. Lielskungs nu sāk kliegt uz zemnieku, kādu grēku tas
+padarījis. Zemnieks paņem kokli un sāk tik koklēt. Un līdz šis beidzis, ceļas sieva
+augšā un sāk dancot. Lielskungs nu kā traks uz kokli, lai tikai šim pārdodot. Labi.
+Zemnieks arī pārdod kokli par simtu daldeŗiem.</p>
+
+<p align="JUSTIFY">Lielskungs nu atkal grib mājā kokli izmēģināt. Tas pasauc savu
+sievu un dur šai ar dunci kaklā. Sieva noveļas, bet lielskungs tikai pasmejas.
+Paņēmis kokli, sāk koklēt un gaida, kad ciem&amp;127;nāte sāks dancot, bet cienmāte
+guļ, kā gulējusi. Nu lielkungs speŗ vai zemes gaisā, noslēpj cienmāti un, paņēmis
+rungu, skrien pie zemnieka. Bet zemnieks jau iepriekš pasaka sievai: "Tu, sieviņ,
+nesabaidies no kunga. Es būšu dārzā, bet tu pasaki uz suņa, lai tas mani pasauc, un
+izdzen suni pa durvim laukā."</p>
+
+<p align="JUSTIFY">Pēc laiciņa lielskungs klāt un dusmīgs prasa pēc zieminieka. Sieva
+saka, ka tas esot dārzā, bet tūlīt viņš atnākšot. To teikusi, tā pasaka sunim:
+"lzej, Poģi, laukā un pasauc saimnieku šurpu."</p>
+
+<p align="JUSTIFY">Poģis iziet un pēc brīža nāk iekšā zemnieks, sacīdams:
+"Suns man teica, ka tu mani šeit meklējot. Kas labs man sakāms?"</p>
+
+<p>Nu lielam kungam atkal visas dusmas vējā. Tas virsū kā pats</p>
+
+<p align="JUSTIFY">negals, lai šim pārdodot to gudro suni. Zemnieks ne par ko negrib
+pārdot savu suni, bet kad lielkungs pagalam uzmācas, pārdod arī viņu par simtu
+daldeŗiem. Lielskungs nu laimīgs ved suni mājā un grib ar savu gudro suni
+palielīties. Tas sasauc pilnu māju smalku muižnieku un saka uz suni: "Aizej,
+Poģi, un pasauc manu kambarsulaini."</p>
+
+<p align="JUSTIFY">Poģis ticis laukā, jož tik pa visām pļavām pie zemnieka atpakaļ.
+Smalkie kungi gaida, gaida, bet kad neviens nenāk, dikti sapiktojušies, atkal izklīst.
+Bet lielskungs ir par visiem piktāks. Tas pasauc divus vīrus sev līdz un visi iet pie
+zemnieka, lai to nogalinātu. Noiet turpu, grābj zemnieku ciet, iebāž to maisā un galu
+aizsien. Nu abi vīri ņem šo ar visu maisu uz muguras un nes uz upi slīcināt. To dienu
+bijusi svētdiena un ceļš šiem gājis gar baznīcu. Iekšā &amp;127;audis lūguši
+Dievu, arī lielskungs ar nesējiem nosvieduši šo ar maisu zemē un gājuši baznīcā
+Dieva vārdu klausīties. Uz vienu joni zemnieks maisā sāk kliegt: "Es negribu! Es
+negribu!" Tuvumā zēns gana govis un prasa: "Kā tu negribi?"</p>
+
+<p align="JUSTIFY">"Man grib uzspiest precēt ķēniņa meitu, bet es viņu
+negribu," atbild zemnieks.</p>
+
+<p>"Nu, tad laid mani savā vietā!"</p>
+
+<p>"Labi, tikai palaid mani no šī maisa ārā."</p>
+
+<p align="JUSTIFY">Puika palaiž zemnieku no maisa ārā, bet pats ielien viņa vietā.
+Zemnieks itin mierīgi gana govis. Pa tam nesēji ar savu lielu kungu, Dievu pielūguši,
+ņem atkal maisu uz muguras, iemet upē un iet uz māju. Bet tavu brīnumu! - zemnieks
+itin mierīgi gana govis un smēķē pīpi.</p>
+
+<p>"Kur tad tu te gadījies?" vaicā lielskungs.</p>
+
+<p align="JUSTIFY">"Are, cienīts lielskungs, lūk izdzinu šīs gotiņas no upes,
+bet vēl daudz upē palika."</p>
+
+<p>"Nāc, rādi, kurā vietā. Vai man arī vēl atlika?"</p>
+
+<p align="JUSTIFY">Kā ta nu ne? Vajag piesiet kaklā tikai lielāku akmeni. Virsējās
+gotiņas es izdzinu, bet dibenā vēl daudz palika."</p>
+
+<p align="JUSTIFY">Lielskungs apsien lielu akmeni ap kaklu un dodas upē iekšā. Un tā i
+laukā nav vairs iznācis. Bet zemnieks pārgāja laimīgs mājā un nodzīvoja visu
+mūžu par bagātu vīru.</p>
+
+
+</body></html>

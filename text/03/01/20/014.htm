@@ -1,0 +1,227 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>14</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+</b><p align="CENTER"><b>Ansītis un Grietiņa.</b></p>
+</font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">14. A. 327 A. Baicku Broņa Kapeņu pag. Zaikovas ciemā. B. Spūļa
+kr.</p>
+
+<p align="JUSTIFY">Vīnai muotei beja dēliņš Ante. Puisānam beja vēl tik desmit godu,
+bet viņš drūši sāduos mozā laiviņā un braucja tuoli pa azaru zvejuodams. Pi šuo
+dorba puika parosti pavadīja vysu dīnu, un tikai tymsam matūtīs, devās uz muojuom.
+Pušdīnu maļtīti, kuŗu muote jam ikdīnas nesja, puika ēdja turpat azarmolā.</p>
+
+<p align="JUSTIFY">Reizi, kad muote atnesja dēliņam ēst, rogona, kryumūs stuovādama,
+nūsaklausēja, kai muote sauc puisānu. Muote nikuo jauna naparadzādama, pajēmja
+sazvejuotuos zivis un aizguoja uz muoju, bet puika otkon atsyta laivu tuoli nu krosta un
+zvejuoja. Nyu rogona suoka saukt rupā bolsā: "Antīt, dēliņ, brauc uz molu!"</p>
+
+<p align="JUSTIFY">Bet puika saprota, ka na muotes bolss jū sauc, un atteicja:
+"Dzieru, dzieržu, bet nabraukšu; nov muotes bolss!"</p>
+
+<p align="JUSTIFY">Rogona aizskrēja uz kaļvi, lai nūka meikstuoku mēli. Un puikam
+zivis tik labi kēŗās, ka viņš ilgi nabraucja uz krostu. Saulītei rītūt, muote
+otkon atnesja jam ēst. Puika padzierdis muotes bolsu, tyulīt dzyna laiviņu uz krostu un
+pastuostēja muotei par svešu saucēju. Muote pamuocīja dēliņu naklausīt saucējas,
+juo tei asūte rogona.</p>
+
+<p align="JUSTIFY">Ūtrā reitā, kad puika zvejuoja, atskrēja rogona un jau drusku
+seikuokā bolsā saucja: "Antīt, dēliņ, brauc uz molu, es atnešu tev
+brūkast's!"</p>
+
+<p align="JUSTIFY">Bet puika saprota; ka tur nav muote, un atkon atbildēja:
+"Dzieržu, dzieržu, bet nabraukšu, tur nav muotes bolss!"</p>
+
+<p align="JUSTIFY">" Rogona atkon skrēja uz kalvi, lai nūkaj meikstuoku mēli, un
+tad nūsaklausējusi, kai muote sauc, klīdzja seikā bolsā: "Antīt, dēliņ, brauc
+uz molu, es atnešu tev ēst!"</p>
+
+<p align="JUSTIFY">Puika dūmuodams, ka tur muote jū sauc, drūši braucja wz molu.
+Rogona pasaslēpja nīdrēs. Kai tik puika izkuopja nu laiviņas, rogona tyulīt pagiva
+viņu un nūnesja uz mežu.</p>
+
+<p align="JUSTIFY">P'ušdīnuos, kod muote atnesja puikam ēst, nikas vairs naatsasaucja.
+Muote, īraudzējuse tukšu laiviņu, izlauztas nīdres, saprota, ka rogona ir nūzoguse
+juos dēliņu, nabadze aizguoja uz muoju rauduodama.</p>
+
+<p align="JUSTIFY">Un rogona, aiznasuse Anti uz sovu muoju, īslēdzja viņu orūdā un
+baruoja ar rīkstim un cytim gordumim, ka tik puika palyktu tukls. Tad jei dūmuoja puiku
+izcept un apēst. Par kaidu laiku rogona syutīja sovu meitu pasavērt, vai puika ir
+tukls. Rogonas meita, daguojuse pi orūda durovu sacīja: "Puika, izbuoz pierstiņu,
+es gribu zynuot, vai tu esi tukls."</p>
+
+<p align="JUSTIFY">Bet puika pajēmja apaļu kūciņu un izbuozja tū. Rogonas meita
+pamīdzja cīts, īgrīzja ar nazi natukls, un nūguojuse pastuostīja muotei, ka puikas
+pierstiņš vēl cīts kai pagalīte.</p>
+
+<p align="JUSTIFY">Un rogona vēl laicipu baruoja puiku ar rīkstim un cytim gordumim. Tad
+atkon syutīja sovu meitu pasavērt, voi puika ir tukls Un puikam jau beja apnicis sēdēt
+tymsajā orūdā; jis sagudruoja tikt nu rogonas vaļā. Kad rogonas meitas lyka jam
+izbuozt pierstiņu, viņš tū izbuozja. Meitiņa īgrīzja pierstā, redz ka tukls un
+dreiži skrēja pastuostīt muotei. Rogona ļūti prīcuojuos, ka byus gords cepetis.
+Pīsacīja meitai pīvuorīt suorma, izmozguot puiku un tad izcept ceplī, bet paša
+skrēja meklēt cyta bārna.</p>
+
+<p align="JUSTIFY">Rogonas meita pīvuorīja suorma, izmozguoja puiku, izkurinuoja cepli,
+pajēmja luopstu un lyka puikam sēst uz tuos, lai varātu īstumt ceplī kai maizes
+kukuli, vai sasītu jāru. Bet puika nabeja muļķis. Viņš izplētja rūkas un kuojas,
+tai ka rogonas meita navarēja tuo īstumt ceplī. Meitiņa dusmuojas, bet puika soka:
+"Nu paruodi maņ, kai gulēt!"</p>
+
+<p align="JUSTIFY">Rogonas meita atsagula uz luopstas, saruovja rūkas un kuojas te puika
+uotri kērja, īgryudja tū ceplī, aizlyka prīškā dzelža cepļa goldu, atstutēja ar
+pagaiēm, lai naatgryuž, un pasacēja: "Cepīs nyu muotei par cepeti!"</p>
+
+<p align="JUSTIFY">Un pats izskrēja uorā, izkuopja ūzūlā un sēd. Pa tū laiku ari
+rogona atskrēja, bet tukšuom rūkuom un izolkuse. Tyulīt suoka</p>
+
+<p align="JUSTIFY">meklēt meitas, lai dūd ēst, bet nikur tuos naatroduse, leida pate
+ceplī. Paāduse meitas gaļas, izskrēja uorā, guluos saulītē uz zuoles, suoka
+viļuotīs pa zuoli un runuot: "Es viļuojūs un kāčuojūs Antis gaļas
+paāduse!"</p>
+
+<p align="JUSTIFY">Bet Ante, ūzūlā sādādams, tai atsoka: "Viļuojīs un
+kāčuojīs, meitas ga]as paāduse!"</p>
+
+<p align="JUSTIFY">Rogona, padzierduse puikas bolsu un izzynuojuse, kas nūticis, troki
+aizsadusmuoja, skrēja ustobā, pakērja ciervi un izskrējuse suoka cierst ūzūlu. Te
+kur bijis, kur na, cauri skrēja vylks. Tys, iraudzējis, rogonu, suoka runuot: "Kū
+tu dori kūmin, kam tū ūzūlu cērt?"</p>
+
+<p align="JUSTIFY">Un rogona atsacīja: "Tur,sēd lels pidnis, lelas škuodes
+darītuojs, gribu jū apēst!"</p>
+
+<p align="JUSTIFY">Vylks guoja rogonai paieigā. Pajēmja nu tuos ciervi un suoka cierst.
+Bet kū vylks cārt, tū teik na ūzūlā, bet uz akmiņa. Vylks jau vysā pīkusa, elš
+vīn, bet vys cārt. Ciervis skombrējas, bet ūzūls i nakust. Golā vylks pavysam
+pīkusa, un atdevis rogonai ciervi, aizguoja prūjuom.</p>
+
+<p align="JUSTIFY">Rogona otkon suoka cierst, ka tai svīdri vīn lejas. Skaidas gan
+lecja, bet ūzūls i napakustēja. Te puori skrēja zūsu pulks. Puika suoka lyugtēs, lai
+nūsvīž šam pa spalviņai. Ante saspraudja spalviņas sev svuorkūs un otkon sēd.</p>
+
+<p align="JUSTIFY">Te skrīn ūtrs zūsu pulks. Puika otkon lyudzas, lai nūsvīž jam pa
+spalviņai. Un zūstiņas otkon nūsvīdja pa spalviņai. Ante otkon saspraudja tuos
+svuorkūs un sēd. Bet rogona vvs cārt ūzūlu un dusmuojas. Un otkon skrēja trešs
+zūsu pulks. Puika vēl lyudzja, lai tuos nūsvīž pa spalviņai. Puika saspraudja
+spalviņas svuorkūs un palyka bolts, leidzīgs boltajuom zūstiņuom. Jis tyulīt
+tryukuos un skrēja leidza ar zustiņuom.</p>
+
+<p align="JUSTIFY">Tai jis atskrēja uz sovu ustabiņu, kur muote bāduos rauduoja. Muote,
+īraudzējuse sovu dēliņu, nūsaprīcuoja un suoka prasīt, kur viņš beja. Un kad Ante
+pastuostēja, kur bejis, muote vēl vaicuoja: "Bet kur palyka rogona?"</p>
+
+<p align="JUSTIFY">"Palyka ūzūlu cārsdama," ateicja puika. Bet ūzula jai
+nanūcirst, jo vylks uz akmiņa syzdams, izrūbuoja, saplīkšja juos ciervi.</p>
+
+<p align="JUSTIFY">Piezīme. Šī ir pazīstamā krievu pasaka, kas līdz ar daudz citām
+nonākusi pie latgaliešiem. Par to jau ir rakstīts ievadā 96. un 97. 1. p. P. Š.</p>
+
+
+</body></html>

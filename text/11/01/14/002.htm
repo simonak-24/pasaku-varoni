@@ -1,0 +1,161 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Āmura sviešana.</strong></font><font size="3"></font></p><font size="3">
+
+<p align="RIGHT">&nbsp;</p>
+
+<p>2. A. 1063. 1072. V. Z a c h a r s k a n o A. S i m s o n e s S a k s t a g a l a p a
+g. L a t v j u&nbsp; k u l t ū r a s&nbsp; k r.</p>
+
+<p align="JUSTIFY">Vīnā cīmā dzeivuoja vīns zemnīks. Jis beja cīši nabadzīgs.
+Vīnu reizi zemnīks dūmoj: "Īšu uz mežu pēc molkas."</p>
+
+<p align="JUSTIFY">Izguoja zemnīks nu sātas, īt pa ceļu - verās : jam preti īt valns
+un rūkuos nas ciervi. Sazatvka zemnīks ar valnu un pazavasaluojas. Vaicoj valns : uz
+kurīni jis īt. Zemnīks jam atbildēja: "Uz mežu pēc molkas, nav ar kū kurinuot
+cepļa."</p>
+
+<p align="JUSTIFY">"Labi," pasacēja valns. "Bet par kū pi tevis nav
+ciervja, ar kū pīcierst kūku?"</p>
+
+<p>Zemnīks jam atbildēja: "Es tai pat nūlauzšu bez ciervja."</p>
+
+<p>"Ak tai!" runoj valns. "Tad tev ir daudz spāka?"</p>
+
+<p align="JUSTIFY">"A kū tu dūmoj? Es kū pajemšu svīst, tū tai nūsvīsšu, ka
+naredzēsi. Kū jemšu lauzt, tai salauzīšu smiltīs!"</p>
+
+<p align="JUSTIFY">Valns pajēmja savu ciervīti un svīdja tai augši, ka navarēja
+saredzēt, kai ciervīts nūkrita zemē. Valns soka: "Pajem tu munu ciervīti un
+svīd tai augši, kai es, kab ciervīts tik par pus stundes nūkristu zemē."</p>
+
+<p align="JUSTIFY">"Labi!" pasacēja zemnīks. "Es tyuleņ itū izdareišu,
+bet man baist, ka tī augši dabasūs ir muns bruoļs un jis tur sagyus itā tovu ciervi
+un atpakaļ nadūs."</p>
+
+<p align="JUSTIFY">Valns dūmoj : "Dabasūs bruoļs sagyus munu ciervi, kū tūlaik
+es darīšu bez ituo cierva?" Jis soka: "Nasvīd tu bruoļam dabasūs, lobuok
+lai byus tai pat!"</p>
+
+<p align="JUSTIFY">Bet zamnīks soka: "Na, tai naiznuok, es gribu izpildīt sovu; jo
+tev žāl cierva, tod es tevi beigšu nu dzeives!"</p>
+
+<p>Valns sasabeida un suocja prasīt zemnīka pīdūt jam. Zemnīks otkon soka: "Man
+ir vīns maziņš bruols, tū tev nikad nasagyut!" Valns vaicoj: "A kur jis ir?
+Es gribu jū sagyut; bet ja nasagyušu, tod moksuošu tev daudz zalta."</p>
+
+<p align="JUSTIFY">"Labi!" pasaka zemnīks un nūguoja jī abadivēji uz mežu
+verās: nū kryumu izlēcja začīts. Zemnīks soka valnam: "Tys ir muns mozais
+bruoļs!"</p>
+
+<p align="JUSTIFY">Valns nūskrēja pēc sačja mežā, bet nasagyva. Atīt valns atpakaļ
+pi zemnīka un saka: "Kū darīt, ka navarēju juo sagyut?" Valns aizmoksuoja
+zemnīkam zaltu un zemnīks nūguoja uz sovu sātu un suocja dzeivuot boguoti.</p>
+</font>
+
+
+</body></html>

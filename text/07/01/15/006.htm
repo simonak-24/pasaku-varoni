@@ -1,0 +1,202 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title> pasakas/gr07/0701506.txt</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+
+<p align="center"><strong><big><big>Mēslu vaboles. </big></big></strong></p>
+
+<p>6. A. 559. 40 g. veca A. Viļuma pasaka, Makašānu pag. Klepenovas ciemā. Latvju
+kultūras kr.<br>
+</p>
+
+<p>Dezivuoja vīns patmalnīks četrudesmit godu vacs, vēļ naprecēts. Jis beja cīši
+boguots un jam beja sovas patmaļas. Itys patmalnīks beja pajēmis tī pat nu cīma jaunu
+puisi par struodnīku, Juoni vuordā. Juonis tys beja kaut nabogs, bet cīši smuks. Itys
+patmalnīks staiguoja uz vīnu cīmu pi vīnas zemnīka meitas un gribēja itū meitu jemt
+sev par sīvu. Uz itū meitu staiguaja ari juo struodnīks Juonis. Meita beja cīši smuka
+un jei mīļuoja itū Juoni.<br>
+Vīnu svātdīn īt Juonis uz sovu mīļū Madaļi, bet ceļā jū dadzyna juo kungs,
+patmalnīks, kurs braucja lobūs rotūs un ar puoru lobu zyrgu. Patmalnīks vaicoj:
+"Kur tu, Juoņ, ej?"<br>
+Juonis jam atbildēja: "Eju, kungs, uz sovu Madaļi."<br>
+Patmalnīks soka jam: "Es ari braucu uz jū un gribu jū pajemt sev par sīvu, bet
+tu, Juoņ, man vysu izjauksi. Lobuok tu, Juoņ, naej. Es tev īdūšu symtu rubļu."<br>
+"Na, kungs, es jū mīļuoju un jei mani, es ituo nikad nadalaisšu un vēļ par
+symtu rubļu. Jo jau gribi, kungs, kab Madaļa byutu tova, atdūd maņ itūs puori zyrgu
+ar rotim un vēļ symtu rubļu, tūlaik jau lai byus Madaļa tova."<br>
+"Labi," pasacīja patmaļnīks, "es varu atdūt itūs zyrgus, bet kai es
+kuojom īšu uz Madaļi svuotūs?"<br>
+Juonis soka jam: "Es jyusus, kungs, leildz cīmam davesšu, bet atpakaļ jyus varit
+pajemt nu sīvas tāva zyrgu un atbraukt."<br>
+"Labi darīts, Juoņ!" pasacīja patmalnīks un lyka ar itū mīru. <br>
+Juonis davedja patmalnīku leidz cīmam, kur dzenvuoja smukuo Madaļa, bet pats nūbraucja
+atpakaļ uz sovu sātu. Atīt patmalnīks uz Madaļi un svuotuojas. Madaļis muote un
+tāvs cīši grib, kab Madaļa ītu pi patmalnīka par sīvu, bet Madaļa labuok mīļoj
+Juoni.<br>
+Tymā dīnā, kad patmalnīs svuotuojas ar Madaļi, Juonis sadūmuoja un nūbraucja uz
+pilsātu, nūpierka sev lobas drēbes, pīpierka brandvīņa, konfetu, rīkstu un daudz
+kuo. Atbrauc Juonis puorā zyrgu uz Madaļi. Iraudzēja Madaļa Juoni, palyka prīcīga un
+dūmoj: "Naīšu es pi tuo vacuo valna, jis man brīsmīgi napateik, bet Juonis taids
+smuks, jaunas drēbes un taids lobs puors zyrgu rotūs. Ak, kab dreižuok Juonīts pajemtu
+mani par sīvu, tad padzeivuotu labi!" Sasalasīja abi jauniki un svuotuojās pi tuos
+vīnas Madaļas. Sadūmuoja Madaļa un soka tai: "Kas sagyus putniņu, kuru es
+izlaisšu, tys paliks man par veiru."<br>
+"Labi," pasacīja patmalnīks ar Juoni.<br>
+Izlaidja Madaļa putniņu un suoka abi jauniki jū gyusteit. Sagyun putniņu Juonis. Kū
+darīt tagad patmalnīkam? Suoka prasīt patmalnīks Juoni, kab atdūtu jam tū putniņu
+un apsūlēja Juoņam daudz naudas. Juonis padūmuoja un atdevja patmalnīkam putniņu par
+lelu naudu. Atnaz patmalnīks putniņu un padūd Madaļai, sacīdams: "Es sagyvu,
+mīļuo Madaliņ, tagad tu byusi muna sīva."<br>
+Nasagrib Madaļa īt pi patmalnīka. Veras jei vys uz Juoni un otkon suoka runuot:
+"Es naīšu lobuk ni pi vīna."<br>
+Sadūmuoja jus muote ar tāvu un runoj tai: "Mes aizslēgsim jyusus vysus trejus
+vīnā kambarī un vīnā gultā, vīns nu vīns puses, ūtrs nu ūtras puses, bet Madaļa
+vydā. Tagad uz kuru pusi Madaļa pasagrīzs ar muti, tys byus jai par veiru."<br>
+"Labi," pasacīja vysi jauniki un jaunive.<br>
+Tai muote ar tāvu padarīja, aizslēdzja jūs vysus trejus vīnā kambarī leidz reitam.
+Lykās jī vysi treis gultā gul un runoj. Juonis sadūmuoja pats sevī: "Sataisīšu
+es lobu jūku."<br>
+Suoka runuot Juonis: "Zynit, kungs patmalnīks, mes asam aizslāgti, kū darīt, ka
+man cīši gribīs izīt uz vēja?"<br>
+Patmalnīks soka Juoņam: "Ej koktā, bet reit nu reita pajemsi pats un
+izteirēsi."<br>
+"Nu - ja," pasacīja Juonis, ceļās nu gultas, nūguoja uz koktu, pasēdēja
+Juonis koktā, pagrauzja konfetu, pašnyucja un lykuos vēl gulēt. Jī guļ un runoj.
+Īgribēja ari patmalniks izīt koktā un soka jis Juoņam: "Es ari gribu
+pasēdēt."<br>
+Juonis soka jam: "Ej kungs, bet cytā koktā; reit reitā kotrs sovu izteirēsim un
+iznessim uorā."<br>
+"Tai, tai!" pasacīja patmalnīks, cēļās nu gultas un sādās ūtrā koktā.
+Jau patmalnīks sataisija sovu darišonu, gulstuos otkon gultā un guļ. Puorguoja moza
+straciņa, Juonis saka patmalnīkam :<br>
+"Zynit kū, kungs? Īt naloba smoka. Es dūmuoju, kungs, ka es īšu sovu
+izteirēšu."<br>
+Patmalmīks vaicoj Juoņam: "Kur tu jū liksi?" <br>
+Juonis soka: "Es pajemšu un apēšu."<br>
+Kai dūmuoja un runuoja Juonis, tai padarīja. Ceļas nu gultas, īt sovā koktā un ād
+sev konfetes un rīkstus. Paēdja, atīt atkon gultā un guļ. Patmalnīks dūmuoja,
+dūmuoja, cēlās jis, īt uz sovu kaktu, suoka jis ēst un vemt. Kū yis ād, īt jam
+atpakaļ. Daīt patmalnīks pi gultas un vaicoj Juoņam: "Kai tu varēji apēst? Vai
+navarētu tu man paleidzēt, es tev daudz par itū īdūšu naudas."<br>
+Juoņs padūmuoja un soka: "Ēssim, kungs, pa pusei." <br>
+"Labi!" pasacīja patmalnīks.<br>
+Cēļās Juonis, īt tymā koktā, pīlyka pilnu muti konfetu un ād, bet sovu pusi salyka
+skustiņā. Tai pabeidzja jī ēst, nūīt abadivēji gultā un gul. Madaļa navar cīst
+lelos smokas nu patmalnīka, pagrīzja muti un golvu uz sovu mīļū Juonīti un tai jī
+aizmyga.<br>
+Reitā atīt tāvs ar muoti. Veras: Madaļa guļ pagrīzusja muti uz Juonīti, bet
+patmalnīks guļ aizmidzis un vysa mute izmuozuota un cīši smird. Pīzacēļa vysi, īt
+mozguotūs, bet patmalnīks izjem nu karmana daudz zalta un lyka zam spylvyna kolpyunei
+par duovonu. Juonis paklusiņam pajēmja tū naudu, nūlyka zam sova spylvyna, bet zam
+patmalnīka mūlyka sasītū skustiņu. Tai jī obadivēji, īt mozguotīs, kolpyune dūd
+jim yudeni. Patmalnīks soka kalpyunei: "Tur tu zam spylvyira atrassi sev
+duovonu!"<br>
+"Paldīs!" pasacīja kolpyune. Suaka kolpyune kluot vītu, veras: nu tuos puses,
+kur gulēja Juonis zam spylvyna daudz naudas, bet nu ūtras pūses, kur gulēja
+patmalnīks, aizsīc smyrdūšs skustiņš. Salasējās vysi jauniki un jaunive muote ar
+tāvu vīnā kambarī un runoj: "Nu, Madaliņ, pi kuo tu gŗibi īt?"<br>
+Madaļa suoka runuot par puorvastū nakti un gribēja tikai pi Juoņa. Tai sataisēja
+kuozas Juonis ar Madaļi, dzeivoj un smejas par patmalnīku. </p>
+
+
+</body></html>

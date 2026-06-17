@@ -1,0 +1,304 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Mednieks izglābj princesi.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>&nbsp;</b></p>
+
+<p align="JUSTIFY"><b>16. A. </b>327B. 304. Pogu Jānis, Bechmanis, Bramberģos. LP. V, 3,
+5. </p>
+
+<p align="JUSTIFY">Citreiz dzīvoja vecīši, vīrs ar sievu, un tiem nebija bērnu.</p>
+
+<p align="JUSTIFY">Reiz vecītis aŗ elzdams, pūzdams, un nevar vairs arklu labi
+noturēt. Pienāk nabags: "Ko elsi? Vai tik smagi iet?"</p>
+
+<p align="JUSTIFY">"Iet, iet! - Bet ko darīsi? Bērnu nav, kas lai palīdz maizi
+vecuma galā nopelnīt?"</p>
+
+<p>"Nu, klausies, es tev pateikšu, ko tu dari. Ar tur papuvē, tad uzarsi 7 pautus.
+Tos apēdiet abi divi ar sievu - būs labi!" Vecītis klausa. Un kā pirmo vagu dzen,
+izaŗ septiņus pautus. Nu nes mājā, nu dod sievai, ēd arī pats, un re, pēc
+septiņām dienām vecenei piedzima septiņi dēli : seši bija tādi puikas kā rutki,
+tikai septītais pavājāks, ar kuprīti mugurā. Dēliem vedās brīnum ātri augt, maz
+gados jau pirmie siena pļāvēji. Tikai nelaime : cik tās dienas pļāvumu nokopuši,
+tik siens nākamā naktī nozagts. Neko darīt --- sākuši kaudzi sargāt.</p>
+
+<p align="JUSTIFY">Pirmie, seši brāļi, izsargājās vienu nakti, otru, trešu - nevar
+nosargāt. Beidzot ies kuprītis. Viņš nokal dzelzs iemauktus, novij labu pātagu,
+uzlien kaudzē un gaida. Un patiesi, ap pusnakti izrikšos liela ķēve no meža un sāks
+rīt siena kaudzi kā negudra. Bet kuprītis mudīgi, mudīgi pamanās, uzmet iemauktus,
+uzlec mugurā un nu tik mietē ar pātagu negausim ādu tīri mīkstu. Ķēve, neliete,
+ciešas, ciešas - sāks lūgties, lai laižot vaļā, viņa atdošot tad savus septiņus
+kumeļus.</p>
+
+<p align="JUSTIFY">Labi. Kēve ierikšo mežā un izved kumeļus: sešus ka laistās vien,
+septīto tādu maziņu ar izpūrušu spalvu. Kuprītis noskatās uz izpūrušo tā
+pagreizi, bet ķēve pārrāj: "Neapsmādē savu laimi! Dienās tu viņu cildināt
+cildināsi."</p>
+
+<p align="JUSTIFY">Nu, ja jau tā - šis apmierinās arī un pārdzen visus mājās,
+stallī. Bet no rīta, kamēr kuprītis, izņurdzis, domā pagulēt -labie brāļi stllī
+iekšā un bez jeb kādas runas noņēmuši sev tos sešus labākos kumeļus, kuprītim
+pamet izpūrušo diliņu.</p>
+
+<p align="JUSTIFY">Te otrā, trešā dienā visiem septiņiem brāļiem iešaujas prātā
+kumeļus izjāt, mazu drusku pasauli aplūkot. Labi - tēvs mierā. Un nu tie seši
+brāļi tūlin apsedlo savus brangos kumeļus un aizjāj kā vēji; kurpretim kuprītis,
+nabadziņš, ar savu vājo zirdziņu lēnītiņām čunčina nopakaļus. Aizskrēja gan
+šie, bet drīzi platas upes malā atdūrās kā mieti, nejaudāja pāri jāt. Atjāj
+kuprītis, tam citāds grieziens: piecērt savam kumeļam un speŗ upei pāri, kas tur ir
+ir. Bet pašā vidū kumeļš aizelsies nogrimst dibinā ar visu jātnieku. Brāļi
+satrūkstas: "Nu ir pagalam!"</p>
+
+<p align="JUSTIFY">Bet gaidi, gaidi! turpat izšaujas atkal ūdens virsū, un skat, kas nu
+izpūrušais diliņš par ērzeli iztaisījies, spīd vien; un tad vēl tie lielākie
+brīnumi: pats kuprītis arī pārvērties daiļāks -- kuprā mugura nezin kur palikusi,
+kur ne - jāsaka: puisis kā slaikais ozols. To redzot, brāļi saņemsies un jās arī
+pakaļ. Pārjāja gan, bet ne viņu kumeļi dibinā grima, ne arī treknāki palika.
+Visiem nav vienādas laimes, ko darīsi?</p>
+
+<p align="JUSTIFY">Nu, tas nu tas. Bet tagad visi septiņi sarunā, jās tikai taisni
+projām, gan jau tad redzēs. Jāj, jāj - uzjāj svešu krogu. Tur rakstīts: "Kas
+te ienāk - galva nost! kas jāj gaŗām - galva nost!"</p>
+
+<p align="JUSTIFY">Brāļi pārdomā: "Tad jau nu tik tā, kā tā! Labāk
+pievietosim kumeļus un ieiesim iekšā!"</p>
+
+<p align="JUSTIFY">Ieiet - nav nevienas dvēselītes. Tikai septiņas gultas uztaisītas
+un gaŗš galds ar visādiem ēdieniem. Šie paēd, izbrīnās un liekas gulēt. Seši
+brāļi tūlin aizmieg, septītais, senākais kuprītis. paliek nomodā. Te ap pusnakti
+dzird, ka kumeļš stallī spārdās. Aiziet raudzīt, kumeļš saka: "Klau, kas man
+teicams. Šinī brīdī jums nogulsies meitas blakus ar sudraba vaiņagiem galvā, un jums
+pašiem itin nejauši gadīsies zelta kroņi galvā; bet tad uzlieciet savus zelta kroņus
+meitām un meitu vaiņagus atkal sev, jo drīz pēc tam ienāks vecs vīrs ar platu zobinu
+un atcirtīs tiem galvas, kam zelta kroņus ieraudzīs."</p>
+
+<p align="JUSTIFY">Septītais brālis mudīgi vien ietek krogā un patiesi jau atron
+gultās meitas ar sudraba vaiņagiem, brāļiem un sev pašam atkal zelta kroņus. Nu
+pārmaina ātri vaiņagus ar kroņiem. Te arī vecais vīrs lien iekšā ar platu zobinu
+rokā un nocērt meitām galvas. Tikko vecis izgājis, septītais brālis pamodina
+brāļus, izstāsta īsi, ātri, kas noticis un aicina aizjāt no šejienes. Tomēr seši
+brāļi vairs nejāj tālāk pasaulē griežas mājā. Bet septītais atsaka: "Ko ar
+jums iesākt, kas no katra nieka izbijušies? Jāšu viens pats tad zini kur tu
+aiztieci."</p>
+
+<p align="JUSTIFY">Un septītais jāja cauru dienu viens pats. Vakarā iejāja ķēniņa
+pilī un salīga par dārznieku. Tam ķēniņam bija liels, liels dārzs, bet kokiem
+augļu nemaz. Jaunais dārznieks tūlin nocērt visus neauglīgos kokus, uzlēc kumeļam
+mugurā un labi sajāja celmus, gandrīz visus kumeļš saspārdīja šķērpelēs.
+Ķēniņš nevar saprast, ko tas tur ķēmojas, un nodomā: "Nu viņš manu dārzu
+apstrādāja gan ! "</p>
+
+<p align="JUSTIFY">Bet re, no rīta celmājā atauguši jauni koki un visas pazares
+līgojas ar zelta augļiem. Tagad, ķēniņš zināms, atveŗ acis un noglauda savu
+dārznieku uzteikdams: "Tu māki gan savu amatu!"</p>
+
+<p align="JUSTIFY">Te pēc kāda laika ķēniņam uzbrūk nedienas. Jūŗā atkūlies
+liels pūķis arī prasa, lai ķēniņš atdod savas trīs meitas apēst, citādi
+saluncināšot asti un izšļuncināšot tik daudz ūdens pār kāpām, ka visa valsts
+apslīkšot. Gan ķēniņš bēdās izsolās jaunāko meitu tam par sievu, kas pūķi
+nokaušot, bet ātrumā negadās neviens ar tādu dūšu pūķim rīklē ķerties.</p>
+
+<p align="JUSTIFY">Neko darīt - no rīta ved vecāko ķēniņa meitu pūķim. Bet
+dārznieks klusītiņām pakampj zobinu un aizjāj arī jūrmalā. Vecākā ķēniņa
+meita nosēdusies jūrmalā un raud. Dārznieks piejāj klāt klusināt: "Neraudi
+nemaz - es ar pūķi cīnīšos. Tikai mazu lietu atgulšos zālē nosnausties, jaunus
+spēkus iedabūt; tu tamēr uzmani: tiklīdz jūŗas ūdens sāk šņākt un vārīties,
+tūlin modini mani!"</p>
+
+<p align="JUSTIFY">Dārznieks drīzi aizmieg. Ķēniņa meita tamēr slepus iepin
+dārzniekam matu sprogās savu zelta gredzenu liegi un lēni, lai varētu vēlāk pazīt;
+jo tas viņai ne prātā, ka tāds varonis būtu tepat tēva dārznieks. Patlaban jūŗa
+sāk jau tālumā vārīties; šī modina gulētāju izbijusies: "Nu nāk, nu nāk ar
+trim galvām!"</p>
+
+<p align="JUSTIFY">Zibiņa ātrumā dārznieks kumeļam mugurā un drāž jūŗā ar
+izceltu zobinu trijgalvju pūķim pretim. Pūķis domā: "Ko tāds čurmulis nāk pa
+kājām rēgoties?"</p>
+
+<p align="JUSTIFY">Bet dārznieks tomēr no sāniem iegrūž zobinu līdz spalam pūķim
+galvās, pūķis pagalam. Nu ķēniņa meita priekos izstiepj rokas un grib patencināt
+glābējam, bet tas nemaz nepaskatās, aizjāj, ka nozib vien.</p>
+
+<p align="JUSTIFY">Te pēc kādām dienām ķēniņam jāved vidējā meita pūķim. Bet
+dārznieks klusītiņām pakampj zobinu un aizjāj arī jūrmalā. Vidējā ķēniņa
+meita nosēdusies raud karstas asaras. Dārznieks klusina: "Neraudi nemaz - es ar
+pūķi cīnīšos. Tikai mazu lietu atgulšos zālē nosnausties, jaunus spēkus iedabūt,
+tu tamēr uzmani: tiklīdz jūŗas ūdens sāk šņākt un vārīties, tūlin modini
+mani!"</p>
+
+<p align="JUSTIFY">Dārznieks drīzi aizmieg. Ķēniņa meita slepus iepin dārzniekam
+matu sprogās savu bildīti, lai varētu vēlāk pazīt, jo ka tas tēva dārznieks, tas
+viņai ne prātā. Patlaban jūŗa tālumā vārās; šī modina gulētāju izbijusies :
+"Nu nāk, nu nāk, nu nāk ar sešām galvām!"</p>
+
+<p align="JUSTIFY">Zibiņa ātrumā dārznieks kumeļam mugurā un drāž jūŗā ar
+izceltu zobinu sešgalvim pretim. Sešgalvis domā: "Ko tāds čurmulis nāk pa
+kājām rēgoties?"</p>
+
+<p align="JUSTIFY">Bet dārznieks tamēr no sāniem iegrūž zobinu līdz spalam pūķim
+galvās, pūķis pagalam. Nu ķēniņa meita priekos izstiepj rokas un gribētu glābējam
+patencināt, bet tas nemaz nepaskatas, aizjāj, ka nozib vien.</p>
+
+<p align="JUSTIFY">Te pēc kādām dienām ķēniņam jāved jaunākā meita pūķim. Bet
+dārznieks klusītiņām pakampj zobinu un aizjāj arī jūrmalā. Jaunākā meita raud
+karstas asaras. Dārznieks mierina: "Neraudi nemaz - es ar pūķi cīnīšos. Tikai
+mazu lietu atgulšos zālē nosnausties, jaunus spēkus iedabūt, tu tamēr uzmani:
+tiklīdz jūŗas ūdens sāk šņākt un vārīties - tūlin modini mani!"</p>
+
+<p align="JUSTIFY">Dārznieks drīzi aizmieg. Bet nedabū ilgi snaust, ķēniņa meita
+modina: "Jūŗa briesmīgi puto, nu nāk, nu nāk ar deviņām galvām !"</p>
+
+<p align="JUSTIFY">Zibiņa ātrumā dārznieks kumeļā un drāž ar izceltu zobinu
+deviņgalvim pretim. Deviņgalvis zobojas: "Ko tāds čurmulis nāk pa kājām
+rēgoties?"</p>
+
+<p align="JUSTIFY">Bet dārznieks tamēr no sāniem iegrūž zobinu līdz spalam pūķim
+galvās, tūlin astoņas galvas bij nomaitātas, tikai devītā vēl turas tīn ar to
+galvu nezvērs atplēš dārznieka plecam veselu jaupatu. Dārznieks sparīgi savēcina
+otrreiz zobinu un nocērt arī devīto galvu; bet virst arī tagad aumaļām asinis
+nabadziņam pašam. Izjāj malā, ķēniņa jaunākā meita norauj savu sudraba galvas
+drāniņu, sasien brūci tencinādama un grib patlaban vaicāt, kas viņas glābējs tāds
+būtu? Bet nedabūja - glābējs jau kumeļam mugurā un prom.</p>
+
+<p align="JUSTIFY">Mājā ķēniņa jaunākā meita gauži bēdājas par aizmucēju; bet
+ķēniņš pavēl zudušo glābēju visā valstī meklēt. Izmeklējās gan ilgi jo ilgi -
+nekā. Nu ķēniņš gudro citādi, saaicina dzīrās visus augstmaņus, cerēdams, ka
+starp tiem taču atradīs. Sanāca melna debess - augstmaņu vien, augstmaņu vien, bet
+nemana neviena īstā. Dzīreniekus ķēniņš paciena ar zelta āboliem. Šie brīnās,
+kas tādus āboļus audzinot?</p>
+
+<p align="JUSTIFY">Mans dārznieks!" ķēniņš lepni atbild. Bet viens augstmanis
+klusām izlien dārzā un grib taču tādu teicamu dārznieku redzēt. Dārdznieks taisni
+tai brīdī apgūlies apakš ābeles un piemidzis. Augstmanis pieiet tuvāk, vai akls!
+tīri saraujas - ierauga sprogainos matos ķēniņa meitas gredzenu un bildīti. Un tā
+tūlin izgriež matiem robu, nozog gredzenu, paņem bildīti un ieiet pilī lielīties, ka
+viņš esot meitas izglābis. Ače, kur vēl gredzens ar bildīti! Un ķēniņš, zināms,
+ko nu gaidīt? Tūlin atved jaunāko meitu un darina kāzas.</p>
+
+<p align="JUSTIFY">Otrā dienā kāzas lielajā - tikai trūka vēl zelta ābolu.
+Ķēniņš atsauc dārznieku. Dārznieks ielien tāds sagriezies. Kas viņam kaišot,
+ķēniņš vaicā, un kādēļ neesot atnesis zelta ābolus</p>
+
+<blockquote>
+  <p align="JUSTIFY">Esmu tāds sagājis drusku!" "</p>
+</blockquote>
+
+<p align="JUSTIFY">Bet pašā tai brīdī ķēniņa jaunākā meita ierauga savu sudraba
+drāniņu dārzniekam plecā. Tā šī tūlin: "Tas mans glābējs, tas mans
+glābējs! Ače, kur mana drāniņa, ače, kur pūķa brūce</p>
+
+<p align="JUSTIFY">"Ja, brūce tur esot gan, bet kur tad gredzens ar bildi viltīgais
+brūtgans atsaucās. Bet ķēniņa meita rāda matos izgriezto robu sacīdama: "Tu
+tos nozagi!"</p>
+
+<p align="JUSTIFY">Viltnieks tagad paliek bāls un nevar vairs ne jā, ne nē pateikt.
+Ķēniņš nosoda viltnieku, bet dārznieku salaulā ar savu jaunāko meitu.</p>
+
+
+</body></html>

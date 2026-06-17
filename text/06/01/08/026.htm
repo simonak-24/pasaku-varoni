@@ -1,0 +1,223 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>26</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vienacīte, Divacīte, Trijacīte.</p>
+</b></font>
+
+<p>&nbsp;</p>
+
+<p>26. A. 511. 510. V. Barkovskis, Latgalē.</p>
+
+<p align="JUSTIFY">Vīnā pasaules molā dzeivuoja buorinīte, jai nabeja ni tāva ni
+muotes un ni muosas, ari bruoļu nabeja un nikaidu rodu, kas pažāluotu gryutūs
+breižūs. Jei vīna pati dzeivuoja ustobā, kaut kū sprēdja un tai jai puortyka, lai
+gom beja ūti gryuts.</p>
+
+<p align="JUSTIFY">Citā molā dzeivuoja rogona, jai ūti vajadzēja gona vai ganes, kas
+gannitu juos lūpus. Jei izdzierst, ka te ir taida buorenīte, atīt uz buorinīti un
+soka: "Nu, duorgū meitiņ, moža īsi uz manim par ganleiti, pīna mums dīzgon,
+lūpeņi mīreigi, ganeiba plota. Fj uz manim, byus cīši iabi!"</p>
+
+<p align="JUSTIFY">Buorenītei nabeja muojā dorba, jei beja ūti prīcīga, bez
+pretuošonuos guoja uz rogonu par ganeiti. Muojās buorinītei nabeja pat kuo ēst, kaida
+sausa gorūzeņa un tū ar yudini zeida. Tad rogona ar buorenīti guoja uz sovu muoju.
+Pyrmās dīnās rogona buorinīti ūti mīļuoja, devja vysu lobuokū ēst. Vēļuok
+rogona taida jau nabeja, beja dusmīguoka un vairs nadevja lobu ēdīnu. Buorenīte
+ganēja lūpus ļūti labi: kotru vokoru gūv's atdzyna pībaruotas un pīdzyrdētas.
+Buorenīte kotru reitu cēlēs agri leidz saules lāktam, kod rogonas vysos vēl gulēja,
+izslaucja gūvis un vysod poša izdzyna gonūs. Rogana bez kaidas vainas uz buorinītes
+vys īzaneiduos. Ragonai beja vīna gūvs, raibaleita, ar kuru buorenīte vys
+sasarunuojās.</p>
+
+<p align="JUSTIFY">Tymā muojā, kur buorenīte beja par gani, beja na vīna vīn rogona,
+bet daudz. Kotru svātdīn rogonas guoja uz baznīcu. Vīnu reizi nyknuo rogona guoja
+otkon uz baznīcu un īdama īdeva buorenītei jūti daudz lynu sukuot, saceidama:
+"Ja tu par šitū laiku, cikom es atīšu nu baznīcas, lynu nasasukuosi, tepat byusi
+nūsysta."</p>
+
+<p align="JUSTIFY">Buorenīte lyudza rogonu, lai palaiž jū kotru svātdīn uz baznīcu,
+bet rogona nalaide, lai gon tai beja nūrunuots. Kai rogona tū dīnu aizguoja uz
+baznīcu, buorenīte, pajāmusja lynus, guoja uz klāvu un dzina gūvis uz gonim.
+Izdzynusja gonūs, buorenīte sāstās uz akmiņa un raud.</p>
+
+<p align="JUSTIFY">Par kaidu laiku pi buorenītes pīlt rogonas gūvs Raibaļa un vaicoj:
+"Kuopēc tu, meitiņ, raudi, kas tev kait?"</p>
+
+<p align="JUSTIFY">Nabaga buorenīte rauduodama atbild: "Kuopēc es narauduošu?
+Rogona man īdeva sasprēst leidz pusdīnom ļūti daudz lynu, un kad es leidz pusdīnem
+nasasprēšu, man uz reizes golva nūst."</p>
+
+<p align="JUSTIFY">Raibaļa padūmuoja, tad teicja: "Kū lai es tev, duorgū meitiņ,
+izdoru? Varbyut es varātu tev paleidzēt sasprēs: Laid man tīls lynus pa kreisū ausi
+īkšā."</p>
+
+<p align="JUSTIFY">Tad buorenīte palyka ]ūti prīcīga un tyuleņ ībuoza jai tūs lynus
+pa kreisū ausi īkšā. Kad bztorenīte īlaida lynus raibalītei īkšā, tod dreiži
+vysi lyni beja sasprāsti.</p>
+
+<p align="JUSTIFY">Citu svātdīni rcrgona blzorenītei īdeva vēl vairuok lynu
+sasprēst, bet raibaļa dreiži vīn sasprēda, visus lynus. Tūlalk buorenīte ari poša
+īleida gūvei vydā pa kreisū ausi un pa lobū izleida uorā. Tagad jei palyka
+brīsmīgi skaista meitinīte ar zalta kūrpem.</p>
+
+<p align="JUSTIFY">Buorenīte dreiži aizguoja uz baznīcu. Rogona, pamanījuse taidu
+skaistu meitu, brīsmīgi breinuojuos. Kod buorenīte guoja nu baznīcas uorā, kēniņa
+dāls jū pamanēja un gribēja aizvest uz sovu pili. Bet jei beja ūti bailīga un,
+bāgdama nu kunga, izgaisinuoja vīnu zalta kūrpi.</p>
+
+<p align="JUSTIFY">Buorenīte atškrējuse tyulen lein gūvei pa vīnu ausi vydā pa ūtru
+uorā un ir taida pat, kai bejuse.</p>
+
+<p align="JUSTIFY">Vokorā jei saxlzan gūv's sātā tīt ustobā un sēd. Rogona,
+atguojuse nu baznīcas, stuosta: Sūdīn baznīcā beja vīna skaista meitiņa, ka pat
+kēniņa dāls īsamīļuoja un dzinuos pakaļ."</p>
+
+<p align="JUSTIFY">Par divas dīnas vāluok rogona izzinuoja, ka kēniņš brauks pa
+pasauli un mekleis taidas meitas, kurai leišūt zalta kūrpe kuojā. Vacuo rogona
+aizskrēja pa deviņim verstim prīkšā pi kēniņa un soka: "Varbyut muna kuoja
+leiss."</p>
+
+<p align="JUSTIFY">Pamēreja, bet naleida. Rogona, atskrējuse uz sātu, cierš un tēš,
+kab pataisēt sovu kuoju mozuoku.</p>
+
+<p align="JUSTIFY">Atbrauc kēniņš uz rogonas sātu un mērej visom rogonas meitom, bet
+kūrpe nivīnai nader. Beidzūt kēniņš suoka meklēt visas molas, varbyut kur guļ
+kaida meita paslāpta. A rogonai ari beja buorenīte paslēpta zam siles. Kai kēniņš
+īt car sili, tai buoremīte aizzakuosej. Kēniņš paceļ sili redz, ka tur guj meita, un
+soka: "Celīs, meitiņ, ko guli? Laiks gonūs dzeit."</p>
+
+<p align="JUSTIFY">Teū pīsaceļ, apmauc sovas postolas un asizīt. Kēniņš dūmoj, ka
+gane jau nabyus tai skaistuo meita.</p>
+
+<p align="JUSTIFY">Tai dreiži atīt otkon svātdīna un buorenīte prosuos, lai rogona
+jū palaiž uz baznīcu, bet tei soka: "Kū tu taida najāgs tī darēsi? Pītiks
+baznīcuonu bez tevis."</p>
+
+<p align="JUSTIFY">Rogona nyu īdūd buorenītei vēl daudz vairuok lynu kū sprēst, kai
+dorba dīnās. A buorenīte guoja otkon pi sovas raibaļas un tei dreiži pastruoduoja tū
+dorbu. Beidzūt buorenīte īlein raibaļai pa vīnu ausi vydā pa ūtru zorā un palīk
+skaista, zīd kai pučīte. Tagad kēniņam vēl vairuok zūbi dag, kai </p>
+
+<p align="JUSTIFY">varātu tuos skaistulis dabuot.</p>
+
+<p align="JUSTIFY">Pirms mišas kēniņš nūguoja uz muojom, lika iztaisīt taidus rotus,
+kur varātu cylvāks pīlipt. Uotri vīn beja kareta gotova. Vysapkuort ap baznīcu
+kēniņš pīstota zyrgts un pamat vīnu vīn tukšuoku vītu, kur lai jei ītu. Vysi
+ļauds stuov apkuort un verās. Tik kai jei izguoja nu baznīcas, kēniņš aizstyuma
+rotus prīškā, lai jei kuop puori, jo citur nikur navar puorīt. Tei kai īt puori
+rotim, uzreiz iai pīleipst kuojas. Kerās ar rūkom, i rūkas pīleipst. Kēniņš pīīt
+kluot, sādinoj jū sovā karetā un aizved uz sovu pili.</p>
+
+<p align="JUSTIFY">Dreizā laikā iztaisēja lelu muoju, kur dzīduot un dancuot par kuozu
+laiku. Ka kēniņam beja kuozas, vysi ļaud's varēja īt ēst un dzert kaut īreis
+dīnas. Uz kuozom beja sasaukti visu kēnestu kēniņi.</p>
+
+<p align="JUSTIFY">Pēc kuozu buorenīte izstuostēja kēniņam sovu gryuitū dzeivi, un
+kēniņš nūbrauca uz to rogonu, kas jū brīsmīgi mūcēja. Kēniņa soldati nūcierta
+rogonai golvu un juos meitas sadadzinuoja uz guns.</p>
+
+
+</body></html>

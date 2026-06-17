@@ -1,0 +1,164 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+
+<blockquote>
+  <font size="5"><b><p align="CENTER">Zagļi ar nabagu.</p>
+  </b></font>
+</blockquote>
+<b>
+
+</b><p><b>1. </b>A. 1526. V1. Pilipjonoks, Asūnē.</p>
+
+<p align="JUSTIFY">Senejūs laikūs dzeivova pi vīna kunga treis bruoļi. Vīnu dīnu
+kungs uz jīm sasasirdējuos un aizdzyna nu sovys sātys. Bruoļi tagad palyka sirdeigi uz
+kunga un dūmuoja, kai jam atmoksuot par itū ar ļaunu. Reizi bruoļi saguoja slovā
+storpā un sarunova īt zam vīna tylta, kur kungs brauks ar gaspažu. Vot jī divejūs
+palyka sjādāt zam tylta, a trešajam īt kryumūs un muoneit kungu sokūt:
+"Brīdis, Brīdis!"</p>
+
+<p align="JUSTIFY">Par nagaru laiku kungs brauc ar trejim zyrgim vīnā karapaškā
+(karītē) un ar gaspažu. Kad kungs beja jau kluot kryumym, tad trešais bruolis i suoc
+runuot: "Brīdis. brīdis."</p>
+
+<p align="JUSTIFY">Kungs dūmova, kas tys asūt par zvēru. Jys pametja zyrgus un guoja
+obi ar gaspažu vjārtūs, kas tys par zvāru, nu kura cylvāks breinīs un runoj pots ar
+sevi. Cikom kungs ar gaspažu beja kryumūs, tikom itī divi bruoļi, kuri sjādjāja zam
+tylta, sāduos karapaškā un nūbraucja. Bet trešyis bruolis, kurs īvjadja kungu ar
+gaspažu dziļi kryumūs, pots aizskrāja bruoļim prīškā. Tagad sasāda visi treis
+bruoļi karapaškā un braucja, cik tik var. Bet kungs ar gaspažu palyka staiguodami
+kryumūs. Bruoļi brauc un danuoc vīnu vacu, siermu lynu kuļsteituoju un soka :
+"Sēdīs, dzjadzka un byuņ par myusu kungu."</p>
+
+<p align="JUSTIFY">Kuļsteituojs apsasādās pi bruoļim un soka: "Bārny, as jau
+asmu pavysam nabogs un ar veizem. Kur lai byunu par kungu, vjāj jyus?"</p>
+
+<p align="JUSTIFY">Bet bruoļi soka: "Vjaļc i tū paļtu, kuŗu i kungs vylka un
+pamjatja karapaškā, un tevi ari navaicuos nikas, un dūmuos vysi, ka kungs."</p>
+
+<p align="JUSTIFY">Braukaļādami bruoļi kučeru izvuicēja pa poļski runuot vīnu
+vordu: "dobža" (labi). Vot jī braucja visi četry, cikom nūbraucja pi vīna
+goroda, kur beja dŗābu magazins. Īvaduši kuļsteituoju magazinā, vjāļ jū bruoļi
+pavuicēja, lai kū jī ruodeis, bet jys lai tik soka: "Dobža".</p>
+
+<p align="JUSTIFY">Veikalā tierguotuojs atņasja krāslu kuļsteituojam, dūmuodams, ka
+pūļu kungs. Tja bruoļi pīnas vysaidas dŗābis un ruoda kungam, bet jys tik atsoka:
+"Dobža".</p>
+
+<p align="JUSTIFY">"Tai ruodeidami sovam kungam drābis, jī pīlyka trejūs pylnu
+vazumu un aizbraucja, tik pamjatja sovu kungu un pascīje tierguotuojam, ka itys kungs
+vysu aizmoksuos, a jī tik dŗābis aizvjass, atbrauks kungam pakaļ. Tai trejūs bruoļi
+sāduos un braucja uz sovu pusi i nadūmova kuļsteituojam braukt pakaļ. Tierguotuojs
+saskaitēja, cik kungam vajag moksuot, un gaidēja, kod jam kungs moksuos. Bet
+kuļsteituojs tik pagrūzuos kunga paļtā un sjād. Zam vokora tierguotuojs soka, lai
+moksuojūt par dŗābjom. Bet jys tikai soka: "Dobža".</p>
+
+<p align="JUSTIFY">Tai tierguotuojs ar kungu naticis golā i radz, ka nikas naizīs,
+aizguoja saukt poļiciju. Atnuocja poļicija un vaicuoja nu kunga dokumentus, nūvylka
+paļtu un breinovās poši, ka itam kungam veizis kuojuos. Tod jys izstuostēja, kai jū
+pīkruopja treis bruoļi, un pīsazyna, ka jvs asūt lynu kuļsteituojs. Tod poļicija
+atlaidja jū, bet tierguotuojs palyka bez naudys.</p>
+
+
+</body></html>

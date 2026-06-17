@@ -1,0 +1,142 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>14</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Trīs vecītes par palīgiem.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">14. A. 501. J. Ozols Secē. LP, VI. 993 (2 piez.)</p>
+
+<p align="JUSTIFY">Meita bijusi ļoti čakla. Mātei pietrūcis linu, un šī tikai
+stājusi virsū, lai dod vērpt, lai dod vērpt. Tad māte rājusi meitu, ka nevarot nemaz
+glābties. Rājienu dzirdējis ķēniņš, gaŗām braukdams. Tas paņēmis lielo
+vērpēju līdz, ieslēdzis lielā, lielā kambarī, piepildījis līdz griestiem ar
+liniem un noteicis, ka par vienu nakti viss jāsavērpj.</p>
+
+<p align="JUSTIFY">Tad šī sākusi raudāt, un nu ienākusi pati Laima, par veceni
+pārvērtusies, ar lielu, lielu apakšlūpu, gaŗiem, gaŗiem pirkstiem. platām, platām
+kājām. Viņa teikusi: "Ja apsolies mani kāzās lūgt, tad vari gulēt iet, es
+savērpšu."</p>
+
+<p align="JUSTIFY">[Meita ir ar mieru, rītā ir visi lini savērpti un ķēniņš ir tik
+priecīgs, ka tūlin precē lielo vērpēju. Arī vecene tiek ielūgta kāzās.] Pie galda
+ķēniņš jautājis vecenei: .,Kāpēc tev tik liela apakšlūpa?"</p>
+
+<p align="JUSTIFY">"No linu slapināšanas vērpjot." "Nu kāpēc tik gaŗi
+pirksti?" "No dzijas tecināšanas vērpjot." ,.Nu kāpēc tik platas
+kājas?" "No ratiņa mīšanas."</p>
+
+<p align="JUSTIFY">[Nu ķēniņš sabijies, ka vērpēja var palikt tik neglīta, nav
+vairs jaunai sievai nekad ļāvis vērpt.]</p>
+
+<p align="JUSTIFY">Piezīme. Tādu pašu pasaku J. Ozols ir uzrakstījis arī Saukā,
+tikai te meita bijusi smuka un tādēļ māte to kūlusi. Ķēniņš prasījis kādēļ
+peŗot. Māte atbildējusi: "Viņa stāj man linus virsū ko vērpt. Kur tik daudz
+lai ņemu. cik šī vērpj?" Viss cits tāpat kā iepriekšējā variantā. L. P.</p>
+
+
+</body></html>

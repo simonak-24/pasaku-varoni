@@ -1,0 +1,346 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>11</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Par zirgu pārvērstais jauneklis.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">11. A. 314. Teicējs 60. g. vecs Ādams Puzans Līksnas pag.
+Aizpurvīšu ciemā. Kultūras balss kr.</p>
+
+<p align="JUSTIFY">Nazkod dzeivuoja uz pasauļa divi sirmi veci: veirs ar sīvu. Jī
+dzeivuoja vacā ustabiņā. Kaidā zīmas laikā vecs, pajēmis ciervīti un peipi,
+nūguoja uz mežu pēc molkas. Īguojis mežā, jis pīguoja pi vīna kūka un suoka
+cierst. Cierta, cierta bet nūcierst navar. Pīlt pi vecīša vīns jauns puiss un runuoj
+: "Šūdīņ ir svātdīna, tu ītuo kūka nanūciersi. Nūej uz muojom, bet atej
+pareit."</p>
+
+<p align="JUSTIFY">Vecīts paklausīja jaunuo cylvāka un nūguoja uz sātu bez molkas.
+Atguojis, izstuostīja sovai sīvai vysu, un gaida tuos dīna, kad vajadzēs īt vēļ uz
+mežu. Nūrunuotā dīnā vecīts otkon pajēmja sovu ciervīti un peipi un nūguoja uz
+mežu. Mežā tys jaunais cylvāks jau gaidīja. Vecītis otkon suoka cierst kūku, bet
+nūcierst navar. Tad jaunais cylvāks runuoj: "Jo tu atdūsi man tū, kuo napameti
+sātā, tad es paleidzēšu tev nūcierst un nūnest uz sātu itū kūku!"</p>
+
+<p align="JUSTIFY">Vecs soka: "Ciervīti un peipi es pajēmu, bet kuo tad vēļ es
+naatstuoju sātā?"</p>
+
+<p align="JUSTIFY">"Cierva un peipes man navajaga!" - atbildēja jaunais puiss.</p>
+
+<p align="JUSTIFY">Vecs dūmuoja, dūmuoja un soka: "Pajem tū, kuo es napamešu
+muojuos!</p>
+
+<p align="JUSTIFY">Tys jaunais cylvāks izruovja ar saknem kūku un atruovja uz sātu, bet
+pats aizskrēja prūjom. Dzeivuoj vēļ veci un jīm pīdzyma dāls. Tūlaik īguoduoja
+vecs tū jaunū cylvāku, kuŗam apsūlēja atdūt tū, kuo naatstuoja sātā. Sovu dālu
+veCi nūkristīja par Muortiņu. dzeivuoj un gaida, kad pēc jūs dāla atskrīs tys
+jaunais cylyāks, kurs beja valns. Puorguoja divdesmit godu, Muortiņš izauga lels.
+Vīnā naktī pasacēļa lels vējs. Pīskrēja pi ustabiņas lūga valns un soka:
+"Vec, es atguoju pēc Muortiņa!"</p>
+
+<p align="JUSTIFY">Un nyu Muortiņu kai ar vēju izruovja nu ustobas. Nas valns Muortiņu
+pa kolnim un lejom. Nesja nesja un vaicuoj: "Muortiņ, cik verstu es tevi
+nūnešu?"</p>
+
+<p align="JUSTIFY">"Kaidu desmit," atbildēja Muortiņš.</p>
+
+<p align="JUSTIFY">"Ej tu, Muortiņ, muļkis! Es jau kaidu symtu verstu tevi
+atnešu."</p>
+
+<p align="JUSTIFY">Un otkon valns nas Muortiņu. Nesja, nesja un vaicuoj : "Muortiņ,
+cik verstu es tevi nūnešu?"</p>
+
+<p align="JUSTIFY">"Kaidu divdesmit," atbildēja Muortiņš.</p>
+
+<p align="JUSTIFY">"Ej tu, Muortiņ, kaids tu muļkis! Es jau kaidi divi symti verstu
+tevi nūnešu," soka valns un nas otkon tuoļuok.</p>
+
+<p align="JUSTIFY">Nūnesja valns Muortiņu uz sovu sātu, aizlyka jam izpildīt dažaidus
+dorbus un aizlīdzja īit trejūs kambarūs, bet pats aizskrēja prūjom. Muortiņš
+izpildīja vysus dorbus, un aizsagribēja jam pasavērt [aizlīgtūs] kambarūs.</p>
+
+<p align="JUSTIFY">Attaisīja Muortiņš vīnu kambari un veras: stuov treis kubuli:
+zalta, sudobra un vara. Muortiņš ībuoza pierstu zalta kubulā un vyss piersts palyka ar
+zaltu. Muortiņš izguoja nu kambaya un, ka valns nazynuotu, ka jis beja īguojis
+kambarī, apsēja pierstu ar lupatu.</p>
+
+<p align="JUSTIFY">Atskrīn valns un vaicuoj nu Muortiņa: "Kas tovam pierstam?"</p>
+
+<p align="JUSTIFY">"Puorgrīžu," atbildēja Muortiņš.</p>
+
+<p align="JUSTIFY">"Paruodi!" soka valns un nu Muortiņš atraisīja nu piersta
+lupotu. Tad valns soka: "Jo tu man īīsi ūtrā kambarī, tad dzeivs nabyusi."
+- Bet pats, aizlicis Muortiņam dorbu, aizskrēja pa pasauli.</p>
+
+<p align="JUSTIFY">Muortiņš padarīja aizlyktū dorbu un īguoja ūtrā kambarī, nu tuo
+kambara izskrēja putni un aizskrēja. Muortiņš aiztaisīja kambari un gaida, kad
+atskrīs valns. Na par garu laiku atskrīn valns un vaicuoj: "Muortiņ, tu beji
+ūtrā kambarī?"</p>
+
+<p align="JUSTIFY">Muortiņš līdzas, bet valns soka: "Jo tu īīsi trešā
+kambarī, tad byusi beigts. Itū reizi es tev vēļ pīdūdu, bet vairuok
+napīdūšu!" un pats aizlicis Muortiņam dorbu aizskrēja pa pasauli.</p>
+
+<p align="JUSTIFY">Muortiņš vēļ naizpildīja aizlyktuo dorba un īleida trešā
+kambarī. Veras jis, ka trešā kambarī stuov zyrgi un vysi pīsīti ar astem pi silem.
+Muortiņš jēmja un sīn zyrgus ar golvom pi silem. Sēja, sēja, Muortirš zyrgus un
+pīguoja kuorta pādē,juo. Pādējais zyrgs soka: "Pasaver, Muortiņ, atpakaļ!</p>
+
+<p align="JUSTIFY">Muortiņš pasagrīzja un veras, ka nav ni vīna zyrga. Vysi tī
+izbāgušī putni un zyrgi beja valna nūsystū cylvāku dvēseles, kas ilgus godus jau
+beja turātas valna kambarūs. Tad zyrgs soka:</p>
+
+<p align="JUSTIFY">"Kad atskrīs valns, jis tevi, Muortiņ, nūsiss, tuodēļ mums
+obējim juobāg prūjom. Bet pyrmuok tu ej pyrmā kambarī un pamērcēj sovus motus zalta
+kambarī, tad vēļ tymā kambarī," - un zyrgs paruodīja kurā - "un pajem
+duorguos drēbes, biersti, grebiņas [ķemmi] un dvīlīti!"</p>
+
+<p align="JUSTIFY">Muortiņš īguoja kambarī un salasīja vysu, kū zyrgs° teicja
+pajemt, un atguoja uz zyrgu. Zyrgs soka: "Tagad mes begsim!" Muortiņš sāduos
+zyrgam mugurā, pajēmja leidza duorguos drēbes, biersti, grebiņas un dvīli un suoka
+bēgt. Bāga, bāga jī un zyrgs soka: "Pasaklaus, Muortiņ, vai nikas nasadzan pēc
+myusu!" Muortiņš nūkuopja nu zyrga, pīlyka ausi pi zemes un soka: Zeme reib un
+dzierdis, ka tuoļum_ā dzanas pēc myusu!"</p>
+
+<p align="JUSTIFY">"Zyrgs soka: "Bēgsim vēļ!" un jī otkon suoka bēgt.</p>
+
+<p align="JUSTIFY">Bāga, bāga, jau zeme suoka cīši reibēt un zyrgs soka Nluortiņam:
+"Ņūsvīd, Muortiņ, zemē biersti!"</p>
+
+<p align="JUSTIFY">Muortiņš nūsvīdja biersti un pasataisīja lels lels un bīzs mežs,
+bet paši turpynuoja bēgt. Vaļns sytuos, sy tuos pa mežu un vysa apsadauzīja, bet
+cauri gon tyka un otkon dzanas pakaļ. Klausuos zyrgs ar Muortiņu, ka zeme otkon stypri
+reib un valns jau jīm tyvu. Zyrgs soka Muortiņam : "Nūsvīd, Muortiņ, zemē
+grebiņas!"</p>
+
+<p align="JUSTIFY">Muortiņš nūsvīdja grebiņas un pasataisīja lels, lels un
+napuorejams pūrs, bet paši bāg tuoļuok. Valns pīskrēja pi pūra, sytuos, sytuos, ar
+lelom mūkom tyka puori izn dzanas otkon pakaļ.</p>
+
+<p align="JUSTIFY">Klausuos zyrgs ar Muortiņu, ka zeme otkon stypri reib un valns jau
+jīm tyvu. Zyrgs soka Muortiņam: "Puorplēs dvīli un nūsvīd pusi zemē!</p>
+
+<p align="JUSTIFY">Muortiņš puorplēsja dvīli un nūsvīdja pusi zemē. Nu dvīļa
+pasataisīja lels azars. Valns pīskrēja pi azara, apkuort skrīt nagrib, un suoka dzert
+azaru. Dzēŗa, dzēŗa valns azaru, izdzēŗa un otkon dzanas pakaļ. Jau zeme otkon
+suoka stypri reibēt un valns jau tyvu. Tad zyrgs soka Muortiņam: "Svīd, Muortiņ,
+zemē ūtru pusi dvīļa un, juo valns izdziers itū azaru, tad jis myusus sagyus!"</p>
+
+<p align="JUSTIFY">Muortiņš nūsvīdja ūtru pusi dvīļa un pasataisīja vēļ leluoks
+azars kai pyrmais. Valns pīskrēja pi azara un suoka dzert Dzēŗa, dzēŗa un puorpleisa
+valns, bet Muortiņš ar zyrgu bāga, bāga un zyrgs soka Muortiņam: "Muortiņ,
+pasaklaus, vai kas dzanas mums pakal?"</p>
+
+<p align="JUSTIFY">Muortiņš nūkuopja nu zyrga, pīlyka ausi pi zemes un soka:
+"Vyss ir kluss un zeme vairs nareib!"</p>
+
+<p align="JUSTIFY">Tad zyrgs soka: "Tagad valns ir puorpleisis un mēs esam
+gluobti!"</p>
+
+<p align="JUSTIFY">Zyrgs ar Muortiņu nūstuoja kaidā vītā un zyrgs soka:
+"Muortiņ, ej un pameklēj sev dorba, bet. kad nazynuosi kū darīt, atej pi manis,
+es tevi pamuocīšu!"</p>
+
+<p align="JUSTIFY">Duorguos drēnes Muortiņš atstuoja pi zyrga un pats ar sapleisušom
+nūguoja maklātu dorba. Nailgi jis staiguoja un pasajēmja pi tuos zemes kēniņa par
+duorza sorgu. Atguoja svātdīna. Kēniņš ar sovu saimi aizbraucja uz baznīcu un
+muojuos palyka kēniņa slymuo meita. Muortiņš aizguoja uz sovu zy rgi.a, apvylka
+duorguos drēbes un atguoja uz kēniņa pili. Ķēniņa slymuo meita sēdēja pi ļūga un
+redzēja, ka, īsagērbīs skaistuos drēbēs ar zalta motim, paguoja garam Muortiņš.
+Kēniņa meita nu ituo palyka vasaluoka, bet Muortiņš aizguoja uz zyrgu, nūvylka
+duorguos drēbes, apvylka sovas vacuos, atguoja uz duorzu un sorguoj.</p>
+
+<p align="JUSTIFY">Atbraucja nu baznīcas kēniņš, un kēniņa meita izstuostīja
+kēniņam, ka redzēja Muortiņu īsarūsušu duorguos drēbēs ar zalta motim un nu tuo
+palyka vasaluoka. Kēniņš naticēja meitai un aizguoja uz duorzu pasavārtu, vai ir
+Muortiņš, vai nav. Veras kēniņš, ka Muortiņš sēd appleisušuos drēbēs un sorguoj
+duorzu. Atguoja kPniņš uz pili un soka meitai: "Tys nav bejis Nluortiņš!
+Muortiņš sorguoj duorzu!" Bet kēniņa meita runuoj, ka tys guojējs beja
+Muortiņš.</p>
+
+<p align="JUSTIFY">Ūtrā svātdīnā otkon kēniņš ar saimi nūbraucja uz baznīcu, bet
+slymuo meita palyka muojuos. Otkon Muortiņš īsarūsīs puorguoja par pogolmu un
+kēniņa meita redzēja jū. Atbraucja nu baznicas kēniņš, un kēniņa meita runuoj
+jam: "Šūdīņ otkon es redzēju skaistū Muortiņu un palyku vasaluoka. Man jis
+cīši pateik, un es jūs gribu īvest savā kambarī!"</p>
+
+<p align="JUSTIFY">Kēniņš nazyna, kū darīt, un pasaucja Muortiņu uz pili. Kēniņš
+īdevja Muortiņam pučes un soka: "Īnes juos munas meitas kambarī"</p>
+
+<p align="JUSTIFY">Muortiņš pajēmja pučes, attaisīja ķēniņa meitas durovas un
+pastīpja pa škierbu. Meita pajēmja pučes, bet Mourtiņa nadabuoja īškā sovā
+kambarī. Tad meita aizguoja pi kēniņa un izstuostīja, ka Muortiņš naiguoja.</p>
+
+<p align="JUSTIFY">Otkon kēniņš syuta Muortiņu ar pučem. Muortinš attaisija durovas
+un kēniņa meita īruovja jū sovā kambarī, nūjēmja Muortiņam capuri un redzēja juo
+zalta motus. Kēniņa meita īmīļuo Muortiņu un, pagruobuse sauju zalta, īdevja
+Muortiņam runuodama: "Pajem itū naudu un nupierc sev lobas drēbes!"</p>
+
+<p align="JUSTIFY">Muortiņš pajēma naudu un izguoja nu pils. Ce]ā jū satyka bārni
+irn suoka smītis par Muortiņu. Muortinš suoka dalīt bārnim sajemtū naudu, runuodams:
+",Jemīt! Ķēniņa jneita man idevja ituos pūdziņas īšyut jaunom drēbem!"</p>
+
+<p align="JUSTIFY">Bārni pajēmja nu Muortiņa naudu un jis otkon nūguoja uz sovu
+duorzu. Kēniņš itū vysu redzēja un nūsaucja Muortiņu par mulkiti.</p>
+
+<p align="JUSTIFY">Atguoja trešā svātdīna. Kēninš ar sovu saimi otkon aizbraucja uz
+baznīcu un slymuo meita palyka sātā. Muortiņš otkon īsarūšīs puorguoja par
+pogolmu un kēniņa meita redzēja jū. Šimā svātdīnā kēninš gribēja dūt pi veira
+sovu meitu. Atbraucja kēniņš nu baznīcas, sabraucja vysu zemju kēniņi un gaidīja,
+kuram kriss pajemt kēniņa meitu par sīvu. Nūstuoja vysi precinīki rindā, puorguoja
+caur rindu kēniņa meita; lasīdama veiru, un soka: "Pi itim ni vīna es naišu!
+Atvedīt Muortiņu!"</p>
+
+<p align="JUSTIFY">Atvedja nu duorza sapleisušū Muortiņu un kēniņa meita jū
+izvēlēja sev par veiru. Brīs?nīgi keniņš nagribēja precēt sovu meitu ar Muortiņu,
+bet nikuo navar darīt. Meita grib precētīs ar Muortiņu un juotaisa kuozas. Sataisīja
+kuozas un apprecēja kēniņa meitu ar Muortiņu. Guļ Muortiņš kēkī uz cepļa un
+nikur nastaiguoj. Sasadusmuoja cytu zemju kēniņi, ka naizdevja kēniņš sovas meitas pi
+kēniņa un pasludynnuoja karu. Aizbraucja kēniņš uz karim. Muortiņš ceļas nu
+cepļa, pajēmja kerzīti un soka: "Es īšu zyvu gyutu!"</p>
+
+<p align="JUSTIFY">Aaizguoja Muortiņš ar kerzīti uz sovu zyrgu, sāduos viersā un
+nūbraucja uz karim. Saskrēja tī putni un zyrgi, kurus Muortiņš nazkad izlaidja nu
+valna kambarim, sasyta pretinīkus, bet pats atbraucja atpakaļ, pīgyva zyvu un atguoja
+uz sātu. Atbraucja nu karim kēniņš un stuosta, ka jis sakuova īnaidnīkus, un ka jam
+paleidzēja nazkaids skaists veirīts ar lobim zyrgim un putnim. Kēniņa meita soka:
+"Varbyut, tēt, tys veirīts beja Muortiņš?"</p>
+
+<p align="JUSTIFY">Kēniņš pasasmēja un nasoka nikuo. Guļ Muortiņš otkon uz cepļa
+un nastaiguoj nikur. Kēniņa meita, Muortiņa sīva, prit pi cepļa un grib, ka
+Muortiņš kuoptu zemē nu cepļa un dzeivotu kambarūs, bet Muortiņš nasaklausa.</p>
+
+<p align="JUSTIFY">Paguoja eiss laiks un otkon kēniņam pasludynuoja karu. Kēniņš
+nūbraucja uz karim. Muortiņš ari ceļas nu cepļa pajēmja kerzīti un soka: "Es
+īšu zyvu gyutu!" - un aizgoja.</p>
+
+<p align="JUSTIFY">Atīt Muortiņš uz sovu zyrgu, sāduos zyrgam mugurā un nūbraucja uz
+karim. Saskrēja otkon vysi putni un zyrgi, un sakuova īnaidnīkus, bet Muortiņu
+īvainuoja kuojā. Kēniņš nūjēmja nu kokla sovu šalli, apsēja ar jū Muortiņa
+kuoju un pats aizbraucja uz sātu. Muortiņš uz sova zyrga agruok tyka sātā, izkuopja
+uz cepļa ar apsītū kuoju un guļ. Atbrauja kēniņš nu karim un stuosta:
+"Īnaidnīku sakaut man paleidzēja otkon tys veirīts ar putnim un lobim zyrgim, bet
+jū īvaiņuoja kuojā un es apsēju juo kuoju ar sovu šalli."</p>
+
+<p align="JUSTIFY">Kēniņa meita nikuo napasacīja. Muortiņš guļ uz cepļa un nikur
+nastaiguoj. Kaidu reizi kēniņa meita pīguoja pi cepļa, uz kura gulēja Muortiņš,
+veras uz Muortiņa un redz, ka juo kuoja apsīta ar juo tāva šalli. Meita nūskrēja un
+izstuostīja tāvam, ka tys skaistais veirīts, kurs paleidzēja jam īnaidnīkus sakaut,
+beja juos Muortiņš. Kēniņš atguoja un redz, ka patīsi Muortiņa kuoja apsīta ar juo
+šalli. Tad pazyna kēniņš, ka juo labdars beja Muortiņš. Muortiņš nūkuopja nu
+cepla un nūguoja uz sovu zyrgu. Zyrgs soka: "Tagad tu apveļc sovas lobuos drēbes,
+ej uz pili un dzeivuoj vasals! Mes jau vairuok nasatiksim!"</p>
+
+<p align="JUSTIFY">Apvylka Muortiņš sovas duorguos drēbes, atsavasaluoja ar sovu zyrgu
+un aizguoja uz pili. Kēniņš sataisīja ūtras kuozas, pīaicynuoja vysu zemju kēniņus
+un nū vysi dzēŗa un prīcuojuos.</p>
+
+<p align="JUSTIFY">Tys kēniņš dreiži nūmyra un par kēniņu palyka Muortiņš, ar
+kuru karuot beistās vysi kēniņi.</p>
+
+
+</body></html>

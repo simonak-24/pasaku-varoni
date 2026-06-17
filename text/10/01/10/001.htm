@@ -1,0 +1,305 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>1001001</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+<p align="JUSTIFY">&nbsp;</p>
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Kas apēdis sieru?</font><font size="4"></font></p><font size="4">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">1. A.<b> </b>785. J. Dīcmanis, Pasaku vācelite,
+1891, 35 (15).</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz gāja žīds pa ceļu un iedams satika vecu, vecu vīriņu, ar
+sirmu bārdiņu. Vecais tūliņ uzrunāja žīdu: ,;Žīdiņ, noliec savu prečukuli un
+nāc man līdz!"</p>
+
+<p align="JUSTIFY">"Oi, man tai kulē ir līdz kādiem divedesmit vai trīsdesmit
+rubļiem preču! Es tās nevaru atstāt!" žīda domīgs atbildēja. </p>
+
+<p align="JUSTIFY">"Esmu augsti mācīts dakteris. Mēs daudz vairāk ar ārstēšanu
+nopelnīsim, nekā tu, ar savu kuleli apkārt staigādams," vecais vīriņš žīdu
+iedrošinādams teica.</p>
+
+<p align="JUSTIFY">"Oi! kā man savu dārgu mantu ir gaužam žēl!" žīdiņš
+pilns baiļu atteic, liek kuli vairāk reizes pie zemes un ceļ to atkal augšam.
+"Oi, es to nevaru darīt!" žīdiņš vaid.</p>
+
+<p align="JUSTIFY">Lai nu gan nabaga žīdiņš šā tā tiepās un stīvējās, tad
+tomēr beidzot vecajam izdevās to pierunāt. Žīds nolika savu prečukuli un gāja
+vecajam vīriņam līdz. Bet vēl arvienu atpakaļ atskatījās uz savu prečukuli un,
+vairāk reizes gŗūti nopūzdamies, izsaucās: "Oi; manas dārgās mantas!"</p>
+
+<p align="JUSTIFY">Viņi drīz sasniedza krogu, iegāja tur iekšā un vecais vīriņš
+paturēja krietnu pusdienu. bet nabaga žīdiņam nedeva ne kumosiņu maizes. Vecītis
+nopirka divus sierus un iedeva žīdam, lai tos iebāž kulītē - vecais bija iedevis
+žīdam īpašu kulīti - bet cieti pieteica, lai tos neaiztiek. Tad viņi gāja tālāk
+un uzgāja atkal citu krogu. Vecītis nu žīdam teica, lai izņemot sierus. Žīds arī
+izņem, bet viens pats siers vien vairs kulītē atronas - otra vairs nav! Saprotams,
+žīds, vecajam nemanot, pa ceļu iedams, bija to vienu jau apēdis.</p>
+
+<p align="JUSTIFY">"Kur tad tas otrs siers ir palicis?" vecais dakteris dusmīgi
+uzkliedza žīdam.</p>
+
+<p align="JUSTIFY">"Oi, es nezinu! Es viņu neesmu ēdis!" žīds vairīdamies
+atteica.</p>
+
+<p align="JUSTIFY">Vecais vīriņš neko vairāk žīdam neprasīja un nu viņi gāja
+atka1 tālāk.</p>
+
+<p align="JUSTIFY">Pēc neilga laika viņi dabūja zināt, ka vienam ļoti bagātam un
+augstam ķēniņam esot dēls nomiris, un ka ķēniņš pēc tā gauži žēlojoties. un
+esot par daudz noskumis. Vecais dakteris nu pie sevim pārdomāja: "Pag, pag! tu
+neuzticīgais žīds! Es tevi gribu drusciņ papriecināt un likt arī paciesties!"</p>
+
+<p align="JUSTIFY">Viņi devās uz pili pie ķēniņa un apsolījās atkal atdzīvināt
+viņa dēlu. Abus dakteŗus ieveda istabā, kur gulēja ķēniņa dēla līķis. Vecais
+ņēma līķi un to sagrieza četros gabalos. Līķi izmazgāja un tad to sašuva kopā -
+un nu bija ķēniņa dēls atkal dzīvs un vesels. Par to nu ķēniņš tapa ļoti
+priecīgs un piesolīja vecajam dakterim daudz naudas, bet vecais to neņēma. Žīdiņš
+turpretī, būdams kārīgs pēc naudas, to nevarēja paciest un vecajam paklusi
+iečukstēja ausīs: "Tu, muļķi, ņem taču to naudu! Kālab tu neņem, kad tev
+augsts, cienīgs un žēlīgs ķēniņš to dod?"</p>
+
+<p align="JUSTIFY">Vecītis to nemaz nelikās dzirdot. Viņš neko vairāk no ķēniņa
+nepaņēma, kā vienu 1āpstu un dedzināmās lampas sirdīti un tad viņi no ķēniņa
+pils aizgāja.</p>
+
+<p align="JUSTIFY">Caur mežu iedami, viņi nonāca pie liela, liela ezera. "Mums
+jātiek pāri par šo lielo ezeru," vecais vīriņš sacīja uz žīdu. "Laivas
+mums nav un ezers ir plats! Bet nekas! Es sēdēšos lampas sirdītē un tu sēdies uz šo
+lāpstu. Mēģināsim tā pāri celties!"</p>
+
+<p align="JUSTIFY">Abi nu brauca mierīgi pār par ezeru, bet žīdiņa laiva drīz sāka
+grimt. Kas nu par lielām bailēm uznāca nabaga žīdiņam. </p>
+
+<p align="JUSTIFY">"Vad tu ēdi to sieru?" vecais vīriņš prasīja žīdam,
+redzēdams to ļoti bailīgu.</p>
+
+<p align="JUSTIFY">"Oi, es viņu neēdu! Oi, es to nezinu!" žīds iztrūcies
+atbildēja. Vecais vīriņš viņam vairāk neko neprasīja un viņi laimīgi pārbrauca
+par ezeru uz otru malu.</p>
+
+<p align="JUSTIFY">Ātri vien izplatījas slava pa visu ķēniņa valsti par brīnuma
+dakteri, kas varot atdzīvināt mirušus cilvēkus.</p>
+
+<p align="JUSTIFY">Gadījās, ka pēc neilga laika nomira atkal citam ķēniņam dēls.
+Ķēniņš lūdza brīnuma dakteŗus, lai nāk atdzīvināt viņa dēlu, un solīja
+viņiem par to lielu maksu. Šoreiz arī vecais tāpat sagrieza ķēniņa dēla miesas
+četros gabalos, nomazgāja tos, tad sašuva atkal kopā - un ķēniņa dēls tapa dzīvs.
+Ķēniņš tapa ļoti līksms un vecajam dakterim būtu atdevis vai pusi no visas savas
+mantas. Ķēniņš 1aipni sniedza vecajam dakterim roku un prasīja, cik viņš tagad
+prasot par šo savu darbu. Bet vecais atkal neko vairāk no ķēniņa neņēma, kā
+lāpstu un lampas sirdīti. Par to nu mūsu žīdiņš vai no ādas gribēja sprukt.
+Nabaga žīdiņš trīcēja vien, nevarēdams par veco beigt nodusmoties. Viņš
+vienādvien vecajam badīja pie sāniem, paklusām sacīdams: "Oi, kas tā par
+muļķību! Kālabad jūs nevarat to naudu ņemt, kad cienīgs, augsts ķēniņš dod?
+Mēs paliksim pavisam nabagi. Ko mēs darīsim bez naudas?"</p>
+
+<p align="JUSTIFY">Bet vecais nelikās viņu nemaz dzirdot un tā viņi aizgāja no
+ķēniņa pils projām. Pa ceļu ejot, žīdiņam pavisam savādas domas iešāvās
+galvā. Viņš runāja pie sevim : "Es jau divi reizes esmu vecajam, miroņus
+atdzīvinot bijis klāt un esmu itin labi visu noskatījies un izmācījies, kā vecais
+desmit minūtu laikā atdzīvina mironi. Ko man līdz tādam vecam; muļķim līdz
+vazāties, jo viņš neņem naudu, un tā mēs nekā nepelnam! Es gribu veco muļķi
+atstāt un pats uz savu roku dzīvot: tad man būs daudz naudas un tapšu bagāts
+kungs."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Kā domāts, tā darīts - žīdiņš aizgāja no vecā vīriņa.</p>
+</blockquote>
+
+<p align="JUSTIFY">Pēc neilga laika žīds dabūja zināt, ka atkal vienam ķēniņam
+dēls nomiris un ka tiekot cieti meklēts pēc brīnuma dakteriem. Žīdiņš steigšus
+vien devās uz ķēniņa pili un apsolīja desmit minūtu laikā atdzīvināt mirušo
+ķēniņa dēlu. Viņu arī tūliņ uzveda pils trešajā stāvā, kur gulēja ķēniņa
+dēla līķis. Ķēniņš pats iedeva viņam savu kabatas pulksteni, lai var pēc
+minūtiem pareizi izdarīt savu darbu. Jaunais dakteris, tāpat kā vecais vīriņš,
+sagrieza līķi četros gabalos, izmazgāja un tad to atkal sašuva - bet ķēniņa dēls
+vēl nemostas. Žīdam, nabadziņam, jau paliek bail. Paiet viena stunda, paiet otra un
+trešā, bet ķēniņa dēls kā nav, tā nav dzīvs! Nabaga žīdiņam jau sāk lieli
+drebēt, manot, ka vairs nav labi. "Varētu lūkot aizbēgt, pavisam tukšs jau ar
+neaizietu, jo man ir ķēniņa zelta pulkstens!" Žīdiņš baiļodamies pie sevim
+runāja.</p>
+
+<p align="JUSTIFY">"Bet kas par nelaimi, no trešā stāva! Kā lai līdz zemei
+notiek? Kad mani noķēŗ, ko tad?"</p>
+
+<p align="JUSTIFY">Viņam vēl tā domājot, uznāk pats ķēniņš, nevarēdams dakteri
+sagaidīt. Viņš atrod sava dēla līķi sagrieztu un uzkliedz žīdam dusmīgi: "Tu
+negodīgais krāpnieka cilvēks! Kā tu iedrošinājies mani tā negodīgi mānīt un
+krāpt un mana mīļā dēla miesas tik briesmīgi sagraizīt? Likšu tevi tūliņ
+pakārt!"</p>
+
+<p align="JUSTIFY">Varam gan domāt, kā nabaga žīdiņam tagad bija ap sirdi. Viņš
+trīcēja un drebēja kā apses lapa un bez samaņas nokrita pie ķēniņa kājām. Bet
+tas viss neko nelīdzēja, jo jaunajam brīnuma dakterim vajadzēja tapt pakārtam.
+Ķēniņš lika uztaisīt kārtavas, kur dakteri pakārt.</p>
+
+<p align="JUSTIFY">Jauno dakteri noveda uz soda vietu un bende jau taisījās dakterim
+valgu mest ap kaklu. Te piepēži - kur radies, kur ne - vecais vīriņš pieskrēja klāt
+un uzsauca žīdam: "Vai tu ēdi to sieru?"</p>
+
+<p align="JUSTIFY">"Oi, es viņu neēdu! Oi, es to nezinu!" žīdiņš
+pārbijies atbildēja</p>
+
+<p align="JUSTIFY">Vecais vīriņš lūdza ķēniņu, lai žīdu šoreiz palaiž vaļam,
+un apsolījās ķēniņa dēlu tūliņ darīt dzīvu. Žīds arī tapa palaists un vecais
+padarīja ķēniņa dēlu dzīvu. Aiz liela prieka ķēniņš solīja vecajam dakterim
+daudz naudas, bet viņš atkal vairāk neko no ķēniņa neņēma, kā vienu lāpstu un
+tad aizgāja atkal no ķēniņa pils projām.</p>
+
+<p align="JUSTIFY">Vecais vīriņš un žīds gāja atkal kopā pa vienu ceļu. Viņi
+uzgāja krūmos skaistu vietiņu. Vecītis iedeva žīdam lāpstu un lika rakt. Pats
+iegāja krūmos un tur paslēpās, gribēdams noskatīties, ko žīds darīs. Žīds nu
+sāka rakt un drīz uzraka vienu naudas podu. Žīds tapa ļoti priecīgs par savu
+atradumu. Viņš tūdiņ ķērās pie poda un sāka to vilkt ārā, bet nevarēja nekā
+izcelt. "Ko nu darīt?" žīds murmina savā bārdā. "Vai naudu atstāt
+zemē?" Nē, viņš sāk atkal vilkt un tik spēcīgi velk, ka reizu reizām atkrīt
+atpakaļ. Bet kā nevar, tā nevar dabūt naudas podu ārā.</p>
+
+<p align="JUSTIFY">Vecais vīriņš, aiz krūma stāvēdams, sauca: "Kālab tu
+vienādi tā krīti?"</p>
+
+<p align="JUSTIFY">"Man ir par daudz silti!" žīds izvairīdamies atbildēja.
+Te nu žīds jau ceturto reizi vecajam meloja. Itin spoži zelta gabali jau sāka birt no
+poda ārā. Nu žīds tapa jo priecīgāks un no liela prieka būtu vai simtu asu gaisā
+uzlēcis. Viņš atkal sāka vilkt podu no zemes ārā, vilka un cīnījās ar visu
+spēku:, tā ka visi svārķeļi un bikšeles trīsēja. Vairāk reizes viņš krita un
+cēlās un vilka, bet tomēr nevarēja podu no zemes ārā dabūt.</p>
+
+<p align="JUSTIFY">"Kādēļ tu vienādi tā krīti un neroc?" vecais kārigajam
+žīdam dzedri uzsauca.</p>
+
+<p align="JUSTIFY">"Oi, man ir par daudz silti!" Žīds pavisam aizkusušā
+balsī atteica.</p>
+
+<p align="JUSTIFY">Vecais vīrs nu iznāca no krūmiem un palīdzēja žīdam izcelt
+naudas podu. Vecais nu ņēma naudu un salika to trījās čupiņās. Te nu mums būs
+katram viena čupiņa zelta naudas!" vecais sminēdams teica.</p>
+
+<p align="JUSTIFY">Oi, kam tad būs tā trešā čupa naudas?" žīds iekarsis
+iesaucās. </p>
+
+<p align="JUSTIFY">"Tā būs tam, kas sieru apēdis!" vecais itin mierīgā
+lēnā balsī atteica.</p>
+
+<p align="JUSTIFY">"Oi, mīļais dakteŗa kungs! Kas gan cits to sieru apēde, kā es
+pats?"</p>
+
+<p align="JUSTIFY">Tanī pašā acumirklī pods ar zelta gabaliem atkrita bedrē atpakaļ
+un vecais vīriņš ar sirmo bārdiņu arī tūliņ pazuda. Te nu nabaga žīdiņš palika
+kā mēms stāvot. Viņš rokas vien plātīja, brīnījās un gaužam žēlojās pēc
+spožajiem zelta dukātiem, jo nu bija visa gaidītā laime un prieks pagalam. Tā
+bēdājoties, viņš atskatās atpakaļ un ierauga savu precesku1i pie krūma noliktu.</p>
+
+<p align="JUSTIFY">Žīds tagad atradās tai pašā vietā, kur viņš pirmo reiz ar
+Dievu, veco vīriņu, bija saticies, un viņa kule arī atradās tepat, kur jau viņš
+pats to bija nolicis. Žīds paņēma savu preces kulīti un aizgāja bēdīgs no turienes
+projām.</p>
+</font>
+
+
+</body></html>

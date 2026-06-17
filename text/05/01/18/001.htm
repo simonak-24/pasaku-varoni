@@ -1,0 +1,165 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>18</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Spēlētājs ellē.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 476. Mācītājs J. Neilands no 1870. līdz 1880. g. Pēterupē. </p>
+
+<p align="JUSTIFY">Brases krogā reiz bijis viens skrodelis par spēlmani. Viņš esot
+labi spēlējis un visi audis esot dancojuši.</p>
+
+<p align="JUSTIFY">Vienā svētdienas vakarā atbraukuši tur divi jaunkungi ar diviem
+smukiem melniem zirgiem, paši arī bijuši ģērbušies melnās drēbēs. Tie dancojuši
+un dancojuši un Jūguši skrodeli, vai nebraukšot arī šiem līdz drusku paspēlēt.
+Skrodelis arī gājis līdz, un nu aši vien nobraukuši pie vienas lielas mājas.
+Skrodelis iegājis iekšā, uzvilcis stīgas un sācis spēlēt. Spēlēdams viņš
+novērojis, ka visi dancotāji dancojuši ko dancojuši, tad gājuši tur kādā kaktā
+pie liela ūdens trauka un mazgājuši muti. Šis domājis: "Man ar' būs melna mute,
+kad es tur varētu kaut kā pietikt un, nomazgāt!" Bet skrodelis nav drīkstējis
+iet. Pa tām starpām ļaudis arvien staigājuši iekšā, ārā un allaž pie tā trauka
+mazgājuši ar saujām acis. Skrodelis arī reiz nevilšu dabūjis ar kreiso roku pajemt
+to slapjumu un piešāvis sev pie kreisās acs. Nu viņš aiztaisījis labo aci cieti un
+redzējis visus tos smukos dancotājus, tik nejaukus kā suņus, cūkas un āžus.</p>
+
+<p align="JUSTIFY">"Nu labi!" skrodelis domājis, "nu es zinu, ka esmu
+pašā ellē, bet nu jāgādā, kā laukā tiek."</p>
+
+<p align="JUSTIFY">Viņš nu lūdzis tos pašus jaunkungus, kas viņu atveduši, lai
+aizvedot šo atkai atpakaļ. Jaunkungi bijuši ar mieru, un vēl sadāvājuši viņam
+visas ķešas pilnas ar papīra naudu. Tā nu skrodelis itin priecīgs aizbrauca uz māju.
+Bet nu izrādījās, ka skrodeļa būdiņa jau bija noplēsta un visas viņa lietiņas
+izputinātas. Visi, ar kuŗiem viņš saticies, vaicājuši, kur šis par šiem
+piezpadsmit gadiem esot bijis. Šie jau domājuši, ka viņš nu vairs dzīvs neesot,
+tādēļ arī visas viņa mantas esot izputinātas. Skrodelis neko nebēdājis un tik
+nodomājis: "Nekas! Iešu tik atkal uz Brases krogu spēlēt, būs atkal viss
+labi."</p>
+
+<p align="JUSTIFY">Aizgājis ar. Nu atminējies, ka jaunkungi šim piepildījuši visas
+ķešas ar papīra naudu. Sācis vilkt ārā, bet naudas vietā atradušās tik
+čaukstošas apšu lapas. Nu nospļaudījies un spēlējis. ko nagi nes.</p>
+
+<p align="JUSTIFY">Vienu vakaru uz krogu atbraukuši atkal tie paši abi jaunkungi un
+sākuši līdz ar citiem dancot. Skrodelis aiztaisījis labo aci, apskatījis abus kungus
+un redzējis, ka tiem ir zirgu kājas. Viņu zirgi bijuši divas melnas cūkas un
+kučieris bijis āzis. Visu to redzēdams, skrodelis teicis uz citiem kroga ļaudim:
+"Ko jūs te ar tiem nešķīstajiem velniem tinaties? Tie jau ir no pašas
+elles."</p>
+
+<p align="JUSTIFY">Kā šis to izsacījis, tā pienācis viens no jaunkungiem un prasījis
+skrodelim: "Ar kuŗu aci tad tu tik slikti redzi?"</p>
+
+<p align="JUSTIFY">Tas atbildējis: "Ar kreiso."</p>
+
+<p align="JUSTIFY">To izteikušam, kungs tūlin grābis ar roku acī, izrāvis to laukā
+un nu abi kungi ar saviem zirgiem un kučieri pazuduši. Ja nebūtu tā runājis, tad
+būtu labi bijis un viņš varbūt vēl tagad spēlētu Brases krogā. Bet lai nu svilpo
+ar vienu aci!</p>
+
+
+</body></html>

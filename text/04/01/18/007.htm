@@ -1,0 +1,152 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Velna līgava.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">7. A.<b> </b>Lerchis-Puškaitis no K. Zīverta Džūkstē. LP, VII, I,
+180--l.</p>
+
+<p align="JUSTIFY">Kad es biju tāds puika, tad Džūkstes Apšupnieku Knubjos bija vella
+apsēsta meita. Šī meita<b> </b>vella nelaimi esot dabūjusi no toreizējā Apšupes
+muižas kunga Šerpantiņa melnajām grāmatām. Esot tur šķirstījusi un tad vells
+apsēdis tūlin un nebijis vairs aizdzenams. Bet bijuši brīži, kad vells meitu licis
+pilnīgi mierā. Tiklīdz vells nācis meitu apsēst, tad pati jau iepriekš baiļojusies:
+"Nu nāk mans kungs, nu nāk mans kungs!" un drīzi pēc tam sākusi trakot,
+skriet, diet, apslēptas lietas aizmigtām acim saredzēt, apslēptus grēkus citiem
+cilvēkiem izklāstīt un pārmest. Pagasts dabūjis sūtīt cilvēkus slimnieci ievaldīt
+un apsargāt, bet sargi drīzi aizmukuši, tāpēc ka apsēstā katram teikusi acīs
+noslēpumus un visvisādus grēkus, ko sargs tam un tam darījis esot.</p>
+
+<p align="JUSTIFY">Daudzreiz apsēstā trakuma brīžos pusplika skrējusi laukā ziemas
+laikā un pat trīs četri vīri nespējuši noturēt. Beidzot tad viņas brālis
+apcēlis, ka nelaimīgā no krusta zīmes baidās - uzvilcis uz kliņķa krustu.
+Pieskrējusi gan pie durvim, bet kliņķi vairs pacelt nejaudājusi, kā spruksbiņš
+mukusi atpakaļ. Tāpat vilkuši arī krustus uz grīdu dejamos brīžos, lai stātos
+apsēstā diet; bet viņa tomēr tev dejusi lunkani krustiem apkārt, pa krustu starpām
+izvīdamās un pie tam aizmigtām acim.</p>
+
+<p align="JUSTIFY">Tai brīdī, kad vells nācis šurp meitu mocīt, tad vistas ķurkušas
+un vienreiz pat no laktas aiz bailēm noskrējušas zemē, sviešus iesviestas otrā
+istabā.</p>
+
+<p align="JUSTIFY">Apsēstās meitas brālis viens vienīgs varējis kaut cik māsas vellu
+vēl ievaldīt. Vienreiz brālis vaicājis: "Kas tu tāds esi, manu māsu
+mocīdams?"</p>
+
+<p align="JUSTIFY">Atbildējis vells ar māsas muti: "Esmu mazs, mazs tārpiņš, nav
+jau man nezin kāda vara."</p>
+
+<p align="JUSTIFY">"Nu, kam tu manu māsu neliec mierā?"</p>
+
+<p align="JUSTIFY">"Ko tad es viņai atkal daru? Vai viņa ko jūt tagad? Tu redzi,
+ka trakuma brīžos pilnīgi aizmigusi un arī tagad es tikai runāju - viņa pilnīgi
+guļ."</p>
+
+
+</body></html>

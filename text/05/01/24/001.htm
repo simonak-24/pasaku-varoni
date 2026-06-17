@@ -1,0 +1,186 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>24</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Bārenīte un mātes meita pie vecīša.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 480. J. Gobziņš Rudbāržos. LP, VI, 831 (12). </p>
+
+<p align="JUSTIFY">Vienai mātei divas meitas: viena īsta, otra pameita. Pamāte pameitu
+neieredzējusi nemaz un vienu dienu izdzinusi pavisam no mājām. Nabadzīte iegājusi
+mežā, tur uzgājusi vienu mājiņu. Mājiņā dzīvojis vecītis; bet tas pašu laiku
+nebijis mājā, kad šī iegājusi. Un vecīša gulta nebijusi uztaisīta, ne arī istaba
+izslaucīta. Tad pameita uztaisījusi gultu, izslaucījusi istabu, apkopusies, kā
+pienākas, un ielikusies gultā atpūsties drusku. Gulējusi, gulējusi - te pārnācis
+vecītis un saucis: "Meitiņ, meitiņ, laid mani iekšā!"</p>
+
+<p align="JUSTIFY">Šī ātri izlēkusi no gultas un atvērusi durvis. Bet vecītis atkal
+saucis: "Meitiņ, meitiņ, cel mani pa slieksni pāri!"</p>
+
+<p align="JUSTIFY">Šī paņēmusi vecīti un iecēlusi istabā. Istabā vecītis atkal
+saucis:. "Meitiņ, meitiņ, dod man ēst!"</p>
+
+<p align="JUSTIFY">Iedevusi. Vecītis paēdis un teicis: "Meitiņ, meitiņ, dod man
+dzert!"</p>
+
+<p align="JUSTIFY">Pasniegusi dzērienu. Nodzēries un teicis: "Meitiņ, meitiņ, nu
+iešu gulēt!"</p>
+
+<p align="JUSTIFY">Apguldinājusi, apsegusi un vecītis aizmidzis. Rītā pamodies. saucis
+atkal: "Meitiņ, meitiņ, cei mani augšā!"</p>
+
+<p align="JUSTIFY">Uzcēlusi, apģērbusi, paēdinājusi un tad vecītis gājis projām.
+aicinādams: "Meitiņ, meitiņ<b>, </b>nāc man līdz."</p>
+
+<p align="JUSTIFY">Gājusi līdz, vecītis ievedis zelta dārzā, tur sācis līt zelta
+lietus un meitiņa nolijusi viscaur ar zeltu. Tad vecītis skubinājis: "Meitiņ,
+meitiņ, ej nu uz pamātes mājām!"</p>
+
+<p align="JUSTIFY">Pārgājusi, mātes meita ieraudzījusi: šī viscaur zeltā! un nu
+skrējusi klupdama arī uz mežu zeltā liedēties. Skrējusi, skrējusi ieskrējusi
+vecīša mājiņā un ne gultu taisījusi, ne istabu slaucījusi tūlīt likusies gulēt.
+Pārnācis vecītis un saucis: "Meitiņ, meitiņ, laid mani iekšā!"</p>
+
+<p>Šī atņurdējusi: "Ver pats vaļā, vai roku nav?"</p>
+
+<p align="JUSTIFY">Vecītis atvēris durvis un teicis atkal: "Meitiņ, meitiņ, cel
+mani iekšā pār slieksni!"</p>
+
+<p align="JUSTIFY">Šī atteikusi: "Kāp pats, vecais kraģi. vai tev kāju
+nav?"</p>
+
+<p align="JUSTIFY">Iekāpis istabā un prasījis: "Meitiņ meitiņ, dod man
+ēst!" Šī pretim: "Ēd, kas tev ir atlicis!"</p>
+
+<p align="JUSTIFY">Vecītis paēdis, teicis: "Meitiņ, meitiņ, liec mani
+gulēt!" Šī atrūkusi: "Ej pats gulēt, vai gultu neredzi?"</p>
+
+<p align="JUSTIFY">Vecītis apgulies un pēc brītiņa saucis: "Meitiņ, meitiņ, dod
+man nodzerties!"</p>
+
+<p>Šī atteikusi: "Meklē pats dzert!"</p>
+
+<p align="JUSTIFY">Rītā pamodies - atkal pirmais vārds: "Meitiņ, meitiņ, cel
+mani augšā!"</p>
+
+<p>Šī teikusi: "Celies pats!"</p>
+
+<p align="JUSTIFY">Apģērbies, saucis aicinādams: "Meitiņ, meitiņ, nāc man
+līdz!" Šī domājusi: "Diezin, ko nu rādīs!" un mudīgi vien steigusies
+pakaļ. Gājuši - iegājuši zelta dārzā; bet tur šoreiz lijis piķa lietus un
+noliedējis mātes meitu tik melnu, ka bailes. Nu vecītis skubinājis: "Meitiņ,
+meitiņ, steidzies pie mātes!"</p>
+
+<p align="JUSTIFY">Pārgājusi pie mātes, iegājusi klētī, māte skrējusi sagaidīt un
+tik tik nepārbijusies: viscaur bijusi ar piķi. Nu māte bēdās savākusi deviņas
+vecenes, deviņus vezumus grīstu, deviņus podus ziepju. Vecenes kurinājušas pirti
+deviņas reizes, noberzušas visas grīstes, izmazgājušas visas ziepes, bet mātes meita
+kā nebijusi, tā nebijusi balta.</p>
+
+
+</body></html>

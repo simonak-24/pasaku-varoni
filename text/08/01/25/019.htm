@@ -1,0 +1,219 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>19</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Stiprais Ansis.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">19. A. 650 A. Teicēja 76 g. veca Īva Staleidzāne, Atašienes
+pagastā.</p>
+
+<p align="JUSTIFY">Vīna muote beja lela styprinīca. Jai pīdzyma dēliņš, kuru jei
+zeidēja septiņi godi. Dāls izauga lels un prosa muotei izkaļt jam ciervīti. Aizguoja
+muote uz kalēju, izkola vīnu bierkovu gryutu ciervi, atnezja uz sātu un īdevja dālam.
+Dāls pajēmja ciervi, pacyluoja, pacyluoja un soka: "ltys vīgls!"</p>
+
+<p align="JUSTIFY">Otkon muote aizguoja uz kalēju, izkola divi bierkovi gryutu ciervi,
+atnezja uz sātu un īdevja dālam. Dāls pajēmja ciervi, pacyluoja, pacyluoja un soka:
+"Itys vīgls!"</p>
+
+<p align="JUSTIFY">Otkon muote aizguoja uz kalēju, izkola treis bierkovi gryutu ciervi,
+atnezja uz sātu un īdevja dālam. Dāls pajēmja ciervi, pacyluoja, pacyluoja un soka:
+"tys byus lobs!"</p>
+
+<p align="JUSTIFY">Pajēmja styprinīks sovu ciervi, atsavasaluoja ar muoti un īt pa
+pasauli laimes maklātu. Guoja, guoja jis un sadūmuoja atsapyust. Nūlyka jis ceļa molā
+ciervi un atsagula. Kungs braucja pa tū ceļu un pībraucja pi styprinīka. Kungs
+izmūdynuoja styprinīku un prosa: "Uz kurīni tu ej ?"</p>
+
+<p>"Eju dorba maklātu!" atbildēja styprinīks.</p>
+
+<p>"Ej pi manis par kolpu!" soka kungs.</p>
+
+<p>"Varu," atbildēja styprinīks.</p>
+
+<p>"Cik tev vajadzēs moksuat par godu?" prosa kungs.</p>
+
+<p align="JUSTIFY">"Man nikuo navajag moksuot," atbildēja styprinīks,
+"bet kad es tev godu atstruoduošu, tad īsisšu ar ituo cierva pīsīti par
+pakaļu!"</p>
+
+<p align="JUSTIFY">Kungs padūmuoja, ka naīsiss vys, jo jis jam gryutus dorbus dūs
+darīt, un spajēmja styprinīku sev par kolpu. Aizvedja kungs styprinīku uz sovu muižu
+un lyka pi vysaidiun gryutim dorbim. Styprinīks nikod naatsoka un vysu izdora. Redz
+kungs, ka līta slykta, un grib pīlikt vysus spākus, lai styprinīku izbeigtu. Kaidu
+reiz kungs pīsacīja pīvest pi okas daudz akmeņu. Tad kungs soka sovai sīvai:
+"īsvīd tu sovu gradzynu okā! Mēs syutīsim styprinīku okā pec gradzyna, un kad
+jis īleiss okā, aizsvīssim jū ar akmeņim!"</p>
+
+<p align="JUSTIFY">Gaspaža īsvīdja okā sovu gradzynu un kurngs pīsacīja styprinīkam
+dabuot nu okas gradzyna. Styprinīks aizguoja uz oku un pēc juo aizskrēja pakaļ vysi
+muižas ļaud’s. Īleida styprinīks okā un meklej gradzyna. Kad atroda gradzynu
+padevja gaspažai un gribēja leist uorā. Okas molā stuovējuši ļaud’s suoka
+veļt okā akmeņus uz styprinīka viersā. Styprinīks, kuopdams uorā nu okas soka:
+"Atdzenīt vystas nu okas, lai nakaš smiļšu man acīs!"</p>
+
+<p align="JUSTIFY">Ļaud’s vys mat akmeņus. Jau stiprinīks pīkuopj pavysam pi okas
+molā. Tad ļaud’s vēļa uz juo lelu dziernovu akmeni. Akmeņs izzamaucja
+stiprinīkam uz golvas. Styprinīks soka: "Paldīs, ka padevjāt vacuo tāva brili
+[cepuri], tagad nabiers smiltis acīs!"</p>
+
+<p align="JUSTIFY">Izkuopja styprinīks nu okas, nūjēmja nu kokla akmeni un stuov pi
+okas ar cytim ļaudim. Kungs redz, ka nikuo navar padarīt styprinīkam. Nu muižas na
+tuoļi beja lels mežs un tymā mežā auga divi lelas egles. Kungs soka styprinīkam:
+"Aizbrauc uz mežu, izrūc tuos egles, atved un īstoti muižas pogolmā!</p>
+
+<p align="JUSTIFY">Styprinīks aizjyudzja divus zyrgus un nūbraucja uz mežu. Mežā jis
+izplēsja ar saknem egles, īlika rotūs un gribēja vest uz sātu, bet zyrgi navylka.
+Sasadusmuoja styprinīks uz zyrgu, nūsyta juos, puorsvīdja vīnu par vīnu egli, ūtru
+par ūtru, lyka egles vīnu uz vīna, ūtru uz ūtra placa un nas uz sātu. Atnezja
+stypninīks egles uz sātu, īstatīja pogolmā un soka kungam: "Jau es egles
+īstatīju!"</p>
+
+<p>Kungs prosa: "Kur zyrgi?"</p>
+
+<p align="JUSTIFY">"Es zyrgus nūsytu, tuodēļ, ka jī nagribēja vilkt vazuma, bet
+egles un nūsystūs zyrgus pats atnežu!" atbildēja styprinīks.</p>
+
+<p align="JUSTIFY">Kungs redz, ka styprinīks vysu izdora un navar juo nūnuovēt. Kungam
+jau ni sylts, ni solts. Sadūmuoja kungs syutīt styprinīku uz valna patmalem, nu kurom
+nikod cylvāki naizguoja. Pībēŗa maisus ar labību, pīlyka vazumus un aizbraucja
+styprinīks uz valna patmalem. Pībrauc styprinīks pi patmalem un redz, ka pi patmalēm
+stuov kungs. Styprinīks prosa: "Vai var samalt?"</p>
+
+<p>"Var, var, nes tik īškā maisus!" atbildēja kungs.</p>
+
+<p align="JUSTIFY">Tys kungs beja pats valns. Itymuos patmalēs par zellem ari beja
+valnāni. Sanesja styprinīks maisus īškā un suoka maļt. Zelle pīskrēja pi
+styprinīka un soka: "Pīsalīc un pasaver akmeņa caurumā, vai mylti nav
+sagruduši!"</p>
+
+<p align="JUSTIFY">Styprinīks pīsalīcja pi akmeņa cauruma un veras. Zelle pa tū
+laiku, cikam jis vēŗās, gribēja īgryust jū akmeņa caurumā, bet styprinīks
+uzklīdzja: "Naaiztīc!"</p>
+
+<p align="JUSTIFY">Zelle ūtru reizi gryudja, styprinīks otkon soka:
+"Naaiztīc!"</p>
+
+<p align="JUSTIFY">Tad zelle salasīja vysu sovu spāku un gryudja styprinīku trešū
+reizi. Styprinīks, nikuo napasacīdams, atsagrīzja, sagyva zelli, kurs beja valns,
+svīdja jū uz zemes un satraikšēja tai, ka kauli vīn sabrakšēja. Saskrēja cyti
+patmaļu valni un styprinīks jūs izsvaidīja kur kurū pa patmaļu koktim, bet pats
+samalis mīrīgi aizbraucja uz sātu.</p>
+
+<p align="JUSTIFY">Kungs īsavēŗa, ka atbrauc kolps dzeivs un samalis, nu bailem
+nazynuoja, kū darīt. Cyta nikaida dorba jis ari nazynuoja uzdūt styprinīkam, kura jis
+naizdarītu. Pec tuo dreiži beidzjās gods un styprinīks, pajēmis sovu ciervi, soka:
+"Nu, kungs, tagad jau laiks man sajemt olgu!"</p>
+
+<p align="JUSTIFY">Kungs treisēja, treisēja, nūstuoja uz pogolma un gaida, kad
+styprinīks siss ar ciervi pa pakaļu. Styprinīks pīguoja pi kunga un kai syta ar ciervi
+par pakaļu, kungs pasacēļa gaisā un nivīns nazyna, kur aizskrēja. Bet styprinīks
+palyka muižā par saiminīku un šūdīn dzeivoj laimīgs. Valna patmales ari jam pīdar,
+jo vysi valni izbāgalēja.</p>
+</font>
+
+
+</body></html>

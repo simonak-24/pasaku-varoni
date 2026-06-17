@@ -1,0 +1,152 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="center"><font size="3"></font><font size="5"><strong>Čūsku ķēniņa kronis. </strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">2. A. 672. Lapas Mārtiņš, "Pasakas un
+nostāsti", 1902, 80, 15.</font></p><font size="3">
+
+<p align="JUSTIFY">Caur Jaun-Kārķu pagastu ,kas tagad savienots ar Vec-Kārķu pagastu
+un nosaukts par Kārķu pagastu iet Valkas-Rūjienas-Pērnavas celš. Šā ceļa malā
+starp Lūķu, Ķiguļu un Jandavas mājām senāki, kad es vēl biju ganu zēns, bija mazs
+putniņš, ko dēvēja par Acpuriņu, bet kas tagad pārvērsts jau par tīrumu. Šajā
+puriņā toreiz auga daudz zileņu ogu, bet tur bija arī daudz čūsku.</p>
+
+<p align="JUSTIFY">Senāk viens vīrs Acpuriņā, lielcela malā, ieraudzījis lielu
+čūsku mudzekli, kas šņākdamas un locīdamās līdušas ap kādu lielāku čūsku,
+kuŗai bijis spīdošs zelta kronis galvā. Tās nebijušas vis čūskas, bet pūķi
+čūsku izskatā. Vīrs iekārojis čūsku ķēniņa zelta kroni, bet arī zinājis,
+kādas briesmas viņam draud, šo kroni noņemot. Viņš asu izkapti kā zobenu uzsēdis
+mieta galā, sēdies savam visčaklākam zirgam mugurā un tad jājis uz to vietu, kur
+čūskas bija redzējis. Čūskas bijušas vēl turpat un arī ķēniņš ar kroni viņu
+vidū. Zirgu tuvumā pieturējis, viņš ar mieta galā uzsietu izkapti nocirtis čūsku
+ķēniņam galvu ar visu kroni un tad jājis projām, cik vien ātri zirgs varējis
+aulekšot; bet čūskas skrējušas viņam pakaļ, citas pa zemi, saritinājušās kā
+ripas citas pa gaisu, kā ugunīgi valgu gabali. Ka čūskas viņu panāks kaut gan viņa
+zirgs bijis labs skrējējs - to čūsku ķēniņa kroņa laupītājs jau iepriekšu bija
+paredzējis un tādēļ tā ierīkojies, ka aizbēgšana izdotos. Kad čūskas bijušas
+jau gluži tuvu, bēglis ātri nometis kamzoļus uz ceļa, kuŗus tam nolūkam bija
+apņēmis ap pleciem, un tad aulekšojis uz priekšu.</p>
+
+<p align="JUSTIFY">Čūskas vairs neskrējušas bēglim pakaļ, bet palikušas pie
+kamzoļiem, laikam domādamas, ka pats viņu ķēniņa nogalinātājs nokritis no zirga
+muguras. Jātnieks pa tam apjājis Acpuriņam apkārt un no otras puses tuvojies tai
+vietai, kur bija nocirtis pūķu ķēniņam galvu. Par laimi tur vairs nebijis nevienas
+čūskas, jo tās laikam strādājušas pie nomestiem kamzoļiem, bet gan nokautais pūķu
+ķēniņš un viņa galva ar kroni bijuši vēl turpat. Viņš ātri nolēcis no zirga
+muguras, norāvis nocirstai čūskas galvai zelta kroni, iebāzis to sev azotī, uzlēcis
+atkal zirgam mugurā un jājis uz māju, bet pa aitu ceļu, lai nesastaptos ar čūskām,
+kas bija pali kušas uz ceļa pie nomestiem kamzoļiem. Vēlāk izrādījies, ka čūskas
+nomestos kamzoļus bija saēdušas smalkās drumstalās un tad no ceļa pazudušas.</p>
+
+<p align="JUSTIFY">Čūsku ķēniņa kroņa nolaupītājs, šo kroni pie sevis nēsādams,
+zinājis visus noslēpumus un citu cilvēku domas, mācējis visas svešas valodas,
+sapratis visas kustoņu un putnu valodas, varējis pavēlēt visiem pūķiem sev kalpot un
+tapis par bagātu un lielu vīru.</p>
+</font>
+
+
+</body></html>

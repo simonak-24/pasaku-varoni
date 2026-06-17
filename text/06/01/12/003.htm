@@ -1,0 +1,396 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="center">Jaunava par vīrieti.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 514. 513 A. Ernsts Birznieks Dzirciemā, Jkr. III, 17 (7). LP,
+VII, II, 25, 2, 2.</p>
+
+<p align="JUSTIFY">Ķēniņam bija vecs, vecs kaŗa vadonis. Aiz nespēcības viņš vairs
+nevarēja izpildīt savu amatu un ķēniņš viņu atlaida. Vecais ģenerālis aizgāja
+dzīvot pie savām trim meitām savā muižā.</p>
+
+<p align="JUSTIFY">Nāk kaŗš. Ķēniņš ik reizes, kamēr vecais kaŗa vadonis pie
+viņa dzīvoja, noskatījās it vienaldzīgi ienaidnieku tuvojamies, un gāja, vecā
+ģenerāļa pavadīts, it mierīgi uz kaŗa lauku. Bet šinī reizē viņš bija ļoti
+nemierīgs.</p>
+
+<p align="JUSTIFY">"Jāsūta būs pēc vecā ģenerāļa; ja nevarēs nākt līdz
+kaŗā, taču tas man padomiņu kādu pados," ķēniņš domā un sūta vecajam
+ģenerālim ziņu. Vecais pats ļoti slims un nespēcīgs, tādēļ nevar iet. Bet jāiet
+ir! Viņš sūta savu vecāko meitu, liek viņai apģērbties virsnieka drēbēs un nu tai
+jājāj.</p>
+
+<p align="JUSTIFY">Viņa jāj. Kādu gabalu jājusi, nonāk mežā pie liela purva. Viņa
+jau no tālienes redz, ka kāds kūņojas pa purvu, bet vl nevar izšķirt, kas tas
+varētu būt: vai cilvēks jeb kāds kustonis. Tuvāku piejājusi, viņa redz, ka purvā
+iestigusi vāja balta ķēvīte, un veca vecenīte pūlās to izdabūt ārā. Vecene
+lūdz, lai jaunskungs nākot viņai palīgā. Viņa nolec no zirga un palīdz vecīti un
+viņas baltiņam izkļūt no purva. Vecenīte viņai patencina un saka: "Jums nebūs
+laimes, jāiet atpakaļ!"</p>
+
+<p align="JUSTIFY">Vecākā meita jāj atpakaļ un saka mājās, ka nevarot jāt. Vecais
+ģenerālis liek nu apģērbties vidējai meitai vīrieša drēbēs un nu tai jājāj.
+Šī nu jāj atkal, kāmēr nonāk pie lielā purva. No tālienes viņa jau redz, ka
+purvā kautkas kūņojas, bet kas, to viņa vēl nesaredz. Tuvāki pietikusi, viņa redz,
+ka purvā iestigusi vāja, balta ķēvīte, un veca vecenīte, pati grimdama, pūlās to
+izdabūt ārā. Vecenīte lūdz atkal, lai jaunskungs apžēlojoties un palīdzot viņiem
+iztikt ārā. Viņa nokāpj no zirga un palīdz iestigušiem izkļūt uz cietu zemi.
+Vecenīte patencina un saka: "Jājiet atpakaļ, jums nebūs laimes."</p>
+
+<p align="JUSTIFY">Vidējā meita jāj atpakaļ un stāsta mājās, ka nevarot tālāki
+pajāt. Vecais ģenerālis nezin, ko nu iesākt, ko darīt. Viņš sūta tagad jaunāko
+meitu. Šī apģērbjas vīrieša drēbēs, kāpj zirgam mugurā un jāj projām. Pie
+purva nonākusi viņa redz to pašu, ko divas vecākās māsas: balta, vāja ķēvīte
+iestigusi purvā, un veca vecenīte pūlās to izdabūt ārā. Jāsteidzas gan būtu prom,
+jo māsas tā jau nokavējušās, bet tomēr jāpalīdz - cilvēku nevar atstāt mocoties,
+tam nepalīdzējis. Viņa nolec no zirga, iet un izvelk vecenīti ar viņas zirdziņu no
+purva. Vecenīte patencina un saka: "Jūs varēsit jāt, jums būs laime! Bet
+laižiet savu zirgu atpakaļ uz mājām un ņemiet citu no mana staļļa tepat aiz kadiķa
+krūma. Ko tas jums teiks, to dariet! Pie ķēniņa nonākuši, jūs lūdziet īpašu
+stalli, lai neviens nedzird, ko jūs runājat."</p>
+
+<p align="JUSTIFY">Vecīte pazuda ar visu savu balto ķēvi. Ģenerāļa meita palaiž
+savu zirgu atpakaļ uz mājām un iet aiz kadiķa krūma stallī, kur viņa atrod melnu
+ērzeli. Tas tik dižojas vien, kad tik dabūtu skriet. Līdz ko ģenerāļa meita tam
+mugurā, tad tikdaudz kā redzēt, kā sviestu aizsviež līdz ķēniņa pilei. Viņa
+ieiet pie ķēniņa un teicas par sava tēva dēlu un ka nācis viņa vietā. Ka viņa ir
+sieviete, to viņa slēpj.</p>
+
+<p align="JUSTIFY">Ķēniņš ļoti priecīgs par sava vecā kaŗa vadoņa jauno skaisto
+dēlu, liek ielikt viņa melno ērzeli īpašā stallī un saka, lai jaunais virsnieks
+pastaigājoties pa viņa dārzu, kāmēr būšot jāiet kaŗā.</p>
+
+<p align="JUSTIFY">Pirmā dienā jaunais virsnieks staigā pa dārzu un apbrīno lielos,
+lepnos kokus un skaistos augļus. Ķēniņa māte - ķēniņš pats vēl neprecējies -
+augšā pa logu ieraudzījusi skaisto virsnieku, arī nāk dārzā un ir tik laipna, tik
+laipna ar jauno virsnieku, kā kad būtu diez kādi veci pazīstami.</p>
+
+<p align="JUSTIFY">Otrā dienā vecā ķēniņiene vēl laipnāka, mīlīgāka pret jauno
+virsnieku, sāk jau tam ķerties apkārt. Šis tik kauna dēļ var izmukt . . . Vadzi,
+trešā dienā vēl trakāki ķēniņiene nogrābj jauno virsnieku aiz svārkiem un
+nelaiž vaļā. Virsnieks atstāj svārkus un aizbēg prom. Vecā ķēniņiene tūliņ
+prom pie dēla: "Tāds bezgodis, tāds nekauņa, gribēja mani piesmiet! Dēls, tu
+viņam to nepiedod! It ja viņš viens pats apkauj visus ienaidniekus, tad vari
+piedot."</p>
+
+<p align="JUSTIFY">Ķēniņam gan jaunā cilvēka žēl, bet savu māti viņš tā nevar
+jaut apvainot, Jaunais virsnieks top saukts priekšā un ķēniņš viņam saka: "Ja
+tu viens pats vari apkaut visu ienaidnieka kaŗa spēku, tad es tevi nesodu par manas
+mātes apvainošanu."</p>
+
+<p align="JUSTIFY">Jaunais virsnieks lūdz laiku apdomāties. Ķēniņš viņam to atvēl.
+Viņš aiziet pie sava zirga un tam nu izteic tā un tā: "Ķēniņš grib, lai es
+viens pats apkauju visu ienaidnieka kaŗa spēku, citādi mani liek sodīt."</p>
+
+<p align="JUSTIFY">Zirgs uzklausās visu un tad saka: "Tā maza lieta, to vari
+apņemties. Prasi tik, lai ķēniņš tev dod tik daudz naudas līdz, cik es varu nest,
+tad jau to izdarīsim."</p>
+
+<p align="JUSTIFY">Jaunais virsnieks aiziet pie ķēniņa un tam tā pasaka. Ķēniņš
+priecīgs un dod naudu, cik virsnieks grib. Šis liek piebērt pilnu maisu ar zelta naudu,
+kāpj zirgam mugurā un jāj projām ienaidniekiem pretī.</p>
+
+<p>Kādā mežmalā jaunais virsnieks ierauga lielu, lielu vīru ar cisku malku skaldot
+Zirgs uzsauc jājējam, lai to ņem līdzi. "Ko tu te mocies?" jājējs
+skaldītājam uzprasa.</p>
+
+<p>"Man jāskalda bez cirvja katru dienu astoņdesmit asis mal kas un par to vēl
+nedabūju ne pilna vēdera ēst," skaldītājs attic. "Nāc mums līdzi, tad tu
+dabūsi vienmēr pilnu vēderu!" jātnieks viņu uzaicina.</p>
+
+<p align="JUSTIFY">Malkas skaldītājs iebāž savu cisku vecā vietā un iet tūliņ
+līdzi. Tikko mežam cauri izjājuši, viņi ierauga lielu vīru guļam pie maizes kaudzes
+un brēcam. Zirgs iečukst savam jātniekam, ka arī šis jāņemot līdzi.</p>
+
+<p>"Ko tu te raudi?" jātnieks tam uzprasa.</p>
+
+<p align="JUSTIFY">"Kā lai neraudu?" tas atbild, "maize ir, bet te man nav
+vērts ko iesākt, neiznāks pilns vēders."</p>
+
+<p>"Nāc mums līdzi, tad dabūsi pilnu vēderu!"</p>
+
+<p align="JUSTIFY">Vīrs acumirklī apēd visu maizi un iet līdzi. Gabaliņu gājuši,
+viņi ierauga uz ceļa lielu vīru sapītām kājām. Zirgs dod zīmi, ka tas arī līdzi
+ņemams.</p>
+
+<p>"Kādēļ tu sapini kājas?" virsnieks uzprasa.</p>
+
+<p align="JUSTIFY">"Esmu par daudz ātrs skrējējs," tas atbild, "kad man
+nav sapītas kājas tad nekur nevaru valdīties."</p>
+
+<p align="JUSTIFY">Jaunais virsnieks uzaicina skrējēju sev līdzi, tas arī tūliņ
+gājējs. Viņi nu iet, kamēr nonāk pie kāda vīra, kam aizsietas acis un plinte rokā.
+Zirgs saka, ka tas arī jāņem līdzi.</p>
+
+<p>"Kādēļ tev acis aizsietas?"</p>
+
+<p align="JUSTIFY">"Esmu par daudz liels šāvējs - vēl aizsietām acim nošauj
+zaķi, kā mirgu."</p>
+
+<p align="JUSTIFY">"Vai nevari nākt mums līdzi?" jātnieks vaicā.</p>
+
+<p align="JUSTIFY">Lielais šāvējs iet viņiem līdzi. Nu viņi iet atkal, kamēr nonāk
+kādā pļavā, kur guļ vīrs.</p>
+
+<p>"Ko tu te guli?"</p>
+
+<p>"Man jāklausās, kā zāle aug," vīrs atbild.</p>
+
+<p align="JUSTIFY">Jātnieks viņu aicina līdzi, vīrs iet. Tagad viņi nonāk pie
+divpadsmit sudmalām. Sudmalu spārni visi tā griežas, ka tīri bailes skatīties, bet
+mūsu ceļotāji nemana it nekā no vēja. Viņi redz sev priekšā lielu vīru - tas
+vienu nāsi aiztur ar roku un pa otru tik velk dvašu. Zirgs piebiksta jātniekam, ka arī
+šis jāņem līdzi.</p>
+
+<p align="JUSTIFY">Ko tu te dari?" "</p>
+
+<p align="JUSTIFY">"Man jāpūš sudmalām virsū, lai var malt. Abām nāsim ne
+drīkstu pūst, tad sudmalas sagāztos. Tā man te jāstāv dienu mūžu un par to
+nedabūju ne pareizi paēst."</p>
+
+<p align="JUSTIFY">"Nāc man līdzi, tad dabūsi ēst, cik tik tev ies iekšā."
+</p>
+
+<p align="JUSTIFY">Vīrs nostājas pūst un iet līdzi. Sudmalas apstājas. Līdz ko viņi
+ienāk pilsētā pie ienaidnieka ķēniņa, jaunais virsnieks dod saviem ceļa biedriem
+ēst, cik tikai tie var. Pats viņš dodas pie ķēniņa un saka, ka nācis ar to kauties.</p>
+
+<p align="JUSTIFY">"Ko nu mēs kausimies," ķēniņš atteic, "raudzīsim
+izlīgt ar labu. Ja tu jeb kāds no taviem sulaiņiem var izskriet manu princesi, tad es
+padodos."</p>
+
+<p align="JUSTIFY">Virsnieks lūdz laiku apdomāties un iet zirgam padomu prasīt. Zirgs
+saka, ka sapītais ātrskrējējs izskriešot princesi; lai tikai laižot kopā.</p>
+
+<p align="JUSTIFY">Skriešana nolikta uz septiņām verstim. Otrā galā ir nolikta
+grāmata; kas pirmais to atnesīs, tas būs izskrējis. Bet ķēniņš lieto blēdību.
+Otrā galā ir arī krogs; kad princese noskrej ātrāki, tad nekas, bet kad viņas
+pretinieks nonāktu ātrāki pie mērķa, tad krodzenieks tam piedāvās šņabi ar miega
+zālēm.</p>
+
+<p align="JUSTIFY">Sāk skriet. Ātrskrējējs skrej iesākumā tikai ar vienu kāju vien,
+bet tiek jau labu gabalu princesei priekšā. Viņš jau ir galā un paņēmis grāmatu,
+bet princese vēl nav ne līdz pusei. Par tik veiklu skriešanu krodzinieks viņam
+piedāvā šņabi. Ātrskrējējs iemet vienu - tam vienam garlaicīgi, iemet otru - un
+abi kaujas, jāmet vēl trešais par šķīrēju. Šņabjus sametis viņš sāk skriet
+atpakaļ, bet tālu netiek - pakrīt un iemieg. Princese jau tālumā redzama, bet
+ātrskrējējs nekā. Ķēniņš aiz priekiem tik smej vien.</p>
+
+<p align="JUSTIFY">Bet ko dara virsnieks? Viņš sauc, lai visudzirdētājs, kas pļavā
+klausījās, kā zāle aug, tagad klausās, cik tālu vēl ir ātrskrējējs princesei
+paka;. Tas atsaka, ka ātrskrējējs guļot un šņācot. Virsnieks uzsauc šāvējam, lai
+tā šaujot, ka gulētājs uzmostas. Šāvējs mērķē un izšauj ātrskrējējam
+akmentiņu n pagalvja. Gulētājs, skrējējs, augšām - un pirmais ar grāmatu mājās.
+Ķēniņa meita nu ir izskrieta, bet ķēniņš vēl negrib valsti atdot un saka: ,,Ja tu
+vēl vienu lietu izdari, tad dabūsi manu valsti; ja nevarēsi, tad nedabūsi. Tev
+jāgādā tāds ēdējs, kas trijos mēnešos var apēst, kas par to laiku ir cepts."</p>
+
+<p align="JUSTIFY">Jaunais virsnieks to apņemas. Nu ķēniņš liek savest no viņas
+valsts rudzus kopā un cept maizi. Pavalstnieki dzen rudzus un cep maizi - dzen un cep,
+dzen un cep, kamēr no maizes kukuļiem sakrauts jau labs kalnelis. Lielēdis nu liekas
+klāt un ēd - kalns plok acim redzot. Ķēniņa pavalstnieki gan raujas caurām naktim
+vedat rudzus, cepot maizi, bet kur nu bezgalim pieceps? Pašiem rudzi pietrūkst - viņi
+pērk par naudu kaimiņa valstī. Arī naudas pietrūkst, bet bezgalim kā nav, tā nav
+diezgan. Nu ķēniņš redz, ka atkal paspēlējis, un sola atdot ienaidnieku virsniekam
+un viņa biedriem valsts atslēgas, bet pats pie sevis domā tos nobeigt citā ceļā.
+Viņš to ieved pils viscietākajā kambarī un tur ieslēdz. Ķēniņš nu ir priecīgs,
+ka tie vairs netiks ārā un nomirs tur badā.</p>
+
+<p align="JUSTIFY">Virsnieks izmēģina attaisīt dzelzu durvis - nekā, tās aizslēgtas,
+izrauga visus kaktiņus, bet nevar nekur tapt ārā. Malkas cirtējs sadusmojas, izrauj
+sev vienu cisku un sāk ar to tik ilgi skaldīt pils sienas, kamēr visa pils sakrīt
+drupās. Ieslodzīti nu ir svabadi. Virsnieks paņem valsts atslēgas un visi iet atpakaļ
+uz savu zemi pie sava ķēniņa. Kādai upei pārtikuši, viņi redz, ka ienaidnieki
+dzenas pakaļ. Šiem paliek bail; ar tādu baru iesākt nav vis smiekla lieta. Lielais
+pūtējs viens pats tikai nezaudē dūšu, viņš nogaida, kamēr ienaidnieki uznāk uz
+tilta, tad sāk pūst. Nu saceļas tāda vētra, ka koki lokās līdz zemei, viļņi
+uzšķiežas līdz pat koku galiem, tilts sadrūp un aiziet ar visu kara spēku bļuzgu
+bļuzgās straumei līdzi.</p>
+
+<p align="JUSTIFY">Jaunais virsnieks it laimīgi nonāk ar visiem palīgiem pie sava
+ķēniņa un nodod viņam ienaidnieka valsts atslēgas. Ķēniņš priecīgs nezin ko
+darīt. "Kad tu būtu sieviete, es tevi Precētu, bet tagad patiesi nezinu, kā lai
+tev to atlīdzinu."</p>
+
+<p align="JUSTIFY">Virsnieks neatsaka nekā, bet staigā atkal pa ķēniņa dārzu.
+Tūliņ pirmā dienā ķēniņa māte arī skaistajam virsniekam klāt un ir ar viņu tik
+laipna, tik laipna; bet šis neliekas to ne manot, stāsta viņai par saviem
+piedzīvojumiem ienaidnieku zemē un saviem palīgiem.</p>
+
+<p align="JUSTIFY">Otrā dienā ķēniņa māte atkal dārzā pie skaistā virsnieka, ir
+atkal laipna, mīlīga, ka vai izkusīs, bet šis auksts, tāds pats kā vakar. Uz reizi
+ķēniņa māte noķer viņu aiz drēbēm, bet viņš izraujas, atstāj drēbes
+ķēniņienes rokās un aizbēg pie zirga.</p>
+
+<p align="JUSTIFY">Ķēniņiene par to tā sapiktojas, ka iet atkal dēlam sūdzēt:
+"Ko tu gan domā? Jaunais virsnieks gribēja mani atkal piesmiet. To tu viņam
+nepiedod! It ja viņš nokauj postītāja putnu, tad tu viņam vari arī piedot, bet
+citādi viņam jāmirst."</p>
+
+<p align="JUSTIFY">Ķēniņiene nu skaidri zināja, ka jaunais virsnieks uz šo reizi būs
+beigts. Postītāja putns bija liels, briesmīgs, spārnains zvērs; no viņa spārnu
+cilāšanās sagruva ēkas - neviens, kas viņu bija izgājis kaut, nepārnāca vairs
+dzīvs.</p>
+
+<p align="JUSTIFY">Ķēniņš gan noskumis, viņam jaunā virsnieka žēl, bet nekā nevar
+darīt. Tā jau nevar jaut piezobot savu māti. Viņš liek atsaukt savu virsnieku un
+pasludina viņam, ka tam jānokauj vai nu postītāja putns, jeb jāmirst. Virsnieks lūdz
+laiku apdomāties un aiziet pie zirga ar to pārspriest. Zirgs saka: "Lieta var iet,
+bet tu prasi, lai tev dod līdzi simts mucu vīna, simts vezumu cvībaku, simts
+šķūtnieku, simts ūdens pumpju."</p>
+
+<p>Virsnieks aiziet un pieprasa to ķēniņam. Šis ar prieku visu</p>
+
+<p align="JUSTIFY">to dod, tā kā virsnieks vēl tai pašā dienā var doties ceļā.
+'Trešā dienā viņi nonāk pie kāda dīķa. Zirgs saka savam jājējam: ,.Tagad
+paslēpsimies tepat šais krūmos un nogaidīsim, kamēr putns aizlaidīsies prom, tad
+uzpumpēsim ūdeni un ieliesim tā vietā dīķī vīnu. Kad putns tad vakarā pārnāks,
+viņš sadzersies vīna, apskurbs un mēs tam varēsim it viegli pieiet."</p>
+
+<p align="JUSTIFY">Tikko pret rītu maza gaismiņa, putns paceļas un aizlaižas. Ūdens
+dīķī nošļakst vien no pakaļas un gaiss nodvingst vien. Līdz ko putns prom, kad
+virsnieks ar ļaudim pie dīķa klāt, pumpē ūdeni ārā un lej vīnu iekšā. Kad vīns
+saliets, tad vēl iebeŗ simts vezumu cvībaku dīķī un visi paslēpušies gaida, ko
+putns pārnācis iesāks.</p>
+
+<p align="JUSTIFY">Pret vakaru milzu putns skrej atpakaļ, ka viss gaiss žvingst un
+žvangst. Viņam dīķī iekrītot, vīns uzšļāc katrā pusē kalna augstumā. Visi nu
+skatās, ko viņš darīs. Putns iebāž knābi pirmo reizi vīnā, izvelk atkal un
+nopurinās; iebāž otrreiz, izvelk, pastiepj kaklu uz augšu, paklabina ar knābi -
+vadzi. labs! Trešo reizi, kā bāž knābi vīnā, tā dzeŗ neatņēmies, kamēr arī
+turpat paliek, nemaz vairs nekustas. Virsnieks pieiet ar saviem vīriem milzu putnam - ja,
+šis pilns kā dublis, nejēdz nekā vairs no pasaules, lai dara ar viņu, ko grib.</p>
+
+<p align="JUSTIFY">Malkas skaldītājs izrauj sev cisku un liek ar to piedzērušam milzu
+putnam tā par kaklu, ka galva aiziet rituļu rituļiem projām. Citi visi tūliņ klāt,
+sagriež putna rumpi mazākos gabaliņos, piekrauj ar tiem visus šķūtnieku vezumus un
+nu dodas atpakaļ pie ķēniņa.</p>
+
+<p align="JUSTIFY">Ķēniņš no priekiem nezin ko darīt, kā pateikties: "Kad tu
+būtu sieviete, tad tevi precētu, bet tagad nezinu, kā lai tev atlīdzinu to."</p>
+
+<p align="JUSTIFY">Virsnieks neatsaka nekā, bet iet staigāt atkal pa dārzu, kamēr
+viņu atlaidīs uz mājām. Te otrā dienā ķēniņa māte atkal klāt, jaunais virsnieks
+aizmūk, bet viņa mantelis paliek ķēniņienei rokā. Šī atkal pie ķēniņa sūdzēt:
+"Par tādu negodu jau trešo reizi nu viņam jāmirst, citādi tas nevar būt."</p>
+
+<p align="JUSTIFY">Ķēniņš arī pavisam sašutis sasauc padomniekus un visi kopā
+nospriež, ka jaunais virsnieks pakaŗams. Šis neko par to daudz arī nebēdā - kad jau
+jāmirst, jāmirst. Viņš it mierīgi kāpj augšā uz kārtavas krāģa. Bende viņu
+sāk pārģērbt nāves uzvalkā, bet kas tas? Ķēniņienes goda laupītājs ir sieviete.
+Visi no brīnumiem nezin ko darīt. Tik ķēniņa māte, redzēdama, ka nu vairs nebūs
+labi, sāk lūgties. Bet ķēniņš nav pielūdzams: "Kādu pirti citiem kūris,
+tādā pašam jāpeŗas!" ķēniņš nospriež un ķēniņiene tiek pakārta.</p>
+
+<p align="JUSTIFY">Pēc tam ķēniņš apprecēja sava vecā ģenerāļa jaunāko meita,
+dūšīgo virsnieku un dzīvo, varbūt, vēl šodien.</p>
+
+
+</body></html>

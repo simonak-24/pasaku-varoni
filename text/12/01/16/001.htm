@@ -1,0 +1,200 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Sieva šķirstā.</p>
+</b></font>
+
+<p><strong>1.</strong> A.<b> </b>1536. Juris Kasparovics no 75 g. veca Ansa Landsberga,
+1931. g Skrundas pagasta Stalmaņos.</p>
+<font size="4">
+
+</font><p><font size="4"></font>Reiz dzīvojis viens mācītājs, kam bijis lauku sargs Pēteris.</p>
+
+<p align="JUSTIFY">Kādreiz mācītājs nav samaksājis Pēterim algu par nokalpoto laiku.
+Pēteris gājis mācītājam sūdzēties, ka viņam un viņa dzimtai jāmirst badā.
+Mācītājs sacījis Pēterim, lai tad ejot zagt, ka viņam nekā neesot. Pēteris
+dzīvojis vienā mazā mājiņā netālu no mācītāja muižas un nu aizgājis pie
+savējiem.</p>
+
+<p align="JUSTIFY">Mācītāja paklēte bijusi tik augsta, ka cilvēks tur varējis
+palīst apakšā, un Pēteris bijis to novērojis. Viņu nakti Pēteris palīdis ar maisu
+paklētē, iztaisījis grīdai caurumu un laidis labību maisā. Kad maiss bijis pilns,
+Pēteris aizbāzis caurumu un gājis mājās. Tā Pēteris darījis gandrīz katru nakti
+un drīz kļuvis turīgs vīrs. Mācītājs pamanījis, ka Pēteris kļūst turīgs,
+izdomājis jaunu plānu, lai uzzinātu, kur Pēteris iet zagt. Mācītājs atsaucis vienu
+dienu Pēteri uz muižu un sacījis tam: "Es dabūju tādu ziņu, ka būšot kaŗš.
+Es tev, Pēter, došu vienu lādi ar dārgām lietām sargāt, jo tevi, nabagu, neviens
+nekratīs."</p>
+
+<p align="JUSTIFY">Pēteris bijis ar mieru un aizvedis lādi uz savu mazo mājiņu. Naktī
+Pēteris runājis ar savu sievu, kur nu atkal būtu jāiet zagt. Te uzreiz Pēteris
+iedomājies uzlauzt lādi, lai redzētu, kādas mantas mācītājs nodevis viņam
+glabāšanai. Viņš nu arī izdara to, uzlauž lādi, un redz: lādē ir mācītāja
+spīdzmane. Pēteris saprot, kādam nolūkam mācītājs to visu dara, saskaistas, un
+nožņaudz veco spīdzmani. Tad sabāž viņai sieru mutē, kas iedots līdzi ēšanai, un
+aiztaisa atkal lādi ciet, lai mācītājs nezin, ko šis izdarījis.</p>
+
+<p align="JUSTIFY">Pēc kādām dienām atnācis pie Pēteŗa mācītāja kučieris un
+sacījis, lai Pēteris vedot lādi atpakaļ mācītājam, ka viņš dabūjis zināt, ka
+kaŗu vairs nebūšot. Pēteris aizved arī lādi mācītājam. Kad mācītājs
+attaisījis lādi, viņš redz, ka spīdzmane beigta un mute tai pilna ar sieru.
+Mācītājs domājis, ka spīdzmane aizrijusies, ēzdama sauso sieru. Pienākusi arī
+ciemmāte un sacījusi: "Būtu to zinājusi, būtu iedevusi kādu lāsīti piena
+līdz."</p>
+
+<p align="JUSTIFY">Mācītājs sauc Pēteri uz muižu, dod Pēterim visu, kas vajadzīgs
+bēŗu iztaisīšanai un lai Pēteris ved spīdzmani uz savu māju un apbēŗo veco
+spīdzmani. Pēteris ir ar mieru visu to izdarīt un aizbrauc ar bagātīgu krājumu
+visādu ēdienu un dzērienu un ar veco spīdzmani uz mājām. Pēteris tomēr neaprok vis
+tūliņ spīdzmani, bet ieliek to pirtī, lai žūst.</p>
+
+<p align="JUSTIFY">Pēc kāda laika mācītājs atsaucis Pēteri uz muižu un saka:
+Pēter, atnāc rītu, tev būs jānokauj divi baŗokļi."</p>
+
+<p>"Pēteris ir ar mieru visu izdarīt un aiziet uz mājām. Viņš tomēr negaida
+vis rītu, bet to pašu nakti pajem spīdzmani pār pleciem un aiziet uz mācītāja
+kūti. Pēteris nokauj abus baŗokļus, nostāda veco spīdzmani ar gaŗu nazi rokā pie
+kūts durvim. Pēteris notraipījis spīdzmanei drēbes ar asinim, lai tiešām domātu,
+ka spīdzmane nokavusi abus baŗokļus.</p>
+
+<p align="JUSTIFY">No rīta Pēteris aiziet uz muižu un kopā ar diviem vīriem iet uz
+kūti, lai nokautu baŗokļus. Kā vīri veŗ vaļā kūts durvis, tie ierauga spīdzmani
+ar gaŗu nazi rokā. Viņi ļoti izbijušies un izstāstījuši visu mācītājam.
+Mācītājs arī bijis uztraucies par to, bet Pēteris viņam paskaidrojis, ka spīdzmanei
+bēres laikam bijušas par mazām un viņa gribot, lai iztaisītu lielākas bēres.
+Mācītājs nu devis atkal Pēterim bēŗu vīkšanai, ko viņš vēlējies, lai tikai
+aprok spīdzmani labi dziļi, kā tā vairs neceltos augšā.</p>
+
+<p align="JUSTIFY">Pēteris atkal nav vis apracis spīdzmani, bet ielicis to pavecam
+pirtī uzglabāt.</p>
+
+<p align="JUSTIFY">Pēc dažām nedēļām Pēteris pajēmis spīdzmani aizgājis uz
+mācītāja kūti, nokavis mācītājam vistreknāko vērsi un nostādījis spīdzmani,
+kā pirmo reizi pie kūts durvim.</p>
+
+<p align="JUSTIFY">Rītā meitas gājušas uz kūti govis slaukt un redzējušas
+spīdzmani, par ko ļoti izbijušās un stāstījušas mācītājam. Mācītājs saucis
+Pēteri uz muižu un atkal atvēlējis, lai Pēteris jem, kas viņam vajadzīgs bēŗu
+rīkošanai, lai tikai apbēŗo spīdzmani tā, kā tā vairs neceļas augšā.</p>
+
+<p align="JUSTIFY">Pēteris nav vis apracis spīdzmani, bet atkal uzglabājis to savā
+pirtī. Pēc laba laika Pēteris pajēmis atkal spīdzmani, aiznesis kādā naktī to uz
+mācītāja muižu, nostādījis viņu ar lielu nazi rokā pie tām mācītāja durvim,
+kur mācītājs rītos pirmo reizi arvien gājis laukā.</p>
+
+<p align="JUSTIFY">No rīta mācītājs taisās iet laukā, bet tikko ver durvis vaļā,
+tā spīdzmane gāžas viņam virsū ar atvāztu nazi. Mācītājs bijis pārbijies gluži
+zils un sācis tā kliegt, ka visa māja skanējusi. Saskrējuši mājas ļaudis un visu
+to redzēdami, bijuši ļoti izbijušies. Mācītājs saucis atkal Pēteri uz muižu un
+pavēlējis viņam rīkot atkal spīdzmanei bēres un lai Pēteris jem, kas vien tam
+vajadzīgs bēru vīkšanai.</p>
+
+<p align="JUSTIFY">Pēteris nu bija kļuvis bagāts, bet mācītājs bijis pavisam
+izpostīts. Pēteris redzējis, ka mācītājam nav vairs ko jemt, apracis arī beidzot
+spīdzmani. Tā Pēteris piekrāpa mācītāju un kļuva bagāts vīrs.</p>
+
+
+</body></html>

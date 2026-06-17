@@ -1,0 +1,166 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Gars pudelē.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 331. H. Skujiņa, Andrs Ziemelis, no 63 g. veca J. Turka Bilskas
+pag.</p>
+
+<p align="JUSTIFY">Reiz dzīvāš vienc zvejnieks un tas bīš pagalam nabags. Zvejnieks
+aizgāš uz jūru un izmetis tīklu. Ka vipš tīklu vilcis malā, ta' tas bīš pagalam
+tukšs. Nu zvejinieks izmetis tīklu pa otram lāgam. Ka nu to vilcis aka malā, ta
+tīklā bīši akmini, mālu klunči, bet zivs nevienas. Zvejnieks izmetis tīklu pa
+trešam lāgam un vilcis malā. Tīkls aka bīš pilc akminu, mālu klunču, ūdens zāļu
+un zvejnieks nevarēš tā tīra vie dabūt. Pēdīgi zvejnieks tīklā atradis tādu vean
+misīna pudeli un tai priekšā bīsi paša Zālamāna zēģele. Zvejnieks ootīrīš
+pudeli un ta' taisīš vaļā. Ka' nu zvejnieka bīš pudeli vaļā dabūš, ta' no tās
+nākuši ārā melli dlīmi un klāšies tādā plānā kārtā pa jūru. Ka nu visi dūmi
+bīši no pudeles ārā, te tie sākuši biezi palikt, savēlušies lielā mellā kamolā,
+turpat pie paša zvejnieka, un no mellā kamola uzreiz iznācis milzu vīrs un sacīš
+tā: "Es tevi apēdīšu!"</p>
+
+<p align="JUSTIFY">Nu lielais vīrs sācis zvejnieku gūstīt rokā.</p>
+
+<p align="JUSTIFY">"Kā tā?" izbaidījies sacīš zvejnieks, "es tevi
+izlaidu no pudeles un tu par to gribi mani apēst!"</p>
+
+<p align="JUSTIFY">"Ja, tā es gribu," sacīš aka lielais vīrs, "ka' es
+nogulēju jūras dibinā trīssimti gadu; ta es domāju: Kas mani izlaidīs, to es
+pataisīšu par bagātu vīru. Bet neviens mani nelaida ārā un es nogulēju otrus
+trīssimti gadus. Tā nu es aka domāju: kas nu mani izlaidīs, ta to es pataisīšu par
+slavenu valdnieku. Bet neviens manis nelaida ārā un es nogulēju trešos trīssimti
+gadus un domāju: kas nu mani tagadin ārā laidīs, to es ēdīšu no!" Un lielais
+vīrs aka gribēš grābt zvejnieku cie.</p>
+
+<p align="JUSTIFY">"Hm," domāš zvejnieks, "labi nebūs."</p>
+
+<p align="JUSTIFY">Nu zvejniekam iešāvušās prātā viltīgas domas. Viņč nu sacīš:
+"To gan es neticu, ka tu -- tik lic[l]c vīrs varēji tik mazā pudelē
+dzīvāt."</p>
+
+<p align="JUSTIFY">"'l u netici," kliedzis gars. "Nu ta' es teu
+parādīšu!"</p>
+
+<p align="JUSTIFY">Nu gars tūlī aka palicis par mellu dūmu kamolu, kamols plēties un
+plēties, kamēr izklājies aka pā visu jūru un ta lēni dūmi aka salīduši pudelē
+iekšā. Ka nu šie visi bīši pudelē iekšā, ta no šās (pudeles) gars sacīš:</p>
+
+<p align="JUSTIFY">"Nu vai tu tagadin tici?"</p>
+
+<p align="JUSTIFY">" Kā ta', ticu gan!" sacīš zvejnieks un ātri aizgrūdis
+korķi pudelei priekšā. Gars nu bīš aka pudelē iekšā un zvejnieks to iemetis
+apakaļ jūrā, lai jau izguļas vie.</p>
+
+<p align="JUSTIFY">Piezīme. Šī pasaka, kā arī sekošā ir cēlusies no Tūkstoš un
+vienas nakts. Sal. Ievads 122. l. p. P. Š.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

@@ -1,0 +1,198 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Spēlētājs ellē.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">16. A. 476. Lapas Mārtiņš no Rūjienas Ērģemes un Ēveles
+draudzes. "Gudrais Ansis un velns". L 1901, 41 (9).</p>
+
+<p align="JUSTIFY">Vienam bagātam tēvam bijusi meita, kas ļoti lepojusies ar sava tēva
+bagātību un atraidījusi visus godīgus preciniekus, kārodama vēl labāku.</p>
+
+<p align="JUSTIFY">"Ja kāds kunga dēls mani neprecē, tad lai pats velns nāk mani
+bildināt, bet pie zemnieka gan nekad neiešu!" tā viņa daudzreiz lielījusies
+savā uzpūtībā.</p>
+
+<p align="JUSTIFY">Bet pagājuši gadi - neviens kunga dēls nenācis precēt lepno meitu.
+Viņa bijusi jau labi vecīga un tādēļ zemnieku jaunekļi arī vairs to nekārojuši,
+bet visi to nicinājuši augstprātības dēļ.</p>
+
+<p align="JUSTIFY">Vienā vakarā viens skroderis mūzikants gājis no kroga, kur bija
+spēlējis dančus, uz māju un nesis savu vijoli padusē. Iedams caur mežu, viņš
+tumsas dēļ nomaldījies no ceļa un iemaldījies mežā, tā ka vairs nezinājis, uz
+kuŗu pusi jāiet. Pēdīgi mūzikants tomēr izgājis no meža uz pazīstama ceļa un
+sācis iet pa to uz priekšu.</p>
+
+<p align="JUSTIFY">Te uz reiz braukusi viņam pretī viena karīte, kam četri melni zirgi
+bijuši aizjūgti priekšā. Karītē sēdējis smalks kungs, kas, mūzikants
+ieraudzīdams, pavēlējis kučēram apturēt zirgus un sacījis vijolniekam: .,Brauc man
+līdza manās kāzās spēlēt!"</p>
+
+<p align="JUSTIFY">Vijolnieks arī paklausījis un iesēdies kungam blakus karītē.
+Kučērs nu braucis tik uz priekšu. Pēdīgi karīte apstājusies lielas pils priekšā,
+un kungs ievedis mūzikantu lielā krāšņā zālē, viņam piekodinādams: "Tev še
+ne ar vienu nav brīvu runāt! Kad tev vēlēšu spēlēt, tad spēlē!"</p>
+
+<p align="JUSTIFY">Vijolnieks domājis: "Kas tā par pavēli? Visur cilvēkam ir
+brīvu runāt, bet še ne!"</p>
+
+<p align="JUSTIFY">Viņš sēdējis labt brīdi tukšajā zālē, bet neredzējis vēl
+neviena kāzinieka. Gribējis jau iziet apskatīties un apvaicāties, ko tas viss īsti
+nozīmē, bet viņš vēl īstā laikā atgādājies, ka viņam aizliegts runāt.</p>
+
+<p align="JUSTIFY">Bet tad tas kungs, ar ko viņš atbraucis, atnācis pie viņa un
+pasacījis, ka kāzas drīz iesākšoties. Mūzikantam nu padots ēst un dzert. Pēc tam
+ienācis zālē liels pulks kāzenieku. Mūzikants apskatījies brūti un to tūlin
+pazinis par bagātā vīra augstprātīgo meitu. Viņa bijusi ģērbusies ļoti krāšņā
+brūtes apģērbā.</p>
+
+<p align="JUSTIFY">Tūlin pēc tam kungs atnācis pie mūzikanta un pavēlējis, lai
+uzspēlē. Mūzikants spēlējis un visi kāziniski iesākuši nadzīgi dancot; bet
+vislielākā dancotāja bijusi brūte.</p>
+
+<p align="JUSTIFY">Pēdīgi kāzas beigušās un mūzikants aizvests atkal atpakaļ uz to
+pašu vietu, kur viņš bija ieņemts karītē. Bet jau iepriekšu kungs viņam jautājis,
+cik maksas viņš prasot par spēlēšanu. Mūzikants viņam atbildējis: "Cik kungs
+maksās, ar to būšu mierā."</p>
+
+<p align="JUSTIFY">Kungs viņam iedevis tik daudz naudas, ka abas svārku kabatas tapušas
+gluži pilnas; bet tad viņš piepēži pazudis ar visu karīti un zirgiem, par ko
+mūzikants nevarējis vien diezgan nobrīnēties.</p>
+
+<p align="JUSTIFY">Palicis viens pats uz ceļa, viņš domājis: "Jāaplūko, kādu
+naudu viņš man iedeva."</p>
+
+<p align="JUSTIFY">Bet naudas vietā mūzikants atradis tikai apšu lapas savās svārku
+kabatās. Skroderis nu nospļāvies un izmetis apšu lapas turpat ceļmalā, jo tagad
+viņš sapratis, ka svešais kungs nav bijis nekas cits kā pats velns. Viņam bijis
+bailes, ka audis vēl nenāk viņu ķibelēt un tādēļ steidzies tūlin uz māju.</p>
+
+<p align="JUSTIFY">Otrā rītā mājenieki stāstījuši skroderim, ka bagātā vīra
+lepnā meita pagājušā naktī pakārusies. Skroderis ļoti iztrūcies par to ziņu un
+izsaucies: "Un es pagājušā naktī spēlēju viņas kāzās."</p>
+
+<p align="JUSTIFY">Tad nu viņš izstāstījis visu, ko bija redzējis uz dzirdējis.</p>
+
+<p align="JUSTIFY">To dzirdēdama, viena vecenīte nopūzdamies sacīja: "Ja, viņa
+daudz reiz runāja savā augstprātībā: ja kāds kunga dēls mani nebildinās, tad velns
+mani apprecēs. Tagad nu arī velns izdarījis, kā viņa pati vēlējusies. Lai Dievs
+pasargā katru kristīgu cilvēku no augstprātības! Nav arī labi daudzināt aunā gara
+vārdu."</p>
+
+<p align="JUSTIFY">Skroderis tomēr atradis savas svārku kabatas pilnas naudas.
+Brīnīdamies par to, viņš aizgājis arī uz to vietu, kur pagājušā naktī izmetis no
+kabatām apšu lapas, bet neatradis tur vairs ne lapu, ne naudas.</p>
+
+<p align="JUSTIFY">No tās reizes skroderis vairs negājis vakaros uz krogu spēlēt,
+baidīdamies, ka atkal nesastop velnu.</p>
+
+<p align="JUSTIFY">Piezīme. Sal. ceturtā sējumā 16. un<b> </b>19. numuru. P. Š.</p>
+
+
+</body></html>

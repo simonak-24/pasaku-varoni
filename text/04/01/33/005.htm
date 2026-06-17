@@ -1,0 +1,149 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Baltā un melnā līgava. A.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 403 A. Cenas Mārtiņš Zaļeniekos. Jkr. II, 14 (3). LP, VII,
+II, 27, 2?, 2.</p>
+
+<p align="JUSTIFY">Vienam kungam bija puisis, kas vakaros. iedams zirgiem dot ēst, katru
+reizi tur palicis ļoti ilgi. Reiz kungam iešāvies prātā iet skatīties, ko puisis tur
+dara. Stallī iegājis, viņš redz, ka puisis mālē ļoti smuku bildi. Kungam bilde
+ļoti patikusi. Puisis teicis, ka bilde esot gan koša, bet viņa māsa esot vēl daudz
+skaistāka. Kungs vēl esot bijis puisī, tādēļ licis, lai atvedot savu māsu viņam
+parādīt.</p>
+
+<p align="JUSTIFY">Puisim ar māsu pie kunga braucot, puisis māsai teica, ka ceļā
+viņiem būšot trīs upes. Puisis būšot likties gulēt, bet pie trešās upes lai to
+modinot. Pie trešās upes nobraukušiem, puisis vēl gulējis. Māsai nav ticies traucēt
+viņa saldo miedziņu, tādēļ viņa braukusi pati pa to pāri. Vidū nobraukušai, kāda
+ragana izlīdusi no ūdens un māsu iegrūdusi upē.</p>
+
+<p align="JUSTIFY">Tālāku braucot, puisis uzmodies un redzēdams, ka viņa māsa
+pārvērtusies, vaicāja: "Kādēļ tu tāda sarkana palikusi?"</p>
+
+<p align="JUSTIFY">"Esmu padaudz sadzērusies Vāczemes ūdens," šī teikusi.
+Puisis bijis ļoti bēdīgs, redzēdams savu māsu tādu nejauku. Pie kunga nonākušu,
+kungs licis puisi cietumā, ka tas viņu piekrāpis.</p>
+
+<p align="JUSTIFY">Kādu dienu pie pavāra ienākusi pīle un prasījusi: "Ko mans
+brālītis dara? Ko tā briesmīgā ragana dara?"</p>
+
+<p align="JUSTIFY">Kad tas atkārtojies vairāk reizu, tad pavārs to teicis kungam un
+kungs licis pīli noķert. Pavārs kādu dienu noķēris pīli to ienesa pie kunga, bet
+kunga priekšā tā uz reizi palikusi par skaistuli - tā bijusi puiša māsa.</p>
+
+<p align="JUSTIFY">Nu viņa izstāstīja visu, kas noticis un ka viņa upē pārvērtusies
+par pīli. Kungs lika puisi izlaist no cietuma un to bagātīgi apdāvināja. Raganu
+viņš lika ar zirgiem gabalu gabalos saraut un puiša māsu apprecēja.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

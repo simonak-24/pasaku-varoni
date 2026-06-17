@@ -1,0 +1,219 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">1. A.<b> </b>530. P. Š. Raunā.</p>
+
+<p align="JUSTIFY">Tēvs mirdams aicina savus trīs dēlus pie sevis un saka: "Kad es
+nomiršu un jūs mani apraksit, tad nākait pirmās trīs dienas katrs savu nakti manu
+kapu vaktēt, lai man nenotiktu nekāds ļaunums."</p>
+
+<p align="JUSTIFY">Dēli arī apsolās visu izdarīt. Tēvs nomirst, dēli savīkš bēres
+un aprok tēvu. Vakarā nu vaidzēja iet vienam vaktēt tēva kapu. Bet abi vecākie dēli
+bija uzkundzēši jaunāko un turēja to par muļķi. Jaunākajam bija tomēr laba sirds,
+viņč negribēja ar brālim strīdēties un labprāt viņim padevās. Pirmam nu būtu
+jāiet vecākajam, bet tas pasaka jaunākajam, lei nu labāk viņč aizejot uz tēva kapu,
+šim pašam neesot vaļas.</p>
+
+<p align="JUSTIFY">Jaunākais arī aiziet, atsēstas uz tēva kapa un vaktē. Ap pusnakti
+iznāk mirušais tēvs no kapa un prasa: "Vai te manc vecākais dēls vaktē?"</p>
+
+<p align="JUSTIFY">"Nē, jaunākais!"</p>
+
+<p align="JUSTIFY">"Kādēļ tad vecākais nenāca? "Viņam neesot vaļas."</p>
+
+<p align="JUSTIFY">"Ka tu mani paklausīji, tad es tev dāvinu šo sidraba svilpīti.
+Kad tu papūtīsi to svilpīti, tad atskries viens sidraba zirgs ar sidraba seglim, un uz
+tiem seglim būs arī skaistas sidraba drēbes."</p>
+
+<p align="JUSTIFY">To izstāstīš, tēvs akar pazuda. Rītā atnāk muķabrālis mājā,
+gudrie brāļi nekā neprasa, šis ar' nekā nestāsta. Vakarā būtu jāiet vidējam
+brāļam tēva kapu vaktēt, bet tas ar' paprasa jaunākajam brāļam, vai šis nevarētu
+par viņu sargāt. Jaunākais vaktē akar, tāpat kā .izgājušo nakti. Pusnaktī iznāk
+tēvs un prasa: "Vai te manc vīdējais dēls vaktē?"</p>
+
+<p align="JUSTIFY">"Nē, jaunākais!"</p>
+
+<p align="JUSTIFY">"Kādēļ vidējais nenāca?" ,,Viņam neesot vaļas."</p>
+
+<p align="JUSTIFY">"Šoreiz es tev dāvinu zelta svilpīti, kad tu to pūtīsi, tad
+atskries zelta zirgs."</p>
+
+<p align="JUSTIFY">Tēvs akar pazūd, muļķabrālis rītā atnāk mājā. Vakarā nu
+jāiet viņam pašam vaktēt, brāļi tagad neliekas ne zinīt. Viņč aiziet, atsēstas
+uz kapa, pusnaktī iznāk tēvs un prasa: "Vai te manc jaunākais dēls vaktē?"</p>
+
+<p align="JUSTIFY">"Es pats jau ešu."</p>
+
+<p align="JUSTIFY">"Labi, dēls, ka mani klausīji. Tad še tev vēl trešā
+dāvāna, dimanta svilpīte. Kad to pūš, tad atnāk dimanta zirgs."</p>
+
+<p align="JUSTIFY">To sacīš, tēvs pazūd. Muļķabrālis atnāk rītā akar mājā.
+Brāļi nekā neprasa, šis nekā niestāsta.</p>
+
+<p align="JUSTIFY">Tās zemes ķēnīc bīš jau ļoti vecs, viņam bīsi viena pati meita
+un tā bīsi dikti skaista. Skaistai princesei bīš dikti daudz precenieku, tā ka ne
+tēvs ne meita nezināši, ko ņemt, ko neņemt. Tad ķēmīc licis uztaisīt augstu
+glāžu kalnu, iedevis savai meitai spožu dimanta gredzenu un uzsēdināš viņu tai
+kalnā. Tad viņš licis izziņot pa visām valstim: "Kas uzjās šai glāžu kalnā
+un nomauks manai meitai gredzenu no pirsta, tas dabūs manu meitu par sievu."</p>
+
+<p align="JUSTIFY">Sabraukuši nu gan daudz ķēnīnu dēli, bet nevienc nevarēš uzjāt
+tai glāžu kalnā. Tad sākuši rāpties tai kalnā šādi tādi precenieki, bet tiem ar'
+neizdevies. Taisīšies arī abi gudrie brāļi uz jāšanu, bet muļķabrālis ar'
+ieprasījies: "Vai es ar' nevarētu līdza jāt?"</p>
+
+<p align="JUSTIFY">" Brāļi atbildēši: "Kā tu, muļķis, vari ķēnīna
+meitai rādīties?</p>
+
+<p align="JUSTIFY">Kad gudrie aizjāši, muļķis prasījies mātei uz mežu sēņot.
+Māte atļāvusi. Muļķis aizgāš gan uz mežu, bet pakāris sēņu grozīnu kakā un
+papūtis savu sidraba stabulīti. Tūlin atskreš sidraba zirgs ar skaistām sidraba
+drēbēm. Viņš steigšis vien pārģērbies, kāpis sidraba zirgam mugurā un aizjāš
+uz glāžu kalnu. Pajājies līdz pus kalnam, viņš griezies akar apakaļis un pazudis.
+Visi audis brīnēšies, kas tas par bagātu ķēnīna dēlu.</p>
+
+<p align="JUSTIFY">Mežā muļķīts atlaidis sava zirgu, pārģērbies pa vecam,
+pielasīš steigšis savu grozu ar vecām tārpainām sēnēm un atnācis 2Iz māju. Māte
+bijsi dusmīga, ka šis tādas nederugas sēnes mājā nesot. Atjāši arī gudrie brāļi
+un stāstīši, 'kādu šie bagātu ķēnīna dēlu esot redzēši.</p>
+
+<p align="JUSTIFY">Otrā dienā brāļi akar jāši uz lāžu kalnu un muļķīti
+atstāši mājā. Tas izprasījies mātei uz mežu sēņot dabūš šoreiz zelta zirgu un
+uzjāš jau gandrīz līdz galam, bet tad akar griezies apaka un aizjāš projām. Ļaudis
+tik nobrīnēšies, ka viņč tik ātri pazudis.</p>
+
+<p align="JUSTIFY">Mežā muļķīts atlaidis zirgu, pārģērbies, salasīš tārpainas
+sēnes un atnācis mājā, it kā nekas nebūtu noticis. Māte ar' nodomāsi, ka dēls
+laikam dums, ka lasa tādas sēnes. Kad gudrie brāļi atjāši, tad stāstīši, ka
+šodie bīš lepnāks jātnieks un uzjāš gandrīz jau pašā kalna galā.</p>
+
+<p align="JUSTIFY">Arī trešā dienā gudrie brāļi nepaliek mājā un jāj uz glāžu
+kalnu, bet mulķīšam pavēl mājā sēdēt. Māte nu ar vair negrib laist viņu sēņot.
+Šis māk labi mīļi lūgties un māte ar' atlaiž. Šoreiz viņš aizjāj ar dimanta
+zirgu, pats ar' ģērbies dimanta drēbēs uzjāj droši pašā ka1na galā, saņem
+ķēnīna meitas gredzenu, tad aizjāj un pazūd aiz jaužu bara.</p>
+
+<p align="JUSTIFY">Muļķīts akar aizjāj uz mežu, atlaiž zirgu, pārģērbas, pielasa
+tārpainas sēnes atnāk mājā. Atjāj arī brāļi un stāsta brīnēdamies, kā lepnais
+ķēniņa dēls uzjāš giāžu kalnā un dabūš princeses gredzenu.</p>
+
+<p align="JUSTIFY">Kēnīc nu gaida, ka nāks tas princis, kas noņēmis viņa meitas</p>
+
+<p align="JUSTIFY">gredzenu, bet<b> </b>nevienc nenāk. Tad ķēnīc saaicina visus savus
+pavalstniekus pie sevis, lai dabūtu zināt, kas saņēmis to gredzenu. Izmeklē arī abus
+brāļus, bet gredzena viņifm nav. Pēdīgi aicina arī muļķīti, kas aptinis vienu
+pirstu ar lupatu. Atraisa lupatu un nu redz, ka viņa pirstā stāv ķēnīna meitas
+gredzens. Vecajam ķēnīnam gan nepatika tāds znots, ko laudis turēja par muļķi, bet
+kad viņč atjāja ar savu dimanta zirgu dimanta drēbēs, tad viņč arī saprata, ka
+muļķis varbūt ir gudrāks par ' dažiem gudrajiem.</p>
+
+
+</body></html>

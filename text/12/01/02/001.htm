@@ -1,0 +1,152 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5">
+
+<p align="CENTER"><strong>Meistara zaglis rāda, kā zog.</strong></p>
+</font><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><strong><font size="3">l. </font></strong>A. 1525 B. Freimaņu
+Jānis Kr. Bērzniekos. Jkr. 64, 35.<font size="4"> </font></p><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font>Reiz bija vienam saimniekam ļoti gudrs un uzticams suns</p>
+
+<p align="JUSTIFY">saukts Brikus. Istabā tas nemaz nenāca - ārā vien uzturējās un
+par velti tas jau nekad nerēja. Cik dažu labu reizi uzmodināja Brikus saimnieku no
+miega riedams; kad kādi nakts blandoņi viņam gribēja ko nokrampēt. Tam pašam
+saimniekam bija arī puisis, Ansis vārdā. Nevarēja jau par viņu sūdzēties, ka tas
+būtu slinks darbā, bet citā ziņā bija tas pagalam nevaldāms : bija kur krogū kāds
+izrīkojums - Ansim jau vajadzēja tur būt, kaut arī zeme ar debesi kopā jauktos. Vēl
+tas būtu pieciešams, ja Ansis viens pats būtu gājis un nebūtu Briku līdzi ņēmis,
+lai gan to saimnieks viņam bija cieti aizliedzis. Pa kādiem ziemas svētkiem saimnieki
+aizbrauca pie radiem, bet Ansis nolaidās danču bērnos ar Briku līdz. Krogā nu viņš
+uzdzīvoja, ka tik putēja vien, un nemaz nelūkoja pēc Brikus un tad nu Brikus bija savu
+ceļu ņēmis un pazudis. Saimnieks, mājās pārnācis, Briku vairs neatradis dabū
+zināt, ka Ansis vainīgs. Viņš palika dusmīgs un noteica, ka Ansim jauna gada naktī
+mājas jāsargā suņa vietā. Ansis par tādu lielu netaisnību ļoti sapiktojās,
+nogāja uz mežu, kur zināja zagļu mājas, izstāstīja zagļiem, ka jauna gada naktī
+viņam jābūt par suni un ka nu laiks ko krietnu ķert. Jauna gada naktī lika saimnieks
+Ansim ārā iet un mājas sargāt; bet zagi jūdza zirgus, piebrauca pie klēts un jau
+atlauza durvis. Ansis nogāja pie kambaŗa loga un rēja pa suniski: "Vau, vau, vau -
+lauž. lauž, lauž!"</p>
+
+<p align="JUSTIFY">Kad zagļi kŗāva mantu iekšā, tad Ansis atkal rēja: "Vau,
+vau, vau - krau, krau, krau!"</p>
+
+<p align="JUSTIFY">Kad zagļi bija vezumus piekŗāvuši un brauca projām, tad viņš
+atkal rēja: "Vau, vau, vau - brauc, brauc, brauc!"</p>
+
+<p align="JUSTIFY">Saimnieks un saimniece, gultā gulēdami, smējās vien par Anša
+jokiem. Bet no rīta saimnieks atrada klēti tukšu un sauca pēc Anša, kas bija ielīdis
+gulēt salmu kaudzē. Ansis nāca saimniekam pretī četrrāpus riedams : "Vau, vau,
+vau!" Saimnieks prasīja: kālab viņš nav mājas apsargājis?"</p>
+
+<p>"Kā nu ne! vai nesacīju, ka lauž, ka krauj, ka brauc?"</p>
+
+<p align="JUSTIFY">Saimnieks redzēdams, ka pie Anša nevarēs pietikt, atlaida viņu,
+teikdams: "Jāpriecājas par tādiem uzticamiem māju sargiem! Ej nu otram māju
+sargam pakaļ!"</p>
+
+
+</body></html>

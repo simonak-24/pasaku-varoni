@@ -1,0 +1,163 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>19</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Velna kāzas.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">19. H. Skujiņa, Andrs Ziemelis, Aumeisteŗos,</p>
+
+<p align="JUSTIFY">Reiz vecos laikos, viens pastnieks gājis no Aumeisteŗiem uz Palsmani.
+Kad viņš nācis atpakaļ no Palsmanes, tad jau bijusi nakts. Pie Palsmanes kapsētas
+pastnieku panākuši lepni kungi, kuŗu karīti vilkuši trīs zirgi.</p>
+
+<p align="JUSTIFY">"Vai negribi braukt?" prasījis viens kungs.</p>
+
+<p align="JUSTIFY">"Ja jau nu kungi vestu, tad jau gan," atbildējis pastnieks.
+Nu sēdies kučēram līdzās!" teicis atkal kungs.</p>
+
+<p align="JUSTIFY">" Pastnieks uzkāpis uz bukas un apsēdies kučēram līdzās.
+Viņš drīz vien nomanījis, ka kungi ir velni. Pastnieks paslēpšu metis krustus sev
+priekšā. Velni to pamanījuši un viens teicis: "Ā, vai tev bailes gan?"</p>
+
+<p align="JUSTIFY">Ja, pastniekam bijis bailes no velniem . . .</p>
+
+<p align="JUSTIFY">"Nu, nebaidies," teicis tas pats velns un iedevis pastniekam
+cigāru. Pastniekam nebijis šķiltavu un tas nevarējis cigāru aizpīpēt.</p>
+
+<p align="JUSTIFY">"Rau'(n) cigāru gar zobiem," pamācījis velns.</p>
+
+<p align="JUSTIFY">Pastnieks rāvis cigāru gar zobiem un tas tūlin aizdedzies. Bet
+cigārs bijis tik stiprs un nejauku smaku, ka pastnieks nevarējis to pīpēt, un viņš
+to nometis zemē. Pie Grunzālas (Grundzālas) ceļa velni likuši aizturēt zirgus, kur
+pastnieks izkāpis. Viens velns teicis: ,,Nu, apskati mūsu zirgus, vai tu kādu
+nepazīsti? '</p>
+
+<p align="JUSTIFY">Pastnieks apskatījis zirgus. Bet zirgi paliek zirgi, ko tur pazīt?</p>
+
+<p align="JUSTIFY">"Tā ne, pacel zirgiem galvas uz augšu! " teicis atkal tas
+pats velns.</p>
+
+<p align="JUSTIFY">Pastnieks pacēlis vienam zirgam galvu, un no brīnumiem palicis vai
+bez valodas. Zirgs bijis Aumeisteŗu vecais lielskungs, kas priekš ilgiem gadiem miris.
+Tad pastnieks gājis pie otra un trešā zirga. Otrs zirgs bijis vecais, nomirušais Apes
+mācītājs un trešais vecais Grunzālas aptieķnieks.</p>
+
+<p align="JUSTIFY">"Nu, vai pazini?" prasījis atkal velns. "Ja, pazinu
+gan!" atteicis pastnieks.</p>
+
+<p align="JUSTIFY">"Nu, mums laiks atkal braukt<b> </b>. . ." teicis atkal
+velns. "Mums vēl labs gabals ko braukt, kamēr tiekam līdz tai gaujieniešu mājai,
+kur gailis grožās ieķēries. Tas mums šonakt jāapēd."</p>
+
+<p align="JUSTIFY">Velni aizbraukuši. Pastnieks otrā dienā gājis uz Gaujienu. Tur
+viņš dabūjis zināt, ka kāds gaujieniešu saimnieks pagājušā naktī pakāries. Nu
+arī pastnieks sapratis, kas tas par gaili bijis, kas grožās ieķēries . . . Tas bijis
+pakāries saimnieks, pēc kuŗa velni braukuši un to apēduši.</p>
+
+
+</body></html>

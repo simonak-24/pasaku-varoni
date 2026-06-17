@@ -1,0 +1,175 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Viszi?a dakteris</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Visziņa dakteris.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>4. </b>A. 1641. Skolnieks J. Rullis 1892. g. Blomes skolā, V. Maldoņa
+krājumā.</p>
+
+<p align="JUSTIFY">Reiz dzīvojis viens vecītis, kas vairs nespējis sev maizi pelnīt,
+kādēļ uzdevies par lielu zīlnieku. Vienam kungam tai apgabalā atkal pazudis dārgs
+zelta gredzens un tas nu meklējis zīlnieku, kas varbūt varēšot uzzīlēt, kur
+gredzens palicis. Kungs nu sadzirdējis, ka tāds liels zīlnieks esot tepat kaimiņos, un
+aizsūtījis savus sulaiņus, lai vedot to zīlnieku šurp. Sulaiņi arī atveduši
+vecīti pie kunga un zīlnieks sacījis: "Zudušo gredzenu nevar tik drīzi
+uzzīlēt. Dodiet man trīs dienas labi ēst, un pēdīgi labi daudz naudas, tad es
+uzzīlēšu, kur tas gredzens atrodas."</p>
+
+<p align="JUSTIFY">Kungs bijis ar mieru un ēdinājis zīlnieku, cik labi vien varēdams.
+Pēc vakariņām zīlnieks sacījis uz sulaiņiem: "Viens labs jau ir panākts, bet
+divi labi vēl gaidāmi."</p>
+
+<p align="JUSTIFY">Zīlnieks domājis par labi pavadīto dienu, bet sulaiņi, kas bijuši
+vainīgi, baidījušies, ka zīlnieks varbūt jau uzzīlējis vienu zagli.</p>
+
+<p>Otru dienu zīlnieku atkal tāpat ēdinājuši un tas tagad sacījis: "Nu jau ir
+divi labi panākti un tikai vairs viens labs gaidāms." Zīlnieks atkal runājis par
+divām labām dienām, bet sulaiņi</p>
+
+<p align="JUSTIFY">nu vēl vairāk baidījušies, ka zīlnieks jau laikam divus zagļus
+uzzīlējis.</p>
+
+<p align="JUSTIFY">Trešo dienu zīlnieku atkal tāpat ēdinājuši, kā pirmo un otru
+dienu. Nu tas teicis it kā pie sevis uz sulaiņiem: "Tagad jau visi trīs labi ir
+panākti, nu es gan zinu, ko darīšu."</p>
+
+<p align="JUSTIFY">Viņš domājis par nakti bēgt projām. Sulaiņi nu pavisam
+sabijušies, sanākuši visi trīs kopā un sarunājušies : "Zīlnieks laikam zina,
+ka mēs trīs esam to gredzenu nozaguši. Iesim labāk paši pie viņa, izstāstīsim visu
+un piedāvāsim tam labu naudu, lai nestāsta kungam."</p>
+
+<p align="JUSTIFY">Tā nu sulaiņi arī aizgājuši pie zīlnieka, izstāstījuši visu un
+lūguši, lai tas nestāstot viņu kungam. Zīlnieks sacījis: "Es gan jau zināju,
+ka jums ir gredzens, bet negribēju tūliņ kungam stāstīt. Ja nu jūs man labi
+samaksājat, tad lūkosim arī to zādzību noslēpt. Atnesiet man to gredzenu šurp, tad
+noslēpsim to, kā vajadzīgs."</p>
+
+<p align="JUSTIFY">Kad sulaiņi atnesuši gredzenu, tad zīlnieks to ielicis maizē un
+maizes gabalu devis vienai kalkūnai norīt.</p>
+
+<p align="JUSTIFY">Nākošā dienā kungs tūliņ sauc zīlnieku pie sevi un saka:
+"Trīs dienas jau nu ir pārgājušas, vai nu zini, kur ir mans gredzens?"</p>
+
+<p align="JUSTIFY">Zīlnieks atbild : "Jūsu gredzenu ir norijusi viena kalkūna un
+es tūliņ parādīšu, kura."</p>
+
+<p align="JUSTIFY">Nokauj kalkūnu un no viņas māgas patiešām izņem kunga gredzenu.
+Kungs par to dikti priecājies un aizmaksājis zīlniekam lielu naudu. Kungs tomēr vēl
+negribējis ticēt zīlniekam, dabūjis vienu circeni, ielicis to vienā krūzītē,
+apgriezis to apkārt un prasījis zīlniekam, lai uzzīlējot, kas tai krūzīte esot
+paslēpts. Zīlniekam bijis Circenis vārdā un tas izbijies izsaucies: "Ak, tu,
+nabaga Circenīti, kā tu nu reiz esi pieķerts!"</p>
+
+<p align="JUSTIFY">Kungs nu brīnīdamies izsaucies : "Tu patiešam esi liels
+zīlnieks!" Un devis tam vēl jaunas dāvanas klāt.</p>
+
+<p align="JUSTIFY">Nu vecītis izslavēts visās malās par lielu zīlnieku. Ja viņam
+neizdevies kaut ko uzminēt, tad to visi daudzinājuši; bet ja kas neizdevies, par to
+ļaudis nerunājuši.</p>
+
+
+</body></html>

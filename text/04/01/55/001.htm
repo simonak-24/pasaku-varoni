@@ -1,0 +1,244 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>55</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Ķēniņa dēls suņa veidā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">l. A. 440. Ernsts Birznieks no Anša Kānberga un Billes Treibergas
+Dzirciemā. Jkr. III, 39 (15). LP, VII, II, 19, 4, 1.</p>
+
+<p align="JUSTIFY">Ķēniņam bija ļoti slimīga princese. Neviens ārsts to nevarēja
+dziedēt. Kādā vasaras vakarā viņa ar visu slimību izkuļas ārā. Gabaliņu
+pagājusi, viņa satiek vecu vīriņu. Vecais vīriņš dod labvakaru un prasa, kas viņai
+kaitot? Princese izstāsta tā un tā: "Esmu ļoti slima, bet neviens ārsts man
+nevar līdzēt."</p>
+
+<p align="JUSTIFY">"Kad jūs mani klausītu, tad jūs gan paliktu vesela, bet mani
+jau neklausīsit."</p>
+
+<p align="JUSTIFY">"Klausīšu, klausīšu visu, teiciet tik!"</p>
+
+<p align="JUSTIFY">Vecais vīriņš iesāk: "Jums katru nakti pulksten divpadsmitos
+vienai pašai jāiziet sētā pie akas un jāizdzeŗ glāze auksta ūdens .</p>
+
+<p align="JUSTIFY">Princese patencināja vecajam vīriņam un steidzās atpakaļ uz
+mājām. Pulksten divpadsmitos naktī viņa viena pati iziet sētā pie akas dzert ūdeni,
+bet nevar uzvilkt ūdens spaini. Viņa izmocas visādi, bet kā nevar, tā nevar. Un
+cilvēka neviena nav brīv saukt palīgā. Princese sāk raudāt. Te pietek mazs balts
+sunītis un prasa, par ko viņa raudot? Princese raudādama stāsta, ka nevarot izvilkt
+ūdens no akas. Sunītis teic: "Ja jūs man apsolaties būt par sievu, tad es jums
+izvilkšu katru nakti ūdeni, kamēr jūs paliksit vesela."</p>
+
+<p align="JUSTIFY">Princese nezin, ko darīt. Viņa domā: "Tie jau tik nieki vien
+būs. Šunelis mani gribēs par sievu! Solīšos, lai viņš velk, ja var."</p>
+
+<p align="JUSTIFY">Princese apsola. Baltais sunītis tūlin izvelk ūdeni un pazūd. Tā
+tas nu notiek katru nakti, kamēr princese paliek vesela. Nu viņai vairs ūdens nevajaga
+- nu arī sunītis aizmirsts. Sāk jau nākt sveši prinči pie princeses uz precībām.
+Viņai ienāk prātā baltais sunītis. Viņa stāsta par to tēvam. Tēvs teic: "Kad
+jau tu esi solījusies tad jāgaida, kamēr vi nāks pēc tevis precēt, tad redzēsi, kas
+tur ir."</p>
+
+<p align="JUSTIFY">Tā nu princese sagaida veselus trīs gadus, bet sunītis vēl nerodas.
+Citi precinieki ar katru dienu spiežas virsū, kamēr arī princese beigu beigās vienam
+apsolās. Kāzu priekšvakarā visi kāzinieki jau sabraukuši - sāks patlaban dancot.
+Jaunais brūtgāns uzņem brūti uz pirmo danci. Te kāzinieki ieklausās, ka aiz durvim
+kāds dzied:</p>
+
+<p align="CENTER">Laid mani iekšā, man' sirsniņ', "</p>
+
+<p align="CENTER">Laid mani iekšā, cīruliņ! </p>
+
+<p align="CENTER">Vai atmini tos vārdiņus, </p>
+
+<p align="CENTER">Ko pie akas runājām?"</p>
+
+<p align="JUSTIFY">Princese liek attaisīt durvis, baltais sunītis ieskrej iekšā.
+Neviens viņu daudz neievēro. Princese taisās iet ar savu brūtgānu, princi, dancot.
+Mazais baltais sunītis atkal priekšā un dzied:</p>
+
+<p align="CENTER">"Ņem mani dancot, man' sirsniņ' ,</p>
+
+<p align="CENTER">Ņem mani dancot, cīruliņ!</p>
+
+<p align="CENTER">Vai atmini tos vārdiņus, </p>
+
+<p align="CENTER">Ko pie akas runājām?"</p>
+
+<p align="JUSTIFY">Sunītis dzied un pinas dancotajiem pie kājām, tā kā nemaz nevar
+dancot. Princese pavisam nokaunējusies, ka tāds šunelis viņai tā var dziedāt:
+"Ko pie akas runājām?" Viņa nemaz vairs nedanco, ies ēst vakariņas.
+Princese ar princi nosēžas blakām galda galā un grib patlaban sākt ēst.. Baltais
+sunītis atkal klāt un dzied:</p>
+
+<p align="CENTER">Dod man ēst, man' sirsniņ',</p>
+
+<p align="CENTER">Dod man ēst, cīruliņ !</p>
+
+<p align="CENTER">Vai atmini tos vārdiņus, </p>
+
+<p align="CENTER">Ko pie akas runājām?"</p>
+
+<p align="CENTER">Princese liek nolikt šunelim uz īpašu gaidu pēperkoku, krenģeļus
+un citus gardumus. Šunelis ēd, ko var - kas atliek. to sabāž aiz ādas. Pēc
+vakariņām visiem jāiet gulēt. Princese ar princi ieiet brūtes kambarī un aizšauj
+durvis. Baltais sunītis aiz durvim dzied:</p>
+
+<p align="CENTER">"Laid mani iekšā; man' sirsniņ', </p>
+
+<p align="CENTER">Laid mani iekšā, cīruliņ!</p>
+
+<p align="CENTER">Vai atmini tos vārdiņus,</p>
+
+<p align="CENTER">Ko pie akas runājam?"</p>
+
+<p align="JUSTIFY">Princese ielaiž balto sunīti savā kambarī un iet ar princi gulēt.
+Sunītis dzied atkal:</p>
+
+<p align="CENTER">"Ņem mani blakām, man' sirsniņ', </p>
+
+<p align="CENTER">Ņem mani blakām, cīruliņ !</p>
+
+<p align="CENTER">Vai atmini tos vārdiņus, </p>
+
+<p align="CENTER">Ko pie akas runājām?"</p>
+
+<p align="JUSTIFY">Princese pieņem arī sunīti gultā. Nu guļ visi trīs. Naktī
+princim metas nelaba dūša, viņš par daudz sadzēries, sāk vemt tā kā visa gulta
+smird. Princese atgriežas uz sunīša pusi, te pavisam cits kās: aiz ādas sabāztie
+pēperkoki, krinģeļi, cvībaki izplata tik jauku smaržu, ka princese; paliek līdz pat
+rītam tā guļot. Pret gaismu princis pamožas un nu mana, ka būs pavisam šķībi
+nodzīvojis, jo princese viņam atgriezusi muguru. Aiz kauna viņš tūlin pa durvim ārā
+un prom, tā kā ne atpakaļ vairs nepaskatā .</p>
+
+<p align="JUSTIFY">Otrā rītā jauno pāri augšā ceļot, atrod tik princesi un balto
+sunīti gultā. Kāzinieki nezin, kas nu būs, kas nebūs. Brūtgāns aizmucis un brūte
+guļ ar baltu sunīti kopā Bet princese izskaidro visiem, ka šis baltais sunītis esot
+viņas brūtgāns un ar to arī šodien laulāšoties. Visi iet uz baznīcu, ķēniņš ar
+ķēniņieni pa priekšu, tad princese ar balto sunīti un tad visi citi kāzinieki. Līdz
+princese ar sunīti pienāk pie altāŗa, sunītis pazūd. Visi izbīstas un brīnas. Bet
+tai pašā acumirkli brauc un jāj pa baznīcas placi, ka rīb un dimd vien. Pa baznīcas
+durvim nāk tāds princis iekšā ka tīri jābrīnās, vienās zelta tresēs vien
+ģērbies. Viņam no pakaļas draso spožos mundieŗos viņa kaŗa spēks. Princis nāk
+nostājas princesei blakam un saka: "Es esmu tavs baltais sunītis Caur to tu mani
+izglābi no maniem lāstiem, ka soli ies man būt par sievu. Tagad nu būšu atkal
+cilvēku starpā un arī pats cilvēks."</p>
+
+<p align="JUSTIFY">No baznīcas iznākuši, kāzinieki ieraudzīja ļoti skaistu diženu
+pili vienos logos, vienos skursteņas, viss no tīra zelta un sudraba , kā mirdzēt
+mirdzēja. Tur jaunais princis aizgāja ar savu salaulāto sieviņu dzīvot un valdīt.</p>
+
+<p>Kāzas dzēruši varenas- Bijuši rauši, rauši, visvisādi rauši : sviesta rauši,
+piena rauši, visvisādi rauši. Bijis alus, alus - visvisāds alus: medus alus, apiņu
+alus, visvisāds alus. Bijušas maizes, maizes - visvisādas maizes: miežu maizes, rudzu
+maizes, rupjkviešu maizes -- visvisādas maizes. Bijis muziķis, visvisāds ausim
+patīkams: pūsti ragi, sistas bungas, trīcināti sietiņi. Dancojuši', ēduši,
+dancojuši, ēduši, kamēr kāzas nodancojuši.</p>
+
+
+</body></html>

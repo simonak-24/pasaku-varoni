@@ -1,0 +1,159 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>?eizars un m?c?t?js.</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Ķeizars un mācītājs.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">6.<b> </b>A.922. V. Zacharska no A.<b> </b>Regšas
+Rozentavas pag, Latvju kultūras kr.</font></p><font size="3">
+
+<p align="JUSTIFY">Vīnu reizi dzeivuoja uz šo pasauļa vīns cīši dusmeigs ķēneņš,
+bet tai jis cīši mīluoja sovus kolpus, ka jī jam beja rykteigi un nikuo namaluoja. A
+kas nu kolpu samaloj, tū jis cīši struopēja. Tai vysi kēneņa kolpi zynuoja labi, ka
+kēneņam navar maluot.</p>
+
+<p align="JUSTIFY">Vīnu reizi kēneņš izbraucja uz medeibom, nūšuovja div lopsys un
+pīkusa. Jis sādās pi upis molys, un suoka trubēt un saukt kolpus, kab jam izvuoreitu
+tī pat pi upis molys pušdīnis. Kolpi izdzierdēja kēneņa trubi, tiuleņ sādās uz
+zyrgu un dreiži beja tī pi upis, kur sēdēja pats kēneņš. Kēnenš beja cīši
+prīceigs, jis runuoja ar kolpim un ruodēja, kaidus jis lopsus nūšuovja. Kolpi suoka
+stuostēt kēneņam, kai jī braucja par kolnu un redzēja uz kalneņa vīnu mozeņi
+puikeņi, kurijis beja cīši gudrs.</p>
+
+<p align="JUSTIFY">Kēneņš tiuleņ lyka sovim kolpim braukt un atvest tū puiku da juo:
+jam gribīs pazavērtīs. Kolpi tiuleņ paklausēja kēneņi un dreiži puika beja kluot
+pi kēneņa. Kēneņš kai pazavēra uz ituo puikys, tai soka: "Ka tu īdūsi man
+atbildu uz treju vuordu, tūlaik es tevi pajimšu pi sevis par kolpu. Cik ir lasju yudiņa
+jiuruos, saskaiti un pasoki man."</p>
+
+<p align="JUSTIFY">Puika atbildēja: "Es saskaitīšu, man nav griuts, bet jius
+pasokit, kab leita nabyutu."</p>
+
+<p align="JUSTIFY">"Labi!" pascēja keneņš. "A saskait, cik uz dabasim ir
+zvaigžņu."</p>
+
+<p align="JUSTIFY">Puika atbilda: "Pasok zvaigznem, lai jī vysi apsalaižas uz šū
+pasauli, es jūs tiuleņ saskaiteišu."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Kēneņš vaicoj vēl: "Cik var byut dīnu pi Dīva?"</p>
+</blockquote>
+
+<p align="JUSTIFY">Puika atbilda: "Pasok Dīvam, kab jis apstuotu uz pus dīnys es
+tiuleņ saskaiteišu."</p>
+
+<p align="JUSTIFY">"Labi!" pascēja kēneņš. "Itys puika par vysim munim
+kolpim ir gudruoks!"</p>
+
+<p align="JUSTIFY">Kolpi aplaidja dagunus un smējās, a kēneņš runoj uz puiku:
+"Es tevi jimšu ar sevim."</p>
+
+<p align="JUSTIFY">Kolpim koč napatika, bet kū jī var darīt? Tai itys puika vēl tagan
+dzeivoj ar kēneņi un jū vysi kolpi klausa un skaita par gudruoku kai pats kēneņš.</p>
+</font>
+
+
+</body></html>

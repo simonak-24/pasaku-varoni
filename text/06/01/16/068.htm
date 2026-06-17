@@ -1,0 +1,281 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>68</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">68. A. 314. 327 B. 53D. A. Gari-Juone no 67 g. veca T. Gailuma
+Domopolē. Latvju kultūras kr.</p>
+
+<p align="JUSTIFY">Senuok dzeivuoja vīns kalējš, jam beja sīva un divpadsmit dālu.
+Kalējs taisīja vysaidas lītas un beja puortic's, dāli gondreiž nikuo nastruoduoja,
+ēdja un auga kal zyrgi. Kad dāli jau beja vysi Ieli saauguši, nu sovvaļas jī
+sadūmuoja precētīs. Tāvs soka: "Nu Precējitīs, ka gribīt, tikai pyrmuok vajag
+pastruoduot, izleist leidumu, īsēt kaidu labību, iztaisīt vairuok muoju."</p>
+
+<p align="JUSTIFY">Dāli beja ar mīru struoduot, ka tikai varātu precētīs. Vīnpadsmet
+dālu beja kai ūzūli, skaisti, vasali, a divpadsmitais beja ar kuprīti un vysvairuok
+gulēja uz cepļa. Cyti bruoļi vērās uz juo kai uz muļkīti un tai jū īsaucja.</p>
+
+<p align="JUSTIFY">Kalējs izkola divpadsmit brangu dzelža ciervu. Vīnpadsmit dāli
+sazataisīja leiduma leistu un aizguoja, a muļkītis palyka gulādāms uz cepļa.</p>
+
+<p>"Kuo ta tu, dāls, naej?" soka tāvs.</p>
+
+<p align="JUSTIFY">Ceļas nu cepļa aizguoja vīns pats ari muļkītis. Vysi bruoļi cārt
+kūkus, ka skombas vīn lac, atguojis muļkītis kai cierta vīnā prīdē, tai ciervis
+žvūrgdams vīn nūskrēja suonim un jis palyka bez cierva. Tūreiz jis suoka raut kūkus
+ar vysom saknem pi kura kūka keras, tys i uorā. Nūstruoduojuši leidz vokoram, bruoļi
+guoja uz sātu un pastuostija tāvam, ka kuprīts raun kūkus ar vy som saknem.</p>
+
+<p align="JUSTIFY">"Tys cīši labi, ka jis izraun kūkus ar vysom saknem, dreižuok
+varēs izart teirumus", atsoka tāvs.</p>
+
+<p align="JUSTIFY">Pec kaida laika jī izstruoduoja zemi un nūsprīdja sēt auzas.
+Pīsēja lelu gobolu auzu un auzas auga grīzdamuos vīņ. Vīnu reizi, ka jau auzas
+laidjās zīdā, tāvs atguoja teiruma apsavārtu un parnanīja, ka auzas izbroduotas.
+"Nazkas auzas ād?" padūmuoja tāvs. Atguojis uz sātu jis pastuostīja dālim,
+ka vajag īt auzu sorguotu. Tad dāli pa divēji pec kuortas guoja auzu sorguotu;
+aizguojuši teirumā, jī irguojas, smejas, a par auzu maituotuoju jīm moza bāda. Kod
+tikai dāli atguoja nu sorguošonas. tāvs vaicuoja nu dālim: "Kū redzējuot?"</p>
+
+<p align="JUSTIFY">"Nikuo mes naredzējam, vējš pyuš, lopas čaukst, kū tī
+redzēsi, voi dzierdēsi?" atsacīja vysi dāli.</p>
+
+<p align="JUSTIFY">Golu golā aizguoja auzu sorguotu muļkītis. Jis nūveja garu, garu
+peicku, aizguojis nūzagula auzu molā un klausās, kas byus. Ap pašam pušnaktim zeme
+vīn reib, ka nazkas atskrīn. Jis verās un redz, ka atskrīn divpadsmit siermu ērzeļu
+un vīna kēvja. Kēvja nūstuoja, nūpūrksja un pasacīja: "Ēdīt i sorgitīs, ka
+nanūteik slikti, te nazkas sorgoj."</p>
+
+<p align="JUSTIFY">Ērzeļi i nazaklausa, saskrēja auzuos doncuodami vīn, ād, meida
+auzas; bet muļkītis dasalavēja pi kēves, kai cierta ar peicku, peicka jai apsatyna ap
+koklu, jis dreiži saturēja kēvi un soka: "Es tevis vairs vaļā nalaisšu."</p>
+
+<p align="JUSTIFY">Kēve soka: "Pajem tu vysus divpadsmit ērzeļus, sēstīs
+leikonam mugurā (vīns ērzels beja leiku muguru) un juoj uz sātu, vysi cyti ērzeļi
+skrīs pec juo."</p>
+
+<p align="JUSTIFY">Muļkītis paklausīja, palaidja kēvi vaļā, sādās leikonam mugurā
+un juoj - jā, vysi ērzeļi skrīn pakaļ. Atvedis ērzeļus, salaidja klāvā un pats
+lykās gulēt.</p>
+
+<p>Reitā tāvs pīsacēlīs vaicoj: "Nu kū, dāls, redzēji?" "Redzēju
+gon, īsim uz klāvu, paruodīšu, kas auzas ād", atsoka dāls.</p>
+
+<p align="JUSTIFY">Aizīt jī obēji uz klāvu, dāls attaisa klāva durovas un tāvs
+īrauga pylnu klāvu siermu ērzeļu. . Kalējs beja cīši prīcīgs, ka nūgiva auzu
+āduojus. Pīsacēļa ari cyti bruoļi, jis īdevja kotram pa ērzeļam, a sev paturēja
+leikonū. Kalēja dāli, sabaruojuši ērzeļus, nūsarunuoja braukt svuotūs pi taidom
+meitom, kur byus divpadsmit muosu, "taipat kai mes divpadsmit dāli."</p>
+
+<p align="JUSTIFY">Pyrmuok izjuoj vīnpadsmit dāli, a muļkītis ar sovu leikonū iejuoj
+vēluok. Bruoļi juoj, juoj - dajuoj pi guns upes, par tū guns upi puori navar tikt.
+Nūrunoj: "Pagaidīsim myusu muļkīti!"</p>
+
+<p align="JUSTIFY">Muļkīs, juodams ar sovu leikonū, īraudzēja mozu muojiņu, kura
+grīzjās uz vystas kuojas, jis nūtur zyrgu un īīt muojiņā. Īguojis muojiņā, redz:
+uz gultas guļ dūšīga rasna sīvīte - īraudzējuse īguojēju, vaicoj: "Kū loba
+pasacīsit?"</p>
+
+<p align="JUSTIFY">"Mes asam divpadsmit bruoļi, gribam precētīs un juojam svuotūs
+pi taidas muotes, kural byus divpadsmit meitu", atsoka muļkīts. "Voi navarātu
+pastuostīt, kur ir taida muote ar divpadsmit meitom?"</p>
+
+<p align="JUSTIFY">"A tur, dāls, aiz guns upes dzeivoj muna muosa, jai ir divpadsmit
+meitu."</p>
+
+<p align="JUSTIFY">Ceļā jei vēJ īdevja susekli sacīdama: "Ka kas pec tevis dzei
+sīs, tad nūsvīd susekli, pazataisīs bīzs mežs un nikas nadadzeis". Pajēmis
+susekli, jis sādās uz sova leikonā un juoj tuoļuok.</p>
+
+<p align="JUSTIFY">Pajuojis gobolu, īraudzīja vēJ vīnu ustobiņu, kura grīzjās uz
+vystas kuojas. Jis otkon nūturēja zyrgu, īguoja ustabiņā un īraudzēja vēļ
+dūšīguoku māmiņu guļūt uz gultas.</p>
+
+<p align="JUSTIFY">"Kū loba pasacīsi?" </p>
+
+<p align="JUSTIFY">"Mes asam divpadsmit bruoļi, gribam precētīs un juojam svuotūs
+pi aaldas muotes, kurai byus divpadsmit meitu", atsoka jis. "Voi navarātu
+pastuostīt, kur ir taida muote ar divpadsmit meitom:"</p>
+
+<p align="JUSTIFY">"A tur, dāls, aiz guns upes dzeivoj muna muosa, jai ir divpadsmit
+meitu. Pajem leidza lakartiņu, ka dajuosi pi guns upes, īsvīd upē, par upi pazataisīs
+tylts un puorbrauksit par upi", pasacīja sīvīte.</p>
+
+<p align="JUSTIFY">Jis pajēmja lakatiņu un juoja tuoluok redz, ka trruoļi juodelej pa
+guns upes molu. Bruoļi, īraudzējuši muļķīti, soka: "Puorved myusus par
+upi!"</p>
+
+<p align="JUSTIFY">"Jo manis klausīsīt, tod puorvesšu", atsoka jis. "Par
+kū tod mes naklausīsim?" atsoka bruoļi. Muļkīts puorsvīdja lakatiņu par upi,
+pazataisīja tylts, vysi bruoļi puorjuoja par upi, pats pādējals puorjuoja muļkīts,
+pajēma lakatiņu un vysi juoja tuoļuok. Natuoļi nu upes beja lela skaista muoja.
+Pījuojuši pi muojas, pīsēja zyrgus un īguoja īškā. Īguojuši ustabā,
+pastuostīja, ka jūs ir divpadsmit bruoļu, un ka jī juoj precībuos.</p>
+
+<p align="JUSTIFY">"Labi", atsoka sīvas muote, sataisa maltīti, vvsi suok
+ēst, dzert, runuotīs, kotram pa meitai atsasāst pi suonim. Bruoļi nu prīcas uz augšu
+lac, a muļkīts nadzer vys oplom, bet pa druskai un izīt zyrgu apsavārtu. Juo leikons
+jam i soka: "Ēd i nadaēd, dzer i nadadzer, jyusim jau nuove uz kokla karinej".</p>
+
+<p align="JUSTIFY">Jis atīt atpakaļ, bruoļi dzer un prīcuojas, pate meitu muote,
+rogona, taipat reizē ar vysim doncoj. Tal jī prīcuojās ieidz vālai naktei. Kad
+atguoja nakts, tod vysi apsagula, katram bruoļam rogona īdevja kluot pa vīnal meitai.
+Apsagula vysi, šņuoc vīņ pīdzāruši, a muļkīšam gon naīt mīgs, jis aizīt uz
+klāvu pi sova zyrga. Zyrgs jam soka: "Pajem puišu capures un aplīc meitom
+golvuos."</p>
+
+<p align="JUSTIFY">Jis atguojis tyuliņ aplyka puišu capures meitom golvā, jī nivīns
+ni dzierdēja ni redzēja, beja brīsmīgi nūmyguši. Pašos pušnaktīs atskrīn rogona
+ar zūbynu rūkā un nūkopoj vysas golvas, kuras ar capurem, asnis vīn paškeida. Tod
+rogona izskrēja un tai stypri aizcierta durovas, ka tuos par reizi saauga myurā.
+Muļkīts vvsu redzēja un beja cīši nusabeids, jis pīsacēle un mūdynuoja bruoļus,
+bruoļi tai beja nūmyguši, ka tikai ar mūkom jam izzadevja atmūdynuot vīnu pec ūtra.
+Kad bruoļi pīsacēle un gribēja tikt uorā, tad jī nikur navarēja atrast durovu,
+suoka ar ciervim sist sīnu. Syta, syta, bet nikuo. Tūreiz jī atroda lauztini, Muļkīts
+pajēmja lauztini un izsyta sīnā caurumu. Vysi bruoļi izleida uorā, sādās zyrgim
+mugurā un laidjās, cik spāka, pa ceļu. Kad bruoļi beja nujuojuši nalelu gobolu,
+rogona jau beja atskrējuse uz sovu muoju un atroda nūkautas meitas, izlauztu myura
+sīnā caurumu. Jej cīši sazasirdēja, sādās cyukal mugurā un dzynās jīm pakaļ.
+Bruoļi dzierd, ka zeme vīn atreib, jī saprota, ka nyu rogona pec jūs dzanās.
+Mulķīts, kurs nu pakaļas juoja, redzēja ka rogona jau pavysam tyvu, nūsvīdja susekli
+un nu tuo pasataisīja taids bīzs mežs, ka rogona navarēja tikt puori. Cyuka suoka ar
+saknem raut kūkus, ar zūbim grauzt, bet cauri mežam navarēja tikt. Tūreiz rogona
+grīzjās atpakaJ uz sātu, pajēmja ciervi, suoka cierst mežu. Cykam cierta, bruoļi jau
+beja gobolā. Tikkū rogona puorjuoja par mežu, bruoļi jau beja pi guns upes. Kod
+pījuoja pi guns upes, muļkīts puorsvīdja skustiņu par upi, pazatalsīja tylts, vysi
+bruoļi puorjuoja par guns upi. Pīskrēja ari rogona, jis dreiži skustiņu pagiva un
+rogona navarēja tikt puori par guns upi, zūbus vīn nūklabvnuoja ūtrā upes pusē.</p>
+
+<p align="JUSTIFY">Puorjuojuši par upi, bruoļi laidja, cik spāka, ērzeļus, lai
+dreižuok tiktu sātā. Atguoja uz sātu bez bruyutem, tāvs vaicoj: "Nu, dāli, voi
+aizdzēŗāt sev sīvas?"</p>
+
+<p align="JUSTIFY">"Aizdzērām gon, bet tikkū dzeivi tykam sātā, rogona dzynās
+un tikai myusu kuprīts myusus gluobja", atsacīja dāli un vysu seiki pastuostīja,
+kai ceļā kluojās. Nikuo navarēja leidzēt, daguoja dzeivuot napracātim.</p>
+
+<p align="JUSTIFY">Pec kaidim treijim godim kēneņš izsludynoj, ka atdūs sovu meitu par
+sīvu un pasi sovas kēnests tam, kas dalēks ar zyrgu leidz trešajam stuovam un nūraus
+juo meitai nu piersta gradzynu. Pec šuos ziņas uz kēneņa pili suoka juot nu vysom
+molom un kotrs laidja sovu zyrgu lēkt, bet navarēja i da puses dalēkt. Aizguoja i kalva
+dāli ar sovim ērzeļim, lāc vīns, lāc ūtrs, bet nivīns navar dalēkt. Kuprīts ar
+savu leikonū pyrmā dīnā palēcja leidz pyrmam stuovam, ūrrā leidz ūtram un trešā
+leidz trešam stuovam un pagiva nu meitas piersta zalta gradzynu, satyna lupatiņā,
+atjuoja uz sātu, atsasāda uz puorta un rušinoj palnus.</p>
+
+<p align="JUSTIFY">Kēneņš pasludynuoja, lai sazalosa vysi juo pilī. Cylvāki sabraucja
+nu molu molom, nūbraucja ari muļkīts nūsazīdīs ar palnim. Vysus pa kuortai
+apmeklēja kēneņa meita un pašuos beiguos, atroda gradzynu pi nusazīdušuo ar palnim
+kuprīša. Kēneņa meita tyuliņ lyka jū apvilkt teiruos drēbēs un nūpucēt.
+Sataisīja kuozas kēneņš, atdevja jam pusi kēnests i šūdīn muļkīts dzeivoj
+prīcīgs ar kēneņa meitu.</p>
+
+
+</body></html>

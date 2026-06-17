@@ -1,0 +1,146 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>21</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dažādi spēka vīri.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">21. A. 650 C. Skolnieks J. Atteka Nīcā, K. Lielozola kr.</p>
+
+<p align="JUSTIFY">Vienam tēvam bijis viens dēls un tēvs to dēlu saucis par Pēteri.
+Vienu dienu viņi abi gājuši pļaut sienu un vakarā abi nākuši mājā. Viņiem bijis
+jāiet pa tādu šauru meža teku, kur uzreizu no meža iznācis lācis un uzbrucis
+tēvam. Pēteris gājis no pakaļas domādams un nemaz to nemanījis. Lācis nu saķēris
+tēvu, plosījis un lauzījis tēva kaulus. Tad tēvs atcerējies, ka viņam jau līdz
+esot palīgs, un saucis savu Pēteri: "Pēteri, mans dēls, tu esi dikti stiprs, nāc
+atpestī mani no šī zvēra!"</p>
+
+<p align="JUSTIFY">Tad Pēteris pacēlis acis un ieraudzījis, ka tēvam uzbrucis liels
+melns spalvains zvērs. Pēteris nu sagrābis izkapti ciešāki rokā un gājis glābt
+savu tēvu no lielā zvēra. Kad viņš piegājis klāt, tad redzējis, ka tēvs jau
+gulējis apakš lielā zvēra, kas to plosījis un lauzījis viņa kaulus. Pēteris
+sapīcis uz zvēru un cirtis tam ar izkapti pa pašu galvu. Pāršķēlis tam galvu un
+sācis graizīt ādu. Lācis ierūcies un pacēlies uz pakaļas kājām, bet nokritis
+atkal zemē. Tad tēvs piecēlies un sācis lamāt savu dēlu: "Pēter, kādēļ tu
+sagraizīji dārgo lāča ādu?"</p>
+
+<p align="JUSTIFY">To teicis, viņš padzinis Pēteri un aizgājis uz māju. Bet Pēteris
+aizgājis pavisam uz citu pusi. Tā nu viņš klejojis ilgu laiku, darbu meklēdams, bet
+nekur nevarējis dabūt. Beidzot viņš iegājis kāda ķēniņa pilī un prasījis tur
+darbu. Ķēniņš teicis: "Pie cita darba man tevis nevajaga, bet paliec man par zosu
+ganu!"</p>
+
+<p align="JUSTIFY">Pēteris nu arī palicis par zosu ganu. Tā viņš ganījis ilgu laiku
+ķēniņa zosis un pēdīgi iemīlējis ķēniņa princesi. Ķēniņš to dabūjis zināt
+un sācis dikti rāt princesi ar Pēteri. Kad bāršana nekā nelīdzējusi, tad beidzot
+ķēniņš arī atļāvis taisīt viņiem kāzas. Drīzā laikā savīkšuši varenas
+kāzas un Pēteris gājis ielūgt uz kāzām savu tēvu, kas nu arī atnācis. Kad kāzās
+viesi bij diezgan ēduši un dzēruši, tad visi pārgājuši mājā. Palikuši nu tikai
+Pēteris ar ķēniņa meitu un veco ķēniņu, kas atstājis znotam visu savu zemi.
+Pēteris nu palicis par ķēniņu un dzīvojis ar savu jauno sievu laimīgi savā valstī.</p>
+</font>
+
+
+</body></html>

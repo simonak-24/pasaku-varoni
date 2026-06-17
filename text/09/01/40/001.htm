@@ -1,0 +1,188 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title> Atgriezies laup?t?js</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="center"><font size="4"></font><font size="5">Atgriezies laupītājs.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">1. A. 756. A. L e r c h i s - P u š k a i t i s
+D ž ū k s t ē - P i e n a v ā. LP, I, 107.</font><font size="4"></font></p><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font>Reiz kāds zvejnieks cauru nakti izzvejojas un nenoķeŗ ne
+ķīša. Viņš nosviež tīklu, nosēžas uz krasta un tad pats pie sevis nomurmina:
+"Kad tevi velns ar visu zveju!"</p>
+
+<p align="JUSTIFY">Tai pašā acumirklī velns klāt un saka: "Atdod man to, kas tev
+mājā nezināms, tad gādāšu par veselu lēveni zivju. Zvejnieks domā, kas tad varētu
+mājā nezināms būt, viss</p>
+
+<p align="JUSTIFY">kārtībā, viss zināms - lai iet! Tagad zvejniekam tāda laime, kāda
+vēl nav bijusi: zivis čupām. Zivis sagodējis, tas dodas uz māju; bet ,mājā tai
+naktī jauni dēli sabraukuši. Nu vecais tik atveŗ acis un apķeŗ, ka velnam zivju
+dēļ pats savu dēlu pārdevis; tomēr nekā darīt.</p>
+
+<p align="JUSTIFY">Kad dēls jau paaudzis, tēvs ņemas stāstīt, ko nejēdzībā ar
+viņu ezera malā izdarījis. Puika tādēļ nemaz nesabīstas, lai atvēlot viņam tik
+mācītāja amatu, gan tad ar velnu izdarīšoties. Labi, tas izmācās par mācītāju.
+Un tikko arī gatavs, te velns klāt, lai sūtot savu dēlu uz elli. Mācītājs paņem
+ābeļu nūju un iet. Caur mežu iedams, satiek laupītāju, kas grib viņu nokaut.</p>
+
+<p align="JUSTIFY">"Ko nu mani par velti kausi, jo man vairāk nav kā šis ābeļu
+spieķis?"</p>
+
+<p align="JUSTIFY">"Kur tad gribi aiztikt tik ar nūju vien pie dvēseles?" </p>
+
+<p align="JUSTIFY">"Es iešu uz elli."</p>
+
+<p align="JUSTIFY">"Tā, uz elli iesi! Vadzi, apskaties ellē, kādā vietā es esmu
+nolikts. Palikšu tepat un gaidīšu tevi ar ziņu atpakaļ."</p>
+
+<p align="JUSTIFY">"Labi, labi! "</p>
+
+<p align="JUSTIFY">Mācītājs noiet ellē; bet brīnums, visi velni no viņa nobēguši.
+Viņš apskatās vienu elles stūri un ierauga savu vārdu, viņš apskatās otru elles
+stūri un ierauga laupītāja gultu vienās ugunīs. Mācītājs, elli apskatījies un
+savu vārdu ar ābeļu spieķi izdzēsis, iet atpakaļ uz māju. Mežā laupītājs tek
+mācītājam pretim un prasas: "Nu, ko laba ellē redzēji?"</p>
+
+<p align="JUSTIFY">"Ko nu redzēju? Redzēju tavu gultu vienās liesmās." </p>
+
+<p align="JUSTIFY">"Vai, manu dieniņu, tad jau man vienās ugunīs būs degt.
+Apžēlojies, palīdzi man no ļauniem ceļiem atgriezties!"</p>
+
+<p align="JUSTIFY">"Labi, labi, to labprāt palīdzēšu. Es te iespraudīšu savu
+ābeļu nūju un tev būs tikmēr laistīt, kopt, audzināt, kamēr nūja izaugusi par
+lielu ābeli. Tomēr ūdeni citādi nenes, kā tikai mutē, uz vēdera lienot. Tur nekā
+darīt, jo ātri, ātri var nedarbus padarīt, bet no nedarbiem skaidrs tikt, - tur paiet
+gadi."</p>
+
+<p align="JUSTIFY">Tā aiztek daži gadi. Te kādā dienā mācītājam ievajagās uz
+pilsētu braukt. Viņš brauc caur to pašu mežu un domā meža ēnā mazuliet zirgus
+atpūtināt. Viņa puisis tamēr ieiet mežā nodzerties un atron skaistu ābeli, pilnu
+sarkaniem āboliem. Puisis grib kādu ābolu noraut, lai ir mācītājam aiznestu, bet
+ābolu raujot, kāda vāja balss sauc: "Tev nebūs no tā augļiem raut, ko neesi
+pats dēstījis un audzinājis!"</p>
+
+<p align="JUSTIFY">To dzirdēdams, puisis saraujas un tek mācītājam stāstīt.
+Mācītājam prāts atveŗas, viņš steidzas turp. Noiet pie ābeles : laupītājs sēž,
+bāls nodēdējis.</p>
+
+<p align="JUSTIFY">"Tagad izsūdzi man savus grēkus, Lai tieci no tejienes
+vaļā." Laupītājs izsūdz vienus grēkus - nobirst viens ābols; laupī tājs
+izsūdz otrus grēkus - nobirst otrs ābols; laupītājs izsūdz trešos grēkus - nobirst
+trešais ābols un tā tas sūdz tik ilgi, kamēr tikai divi āboli pašā galotnē
+atliekas.</p>
+
+<p align="JUSTIFY">"Nu, kāpēc vēl tos divus grēkus nesūdzi?" </p>
+
+<p align="JUSTIFY">"Vai, mīļo mācītāj, tie man gŗūti izsacīt." </p>
+
+<p align="JUSTIFY">"Nelīdz - jāsaka."</p>
+
+<p align="JUSTIFY">"Es nokāvu savu tēvu un māti!" Līdz ko šis tos vārdus
+izteic, te abi āboli nabirst un laupītājs paliek par pelnu čupu.</p>
+
+
+</body></html>

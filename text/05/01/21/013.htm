@@ -1,0 +1,160 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>13</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Bārenīte un mātes-meita akā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>&nbsp;</b></p>
+
+<p align="JUSTIFY">13. A 40. J. Brūnais Nīcā. LP, VI, 840 (19. piez.). </p>
+
+<p align="JUSTIFY">Pamāte likusi sietā ūdeni nest no akas. Un kad pameita ne jaudāja
+atnest, tad iegrūdusi to akā. Tur apakšā pameita ieraudzījusi ābeli; tā lūgusies,
+lai nobirdinot ābolus. Nobirdinājusi. Tad atradusi maizes cepēju; tā lūgusies, lai
+sašaunot maizi krāsnī. Sašāvusi. Tad nogājusi pie Sniega mātes un palikusi tur par
+meitu. Sniega māte likusi pameitai savus spilveņus putināt un pieteikusi, lai visur
+ejot, bet tai kūtī lai neejot, kas ar lūku aizsieta. Pameita negājusi tai kūtī, bet
+iegājusi labāk tai kūtī, kam durvis ar suku bijušas aizgrieztas. Un līdz tur
+iegājusi, ieraudzījusi vienu zelta buku (āzi). Tūlin kāpusi āzim mugurā un jājusi
+uz mājām. Jājusi, jājusi - atjājusi pie maizes cepējas - velns dzinies pakaļ. Nu
+maizes cepēja sūtījusi pameitu ar āzi projām: lai pasteidzot jāt! Līdz ko pameita
+aizjājusi, te velns pie maizes cepējas iekšā: vai neesot redzējusi meitu uz bucīša
+jājam? Neesot, šī atteikusi.</p>
+
+<p align="JUSTIFY">Par to starpu pameita bija aizjājusi pie ābeles. Bet ābele: teikusi:
+"Velns dzenas pakaļ, steidz jāt!"</p>
+
+<p align="JUSTIFY">Līdz bijusi gabalā, te velns pie ābeles klāt: vai neesot redzējusi
+meitu uz bucīša jājam?</p>
+
+<p align="JUSTIFY">Neesot, ābele atteikusi.</p>
+
+<p align="JUSTIFY">Velns nu griezies atpakaļ un pameita laimīgi izjājusi no akas. Bet
+pamāte, tik dārgu āzi ieraudzīdama, par varu gribējusi arī savai meitai tādu
+sadabūt un tādēļ tīšu iegrūdusi mātes meitu akā.</p>
+
+<p align="JUSTIFY">Mātes meita to pasu ābeli, to pašu maizes cepēju satikusi; bet tā
+ne ābeli purinājusi, ne maizi sašāvusi, jo neesot vaļas. Nogājusi pie Sniega mātes,
+tā pieteikusi, lai tai kūtī neejot, kas ar lūku aizsieta. Bet šī gājusi un tur arī
+zelta āzi atradusi gan. Kāpusi mugurā un sākusi jāt. Atjājusi pie maizes cepējas,
+velns dzinies pakaļ un vaicājis cepējai, vai meitu ar zelta āzi neesot manījusi.</p>
+
+<p align="JUSTIFY">"Esmu gan, viņai vajaga tagad būt jau pie ābeles!" </p>
+
+<p align="JUSTIFY">Aizskrējis pie ābeles: vai neesot manījusi meitu ar āzi? "Esmu
+gan, viņai vajaga drīzi pie akas būt!"</p>
+
+<p align="JUSTIFY">Velns nu lobis pakal, panācis mātes meitu pie akas un noplēsis.</p>
+
+<p align="JUSTIFY">Pamāte nu raudājusi pēc savas meitas visu mūžu.</p>
+
+<p align="JUSTIFY">Piezīme. L P. ir saņēmls vēl citu variantu no Nīcas. kur sniega
+mātes vietā minēta raganas pils. Turpat arī ragana dzinusies meitai pakaļ nevis
+velns. Sniega māte še atkal ir cēlusies no J. Zvaigznītes tulkotās pasakas (Ievads.
+111. I. p.), kas ir izplatīta ar "Skolas maizi" (ibid. 117. 1. p.) P. Š.</p>
+
+
+</body></html>

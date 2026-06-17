@@ -1,0 +1,182 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>12</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Velna līgava.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">12.<b> </b>Teicēja 84 g. veca Tekla Visocka, Nīcgalē. Kultūras
+balss kr.</p>
+
+<p align="JUSTIFY">Natuoļi kanda lela pūra molā stuovēja moza vaca uzstobiņa, kurā
+dzeivuoja bēdīga saime: tāvs, muote, dāls un meita. Nazcik ilgi padzeivuoja tāvs un
+nūmyra. Palyka tik treis cylvāki; jī dzeivuoja kaut nabadzīgi, bet laimīgi. Kaidu
+reizi dāls sadūmuoja īt uz piļsātu, knra beja dīzgon tuoli, nūpierkt sev zuobokus.
+Dāls guoja, guoja un īguoja tik lelā mežā, ka navarēja ni gola, nī molas redzēt.
+Tymā mežā dālam vajadzēja gulēt, tuodēļ ka beja tymsa nakts un vairs jis
+nazynuoja, kur un uz kuru molu byus īt. Paguoja mozu gabaliņu nu ce]a, palyka egles zoru
+zam golvas un lykās gulēt. Jis beja ļūti nūvuordzis nu lelas īšonas, pagulēja
+nazcik laiciņa, paplētja acis un īraudzīja, ka caur meža molu speid moza gaismiņa.
+Jis dūmuoja, ka jau dreiži byus dīna, pīsacēļa un laidjās īt.</p>
+
+<p align="JUSTIFY">Īt, īt un redz, ka mežā speid guntiņa. Jis dūmuoja: "Es,
+var- byut, jau byušu pīguojis kaidu ustobu, kuŗā varēs pavaicuot, vai tuoli
+pilsāta." līt ustobā un redz, ka ni vīna cylkāka nav, tik guns vīn īdagta
+skolā. Ustoba beja sylta un jis padūmuoja: "Sasasildīšu, tad suokšu īt
+tuoļuok. Napuorguoja gars laiks, kai jis dzierd, ka nazkas brīsmīgi klīdz un
+rauduodams prosa: "Mīļi draudziņi, jemīt vysu munu montu, tik palaidīt mani
+dzeivu!"</p>
+
+<p align="JUSTIFY">"Byus slykti, kad es te palikšu, lobuok bēgšu prūjom,"
+padūmuoja dāls. Tik salasīja sovas kules un skrīt par durovom, kai redz, ka raun
+nazkaidu cylvāku un pakal jam kaidu divpadsmit slapkovu. Dāls nūsabeida un pakrita uz
+zemes. Te jū un tū cylvāku sajēmja un īlyha kambarītī. Na par garu 1aiku izdzierda,
+ka nazkas atīt un atverīs durovas, padevja myusim lelu, lelu skalini ar nazkū pīlyktu.
+Skaliņš beja pīlykts daudz, daudz visaidu dzērīnu un ēdīnu. Jī suoka runuot:
+"Kaida laime, ka myusus baroj vēl ar lobuokim ēdīnim, kai kungus!" Puorīt
+vīna dīna, puorīt ūtra un jī gaida ar kū beigsīs šei lobuo baruošona.</p>
+
+<p align="JUSTIFY">Slapkovas apēdja vysu šuo cylvāka zyrgu, gūvis un vysu, kū jis
+vedja nu muojom uz pilsātu puordūšonai.</p>
+
+<p align="JUSTIFY">Pīktā dīnā atīt ar brīsmīgim nažim treis cylvāki jūs kautu.
+Pyrmuok nūkova ūtrū sādātuoju, bet dālu pametja ūtrai dīnai. Slapkovas aizīdami,
+durovas aizmiersa aizslēgt. Kai tik jī īguoja ustobā un lyka pūdā vuarēt gaļu,
+dāls laidjās bēgt. Bāga, bāga un napamanēja, kai jau atsaroda sovā molā un jau
+natuoļi no sovom muojom. Slapkovas reitā īt jau kautu ūtrū cylvāku, īīt pi durovom
+un redz, ka durovas atstuotas vaļā un nikuo nav ustobiņā. Suoka meklēt, bet par
+velti, jau cylvāks lelā gobolā.</p>
+
+<p align="JUSTIFY">Atguoia dāls uz muojom un redz, ka muate palykuse pavysam slima nu
+vysaidom bādom un nalaimem. Muote stuosta, ka nazkas asūt myusu muojā, vai tik naasūt
+valna, kurs sēd uz cepĪa un vysaidus jūkus taiss.. Muote stuosta, ka jej raudzējuse
+līt ar korstu yudeni, bet valna vītā apšmucynuojuse meitu, kura sēdējuse gultā. Tad
+valns otkon suocis svīst nu cepļa vysu molku: cik šuos pīnasūt par dīnu, tik jis par
+vīnu šaltiņu nūsvīž nu cepļa. Muote izstuostīja vvsas sovas nalaimes un dāls
+sovas. Tad dāls suoka puorsalīcynuot, vai ir taisnība, kū stuosta muote. Dāls
+pīguoja pi cepļa un gribēja pajemt pagali molkas un otkon izsvīst uz cepa. Kai tik
+pīguoja tyvuok, nazkas svīdja ar palnu sauja acīs. Dāls tik aizaklīdzja un ar vīnu
+lēcīni atlēcja nu cepļa.</p>
+
+<p align="JUSTIFY">Atguoja vokors. Vysi ēdja vakariņas un paāduši atstuoja ēdīni uz
+golda. Naktī nazkas suoka bryukšinuot un ēst, ka šlakst vīn. Reitā dāls prosa nu
+muotes: "Nu kura laika jis atguoja rz myusu ustobiņu dzeivuot?"</p>
+
+<p align="JUSTIFY">Muote suoka stuostīt, ka jei kaidu reizi sasadusmuojuse uz sovas
+meitas un buordamuos pasacējusi: "Lobuok dzeivuotu ar valnu, nakai ar tevi!"
+"Tymā breidī atsadarija durovas un nazkas īguoja ustobā, bet mes nivīna
+naredzējām, kas īguoja, varbyut, ka jis īguoja. Tagad vysu laiku nikai navarējom juo
+izdzeit uorā," pastuostīja muote. Te saslyma muote un nūmira. Kai tik muote
+nūmyra, atsadarēja ustobas durovas un nazkas, ka zeme vīn nūreibēja, kai izskrēja
+uorā. Nu tuo laika vysi apkuortēji ļauds baiduos pīminēt valnu, dzierdādami taidu
+nalaimi, kaidu vajadzēja pīdzeivuot bēdīgim saimnīkim. Meitu tymā pat zīmā pēc
+muotes nuoves veirs izvedja, dāls pajēnma sev sīvu un dzeivuoja laimīgi.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

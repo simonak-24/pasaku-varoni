@@ -1,0 +1,201 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>1003101</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Derības par sievas uzticību.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p><font size="5"></font><font size="3">1.<b> </b>A.882. K.Šulcs Zasulaukā. LP, VI, 309, 73.</font></p><font size="3">
+
+<p align="JUSTIFY">Viens ķēniņš guļ uz nāvi slims. Priekš nāves tas nosaka savam
+dēlam, ka tam nav brīv citu precēt, kā vien to, kuŗu tas tēva nāves rītā pirmo
+laukā sastaps. Labi. Tēvs drīz nomirst un dēls iet to rītu ārā - satiek mazu, mazu
+meitiņu, kas ar vienu roku vada savu neredzīgo tēvu, ar otru nesa slotas pārdot. Ar
+šīm slotām abi papelnīdamies ēd savu maizi. Jaunais ķēniņš tūdaļ noģida, ka
+mazā meitiņa viņam jāaudzē un jāprec. Viņš nu pieiet abiem nabadziņiem un
+uzprasa, kur tie dzīvo. Dabūjis ceļa zināt, tas iejūdz divi dižus zirgus un brauks
+šos uz turieni apsērst. Brauc, brauc - uzbrauc mazu sakritušu būdiņu, īstu putnu
+kūtiņu. Jā, tur šie mājo. Neko darīt - ķēniņam jāpazemojas un jālien būdiņā
+iekšā. Ielien, izrunājas, izir - līdz paņem abus līdza uz pili; tur aklajam tēvam
+dod maizi, visādu iztiksmi un meitiņu nodod augstās skolās.</p>
+
+<p align="JUSTIFY">Meitiņa izmācās visādas gudrības; pēdīgi tai vēl uznāk kāre
+iemācīties gardākos ēdienus taisīt. Labi, to nodod kādā viesnīcā mācīties.</p>
+
+<p align="JUSTIFY">Pa tām starpām šī tad arī jau uzaugusi par dižu un brīnum
+skaistu jaunekli. Viesnīcas kungs to novērojis un - ko domāt gaužam iemīlējis, grib
+šo precēt. Šī, zināms, ne acu galā šo ieredzēt, atraida. Bet nu kungs gudro meitai
+atriebties. Viņš noiet vienu dienu pie ķēniņa un sāk sastāstīt briesmu lietas:
+viņa brūte esot palikusi vazanķe, staigājot pa nekrietniem ceļiem un ko neko. Bet
+ķēniņš kā netic, tā netic. Beidzot abi sāks derēt un līgt. Kungs saka: viņš
+triju dienu laikā pateikšot jaunekles slepeno zīmi. Ķēniņš atsaka: "Neticu
+vis, ka to tu pagūsi izzināt; bet ja tomēr izdarīsi, tad tev piekrīt visa ķēniņa
+valsts; ja atkal ne, tad metīšu tevi cietumā."</p>
+
+<p align="JUSTIFY">Labi. Paiet viena diena, otra - vēl kungs nekā nezin. Ķēniņš
+stāv itin mierā, jo viņš zin, ka viņa brūte paliek viņa brūte. Bet kungam vai nu
+tīri krusts klāt - nobažījies tas dauzās pa ielām apkārt. Tā staigādams, tas
+satiek vecu sieviņu; tā tūliņ: "Kas jums, kungs, kaites?"</p>
+
+<p align="JUSTIFY">Tā un tā - "ja tu, sieviņa, varētu man līdzēt - mūžam
+žēlastības maizi dabūsi!" Un izsaka tai nu galu galus.</p>
+
+<p align="JUSTIFY">Sieviņa atteic: "Tas nekas - tur lēti līdzams." Un vecīte
+nu liek pataisīt dārgu, greznu skapi un durvīs liek pamest zara caurumiņu. Skapi tad
+aizved ķēniņa brūtes istabā un lūdzas un lūdzas, lai atvēlot līdz rītam te
+pamest. Meitai nekas pretim - lai liek. Bet skapī bija paslēpies šis kungs, kam tās
+zīmes vajadzīgas. Un kas nu ir! Vakarā ķēniņa brūte, kā jau svētvakarā, vilks
+baltu kreklu, šis pa zara caurumu redz: ķēniņa brūtei mugurā melna kārpa. Nu ir
+zīmes rokā! Naktī, tikko nu šī aizmigusi, kungs no skapja ārā un prom, paņemdams
+vēl līdz ķēniņa doto gredzenu, kas uz galdiņa bija nolikts. Noiet pie ķēniņa -
+šis liels: te nu esot ir gredzens ir zīmes: viņai mugurā melna kārpa!</p>
+
+<p align="JUSTIFY">Ko nu? Ķēniņam valsts pagalam, brūte arī apsmieklā. Žēlabās un
+ātrās dusmās viņš liek, lai viņa brūti labāk aizvedot citā zemē paslēpt, nekā
+vēl par kaunu un žēlabām redzēt. Labi, vedēji paņem brūti un ved gar jūrmalu
+prom. Te it nejauši pamana jūrmalā gaužam skaistu zārku, kas spīd un laistas kā
+ugunis. Ķēniņa brūte nevar ne beigt ap kožo zārku taustīties un priecāties. Šie
+vaicā: "Vai tev tāds zārks tik ļoti patīk?"</p>
+
+<blockquote>
+  <p>Šī atbild: "Kas tādā zārkā nedusēt!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Nu lai drusku pamēģinot, kāds zārks pēc mēra! Šī, nekā jaunu
+nedomādama, gulsies arī. Bet tikko iegulsies, šie uzrauj vāku virsū, noskrūvē
+skrūves labi cieti un pastumj vaļējā jūŗā, lai nu peld uz citu zemi.</p>
+
+<p align="JUSTIFY">Zārks tā mētājās pa jūru veseli trīs gadi. Bet ķēniņa brūti
+vai pats Dievs par brīnumiem uzturēja pie dzīvības. Un pēc trim gadiem Laima nāca
+palīgā: zārku ieraudzīja kuģa ļaudis un kapteins nolaiž laivas - brauks raudzīt,
+kas jūrā tā mirdz. Piebrauc: zārks. Nu piekabina pie laivas, aizvelk līdz kuģim
+uzvelk augšā, atskrūvē un atron brīnum skaistu sievieti drusku tikai dzīvu. Nu
+atžirdzina un brauc pie malas. Atbrauc pie malas: tas taisni tas pilsēts, kur šī
+agrāk dzīvojusi un kur tagad toreizējais ķēniņš - lielā nabadzībā - patlaban
+ielas slauka, ka putu patumsis. Šī pazīst viņu un tā tūliņ klāt un skūpstās un
+labinās, viss aizmirsts un piedots.</p>
+
+<p align="JUSTIFY">Kad nu bija izteikusi, kā viņai klājies, kā kapteins atradis, tad
+ķēniņš sāks ierunāties tuvāki: vai tas tiesa, ko tagadējais ķēniņš -
+toreizējais kungs - par gredzenu, par visu citu viņam samelsis? Šī klausās, klausās
+- nezin ne krustiem, ne šķērsām. To tikai zinot, ka vienu vakaru svešs skapis tur
+ienests, ka tonakt baltu kreklu vilkusi, un ka no rīta skapja durvis bijušas vaļā un
+gredzens no galdiņa nozagts. Kas to darījis, to viņa nezinot bet jādomājot, ka zaglis
+būs bijis.</p>
+
+<p align="JUSTIFY">Ā! Ķēniņš sapratis: "Tas bija tagadējais kēniņš, jo
+viņš tavu gredzenu zagdams, tavas zīmes noskatīdamies man viltībā atņēma ir
+ķēniņa valsti!"</p>
+
+<p align="JUSTIFY">Un nu senais ķēniņš sasauca tiesnešus un izstāstīja tiem smalki
+jo smalki tagadējā ķēniņa darbus. Tiesneši sprieda, sprieda un nosprieda viltnieku
+ar zirgiem saraustīt un ķēniņam atdot viņa valsti.</p>
+
+<p align="JUSTIFY">Nu ķēniņš apņēma savu brūti, ko ātrās dusmās tā bija
+sodījis, un svinēja priecīgas kāzas.</p>
+</font>
+
+
+</body></html>

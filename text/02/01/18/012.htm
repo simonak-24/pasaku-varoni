@@ -1,0 +1,265 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title> </title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5">Dvēsele olā.</font><font size="3"></font></p><font size="3">
+
+</font></b><font size="3"><p align="JUSTIFY"><b>12. </b>A. 518. 3a2. J. Dīcmanis Lieģos, lejas Kurzemē, "Pasaku
+vācelīte", 1891, 14.</p>
+
+<p align="JUSTIFY">Reiz dzīvoja kāds pārāk slinks mežsargs. Viņam netika it nekas
+strādāt, viņš tikko kādureiz dienā pa mežu pastaigāja; mājā viņš nekā
+nevīžoja darīt. Gan sieva viņam pārmeta vienādvie bet viņš to nemaz neievēroja,
+jo tik viens darbs viņam bija mīļš un patīkams, ar savu sievu vienumēr rāties un
+ķildoties. Sieva neieredzēja vīru viņa lielā slinkuma dēļ, un vīrs atkal savu
+sievu neieredzēja, tādēļ ka sieva viņam vienādvien pārmeta viņa slinkumu. Viņu
+mājās valdīja ķildas un nemiers bez gala.</p>
+
+<p align="JUSTIFY">Kādu dienu mežsardziene atdeva savam vīram atslēgas un teica:
+"Man netīk vairs ar tevi kopā dzīvot. Tu esi par daudz slinks; mums katru mīļu
+dieniņu ir jādumpjojas! Es iešu projām tad tu vari viens pats saimmiekot. Visos
+kambaŗos tu vari iet, tik tai pēdējā neej," sieva vēl piebilda.</p>
+
+<p align="JUSTIFY">Vīrs stāvēja itin klusu un sievai nekā neatbildēja, domādams, ka
+nu paliks viens pats savā vaļā un varēs darīt, kā gribēs. Sieva aizgāja.</p>
+
+<p align="JUSTIFY">Jāzin, ka sieva nekur projām neaizgāja, bet palika turpat vēl
+mājā paslēpusies, gribēdama no vīra izzināt, ko tas īsti darīs, kad viņu domās
+projām esam.</p>
+
+<p align="JUSTIFY">Tiklīdz sieva bija aizgājusi, mežsargs paņēma pēdējā kambaŗa
+atslēgu un sacīja pie sevim: "Kas taču tur var tik slikts būt? Gribu iet to
+apskatīties, lai tur arī būtu, kas būdams."</p>
+
+<p align="JUSTIFY">Viņš tūlin atslēdza minēto kambari un tur iegāja. Bet ko viņš
+kambarī atrada? Viņš atrada velnu pie griestiem pakārušos. Velns mežsargu
+ieraudzījis, lūdza viņu, lai paliekot kādu mazu k1ucīti apakš viņa kājām, tad
+viņam būtu vieglāki karāties.</p>
+
+<p align="JUSTIFY">"Es esmu par daudz slinks; man tas par grūtu izdarīt!"
+mežsargs izlaicīdamies atteica.</p>
+
+<p align="JUSTIFY">"Nu, ja tu esi tik slinks, tad pašauj apakšā pats savu
+kāju!" Mežsargs </p>
+
+<p align="JUSTIFY">pašāva savu kāju apakš karājošās velna kājām. Velns tūlin
+nokāpa, sagrāba </p>
+
+<p align="JUSTIFY">mežsarga sievu un aizskrēja projām.</p>
+
+<p align="JUSTIFY">Mežsardzenes tēvs un māte sāka par savu meitu ļoti žēloties un
+sacīja uz slinko mežsargu: ,;Vai tev nav nemaz savas sievas žēl? Steidzies tam,
+pakaļ, un ar ņem viņam savu sievu: citādi tu viņas nekad vairs nedabūsi!"</p>
+
+<p align="JUSTIFY">Mežsargam palika sievas žēl; viņš paņēma savu bisi un gāja
+meklēt savu sievu. Pa mežu iedams, viņš satika kādu vilku. Vilks viņam prasīja:
+"Kur tu tagad ej, un kāpēc tu tāds noskumis izskaties?"</p>
+
+<p align="JUSTIFY">"Kā es nebūšu noskumis? Velns paņēma manu sievu, un es eju
+viņu tagad meklēt!" mežsargs skumīgs atteica.</p>
+
+<p align="JUSTIFY">"Noplūc kādu kušķīti no manām spalvām. Kad tev kādu reiz
+grūti klājas, tad tikai pabrucini manas spalvas; tad es tev būšu tūlin
+palīgā!" vilks laipni mežsargam teica.</p>
+
+<p align="JUSTIFY">Mežsargs izplūca vilkam kušķīti spalvu un devās atkal tālāk:
+Kādu gabaliņu pagājis, viņš satika lāci. Lācis tūlin pirmais uzrunāja mežsargu:
+.,Kur nu tā naigi steidzies, un kādēļ tu izskaties tāds noskumis?"</p>
+
+<p align="JUSTIFY">Kā es nebūšu noskumis? Velns nozaga manu sievu, un es tagad eju
+viņu meklēt," mežsargs ļoti bēdīgi atbildēja.</p>
+
+<p align="JUSTIFY">Lācis teica: "Izplūc kādu kušķīti no manām spalvām. Kad
+tev kādreiz par grūtu klājas, tad tik pabrucini manas spalvas, un es būšu tūlin pie
+tevis un tev izlīdzēšu!"</p>
+
+<p align="JUSTIFY">Mežsargs izplūca lācim kušķīti spalvu un tad gāja atkal tālāk.
+Vēl gabaliņu pagājis, viņš uzgāja divi puikas gar sedliem ķildojamies. Mežsargs
+tūlin puikām uzsauca: "Kādēļ jūs tā nikni strīdaties?"</p>
+
+<p align="JUSTIFY">"Mēs ķildojamies par šiem sedliem. Šie sedli ir tādi. Kad uz
+viņiem saka : "Sedli, nonesiet mani uz kādu vietu vai pilsētu!" tad viņi
+tūlin nones jājēju uz turieni. Mēs abi, katrs gribam tos dabūt, bet nevarām
+izšķirt, kuŗam īsti piedeŗētu" puikas, it kā padomu lūgdamies, atbildēja
+mežsargam.</p>
+
+<p align="JUSTIFY">"Pag, mīļie dēli! es jūsu strīdu tūlin izšķiršu. Es
+šaušu tur līdz tai resnai eglei" pie tam mežsargs puikām rādīja kādu resnu</p>
+
+<p align="JUSTIFY">egli. "Kad es izšaušu, tad jūs abi divi tūlin skrieniet.
+Kuŗš pirmais no jums tur noskries un man vienu skroti atnesīs, tam sedli
+piederēs!"</p>
+
+<p align="JUSTIFY">Abi puikas nu bija priecīgi, jo katrs domāja sedlus dabūt. Mežsargs
+izšāva un abi puikas skrēja līdz minētai eglei. Pa to laiku mežsargs sēdās uz
+puiku sedliem, un pavēlēja sedliem viņu nonest pie viņa sievas. Sedli pacēlās gaisā
+un aizskrēja projām. Puikas, atpakaļ atskrējuši, neatrada vairs nedz mežsargu, nedz
+sedlus.</p>
+
+<p align="JUSTIFY">Sedli nesa mežsargu pār mežiem un jūŗām. Pēdīgi tie viņu
+nonesa pie lielas un varen skaistas pils. Nokāpis no sedliem, viņš iegāja pilī; tur
+viņš atrada savu sievu noskumušu sēdam. .Sieva mežsargu ieraudzījusi, varen
+iztrūkās, un sacīja bailīgi uz savu vīru: "Vai, mīļo vīriņ! Kur tu esi
+ienācis? Mans kungs ir ļoti dusmīgs un nežēlīgs! Viņš ir arī stiprs; ikkatru
+svešnieku, kas te viņa pilī iedrošinājies ienākt, viņš nežēlīgi nomoca. Kad
+viņš pārnāks un tevi te atradīs, tad viņš tevi tūlin saplēsis!"</p>
+
+<p align="JUSTIFY">"Nebaidies nemaz, mīļo sieviņ," mežsargs atteica.
+"Es varu " tā pataisīties, ka viņš mani nevarēs redzēt.</p>
+
+<p align="JUSTIFY">Tikko viņi tā bija izrunājušies, te piepēži sacēlās briesmīgs
+viesulis, it kā vai gribētu visu pili apgāzt. "Nu viņš nāk mājā,"
+mežsardzene teica.</p>
+
+<p align="JUSTIFY">Mežsargs nu tūlin turpat paglabājās. Velns pārnācis sāka
+ošņāt un prasīja sievai: "Kas te par svešādu smaku? Vai te nav kas svešs
+bijis?"</p>
+
+<p align="JUSTIFY">"Ne, te neviens nav bijis," sieva atbildēja, "tev pa
+svešām zemēm skraidot, gaiss ir nāsis piesmakojis."</p>
+
+<p align="JUSTIFY">Kad viņi nosēdās pie galda ēst, mežsardzene mīlīgi un laipnīgi
+uzsāka ar velnu valodu, sacīdama: "Bet, vīriņ mīļais, ko es iedomājos! Man
+gauži sirds sāp par to, ka tev reiz jāmirst, kur tad es viena pati lai palieku?"</p>
+
+<p align="JUSTIFY">Ko ? Tad tu domā ka es miršu? Ne, es nekad nemiršu," "</p>
+
+<p align="JUSTIFY">velns atteica.</p>
+
+<p align="JUSTIFY">Es tomēr domāju, ka visiem ir jāmirst!" sieva sacīja.</p>
+
+<p align="JUSTIFY">Es nekad nemiršu!" velns vēlreiz teica. "Tur aiz lielā
+meža "</p>
+
+<p align="JUSTIFY">ir liela jūŗa. Šai jūŗā. ir liels augsts klintskalns. Uz šā
+klintskalna ir maza būdiņa. Tai būdiņā ir zoss ; zosī ir ola un šai olā deg
+svecīte. Šī svecīte ir mana dzīvība. Kad šī svecīte izdziest, tad man tūlin
+jāmirst; par laimi to jau neviens nezin, ka mana dzīvība tur ir," velns vēl
+piebilda.</p>
+
+<p align="JUSTIFY">Mežsargs šo visu noklausījies, pavēlēja saviem sedliem, tūlin
+nonest viņu uz klintskalnu. Sedli mežsargu arī tur nonesa. Viņš tūlin uzkāpa uz
+kalna pie būdiņas, bet nezināja, kā visu pareizi izdarīt. Te par laimi viņš atrada
+savā kabatā zināmas zvēru spalvas. Iz kabatas izņēmis, viņš tas drusciņ
+pabraucināja un acumirklī abi zvēri bija klāt un prasīja mežsargam, ko viņš
+vēloties? Mežsargs lūdza, lai viņi noplēšot būdiņu, lai nokaujot zosi, lai
+saplēšot tās olu un svecīti lai izdzēšot. Zvēri tūlin arī saplēsa būdiņu,
+nokava zosi, saplēsa olu un izdzēsa svecīti. Tad vilks un lācis griezās atpakaļ uz
+mežu un mežsargs aizgāja uz pili pie savas sieviņas. Pilī iegājis, viņš atrada
+velnu pie zemes nomirušu guļam. Tā bija mežsargs nogalinājis velnu un atdabūjis savu
+sievu.</p>
+
+<p align="JUSTIFY">Uz mežsarga māju viņi vairs atpakaļ negāja, bet palika turpat
+pilī dzīvot. Pili izmeklējuši, viņi tur atrada daudz, daudz naudas un zelta un
+visādas dārgas mantas. Piepēži viņi bija tik bagāti palikuši, ka nabaga mežsargs
+varēja mēroties ar visbagātāko ķēniņu. Viņam tagad piederēja stalta, grezna pils
+ar visu velna naudu, dārgām lietām un mantām; arī liels zemes gabals, kas velnam bija
+piederējis. Tas viss viņam tagad palika par īpašumu. Viņi nu arī vairs nerājās un
+nedumpjojās, bet viens otram visu labprāt piedeva. Mežsardzenes tēvs un māte arī
+atnāca uz pili. Tur viņi visi vēl šodien dzīvo, ja nav miruši.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,146 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Īkšķītis.</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">3. A. 700. Jansonu Pāvils Dzirciemā. Jkr. V,
+22, l. </font></p><font size="3">
+
+<p align="JUSTIFY">Vienam tēvam i bī's viens dēls, bet dikt mazi'š no augum' --pirkst
+lielumē tik - un tāpēc vin' iesaukuš' pa "Īšķit". Kad nu vi'š nācs
+vecaks, izsūtej's māt' viņ' vienreiz laukē, iznest tēvam brokast', kas turpat netāl
+ar's. Kamēr nu tēvs ēd's brokast', tamēr šis aka ielīd's zirgam ausē un sa'cs
+švilpēt. Viens kungs brauc's garam, dzirdej's, ka šis tur svilpē, un prasij's tam
+tēvam: kas tur tā svilpē? Tēvs atteic's, ka tas esot viņam dēls un izsauc's viņ' no
+to auss ārē. Kungam vi'š dikt patic's un vi'š gribej's, lai tas tēvs viņam pārdod
+un prasej's: cik viš grib pa viņ'? Tēvs atteic's: lai viņ' apberot viscaur a naud',
+tad viņ' atdošot. Kungs tā darej's un tēvs atdev's Īšķit'a, lai ved projam. Kungs
+nu nosēdinaj's Īškit uz buk', lai brauc līdz. Bet šis braucot nogāzies un apkrit's
+apakš vien pēk krūmos. Tur i ganej'š gov's turpat un vien' gov' viņ' ieēd's. Vakarē
+nu gan' pādzin's gov's majē, laidarē, un meit's iegājuš' slaukt; bet līdz ko tas
+vien meit' iesāc's to gov' slaukt, ku tas Īšķits, tad šis sauc's govam tai vēderē:
+"Šļūku, šļūku, moder meit', ko tu slauc man pien'!"</p>
+
+<p align="JUSTIFY">Meits sabijušies, skrējuš' uz istab' un teikuš', ka tas gov' ī
+traks. Tad nu nokavuš' to gov' un izmetuš' iekš's ārē uz lauk'. Viens nabags gāj's
+pa ceļ', ieraudzēj's des's, domej's: tie jau man ģeld, un iebāz's kulē. Bet Īšķits
+sauc's iekšē: "Ubags, nabags, ku tu man nes's?"</p>
+
+<p align="JUSTIFY">Nabagam palic's bail; tas nosvied's des's zemē un muc's projam. Pēc
+kād' laik' nāc's vilks, ieraudzej's des's, pakampis un aprij's a vis' Īškit'. Pa kād'
+laik' gāj's vilks ķert ait's. Īšķits to redzej's pie otr' gal' un līdz ko vilks
+skrēj's aitās, tas sauc's: "Gan', gan', Vilks aitās!"</p>
+
+<p align="JUSTIFY">Bet vilks sit's pakaļ' gar pried' un teic's: "Kluss, kluss! būs
+man, būs tov, būs tov, būs man!"</p>
+
+<p align="JUSTIFY">Lai vilks iet, ku iedams, Īšķits tik bļauj viņam vēderē, tā, ka
+nemaz nav vai's dabūt ēst un beigās nosprādz's. Tad nu Īšķits pārgāj's i' mājē
+pie tēv - tēvam bī's pulk' naud' un dēls viņ' dzīveiš' laimig'.</p>
+</font>
+
+
+</body></html>

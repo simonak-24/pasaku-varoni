@@ -1,0 +1,212 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Stiprais Ansis.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">5. A. 650 A. H. Skujiņš, Andrs Ziemelis, Aumeisteŗos.</p>
+
+<p align="JUSTIFY">Reiz dzīvojis viens kalējs un tam nebijis neviena bērna. Kalējs
+cita nekā nevēlējies, kā tikai dēlu. Kad kādā rītā kalējs iegājis smēdē, tad
+uz laktas sēdējis puika. Kalējs puiku paņēmis pie sevis un audzinājis sev par dēlu.</p>
+
+<p align="JUSTIFY">Puika izaudzis par traki stipru puisi un palīdzējis kalējam smēdē.
+Tas bijis tik stiprs, ka biezāko stieni sev aptinis ap pirkstu. Ko vecais kalējs pa
+nedēļu pastrādājis, to viņa dēls nepilnā dienā veicis. Bet kalēja dēls bijis
+liels ēdējs. Tas noķīpājis uz reizi divi kukuļi maizes un izstrēbis nesienus
+putras. Drīz vien vecam kalējam aptrūcis darba un maizes. Reiz vecais kalējs teicis uz
+dēlu: "Ej uz ķēniņa pili un prasi ķēniņam, lai viņš tev dod darbu un maizi.
+Man tev nav vairs ne darba, ne maizes ko dot."</p>
+
+<p align="JUSTIFY">Kalēja dēls gājis uz ķēniņa pili. Pašlaik septiņi sulaiņi
+veduši no ķēniņa kūts uz kaušanu traki lielu vērsi. Vērsis bijis tik stiprs, ka
+nēsājis visus septiņus ķēniņa sulainus kā pūšļus un tie nekā nevarējuši
+vērša valdīt. Kalēja dēls gājis gaŗām un smējies, sak’ septiņi dunduri
+nevarot nieka knisli noturēt. Arī pats ķēniņš gadījies tuvumā un tas dzirdējis
+kalēja dēla vārdus. Viņš pasaucis kalēja dēlu un sacījis tā: "Vai tu vari
+vērsi viens pats pievārēt?"</p>
+
+<p align="JUSTIFY">Kalēja dēls apņēmies vērsi pievarēt. Viņš piegājis vēršam
+klāt un iesitis tam ar knipi pa pieri. Vērsis nokritis zemē un bijis uz vietas pagalam.</p>
+
+<p align="JUSTIFY">Visi nu acis vien ieplētuši. Tad ķēniņš sacījis uz kalēja
+dēlu: "Vai tu esi ar mieru nākt pie manis un izpildīt trīs uzdevumus?"</p>
+
+<p align="JUSTIFY">Jā, kalēja dēls bijis ar mieru un viņi norunājuši tā: kurš
+nevarēs izpildīt, tam jādabūn no otrā pliķis.</p>
+
+<p align="JUSTIFY">Pirmais uzdevums bijis tāds: kalēja dēlam jābrauc uz vilku un
+lāču mežu pēc piecas asis gara un asi resna ozola baļķa, Un ķēniņš iedevis
+kalēja dēlam vecu, vecu kāsi [zirgu], kas tikko spējis kājas pavazāt.</p>
+
+<p align="JUSTIFY">Kalēja dēls aizbraucis uz mežu. Noskatījis sev derīgu ozolu un
+sācis to cirst. Kad ozols bijis nocirsts un baļķis nodarināts, tad kalēja dēls
+gājis pēc zirga. Bet zirgu bijuši noplēsuši divi lāči un nu ap to mielojušies.
+Kalēja dēls noskaities, pakampis katru lāci pie savas rokas un aizrāvis pie ragavām.
+Nu viņš abus lāčus iejūdzis ragavās un uzvēlis baļķi. Tad viņš iebraucis pils
+pagalmā, ka nosmirdējies vien.</p>
+
+<p align="JUSTIFY">Iznācis ķēniņš un apskatījis ozola baļķi. Viss bijis tā, kā
+viņš vēlējis, un ķēniņš nevarējis nekādas vainas atrast.</p>
+
+<p align="JUSTIFY">Otrs uzdevums bijis tāds: kalēja dēlam jāiet uz Velna ezeru un
+jānoķer velns, kas cilvēkus ēdot.</p>
+
+<p align="JUSTIFY">Kalēja dēls aizgājis uz Velna ezeru. Viņš iebridis ezerā un
+gaidījis velnu. Tiklīdz velns pamanījis, ka cilvēks ir ezerā iebridis, viņš
+skrējis no dibena augšā un taisījies sev gardu kumāsu saķert. Bet tiklīdz velns
+pabāzis čupru no ūdens, ka kalēja dēls to saķēris aiz čupras un pacēlis gaisā.
+Gan velns spārdījies un kārpījies, bet vaļā vairs neticis.</p>
+
+<p align="JUSTIFY">Kalēja dēls aiznesis velnu uz ķēniņa pili un parādījis
+ķēniņam. Ķēniņš nu palicis pavisam nevaļīgs. Viņam bijis bailes no kalēja dēla
+pliķa, kas ķēniņam pienāktos, ja kalēja dēls visus trīs uzdevumus izpildītu. Nu
+ķēniņš gudrojis trešo un pēdīgo uzdevumu. Beidzot viņš to izgudrojis un tas bijis
+tāds: Jāatved no otrā ķēniņa valsts trīs mucas zelta.</p>
+
+<p align="JUSTIFY">Kalēja dēls aizsūtījis otrās valsts ķēniņam ziņu, lai atved
+trīs mucas zelta. Bet otrās valsts ķēniņš nelicies ne zinis. Kuŗš tā nu ar labu
+dos trīs mucas zelta? Ka tā, tad kalēja dēls taisījies braukt pats pakaļ. Viņš
+aizgājis uz mežu un nocirtis divus baļķus, no tiem viņš iztaisījis lielu ori un
+palicis tai dzelzs ratus. Tad kalēja dēls prasījis ķēniņam, lai dod piecpadsmit
+birkavus linu un trīs mucas darvas. Ķēniņš iedevis kalēja dēlam linus un darvu. Nu
+kalēja dēls sācis vīt milzīgu pātagu un mērcējis to darvā. Kad pātaga bijusi
+novīta, tad kalēja dēls nocirtis ķēniņa dārzā visgaŗāko un visresnāko ābeli un
+pielicis to pātagai par kātu. Tad kalēja dēls sajūdzis abus lāčus orei priekšā,
+uzsēdinājis velnu par kučēru un pats nosēdies pakaļā.</p>
+
+<p align="JUSTIFY">Kad kalēja dēls iebraucis otrā ķēniņa valstī, tad tās valsts
+ķēniņš sūtījis kalēja dēlam pretim veselu kaŗa pulku. Kaŗa pulks nelaidis
+kalēja dēlu tālāk. Velns jau bikstījis kalēja dēlam pie sāniem, lai tas cērt ar
+pātagu, bet kalēja dēls vēl necirtis. Viņš sacījis, lai laiž viņu pie ķēniņa.
+Kad nu vēl kaŗa pulks nelaidis kalēja dēlu cauri, tad tas atvēzājies un cirtis ar
+savu milzīgo pātagu. Viss kaŗa spēks izputējis un bijis pagalam. Kalēja dēls
+braucis tālāk. Ķēniņš izsūtījis otru kaŗa spēku kalēja dēlam pretim, bet arī
+to viņš izputinājis un piebraucis pie ķēniņa pils. Kad nu vēl ķēniņš
+nerādījies un nedevis pieprasīto zeltu, tad kalēja dēls cirtis ar pātagu pa pili un
+nositis tai vienu galu. Nu ķēniņš nobijies un nācis ārā. Viņš iedevis kalēja
+dēlam trīs mucas zelta un tas braucis atpakaļ.</p>
+
+<p align="JUSTIFY">Pa to laiku, kamēr kalēja dēls braucis pēc zelta uz otrā ķēniņa
+valsti, ķēniņš licis sev iztaisīt dzelzs krāsni. Viņam bijis bailes no kalēja
+dēla pliķa par ausi.</p>
+
+<p align="JUSTIFY">Kalēja dēls iebraucis ķēniņa pagalmā ar trīs mucām zelta. Arī
+trešo uzdevumu kalēja dēls bijis izpildījis un nu ķēniņam bijis jāsaņem pliķis
+no kalēja dēla.</p>
+
+<p align="JUSTIFY">Ķēniņš ielīdis savā dzelzs krāsnī un teicis, ka nu esot
+sagatavojies pliķi saņemt. Kalēja dēls piegājis pie dzelzs krāsns un cirtis pliķi.
+Dzelzs krāsns ar visu sienu izskrējusi pagalmā. Par laimi ķēniņš palicis dzīvs,
+viņš tik krietni sadauzījies.</p>
+
+<p align="JUSTIFY">Nu ķēniņš vairs neturējis kalēja dēlu pa jokam un devis tam savu
+meitu par sievu. Viņi nu dzīvojot laimīgi vēl šo baltu dienu, ja vien jau no liela
+vecuma neesot nomiruši.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,163 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>17</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pelnrušķīte pie ķēniņa.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">17. A. 510 B. Simsons no Visockas Ozolmuižas pag. </p>
+
+<p align="JUSTIFY">Seņ-senejūs laikūs dzeivuoja divi pusmyuža cylvāki, kurim beja
+vīna meita. Kad paguoja vairuoki godi, sīva nūmyra un palyka tik veirs ar sovu meitu.
+Padzeivuojis kaidu laiku, veiram apnyka dzeivuot bez sīvas. Jis apsaprecēja vēļ reiz
+un pajēmja sīvu, kurai ari beja meita. Pēc apsaprecēšonas buorinites dzeive palyka
+syura un gryuta. Pamuote buorenīti dzyna pi vysgryutuoka dorba, cēļa agri reitā um
+baruoja ūti slykti. Sovu meitu pamuote jūti mīļuoja, labi baruoja, dorba nikaida jai
+nadevja nu viņa gulēja, cik tik gribēja.</p>
+
+<p align="left">Vīnu reizi buorenīte guoja uz oku pēc yudeņa. Te viņa pīsmēļa
+vīnu spaini un ūtrā īraudzēia sudraba zivtiņu. Kad buorenīte tū gribēja pajemt.
+tad zivtiņa suoka lyugt, lai palaižūt šū. Un kū buorenīte grib, zivtiņa vysu jai
+dūšūt. Tūreiz buorenīte teicja: "Man nikuo navajag, es tik gribu, lai muņa
+dzeive byutu vīgluoka."</p>
+
+<p align="JUSTIFY">Zivtiņa sacīja: "Labi, vyss nūtiks tai, kai tu gribi! Reitā,
+kad īsi uz baznīcu, pīej pi ūzūla, kurs aug teiruma golā, un pīguojuse, pīsit ar
+rūku!"</p>
+
+<p align="JUSTIFY">Nuokūšā dīnā buorenīte, kad guoja uz baznīcu, pīguoja pi
+ūzula, pasyta un atsataisīja golds, uz kura beja vysgorduokī ēdīni, un skapis ar
+vysskaistuokom drēbēm. Buorenīte paēdja, apsagērbja un tikū gribēja īt, kai
+vēras: pībrauca puors zyrgu, sajyugti zalta rotūs. Buorenīte sāduos rotūs un
+aizbraucja uz baznīcu. Tur jū īraudzēja kēniņa dāls un jam buorenīte ļūti
+patyka. Bet jis navarēja ar jū ni vīna vuorda parunuot, kas jej taida ira. Tai
+puorguoja nazcik laika. Buorenīte, kad guoja Dīvu lyugt, vysod pīguoja pi ūzūla,
+apsagērbja un baznīcā nivīns navarēja juos pazeit, kas taida jei ima. Kad vajadzēja
+jau īt uz sātu, jei taipat puorsagētrbja otkon sovuos lupotuos un dzeivuoja pi sovas
+pamuotes. Kēniņa dāls, dūmuodams, kai varātu ar buorenīti parunuot, sagudruoja
+pajemt voska un pīlīt tyjā vītā, kurā baznīcā stuov buorenīte, lai kad jei
+stuovēs, jai pīlips kūrpes un jis varēs nu juos pavaicuot, kas jei ir. Kai sagudruoja,
+tal izdarēja. Bet kēneņa dāla dūmas naizzapildīja. Kad buorenītei pīlypa kūrpes,
+viņa nūst naplēsja, bet atstuoja vīnu kūrpi un guoja prūjom. Kēneņa dāls pajēmja
+kūrpi un braucja meklēt, kam tei kūrpe byus pa kuojai. Aizguoja jis pi rogonas prasīt
+padūmu. Rogona jam teicja: "Labi tu izdūmuoji, tai vara dareit, bet tikai brauc
+vīns pats meklēt, kam šei kūrpe pīdar."</p>
+
+<p align="JUSTIFY">Kēneņa dāls sajyudzja zyrgu skaistā karētē, pajēmja kūrpi un
+aizbraucia. Tai jis braukuoja garu laiku, koleidz ībraucja ari buorenītes pogolmā.
+Pamuote, tū pamanējtse, izpucēja sovu meitu un paruodīja kēneņa dālam. Bet, kad
+kēneņa dāls suoka mērīt kūrpi. buorenīte pasasmēja un aizbāga nu sāta uorā.
+Kēniņa dāls ari suoka smītīs, jo kūrpe beja treis reizes mozuoka par pamuotes meitas
+kuoju. Pamuote nu dusmem aizskrēja buorenītei pakaļ, lai jū nūsistu, bet kēniņa
+dāls uotruok sakēŗa buoreīti un kad pamērēja kūnpi, tad tyulen pazyna, ka te ir tei
+paša, kuru jis vysu laiku meklēja. Jis nūsaprīcuoja un, pajēmis jū, alzvedja uz sovu
+piļi. Pēc kaidom dīnom sataisīja jūti boguotas kuozas. Vysi prīcuojās un vēlēja
+daudz laimes jaunam puoram, bet pamuotes meita pa šai dīnai sēd muojuos un nivīns juos
+nagryb jemt sev par sīvu.</p>
+
+
+</body></html>

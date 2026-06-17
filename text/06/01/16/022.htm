@@ -1,0 +1,200 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>22</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">22. A. 530. No Honoratas Benedikta meitas, dz. 166. g. Ludzas Stiglovas
+draudzē. W. Weryho, Podonia Lotewskie. Warszawa 1892, 25</p>
+
+<p align="JUSTIFY">Vienam tēvam bija trīs dēli: divi bija gudri (prātīgi) un viens
+negudrs. Priekš nāves tēvs saka uz dēliem: "Katram jums pēc rindas katru nakti
+jānāk pie mana kapa un tas jāapsargā."</p>
+
+<p align="JUSTIFY">Pēc tēva nāves vecākie brāļi pirmo nakti sūta uz kapsētu
+muļķīti. Ap pusnakti tēvs iznāk no kapa, sarunājas ar dēlu un atkal ieiet kapā.
+Rītā muļķītis pārnāk mājā. Brāļi tam jautā: "Ko tu tur redzēji?"</p>
+
+<p>"Nekā neredzēju," viņš atbild.</p>
+
+<p align="JUSTIFY">Brāļi viņam saka: "Ja pirmo nakti esi tur nobijis, tad pratīsi
+arī otru nakti sargāt, bet mēs baidāmies."</p>
+
+<p align="JUSTIFY">Muļķis arī aizgāja. Ap pusnakti atkal iznāk tēvs: "Kāpēc
+tu atkal nāc?"</p>
+
+<p>"Brāļi baidās."</p>
+
+<p align="JUSTIFY">Tēvs atkal ieiet mierīgi savā kapā, un muļķis pārnāk mājās,
+bet brāļi tam atkal prasa: "Ko tu redzēji?"</p>
+
+<p align="JUSTIFY">"Nekā." </p>
+
+<p align="JUSTIFY">Trešo nakti brāļi tāpat sūta muļķīti uz kapsētu. Tēvs
+iznācis jautā: "Kas tas, tu nāc jau trešo nakti? Došu tev par to bēru zirgu,
+izrauj viņam no astes vienu astru, palaid viņu vaļā un astru paglabā. Kad tev zirgs
+ir vajadzīgs, izņem no kabatas iesvilpies un zirgs tūlin ieradīsies tavā
+priekšā."</p>
+
+<p align="JUSTIFY">Muļķītis arī visu tā izdarīja. kā viņam tēvs bija novēlējis,
+un atnāca uz māju. Brāļi viņam jautā: "Ko tu redzēji?"</p>
+
+<p>"Nekā," viņš atbild.</p>
+
+<p align="JUSTIFY">Tai laikā karalis bija izsludinājis, ja kas varētu uzjāt ar zirgu
+tai augstā tornī, kur atrodoties viņa meita, tas dabūtu viņu par sievu. Ar pirmo
+lēcienu viņam esot jāaizsniedz logs, pie kura karaļa meita sēdot, ar otru viņa
+jānoskūpstot, un ar trešo jānoņemot no viņas rokas gredzens.</p>
+
+<p>Divi gudrie brāļi aizgāja un muļķīti atstāja mājā.</p>
+
+<p align="JUSTIFY">Kad brāļi bija aizgājuši, muļķītis izņēma no kabatas astru,
+iesvelpās un bērais zirgs bija klāt. Muļķītis pa vienu ausi ielīda viņam iekšā,
+pa otru izlīda ārā, un palika par ļoti skaistu jaunekli. Pēc tam bez kādām
+gŗūtībām uzlēca pie karaļa meitas un atgriezās atkal mājā. Tad ielīda zirgam pa
+vienu ausi iekšā un pa otru ārā, palika par tādu pašu, kā priekš tam bija bijis,
+bet zirgs aizskrēja projām.</p>
+
+<p align="JUSTIFY">Kad brāļi pārnāca mājā, muļķītis viņiem jautā: "Ko nu
+redzējāt?"</p>
+
+<p align="JUSTIFY">"Daudz bija tādu; kas mēģināja uzlēkt pie karaļa meitas, bet
+tikai vienam karaļa dēlam izdevās pielēkt. Bet neviens viņu ne pazina, jo viņš
+drīzi vien drūzmā nozuda."</p>
+
+<p align="JUSTIFY">Otrā dienā atkal aizgāja gudrie brāļi, atstādami muļķīti
+mājā. Palicis viens pats, viņš izņēma zirga astru, iesvelpās un viņa priekšā
+atkal ieradās zirgs. Ielīdis pa vienu ausi un pa otru izlīdis, viņš tapa par vēl
+skaistāku jaunekli, nekā vakar bija bijis. Uzlēcis pie karaļa meitas un noskūpstījis
+viņu, viņš atkal drīz pazuda.</p>
+
+<p>Pārnāk mājā brāļi, un muļķītis tiem prasa: "Ko redzējāt?"
+"Neviens nevarēja uzlēkt pie karaļa meitas, tikai kāds karaļa dēls pielēca un
+to noskūpstīja."</p>
+
+<p align="JUSTIFY">Trešā dienā tāpat salasās ļaudis. Arī brāļi dodas uz turieni.
+muļķīti pa vecam atstāj mājā. Muļķītis izņem zirga astru, iesvelpas un tūlin
+ierodas zirgs. Pa vienu ausi ielīdis un pa otru izlīdis, muļķītis palika par vēl
+skaistāku jaunekli, nekā iepriekš bija bijis. Viņš pielec pie karaļa meitas, noņem
+no viņas pirksta gredzentiņu un pats atkal drūzmā pazūd.</p>
+
+<p align="JUSTIFY">Pārnāk mājā it kā nekur nebūtu bijis. Brāļi arī pārnāk,
+muļķītis tiem jautā: "Ko redzējāt?"</p>
+
+<p align="JUSTIFY">"Neviens nevarēja pielēkt karaļa meitai, bet tikai vienam
+svešam karaļa dēlam izdevās uzlēkt, tā ka varēja noņemt gredzentiņu.."</p>
+
+<p align="JUSTIFY">Karalis aicina visus, lai viņa meita atrastu savu mīļāko. Arī divi
+gudrie brāļi kopā ar negudro aiziet pie karaļa.</p>
+
+<p align="JUSTIFY">Kad visi bija salasījušies, tad karaļa meita iesāka meklēt savu
+gredzentiņu un atrada to pie netīrā un skrandās ģērbušās negudrā brāļa. Viņa
+pavēlēja sulaiņiem viņu nomazgāt un apģērbt un tad sarīkoja greznas kāzas.</p>
+
+
+</body></html>

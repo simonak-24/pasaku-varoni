@@ -1,0 +1,151 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Zaglim māceklis gudrāks par pašu.</p>
+</font></b>
+
+<p align="JUSTIFY"><strong>1. </strong>A. 1525 E. 1875. A. Gari - Juone no 75 g. v.
+Gailumu Tadeuša, Domopolē.</p>
+
+<p align="JUSTIFY">Kai jau vīnmār zagļi dzeivoj mežā. Es, kad beju mozs, aizguoju uz
+mežu ūguos, zagļi mani īraudzējuši, soka:: "Puisīt, dzeivoj pi mums."</p>
+
+<p align="JUSTIFY">Pa mežu staiguodams, es beju izalcis, jī sakyura guni, pīcepja
+gaļis, mani labi pabaruoja un es beju ar mīru palikt. Man patyka mežā dzeivuot un
+sildētīs pi gunkura. Atguoja nakts, zagļi guoja uz vīna saiminīka klēti gaļu zagt.
+Atguojuši pi klēts, jī uzkuopja uz jumta, izplēsja jumtam mozu caurumu, ībuozja mani
+klētī īškā un pasacīja, lai es jīm dūdūt gaļi pa jumta caurumu. Dorba beja
+daudzi. Kad vysu gaļu beju atdevis pa jumta caurumu uorā, tad zagļi aizluopēja jumtu
+un paši aizbāga uz mežu, es palyku klētī vīns pats. Sēžu uz kubula molas un
+dūmuoju vysu nakti, kai hyus nu klēts sprukt uorā. Kad atguoja reits, es sameklēju
+vuocelīti, pīgruobu pylnu myltu un, nūstuojis pi durovu stenderes, gaidīju, kod
+atslēgs klēti. Ilgi navajadzēja gaidīt, saimnīca pīsacāluse guoja uz klēti. Kai
+jei tikai atslēdzja klēts durovas, es jai par reizi kai trauču myltu vuoceli acīs, tai
+jei nikuo navarēja īraudzīt, un es&amp;127; dreiži izskrēju pa klēts durovom un lyku
+ļakas uz mežu. Atskrēju pi zagļim, tī nūsabreinuojuši vaicoj: "Kai tu tyki nu
+klēts uorā?"</p>
+
+<p align="JUSTIFY">"A tai," atsoku es, "pajēmu myltu vuocelīti, pībēru
+pylnu myltu, reitā, kai tikai saimnīca atslēdzja klēts durovas, es jai gryudu myltu
+vuocelīti acīs, jei navarēja tod nikuo redzēt un es izmuku nu klēts uorā."</p>
+
+<p>"Labi, palīc pi mums dzeivuot."</p>
+
+<p align="JUSTIFY">Es otkon nūdzeivuoju leidz vokoram kūpā ar zagļim mežā. Vokorā,
+kad satymsa, zagļi ībuozja mani bucā, aizsyta obējus golus un nūvēle meža molā.
+Sēžu es tagad bucā un dūmuoju, kai varātu tikt uorā. Radzu: pa meža molu lyngoj
+vylks, a man karmaņā beja druska cyukas gaļas. Es īruovu spičkā guni, drusku
+pašvierkstynuoju gaļi, lai ītu gaļas smoka, pabuožu gaļi pa spundes caurumiņu un
+verūs, kur vylks. Dreiži vīn vylks saūdja gaļas smoku un atskrēja pi bucas, suoka
+lumstētīs un grūzētīs ap tū bucu. Es pabuožu pa spundes caurumu pierkstus un
+sakēru vylkam aiz asbes&amp;127;. Vylks cīši sasatryuka un laidjās bēgt, ruovja
+leidza arī bucu ar manim. Vylks bailēs suoka arvīn stypruok skrīt un kai ruovja bucu
+uz akmeņa, bucai dēļi vīņ sagrabēja, es izzavēlīs nu bucas, mauču uz sātu, cik
+spāka, a vylks uz mežu. Pēc taidas pamuocības man beja gona ar zagļim īt kūpā, es
+tagad kotram zagļam grīžu ceļu un pat runā naīsalaižu ar jīm.</p>
+
+
+</body></html>

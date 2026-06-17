@@ -1,0 +1,159 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>13</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Kalējs ar Nāvi.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">13. A. 330 A. A. Smaars Līksnas pag.</p>
+
+<p align="JUSTIFY">Tū laiku, kod vēl Dīvs staiguoja pa zemi, dzeivuoja kalējs vuordā
+Jākubs. Vīnu reizi Dīvs nūguoja pī Jākuba zyrgu apkaustīt. Kad Jākubs zirgu Dīvam
+apkaustīja, Dīvs prosa: "Kū gribi par apkaustīšanu, voi naudas, voi myužīgu
+dzeivuošanu dabasu volstībā ?"</p>
+
+<p align="JUSTIFY">Jākubs prosa: "Dīviņ, īdūd man taidu uobulnīcu ar skaistim
+uobulim; bet kas raus uobuli, tys lai tur pīlīp."</p>
+
+<p align="JUSTIFY">Nuokūšu dīnu smēdes golā aug skaista uobulnīca. Dreiž pī
+Jākuha atīt valns. Īraudzījis skaistus uobuļus, valns lyudzuos, lai atļaun nūplēst
+uobulu. Jākubs ari atļaun; bet leidz kū jis pī uobulu keras, tai tyulen pīlīp.
+Jākubs nu paņem uomuri un izdauza valnam golvā vairuok caurumu. Valns apsūluos vairuok
+nikad naīt pī Jākuba, lai tik laiž vaļā. Jākubs valnu ari palaiž un valns pa koklu
+pa golvu aizskrīn uz elni.</p>
+
+<p align="JUSTIFY">Nuokūšu dīnu pi Jākuba atīt valns ar trejom golvom, un lyudz, lai
+atļaun uobulu paplyuht. Jākubs ari atļau; bet leidz kū jis pi uobuļa keras, tai pats
+pīlīp pī uobulnīcas. Jākubs panent uomuri un izdauza valnam kotrā golvā pa treis
+caurumu, un palaiž vaļā. Valns pa golvu, pa koklu uz elni.</p>
+
+<p align="JUSTIFY">Trešu dīnu pi Jākuba atīt valns ar sešom golvom nu vad Jākubu uz
+elni zyrgu kaustīt. Bet Jākubs soka, lai īt lobuok paškoit uobulu. Valns ar mīru. Iet
+leidz hū pi uobuļa līk rūku, tai pīlīp pi uobulnīcas. Jākubs nu īsit ar uomuri un
+izdauza valnam kotrā golvā pa treis caurumu. Valns lyudzas, lai laiž prūjam, un
+apsūluos vairuok nikad naīt pi Jākuba.</p>
+
+<p align="JUSTIFY">Tai nu tuo laika pi Jākuba naguoja ni vīns valns. Kod Jākubs
+nūmyra, viņš aizguoja pi dabasu durovu. Svātais Pīters prosa: "Kas aiz
+vuortim?"</p>
+
+<p align="JUSTIFY">Jākubs atbild: "Kalējs Jākubs."</p>
+
+<p align="JUSTIFY">Pīters atteic, ka Dīvs viņam asūt sūlējis dabasu valstību, bet
+viņš naasūt gribējis.</p>
+
+<p align="JUSTIFY">Tagad Jākubs aizguoja uz elni, bet te viņu arī nalaiž īkšā.
+Valni viņam soka: "Tu mums tai esi sitis viers zemes, bet elnē tu mums vysus
+nūsissi."</p>
+
+<p align="JUSTIFY">Jākubs nu īt otkon uz dabasim, un lyudz, lai paruoda tū pokovu, kuru
+viņš ir nūkalis. Pīters attaisa mozu škierbiņu, bat Jākubs pa škierbiņu īkšā
+un suoka dzīdot Dīvam slavas dzīsmas. Dīvs arī apžālojas uz Jākuba un pamat viņu
+dabasu valstībā.</p>
+
+
+</body></html>

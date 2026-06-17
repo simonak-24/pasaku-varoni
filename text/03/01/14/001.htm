@@ -1,0 +1,300 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>14</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Neuzticamā māte.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 315. 304. Pogu Jānis, Bechmanis, Brambergā, Brīvzemnieka kr.
+LP, VI, 126, 5 AŠ, II, 98a.</p>
+
+<p align="JUSTIFY">Viens ķēniņš aizgāja kaŗā, atstādams jaunu sieviņu mājā. Bet
+no kaŗa vairs nepārnāca un nu pavalstnieki iecēla jaunu ķēniņu. Šis jaunais
+ķēniņš pret agrākā ķēniņa atraitni bija negants.</p>
+
+<p align="JUSTIFY">Viņš iespostīja to lielā mucā un palaida jūŗā, lai peld. Muca
+sapeldēja ilgus laikus tālu, tālu pa jūŗu un ķēniņienei mucā piedzima dēls, vēl
+liels izauga, kamēr tur peldēja. Bet kādā dienā sacēlās briesmīga auka, tā izmeta
+mucu malā un tik dikti brāza pret akmeni, ka izsprāga dibens un šī ar visu dēlu
+izkļuva Dieva pasaulē</p>
+
+<p align="JUSTIFY">Ķēniņienes dēls bija aplam stiprs; tas nu sarāva kokus ar visām
+saknēm, uzcēla māju, kur mātei dzīvot, un pats katru dienu gāja medīt lielajā
+mežā. Un ko viņš tur nesamedīja? Bija gaļas, ka ar māti nespēja ēst vien. Bet nu
+māte sūrojās, ka gala bez maizes esot apnikusi. Lai papūlējoties maizi kur sadabūt!</p>
+
+<p align="JUSTIFY">Tad dēls aizgāja maizes meklēt, pieteikdams mātei, lai no Dieva
+puses te svešā pasaulē nekur ārā neejot no mājas, kamēr nebūšot pārradies
+biedros. Labi.</p>
+
+<p align="JUSTIFY">Nu viņš gāja, gāja un iekļuva tādā ērkšķu dangā, ka ne pa
+labi roki, ne pa kreisi vairs uz priekšu tikt. Bet dangā auga aplam resni, pareti ozoli.
+Viņš izrāva to resnāko, aizlika ieejai krustiem priekšā kā kārtus un apgulās kā
+sētā, gaidīdams, kas nu labs nāks.</p>
+
+<p align="JUSTIFY">Nāca arī. Divpadsmit laupītāji nāca ar smagiem nesamiem. Maizi tie
+nesa. Bet atnākuši pie resnā ozola stumbra - nekur tikt. Pāri nespēja pārkāpt,
+apkārt pa ērkšķiem nejaudā apiet. Tad ķēniņienes stiprais dēls uzlēca uz ozola
+stumbra, sacīdams laupītājiem: "Ja atdosit maizi, pacelšu ozolu; ja ne, kāpjiet
+paši, ja varat!"</p>
+
+<p align="JUSTIFY">Laupītāji atdeva maizi, šis pacēla ozolu no ejamā teka un pienesa
+mātei maizes vai cik.</p>
+
+<p align="JUSTIFY">Bet otrā dienā viņš atkal piesacīja mātei, lai no mājas
+neizkustot, un pats aizgāja medīt. Gāja, gāja, krustiem, šķērsām atrada lielu
+ezeru, kas mutuļu mutuļiem vārījās, un ezera malā vēl lepnu jo lepnu pili. Iegāja
+pilī, ieraudzīja vecu veceni ēdienu vārām, un veci uguni kuram. Prasīja ēst
+večiem. Tie negribēja, negribēja dot - iedeva taču. Bet līdz labi paēdis, vecene
+skubināja ciemiņu projām steigties. Pārnākšot viņas dēli, varot nelabi klāties un
+kā nekā tur baidīja. Tomēr stiprais ķēniņienes dēls ne un ne - viņš ielīdīšot
+pagultē, vai tad itin viņas dēli tik zvēroti būšot? Labi. Un pret vakaru pārnāca
+divpadsmit vecenes dēli ar bagātu laupījumu. Vecene bija ragana un vecis liels burvis.
+Tad ragana smiedamās pacēla gultas segu un rādīja ar pirkstu, kas pagultē slēpjas.
+Bet ķēniņienes dēls izšāvās kā bults no pagultes, iestājās laupītāju pulkā un
+teica, lai šim dodot to asāko dunci, būšot parādīt jaunu gudrību. Iedeva. Un nu
+bija jaunā gudrība gatava. Visiem divpadsmit apcirta galvas, bet veceni ar veco iebāza
+ādas maisos. Pēc tam izkurināja krāsni un iemeta veceni tur, lai pasildās, ja nava
+par karstu. Vecene krāsnī tā sprāga, ka krāsns gabalu gabalos sašķīda ; bet veci,
+to nemeta krāsnī, pakāra [pakarināja] maisu laukā pie pils vārtiem un tad gāja
+mājā.</p>
+
+<p align="JUSTIFY">Pārgāja mājā, iestāstīja mātei, kas tur par varenu pili, lai
+nākot tur dzīvot! Labi, gāja arī.</p>
+
+<p align="JUSTIFY">Un nu māte dzīvoja pa pili, šis atkal pa dienām medīja pa mežu.</p>
+
+<p align="JUSTIFY">Te vienu dienu māte, gar pili pastaigādamās, ierauga maisu un maisā
+izdzird balsu, lai jel, ja ne vairāk, ar adatu pārduŗot maisu un laižot šo ārā,
+slāpstot nost. Māte, nekā jauna nedomādama, pārdūra. Bet burvis tūdalin palika par
+mušu, izlīda pa caurumtiņu no maisa, pārvērtās par skaistu jaunekli un apbūra māti
+tā, ka šij tūlin domas skaisto jaunekli precēt. Bet burvis tad tik(ai) solījās
+ņemt, ja apsoloties savu dēlu nogalināt, un to varēšot viegli izdarīt tā. Kad
+vakarā dēls pārnākšot no meža, lai šī tad izliekoties slima un ierunājot, ka
+tikai ar vilka pienu varot atveseļoties, gan tad vilka māte to saplosīšot, kad pēc
+piena iešot. Labi, pārnāca dēls: tā un tā - māte tur kunkstēja. Tā dēls tūlin
+prom uz mežu pēc vilka piena. Aizgāja, gribēja vilcieni šaut. Ši lūdzās kā traka,
+lai nešaujot, te esot piens un nākamās dienās vēl palīdzēšot, kur vien varēdama.
+Labi, pārnesa pienu un atdeva mātei.</p>
+
+<p align="JUSTIFY">Bet otrā dienā dēls pārnāks no meža, māte vēl slimāka - nu
+vajagot lāču pienu. Aizgāja pēc tā piena, lāciene atdeva pienu un atkal tāpat
+apsolījās.</p>
+
+<p align="JUSTIFY">Trešā dienā dēls pārnāk no meža, māte vēl slimāka - nu
+vajagot lauvu pienu. Aizgāja pēc tā piena, lauviene atdeva pienu un atkal tāpat
+apsolījās palīdzēt.</p>
+
+<p align="JUSTIFY">Bet ceturtā dienā māte vēl slimāka un nu burvis bija pamācījis,
+lai sūtot dēlu apakšzemes pilī pie velna. Tur augot ābele ar sarkaniem āboliem, lai
+divus no tiem pārnesot, tad patiesi būšot vesela.</p>
+
+<p align="JUSTIFY">Labi, dēls gāja. Bet pa mežiem iedams, satika neviļot to pašu
+vilku māti -- kur ejot?</p>
+
+<p align="JUSTIFY">"Eimu apakšzemes pils dārzā pēc āboliem!"</p>
+
+<p align="JUSTIFY">"Ai!" vilka māte iekaucās, "esi uzmanīgs! Tā pils ir
+velna pils un dārzā pie ābeles ir pieķēdēta viena ķēniņa meita. Tiklīdz nu kāds
+pie ābeles ķeras, ķēniņa meita iesaucas, velns skrien no pils un saplēš ābolu
+ņēmēju smalkos gabalos. Bet atpestī meitu pirms no ķēdes, soli vēl to precēt, tad
+viņa nesauks velnu ne lūdzama, drīzāk pamācīs tevi, kā var pašu velnu pārspēt un
+ko visu ne ?"</p>
+
+<p align="JUSTIFY">Vilku māte nu parādīja ceļu uz apakšzemi un šis steidzās turp.</p>
+
+<p align="JUSTIFY">Nogāja dārzā - ja: ķēniņa meita stāv pieķēdēta. Tā tūlin
+atraisa ķēdes, apsolās precēt un vaicā, vai te neesot velns, un kā tādu pārspēt?</p>
+
+<p align="JUSTIFY">Tā un tā, šī izstāsta, lai ieejot pilī, tur pirmajā istabā
+būšot divi traukos stipruma zāles, divi atkal nestipruma. Lai sadzeŗoties stipruma
+zāles un ejot otrā istabā, tur būšot smagais velna zobins. To lai paņemot un
+steidzoties trešā istabā, kur velns gul, un lai cērtot ko jaudot velnam pa galvu ar
+smago zobinu.</p>
+
+<p align="JUSTIFY">Labi, dēls iedzēris stipruma zāles, paķēris zobinu un kā cirtis
+velnam pa galvu, galva kā vecs pods ieripojusi kaktā. Un tiklīdz velns bija pagalam,
+tā pils ar visu dārzu pacēlās pirmā brangumā zemes virsū ar visiem ļaudim, ar
+visiem dzīvniekiem un mantu Nu ķēniņienes dēls sarāva labu tiesu sarkano ābolu un
+steidzās pie mātes uz burvja pili.</p>
+
+<p align="JUSTIFY">Rītā dēls atkal aizgāja medīt. Nu burvis izlīda no krāsns pie
+ķēniņienes it sapīcis un pukojās: "Vai tas nav posts? Tavu dēlu ne pats velns
+nevar paraut! Bet nu vēl viens līdzeklis man zināms. Uzvedini tu savu dēlu kārtis
+spēlēt un norunā tā: kam cūkas, tam sasien rokas ar sarkanu zīda lakatu. Ja nu tu
+paspēlēsi, viņš sasies rokas tev paviegli; bet ja viņš paspēlē, sasien labi cieti
+uz muguras!"</p>
+
+<p align="JUSTIFY">Labi, vakarā dēls pārnāca - šī tūlin: "Iesim uz cūkām!
+Iesim uz cūkām! Un kuŗš mēs paspēlēsim, tad sasiesim rokas ar šo zīda
+lakatu."</p>
+
+<p align="JUSTIFY">Dēls neko - iet arī. Bet burvis apbūra viņu, ka bija jādabū
+cūkas, un nu māte sasēja tam rokas pa muguru tik cieti, ka sienamais iegrauzās miesā
+jo dziļi. Viņš iekliedzās sāpēs un gribēja sienamo saraustīt, bet nu iegriezās
+līdz stilba kaulam miesā un nekā vairs darīt. Bet tas vēl nekas. Pašu bridi izlēca
+burvis ar kvēloši nodedzinātu dzelzi un izdedzināja dēlam abas acis. Pēc tam
+paņēma aklo aiz sasietām rokām, aizveda uz mežu un piesēja pie resnākā koka, lai
+tur zvēri un putni to apēstu. Nu dēls bija nagos pavisam. Bet par laimi otrā dienā
+brauca vezumnieki tur gaŗām un nelāgā ceļā bija piepūlējuši tā zirgus, ka
+pavisam nostājās un vezumi sagrima. Nabaga dēls, vezumnieku balsis izdzirdēdams, sāka
+visā spēkā aurēt, lai palīdzot. Vezumnieki sanāca, pārgrieza sarkano zīda lakatu,
+atpestīja aklo no koka un aizveda pie saviem vezumiem. Šis nu stāstīja savas bēdas,
+vezumnieki savas. Bet aklais atteica: "Jūsu bēdām varu palīdzēt. Sasieniet
+vezumus vienu otra galā, es tad visus uz reizi pārvilkšu purvam pāri."</p>
+
+<p align="JUSTIFY">Un nu dēls iejūdzās pirmos ratos un izvilka visu ratu rindu kā
+nieku uz cietu ceļu. Nu ceļinieki uzsēdināja aklo palīgu uz vezumu un veda līdzi.
+Brauca, brauca, te meža vidū piegadījās vilku māte, lāču māte, lauvu māte un
+smilkstēja un vēdināja ar astēm.</p>
+
+<p align="JUSTIFY">Bet drīzi lauvu māte apdomājās, aizskrēja projām, tikai tās
+divas vien palika un pavadīja neredzīgo.</p>
+
+<p align="JUSTIFY">Un no ceļiniekiem ķēniņienes dēls dabūja dzirdēt, ka viņi vedot
+tās ēdamās lietas kādam varenam ķēniņam, kuŗa princesei drīz būšot kāzas ar
+kādu slavenu princi, kas pašu velnu nokāvis un tā valsti un pili no apakšzemes
+izrāvis gaismā.</p>
+
+<p align="JUSTIFY">Kamēr šie tur izstāstīja, te pestītā pils arī vairs nebija tālu
+un - kas vēl - lauvu māte arī bija atpakaļ ar veselības zālēm uz mēles. Tā
+uzlēca vezumā pie neredzīgā, aplaizīja acis. Viņš palika redzīgs. Aplaizīja
+sabrūcētās rokas, tās palika veselas.</p>
+
+<p align="JUSTIFY">Nu ķēniņienes dēls iegāja pilī un satika priekšistabā savu
+brūti, ķēniņa meitu. Tā, nabadzīte, izstāstīja, ka cits precinieks viņai
+uzbāzies, teikdams, viņš tas īstais pils izglābējs, kas velnu kāvis. Kamēr šie
+tur runāja, pats ķēniņš patlaban iznāk ar blēdi priekšistabā un nu princese
+rādīja tēvam īsto glābēju. Blēdis vēl gribēja stīvēties; bet ķēniņienes
+dēls sadusmojies meta tam tādu ķezi gar ausi, ka nelietis uz reizi izputēja.</p>
+
+<p align="JUSTIFY">Nu ķēniņš tūlin gribēja, lai dēls kāzas nosvin ar viņa meitu;
+bet šis atteica, ka šodien, vai rītu nevarot, gribot iet vēl savu māti apraudzīt.</p>
+
+<p align="JUSTIFY">Labi, dēls aizgāja ar savām biedrenēm : vilku māti, lāču māti,
+lauvu māti. Un pa ceļu vilku māte tad izstāstīja dēlam, ka visa nelaime caur burvi
+notikusi, kas tā un tā viņa māti apbūris.</p>
+
+<p align="JUSTIFY">Pateica arī, ka burvis -- kad šis nu pie mātes tagad aiziešot -
+būšot pārvērties par blusu un ielīdis mātes kreisās kājas zeķē. Labi.</p>
+
+<p align="JUSTIFY">Un līdz nu dēls pārgāja pie mātes, tā tūlin prasīja: "Kur
+tas burvis?"</p>
+
+<p align="JUSTIFY">Māte liedzās, ka nekā nezinot. Tad dēls pavēlēja zvēriem māti
+saturēt un kreisās kājas zeķi nomaukt. Nomauca, aizsēja zeķei galu, izkurināja labi
+karstu krāsni un iemeta zeķi krāsnī. Burvis sāka čūkstēt un degt un sprāga tik
+dikti, ka krāsns gabalos sašķīda.</p>
+
+<p align="JUSTIFY">Burvi nomaitājis, dēls sāka skatīties : kur māte ? Bet tā jau
+bija atradusi galu ezerā un putrā savārījusies.</p>
+
+<p align="JUSTIFY">Nu dēls tencinādams atlaida zvēru mātes un steidzās atpakaļ pie
+brūtes kāzas svinēt. Pēc kāzām viņu izsauca par jauno ķēniņu.</p>
+
+
+</body></html>

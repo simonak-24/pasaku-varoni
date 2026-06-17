@@ -1,0 +1,136 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita zārkā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 307. Jānis Ķergalvis Nīcā. LP, VII, I, 183. 1, p. AŠ, III, 1
+s. </p>
+
+<p align="JUSTIFY">Vienreiz viens kungs gāja pastaigāties pa zaļumiem; sulainis gāja
+līdz. Tad tam kungam iegribējās gulēt; viņš sacīja uz sulaini: "Es te
+gulēšu, bet kad tu dzirdi jauku muzīķi, neej tur!"</p>
+
+<p align="JUSTIFY">Kungs aizmiga. Bet tad itin drīzi sulainis izdzirdēja jauka, jauku
+muzīķi un nevarēja novaldīties turp negājis. Nogāja tur tūlin sagrāba šo,
+sacīdami: "Tev jāiet trīs reizes baznīcā - tur zārkā guļ princese - nosargā
+to!"</p>
+
+<p align="JUSTIFY">Sulainis lūdzās, lai atvēlot mazākais drusku pie sava kunga aiziet.
+Atvēlēja arī. Kungs sulaini sabaŗ un tad pamāca, lai uzkāpjot uz vidējo baznīcas
+lukturi. Pusnaktī princese izcēlusies no zārka, likusi krēslus vienu uz otru, kāpusi
+šim klāt, bet krēsli nogŗuva zemē. Otrā naktī licis uz altāri kāpt - atkal
+krēsli nogŗuvuši. Trešā naktī licis zārkam pa labi roki blakus nogulties. Un kā nu
+princese izlēkusi no zārka, šis ielēcis zārkā viņas v ietā un nelaidis vairs
+princesi zārkā atpakaļ.</p>
+
+<p align="JUSTIFY">Rītā princese bijusi laba un sulainis ar to apprecējies un dzīvojis
+kopā.</p>
+
+
+</body></html>

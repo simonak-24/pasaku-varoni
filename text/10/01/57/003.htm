@@ -1,0 +1,159 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Ce?av?rs un laup?t?js.</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Ceļavīrs un laupītājs.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">3. A.954. V. Zacharska no J. Yšteles Rozentavas
+pag. </font></p><font size="3">
+
+<p align="JUSTIFY">Seņuok nabeja vilcīņu un peļņuos ļauds guoja kuojom. Vīnu reizi,
+rudeņa laikā, guoja nu lelas pilsātas zemnīks nu dorba uz sātu. Īdams taidu lelu
+ceļu, jis pīdzyna sev kuojuos tulznu. Zemnīks cīši pīkusa, pīguoja nakts un jis
+atsasāda meža molā uz vacaines, izvylka nu maisiņa pīna pūdiņu un buteli
+brandvīna, bet tikai jis suoka ēst - redz: izīt nu meža krīvs ar lelu kuplu buordu un
+izskrīn arī suns, lels, palāks. Daīt itys krīvs pi zemnīka kluot un vaicoj :
+"Nu kurīnes tu taids esi?"</p>
+
+<p align="JUSTIFY">Zemnīks atbildēja: ,,Es asmu cylvāks un eimu nu peļņas uz
+sātu."</p>
+
+<p align="JUSTIFY">Tūlaik krīvs jam soka: "Es taidu kungu nu peļņas gaidu." </p>
+
+<p align="JUSTIFY">Zemnīks, kad izdzierda itūs krīva vuordus, nūsabeida. Krīvs
+atsasāda kluot pi zemnīka, izvylka nu zuoboka auļa lelu nazi un suoka ēst ar nazi
+pīnu. Zemnīks nūsabeidīs dūd suņam maizi ar pīnu, bet krīvs nagrib dūt suņam un
+soka: "Suņs paēss tova ašņa!"</p>
+
+<p align="JUSTIFY">Kad krīvs lyka mutē nazi ar pīnu, zemnīks, ilgi nadūmuodams īsyta
+ar kulaku pa nazi, nu puorsadyura caur krīva muti un suns kai krita uz sova saiminīka,
+tai saplēsja jū gobolūs. Zemnīks pajēmja krīva vāzdu, kura beja pīlīta ar zaltu,
+un tai pat pajēmja juo syksnu, pi kuras beja pīšyuts arī daudz zalta naudas</p>
+
+<p align="JUSTIFY">Zemnīks pajēmis vysu krīva montu, laidās skrīt pa mežu, jo jis
+dūmuoja, ka tur mežā ir vēļ cyti draugi krīvam. Aiz meža jis īraudzēja guni mozā
+ustabiņā, īguoja īškā un pasaprasīja puorgulēt nakti. Buoba īlaidja zemnīku
+ustobā. Tī beja divi buobas un vīns bārns. Buobas soka zemnīkam: "Mēs taidu
+kungu, kuri īt nu pejņas, gaidam!"</p>
+
+<p align="JUSTIFY">Otkon zemnīks nūsabeida un dūmoj pats sevī: "Varbyut te vēļ
+dzeivoj kaids krīvs, kurs var nūkaut un apjemt vysu nūpelnētū naudu."</p>
+
+<p align="JUSTIFY">Zemnīks nikur naīt un gaida, kas te byus tuoļuok. Buobas staigoj
+uorā un nazkuo gaida. Ap pusnaktim atskrēja tys suņs. Buobas īraudzēja, ka suns vīns
+pats atskrēja uz sātu, bet saiminīka nav. Buobas nikai navarēja sagaidīt sova krīva
+un suoka rauduot, runuodamas : "Itys zemnīks ir nūsitis myusu saiminīku."</p>
+
+<p align="JUSTIFY">Na tai juo beja žāl saiminīka, bet žāl beja juo zalta vāzdas un
+syksnas. Buobas rauduodamas aizskrēja uz natuolēju cīmu pēc paleiga, bet zemnīks
+itūs vuordus dzierdēja. Kad juos aizskrēja, jis pajēmja tu vāzdu ar syksnu un izguoja
+uorā nu ustobas un aizguoja sovu, ceļu taišņi uz sātu. Sātā jis puordevja itū
+zalta vāzdu un taipat izstyna tū syksnu un izjēmja zalta naudu un tagan dzeivoj cīši
+boguots; bet kur jis pīdzeivuoja ituos boguoteibas, nikas nazyna.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,275 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Blēdīgā māte.</font><font size="4"></font></p><font size="4">
+</font></b><font size="3">
+
+<p>3. A. 590. Latgales pasaka, Latvju kultūras kr.</p>
+
+<p align="JUSTIFY">Reiz dzīvoja kāds ķēniņš un viņam bija viens dēls. Kad dēls
+bija liels izaudzis, viņam bija jādod solījums: ja viņš precētos tad nedzīvos ar
+savu sievu ilgāki kā divi gadi; pēc diviem gadiem sievu nokaus vai iemūrēs tornī.
+Šo solījumu dēls deva ķēniņam.</p>
+
+<p align="JUSTIFY">Ķēniņš lika kurpniekam pašūt kurpi, ko tad nodeva dēlam,
+teikdams: "Ar šo kurpi apbrauc pasauli, un uzmeklē kādu meitu, kam kurpe derētu.
+Viņu tad arī ņem par sievu."</p>
+
+<p align="JUSTIFY">Ķēniņa dēls arī devās ceļā. Kamēr viņš braukāja pa pasauli,
+ķēniņš un ķēniņene nomira. Vienā valstī viņš patiešām atrada meitu, kam kurpe
+derēja, veda to uz māju un svinēja kāzas. Pēc kāda laika viņiem piedzima dēls, kas
+auga ne pa dienām, bet pa stundām. Kad pirmais gads bija pagājis, ķēniņš,
+atcerēdamies savu solījumu, palika bēdīgs, gandrīz vai slims. Ķēniņiene gan
+prasīja, kas kaiš, bet viņš nekā nestāstīja. Otrā gada beigās viņš bija vēl
+bēdīgāks. Beidzot viņš savai sievai pastāstīja, ka esot devis tēvam solījumu
+nedzīvot ar sievu ilgāk ka divi gadi, un pēc tam viņu nokaut vai iemūrēt tornī.
+Ķēniņam bija žēl sievas, viņa lūdza, lai labāk viņu iemūrē tornī, ko viņš
+arī darīja un slepeni nesa viņai barību.</p>
+
+<p align="JUSTIFY">Dēls pa gadiem izauga liels un lika kalējam nokalt trīs birkavi
+smagu plinti. Kad plinte bija gatava, viņš aizbrauca pēc tās ar četriem zirgiem, bet
+zirgi tikko varēja to pārvest mājā. Šeit nu astoņi vīri mēģināja to izcelt no
+ratiem, bet nevarēja to pat pakustināt. Tad pienāca dēls un viens pats izcēla plinti
+no ratiem.</p>
+
+<p align="JUSTIFY">Drīz vien viņš gāja uz medībām, lai izmēģinātu, vai plinte
+arī labi šauj. Visu dienu viņš velti izstaigāja un mājā pārnāca tukšā. Otrā
+dienā viņš gāja atkal un, pa mežu staigājot tālumā kaut ko ieraudzīja. Gāja
+tuvāk un nu redzēja, ka tas ir liels tornis. Piegājis klāt, viņš sauca: "Vai te
+kāds dzīvo?"</p>
+
+<p align="JUSTIFY">Kad nu neviens neatbildēja, tad viņš no jauna sauca: "Ja
+neviens neatbildēs, tad es šaušu, tā ka viss tornis sagāzīsies!"</p>
+
+<p align="JUSTIFY">Tad kāda balss no torņa runāja: "Nešauj, es esmu tāds pats
+cilvēks kā tu."</p>
+
+<p align="JUSTIFY">Viņš arī nešāva un nu abi sāka sarunāties un drīz vien abi
+saprata, ka viņš ir dēls un māte. Mājā pārnācis, viņš prasīja ķēniņam, kur
+esot viņa māte. Ķēniņ atbildēja, ka māte esot mirusi. Tad dēls gribēja redzēt
+viņas kapa vietu. Ķēniņš arī noveda dēlu pie kāda kapa un teica, ka tas ir viņa
+mātes kaps. Dēls gribēja, lai mātei sarīko lielas bēres. Tā nu tēvam gribot
+negribot bija jārīko bēres. Dēls noteica sulaiņiem, ka neviens nedrīkst nest
+ēdienus uz galda, kā tikai viņš. Tā arī notika, dēls viesiem pienesa ēdienus, kur
+piejauca klāt miega zāles. Visi arī paēda, bet drīz vien aizmiga, kur nu katrs
+sēdēja vai stāvēja. Kad visi bija aizmiguši, viņš iegāja stallī, paņēma zirgus
+un brauca pie mātes. Viņš izlaida māti no torņa un lika, lai māte viņu pagaida,
+kamēr viņš aizvedīs zirgus. Paņēmis plinti, viņš atgriezās atkal pie mātes un
+tad abi devās prom. Viņi ilgi gāja pa mežu, pienāca jau vakars, bet apkārt bija
+tikai mežs un mežs. Viņi nu redzēja, ka ir aizmaldījušies, un tā nakts bija
+jāpavada apakš kāda liela koka. Kad uzausa gaisma, dēls uzkāpa koka galotnē, lai
+apskatītos, vai kur tuvumā neredz kādu māju. Viņš tikmēr lūkojās visapkārt,
+kamēr arī ieraudzīja tālumā kādu melnumu. Tad viņš sauca mātei lai viņa arī
+labi ievēro, uz kādu pusi viņš rāda. Tā nu viņi gāja ilgu laiku uz to pusi, līdz
+beidzot nonāca pie kāda liela akmeņa. Dēls to nocēla kā rāceni un tur apakšā bija
+32 milžu mājoklis, ar trīsdesmit diviem kambaŗiem. Tā ka visi milži bija izgājuši,
+viņi te apmetās uz dzīvi.</p>
+
+<p align="JUSTIFY">Kādu dienu dēls izgāja uz medībām. Pa to laiku atnāca viens
+milzis, bet ieraudzījis, ka akmens ir nocelts, sāka bēgt. Sieva to pamanīja un sauca,
+lai nemūk, ka viņa ir tāds pats cilvēks kā viņš. Bet milzis teica: "Kā tad tu
+vari būt tāds pat cilvēks kā es? Mēs 32 milži varam šo akmeni tikai ar pūlēm
+nocelt un tu to esi viena pati izdarījusi."</p>
+
+<p align="JUSTIFY">Sieva atbildēja: "Es neesmu to darījusi, akmeni nocēla mans
+dēls, kas tagad aizgājis uz medībām."</p>
+
+<p align="JUSTIFY">Viņi tik ilgi runājās, kamēr viens otram ļoti iepatikās. Tā ka
+dēls viņiem bija par kavēkli, tad tie sāka gudrot, kā to varētu nogalināt. Beidzot
+viņi izgudroja, ka māte izliksies ļoti slima, sūtīs viņu pēc veselības ūdens, kas
+ir citu milžu dzīvoklī. Milži viņam uzbruks pa to laiku, kad dēls smels no akas
+ūdeni. Dēls arī aizgāja pēc veselības ūdens. Iznāca viens milzis un sāka ar viņu
+strīdēties, līdz beidzot iesāka kauties. Tad iznāca vēl 30 milži un viņi kāvās
+trīs dienas un trīs naktis, bet ķēniņa dēls tomēr uzvarēja un nokāva visus
+milžus. Tad viņš iegāja milžu kambaŗos, un tur atrada pie sienas piesietu meitu.
+Ķēniņa dēls to atsvabināja, un viņa izstāstīja, ka viņa esot ķēniņa meita, ko
+milži esot nozaguši. Viņi viens otram labi patika un ķēniņa meita viņam apsolījās
+par sievu. Viņa pārlauza savu gredzenu, pusi iedeva ķēniņa dēlam, bet otru paturēja
+sev, teikdama: "Kad atkal satiksimies, tad svinēsim kāzas."</p>
+
+<p align="JUSTIFY">Tā abi izšķīrās un dēls aizgāja uz savu māti. Tikko milzis
+ieraudzīja dēlu, viņš paslēpās pagultē. Kad māte izdzēra ūdeni viņa izlikās,
+ka paliktu vesela. Dēls pastāstīja, ka viņš jau esot nokāvis trīsdesmit vienu
+milzi, un ka gribot dabūt savās rokās arī trīsdesmit otro. Nākošā dienā dēls
+gāja milzi meklēt, bet māte ar milzi nosprieda, ka māte dos dēlam labus ēdienus un
+prasīs, kur viņa spēks atrodas.</p>
+
+<p align="JUSTIFY">Ķēniņa dēls<b> </b>pārnāca mājā, bet milzi vairs neatrod. Māte
+bija pret viņu ļoti laipna, lika tam priekšā visādus gardus ēdienus un jautāja, kur
+viņa spēks atrodas. Bet dēls nekā nesacīja. Arī nākošā dienā viņš nevarēja
+milzi atrast. Viņam, mājā pārnākot, milzis palīda pagultē un māte deva viņam vēl
+labākus ēdienus un dzērienus un prasīja kur mīt viņa spēks. Dēls gan negribēja
+teikt, bet tad tomēr atbildēja: "Ja nu tu tik ļoti gribi zināt, teikšu ar. Man
+uz galvas ir trīs zelta mati, ja tos nogriež, tad mans spēks ir pagalam."</p>
+
+<p align="JUSTIFY">Kad dēls aizgāja gulēt, milzis izlīda no pagultes, paņēma
+dzirkles un nogrieza viņam trīs zelta matus.</p>
+
+<p align="JUSTIFY">Parasti no rītiem, kad dēls saspieda rokas, no tām tecēja zupa; bet
+kad šorīt viņš saspieda, zupa netecēja. Tad viņš izsaucās: "Māte, kālab tu
+esi mani nodevusi?"</p>
+
+<p align="JUSTIFY">Milzis tūlīt viņu saķēra un gribēja to nokaut, bet māte
+neļāva, teikdama, ka negrib redzēt sava dēla asinis. Viņi paņēma nokarsētu dzelzi
+izdedzināja ķēniņa dēlam acis un tad to palaida mežā. Viņš ilgi klejoja un
+maldījās pa mežu, līdz satika lauvu, bet tā viņam nekā ļauna nedarīja un
+pastāstīja, ka mednieks ir nošāvis viņa bērnus un tagad viņš ir gluži viens.
+Lauva aizveda ķēniņa dēlu uz savu alu un to apkopa. Tā viņi nodzīvoja kopā desmit
+gadus. Pa šiem gadiem dēlam atauga trīs zelta mati un līdz ar to viņš bija atkal
+stiprs.</p>
+
+<p align="JUSTIFY">Vienu dienu dēls ar lauvu gāja pastaigāt. Nogājušiem kādu gabalu,
+dēls dzird, ka kāds brauc. Viņš nostājās uz ceļa un sāka gaidīt. Parādījās
+kariete, kurā sēdēja lepns kungs. Neredzīgais ķēniņa dēls sauca, lai apstājas,
+bet tie tik brauc tālāk. Tad dēls sagrāba riteni un rati ar visiem četriem zirgiem
+apstājās. Kučiers sita viņam ar pātagu pa rokām, bet kungs to neļāva, jo tam bij
+bailes no svešnieka spēka. Abi sāka sarunāties, kungs tad noprata, ka lielais
+stiprinieks ir akls. Kungs tam pateica, ka viņš pazīstot vienu princesi, kas uzjem un
+apkopj nabagus. Neredzīgais bija ar mieru braukt kungam līdzi un tas viņu noveda pie
+princeses. Aklais ķēniņa dēls bija kādu mēnesi nodzīvojis pie savas labdares, kad
+dabūja zināt, ka viņa ir tā pati princese, kas viņam bija solījusies. Viņš
+izlikās ļoti slims un lūdza sulainim, lai dod viņam nodzerties no ķēniņa meitas
+biķeŗa, tad viņš paliks vesels. Viņam nu arī padeva dzert no šī biķeŗa.
+Izdzēris pus biķeŗa, viņš ielika tur iekšā princeses gredzena pusi. Kad princese
+biķeŗi gribēja nolikt, tad tur kaut kas noskanēja. Viņa nu ieraudzīja gredzena pusi
+un tūliņ to pazina. Par to viņa pastāstīja savam tēvam un abi nu aizgāja pie
+neredzīgā ķēniņa dēla. Vecais ķēniņš gribēja tūlīt rīkot kāzas, bet dēls
+gribēja iepriekš noiet pie sava tēva. Ķēniņa meita gāja viņam līdz. Ceļā viņi
+ieraudzīja strautiņa malā smuku lūdzamu namu. Tur viņi apsēdās atpūsties.
+Ķēniņa meita redzēja, ka divi putniņi plūcās un viens otram izknāba acis, tad
+viņi nolaidās pie strautiņa, trīs reizes nomazgājās un tapa atkal redzīgi. Viņa
+vedināja arī savu ceļa biedru strautā nomazgāties, bet tas atteica: "Mana māte
+izdūra man acis un tu laikam gribi mani noslīcināt."</p>
+
+<p align="JUSTIFY">Viņa teica: "Nē, es tevi negribu noslīcināt, un ja tev bailes,
+tad apķeries man ap vidu, un ja tu slīksi, tad slīksim abi."</p>
+
+<p align="JUSTIFY">Dēls tā arī darīja, nomazgājās vienu reizi, acis kļuva kā
+gaišākas; otrreiz nomazgājies, viņš manīja jau gaismu; pēc trešās reizes viņš
+varēja jau visu labi redzēt. Abi bija nu ļoti priecīgi, uzlūdza uz kāzām ķēniņa
+dēla tēvu, māti un arī milzi.</p>
+
+<p align="JUSTIFY">Bija nospriests, ka pie kāzu galda katram pēc kārtas jāstāsta savi
+piedzīvojumi. Kāzas tika lepni svinētas, pie galda visi stāstīja par saviem
+piedzīvojumiem. Kad pienāca milža kārta runāt, viņš palika gluži bāls un sāka
+stāstīt, bet kad viņam bija jāsaka, kā viņš ķēniņa dēlam izdūris acis, viņš
+lēca no galda augšā un gribēja aizmukt, bet ķēniņa dēls viņu sagrāba, teikdams:
+"Nu ir par vēlu, no manis tu vairs neaizmuksi."</p>
+
+<p align="JUSTIFY">Milzi izveda ārā, puiši pie katras kājas piesēja pa zirgam, kas
+milzi sarāva gabalu gabalos.</p>
+
+<p align="JUSTIFY">Māti iemūrēja atpakaļ tornī, bet ēst viņai vairs nedeva, un
+viņa tur nomira badā.</p>
+
+<p align="JUSTIFY">Kāzas svinēja tālāk jo lepnas un abi jaunie dzīvoja ļoti laimīgi
+visu savu mūžu.</p>
+
+<p>P i e z ī m e. Pasaka ir atstāstīta rakstu valodā. P. Š.</p>
+</font>
+
+
+</body></html>

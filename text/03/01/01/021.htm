@@ -1,0 +1,219 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>21</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Ķēniņa meita zārkā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">21.A. 307. H. Skujiņa, Andrs Ziemelis, no Emmas Briedes Aumeisteŗos.</p>
+
+<p align="JUSTIFY">Vienam ķērnīnam bīsi viena pati meita un tā pati bīsi vēl
+apsēsta. Princese bīsi tik vienu stundu par dienu dzīva, pārējās stundas viņa bīsi
+beigta. Ķērnīc licis princesi ielikt zārkā un aiznest uz baznīcu. Tur nu viņa
+gulēsi glāžu zārkā un no pulkstens vienpacmitim līdz divpacmitim cēlusies no zārka
+ārā un ēdusi cilvēkus. Princese varēsi tikai tad no ļaunuma vaļā tikt, ja kāds to
+varētu trīs naktis no vietas novaktēt. Bet neviens nav varēš princesi trīs naktis
+novaktēt, jo tiklīdz tā cēlusies no zārka ārā, tūlī klupusi vaktētājam virsū
+un to apēdusi. Nu ķērnīc izlaidis tādu ziņu, ka viņš atdošot princesi un savu
+valsti tam, kuŗš varēšot to trīs naktis no vietas novaktēt.</p>
+
+<p align="JUSTIFY">Princesi gāši vaktēt daudzi prinči un augstmaņi, bet tos visus
+princese apēdusi. Netālu no ķērnīna pils dzīvoš vecs nabags puiša cilvēks,
+vārdā Dāvīts. Dāvīts ganīš pie viena saimnieka cūkas. Bet Dāvīšam daudzreiz
+vie licies, ka tam kāds pie auses čukst: "Ej, ej, tu ar! ej tu ar un
+paprovē!"</p>
+
+<p align="JUSTIFY">Nu Dāvīts domāš tā: "Tā kā tā man reiz jāmirst. Labāki
+jau mirt baznīcā, kā nabagu mājā. Iešu ar un provēšu roku!"</p>
+
+<p align="JUSTIFY">Dāvīts savīkšies un gāš uz baznīcu. Viņš piegāš pie
+baznīcas un sacīš baznīcas sargam, ka šis gribot princesi vaktēt un lai šo laižot
+baznīcā iekšā. Bet sargs nu sācis pilnā kaklā smieties un sacīš, ko tad šis tur
+tāds meklēšot, ne šim zobina, ne plintes. Te esot visādi nākuši, gan ar plintēm,
+gan ar zobinim, bet neviens nekā neesot izdarīš, ko tad un šis, tāds cūku gans,
+kuŗš tikko savus kaulus varot pavazāt. Tā nu sargs visādi izsmēš Dāvīti un
+negribēš to pavisam baznīcā iekšā laist.</p>
+
+<p align="JUSTIFY">Dāvīts klausījies, klausījies, nekā ar liela nesacīš sargam
+pretī un pēdīgi sacīš: "Tā kā tā reiz jāmirst vie būs, vai nu baznīcā,
+vai cūkas ganot." Nu sargs ar pēdīgi bīš ar mieru Dāvīti laist baznīcā.
+Dāvīts iegāš un tam uzreiz nācis pretī mazs vīrīc un sacīš tā: "Tas ir
+labi, Dāvīt', ka tu atnāci. Tev gan būs grūti, bet nekas. Aizlien tik pie altāra,
+labā pusē, aiz staba un notupies. Šonakt jau nekādas lielas briesmas nebūs, viņa
+būs akla. Bet tu tik nesaki ne nu, un sēdi."</p>
+
+<p align="JUSTIFY">Vecīts tūlī aka pazudis un Dāvīts palicis vienc. Viņš aizr
+līdis aiz staba un notupies. Ka pulkstens tornī sitis vienpacmit, tad zārka vāks
+nolēcis zemē, princese izlēkusi no zārka un sākusi ostīties. "Ui, ui kristīga
+cilvēka smaka!" kliegusi princese un sākusi skriet pa baznīcu riņķī vie un
+grābsīties gar sienām. Bet nu Dāvīšam palicies skaudīgi bailes un viņč trīsēš
+un virinājies pie visas miesas. Bet princese skraidīsi pa baznīcu apkārt un kliegusi:
+"Kas tur nu būtu, vienc pats kumosīc mums, vesalam simtam! </p>
+
+<p align="JUSTIFY">Aka princese skrēsi un grābājusies gar sienām, bet kā nevarēsi,
+tā nevarēsi Dāvīša dabūt rokā. Tornī pulkstins sitis divpacmit, princese lēkusi
+atpakaļ zārkā, vāks noblākšējies un bīš aka virsū un princese bīsi beigta.</p>
+
+<p align="JUSTIFY">No rīta baznīcā ienācis ķērnīc ar sargu un meklēši Dāvīti.
+Nu Dāvīts izlīdis no spraugas un bīš tā pārbījies, ka tam no bailēm bīš degunc
+ierāvies. Kērnīc bīš laimīgs un vedis Dāvīti uz pili, mieloš to un dzirdīš.
+Otrā vakarā aka Dāvīts gāš uz baznīcu. Tiklīdz Dāvīts bīš baznīcā iekšā,
+ka šim aka nācis mazais vecīts pretī un sacīš tā: "Teu nu šonakti gan būs
+daudz grūtāki, kā bija. Bet tu nesaki nekā. Nogulies princeses zārkam kreisā pusē
+un guli mierīgi. Tikko zārka vāks kritīs nost, viņč teu uzkritīs virsū un princese
+tevi nemaz nepamanīs."</p>
+
+<p align="JUSTIFY">Dāvīts nogūlies zārkam kreisā pusē un nedrīkstēš ne pirstīna
+pakustināt. Ka nu pulkstins aka sitis vienpacmit, tā zārka vāks cēlies no(st) un
+blaukš! Dāvīšam virsū. Bet zārka stūris ķēris Dāvīšam pa pirstukaulu. Tas nu
+sāpēš, skaudīgi sāpēš un Dāvīts no lielām sāpēm sācis gandrīz vai bļaut,
+bet pa laimi iedomājies, ka princese ir no zārka laukā. Nu tam bīš aka tik bailes,
+tik bailes, ka princese šo nepamana. Bet tā nu skrēsi pa kaktu kaktim un nevarēsi
+Dāvīša dabūt rokā. Ka pulkstins tornī sitis divpacmit, tā princese aka drāzusies
+zārkā iekšā un vāks bīš virsū. Nu viņa pamanīsi, ka Dāvīts gulēš zem zārka
+vāka. Bet bīš jau par vēlu un tūlī princese aka bīsi beigta.</p>
+
+<p align="JUSTIFY">No rīta nācis ķērnīc un sargs. Viņi nākuši skatīties, vai
+Dāvīts ir vēl pie dzīvības, vai pagalam. Dāvīts no lielām bailēm un no sitiena
+tikko spēš kājas pavazāt. Ķērnīc nu Dāvīti vedis uz savu pili, mieloš to,
+dzirdīš un bīš traki laimīgs.</p>
+
+<p align="JUSTIFY">Trešās dienas vakarā Dāvīts aka aizvilcies uz baznīcu. Viņč
+bīš pavisam stīvs un beigts. Ka nu Dāvīts iegāš baznīcā, tā tam aka nācis tas
+pats vecīts pretī un sacīš:</p>
+
+<p align="JUSTIFY">"Nu gan tev būs pavisām reizām grūtāki. Bet nekas, ka viņa
+[princese] tevi pamanīs, būs jau pa vēlu. Tagadin nu tu dabū auklīnas un piesienies
+pie griestim visaugstākā vietā, pie altāra un nerunā un nekusties."</p>
+
+<p align="JUSTIFY">Vecīts aka pazudis un Dāvīts gāš pēc auklīnām. Ka nu viņš
+auklīnas dabūš, tā piesējies pie griestim un gulēš tik mierīgi un klusu ka būtu
+pagalam.</p>
+
+<p align="JUSTIFY">Ka nu pulkstins tornī nositis vienpacmit, tā tūlī princese bīsi no
+zārka ārā. Viņa skrēsi, meklēsi un kliegusi: "Un, ui, kristīga cilvēka smaka!
+Tur nu man būtu vienc mazs mazs kumosīc, es trīs dienas nau ēdusi!"</p>
+
+<p align="JUSTIFY">Pēdīgi princese pamanīsi, ka Dāvīts karājas pie griestim. Nu
+viņa ķērusi beņķus un krāvusi kaudzē. Bet pirmo reiz netikusi klāt un nogāzusies
+ar visim beņķim zemē. Nu tā krāvusi aka beņķus pa otram lāgam un uzkrāvusi par
+augstu. Kad nu rāpusies aukšā, tā galva bīsi pāri un aka netikusi Dāvīšam klā.
+Nu princese krāvusi benķus pa trešam lāgam. Nu tie bīši labi un viņa jau ar nagiem
+ķērusies pie kājām. Dāvīts manīš, ka nupat ir beigas. Viņš spēris ar kāju.
+Princese ar visiem beņķiem gāzusies zemē. Arī pulkstins tornī sitis divpacmit un
+princeses stunda bīsi pagalam.</p>
+
+<p align="JUSTIFY">Ka nu otrā rītā ķērnīc ar sargu ienākuši baznīcā, tā
+nevarēši Dāvīša rokā dabūt. Pēdīgi viņi to uzkatīši pie griestim un tas bīš
+no lielām bailēm pamiris.</p>
+
+<p align="JUSTIFY">Ķērnīc nu sasaucis dakteŗus un licis Dāvīti ārstēt. Dāvīts
+ilgi sagulēš uz gultas un tā atlabis. Nu ķērnīc šim devis savu meitu par sievu un
+tie dzīvoši laimīgi.</p>
+
+
+</body></html>

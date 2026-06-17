@@ -1,0 +1,153 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Mu??is par precinieku</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+
+<p align="center"><font size="5"><b>Sieva bēg no muļķa vīra.</b></font></p>
+
+<p align="JUSTIFY"><strong>4.</strong> A. 1685. Skolniece M. Zariņa no E. Zariņas
+Ogresgala pag. J. A. Jansona kr.</p>
+
+<p align="JUSTIFY">Vienai mātei trīs dēli: divi gudri un trešais tāds
+plānprātiņš. Gudrie sievas ātri vien dabūjuši, bet pie muļķīša neviena meita
+par sievu nav gribējusi iet. Beidzot gudrie brāļi nozaguši kādu meitu no tālāka
+ciema muļķītim. Meita saukta Anna. Anna dzīvoja ar', kur jau Dievs vēlējis. Paraša
+toreiz ir bijusi sievas zagt. Ilgāku laiku dzīvojot, tā nomanījusi, ka šās vīrs ir
+plānprātiņš. Viņa nolēmusi bēgt. Cilvēki tos laikus dzīvojuši rijās un pa
+vasaru gulējuši uz rijas augšas. Lopi turēti pa nakti piedarbā. Uz rijas augšas
+varējuši tikt tik ar striķi. Kādu nakti Anna nodomājusi bēgt. Viņa likusi vīram,
+lai to nolaiž zemē un kad šī raustot striķi, lai velkot atkal augšā. Anna nolaista
+zemē, atraisījusies no striķa un savā vietā pie striķa piesējuse kazu. Lai kaza tik
+ātri nesāktu striķi raustīt, tad iedevusi tai maizi, ko iepriekš bija paņēmusi.
+Pēc tam sākusi pati bēgt. Kaza maizi apēdusi, un sākusi raustīties. Plānprātiņš
+vīrs domājis, ka raustītāja ir Anna un vilcis augšā. Uzvilcis un noguldījis to sev
+blakus. Gulstot kazu, iedamāto sievu, tas sataustījis ragus un saucis izbījies :
+"Mem, Annai ir ragi!"</p>
+
+<p align="JUSTIFY">Māte dēlu mierinājusi, sacīdama: "Kuš, kuš, dēliņ, visām
+jaunām sievām ir ragi!"</p>
+
+<p align="JUSTIFY">Dēls nomierinājies uz brīdi, bet tad saucis atkal: "Mem, mem,
+Annai ir spalvas!"</p>
+
+<p align="JUSTIFY">Māte dēlu mierinājusi atkal: "Kuš, kuš, dēliņ, visām
+sievām ir spalvas."</p>
+
+<p align="JUSTIFY">Pēc brīža dēls saucis, pavisam sabijies: "Mem, mem, Annai ir
+spiras!"</p>
+
+<p align="JUSTIFY">Nu māte ar palikusi domīga un cēlusies augšā raudzīt, kas ar Annu
+ir noticis. Aizdegusi skalu un ieraudzījusi kazu. Nu tik nopratuši, ka Anna aizbēgusi.
+Cēluši gudros brāļus arī un dzinušies Annai pakal. Anna jau bijusi krietni tālu
+aizbēgusi, bet bēgot bijusi nokususi un tā gudrie brāļi šai bijuši jau uz pēdām.
+Anna nogulusies zemē un sacēlusi kājas gaisā. Gudrie brāļi paskrējuši garām, bet
+plānprātiņš ieraudzījis kailos stilbus un saucis: "E! kur labi cibu koki!"</p>
+
+<p align="JUSTIFY">Gudrie tik atteikuši: "Lai nu stāv cibu koki, meklē tik
+Annu." </p>
+
+<p align="JUSTIFY">Muļķītis arī nodomājis, ka Anna labāka, kā cibu koki un gājis
+meklēt Annu. Tā Anna aizbēgusi.</p>
+
+
+</body></html>

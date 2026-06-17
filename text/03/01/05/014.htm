@@ -1,0 +1,142 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>14</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Velns zārkā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">14. M. Skrupska no vecas māmiņas Neretā, Folkloras archīva kr.</p>
+
+<p align="JUSTIFY">Vienai sievai nomira vīrs un viņa kliegusi dienām un naktim. Pa
+naktim gājusi arī uz klēti pie vīra zārka gulēt. Te vienu nakti viņa dzird, ka tas
+nāk, runā un pie klēts durvim apstājas. Sieva ātri aizskrien aiz tīnes un
+paslēpjas. Viņa redz: ienāk divi melni vīri, bet tuvāki apskatījusies ierauga, ka
+tie ir velni. Tas viens teic ostīdams: "Man liekas, ka še ir cilvēka smaka."</p>
+
+<p align="JUSTIFY">Otrs atbild: "Vēl tam pašam mirušajam nav izgājusi cilvēka
+smaka. Ģērbies tik ātri!"</p>
+
+<p align="JUSTIFY">Nu velns noģērbjas, apģērbj mirēja drēbes un ieliekas zārkā
+Otrs paņem mironi, pārsviež par pleciem un aiziet.</p>
+
+<p align="JUSTIFY">Sieva, nogaidījusi brītiņu, izskrien ārā un aizskrējusi uz istabu
+teikusi, ka velns guļot zārkā. Cilvēki gājuši arī skatīties, bet ieraudzījuši
+tur tikai vīru, tādu pašu, kā viņi apģērbuši un ielikuši. Bet sieva pastāv, ka
+tas ir velns. Viņi nodomājuši, ka viņai no lielām žēlabām esot galva jukusi.</p>
+
+<p align="JUSTIFY">Vīru būs vajadzīgs rītu paglabāt, un tā kā šodien ienesuši to
+istabā vēl pa nakti vāķēt. Attaisījuši zārku vaļā un visi dzied, bet sieva,
+iekūrusi uguni, vāra ūdeni. Tikko sācis vārīties, viņa paķērusi trumuli,
+pieskrējusi pie zārka un uzlējusi velnam uz acim. Velns kā sprucis augšā, tā pa
+durvim ārā. Nu visi paliek stīvi no brīnumiem, bet sieva teic: "Jūs man
+neticējāt; redzat nu, I&amp;127;a man bija taisnība."</p>
+
+<p align="JUSTIFY">Nu tukšo zārku aiznesa atpakaļ uz klēti un tā vīrs palika
+nepaglabāts, jo velns to bija aiznesis.</p>
+
+
+</body></html>

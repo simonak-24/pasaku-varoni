@@ -1,0 +1,215 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>:2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Stiprais Ansis.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">22. A. 650 A. 301 B. K.Tarzieris Tirzas Druvienā, Brīvzemnieka
+“Sborņik” 152 (l00). Andrejanoff, Lettische Märchen, 37 (Bärenmensch).</p>
+
+<p align="JUSTIFY">Reiz gāja viena sieviete sēņot un satikās ar lāci. Lācis to
+ievilka savā alā, saturēja tur trīs gadi un pēc tam palaida vaļā. Bet no lāča tai
+piedzima dēls: pa pusei cilvēks, pa pusei lācis, un to iesauca par Lāčaugaini. Viņš
+auga un izauga ļoti stiprs un naģīgs. Tad savā laikā tas salīga pie mācītāja par
+strādnieku. Tas bija ziemu. Mācītājs vienu dienu Lāčaugaini sūtīja pēc malkas.
+Labi! Mežā tas pieies vienai priedei klāt un kā nu atvēzinās cirvi pēc cirtiena,
+tā cirvis - sazini Dievs! - kur aizdrāzās, kāts vien palika rokās.</p>
+
+<p align="JUSTIFY">Lāčaugainis saņēma sausas dusmas, salauzīja lielo milzenīcu
+priedi mazos gabalos un nokrāva bez gala lielu vezumu. Nokrāva vezumu, grib doties
+mājā, bet ķēve velk atspērusies, ne pakustēt no vietas. Nu Lāčaugainis deva tai
+knipi pa ribām; ķēve atstiepās. Dusmās Lāčaugainis tad pats pārvilka vezumu
+mājā. To redzēdams, mācītājs nosaka: "Ne ne! vai tu nu pērc jaunu ķēvi, jeb
+velc vezumu pats. Tūliņ jābrauc uz dzirnavām, nemaz vairs miltu nava mājā."</p>
+
+<p align="JUSTIFY">Tad Lāčaugainis sasvieda maisus ragavās, sagrāba ilksis un teciņus
+aiztecēja ar vezumu uz dzirnavām. Šais dzirnavās piemita liela velnu dzimta. Atbrauca
+Lāčaugainis, iegāja dzirnavās, pirmā istabā bija tikai jaunākais dēls ar
+sievietēm. Lāčaugainis vaicāja: "Kur vecais?"</p>
+
+<p>Tas atbildēja: "Vecais dibina istabā."</p>
+
+<p align="JUSTIFY">"Pasauciet to!" </p>
+
+<p align="JUSTIFY">Bet sievietes nesauca veco. Lāčaugainis daudz netiepās ar
+velnienēm, sagrāba vienu velnēnu pie kājām un notrieca tās visas gar zemi. Tiklīdz
+ar tām nu būtu beidzis, te velna tēvs rēkdams, sēkdams atklupa no dibina istabas
+šurp. Ieraudzījis Lāčaugaini, bruka tam virsū kā negaiss. Bet šis mudīgi aizlēca
+pie krāsns, paķēra veikli degošu pagali un iegrūda taisni vecim to rīklē. Velns
+augšpēdu novēlās gar zemi, bet Lāčaugainis tikmēr vēl mietēja, kamēr ir
+kustēties nekustēja. Nu viņš samala pats miltus un drīzumā pārradās mājā. Lai
+gan mācītājam nezin kā būtu ticies gānīties ar savu strādnieku, bet nevarēja itin
+nekā viņu dabūt aizķert. Bet tad mācītājs vēl sūtīja savu strādnieku uz Roju
+(upe Kurzemē), sacīdams: "Tur vienā dzelmē būs šķirsts ar naudu - pārnes
+to!"</p>
+
+<p align="JUSTIFY">Šo šķirstu sargāja liels, trijgalvju pūķis. Lāčaugainis
+aizgāja, sagrāba pūķi pa vidu, iebāza maisā, paņēma naudas šķirstu un pārnesa
+ar visu pūķi mājā. Mācītājs tikko bija azaidu paēdis, kad Lāčaugainis jau
+pārnāca un sparīgi nometa šķirstu ar naudu zemē, pūķi palaida vaļā un pats
+aizspruka.</p>
+
+<p align="JUSTIFY">Lāčaugainis gāja, aizgāja uz vienu tuksnesi, satikās tur ar diviem
+pasaules plūšņiem, ar Kalnukāpēju un Krūmukodēju, un visi trīs norunāja medīt.
+Labi! Pirmā dienā aizgāja medīt Lāčaugainis ar Krūmkodēju, bet Kalnukāpējs
+palika mājā ēdienu taisīt. Vakarā tie pārnāca mājā ar lielu pulku medījumu, bet
+gulēt vajadzēja aiziet ar tukšu vēderu, jo Kalnukāpējam izvārīto ēdienu bija
+aprijis briesmīgs milzis, kas - sazini Dievs no kurienes - bija atkūlies.</p>
+
+<p align="JUSTIFY">Otrā dienā Krūmukodējs palika mājā; bet tam tāpat klājās.
+Trešo dienu pats Lāčaugainis palika mājā un iztrinis cirvi, sacirta malku, iekūra
+uguni. Kad putra bij izvārīta, viņš ielēja to podā, nolika podu kaktā un pārklāja
+ar žagariem. Atnāca milzis, prasīja ēst. Lāčaugainis tam atbildēja: "Labi, es
+tev ēdienu došu, bet palīdzi man vienu rezgali saskaldīt."</p>
+
+<p align="JUSTIFY">Lāčaugainis paņēma lielu baļķi, iecirta cirvi vienā galā un
+ietrieca spraigā vadzi. Nu milzis gribēja palīdzēt baļķi pārplēst, iegrūzdams
+abas rokas spraigā. Bet Lāčaugainis iesacījās: "Saturi to spraigu tā
+atplēstu!"</p>
+
+<p align="JUSTIFY">"Nebaidies nemaz, gan saturēšu!"</p>
+
+<p>"Pagaidi, es triekšu vadzi pa otrreiz iekšā!"</p>
+
+<p align="JUSTIFY">Lāčaugainis izsita vadzi no baļķa un nu milzim rokas iesprūda
+baļķī, palika kā piesiets.</p>
+
+<p align="JUSTIFY">Lāčaugainis tad paķēra uguni un nu nosvilināja tam visus matus
+galvai. To milzis neizcieta, aizspruka ar baļķi, sazini Dievs uz kurieni. Pēc tam viņi
+dzīvoja labu laiku itin mierā; bet piepeši uzklīda viens milzis no Igaunijas,
+Sarkandaris vārdā, un tas vienā silā apkāva ceļiniekus, apkāva mediniekus. Viņš
+mēdza noliekt divus kokus deviņi pēdi resnumā vienu pret otru un tad tiem, kuŗus bija
+sagūstījis piesiet pie katra noliektā koka galotnes vienu kāju, vienu roku, pēc tam
+kokus palaist vaļā, lai nabadziņu pārplēstu vidū pušu un aizsviestu diezin kur.
+Lāčaugainis un Kalnukāpējs arī sastapa šo igauņu milzi. Kā pats nelabais tas bruka
+Kalnukāpējam virsū un būtu viņu sagrābis, ja nabadziņš nebūtu uzsprucis lielā
+eglē pa biezajiem zariem līdz pašai galotnei. Nu Lāčaugainis bija lielās sprangās,
+bet viņš saņēma sausas dusmas un nolauza abus kokus. Sarkandaris to redzēdams, laida
+ļekas vaļām; bet Lāčaugainis tam pakaļ un noķēra Sarkandari. Noķēra, pakāra pie
+lielās egles ar kājām uz augšu un atstāja, lai vilki to ēd.</p>
+
+<p align="JUSTIFY">No tā brīža Lāčaugainis sāka viens pats ceļot un brīnumus
+darīt. Reiz viņš satika lielu, lielu briedi un dzinās tam pakaļ līdz pašai
+Vāczemei, kamēr tad to saķēra. Un te nu palaidnis sāka apkārt vazāties un ar
+velniem lauzties. Tepat Vāczeme viņš arī ielūkoja daiļu zelteni un domāja to
+precēt. Bet viens velns, Lāčaugaiņa izskatu pieņemdams, ievilināja skaistuli
+Vāczemes likteņa bedrē. Otrs velns to pavēstīja Lāčaugainim. Labi! Lāčaugainis
+apņēmās savu līgavu izglābt no turienes. Bet velni pa to starpu pasteidzās tai
+apgabalā ap likteņa bedri sacelt mājas un dzīvoja gluži kā cilvēki. Atnāk nu
+Lāčaugainis, tas saaicina tā apgabala cilvēkus, šos velnus par cilvēkiem domādams,
+un saka: "Ar šām važām, kas te bezdibeņa malā pie akmeņa piestiprinātas, es
+laidīšos alā un ja saukšu, tad velciet važas ārā."</p>
+
+<p align="JUSTIFY">To teicis, viņš nolaidās alā. Bet velni paņēma zāģi un
+pārzāģēja važas, atstādami Lāčaugaini tumšos dziļumos.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Pasakas beigas, sākot ar epizodi par Sarkandari,
+liekas tīši izdomātas. Pasaka tomēr ir uzņemta, jo viņa ir publicēta arī
+tulkojumos. P. Š.</p>
+</font>
+
+
+</body></html>

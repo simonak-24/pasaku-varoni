@@ -1,0 +1,177 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Duksis un Piksis</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Duksis un Piksis.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>7.</strong> A. 1791. Skolnieks A. Jurķis Nīcā. K. Lielozola
+kr.</p>
+<font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font>Vienam vīram bijusi dikti slinka sieva: nevīžājusi nemaz
+dzievāt. Viņam bijis viens gabals linu iesēts un tie nu bijuši jau raujami. Vienu
+rītu viņa ies uz darbu, paņem maizi, gaļu, dzēriena krūzi un iet projām linu raut.
+Nogājusi pie linu gabala, viņa liekas un guļ nost; pusdienā paceļas, paēd un gul
+līdz pat vakaram. Pēcpusdienā vīrs savus darbus ir padarījis, iet skatīt, ko sieva
+dara, un atrod sievu gulošu. Vīrs paņem maizes kuli un dzēriena krūzi un iet mājā.
+Vakarā tumsīnā vīrs savus darbus pasteidz nodarīt, aizšauj durvis un iet gulēt.</p>
+
+<p align="JUSTIFY">Nav ilgi, kad arī sieva nāk mājā, pieiet pie durvim: durvis cieti.
+Iet pie loga, grabina un prasa: "Joņa, vai Oņa mājā?"</p>
+
+<p align="JUSTIFY">Vīrs atbild: "Mājā, mājā!" Sieva prasa: "Kas tad es
+esmu?"</p>
+
+<p align="JUSTIFY">Vīrs atbild: "Es nezinu," un tā vairāk viņš nekā nesaka
+un guļ savā mierā. Sieva domā, ko nu lai dara - ēst grib un iekšā nevar tikt. Viņa
+iziet uz ceļa un domā, ka varētu kaut kur nozagt, ko no ēdamām lietām. Un tā
+iedama, viņa satiek d1vus vīrus. Sieva prasa vīriem: "Kur jūs iesit?"</p>
+
+<p align="JUSTIFY">Mēs taisāmies kaut ko zagt," atbild vīri. "</p>
+
+<p align="JUSTIFY">"Nemiet mani līdz, es jums palīdzēšu, jo arī man gribas
+ēst." </p>
+
+<p align="JUSTIFY">Un tā nu viņi iet visi trīs, bet vīriem netīk, kad viņa nāk
+līdz. Viņi noved sievu pie baznīcas, ieved baznīcas dārzā un atstāj pie baznīcas
+durvju. Viņi iedod sievai pāris kabatu riekstu, lai viņa tos grauž un lai viņus tur
+uzgaida, kamēr viņi atnāk atpakaļ. Ko viņi dabūs, to viņi atnesīs un tad ēdīs
+visi trīs. Tā nu viņi aiziet, bet atpakaļ vairs nenāk, lai sieva gaida. Tai pašā
+naktī mācītāja tuvējam kaimiņam paliek bērns ļoti slims un šiem bail, ka
+nenomirst bez kristīšanas. Tāpēc viņi aizved bērnu pie mācītāja, lai to pakrusta.
+Bet mācītājam nav krustāmā trauka mājā, tas ir baznīcā palicis. Pašam
+mācītājam sāp kāja un viņš nevar aiziet uz baznīcu pēc krustāmā trauka. Viņš
+pasaka savam ķesterim, lai noiet un to krustāmo trauku pārnes. Ķesteris arī aiziet.
+Kad mācītājs liek, jāiet ir, lai nu bail, bet neko nevar darīt. Viņš noiet pie
+baznīcas dārza vārtu. Tur viņš dzird, ka pie baznīcas durvu viens ko grauž, ka
+kraukš vien.Ķesterim nu paliek bail, ka visi mati stāvus ceļas, un viņš nedrīkst
+iet tālāk. Ķesteris nu nāk atpakaļ mājā un teic mācītājam, ka viņš nedrīkst
+iet. Tur vai nu labs, vai nelabs, grauž vai dauzās, ka bailes iet. Mācītājs saka uz
+ķesteri: "Kas tu par vīru esi, ka tev bail? Kad man tā kāja nesāpētu, es ietu
+pats."</p>
+
+<p align="JUSTIFY">Ķesteris atbild: "Es tevi nonesīšu. Sēžat man uz pleciem un
+iesim abi divi."</p>
+
+<p align="JUSTIFY">Un tā ķesteris nes vinu projām uz baznīcu, ienes viņu pa baznīcas
+vārtiem dārzā. Oņa domā, ka šie ir tie viņas biedri, kas nu nes kādu laupījumu.
+Tā šī, rokas izcēlusi, skrej pretī un sauc: "Vai cepts, vai vārīts?"</p>
+
+<p>Ķesteris savu mācītāju tūliņ blaukt pie zemes un laiž kājām,</p>
+
+<p align="JUSTIFY">cik tik iet. Mācītājs pacēlies arī laiž ar savu klibo kāju, cik
+spēdams, ķesterim pakaļ. Un tā paliek bērns nekristīts.</p>
+
+<p align="JUSTIFY">Oņa tāpat ir pārbijusies un nezina, kas te notika. Viņa domā, ka
+nu tiek apkrāpta no visām pusēm. Ēst arī grib un vēders tukšs - nekas neatliek ko
+darīt, ka iet mājā pie vīra un lūgt, lai laiž iekšā, un dod ko ēst. Vīrs saka:
+"Ja tu gribi slinkot un negribi strādāt, tad es tevi iekšā nelaidīšu."</p>
+
+<p align="JUSTIFY">Sieva apsolījusi, ka strādāšot, cik vien spēšot. Tad arī vīrs
+viņu ielaidis, un no tās dienas sieva palikusi krietna strādniece.</p>
+
+
+</body></html>

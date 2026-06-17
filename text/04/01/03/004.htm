@@ -1,0 +1,191 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Kal?js ar N?vi</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Kalējs ar Nāvi.</p>
+</b></font>
+
+<p align="JUSTIFY">4.A. 331 A. E. Krastiņš Varenbrokā, Folkloras krātuvē. </p>
+
+<p align="JUSTIFY">Reiz dzīvojis viens saimnieks un viņš ļoti mīlējis nabagus.</p>
+
+<p align="JUSTIFY">Vienā vakarā pie viņa ieiet Dievs par nabagu un lūdz naktsmāju.
+Saimnieks viņu uzņem un mīļi uzcienī kā vajaga. Nu Dievs, no rīta projām iedams,
+saka: "Vēlies trīs vēlēšanās, kādas tu gribi tās tiks izpildītas."</p>
+
+<p align="JUSTIFY">Nu tas saiminieks saka: "Es vēlētos simtu gadu dzīvot."
+Dievs saka: "Otru kādu?" ' Saiminieks saka, pie viņa nākot kaimiņš kārtis
+spēlēt, vienmēr šo vinnējot un aizejot projām. "Es vēlētos, kas uz šitā
+krēsla atsēstos, lai nevar piecelties."</p>
+
+<p align="JUSTIFY">Un trešā vēlēšanās: "Man ir ļoti liels ābeļdārzs un
+vienā ābelē ir ļoti gardi āboli. Ļaudis nāk tur un zog. Bet kuŗš pie tās ābeles
+iet, lai tur pakaŗas, ka netiek vairs nost."</p>
+
+<p align="JUSTIFY">Dievs saka: "Es domāju, ka tu vēlēsies no debess mantām kādu,
+bet tu runā tik par pasaules lietām."</p>
+
+<p align="JUSTIFY">Saiminieks saka: "Kur nu, Dieviņ, zemniekam par tik augstām
+lietām domāt?"</p>
+
+<p align="JUSTIFY">Dievs saka, prom iedams: "Nu tad lai arī tev notiek! Visas tavas
+vēlēšanās lai piepildās."</p>
+
+<p align="JUSTIFY">Pāriet tie pirmie simtu gadu, atnāk Nāve. "Nu sataisies,
+cilvēks, tavi gadi ir jau pārgājuši."</p>
+
+<p align="JUSTIFY">"Jā, ja," saimnieks saka, "man jau arī apnicis
+dzīvot. Man kājas sāp - grūti staigāt." Vai tu nebūtu tik laba, kamēr es
+nomazgāšos, atnest kādu ābolu no tās ābeles."</p>
+
+<p align="JUSTIFY">Kā Nāve iet pie tās ābeles, tā pakaŗas. Saiminieks piegājis pie
+Nāves, skatījies un smējies. Nāve sāk kliegt: "Tu, krāpniek, laid mani no
+ābeles vaļā!"</p>
+
+<blockquote>
+  <p align="JUSTIFY">Atlaid man vēl simtu gadu dzīvot!" "</p>
+  <p align="JUSTIFY">Še kas nelaiž." "</p>
+</blockquote>
+
+<p align="JUSTIFY">"Manis pēc vari karāties ābelē, gan jau es ilgāk
+nodzīvošu." Nāve redz, ka nieki būs, atlaiž viņam arī simtu gadu. Nu no
+ābeles aiziet projām.</p>
+
+<p align="JUSTIFY">Pāriet tie simtu gadu. Atnāk atkal Nāve : "Nu vai tu esi
+sataisījies? Jābrauc projām. Nu tavu ābolu es vairs neiešu šķīt."
+"Piedod tu man, mīļā Nāve, ko esmu pret tevi grēkojis. Es zinu, ka tu uz mani
+esi ļoti dusmīga. Būsi piekususi, uz mani</p>
+
+<p align="JUSTIFY">skriedama. Pasēdi še, kamēr es Dāvida dziesmu, deviņdesmitseptīto
+pantu, nolasu, un tad varēsi mani ņemt."</p>
+
+<p align="JUSTIFY">Kad Nāve atsēdās, saiminieks ietaisa pīpi un staigā pa istabu
+svilpodams. Nāve sava: "Kas tev ir? Vai tu sataisies arī, vai nolasīji savu
+peršiņu?"</p>
+
+<p align="JUSTIFY">Šis saka: "Man ar tevi vairs nekādas darīšanas nav. Tu vari
+man iepūst pakaļā."</p>
+
+<blockquote>
+  <blockquote>
+    <p align="JUSTIFY">Nāve grib no krēsla celties. Čuks! Nevar kustināt pakaļu. Atlaid
+    mani no krēsla!"</p>
+  </blockquote>
+  <p align="JUSTIFY">" "Atlaid man vēl simtu gadu!" "Es ilgāk tevi
+  nevaru atlaist."</p>
+</blockquote>
+
+<p align="JUSTIFY">Saiminieks saka: "Paga, paga, es iekurināšu krāsni un
+pasildīšu tev pakaļu, varbūt tev ir salti."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Nāve atlaiž un nu aiziet no krēsla.</p>
+</blockquote>
+
+<p align="JUSTIFY">Pagāja vēl simtu gadu. Kad nu nāve nāca trešo reiz, tad vairs
+nerunāja un nodūra saiminieku jau no tālienes.</p>
+
+
+</body></html>

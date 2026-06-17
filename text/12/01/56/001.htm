@@ -1,0 +1,141 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>56</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="center">Malēnieši Rīga.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>1. </strong>A. 1683. A. Bīlenšteina kr., Valmieras apg.,
+1850.g. M. Bohm, Lettische Schwānke, Nr. 46.</p>
+
+<p align="JUSTIFY">(Tīšu pa malēniski izteikts, lai izzobotu malēniešus, jo
+šejienieši patiesībā tā nerunā.)</p>
+
+<p align="JUSTIFY">Juonis bruolis un Pīteris bruolis guojuši Rīgu opskotīt. Ok kungs,
+kas Rīgā kungu! - ko muojas vītā nojēmuši cepurīti nū golvas; to vēl vokorā
+otkal uzlikuši. Ir pošu žēlīgu ķēniņu redzējuši po zemes virsu stoigajam or
+zalta spoini par placim (= bundzinieks). Nūnākuši Daugavas molā - sacījis Pīteris
+bruolis: "Juoni, bruoli, sorgi noudas maķeli, ko blāži nanūrouj!" A Juonis
+bruolis atteicis: "Por kom tad Rīgā tīsas?"</p>
+
+<p align="JUSTIFY">Nūrouj blāds Juoņam bruolim maķeli. Teic Pīteris bruolis:
+"Voi naķersi blādi?" Atteic Juonis bruolis: "Loi skrīn! por kom tad
+Rīgā tīsas, tās zina, kur tī blāži žūrējas. Nūīt pī tsas - tīsa prosa: kuods
+tad tas blāds bijis ? Atteic Juonis bruolis : "Tuods pots, ka tis tur goldiņa golā
+ar sarkanām zimzām!"</p>
+
+<p align="JUSTIFY">Izved Juoni bruoli laukā un līk uzskoitīt krītni. Iznuok vīns
+mīlīgs kundziņš un soka: "Dai pa karašinki (dod labi krietni)!" Dūmā
+Juonis bruolis: "Nu karašiņas dūs!" A iznuok vīns bargs kundziņš un soka:
+"Polna (diezgan)!" Nu dūmaj, ko palnūs sositīs!</p>
+
+<p align="JUSTIFY">A nūguoja pī gudras sīvas, opvuordūja, opglāzīja - ko ar rūku
+otņēma.</p>
+
+<p align="JUSTIFY">Pār Daugavu ejūt, Pīteris īkrīt uolenģī. Atteica Juonis bruolis:
+"Nu, ku tu vēl rūkas saldēj - loidīs vīn tik dibinā!"</p>
+
+
+</body></html>

@@ -1,0 +1,139 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title> </title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Varonis izglābj trīs nolaupītas princeses.</p>
+</b></font><font size="4">
+
+<p align="JUSTIFY">&nbsp;</p>
+</font>
+
+<p align="JUSTIFY"><b>8. </b>A. 301 A. M.<b> </b>Starķis Lielvārdē, Ausekļa atl. r.
+LP, VI, 115, 15 d. AŠ, II, 86 g.</p>
+
+<p align="JUSTIFY">Vienam ķēniņam reiz nozudušas trīs meitas. Izmeklējis 4 vīrus:
+trīs jaunus, vienu vecu, un sūtījis meitas meklēt. Tie jājuši, jājuši - atraduši
+lielu, lielu pili pilnu ar vēršiem. Rītā vecais ar divi jauniem aizgājis pilsētā,
+meitas meklēdams. Viens jaunais turpretim palicis pilī un vārījis vērsi vakariņām.
+Kamēr tur vārījis, ienācis Misiņbārdis un izrijis katlu. Otrā un trešā dienā
+tiem otriem jaunajiem izdevies tāpat. Ceturtā dienā vecais pats vārījis vērsi un
+nedevis Misiņbārdim katlu izrīt. Misiņbārdis par to sācis spēkoties; bet vecais
+Misiņbārža bārdu iespīlējis bluķi tas pazudis.</p>
+
+<p align="JUSTIFY">Rītā atraduši vienā pils istabā lielu, dziļu caurumu. Vecais
+ielaidies pa caurumu un dibinā atradis zudušās ķēniņa meitas. Bet meitas
+bažījušās: "Kā mēs izkļūsim laukā, jo esam otrā pasaulē."</p>
+
+<p align="JUSTIFY">Tomēr vecais atradis turpat stabulīti. Kā to pastabulējis
+atskrējuši mazi velnēni kā skudras: ko pavēlot?</p>
+
+<p align="JUSTIFY">"Pieslieniet dzelzs trepes līdz augšai, ka varam ārā
+izkļūt!" vecais velnēniem pavēlējis.</p>
+
+<p align="JUSTIFY">Velnēni pieslējuši gaŗas, gaŗas trepes un nu vecais ar meitām
+uzkāpuši šinī pasaulē.</p>
+
+
+</body></html>

@@ -1,0 +1,157 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong> Neuzticamā sieva.</strong></font></p><font size="5">
+
+</font><p align="CENTER"><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p align="JUSTIFY">3. A. 1380. J. B i r ģ e l i s M e ž o t n ē. LP, VI, 908, 135, 2.</p>
+
+<p align="JUSTIFY">Viena saimniece apņēmusi vecu vīru - piespiesta aizgājusi un nemaz
+viņu nemīlējusi. To vien gaidīt gaidījusi : kauti tikai drīzumā mirtu! Beidzot tā
+katru sestdienas vakaru cepusi raušus un gājusi ar raušiem dārzā pie vecā ozola
+dieviņus lūgt, lai tie drīzumā atņemšu šo neieredzēto vīru, ka var dabūt savu
+pirmo brūtgānu, stalto kaimiņa Jānīti. Bet vīrs, visu to manīdams, vienu
+svētvakaru aizsteidzies pie ozola priekšā un atbildējis sievai rupjā balsī: "Es
+tev došu padomu, kā tu Jānīti dabūsi. Ej mājā, noķer cāļus, izvāri labi sūru
+virumu un dod savam saslimušajam vīram labi saēsties. Kad būs paēdis sāļo
+strebjamo, viņš prasīs dzert, bet tu nedod. Un kad trīs reizes būs prasījis un
+nebūsi devusi, tad tas nomirs acim redzot, kā muša izdzisīs."</p>
+
+<p align="JUSTIFY">Sieva pārgājusi mājā nu to vien čukstējusi: "Kad tikai nu
+izdotos, kā dieviņš mācījis, kad tikai izdotos!"</p>
+
+<p align="JUSTIFY">Beidzot piegājusi pie slimiķa gultas: "Vīriņ, citi slimnieki
+kauj pīles, pakauj šad un tad cāļus, zosis - mēs nekad! Es labprāt vēlētos nokaut
+trīs četrus cāļus un rītu tev brokastī izvārīt."</p>
+
+<p align="JUSTIFY">"Jā, jā, sieviņ, kauj, kauj, diezin, vai ilgi tik pat
+dzīvotājs esmu!"</p>
+
+<p align="JUSTIFY">Rītā agri sieva noplūkusi cāļus un sametusi tik sūru virumu kā
+dzīvu sāļumu. Vīrs saēdies labi, prasījis vienreiz, otrreiz nodzerties, šī
+atbildējusi: "Vai tad tev tā nu gribas? Pagaidi, pagaidi, nesīšu gan, tagad
+mazliet nav vaļas!"</p>
+
+<p align="JUSTIFY">Pēc laiciņa prasījis trešreiz, ši vēl nedevusi. Kā nedevusi,
+vīrs - izlikdamies - aizvēris acis un bijis pagalam.</p>
+
+<p align="JUSTIFY">Kā bijis pagalam, šī atsaukusi kaimiņa Jānīti un cienājusi un
+cienājusi ar cāļu virumu, beidzot vēl tecējusi uz klēti pēc medus. Vīrs atkal par
+to laiku nositis Jānīti un, sabāzis tam pilnu rīkli ar kumosiem - gulējis atkal.
+Atskrējusi saimniece, ieraudzījusi Jānīti, negausīti, un nezinājusi ko iesākt.
+Beidzot nesusi ūdeni un pilinājusi savam vīram mutē, lai jel vismaz to vēl
+atdzīvinātu tādā nedienā. Pilinājusi, pilinājusi - &amp;127;īrs ne kustēt nekust. Bet
+pa brīdim tas sācis taču karkšķināt, ūdeni norīt un atdzīvojies. Nu abi gudroja,
+kur Jānīti nolikt. Sagudrojuši aiz kaimiņa kūtenēm nomest. Tur Jānītis kaņepāju
+spaļos sagulējis līdz pavasarim: Tad nācis nabags, nogriezis tam zābakus ar visām
+kājām un aizgājis uz citu māju nakti pārgulēt. Tur viņš pa nakti izvilcis
+nogrieztās kājas, aiznesis tās uz teļu aizgaldu, apvilcis pats jaunos zābakus un
+slepeni aizgājis projām. Nu ļaudis domājuši, ka teļi nabagu apēduši.</p>
+</font>
+
+
+</body></html>

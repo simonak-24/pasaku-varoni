@@ -1,0 +1,147 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Baltā čūska.</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">3. A. 673. H. Skujiņa, Andrs Ziemelis, no 52
+gadi veca J. Gaiļa Aumeisteŗos.</font></p><font size="3">
+
+<p align="JUSTIFY">Agrāki cilvēki varēši saprast putnu valodu, ja viņi ēduši
+baltās čūskas gaļu. Reiz nu ar vienc lielckungs saķēris balto čūsku un licis
+pavāram, lai čūsku izvārot tā, ka no poda netiekot nemaz ar suta laukā un šim
+neesot brīvu ne skripatiņas pašam pasmeķēt. Pēc stundas šis pats nākšot podam
+pakaļā. Pavārs vārīš čūsku. Pagāsi pusstunda un pavāram iekārējies pasmeķēt,
+kāds gan tas svešādīgais ēdienc būs, laikam tam gan vaigot būt varēn gardam, ka
+lielckungs šim tik stingri noliedzis smeķēt. Nu pavārs ar vis ilgi nelauzīš galvas,
+nocēlis podam vāku un drusku pasmeķēš. Bet ka pavārs bīš nosmeķēš, ta kā pa
+brīnumu uzreiz sapratis putnu valodu.</p>
+
+<p>Pagāsi stunda un lielckungs nācis pēc poda. Šis nu ēdis ēdis, bet nekādas
+jēgas! Kā nesaprot, tā nesaprot putna valodas.</p>
+
+<p>Pagāš tāds laicīc un lielckungs taisījies braukt pie otra lielkunga, jo šis bīš
+sarīkoš lielas viesības. Tam mūsu lielkungam bīš varēn ieslavēc pavārs un tas
+otris lielckungs, kas tās viesības rīkoš, lūdzis mūsu lielkungu, lei ņemot savu
+pavāru līdz, jo šis gribot visu pa godam rīkot. Nu visi trīs, lielckungs, pavārs un
+kučērs, braukuši pie otra lielkunga. Braukuši, braukuši un lielckungs ieklausījies,
+ka ceļmalā žvadzina žagata. Šis nu pats pie sevis nosacīš: "Nez', ko gan tā
+žagata žvadzina?"</p>
+
+<p align="JUSTIFY">Nu pavārs uzreiz sacīš, jo viņč jau sapratis putnu valodu:
+"Žagata jau saka, lei nebraucot tik droši. Tiltam esot ielūzis grods un kā
+braukšot, zirgs kāju pārlauzīšot."</p>
+
+<p align="JUSTIFY">Bet lielckungs neticēš un sacīš kučēram, lei braucot tik vēl
+ātrāki. Kā braukuši pār tiltīnu, tā zirgs, iegrūdis kāju grodu starpā un kāja
+pušu!</p>
+
+<p align="JUSTIFY">Nu lielckungs uzreiz sapratis, ka pavārs zina putnu valodu un ka šis
+ir ēdis no baltās čūskas, lei gan šim bīš aizliegts ēst. Nu lielckungs
+pārskaities, ka pavārs šo piešmaucis, un ņēmis un aiztriecis pavāru pa ratu.</p>
+</font>
+
+
+</body></html>

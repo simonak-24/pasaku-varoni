@@ -1,0 +1,243 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>33</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Baltā un melnā līgava. A.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1.<b> </b>A. 403 A. .M. Šiliņa Talsu apg. 1875. g., A. Bīlenšteina
+kr. LP, VI, 118,1.</p>
+
+<p align="JUSTIFY">Vienam ķēniņam bijuši divi bērni: dēls un meita. Kad viņam
+pirmā sieva nomirusi, tas apņēmis otru; bet tā tos bērnus nemaz labi neturēj(u)si.
+Savu īsto meitu pamāte gan mīlējusi, lai gan tā bijusi slinka un nesmuka.</p>
+
+<p align="JUSTIFY">Kad. pabērni paauguši lieli un noskatījušies, ka pamāte tos
+pavisam neieredzējusi, tie norunāj(u)ši projām iet. Labi. Gājuši, gājuši, bet
+šķērsceļā raudādami šķīrušies; brālis vēl paņēmis no māsas bildi par
+piemiņu un tad katrs aizgājis pa savu ceļu.</p>
+
+<p align="JUSTIFY">Tā meitiņa gājusi, gājusi - nonākusi lielā pilī; tur logi visi
+bijuši tā norūsējuši kā dzelzs. Iegājusi iekšā - neviena cilvēka neatradusi. Nu
+nesusi ūdeni un tik(ai) mazgājusi tos logus un tīrījusi kambaŗus (istabas) - tie arī
+pavisam mel(n)i bijuši. Iztīrījusi vienpadsmit kambaŗus - gribēj(u)si divpadsmitā
+iekšā iet, bet tās durvis bijušas aizsietas ar liepu lūku. Viņa lūku atraisījusi
+un atvērusi durvis. Kā atvērusi - ieraudzījusi trīs sievišķus pavisam melni
+ģērbtus krēslos sēžam; trīs mel(n)as piķa sveces tām degušas priekšā. Tas viens
+sievišķis sacījis: "Meitiņ, tu atnāci savu laimi meklēt!"</p>
+
+<p align="JUSTIFY">Otrs sacījis: "Tu gan esi smuka, bet tu būsi vē1
+smukāka!" Trešais sacījis: ,,Tev gan ir smuki mati, bet tev būs zelta mati!"</p>
+
+<p align="JUSTIFY">Un kad nu meita izgājusi vienpadsmitā istabā atpakaļ ieraudzījusi
+spieģeli, ka pulka smukāka palikusi un, ka nu vēl zelta mati.</p>
+
+<p align="JUSTIFY">Nu gājusi no pils laukā un griezusies uz mājām. Pārnākusi mājā,
+pie vārtiem, pamāte - redzēdama kāda viņa smuka palikusi, un kas par smukiem zelta
+matiem - saņēmusi pameitu ititi laipni un sūtījusi arī savu meitu tādu pašu laimi
+meklēt.</p>
+
+<p align="JUSTIFY">'Tā gājusi, gājusi - nonākusi tai pašā pilī ar norūsējušiem
+logiem. Bet viņa logus nemazgāj(u)si; tik(ai) staigāj(u)si pa kambaŗiem un visu
+izskatīj(u)sies. Beidzot atradusi tās divpadsmitās durvis ar liepu lūku aizsietas -
+iegāj(u)si iekšā un ieraudzīj(u)si trīs mel(n;os sievišķus; katrai degusi priekšā
+piķa svece. Tas pirmais sievišķis teicis: "Meitiņ, tu nāci savā nelaimē!"</p>
+
+<p align="JUSTIFY">Otrs sacījis : "Tu gan nesmuka biji, bet tu vēl nesmuka
+būsi!"</p>
+
+<p align="JUSTIFY">Trešais teicis: "Tev gan strupi, nesmuki mati bija, bet nu tev
+galvu segs sari kā cūkai!"</p>
+
+<p align="JUSTIFY">Un tā arī noticis. Kad gājusi otrā istabā spieģelim gaŗām,
+ieraudzīj(u)si, ka galva kā cūkai. Pārnākusi mājā, māte tādu ne</p>
+
+<p align="JUSTIFY">smuku nemaz negribējusi iekšā laist; un kad beidzot ielaidusi, tad
+paglabāj(u)si šo apakš grīdas (pagrīdē), lai neviens neredz; slepus arī ēst
+devusi. Bet pameitu nu labi turēj(u)si.</p>
+
+<p align="JUSTIFY">Pa tām starpām pameitas brālis bijis nogājis pār jūŗu vienā
+pilsētā un salīcis pie ķēniņa par sulaini. Ķēniņš viņu labi izturējis.</p>
+
+<p align="JUSTIFY">Bet brālis savas māsiņas bildi arvienu turējis acu priekšā uz
+galda un tiklīdz vaļa bijusi, sēdējis tur raudādams un Dievu lūgdams. To citi
+sulaiņi noskatījušies un pateikuši ķēniņam. Tad ķēniņš sulaiņiem pieteicis,
+lai bildi nozogot un viņam iedodot. Bet jaunais sulainis arvienu savu istabu turējis
+aizslēgtu. Te vienu vakaru ķēniņš viņu ātri saucis un šis steigdamies aizmirsis
+istabu aizslēgt. Citi sulaiņi to tikai gaidījuši un nozaguši to bildi, atdevuši
+ķēniņam. Ķēniņš aicinājis sulaini un prasījis, kas tā par bildi esot. vai viņa
+brūtes bilde? Sulainis atteicis: "Nē, tā ir manas māsas bilde!"</p>
+
+<p align="JUSTIFY">Nu ķēniņš pavēlējis, lai ņemot viņa kuģi un braucot savai
+māsai pakaļ, viņš gribot to precēt. Labi! braucis un aizvedis vēl māsai zelta
+drēbes, teikdams, lai braucot līdz, būšot par ķēniņieni tapt.</p>
+
+<p align="JUSTIFY">Māsa sataisīj(u)sies, kā nu braukt; bet kad jau kuģī iegāj(u)ši,
+pamāte iegrūdusi arī savu meitu kuģī, sacīdama: "Ko ar tevi lai daru? Brauc
+viņiem līdz pār jūŗu, ka es tevi ne mūžam vairs neredzu!"</p>
+
+<p align="JUSTIFY">Nu braukuši. Bet kad kuģis jūŗas vidū bijis, nesmukā pamātes
+meita iegrūdusi ķēniņa brūti pār malu ūdenī un apģērbusi pati tās zelta
+drēbes. Tomēr īstā brūte nenoslīkusi, palikusi par zelta pīlīti un peldējusi
+arvienu kuģim pakaļ. Otrā malā ķēniņš iznācis savu brūti saņemt; bet
+ieraudzījis meitu ar cūkas galvu, viņš dusmās sulaini licis cietumā mest, un pēc
+trim dienām kaklu lai nocērtot tādam.</p>
+
+<p align="JUSTIFY">Un tur ķēniņa pilī bijusi kukņas meita, tai bijis Anna Panniņa
+vārdā; bet viņu arvienu saukuši par Anču.</p>
+
+<p align="JUSTIFY">Te pirmo vakaru. zelta pīlīte ielaidusies kukņā un sacīj(u)si :
+"Anča Panniņa, ko mans brālis, jaunais sulainis, dara?"</p>
+
+<p align="JUSTIFY">Anča atteikusi: ,,Viņš sēž cietumā un pēc trīs (trim) dienām
+tam kaklu nocirtīs!"</p>
+
+<p align="JUSTIFY">Pīlīte, to dzirdēdama, itin noskumusi aizlaidusies projām. Otrā
+vakarā kukņas meita bijusi viena pati kukņā. Te pīlīte atlaidusies un atkal
+prasīj(u)si: "Anča Panniņa, ko mans brālis, jaunais sulainis, dara?"</p>
+
+<p align="JUSTIFY">Anča atkal atbildējusi: "Viņš sēž cietumā un pēc trīs
+(trim) dienām tam kaklu nocirtīs!"</p>
+
+<p align="JUSTIFY">Tad pīlīte teikusi: "Viņu varētu glābt, kad es par cilvēku
+taptu, un tev pie tam ar(1) jāpalīdz. Es vēl rītvakar te nākšu, tad tu ņem vienu
+kuņilu, pārlauz pušu, svied katru gabalu pār vienu kamiesi, tad tu mani noķersi un es
+palikšu par cilvēku."</p>
+
+<p align="JUSTIFY">Labi. Trešā vakarā pīlīte ielaidusies kukņā un prasīj(u)si
+atkal: "Anča Panniņa, ko mans brālītis dara?"</p>
+
+<p align="JUSTIFY">Nu kukņas meita pārlauzusi kuņiņu, pārsviedusi gabalus kamiešiem
+pāri un sagrābusi zelta pīlīti. Tā tūlīt palikusi par ļoti skaistu, jaunu meitiņu
+ar zelta matiem un lūgusi kukņas maitu, lai ietot pie ķēniņa un atnesot cietuma
+atslēgas, viņa gribot savu brālīti apmeklēt.</p>
+
+<p align="JUSTIFY">Kukņas meita ķēniņam visu pateikusi un tas steidzies zemē skaisto
+sevišķi redzēt. Kad viņš nu to ieraudzījis, tad no tās bildes pazinis, ka tā
+īstā brūte esot un vēl pulku smukāka, nekā bildē. Nu ķēniņš gājis ar viņu
+cietumā un asarām lūdzis sulaini, lai piedod. Viņš to būšot kā brāli turēt un
+viņam savu pusvalsti atdot. Sulainis piedevis gan, bet teicis, ka viņam pašam valsts
+esot, jo tēvs pa tām starpām bijis nomiris.</p>
+
+<p align="JUSTIFY">Tad ķēniņš apprecējis savu skaisto brūti un dzīvojis laimīgs;
+bet nesmuko meitu licis ar sešiem zirgiem saraustīt.</p>
+
+<p align="JUSTIFY">Piezīme. No Jaun-Brengulu pagasta Ūdrs piesūtījis Brīvzemniekam
+pasaku, kurā teikts, ka brālis bijis par kučieri pie kunga, un māsas bildi glabājis
+auzu apcirknī.</p>
+
+<p align="JUSTIFY">Beigumā teikts, ka balta pīlīte (māsa) ienākusi pie kunga pavāra,
+izsukājusi matus un vaicājusi sunim: "Labdien, sunīt, Ančpanīti ko dara mans
+brālītis Reinutiņš? Es vēl rītvakar nākšu sildīties un kad tad iešu projām, tad
+vajaga mani Ceri; es tad palikšu par čūsku bet lai nebēdā lai lauž mani trīs reiz
+pret ceikaulu (ceļkaulu) un met uz labā pleca, tad palikšu par cilvēku.</p>
+
+<p align="JUSTIFY">Otrā vakarā kungs pats noķēris balto pīlīti un tā darījis, tad
+šī palikusi par daiļu meitu, un kučieri nu izlaiduši no cietuma. L. P.</p>
+
+
+</body></html>

@@ -1,0 +1,282 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>32</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Varonis izglābj trīs nolaupītas princeses.</p>
+</font>
+
+<p>&nbsp;</p>
+
+</b><p align="JUSTIFY"><b>32. A. </b>301 A. R. Tabine<b> </b>Kapiņos.</p>
+
+<p align="JUSTIFY">Vīnam tāvam beja treis ļūti skaistas, bet taidas paslynkas meitas.
+Pi meitu slynkuma vainīgs beja pats tāvs, jo puoruok viņas lutenuoja, bet pi dorba
+naspīdja, ni ari izmuocēja struoduot. Augūt meitiņas tik vīn i zynuoja, kai skrīt pa
+apkuortējim mežim, plyukt puķes, peit vaiņagus un puškuotīs.</p>
+
+<p align="JUSTIFY">Bet baguotība nav pastuovīga. Baguotais kungs pazaudēja vysu sovu
+montu un izlutynuotuom meituom vajadzēja stuot kolpyuņu vītā pi gryuta dorba. Viņas
+naprota struoduot, tāvs dusmūjuos un reizi, zaudējis pacītību, nūluodēja sovas
+meitas, tuos vīnā acumirklī kai gunī sadaga. Gon tāvs rauduoja, gon bāduojuos, bet
+nikas naļeidzēja.</p>
+
+<p align="JUSTIFY">Kaimiņūs ar tū kungu dzeivuoja kaids zemnīks. Tam! beja treis dāli
+medinīki. Jaunēkļi pazyna daiļuos kunga meitas un navīnu reizi vīn nūrunuoja sevī,
+ka tuos byutu jīm lobos sīvas, bet snēgtīs pēc tuom nadreikstēja.</p>
+
+<p align="JUSTIFY">Reizi laiku kavēdami, jaunekļi devjuos uz mežu medībās. Juodami
+par mežu, jī namanūt aizsamaldēja un pībraucja pi kaidas pavysam svešas ustabiņas.
+Ustabiņa beja tukša un bruoļi, apsavāruši tū vysapkuort, pīsēja zyrgus, atstuoja
+vacuokū bruoli par sorgi, bet obi jaunuokī devjās tuoļuok mežā.</p>
+
+<p align="JUSTIFY">Te - kur gadējuos, kur na - nu aiz ustobas pakša izleida sierms
+veceļs, atpēra vacuokū bruoli un pabuozja zam pakša. Kad jaunuokī grīzjās ar
+medējumu, atroda bruoļi tik dzeivu. Izvylkuši tū<b> </b>atspierdzynuoja, pabaruoja un
+vysi treis guluos uz atpyutas.</p>
+
+<p align="JUSTIFY">Nuokūšu reitu pi zyrgim palyka vidējais bruolis, bet vacuokais ar
+jaunuokū guoja medībuos. Un otkon atguoja tys pat vece]s, atpēŗa vidējū bruoli un
+pabuozja zam pakša. Kad pi vokora bruoļi grīzjuos nu medībuom, atroda tū tik dzeivu.
+Izvylka, atspierdzynuoja, pabaruoja un otkon vysi treis atsagula.</p>
+
+<p align="JUSTIFY">Trešā reitā pi zyrgu palyka vysjaunuokais bruolis, bet tī divi
+guoja medībuos. Un otkon atguoja siermais vecejs un suoka spākuotīs ar visjaunuokū
+bruoli; bet nyu siermajam izguoja pluoni: jaunuokais bruolis atpēŗa veceļi, pabuozja
+zam pakša un pūdu gryutū veča vāzu pajēmja sev. Vokorā mednīki ar baili guoja uz
+muojuom, jo dūmuoja, ka jaunuokais bruolis byus beigts. Na tai gon beja: veceļs nadzeivs
+gulēja zam pakša.</p>
+
+<p align="JUSTIFY">Nyu bruoļi, apkrauti ar medējumu, gavilēdami braucja uz muojuam.
+Ceļā jī atroda dziļu dūbi. Carādami tur atrast kaidu nūslāptu montu, syutēja
+jaunuokū kai vysstypruokū dūbī. Jaunuokais pajēmja sovu gryutū vāzu un nūsalaidja
+dūbī. Tuos dybynā jis atroda garu zamzemes ceļu un guoja pa tū. Ceļš vyzuļuoja kai
+ar zaltu. Ceļa molā jis atroda mozu ustabiņu un īguoja tamā. Īguojis nūsabreinuoja:
+ustabiņā sēdēja vysvacuokuo kaimiņu kunga meita un gauži rauduoja. Pamanējuse
+jaunekli, jei nimoz nasaprīcuoja, bet vēl vairuok skuma. Pabarojuse jaunēkli, jei
+skumīgi teicja: "Bruoļīt, slēpīs šymā skapī! Dreiži atskrīs rogona ar
+sešuom golvuom, un īraudzējuse tevi, nūsiss. Asu atdūta juos varā, un nivīns
+cylvāks nadreikst te īīt."</p>
+
+<p align="JUSTIFY">Tik jaunēklis īleida skapī, kad sadunēja zeme, un meitiņas ustobā
+īskrēja rogona ar sešuom golvuom. Īskrējusi tyulīt suoka ūst gaisu un bļaut: Kur
+te kristīta cylvāka smoka tykuse? Dūd jū šur, lai apreju!"</p>
+
+<p align="JUSTIFY">Bet nūluodātuo meitiņa mīrīgi teicja: "Tu skraidīdama pa
+pasauli pīūdi tuo gaisa un dūmuoj, ka arī te taids pat. Labuok paēd un ej
+atsapyust!"</p>
+
+<p align="JUSTIFY">Bet rogona ti bjuovja un ūšņuoja gaisu un arvīnu tai greiži vieras
+uz skapa pusi. Jau pašulaik jei taisējās skrīt pī skapa, te jauneklis ātri izlēcja
+nu tuo, un nūstuojīs pret rogonu, drūši teicja : "Nu, a kas ta, ka i kristīta
+cylvāka smoka? Vai tu dūmuoj mani apēst? Paraugi, īsim spākuotīs!"</p>
+
+<p align="JUSTIFY">Rogona aizzadusmuoja vēl stypruok, aizkaucja sešim bolsim un saucja
+jaunekļa uz klajuma spākuotīs. Jauneklis pajēmja sovu vāzu un izguoja. Rogona tik
+pacēļa lelu rūku, lai sagruobtu jaunēkli aiz kakla un nūžņaugtu, bet jauneklis
+uotri pacēļa sovu pūda vāzu, ar vīnu ciertīni nūruovja vysas sešas rogonas golvas,
+un savēris tuos strikī, nesja paruodīt meitiņai.</p>
+
+<p align="JUSTIFY">Nyu jis īguoja otkon cytā ustabiņā, tur atroda ūtru kunga meitu un
+smīdamīs ruodēja tai sešas rogonas golvas. Meitiņa nazynuoja, vai prīcuotīs, vai
+rauduot. Jei prīcuojuos, ka vacuokuo muosa jau izgluobta, bet skuma tuopēc, ka paša
+beja zam stypruokas rogonas varas. Tai rogonai beja deviņas golvas un meita beiduos, ka
+jei naopreitu jaunekļa, tuopēc pabaruojuse jū, īslēdzja skapī. Par šaltiņu
+atskrēja deviņu golvu rogona un bļuovja deviņim bolsim: "Kur te kristīta
+cylvāka smoka? Dūd, lai es jū apreju!"</p>
+
+<p align="JUSTIFY">Meitiņa pīroduse pi rogonas, mīrīgi atbildēja: "Skraidīdama
+pa pasauli, pīūdi un nyu tev tei smoka deviņūs daguņūs stuov." Bet rogona tik
+bļuovja gan greiži viertos uz skapi. Te uotri</p>
+
+<p align="JUSTIFY">atlēcja skapa durovas un nn tuo izskrēja jauneklis. Nustuojīs pret
+rogonu, jis sacīja: "Nu, a kas tad, ka i kristīta?"</p>
+
+<p align="JUSTIFY">Rogona palyka vēl nyknuoka un bļuovja: "Es apreišu tevi."
+Jauneklis drūši atbildēja: "Nu, tik cieņas krist un apreit cylvāku. Paprīšku
+īsim spākuotīs. Juo paveiksi mani, tad varēsi apreit."</p>
+
+<p align="JUSTIFY">Rogona pasavēra uz jaunēkļa un saucja viņu uz klajumiņa. Kai
+rogona cārt, tai jauneklis sakreit zemē leidz ceĪim, bet kaut jis ari tai sakritis,
+ceļ sovu vāzu un ar vīnu ciertīni nūlauž rogonai sešas golvas. Cikom tei sajem
+spāku, lai cierst ūtru reizi, jauneklis paceļ vāzu un nūraun palykušuos treis
+golvas. Savēris tuos strikī, nas meitiņai ruodīt.</p>
+
+<p align="JUSTIFY">Īguojis otkon cytā ustobā, jis te atrūn vysjaunuokū kunga meitu.
+Meitiņa brismīgi ņūsabeist un rauduodama lyudz jaunēkli, lai slēpas, jo viņu
+apsorguoj vysnyknuokuo divpadsmit golvu rogona. Jaunēklis jau beja pīkusis un varbyut
+gryuts jam by uttc paveikt vystypruokū rogonu. Tuopēc jis labpruot īleida
+aizruodītajā skapī uz atpyutas. Par šaltiņu sadunēja zeme un ustobiņā īskrēja
+brīsmīguo rogona. Juos varā beja vysdaiļuokuo un labuokuo kunga meita un tū<b> </b>jai
+vajadzēja stypri sorguot un žāikuot, ka meitiņa naizlitu nivīnas osoras, juo
+rauduošana maituoj skaistuos acis. Pamanējuse meitiņas ocu volgonumu, jei namīrigi
+suoka ūšņtrot gaisu un umai [piepēži] nykni aizzabļuovja : "Kur te kristīta
+cylvāka smoka? Kam laidi ustobā? Dūd jū šur, lai apreju!"</p>
+
+<p align="JUSTIFY">Meita atsacēja: "Pīsaskreidēji pa pasauli, plūdi kristītas
+smokas un nyu dūmuoj, kā te ūž. Kai tad lai šite teik kristīts cylvāks?"</p>
+
+<p align="JUSTIFY">Bet rogona vys ūdja gaisu, bļuovja divpadsmit bolsim un namīrīgi
+vieruos uz skapi. Jaunekļam apnyka klausētīs tuo bļuoviņa. Izlēcis nu skapa, jis
+nūstuoja pret rogonu un drūši teicja: "Nu, a kas tad, ka i kristīta?"</p>
+
+<p align="JUSTIFY">Rogona aizzasvyla. Nu divpadsmit puoru acu suoka mest dusmes guni un
+bļaut divpadsmit bolsim: "Kai dreikstēji še īt? Es tevi apreišu!"</p>
+
+<p align="JUSTIFY">Bet jaunēklis otkon teicja: "Paprīkšu īsim spākuotīs; kurs
+kuru paveiks, tys tū apreis."</p>
+
+<p align="JUSTIFY">Rogona tam pīkryta un saucja jaunekli uz klajumiņa. Meita, rogonai
+namonūt, pīskrēja pi jaunēkļa un ībuozja tam rūkā spāka zuolīti teikdama:
+"Kad pagursi, bruolīt, apēd šitū!"</p>
+
+<p align="JUSTIFY">Jauneklis pajēmja sovu pūda gryutū vāzu un guoja uz klajumiņa.
+Rogona pīskrējuse kai cierta jaunēkļam, tai sadzyna jū leidz ceļim. zemē. Jauneklis
+nanūskuma, samīdzis vāzu kai ruovja, tai nūcierta rogonai sešas golvas. Rogona
+aizsaucja sešim brīsmīgim bolsim un kai cierta, tai sadzyna jaunekli leidz pasei zemē.
+Jis uotri īmetja mutī meitiņas dūtū spāka zuolīti un tyulīt kai celtin izzacēla
+nu zemes un ar vīnu ciertinu nūruovja rogonai palykušuos sešas golvas. Ciryuts byutu
+nest vysas gonas golvas, tuopēc jis tikai izvilka divpadsmit mēļu, savēra tuos
+strikitī un guoja pi meitiņas. Īguoja ustobiņā, atroda meitiņu ceļūs. Viņa juta,
+ka rogona nūsysta un prīcuojuos un lyudzjuos par sovu gluobēju.</p>
+
+<p align="JUSTIFY">Jauneklis pajēmja meitiņi ļeidza tin devjuos uz cytuom ustobiņuom
+pēc vacuokū muosu. Vysas juos ļūti prīcuojuos un sūlējuos jaunēkļam kolpuot. Tad
+jis sacījv: "Na, jyus byusit breivas, varēsit īt pi veira, kaids jums
+patiks."</p>
+
+<p align="JUSTIFY">Jaunukuo muosa lyudzja, lai jis napamat juos, lai nadūd cytam, un
+rogonu uzvarātuojs ar prīcu sūlējuos jemt meitiņi sev par sīvu.</p>
+
+<p align="JUSTIFY">Tai nūrunuojuši vysi četri pajēmja pa nostai vysaida monta un
+laidjuos uz olas izeju, kur palyka vacuokī bruoji. Rogonu uzvarātuojs devja bruoļim
+zeimi, lai izvalk jūs nu olas. Bruoļi treis reizes nūlaidja lelu skalini, izvylka vysas
+meitiņas ar jū montu, bet jaunuokū bruoli atstuoja olā. Bruoļis saucja, saucja, bet
+nikas naleidzēja.</p>
+
+<p align="JUSTIFY">Vacuokī pajēmja meitiņas un braucja uz muojuom, lai tur sataisīt
+boguotas kuozas. Vacuokais bruolis gribēja pajemt sev vysjaunuokū muosu, bet tei ni par
+kū pi juo naguoja. Tad jis spīdja meitiņi pi dorba un dūmuoja vuordzynuot tik ilgi,
+cikom jei napīkriss palikt jam par sīvu. Bet jei, uzticīga dūtam vuordam, lobuok
+cītja vysus vuorgus un napalyka vacuokajam bruoļam par sīvu. Tys radzādams, ka
+vuordzynuošana naleidz, gribēja ar varu vest meiteni uz baznīcu lauluotīs, bet īdams
+par ustobas slīksni, nūsabeida. Pret jū stuovēja olā atstuotais jaunuokais bruolis un
+vaicuoja par sovu bryuti.</p>
+
+<p align="JUSTIFY">Meitiņa īraudzjējuse sovu gluobēju, skrēja pi juo kluot un
+lyudzjuos, lai jū gluob nu napateikama precinīka. Jaunēklis pajēmja sovu leigovu,
+sasalauluoja un dzeivuoj vēl šūdīn laimīgi.</p>
+
+<p align="JUSTIFY">Bet kai jis tyka nū olas uorā? Kad vacuokī bruoļi aizbraucja
+prūjuom, jis ilgi kleida pa apakšzemi un meklēja cytas izejas. Kai maklādams, atroda
+luoča uolu. Īguojis tamā, suoka mūcēt luocānus. Luocāni spīdzja, ryucja, luoču
+muotes dusmuojuos, bet styprinīku naaiztyka. Golā luocines suoka lyugtīs, lai nartrūka
+juos bārnu. Tad styprais jauneklis teicja: "Izceļit mani nu šuos olas, tad
+namūcēšu." Luocines sokuopja tei uz tuos un pa jūs mugoruom kai pa trepēm
+jauneklis izkuopja nū olas.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

@@ -1,0 +1,355 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Sapnis</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Sapnis.</font><font size="4"></font></p><font size="4">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">18. A.<b> </b>725. 303. 502. S t. U ļ a n o v s
+k a, V i ļ ā n o s. "Zbior wiadomos'ci do antropologii krajowei," T. XVIII, K
+r a k a v ā, 1905. 416, 48.</font><font size="4"></font></p><font size="4">
+</font>
+
+<p align="JUSTIFY">Dzjeivuoja kungs ar sīvu sovu i bjeja jīm vīns dāls Aleksandra. Jis
+vysod ar putnim bjeja aizjimts: putni lasjējās apleik ap jū i čičjnuoja i kŗācja i
+pyutja i vurcja. Jis dalēja jūs lyluokim i mozuokim pulkim, tūlaik jī skŗāja pa
+cjeļu.</p>
+
+<p align="JUSTIFY">Vīnu dīnu atīt tāvs i atrūn jū vydā putru - vaicoj: "Kū tu
+dori ar jīm?" :</p>
+
+<p align="JUSTIFY">Dāls atsoka: "Es runuoju ar jīm: es muoku jūs volūdu." </p>
+
+<p align="JUSTIFY">"A kū<b> </b>jī runoj tjev?"</p>
+
+<p align="JUSTIFY">"Jī runoj maņ, ka atīs taids laiks, ka maņ tāvs ar muoti
+pazaklaņeišķūts kuojom."</p>
+
+<p align="JUSTIFY">Tāvs rozzasyrda cīši. "Kū tu maņ taidu blēņi runoj?"
+soka. "Ak tu, poguanc! Nūst nu tjaninis! Kab maņ tja i smokys tovys nabyutu!"</p>
+
+<p align="JUSTIFY">Jis sazalaidja - īs jau pa cjeļu. Muotjai kač i žāl juo bjeja;
+koč jei i nūrauduoja koktā, vys navarēja jei aizrībt tāvam djevja jam jēdiņa
+kuleitjā i izprovjēja [izvadīja] cjeļā. Jis nūguoja pjet [pret] sjevim rauduodams,
+nazynova, iz kuru pusi apsagrīzt - daguoja pi ustabjeņis iz vystys kuojeņis. Īguoja
+jis vydā - vjērās: sjād vacuo buobjeņa. Prosās, voi var puorgulāt. Jei soka:
+"Labi, puorgul sjev!"</p>
+
+<p align="JUSTIFY">Vot jis atsasāda iz sūla, nūlyka sovu kuleiti i vaicoj: "Kū to
+lobu dzierdjāt pi jiusu?"</p>
+
+<p align="JUSTIFY">A jei atsoka: "Lobu nadzierdjāt nikuo, tik tū dzierdjāt, ka
+myusu kjēniņam cīši lela mūka: cik laika jau juo pils pylna ir kraukļu. Jūs tik
+daudz tī saskrīn, ka nu tuos krēkšonys navar ni gulāt, ni aizmigt, ni runuot, ni
+daŗēt nikuo! Mīra jī nalīk, aizkurc auss nu klīgšonys! Kjēniņč lyka mjeklāt
+taida cylvāka, kas muocēs ar putnim sazarunuotīs i kab tūs kraukļu izdzynuotu.
+Pazajēmja par moksu atdūt jam pus kjēnists i mjeitu sovu par sīvu, a pjec smierts vysu
+kjēnisti pamjess."</p>
+
+<p>Aleksandra soka: "Es muoku putnu volūdu, es īšu!"</p>
+
+<p align="JUSTIFY">Iz reita sazaladjēja [sataisījās] i nūguoja. Atguoja iz pili, syuta
+pascjēt kjēniņam, ka jis muok putnu valūdu, izdzjeiškys tūs kraukļis. Kjēniņč
+izguoja iz jū i soka: "Ka vaŗēškys atlaist šū nu tūs putnu, dobuoškys taidu
+moksu, kai šys pascēja!"</p>
+
+<p align="JUSTIFY">A<b> </b>tūs kraukļu bjeja tī cik tyukstūšu. Vot jis īguoja pa
+vydu jūs, pazaklausjēja, kai jī kŗāc, pats ar jīm pakŗācja, pajēmja vjēzjeņu,
+rozšķūrstjēja jūs iz divjējom pulkim. Vīnā pulkā bjeja jūs cīši daudz; ūtrā
+bjeja mozuok - jī pasacjēļa i nūlācja [aizlaidās] i vairuok napazaruodjēja.</p>
+
+<p>Vaicoj kjēniņč: "Kas tys bjeja? Kū tu padaŗēji ar jīm?" </p>
+
+<p>Aleksandra soka: "A vot tai bjeja! Dzjeivuoja tia sjeņuok krauklis ar sīvu sovu
+i ar bārnim i daguoja lyls bods. Tjei sīva pajēmja i nūskŗāja iz cytu kjēnisti, a
+tāvu pamjatja ar bārnim. Baruoja tāvs tūs bārns kai varādams i izbaruoja. Par cik
+godu tūs bārns daudzi pīpyrynuoja i vysi ar tāvu dzjeivuoja, klausjēja juo i djēļ
+ju kolpuoja. A<b> </b>tagad atskŗāja muotja atpakaļ i<b> </b>gribjēja, kab jī vysi
+ītu iz jū i jai kolpuotu, ka jī iraida vysi nu tūs bārnu, kur jei sjeņuok
+izpjaŗāja: Vot jī saskŗāja vysi iz tjevim, kjēniņč,</p>
+
+<p align="JUSTIFY">kab tu roztīsuotib [iztiesātu] jūs - tai es par tjevimi roztīsuou.
+Muotjai es īdevu drusku par izpjaŗājumu, a tāvam par baruojumu i par globuojumu
+vairuok. Jī pazalīcja [padevās] iz taidys tīsys i naatskrīškuš jau vairuok iz
+tjanini."</p>
+
+<p align="JUSTIFY">Kjēniņč izklausjēja tuos runys i tiuleņ pamjerkavuoja [baltkr.
+merkavac', nospriest], ka jis gudrinīks ir, - pajēmja atdjevja jū, kab jū labi
+izvuicjētu [izmācītu]. Pjec tuo, ka jis jau bjeja izaudzs lyls; salauluoja jū ar sovu
+mjeitu, sataisjēja kuozys, atdjevja jam puskjēnists i cytu pili djevja, kur dzjeivuot ar
+sīvu.</p>
+
+<p align="JUSTIFY">Vot jī dzjeivuoja tī [tur], tī jauniči. I bjeja jam draugs, jauns
+kjēniņč, cyta kjēniņa dāls - jī obadiv vuicjējās leidza i vīns vīnu cīši,
+cīši žāluoja. Može jī par tū tai ļubjēja vīns vīnu, ka jī bjeja vīnaidi,
+vīnūs vaigūs, vīnūs augumūs, kai vīnis muotis bārni. Tys jauns kjēniņč
+gribjēja pajemt sjev par sīvu kjēniņeiti nu trešuo kjēnisti, i bjeja tī taids
+karavjeirs, kur gribjēja pats žeņeitīs [precēties] ar jū i tuo jauna kjēniņa
+nadalaidja da juos. Vot jis atbrauc iz Aleksadri i stuosta, kaida jam bāda - prosa; lai
+jis jam paŗēda, kū padaŗēt. Aleksandra soka tai: "Juoj iz mježu i pagaid maņa,
+es tiuleņ atjuošu, to tjev paradu [baltkr. parada, padoms] dūšu."</p>
+
+<p align="JUSTIFY">Par šalti jis i nūguoja pjec tū sovu draugu, a sīvai napascjēja
+nikuo, kur juoškys. I soka tai iz tū jaunū kjēniņu: "Tja navar nikuo padaŗēt,
+vajag kautīs ar tū karavjeiru. Tu napīvjeiksi jū; a es stypruoks asmu, es nūjuošu iz
+tovys vītys, es kaušūs ar jū. Tai šaltjei esi iz munys vītys pi munys sīvys - es
+par treis dīnys byušu atpakaļ, tūlaik es braukšu iz sovu golu, a tu iz sovu
+nūbrauksi. Tik sīvai munai nastuosti, lai jei nazyna nikuo!"</p>
+
+<p align="JUSTIFY">Vot jī i pataisjēja tai, kai sarunuoja. Aleksandra apsagjērbjās juo
+drābjās i nūjuoja kautīs ar tū karavjeiru; a jis otkon apsavylka Aleksandra
+dŗābjās i nūguoja iz juo sīvu. Jei, zynams, i napazyna, ka na juos vjeirs, ka jī
+bjeja taidi vīnaidi, i bŗeinīs, kas tys ir, ka jis nūskumjeigs. Īt gulātu vokorā -
+jis atsagulās pi juos, bet līk vydā sovu zūbynu i da juos ni tivi! Iz ūtris nakts
+otkon līk zūbynu gultā, iz trešys nakts taipat i vys tuoļi nu juos. Iz trešys dīnys
+nūjuoj jis iz mježu iz tuos vītys, kur jam vajag gaidjāt Aleksandris. Jis gaida i
+bjeistās: kai tī byus tamā karā? I radz, ka juoj Aleksandra, lusteigs, vasals,
+lilējās, ka jam vyss labi izguoja: jis tū karavjeiru nūvaldjēja i djēļ drauga sova
+izdabova sīvys. Kjēniņč rods [priecīgs] cīši, patjeic jam labi - pjec tuo
+puorzamjeja sovys dŗābis i obi nūjuoja: vīns sovu cjeiu, ūtris sovu cjeļu.</p>
+
+<p align="JUSTIFY">Cikom jī tī bjeja mježā i runuoja, Aleksandris sīva navaŗēja
+pīcīst i nūstuostjēja sovam kukaram, ka juos vjeirs - jau trešu nakts - lics zūbynu
+gultā i ni kluotu pi juos.</p>
+
+<p align="JUSTIFY">Kukars iztolkovuoja jai, ka jis mušeņ [varbūt] grib jū nūsist -
+kab jei pīzasorguotu - a to byus slikti. Tai šaltjai Aleksandra atjuoja atpakaļ i jei
+ŗadz, ka jis otkon taids ira, kaids bjeja sjeņuok. Gaida vokora, īt gulātu, a jis jau
+zūbynu nalics pa vydu i tai mīļi gul, kai vjeirs ar sīvu. Jei bŗeimīs, kas tys var
+byut, ka jis vīnu ŗeizi dora tai, ūtru ŗeizi tai. Iz reita otkon puorstuosta vysu
+kukaram. Kukars soka: "Jis kū nivīn [kaut ko] dūmoj, vajaga jū apzuoļāt, a to
+byus slikti."</p>
+
+<p align="JUSTIFY">Pataisjēja gūdu, aizprasjāja daudz gostu, pajēmja pīlēja
+Aleksandram gluozjā zuoļu, kai jū aptrucjāt [baltkr. trucic', nozāļot]. Jis kai
+izdzjēra, dabuoja suopis lylys i nūtyukša vyss. Gosti nūzabjeida cīši, kab jī
+naaptyukštu taipat, i vysi izbraucja mudri. A<b> </b>kukars pajēmja jū, izvjadja tuoļi
+aiz pilis i izsvīdja tjeirumā. Jis tī gulāja i vys tyukša vairuok kū reizis [arvien]
+i sazataisjēja kai kolns.</p>
+
+<p align="JUSTIFY">A<b> </b>tys jauns kjēniņč sasvotuoja sovu kjēniņeiti - jau
+žeņēškys - i syuta pjec Aleksandri, lai brauc iz kuozom. Atsoka piļā, ka Aleksandris
+nava i nikas nazyna, kur jis palyka. Tys jauns kjēniņč i apsažēņējās jau i vys
+syuta pjec Aleksandris i vys nava jū. Līk jū vysur mjekļāt - nava! Puorguoja treis
+godi - Aleksandra vys gulāja aptyukšs kai kolns. Tys draugs nūrauduoja, juo i djēļ
+juo pīmiņis pataisjēja lylu sātu djēļ biednu [nabaga] ļaužu, kur dzjeivuot, i
+lyka, kab sauktūs Aleksandris sāta.</p>
+
+<p align="JUSTIFY">Vīnu dīnu braucja vjecjeits tamā sātā i tyka tamā vītā, kur
+Aleksandra gulāja - ŗadz, ka lyls kolns, a pazjeit var, ka cylvāks, vys cylvāka
+zjeimja iraida. Daguojis, dadyura jū ar sovu vāzu, kab dazynuot, kas tys ir par
+bŗeinumu, a tys aizvaidjāja. Vaicoj vjecjeits: "Kaids tu esi? Voi kolns, voi
+cylvāks?"</p>
+
+<p align="JUSTIFY">Jis atsoka: "Es asmu cylvāks, taids kai tu - ratavoj mani!" </p>
+
+<p align="JUSTIFY">Soka vjecjeits: "Labi, es tjevi nūvjesšu iz Aleksandris
+sātu." </p>
+
+<p align="JUSTIFY">Jis vaicoj: "Kas tjei par sāta taida?"</p>
+
+<p align="JUSTIFY">Vjecjeits izstuostjēja jam - jis prosa: "Navjad maņa tamā
+sātā, vjad iz pošu kjēniņu, dabuosi lylu moksu!"</p>
+
+<p align="JUSTIFY">A<b> </b>vjecjeits nazyna, kai pīcjelt juo. Vot jis lyka izvjalt sjevi
+kai akmini i vazumā īvjalt. Īvjāla jū i nūbraucja. Dabraucs da kjēniņa pilis,
+vjecjeits izsvīdja jū nu vazuma a jis soka iz sulaiņa: "Eij, pasok sovam
+kjēniņam, ka atbraucja Aleksandra."</p>
+
+<p align="JUSTIFY">Sulaiņs bŗeinīs, kas tys par bīdaklys ira, a jis soka: "Nu,
+mudri, mudri! Ej pasok kjēniņam!"</p>
+
+<p align="JUSTIFY">Kjēniņč, ka padzierdja tū juo vuordu, izskŗāja, a ka jū
+īraudzjēja, pazakuora iz juo kokla i suoka rauduot - vaicoj: "Kas tjev tyka? Kas
+tjev taidu pataisjēja?"</p>
+
+<p align="JUSTIFY">Aleksandra soka: "Vjad mani pokojuos, es tjevi izstuostjēšu vysu
+!"</p>
+
+<p align="JUSTIFY">Jis pajēmja jū pokojuos. Aleksandra suoka stuostjāt, kai jis
+atbraucja iz sātu pjec tuo kara, to jam tai pazataisjēja, ka jis aptyukša. Pjec tuo
+pajēmja jū, izsvīdja tjeirumuā, a jis vairuok na zyna nikuo.</p>
+
+<p>Kjēniņč vaicoj: "Kai tjevi ratavuot?"</p>
+
+<p>Aleksandra soka: "Vot tjev ira bārni?" </p>
+
+<p>"Iraida treis djēleņi."</p>
+
+<p>"A vot," soka, "kab tu jūs nažāluotu djēļ mani, ta tu varātu mani
+ratavuot; bet tjev byus žāl."</p>
+
+<p align="JUSTIFY">A kjēniņč soka: "Djēļ tjeva es nikuo nažāluoju i es nu
+vysys sirds bārnu tjev atdūšu, tik runoj, kū vajaga daŗēt."</p>
+
+<p align="JUSTIFY">"Vajaga jū nūkaut i ar ašni mani apmozguot, to es byušu taids,
+kai sjeņuok bjeju."</p>
+
+<p align="JUSTIFY">Kjeniņč nūskŗāja iz sovu bārnu iz jūs vīteņis, kur jī
+gulēja, giva nazi, apgrīzja kakleņč, ašni nūlaidja bļūdā, pjec tuo apsjēja
+kakileņč ar šolka [zīda] skustjeņim i nūņasja tū ašni Aleksandram. Apmozguoja
+jū, īdevja jam padziert tuo ašņa i tys vyss tyukšs atsalaidja, Aleksandra otkon
+pazataisjēja taids, kai bjeja sjenuok. Kjēniņč prīcuojās, bučoj jū - rods, ka
+pazapravjāja jau i vjad jū iz sovu sīvu. Parunuoja šaltjeņu - Aleksandra soka:
+"Īsim tagad iz bārnim tovim, paruod maņ bārns sovus!"</p>
+
+<p align="JUSTIFY">Kjēniņč nasoka nikuo. Aleksandra otkon prosa, lai jū iz bārnim
+nūvad, i soka, tjei sīva juo, tjei kjēniņeitja, ka jei nūvjass jū, a kjēniņč
+grīž golvu nūst, soka iz sīvu, ka bārni jau nadzjeivi, ka vajadzjēja jūs ašņa
+ratavuot Aleksandra. A jei atsoka: "Kū ta padaŗēt? I es nažāloj jūs djēļ
+taida drauga!"</p>
+
+<p>Aleksandra soka: "A vys īsim pazavārtu!"</p>
+
+<p align="JUSTIFY">Īīt vydā - vjērās: a tī bjērneņi sjād sovuos gultjeņuos,
+buovjējuos [baltkr. bavicca, rotaļāties] vasali i nava pi juos nnkuo. Sulaiņi nu
+bailis nūbāguši. Vot jīcīši nūzaprīcuonās, ka jīm bārni dzjeivi palyka.</p>
+
+<p align="JUSTIFY">A Aleksandra ladjās braukt iz sātu. Ka atbraucja iz sātu, nūstuoja
+pjet sovu sīvu. Jei kai īraudzjēja jū, nūzabjeida cīši i tiuleņ krita ceļūs pjet
+jū.</p>
+
+<p align="JUSTIFY">"Jis vaicoj: "Pasok tu maņ, kū tu maņ padaŗēji, ka es
+vyss satyukšs bjeju kai blučš?"</p>
+
+<p align="JUSTIFY">Jei pīzazyna, ka kukars pīrunuoja jai, ka jis par treis nakts lyka
+zūbynu gultā, to grib jū nūsist, i lyka jū apzuoļāt. Jis cīši nūsabŗeiņa par
+tū, ka jis nikod zūbyna gultā nalyka, i tiuleņ dazaguodova, ka kjēniņč tai
+daŗēja, ka bjeja iz jun vītys. Syuta pjec jū, kab jis tiuleņ atbrauktu ka ir pilna
+runa.</p>
+
+<p align="JUSTIFY">Atbrauc kjēniņč, Aleksandra vaicoj: "Pasok tu maņ, kam tu liki
+zūbynu gultā, ka gulēji ar munu sīvu?"</p>
+
+<p align="JUSTIFY">Jis soka: "Pa tam, ka es gulēju kai sorgs, a na kai vjeirs. Es
+tja bjeju, kab pilnavuotu [baltkr. piļnavac', sargāt] tovu sīvu, a na kab aiztiktu
+jū!"</p>
+
+<p>Ka sīva padzierdjēja tū jūs runu, suoka vjāļ cīšuok rauduot i puorprasjēt
+vjeira. Zynams, jis daravubja (baltkr. daravac', piedot] jai.</p>
+
+<p align="JUSTIFY">A<b> </b>tai šaltjai nūmyra vacijs kjēniņč i pamjatja jam ūtru
+pusi kjēnists i Aleksandra pazataisjēja jau tagad par kjēniņu. Kai jis palyka par
+kjēniņu, īzagribjēja jam, kab ŗedzjēt vjāļ sovu muoti ar tāvu. Nūsyuta
+paprīšku sovus sulaiņč i lyka, lai jam pīgatavjei maltjeiti tamā sātā, kur jī
+dzjeivuoja. Jī bjeja jau vaci i cīši sazatriukās, ka atbauks kjēniņč gostūs iz
+jīm, atdjevja djēļ juo vysys sovys pokojis i sazarunuoja tai, ka atbrauks kjēniņč,
+to jis - tys tāvs jau - pajemškys bļūdu ar jiudini, a jei pajemškūtja ručņiku
+[baltkr. ručņik, dvielis] i nūīškūšš aba divi pazaklaņētīs jam i nūņaskušš
+jam jiudiņa apmozguot rūkys.</p>
+
+<p align="JUSTIFY">Atbraucja kjēniņč, pajēdja maltjeiti i atīt vjecjeiši iz jū; jis
+ar bļūdu jiudiņa, jei ar ručņiku, i da pošis zjamis klaņējās jam kuojuos. Jis
+tiuleņ pacjēla jūs; krita jīm iz placu i soka: "Tjāt, mam, es asmu jiusu dāls,
+tys pats - pīminit - kuram putnys pascjēja, ka jius maņ da pošys zjamis
+klaņēšķūšis kuojuas. A kas? Vot tai i nūtyka. Bet es na par tū atbrauču, kab
+jiusim tū pīmiņāt, a kab jums pi vacuma iz munu sātu nūvjast i da smierts laimjeigi
+nūdzjeivuot!"</p>
+
+<p align="JUSTIFY">Pajēmja nūvjadja jū iz sovu kjēnisti, žāluoja jū i globuoja. Jī
+tī vysi ilgi dzjeivuoja, može i šūdīņ dzjeivoj.</p>
+
+
+</body></html>

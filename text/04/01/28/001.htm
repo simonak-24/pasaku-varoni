@@ -1,0 +1,153 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>28</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pazudusī līgava.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">V. Zacharska no J. Mičula Ludzā.</p>
+
+<p align="JUSTIFY">Senejūs laikūs dzeivuoja treis zvejnīki, kuri giustēja zivis,
+puordevja un par tū dabuotū naudu dzeivuoja. Vīnu reizi zveinīki izvylka teiklu, vēl
+naizjēmja zivis itn puordevja teiklu ar vysim zivim. Taišņi tymā laikā kūpā ar
+zivim beja izvylkta duorga zalta vāza. Tys, kurs nūpierka teiklu ar zivim, pasacēja, ka
+itei izvylkta zalta vāza tagad pīdar jam par tū, ka jis jū nūpierka kūpā ar zivim.
+Zvejnīki nagrybēja atdūt ituos vāzas kupčam un nūguoja vysi pi kēneņa pavaicuot,
+kam pīdar itei izvylktuo zalta vāza: jim voi kupčam.</p>
+
+<p align="JUSTIFY">Kēneņš isklausēja zveinīku un kupča lyugumu, pasacēja:
+"Itei zalta vāza pīdar kupčam, par tū, ka jis pierka teiklu ar zivim uz sovy s
+laimis."</p>
+
+<p align="JUSTIFY">Kū darīt zvejnīkam, ka jau pats kēneņš runoj, ka zalta vāza
+pīdar kupčam? Jī atdevja itū vāzu kupčam, kupčs pajēmja itū vāzu, gribēja nest
+uz sovu sātu, bet nu lelys prīcys vāza jam izkrita nu rūku uz zemis un pataisējuos
+par jaunu dzeivu un skaistu meitu, kaidu navar ni posokā aprakstēt, ni izstuostīt.
+Kupčs veras, ka nu zalta vāzys pataisējās meita, jis nūsabeida, bet meita daskrēja
+pi jaunuokuo zvejnīka un suoka jū bučuot un stuostēt, ka jei byus jam par sīvu.
+Kupčam tyka žāl meitys un jis otkon nūvylka vysus pi kēneņa pavaicuot, kam pīdar
+itei meita? Atīt jī vysi pi kēneņa, ruoda kēneņam meitu un vaicoj, kai kēneņš
+jīm pasaceis. Kēneņš īraudzēja meitu un jei jam nu reizis patyka. Jis runoj:
+"Itei meita pīdar man. Es jū pats pajemšu par sīvu."</p>
+
+<p align="JUSTIFY">Meita suoka praseit, ka jei grib byut jaunuokam zvejnīkam par sīvu,
+bet kēneņš pasacēja, ka jis nikam nadūs meitys, bet izmoksuos kotram lelu naudu. Vvsi
+zvenīki beja ar itū mīrā un taipat kupčs. Kai zvejnīki pajēmja nu kēneņa naudu un
+tai pat kupčs, vysi izguoja uorā un nūguoja uz sovu sātu prīceigi. Kēneņš īguoja
+pazavārtūs uz sovu leigaviņu - veras: tī nav meitys, bet stuov vacs pūds. Kēneņš
+sazadusmuoja un lyka izsvīst pūdu uorā un pasaukt pi juo tūs zvejnīkus un kupci, ka
+jī atdūtu jam naudu atpakaļ. Zvejnīki un kupčs atguoja un atdevja naudu kēneņam
+atpakaļ. Īt ji vysi uz sātu un lomuojas, veras pretim jūs izīt skaista meita un
+runoj: "Jyus nagribējīt manis pajemt, jyusim lobuoka nauda beja, bet tagad jyusim
+nav ni naudys, ni meitys."</p>
+
+<p align="JUSTIFY">Pasaceidama itūs vuordus, meita nūgaisa. Nu tuo laika zvejnīki nikod
+vairuok taidys laimis naredzēja. Vysu sovu myužu gon giustēja zivis, bet boguoti
+nabeja.</p>
+
+
+</body></html>

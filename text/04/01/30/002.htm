@@ -1,0 +1,272 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Kaza par līgavu.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 401. 510. A. Lerchis-Puškaitis Džūkstē-Pienavā. LP, II, 10.</p>
+
+<p align="JUSTIFY">Kādā pirtī dzīvojis vecs vīriņš ar savu sieviņu. Abi bijuši no
+liela vecuma akli, un tādēļ nevarējuši ne nu vairs ēst paraudzīt ne siltuma
+piegādāt, ne gultiņas uztaisīt, ne istabiņas izslaucīt. Savās nedienās vecīši
+dienu mūžu guģējušies: "Kaut jele mums bērniņš būtu, kas aptecētu un
+apgādātu!"</p>
+
+<p align="JUSTIFY">Vienu vakaru vecītim iegribējies dzert. Viņš teicis: "Redz ,
+sieviņa, būtu nu mums maza meitiņa, tā tūlīt aiztecētu uz avotiņu!"</p>
+
+<p align="JUSTIFY">Līdz ko vecītis tos vārdus izteicis, tā ienākusi balta kaziņa
+sacīdama: "Es esmu jūsu meitiņa, atnesīšu ūdeni, paraudzīšu kuŗamos,
+salasīšu sēnītes, odziņas, uztaisīšu gultiņu, izslaucīšu istabiņu!"</p>
+
+<p align="JUSTIFY">To dzirdēdami, vecīši no prieka raudājuši. Bet kaziņa abus
+klusinājusi: "Kuš! kuš! Kā nu tukšā dūšā raudāt? Tūlīt atnesīšu
+ūdentiņu, paraudzīšu žagariņus, izvārīšu putriņu." Kaziņa uzbāzusi
+slaucenīti uz radziņiem, atnesusi ūdentiņu, sakūrusi uguntiņu, izvārījusi gardu,
+gardu putriņu un nolikusi vecīšiem priekšā. Vecīši paēduši, kaziņai
+tencinādami, un tad gulējuši tai naktī tik maigi kā debesīs.</p>
+
+<p align="JUSTIFY">Tā tas gājis ilgu laiku. Te kādu dienu citas meitas norunājušas
+iet ogot. Kaziņa uzbāzusi ir savu vācelīti uz radziņiem un aizgājusi līdz. Līdz
+pusdienai citām ogotājām vācelītes bijušas tik pusē, bet kaziņai jau pilna.</p>
+
+<p align="JUSTIFY">Kaziņa nolobusi alkšņa turzu, necik ilgi turza arī pilna. Patlaban
+tā gribējusi otru turzu lobt, bet tai pašā brīdī laidusi spoža karīte gaŗām un
+apstājusies pie kaziņas. No karītes izkāpis smalks kungs un prasījis: "Kas, tu
+par kaziņu, ka tik daudz ogas salasi?"</p>
+
+<p align="JUSTIFY">"Esmu pirtnieku meitiņa, ogas lasu tētiņam un māmiņai."
+Kungs nu paņēmis kaziņu, aizbraucis uz pirti pie vecajiem un solījis lielu naudu par
+kaziņu. Bet vecie atteikuši: "Kaziņas nepārdodam ne par kādu naudu!"</p>
+
+<p align="JUSTIFY">Beidzot, kad kungs apņēmies vecīšus savā pilī uzturēt, tad
+vecīši pielaidušies un aizbraukuši līdz uz pili ar visu kaziņu. Pilī vecajiem
+sviežas brangi, kā jau pilī.</p>
+
+<p align="JUSTIFY">Bet nu gadījās - kungam reiz uz veselu nedēļu jāaizbrauc. Viņš
+lūdz savas trīs māsas, lai kuŗa katra par to laiku pieņemtu kaziņu pie sevis. Abas
+vecākās māsas no tam negrib ne dzirdēt; jaunākai māsai cita sirds: tā pieņem
+labprāt un vēl guldina uz zīda spilveniem. Otrā nedēļā kungs pārbrauc un pasaka
+māsām, ka tai un tai muižā lieliskas dzīŗas -- lai tik nu taisoties. Dzīŗu dienā
+vecākās māsas jau itin agri papēžus vien min, bet jaunākā atsaka brālim:
+"Brauc, brauc tu ar māsām, es palikšu mājā pie kaziņas!"</p>
+
+<p align="JUSTIFY">Šie trīs aizbrauc. Vakarā ,tumsai metoties, kaziņa saka:
+"Māsiņ, vai nebrauksim mēs lai uz dzīŗām?"</p>
+
+<p align="JUSTIFY">To dzirdēdama jaunākā māsa saraujas, jo tai nebij ne prātā
+nācis, ka kaziņa ir runāt māk.</p>
+
+<p align="JUSTIFY">"Vai, kaziņa, kā man tas nebij ne prātā, no tevis valodiņu
+dzirdēt!"</p>
+
+<p align="JUSTIFY">"Lai, lai, māsiņ, tik nesaki to savām māsām, tavs brālis gan
+to zin, bet tas cieši apņēmies to nevienam neteikt. Tavām māsām cieta sirds, ar tām
+man netīk ielaisties. Bet saki, vai brauksim?"</p>
+
+<p align="JUSTIFY">"Brauktu gan - kā lai aiztiek?" "Nekas, pagaidi!"</p>
+
+<p align="JUSTIFY">Kaziņa nu iztek laukā un iebrēcas. Tā tūlīt sudraba karīte klāt
+ar četriem zirgiem, diviem kučieŗiem, diviem sulaiņiem. Sulaiņi ienes abām sudraba
+drānas; kaziņa norauj savu kažociņu, satin to un paglabā, uzvelk sudraba drānas un
+pārvēršas par daiļu</p>
+
+<p align="JUSTIFY">meiču. Kučieri nu tik noplīkšķina pātagas un viens divi karīte
+dzīŗas klāt. Ieiet iekšā: visi kungi saplok un nevar izbrīnoties, no kuŗas zemes
+tādas atbraukušas. Kaziņas kungs paņem kaziņu uz deju un domā pats pie sevis:
+"Ja varētu šo daiļo meiču dabūt, tad tūlīt precētu!"</p>
+
+<p align="JUSTIFY">Viņš sāk apprasīties, bet šī neteic ne pagalam, no kurienes
+tāda. Nu kad neteic, tad kungam cits padoms pie rokas - viņš klusu pavēl diviem
+jātniekiem gataviem būt un, pēc dzīŗām, sudraba karītei pakaļ dzīties, lai
+izzinātu, kur karīte paliek. Bet ir tas neizdodas, jo sudraba karīte acumirklī nozūd,
+ka nedabū ne apskatīties.</p>
+
+<p align="JUSTIFY">Šīs divas jau sen mājā, sen pārģērbušās, sen izgulējušās,
+turpretim kungs ar savām māsām tik otrā rītā pārronas.</p>
+
+<p align="JUSTIFY">Vecākās māsas vēl nebij ne par slieksni pārkāpušas, kad tūlīt
+pirmais vārds: "Vai, māsiņ, ko mēs redzējām! Tur atbrauca sudrabota karīte ar
+sudrabotām princesēm. Gribējām gan izzināt, no kurienes tās tādas, bet nevarējām
+un nevarējām, aizgāja kā viesulis. Vai, māsiņ, kas tev to deva redzēt?"</p>
+
+<p align="JUSTIFY">"Lai, lai, kas tad no lielas redzēšanas atkal nu ir?"</p>
+
+<p align="JUSTIFY">Pēc kāda laika cits kungs atkal tura lielas dzīŗas; pats ķēniņa
+dēls arī tur ielūgts. Dzīŗu dienā vecākās māsas itin agri papēžus vien min, bet
+jaunākā atsaka brālim : "Brauc, brauc ar māsām, es palikšu pie kaziņas."</p>
+
+<p align="JUSTIFY">Šie aizbrauc. Tumsai metoties, kaziņa iztek laukā, iebrēcas un te
+tūlīt zelta karīte ar četriem zirgiem, diviem kučieŗiem, diviem sulaiņiem klāt.
+Sulaiņi ienes zelta drānas; kaziņa norauj savu kažociņu, satin to un paglabā, uzvelk
+zelta drānas un pārvēršas par staltu meiču. Kučieŗi nu tik noplīkšķina pātagas
+un -viens divi - karīte dzīŗās klāt. Ieiet iekšā: visi saplok un nevar
+izbrīnoties, no kuŗas zemes tādās atbraukušas. Kaziņas kungs paņem kaziņu uz deju
+un ķēniņa dēls kaziņas kunga jaunāko māsu. Dejojot abi, kā kaziņas kungs, tā
+ķēniņa dēls, domā: "Kaut varētu tādu skaistuli reiz par sievu dabūt.'`</p>
+
+<p align="JUSTIFY">Ķēniņa dēlam patīk kaziņas kunga māsa, kaziņas kungam tā,
+kuŗa jau viņreiz patika. Tomēr, ko tas viss palīdz? Šīs nesakās un nesakās, no
+kurienes tādas. Nospriež atkal jātniekus paka[ laist, bet velti - karīte pazūd kā
+miglā!</p>
+
+<p align="JUSTIFY">Otrā dienā vecākās māsas pārbrauc un stāsta: "Vai, māsiņ,
+ko mēs redzējām! Tagad atbrauca zelta karīte ar zelta princesēm; bet kur viņas
+palika, to nezinam. Gan gribēja pats ķēniņa dēls izzināt - nelīdzēja. Kas tev to
+deva redzēt?"</p>
+
+<p align="JUSTIFY">"Lai, lai, kas tad nu no lielas redzēšanas atlec?"</p>
+
+<p align="JUSTIFY">Pēc kāda laika pats ķēniņa dēls taisa dzīŗas un salūdz
+visuvisādus. Dzīru dienā vecākās māsas itin agri papēžus vien min , bet jaunākā
+māsa atsaka brālim: "Brauc, brauc tu viens pats ar māsām; es palikšu pie
+kaziņas!"</p>
+
+<p align="JUSTIFY">Šie aizbrauc. Tumsai metoties, kaziņa saka uz jaunāko māsu:
+"Vai zini, māsiņ, šovakar mans laiks nobeidzas par kaziņu būt. 'Tagad apvilkšu
+dimanta drēbes un tad arī viņas valkāšu; tu tāpat. Kaziņas kažociņu ietīšu
+lakatiņā, iedošu sulainim un, kamēr mēs uz dzīŗām būsim; lai sulainis kažociņu
+sadedzina." Kaziņa nu iztek laukā, iebrēcas un tā tūlīt dimanta karīte ar
+četriem dimanta zirgiem, diviem kučieriem, trijiem sulaiņiem klāt. Tam vienam sulainim
+kaziņa iedod drānu kušķīti un nosaka tā: "Šo kušķīti tu sadedzini, kamēr
+mēs abas uz dzīŗām esam! Bet neskaties, kas tur ietīts; citādi tu nelaimīgs uz visu
+mūžu!"</p>
+
+<p align="JUSTIFY">To sakot, abas dimanta drēbēs iekāpj karītē un - viens divi -
+nolaiž ķēniņa dēla pilī. Ieiet iekšā: visi saplok un nevar izbrīnoties, no kuras
+zemes tādas gadījušās. Kaziņas kungs paņem kaziņu uz deju un iečukst ausī:
+"Kaut varētu tevi par sievu dabūt!</p>
+
+<p align="JUSTIFY">Ķēniņa dēls paņēmis kaziņas kunga jaunāko māsu uz deju un
+iečukst arī tai ausī: "Kaut varētu tevi par sievu dabūt!" Bet līdz ko abi
+šos vārdus izteikuši, te kaziņa pietek jaunākai māsai klāt un iečukst:
+"Brauksim tūlīt mājā, jo mana kaziņas āda ŗūk ŗūkumā!" Acumirklī
+šīs pazūd, ka nedabū ne apskatīties.</p>
+
+<p align="JUSTIFY">No rīta kungs pārbrauc pie beigām nobēdājies. Jaunākā māsa
+iztek dimanta drēbēs brālim pretim un prasa: "Brālīt, vai nu gribi savu kaziņu
+redzēt?"</p>
+
+<p align="JUSTIFY">"Gribu, gribu; bet saki man, kur tu tādās drēbēs ietiki? Vai
+nebiji tā, kuŗa vakar ķēniņa dēlam nozuda?"</p>
+
+<p align="JUSTIFY">"Lai nu kā; bet vai gribi, lai tagad tev tavu kaziņu
+parādu?" Kamēr šie tā runā, kaziņa iznāk un parādās kungam. Kungs. to
+redzēdams, priekos noģībst. Jaunākā māsa nu ņemas visu izstāstīt. Visi
+priecājas, tik vecākajām māsām nebij labi ap dūšu. Viņas knaibīja pirkstus un
+nožēloja, ka pret kaziņu tādas bijušas.</p>
+
+<p align="JUSTIFY">Otrā dienā ķēniņa dēls, par to dzirdēt dabūjis, kunga pilī
+klāt un tūlīt sarunā kāzas taisīt. Tās tik bij kāzas: ķēniņa dēls ar jaunāko
+kunga māsu sēdēja vienā galda galā, kungs ar savu senāko kaziņu otrā galda galā.</p>
+
+<p align="JUSTIFY">Abi vecīši, senākie pirtnieki, arī bij kāzās. Kungs diezgan
+nevarēja vecīšiem patencināt, kā toreiz neliegušies ar savu kaziņu uz pili nākt.</p>
+
+
+</body></html>

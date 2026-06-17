@@ -1,0 +1,182 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Netīrais velna kalps.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">6. A. 301. A.<b> </b>Lerchis-Puškaitis, Džūkstē. LP, IV, 22, 2.
+AŠ, III, 11d.</p>
+
+<p align="JUSTIFY">Vienam puisim dzīvē nemaz labi nesviedies: tā tik nokūlies vien pa
+pasauli. Vienu dienu šis pats puisis, uz mežu iedams, ierauga pie vītola sarkanu vīru.
+Puisim paliek tā ērmīgi; bet sarkanais uzprasa: "Kur tad nu?"</p>
+
+<p align="JUSTIFY">"Nekur, tik tāpat! Ko lai dara? Tā pa to pasauli jāvandās:
+griezies uz vienu pusi, uz otru - nekur labumu ieraudzīt."</p>
+
+<p align="JUSTIFY">"Vai nav muļķis tā runādams!" sarkanais atsaka,
+"nāci pie manis - varu labumu tev tik daudz dot, ka nespēsi ne panest. Tev
+jāapsolās tik visu to darīt, ko es gribu."</p>
+
+<p align="JUSTIFY">"Un kas tad tas būtu?" </p>
+
+<p align="JUSTIFY">Tev nav brīv gada laikā galvu sukāt, mazgāties, pirtī iet, "</p>
+
+<p align="JUSTIFY">kreklu vilkt, degunu šņaukt; tad tev jāmājo tādā alā, kur mikls
+un drēgns, kur tumšs un nemīlīgs. Šinī alā piesūtīšu tev šādus tādus; ar tiem
+būs jāder gan uz spēkiem, gan uz gudrībām. Cik reiz tu paliksi viņiem apakšā, tik
+reiz man labums celsies. Cik</p>
+
+<p align="JUSTIFY">reiz viņi paliks tev apakša, tik reiz tev pašam labums celsies. Vai
+esi mierā ar tādu norunu?"</p>
+
+<p align="JUSTIFY">"Pārliekam labi!" puisis atteic un aiziet sarkanajam uz alu
+līdz.</p>
+
+<p align="JUSTIFY">Drīzā laikā sarkanais piesūta puisim kādus nekādus derētājus.
+Bet puisis brīnum attapīgs: katrreiz tam paliek lielā puse, caur ko jau sapelnījies
+lielu kaudzi zelta alas dibenā. Sarkanais jau rausta plecus un gudro, kur ņemt labākos
+gudriniekus, kas puisi pārspētu.</p>
+
+<p align="JUSTIFY">Te uzreizi dabū viens ķēniņš zināt. ka tai un tai alā tik gudrs
+puisis, ko nevar ne aizrunāt, ne derēdams uzvarēt. Ķēniņš brauks raudzīt. Atbrauc
+- puisis lētāki neder, kā uz vienu ķēniņa muižu, kas ir ir. Ķēniņš domā,
+domā, beidzot derēs arī. Kā der - puisis atkal vinnē. Ķēniņš aizbrauc
+nospļaudamies; bet puisis tik smej vien: liela zelta kaudze un nu vēl muiža!"</p>
+
+<p align="JUSTIFY">Necik ilgi tas - cits ķēniņš atkal klāt ar derībām. Bet puisis
+lētāki neder, kā uz vienu ķēniņa meitu. Ja puisis vinnē, ķēniņam jādod viena no
+meitām par sievu. Ķēniņš domā, domā, beidzot derēs arī. Kā der -- puisim atkal
+Lielā puse. Ķēniņš aizbrauc nospļaudamies; bet puisis nu vīrā: liela zelta kaudze,
+muiža un ķēniņa meita par sievu! Drīzi arī gadam beigas. Vienu dienu atnāk
+sarkanais, izved puisi no alas un piesaka tūlin iet pie tā ķēniņa meitas precēt-
+Puisis grib taču nomazgāties, kā lai tāds ejot; bet sarkanais ne par ko. Lai ejot
+tāds, citādi nebūšot nekā! Puisis aiziet arī. Ieiet ķēniņa pilī -- vecākā
+māsa tīri ārprātā. Pie tāda lai viņa ejot, drīzāk izskatoties pēc velna, ne pēc
+cilvēka un tādu lai precot: viņa labāk noduroties uz sētas mieta, ne vēl tādam
+virsū skatoties.</p>
+
+<p align="JUSTIFY">Nu rauga pie vidējās māsas pielabināties; bet tā tāpat; viņa
+labāk ieskrienot dīķī, ne vēl tādam virsū paskatoties.</p>
+
+<p align="JUSTIFY">Nu rauga pie jaunākās māsas. Ja, tā ar mieru, lai nākot nedēļas
+laikā uz kāzām! Labi. Puisis nu atiet atpakaļ, nomazgājas, notīrās, nopērk par
+savu zeltu labas spožas drānas, iegādājas karīti, labus zirgus un tad aizlaiž uz
+ķēniņa pili, ka zib un spīd un laistas.</p>
+
+<p align="JUSTIFY">Iznāk jaunākā ķēniņa meita pretim. Nemaz vairs nepazīst, kāds
+nu viņas brūtgāns, netīk acis nolaist, cik daiļšs, cik spožs un patīkams. Šī nu
+laimīga bez gala, bet vecākas māsas, tas aiz žēluma, ka tīšā prātā
+apsmādējušas savu laimi, izskrien laukā un viena noduŗas uz mieta, otra ieskrien
+dīķī.</p>
+
+<p align="JUSTIFY">Bet sarkanais arī kāzu dienā bija laimīgs : puisi nedabādams, tas
+dabūja tai vietā divas ķēniņa meitas. vienu dīķī, otru uz mieta.</p>
+
+
+</body></html>

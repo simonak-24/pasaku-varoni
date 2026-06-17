@@ -1,0 +1,212 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dvēsele olā.</p>
+</b></font>
+
+<p align="JUSTIFY">3. A.302. J. Ezers no Zveju Ferdinanda Gramzdā. Jkr. V, 3. 129. 1. p.
+LP, VII, II, 23, 3. AŠ, II, l000.</p>
+
+<p align="JUSTIFY">Jūrmalā dzīvo nabags zvejnieks pussagruvušā būdā. Laime viņam
+nav nekad smaidījusi. Tomēr viņš nezaudē dūšas, bet zvejo priecīgi kā zvejojis.
+Zvejnieks reiz apmet mastu. Tīklu izvelk - rau! tur kūņojas savāds radījums un sāk
+runāt: "Zvejnieciņ, es esmu Laimes māmiņa. Ja atdosi man pēc divdesmit viena
+gada visdārgāko mantu, kas tev mājās, tad zivju būs tev pilns tīkls. kad vien
+zvejosi!"</p>
+
+<p align="JUSTIFY">"Man tādas mantas nemaz nav," zvejnieks domā,
+"Došu!" viņš atteic, izžauj tīklu un iet mājās. Bet tavu prieku! Viņam
+piedzimis jauns dēls.</p>
+
+<p align="JUSTIFY">"Šis pēc divdesmit viena gada būs Laimes mārr1iņas",
+zvejnieks vēlāk bēdīgi nopūšas.</p>
+
+<p align="JUSTIFY">Otrā dienā zvejnieks iet atkal zvejot. Zivju aumaļām. Īsā laikā
+paliek viņš bagāts. Zvejnieks audzina savu vienīgo dēlu krietni un liek viņu mācīt
+visās gudrībās. Nemanot ir pienācis divdesmit pirmais gads. Zvejnieks saka:
+"Dēl! divdesmit vienu gadu atpakaļ apsolīju tevi Laimes māmiņai. Tādēļ
+nekavējies, bet ej taisni uz rītiem, tur nav jūŗas, tur Laimes māmiņa tevis
+nedabūs."</p>
+
+<p>Labi, dēls uzsāk ceļu. Ceļā viņš sastopas ar lauvu, vanagu un skudru: "Labo
+ceļiniek, izdali mums medījumu - šo vērsi." Zvejnieka dēls dala: "Galva,
+skudra, tev; tu to vari vislabāk</p>
+
+<p align="JUSTIFY">izložņāt, un kad gaļa noēsta, viņu padarīt par mājokli. Desas
+ņem tu, vanag; bet rumpis pienākas lauvai."</p>
+
+<blockquote>
+  <p>Šāds dalījums bij visiem patīkams.</p>
+</blockquote>
+
+<p>Lauva saka: "Ja gribi deviņreiz stiprāks būt par lauvu, tad teic:
+"Deviņreiz stiprāks par lauvu!" - un tu tāds tapsi." Vanags teica,:
+"Ja gribi deviņreiz ātrāks būt par vanagu, tad saki: "Deviņŗeiz ātrāks
+par vanagu!"</p>
+
+<p>Skudra māca: "Ja gribi būt deviņreiz mazāks par skudru, tad teici:
+"Deviņreiz mazāks par skudru!" - un tu tāds būsi." Pateicies par šādu
+algu, turpina zvejnieka dēls ceļojumu. Nonācis kādā ķēniņa valstī, viņš
+salīgst par puisi pie pavāra. Ķēniņam apēd pūķis katru dienu septiņas cūkas. Ja
+tam nedod šādas barības, tad viņš izpūš gaisā tik daudz spalvu, ka nemaz redzēt
+nevar. Pavāram jādzen cūkas ik dienas pie pūķa. Reiz nav viņam vaļas; viņš liek
+cūkas aizdzīt savam puisim. Pūķis atver žaunas, 1ai cūkas met iekšā.</p>
+
+<p align="JUSTIFY">"Deviņreiz ātrāks par vanagu!" puisis saka un - zvapts!
+uzlaižas pūķim uz muguras.</p>
+
+<p align="JUSTIFY">"Deviņreiz stiprāks par lauvu!" Nieks! viņš nogriež
+pūķim trīs galvas.</p>
+
+<blockquote>
+  <p>Puisis pārdzen cūkas atpakaļ.</p>
+  <p>"Kālab tu tās nedevi pūķim?" pavārs prasa.</p>
+</blockquote>
+
+<p align="JUSTIFY">"Pūķim vairs negrib cūku, es viņam noplēsu trīs
+galvas," puisis mierīgi atteic.</p>
+
+<p align="JUSTIFY">"Ja tu viņam vēl norauji pēdējās četras galvas,"
+pavārs saka, "tad dabūsi ķēniņa vecāko meitu par sievu, tā ir solīta tam, kas
+pūķi nomaitā."</p>
+
+<p align="JUSTIFY">Otrā dienā dzen puisis atka1 cūkas pie pūķa un norauj tam
+pēdējās četras galvas. Ķēniņam paziņo to un pavāra puisis dabū šā meitu.</p>
+
+<p align="JUSTIFY">Reiz ķēniņa znots (puisis) izbrauc ar savu jauno sievu no pilsētas.
+Braukdami viņi ierauga zaķi skrejam. Ķēniņa znots, gribēdams rādīt sievai, cik
+viņš ātri var skriet, laižas tam paka]. Piepēži nozūd zaķis viņa priekša, jāiet
+atpakaļ bez zaķa. Bet kā viņš iztrūkstas! Rati tukši, sievas vairs nav. Nu tas
+meklē zudušo pa malu malām, bet kā nekā, tā nekā. no sievas ne zīmes. Beidzot
+viņš uziet kādā pilskalnā caurumu. Grib iet iekšā, bet caurums par mazu:
+"Mazāks par skudru," viņš saka un nolaižas lejā pa caurumu. Te dzīvo vecā
+lepnā pilī viņa sieva un veca, veca večiņa. Ķēniņa znots pielien savai sievai pie
+auss un saka: "Es esmu tavs vīrs; prasi vecenei, ka var uzcelt šo nogrimušo
+pili?"</p>
+
+<p align="JUSTIFY">Sieva prasa, bet vecene vilinās teikt. Sieva prasa jo karstāki.
+"Nu, kad jau tik ziņkārīga esi," veča saka pēdīgi," tad klausies!
+Netālu no ķēniņa pils i apmeties pūķis; tam jānorauj visas galvas; vidējā galvā
+ir pīle; pīlē ir balodis, balodī ir ala; olā ir mazs, mazs akmentiņš; ja akmentiņu
+iemet šā pils kalna caurumā, tad uzceļas pils augšā."</p>
+
+<p>Nu ķēniņa znots pie pūļa. Nezvēra galvas noveļas ņirkstēdamas. Tikko vidējo
+galvu pāršķeļ, pīle laižas prom. "Deviņreiz ātrāks par vanagu!" viņš
+izsauc - un pīle rokā.</p>
+
+<p align="JUSTIFY">Pīli uzgriezis, viņš noķer balodi un. izņem olu. Olu attaisot
+nokrīt akmentiņš zemē.</p>
+
+<p align="JUSTIFY">"Deviņreiz mazāks par skudru!" ķēniņa znots saka un
+meklē, kamēr atrod akmentiņu. Ķēniņa znots jau pils kalnā pie caurumiņa. Dungs!
+noskan akmentiņš dibinā. Kalngalā paceļas krāšņa pils. Taī vietā, kur vecene
+sēdēja, atrod tikai pelnu kopiņu.</p>
+
+<p>Ķēniņa znots, zvejnieka dēls, apmeklē savu tēvu, dzīvo saticīgi ar savu mīļo
+sieviņu un valda krietni jo krietni atrastajā pilī.</p>
+
+
+</body></html>

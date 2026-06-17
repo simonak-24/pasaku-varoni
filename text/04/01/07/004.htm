@@ -1,0 +1,222 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+</b><p align="CENTER"><b>Nāve par krustmāti.</b></p>
+</font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">4. A. 2. Bergmanis 1877. g. Bārtā. Dr. A. Bīlenšteina kr. LP, VI,
+129, 1. AS, III, 10c.</p>
+
+<p align="JUSTIFY">Itin vecos laikos dzīvoja nabaga amatnieks; tam bija tik daudz bērnu
+- visvairāk meitu - ka jau sāka vārda trūkt, kad nupat dzimušā bija jānes krustīt.
+Aprunājās ar sievu - tā saka., ka visu radu, draugu, ciemīšu vārdi jau izkrustīti,
+vairāk neesot. Sasprieda, ka vajagot iet pa muižām, sudmalām, krogiem un, vai nu kādu
+cienmāti, freileni, mamzeli jeb jumpravu kūmās aicināt. Un sieva tad izraidīja vīru,
+iedeva tam baltu kulīti, kulītē maizes knipši, gabaliņu siļķes un noteica: "Ar
+Dievu!" Vīrs, apvilcis labākos svārkus, ,paņēma ceļa nūju un gāja pirmāk uz
+;muižu. Nogāja -- pašu laiku satika muižas placī (pagalmā) pašu kungu. Paliecās
+pie ceļa un izteica, kādas vajadzības labad atnācis. Kungs to ieveda ķēķī, lika,
+lai spīdzmane dodot šnapšķi - pats iegāja pie cienīgās pateikt, kāds te kūmās
+lūdzējs atnācis. Kungi bija jau vecīgi ļaudis, bet bērna tiem vēl nebija neviena;
+tālab cienmāte ar kungu sasprieda: nevis kūmās iet, bet to bērnu ņemt un audzināt
+pavisam par savu. Nabaga vīru nu ieaicināja un izteica tam savas domas. Bet vīrs, nemaz
+neapdomādamies, atteica: "Tas neiet!"</p>
+
+<p align="JUSTIFY">Kungi tai ātrumā, ka šis pretojas, appīkās un tūlin raidīja, lai
+tikai iet projām. Nu viņš domīgs, pusdusmīgs gāja tiešām no muižas uz sudmalām.
+Nogāja, iesāka pārrunāt. Tie atkal aizbildinājās šā, tā - nekas neizjuka. Nogāja
+uz krogu. Tie vēl lepnāki: kad viņas, vai nu pati, vai meitas, visiem nabagiem gribētu
+par kūmām iet, tad jau ikkatru dienu būtu jāiet.</p>
+
+<p align="JUSTIFY">Nu vīrs dikti saskumis un dusmu pilns izgāja no kroga, teikdams, ka
+velns esot žēlīgāks, nekā visi tie, kuŗus nācis kūmās aicināt. Un dusmās,
+sašutumā nabaga vīrs nu gāja, gāja, pat nezinādams, kur. Karsta saule spīdēja,
+bija pats diena vidus laiks; te satikās kādu paķeistu (ērmīgu) -- bet kā ādījās -
+augstu kungu it sarkanās drānās ģērbušos. Nabaga vīrs raudzīja tad savas bēdas
+izsūdzēt, kādu padomu dabūt. Bet sarkanā padoms bija, ka tam jau par daudz tā kā
+tā bērnu esot, visus taču nevarot pabaŗot, lai tikai šo pēdējo nonesot un iemetot
+dīķī jeb kādā upē, tad visas rūpes būšot beigtas. Goda vīram, to dzirdot, tīri
+kauli nodrebēja un tūlin iekrita prātā - sarkanais neesot labais, būšot pats
+ļaunais. Un rau, viņam tā domājot sacēlās tāds briesmīgs viesulis, ka tik tik šo
+gar zemi nepasvieda. Viesulī sarkanais pazuda.</p>
+
+<p align="JUSTIFY">Vīrelis pārbijies; krustus mezdams, pātarus skaitīdams, gājis uz
+priekšu.</p>
+
+<p align="JUSTIFY">Gabalu pagājis, satikās vecu nabagu, ļoti laipnīgu vīru, kas
+mīlīgi dievpalīgu padevis, tūlin uzrunāja: "Apstājies, apstājies,
+parunāsimies! Man tu izrādies bēdīgs un sabijies. Kas tev no ticis? Labprāt gribu
+palīdzēt."</p>
+
+<p align="JUSTIFY">Vīrelis nu izstāstīja visu galu no gala; un jo runāja, jo sirds
+tapa vieglāka, prāts gaišāks. Laipnīgais vecis klausījās, klausījās, tad teica:
+"Tā jau nu klājas gan tiem nabadziņiem šinī pasaulē - no cilvēkiem nevar
+cerēt, bet gan Dievs palīdzēs! Ar Dievu!"</p>
+
+<p align="JUSTIFY">Nu nabaga vīrelis vieglu sirdi aizgāja tālāk, pamazītēm līzdams
+uz priekšu. Un tā ejot; viņam nāk pretim kūda kūda pusmūža sieviņa ar cirpi
+rokā. Tā prasa, kas viņam kaitot, ka tāds domīgs izskatoties? Vīrelis atkal galu no
+gala izstāstīja.</p>
+
+<p align="JUSTIFY">Tad kūda .sieviņa sacīja, ka viņa esot Nāve un 'ka labprāt gribot
+viņa krustāmai meitiņai būt par krustamāti. "Ej tikai mierīgs māja, es jau
+vajadzīgā brīdī baznīcas rašos. Un kad tava meitiņa divdesmit vienu gadu būs veca,
+tad to visādi ticis vīrs apprecēs un tad es savu pādi kāzu dienā atkal apsērsīšu
+un tādas dāvanas aiznesīšu, ka jūs visi piederīgie varēsit bagāti un laimīgi
+dzīvot." To teikusi, Nāve pazuda.</p>
+
+<p align="JUSTIFY">Vīrelis pārgāja mājā un it priecīgs stāstīja sievai, ka
+nedzirdētu krustamāti meitiņai dabūjis - Nāvi. Sieva, to dzirdēdama, aplam sabijās;
+bet kad vīrs izskaidroja, kādas dāvanas Nāve kāzu dienā apsolījusi, un ka Nāve jau
+ir bez tam vienumēr taisna, un patiesīga esot, nevis balvu ņēmēja, kā citi, tad
+beidzot sieva apmierinājās; tikai par to netīkamo vārdu vēl drusku skūtījās, kā
+viņa mīļo bērniņu lai nu par Nāvi saucot! Vīrs atkal raudzīja apmierināt: kam tad
+vajagot taisni par Nāvi saukt, gandrīz visus vārdus daudzmaz pārgrozot, tā arī to,
+par Natiņu, jeb Natāliņu saukdami.</p>
+
+<p align="JUSTIFY">"Ja," sieva saka, "tas ir cita lieta, tad lai paliek par
+Natiņu!" Atnāca svētdiena,</p>
+
+<p align="JUSTIFY">aiznesa meitiņu kā varēdami baznīcā, kru stamāte, Nāve, arī tur
+radās - nokrustīja.</p>
+
+<p align="JUSTIFY">Bet kad no baznīcas pārgāja mājās, krustamātes vairs nebija;
+tikai nēsātāja, pēc vecumu veca ieraduma; līdz kāju pār slieksni istabā spēra,
+uzdziedāja:</p>
+
+<p align="JUSTIFY">Mazi bērni vaicāja: </p>
+
+<p align="JUSTIFY">Kas lellei vārdā? Lellīte iznesa, pārnesa Natiņu!"</p>
+
+<p align="JUSTIFY">Un nu tēvs, māte Nāves pādi, Natiņu audzēja. Izauga skaista; un
+astoņpadsmitā gadā jau radās brūtgāni, kas gar Natiņu diģinājās: bet viņa ne
+pie viena negāja. Pienāca divdesmit pirmais gads, te gadījās stalts tēva dēls, liels
+labdaris, kas no sava nelaiķa tēva bija mantojis visas dziedināmās gudrības, un tas
+bildināja Natiņu. Labi. Pienāca kāzu diena, ieradās arī Nāve pādes kāzās; bet ne
+tā atnesa zelta, ne sudraba, tikai to vien uzlika pader un pādes vīram rokas un
+vēlēja veselību un lielu vecumu piedzīvot, tās tās dāvanas, ko toreiz solījusi.
+Beidzot teica vēl pādes vīram, labdarim: "Kad tu nu no šī laika pie slimiem
+ieiesi, tad tūlin zināsi, vai slimais mirs jeb izdzīs. Arī mani pie katra slimnieka
+redzēsi: kad es stāvēšu slimnieka kāju galā, tad tas izsirgs, ja stāvēšu galvas
+galā, tad zini - tam jāmirst. Un zāļu vietā vari kaut kādu ūdeni pasmelties - visi
+labi; tikai to piekodinu: pret manu prātu neko nedari!"</p>
+
+<p align="JUSTIFY">Un nu labdaris iesāka visiem palīdzēt slimības dienās. Drīz to
+pazina viss lielais apgabals. Bagātību tas sakrāja un lielu, lielu vecumu piedzīvoja.
+Bet vecuma galā gadījās ķēniņa dēlam gŗūti sasirgt. Ķēniņš atsūtīja karīti
+pakaļ, piesolīja labdarim skaistu pili par algu, ja tikai dēlam palīdzēšot vien. Nu
+labdaris par varu gribēja ķēniņa dēlu izcelt; bet kad iegāja pie slimnieka gultas,
+ieraudzīja sievas krustamāti, Nāvi, galvas galā. Ko nu? Tā viņš slimajam.
+šķizdamies zāles dodus, iedeva pilīti ūdens un apgrieza gultu otrādi. Apgrieza gan,
+bet Nāve atkal galvas galā. Grieza vēl reiz otrādi; bet Nāve atkal galvas galā un
+vēl dusmīgi grasāja ar cirpi labdarim. Šis neko -- grieza vēl trešo reizi. Ka grieza
+trešo reizi, tā Nāve cirta ar savu cirpi un nu bija ķēniņa dēls, bija arī pats
+labdaris miruši.</p>
+
+
+</body></html>

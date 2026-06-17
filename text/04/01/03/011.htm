@@ -1,0 +1,217 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>11</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Kalējs ar Nāvi.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">11. A. 330 A. Pēc Andrieva Patmalnīka raksta no Latgales. </p>
+
+<p align="JUSTIFY">Bija bagāts kalvis, pie viņa staigāja visādi ubagi. Vienu reizi
+atnāca pie viņa vecs vecītis un vaicāja: ,,Vai pie jums varēs pārgulēt?"</p>
+
+<p align="JUSTIFY">"Pārgulēt?" kalvis saka, "ko tad tu man vaicā? Ej tik
+taisni uz istabu, saki, lai dod tev ēst, liecies uz krāsns un guli! Ko tur vēl
+prasīt?"</p>
+
+<p align="JUSTIFY">Noiet ubags uz istabu un saka, ka saiminieks viņam vēlējis nākt uz
+istabu un taisīties uz naktsguļu.</p>
+
+<p align="JUSTIFY">Saiminiece arī tūlin dabūja ubagam ēdienu, paēdis viņš aizgāja
+gulēt un pārgulēja mierīgi visu nakti. Rītā uzcēlies, ubags apāva kājas un
+taisījās iet uz māju, bet saiminieks viņam uzprasīja: "Kur tu iesi bez
+brokastim?"</p>
+
+<p align="JUSTIFY">Tad viņš liek saiminiecei sagādāt ubagam ēdienu. Ubags paēdis
+saka saimniekam: </p>
+
+<p align="JUSTIFY">"Lai Dievs tev dod debesu valstību!" Saiminieks viņam
+atbild : "Es negribu debesu </p>
+
+<p align="JUSTIFY">valstības."</p>
+
+<p align="JUSTIFY">Nu ko tad tu gribi?" "</p>
+
+<p align="JUSTIFY">"Es tik gribu, ka man smēdē būtu tāds ogļu maiss, kur nekad
+ogļu netrūkst. Bet ja cits pieietu pie tā maisa, tad bez manas ziņas lai tas netiktu
+vairs nost."</p>
+
+<p align="JUSTIFY">"Tas tev arī būs," atteica ubags un aizgāja savu ceļu.
+Kalvis aiziet uz savu smēdi un redz, ka ogļu maiss jau stāv smēdes kaktā.</p>
+
+<p align="JUSTIFY">Otrā vakarā atnāk atkal viens ubags smēdē pie kalvja un saka:
+"Dievs palīdz! Vai pie jums var pārgulēt?"</p>
+
+<p align="JUSTIFY">"Ko tur veltī prasīt? Ej tik taisni uz istabu un liecies
+gulēt!" Noiet ubags </p>
+
+<p align="JUSTIFY">uz istabu un saka saiminiecei: "Saiminieks man atļāva te pie
+jums pārgulēt par nakti."</p>
+
+<p align="JUSTIFY">Saiminiece tūlin pagādāja ubagam vakariņas, ubags paēda un liekas
+gulēt. Rītā piecēlies, ubags grib jau iet projām, bet saiminieks liek saiminiecei
+sataisīt ubagam brokastis. Paēdis ubags saka saiminiekam: "Lai Dievs tev dod debesu
+valstību!"</p>
+
+<p align="JUSTIFY">Saiminieks atbild: "Es negribu debesu valstības. Es tikai
+gribētu, lai man še būtu tāds krēsls, uz kuŗa uzsēstoties, neviens bez manas ziņas
+netiktu nost."</p>
+
+<p align="JUSTIFY">"Ko tu gribi, tas tev būs," sacīja ubags un aizgāja
+projām. Tāpat arī trešā vakarā atnāk kāds ubags un lūdzas naktsmājas. Tas atkal
+tāpat tiek uzņemts un paēdināts. Projām ejot, viņš prasa saiminiekam, ko viņš
+vēloties?</p>
+
+<p align="JUSTIFY">Saiminieks atbild: "Es vēlētos, ka manas istabas priekšā būtu
+tāda ābele, no kuŗas tikai es viens pats varētu ābolus salasīt. Bet ja kāds cits
+aizkārtu šos ābolus, tad lai tas bez manas ziņas vairs netiktu nost."</p>
+
+<p align="JUSTIFY">Ubags to apsola un ābele tūlin arī ierodas. Iet nu ceturtā dienā
+atnāk pie kalvja velns un saka: "Debesu valstības tu negribēji, tad nu iesim uz
+elli!"</p>
+
+<p align="JUSTIFY">Kalvis atbild: "Lūdzu drusku pagaidīt, kamēr es vēl kādu
+lietu uzkaļu, tad iesim uz elli. Varbūt tu man padosi drusku ogļu no maisa, lai es
+drīzāki tiktu gatavs.</p>
+
+<p align="JUSTIFY">Velns ir ar mieru palīdzēt, tūlin grābj ogles, bet nu netiek vairs
+no maisa nost. Kalvis pasauc ļaudis palīgā un nu sāk sist velnu ar āmuriem un
+dedzināt ar karstu dzelzi. Kā velns pasprūk vaļā, tā aizmūk uz elli, ne atpakaļ
+neskatīdamies.</p>
+
+<p align="JUSTIFY">Nākošā dienā atnāk otrs velns pie kalvja un saka: "Tev tūlin
+jānāk man līdz uz elli. Es esmu gudrāks par savu brāli, manis tu vis
+nepiemānīsi."</p>
+
+<p align="JUSTIFY">Kalvis atbild: "Pagaidi vēl drusciņ! Iesim uz istabu, man vēl
+ēst gribas."</p>
+
+<p align="JUSTIFY">Aiziet abi uz kalvja istabu un velns atsēstas uz kalvja krēsla.
+Kalvis drusku uzkož,</p>
+
+<p align="JUSTIFY">pārģērbjas citās drēbēs un saka velnam: Iesim nu!"</p>
+
+<p align="JUSTIFY">" Velns lūko piecelties, bet nevar. Kalvis nu sāk dedzināt
+velnu ar karstu dzelzi, kamēr tas aizmūk tāpat kā pirmais velns.</p>
+
+<p align="JUSTIFY">Trešo reizi atnāk pats vecais velns un saka kalvim: "Nāc tūlin
+uz elli! Manis tu nepiemānīsi."</p>
+
+<p align="JUSTIFY">Saiminieks atbild: "Aiziesim vēl līdz istabai!"</p>
+
+<p align="JUSTIFY">Gar ābeli ejot, kalvis saka, lai velns paņemot kādu ābolu. Kā nu
+velns aizkaŗ ābolu, tā netiek vairs no ābeles nost. Kalvis dedzina arī šo velnu ar
+karstu dzelzi, kamēr tas aizbēg.</p>
+
+<p align="JUSTIFY">Nākošā dienā kalvis pats aiziet uz elli, izlauž elles vārtus, bet
+velni, to redzēdami, izbēg visi ārā. Viņš apskatās, ka tur nekā nav, tikai katli
+vārās ar ūdeni, iet tālāku uz debesim, bet debesīs tā nelaiž iekšā. Dievs iedod
+kalvim kādu kūju un liek tam tikmēr jaukt elles katlus, kamēr tie paliek sausi. Kalvis
+to visu izdara un tad arī tiek uzņemts debesīs.</p>
+
+
+</body></html>

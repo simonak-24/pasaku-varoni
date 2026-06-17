@@ -1,0 +1,162 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>17</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Mednieks izglābj princesi.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">17. A. 327B. 304. Brambērģos. LP, V, 3, 5. plez.</p>
+
+<p align="JUSTIFY">[Tēvam bijuši septiņi dēli, seši gudri, septītais muļķītis.
+Pēdējais siena kaudzi sargādams, noķēris vienu ķēvi. Šī viņam iedevusi septiņus
+kumeļus: sešus skaistus, septīto neglītu. Gudrie brāli paņem skaistos zirgus,
+muļķītim atstāj neglīto. Nu visi brāli izjāj laimes meklēt. Par upi jājot,
+muļķīša neglītais, zirgs pārvēršas par skaistāko no visiem septiņiem. Tālāku
+jājot, brāli iejāj vienā krogū, kur atrod ēdienus, dzērienus un septiņas gultas.
+Šie nu paēd un liekas gulēt. Bet muļķītis sadzird, ka viņa zirgs stallī stipri
+spārdās. Muļķītis iet uz savu zirgu, un tas viņam izstāsta, kādas briesmas
+gaidāmas. Brāļiem piegulšoties blakus septiņas meitas ar zelta vaiņagiem un tad visi
+brāli tikšot nogalināti. Lai nu šis meitām noņemot vaiņagus un uzliekot tos
+brāļiem, tad meitas tikšot nogalinātas. Muļķītis tā izdara, un viss notiek, kā
+zirgs sacījis.]</p>
+
+<p align="JUSTIFY">No sienas izskrējušas svina bumbas, un tās norāvušas raušus
+visām meitām galvas. Vēlāk, kad septītais dēls (muļķītis) atšķīries no
+brāļiem, tad apgulies upes malā, zālainā pļavā un ieraudzījis trīs lielus starkus
+(svēteļus, gandrus) upē mazgājamies. Viņš brīnojies, ka starki arī mazgājas, bet
+kumeliņš teicis : "Tās ir trīs ķēniņa meitas. Noņem viņām apģērbus,
+kamēr mazgājas, un sadedzini!"</p>
+
+<p align="JUSTIFY">Šis tā darījis, un re, starki palikuši par daiļām meitām.
+Muļķītis sēdinājis visas trīs savā kumeļā un pārvedis tēvam (ķēniņam).
+Ķēniņš viņam par to dāvinājis savu lielo zobinu un iecēlis par dārznieku. Bet
+ķēniņa dārzā neviens koks nenesis augļus. Kumeļš teicis: "Zinu gan, kādēļ
+augļu nav. Tur apakšā mīt liels krupis, tas koku saknēm nozīž visu labumu ; bet
+dārza vidū ir koks ar zelta lapām. Citrīt krupis zīdīs apakš tā koka. Izrok un
+pasit viņu, tad būs dārzā augļu vai cik!"</p>
+
+<p align="JUSTIFY">Muļķītis tā dara, un re, otrā dienā koki izplaukst, zied un zelta
+augļu tik daudz, ka zari lūzt. Bet drīzi velns pēc tam atlaida ķēniņam ziņu, lai
+atdodot viņam savas trīs meitas, citādi visu valsti noslīcināšot.</p>
+
+<p align="JUSTIFY">[Ķēniņa meitas nu tiek viena pēc otras vestas uz jūru, lai tās
+tur nodotu velnam. Muļķītis pārģērbies iet velniem pretī, nokauj ar savu zobinu
+visus trīs velnus un izglābj ķēniņa meitas. Viņas pārģērbušos dārznieku nav
+pazinušas. Kad viņš pēc cīņas nolicies gulēt, tad vecākā meita ieslēpusi viņam
+matos savu gredzenu, vidējā savu bildīti un jaunākā ar savu lakatiņu apsējusi
+viņam plecā vāti. Dārznieks katru reiz, kā pamodies, tūlin aizjājis, neko par sevi
+nesacīdams. Ķēniņš nu meklējis glābēju, lai to apdāvinātu, bet nevarējis nekur
+atrast. Ķēniņa pavārs pamanījis dārznieka matos minēto gredzenu un bildīti,
+izgriezis tos zagšus, dārzniekam guļot, un izdevies pats par glābēju. Ķēniņš nu
+grib salaulāt savu jaunāko meitu ar pavāru. Bet patiesība nāk gaismā, pavārs tiek
+nosodīts, un dārznieks apprecē jaunāko ķēniņa meitu.]</p>
+
+<p align="JUSTIFY">Piezīme. Šis variants pēc A. Lercha-Puškaiša vārdiem ir pilnīgi
+līdzīgs iepriekšējam, izņemot tikai aizrādītos sīkumus. P. Š. </p>
+
+
+</body></html>

@@ -1,0 +1,168 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Kalējs ar Nāvi.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 330 A. E. Birznieks, Upīts, no J. Priedes Tukuma apr. Dzirciemā, Jkr. 111, 1. AŠ, 111, Bb.</p>
+
+<p align="JUSTIFY">Ceļmalā bija maza mājiņa. Kādā vakarā ienāk skaists, slaiks vīrietis un lūdz naktsmājas. Saimnieks to labprāt atvēl.</p>
+
+<p align="JUSTIFY">"Guliet vien, guliet vien! Vai tad tā nu pirmā, vai pēdējā reize, kur ceļa gājējs te atrod savu čubu maisiņu un maizes rieceniņu?"</p>
+
+<p align="JUSTIFY">"Tencinu, tencinu! Bet es neesmu viens pats, ārā man vēl ir vienpadsmit ceļa biedru."</p>
+
+<p align="JUSTIFY">"Kas par to?" saimnieks atteic: "uzčubināšu katram viņa maisiņu, nogriezīšu katram viņa maizes šķēlīti. Nākat vien!"</p>
+
+<p align="JUSTIFY">Otrā rītā ceļa gājēji prasa, kādu atlīdzinājumu saimnieks gribot par naktsmāju. Saimnieks negrib nekā: "Man it nekā nav vajadzīgs. Un kad arī būtu — kādu atlīdzinājumu nabags ceļa gājējs var dot?"</p>
+
+<p align="JUSTIFY">"Naudu mēs tev nevaram dot," vislaipnākais no divpadsmitiem saimniekam teica. "Bet saki trīs vēlēšanās, tās tev piepildīsies!"</p>
+
+<p align="JUSTIFY">Saimnieks nezin, ko vēlēties, ko nevēlēties! Kā padomu meklēdams, viņš skatās caur logu un ierauga tur savu lielo bumbieŗu koku. No tā viņš pats vēl neviena augļa nebija dabūjis, gaŗāmgājēji jau visus puszaļus noraustīja.</p>
+
+<p align="JUSTIFY">"Lai katrs, kas no šī koka bumbieri rauj, paliek tur klāt, kamēr es to atlaižu!" Saimnieks izteica savu pirmo vēlēšanos.</p>
+
+<p align="JUSTIFY">"Tas notiks!"</p>
+
+<p align="JUSTIFY">Kāda tava otra vēlēšanās?" laipnais ceļa gājējs prasa tālāk.</p>
+
+<p align="JUSTIFY">"Man tepat pušniekos ir labs draugs, bet tas ikreizes atnāk pie manis, kā pēc uguns. Tikko pieri parādījis, tad tūliņ atkal uz mājām. Es gribētu, ka viņš no šā mūrīša vairs nevarētu uzcelties, kamēr es to atlaižu uz mājām."</p>
+
+<p align="JUSTIFY">"Arī tas notiks! Un tava trešā vēlēšanās?" laipnais ceļa gājējs vaicā.</p>
+
+<p align="JUSTIFY">Saimnieks nu ir priecīgs: "Kad manas abas pirmās vēlēšanās piepildās, kas tad man nekait dzīvot! Tad es vēl labprāt dzīvotu trīs simti gadu."</p>
+
+<p align="JUSTIFY">"Lai notiek!" laipnais ceļa gājējs nosaka un visi aiziet.</p>
+
+<p align="JUSTIFY">Trīssimti gadu pagājuši. Saimniekam arī laiks pagājis loti īsi. It negaidot atnāk Nāve un skubina, lai pošas iet līdzi. Saimnieks rādās būt ar mieru un saka: "Kamēr es te vēl visu sakārtošu, tikām vari iziet uzkost kādu bumbieri."</p>
+
+<p align="JUSTIFY">Nāve to neliekas divreiz teikties; tā ārā un pie koka klāt, norauj bumbieri un grib nākt atpakaļ iekšā, bet vairs nevar tikt. Nu ir nagos! Nāve sāk saimnieku lūgt, lai laižot vaļā.</p>
+
+<p align="JUSTIFY">"Pag', pag', krustmāt', tiksi jau ar, tikai ar vienu norunu," saimnieks tagad saka, Nāvi savā varā redzēdams: "Ja tu man vēi ļauj trīssimti gadu dzīvot, tad tevi laižu vaļām."</p>
+
+<p align="JUSTIFY">Nāve redz, ka citādi vaļā netiks, un padodas saimnieka gribai, apsolīdamās pēc norunātā laika atkal atnākt.</p>
+
+<p align="JUSTIFY">Atkal jau trīssimti gadi pagājuši, bet saimniekam vēl netīk mirt. Noliktā laikā Nāve ierodas starka veidā istabā un aicina saimnieku līdz. Saimnieks tūliņ gājis, tik vēl lūdz, lai starks uzgaidīdams apsēžoties uz mūrīša, viņam vēl jāatvadoties no piederīgiem. Pēc brītiņa saimnieks ir gatavs un grib iet, bet starks nevar tikt no mūrīša nost. Nu jālūdzas atkal, lai saimnieks atsvabina.</p>
+
+<p align="JUSTIFY">"Tūliņ, tūliņ," saimnieks gatavs atlaist: "bet tev jāapsola man vēl trīssimti gadu ļaut dzīvot, tad tik tevi laidīšu vaļām."</p>
+
+<p align="JUSTIFY">Neko darīt, starkam jāapsola. — Vēl pēc trīssimti gadiem Nāve nošauj saimnieku ar bultu no tālienes. Nu viņš pēc deviņsimti gadiem reiz ir beigts un tam jāiet uz debesīm. Viens ceļš tikai uz turieni iet un tas pats caur elli. Mūsu saimnieks iet pa lielu, platu lauku un jau no tālienes redz pekles uguni: viņš nebaidās, bet dodas taisni ugunī iekšā pie pašiem velniem.</p>
+
+<p align="JUSTIFY">"Kur tad tu tik ilgi aizķēries?" velni brīnās.</p>
+
+<p align="JUSTIFY">"Kam tad tā pasauli tik ātri atkal tīk atstāt?" saimnieks atteic. Vārds pa vārdam, vārds pa vārdam, kamēr saimnieks tā iedraudzējas ar velniem, ka sāk kauliņus mest. Saimnieks noņem velnam uz kauliņiem trīssimti dvēseļu un nu ar tām steidzas uz debesīm. Pie debesu vārtiem nonācis, viņš sāk klaudzināt. Pēteris atveŗ vārtus un saimnieks viņu pazīst par to pašu, kas toreiz lūdzis no viņa naktsmājas.</p>
+
+<p align="JUSTIFY">"Nāc vien iekšā!" Pēteris sauc saimniekam pretim, "mēs jau tevi priekš sešisimti gadiem gaidījām."</p>
+
+<p align="JUSTIFY">"Tencinu, tencinu!" saimnieks atteic: "Bet es neesmu viens pats, man vēl ir trīssimti ceļa biedru līdz, kuŗus velnam uz kauliņiem atņēmu."</p>
+
+<p align="JUSTIFY">"Tad jāiet ar veco aprunāties," Pēteris saka un aiziet pie Dieva. Pēc brītiņa atnāk atpakaļ, un ielaiž visus iekšā.</p>
+
+<p align="JUSTIFY">Piezīme. Šo pašu pasaku ir tulkojis latgaliešu izloksnē Draugs Līvānos: „Myusu tautas teikas un pasokas," 8. P. Š.</p>
+
+</body></html>

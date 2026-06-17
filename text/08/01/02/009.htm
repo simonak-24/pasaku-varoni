@@ -1,0 +1,257 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="center"><font size="3"></font><font size="5"><strong>Brīnuma lampa.</strong></font></p><font size="5">
+
+</font><p><font size="5"></font><font size="3">9. A. 561. Skolnieks V. Patašs, Ludzes apr.</font></p><font size="3">
+
+<p align="JUSTIFY">Vīnu reizi dzeivuoja veirs ar sīvu. Viņim beja mozs puisāns. Viņi
+beja ļūti bēdīgi [nabagi], pat nabeja kuo ēst, un puisānam naspēja drēbu
+nūpierkt.</p>
+
+<p align="JUSTIFY">Vīnu dīnu puisāna tāvs saslyma un dreiži nūmyra. Puisānam karā
+dīnēja tāva bruols, kurs viņu ļūti mīļuoja. Puisāns navarēja pastaiguot ar cytim
+škuolas bārnim, jo viņam nabeja drebu un zuoboku, bet laiks beja ļūti solts.</p>
+
+<p align="JUSTIFY">Vīnu dīnu muote viņu apgērba sovā kažūkā un palaidja uorā
+pastaiguot. Viņš izguoja uorā uz pogolma un nūsāda uz bluča. </p>
+
+<p align="JUSTIFY">Valns sadūmuoja puisānu nūnuovēt un viņš pasaruodīja tava</p>
+
+<p align="JUSTIFY">bruoļa veidā. Puisāns, īraudzējis valnu, palyka ļūti prīcīgs,
+viņš dūmuoja, ka tys ir viņa mīlais kristtāvs. Viņš nūlēcja nu bluča zemjā,
+apsakēŗa valnam ap koklu un suoka vinu bučuot. Valns puisānu pagluostīja, īdevja
+viņam kringeli un obēji īguoja ustobā pi muotes, kura adēja cymdus.</p>
+
+<p align="JUSTIFY">Muote ari turēja valnu par dāla kristtāvu un pījēmja viņu kai
+sovu eistū vīsu. Muote viņam devja ēst un dziert, un vysu, kas tik beja viņai pašai.</p>
+
+<p align="JUSTIFY">Pēc kaida laika valns dūmuoja īt prūjom un lyudzjās muotes:
+"Palaid puisānu mani kaidu gobolu pavadīt."</p>
+
+<p align="JUSTIFY">Muote atbiļdēja: "Es labpruot palaistu sovu dālu, bet viņam
+nav kuo apaut kuojuos."</p>
+
+<p>Valns tad sacīja: "Es viņu ar nesšonu aiznesšu." </p>
+
+<p>Labi. Valns pajēmja puisānu klēpī un laidjās īt. Kad jau gobolu beja paguojuši,
+puisāns soka uz valnu: "Es gribu īt jau uz muojom."</p>
+
+<p align="JUSTIFY">Bet valns, naatbildādams ni vuorda, guoja tik tuoļuok. Kad jau nu
+muojom beja nūguojuši kaidi pīci versti, tad puisāns otkon lyudzjās valnu, lai
+laižūt uz muojom; bet valns niu atbiļdēja: "Tagad tu muojuos myužīgi vairs
+netiksi, es naasmu vys tovs kristtavs, bet asu valns."</p>
+
+<p align="JUSTIFY">Puisāns nūsabeida un suoka rauduot. Valns sasadusmuoja uz puisāna un
+īmetja viņu lelā muojā, taidā kai cītumā. Atguoja nakts, satyma un palyka ļūti
+tymss. Puisānam jau suoka īt mīgs, bet gulēt navarēja, jo šite nabeja ni gultu, ni
+kuo. Te - kur bejs, nabejs - puisāns atroda bikerīti. Valns alsdams atskrēja pi durovu,
+suoka dauzētis un runuoja uz puisānu: "Atdūd maņ tū bikerīti."</p>
+
+<p>Bet bikerīts sacīja puisānam: "Soki, kai nadevu, tai nadūšu."</p>
+
+<p align="JUSTIFY">Valns sasadusmuoja un izlauzja durovas, bet pats nūbaga prūjom.
+Puisāns rauduodams runuoja: ,;Kaut bejuse gultiņa, es varātu gulēt."</p>
+
+<p align="JUSTIFY">Bikerīts pamuocēja puisānu: "Nūskaiti puotorus, varbyut Dīvs
+dūs guļtiņu."</p>
+
+<p align="JUSTIFY">Labi. Puisāns nūkaitēja puotorus un tur uz reizes roduos guļtiņa.
+Puisāns atsagula un laimīgi puorgulēja leidz nuokūšam reitam. Reitā puisāns
+pasasmūdis vēlējās: "Kaut maņ bejs kū ēst."</p>
+
+<p align="JUSTIFY">Bikerīts otkon puisānu pamuocīja tai: "Nūskaiti puotorus,
+varbyut Dīvs dūs arī kū paēst."</p>
+
+<p align="JUSTIFY">Labi. Puisāns nūskaitēja puotorus un uz reizes beja daudz vysaidu
+duorgūs ēdiņu.</p>
+
+<p align="JUSTIFY">Tai paguoja daudzi godu un jis īsadūmuoja par muoti un gribēja īt
+uz muojom. Vīnu dīnu otkon puisāns vēlējās: "Kaut maņ bejs apgērbs, es
+varātu nūīt uz sovom muojom."</p>
+
+<p align="JUSTIFY">Te bikerīts otkon soka: "N ūskaiti puotorus, varbyut Dīvs dūs
+arī apgērbu."</p>
+
+<p align="JUSTIFY">Labi. Puisāns nūskaitēja puotorus un uz reizes atsaroduos ļūti
+smuki un jauni svuorki. Viņš apsagērba jaunuos drēbēs un nūguoja uz muojom, uz sovu
+muoti. Īguojis pogolmā, viņš navarēja pazeit sovu kuormu, jo jī vysi beja apauguši
+ar syunom un satryudējuši. Īguojis ustobā, jis atroda sovu muoti vacu un saleikušu ar
+siermim motim. Jei sēdēja aiz golda un sprēde kūdeļi. Niu puisāns varēja ar sovu
+bikerīti dabuot vysu, kū tikai vēlējās, Nu tuos dīnas puisāns ar sovu muoti
+dzeivuoja boguoti um laimīgi, puortykas beja pa pylnam.</p>
+
+<p align="JUSTIFY">Vīnu reizi puisāns sadūmuoja precētīs ar kēniņa meitu. Bikerīts
+puisānu pamuoca tai: "Jo tu nūīsi uz ķēniņa pili, tad nūsamet pi ga nku
+ceļūs un gaidi, kod izīs uorā ķēniņš. Jo izīs ķēniņš, tad viņš tev vaicuos,
+kuo tu gaidi. Tad tu soki: "Es gribu precētīs ar tovu meitu."</p>
+
+<p align="JUSTIFY">Labi. Puisāns nūīt uz ķēniņa pili, nūsamat ceļūs un gaida, kod
+nu piles izīs uorā ķēniņš. Par mozu laiciņu izīt ķēniņš un vaicoj puisānam:
+"Kuo tu atguoji?"</p>
+
+<p>Puisāns atbiļdēja: "Es gribu ar tovu meitu precētīs."</p>
+
+<p align="JUSTIFY">Ķēniņš padūmuoja, pagrūzēja golvu un sacīja: "Es tev sovu
+meitu ar prīcīgu sirdi atdūšu, jo tu izpildīsi munu pīsacējumu. Pataisi ceļu nu
+munas piles leidz sovai, kurs byutu vyss nūkluots ar suknu. Pa ceļa molom lai augtu un
+zidātu uobeļnīcas un pa uobeļnīcas zorim lai byutu putnim perekļi, un perekļūs lai
+dzīduotu putni."</p>
+
+<p align="JUSTIFY">Puisāns, atguojis uz muojom, pajēma sovu bikerīti un suoka rauduot.
+Bikerīts sacīja: "Naraudi, kaidas tev bādas?"</p>
+
+<p>Viņš rauduodams vysu pastuostēja bikerīšam, kas nūtyka.</p>
+
+<p align="JUSTIFY">Bikerīts par laiku atbiļdēja: "Nūskaiti puotorus, varbyut
+Dīvs dūs ceļu, tad guļstīs un guli leidz reitam, reits byus gudruoks."</p>
+
+<p>Labi. Puisāns nūskaita puotorus un nūīt gulātu.</p>
+
+<p align="JUSTIFY">Reitā puisāns pasamūdīs breinuojas. Tovu breimumu, nu puisāna
+piles leidz kēniņa pilei īt ceļš un vyss izkluots ar suknu, pa ceļa molom aug un
+zīd uobeļnīcas, un pa viņu zorim dzīd putniņi vysaidim bolsim! A, cik smuks un
+skaists beja tys ceļš, ni ar vuordian juo izstuostīt, ni ar spolvu aprakstīt!</p>
+
+<p align="JUSTIFY">Puisāns apsaprecēja ar kēniņa meitu un dzeivuoja laimīgi. Pēc
+kuozom kaidu reizi puisāns nūguoja medībuos un aizmiersa pajemt sovu bikerīti. Valnam
+sirds nabeja mīrā, radzādams, ka puisāns tik boguots dzeivoj, tuodēļ viņš
+bikerīti gribēja dabuot nu puisāna sovuos rūkuos. Viņš sadūmuoja braukuot ar
+traukim. Labi. Jis nūbraucis uz puisāna pili, lai dabuotu bikerīti: īmainitu ar cytu
+trauku.</p>
+
+<p>Valns prasēja puisāna sīvai: "Varbyut traukus pierksi?" </p>
+
+<p>Puisāna sīva atbiļdēja: "Veirs ir nūguojis medībuos un viņam leidza vysa
+nauda."</p>
+
+<p align="JUSTIFY">Valns tūreiz sūlēja par bikerīti lobus traukus. Puisāna sīvai
+patyka trauki un beidzūt jei par viņim atdevija bikerīti. Valns pakēris bikerīti,
+uotri aizšmaucja prūjoam.</p>
+
+<p align="JUSTIFY">Dreiži atguoja puisāns nu medībom. Sīva aizguoja puisānam
+prīškā un stuosta par jaunim traukim un par bikerīti. Puisāns sasadusmuoja,
+nūsvīdis zemē medējumu un laidjās pasaulē meklēt sova bikerīša. Viņš guoja,
+guoja - verās: stuov moza ustabeņa. Puisāns īguoja ustobā īškā. Šimā ustobā
+dzeivuoja nūluodētuo meita. Meita, īraudzējuse puisānu, sacēja: "Kur tu te
+tyki? Atīs muns veirs (valns) un uz reizes tevi apēss."</p>
+
+<p align="JUSTIFY">Puisāns lyudzjās meitu, lai nūgloboj viņu kaut kur. Nūluodētuo
+meita pajēmja puisānu, ilyka skapī un aislēdzja ar atslāgu. Nūreibēja zeme un
+ustobā īguoja valns, paēdja un lykuos gulēt. Tad meita atslēdzja skapi un izlaidja
+puisānu uorā. Puisāns pajēmja ciervi, nūsyta vainu, tad pajēmja valnam nu ozūtes
+bikerīti, nūluodētū meitu un laidjās uz muojom.</p>
+
+<p align="JUSTIFY">Atguoja viņš uz muojo&amp;127;m, pajēmja sovu sīvu, kēniņa meitu,
+pīsēja vinu dlvejim zyrgym pi astes un saraustēja smolkim gobolim, un nūluodētū
+meitu pajēmja puisāns par sīvu. Obēji apsaprecēja un dzeivuoja laimīgi.</p>
+</font><font size="1">
+
+<p>&nbsp;</p>
+</font>
+
+
+</body></html>

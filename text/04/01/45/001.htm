@@ -1,0 +1,152 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>45</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Velns par precinieku.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 425 A. Jansonu Pāvuls Dzirciemā. Jkr. V, 19 (16). LP, VII, I(,
+19, 1, 3.</p>
+
+<p align="JUSTIFY">Reiz dzīvojuši divi brāļi un māsa. Kādu rītu aiziet brāļi uz
+pļavu sienu pļaut. Projām iedami, tie piesaka māsai, lai šiem brokasti aiznes; bet
+lai viņa neapmaldītos, tad šie ar skujām nospraudīšot ceļu, pa kuŗu jāiet.</p>
+
+<p align="JUSTIFY">Brāļi izdara, kā solījušies, bet velns pārmaina skujas, meita
+nonāk pie ezera, kur to velns ierauj un apņem viņu par sievu. Reiz velna sieva
+iedomājās ar saviem trim bērniem, vienu puisēnu un divām meitenēm, iet savus
+brāļus apraudzīt. Velns pavada visus četrus līdz ezera malai un saka: "Kad
+nāksi atpakaļ, tad sauc ezers malā: "Kārkli, kārkli; atveries! Ja esi dzīvs,
+tad dodi pienu, ja nedzīvs, tad asinis!" To dzirdēdams, es iznākšu jums
+pretim."</p>
+
+<p align="JUSTIFY">Viņa nonāk pie brāļiem un atrod tos spirgtus, veselus. Bet brāļi
+nu grib izzināt, kur viņa tik ilgi bijusi, kā tai klājies. Viņa arī visu izstāsta,
+tikai par velnu un dzīvi ezerā tā nestāsta nekā. Tomēr brāļi mana, ka viņa ko
+slēpj, un lūko to izvilkt no bērniem. Prasa vecākajam - nesaka; prasa viduvējam -
+nesaka; prasa jaunākajam, muļķītim, - tas pastāsta visu: par dzīvi ezerā, par velnu
+un par ielaižamiem vārdiem. Brāļi slepeni aiziet un nošauj velnu.</p>
+
+<p align="JUSTIFY">Pēc kāda laiciņa atvadās māsa no brāļiem un iet uz mājām.
+Ezera malā nonākusi tā sauc: "Kārkli, kārkli, atveries! Ja esi dzīvs, tad dodi
+pienu, ja nedzīvs. tad asinis!"</p>
+
+<p align="JUSTIFY">Parādās asinis. Māte izbīstas un prasa bērniem, vai tie nav
+izpļāpājuši noslēpumu. Jaunākais neliedzas, esot krusttēvam pateicis. Māte izsauc:
+"Kāpēc tu teici? Nu mums arī vairs nav iespējams dzīvot."</p>
+
+<p align="JUSTIFY">To sacījusi, viņa nospriež katram savu likteni: "Tu, dēliņ,
+paliksi par ozoliņu; tu meitiņa par liepiņu, tu, mazais krupīti, par purva cinīti,
+kam katru gadu lai cilvēki nocērt kaklu. Es pati palikšu par dzeguzi - kūkošu no
+Jurģiem līdz Jāņiem: kukū, kukū!" Viss tas arī notiek, kā māte sacījusi.</p>
+
+<p align="JUSTIFY">Piezīme. Tas pats uzrakstītājs ir šo pasaku, ar tādiem pašiem
+vārdiem uzrakstītu, iesniedzis arī "Atbalss kalendāram", kur tā ir
+iespiesta 1897. gadā. P. Š.</p>
+
+
+</body></html>

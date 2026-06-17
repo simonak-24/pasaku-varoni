@@ -1,0 +1,192 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>11</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Vīrs ceļo uz elli.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">11. A. 477. Z. Sēle Slampes Ķivuļos. A. Bērzkalnes kr.</p>
+
+<p align="JUSTIFY">Reiz dzīvojis viens vīrs, kam bijis dēls un meita. Meita reiz
+gājusi mežā ogot, apmaldījusies tur un tā nokļuvusi ellē.</p>
+
+<p align="JUSTIFY">Brālim Ansim bijis māsas ļoti žēl, viņš lūdzies tēvam, lai tas
+atļaujot šim iet māsu meklēt. Tēvs nav gribējis laist, jo tad viņš paliekot viens
+pats, bet tā kā viņš meitu bija ļoti mīlējis, tad viņš tomēr teicis, lai Ansis
+mēģinot, varbūt viņam izdošoties māsu atrast.</p>
+
+<p align="JUSTIFY">Pirmo dienu Ansis izstaigājies par velti, tāpat otru dienu, tomēr
+viņš negriežas vis atpakaļ, bet dodas arvien dziļāki mežā iekšā.</p>
+
+<p align="JUSTIFY">Trešās dienas vakarā viņš nonācis līdz kādam purvam, kur
+bijušas ļoti daudz čūskas. Ar tām viņam nu bijis jācīnās, lai gan viņš ļoti
+daudz čūsku nositis, bet beidzot tomēr bijis jābēg. Tā kā bijis jau tumšs, kad
+viņš ieraudzīja kaut kur mazu gaismiņu un steidzās turpu. Nonācis, viņš tur
+redzēja mazu būdiņu un pieklauvēja pie durvim. Viņu ielaida viens vecītis, kas
+prasīja, ko viņš vēloties. Ansis izstāstīja, ka meklējot savu māsu, viņš arī
+vēl pastāstīja, kā viņam nācies cīnīties ar čūskām, un kā viņš daudz
+nositis. Vecītis, to izdzirdis, sāk viņu norāt, kādēļ viņš tā darījis, jo tagad
+viņam būšot slikti, čūskas nākšot pie vecīša sūdzēties, un ja viņas
+ieraudzīšot Ansi, tad viņu vairs neatstāšot dzīvu. Ansis lūdzās, lai vecītis
+viņu paglābjot. Vecītis teicis, lai ielienot aizkrāsnē un stāvot pavisam klusu.</p>
+
+<p align="JUSTIFY">Tikko Ansis bija ielīdis aizkrāsnē, čūskas arī jau bija klāt,
+tik daudz, ka grīda bijusi ar čūskām pārklāta, viņas sūdzēja, ka kāds jauneklis
+esot nositis, te vienam vīru, otram sievu, gan meitas, gan dēlus. It sevišķi viena
+čūska kliegusi : "To mēs viņam nepiedosim!"</p>
+
+<p align="JUSTIFY">Vecītis, nevarēdams no viņām tikt vaļā, sācis istabā liet
+ūdeni, tad čūskas aizgājušas, vēl nobļaudamas: "To mēs nepiedosim!"</p>
+
+<p align="JUSTIFY">Otrā rītā vecītis Ansim izstāstīja, kā viņš varot nokļūt pie
+māsas; viņa atrodoties ellē. Drošības dēj vecītis iedevis Ansim dzelzs kūju, un
+teicis, kad viņš nonākšot līdz elles pirmām durvim, tad lai viņš pieklauvējot -
+iznākšot velns. Tāpat lai darot pie otrām un trešām durvim.</p>
+
+<p align="JUSTIFY">Ansis devās ceļā, nonācis pie pirmām durvim, viņš prasīja
+velnam, lai tas atdodot māsu. Velns liedzies, tad Ansis viņu nositis ar dzelzs kūju.
+Tāpat klājies pie otrām durvim. Pie trešām durvim nokļuvušam, viņam nācis pretim
+velns ar vairākām galvām. Ansis arī šo velnu nositis un tā izglābis māsu.</p>
+
+<p align="JUSTIFY">Atpakaļ nākot, vigi piegāja atkal pie vecīša, tā viņš Ansim jau
+bija licis. Vecītis viņam teica, kad viņš pāriešot, būšot pļaujas laiks, Ansim
+būšot jāpļauj rudzi. Vecītis iedeva Ansim ādas cimdus un izskaidroja, ka vajagot
+šos cimdus uzvilkt, kad viņš pļaujot, bet māsu uz lauku lai viņš līdzi neņemot.
+Ja būšot vienu kūlīti nopļāvis, tur gulēšot viena čūska, kas aptīšoties viņam
+ap roku. Kad viņa pavisam aptinusies, tad lai viņš metot to čūsku pār kreiso plecu,
+un viņam uz rokas palikšot tikai čūskas āda; to ādu lai viņš labi noglabājot un
+nevienam par to nestāstot un nerādot.</p>
+
+<p align="JUSTIFY">Viņš pārgājis mājās un pļaujas laiks jau bijis klāt. Ansis
+gājis pļaut un darījis visu, kā vecītis stāstījis. Noglabājis čūskas adu, viņš
+atskatījies atpakaļ un ieraudzījis skaistu jaunavu, kuŗa sākusi siet nopļautos
+kūlīšus. Ansim meita tā iepatikusi, ka viņš to iemīlējis, ņēmis līdz uz māju
+un apprecējis. Viņi dzīvojuši ļoti laimīgi, piedzīvojuši divas meitas, kuras
+bijušas tikpat skaistas, kā viņu māte.</p>
+
+<p align="JUSTIFY">Vienas bēdas arvien bija Ansim. ka sieva viņam vienmēr prasījusi,
+lai viņš kaut ko parādot; bet beidzot kad bija tai izrādījis visu, ko vien tik
+domājis, kas viņai patiktu, viņa tomēr vēl prasījusi, tad viņš atcerējies par
+čūskas ādu. Viņš domājis, ka tagad nekas ļauns vairs nevarot notikt, jo viņi tak
+dzīvojot tik laimīgi.</p>
+
+<p align="JUSTIFY">Tikko viņš sievai parādījis čūskas ādu, sievā pazudusi.
+čūskas ola pārvērtusies par čūsku un līdusi pa istabu ārā, sacīdama: "To
+tev nepiedošu!"</p>
+
+<p align="JUSTIFY">Ansis skrējis čūskai pakal, bet viņa bija ielīdusi žagaru
+kaudzē. Viņš nu lūdzis, lai viņa tak apžēlojoties un atgriežoties pie viņa.
+Kamēr viņš tā lūdzies, čūska nemanot izlīdusi no žagaru kaudzes un iedzēlusi
+Ansim kājā.</p>
+
+<p align="JUSTIFY">No tām divām čūsku mātes meitām nu esot cēlušās skaistās
+sievietes.</p>
+
+<p align="JUSTIFY">Piezīme. Sal. ceturtā sējuma 27. pasaku. P. Š.</p>
+
+
+</body></html>

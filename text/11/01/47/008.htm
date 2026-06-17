@@ -1,0 +1,172 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong> Ļaunā sieva bedrē.</strong></font></p><font size="5">
+
+</font><p align="CENTER"><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p align="JUSTIFY">8. A. 1164. T e i c ē j s A. P a b ē r z s P r e i ļ o s. L a t v j
+u k u l t. k r.</p>
+
+<p align="JUSTIFY">Vīnam zemnīkam beja sīva un jei beja cīši sirdīga: par kotru mozu
+nīku jei syta sovu veiru un paša stuostēja vysim pazeistamim, ka jei asūt par daudz
+gudra. Bet vysi par juos gudrību tik smējās, un naboga veirs nu nalaimes, ka jam ir
+taida sīva, nazynuoja, kū darīt. Reiz veirs aizguoja mežā meklēt sev paleigu.
+Sasadykās ar lopsu un suoka juos lyugt, lai jei paleidz jam nu sīvas tikt vaļā. Lopsa
+teicja tai: "Labi, es dūšu tev padūmu, bet par tū reit atnes maņ vīnu vystu un
+vīnu vušku!"</p>
+
+<p align="JUSTIFY">Zemnīks apsūlēja. Nuokušā dīnā jis nu sīvas nūzoga vīnu vystu
+un vīnu vušku un atnesja lopsai. Lopsa apēdja un soka: "Īsim leidz vīnai meža
+uobeļnīcai, tur aug daudz skaistu un lobu uobūļu, un zam uobeļnīcas ir dziļa dūbe,
+kuras dybynā dzeivoj mežūnis ar trejom golvom. Viersā tai dūbei izliksim daudz
+žogorus, tai ka dūbe nabyus radzama, tūlaik tu aizeji da sīvas un stuosti:
+"Mežā ir taida skaista uobeļnīca un tik daudz soldonu uobūļu uz juos aug!"
+Es zynu, ka tova sīva tyuleņ atskrīs pi uobeļnīcas, un kad izliks kuoju uz šīm
+žogorim, tai byus myužam dūbes dybynā!" Tad tu paliksi laimīgs bez juos, bet par
+tū vēl tu man atnes vušku un vystu!"</p>
+
+<p align="JUSTIFY">Zemnīks beja ar mīru. Jī pīguoja pi uobelnīcas un suoka likt
+žogorus viersā dūbei. Kad beja vyss gotovs, zemnīks atguoja uz sātu un pastuostīja
+sīvai, kaidi uobūļi aug mežā. Bet sīva, radzūt nūzagtas vystu un vušku, suoka
+sist veiru, un ni pir kū nagribējā jam ticēt, ka mežā var augt taidi uobūļi.</p>
+
+<p align="JUSTIFY">Reitā zemnīks atnuocja mežā un izstuostīja vysu lopsnai. Tū laik
+lopsa pajēmja lelu žogoru un nūruovja vīnu uobūļi, īdevja zemnīkam un teica:
+"Aiznes šū uobūļi sovai sīvai, lai jei apād "</p>
+
+<p align="JUSTIFY">Zemnīks pajēmja uobūļi un atnezja sīvai. Tei suokumā nagribēja
+nimoz pasavērt, bet pēčuok pajēmja un apēdja. Redzūt, ka uobīys ir ļūti lobs, jei
+suoka otkon sist veiru un runuot: "Ak tu, muļķis, kuopēc tu vysas uobeļnīcas
+naatnesi uz sātu? Ej tyuleņ un atnes ar vysom saknem."</p>
+
+<p align="JUSTIFY">Bet zemnīks atbildēja: "Ar saknem nivīns juo nadūs nest, īsim
+obēji un nūlasīsim vysus uobūļus!"</p>
+
+<p align="JUSTIFY">Tys patyka sīvai. Viņa tyuleņ sasataisījās īt, un pavēlēja
+veiram pajemt vysleluokuos kerzes. Veirs paklausīja, pajēmja kerzes un aizbraucja uz
+mežu. Pīguoja jī leidz uobeļnīcai. Sīva kad īraudzēja daudz skaistu uobūļu,
+izlyka kuoju uz žogorim un īkrita dūbes dybynā. Tūlaik jei saprota, ka veirs beja
+vainīgs un suoka jū tyuleņ luodēt. Bet zemnīks dreiž suoka braukt uz sātu.</p>
+
+<p align="JUSTIFY">Atskrēja lopsa un soka: "Kuopēc tu maņ naatvedi, kū
+apsūlēji?"</p>
+
+<p align="JUSTIFY">Zemnīks sasadusmuoja un gribēja nūsist ar akmeņi lopsu. Bet lopsa
+dreiži aizskrēja prūjom teikdama: "Gon jau tu nu manis dabuosi!"</p>
+
+<p align="JUSTIFY">Zemnīks pasasmējās un aizbraucja uz sātu, apsaprecēja ar ūtru
+sīvu, kura beja cīši loba, un suoka dzeivuot. Tai puorguoja daudz laika. Zemnīks jau
+aizmiersa sovu pyrmū sīvu. Kaidu reizi jis aizbraucja molku cierst mežā, izdzierda
+cylvāka bolsu un skrej pasavērt, kas ir nūticis. Verās: pyrmuo sīva klīdz, lai dūd
+paleigu, jo mežūns jū grib apēst. Zemnīks pasasmēja un pīguoja drusku tyvuok tai
+dūbei un tikkū gribēja kaut kū jai pasacīt, kai pīskrēja lopsa un īgryudja jū
+dūbē. Tai mežūns apēdja jūs obējus, bet sīva ar lobu sirdi otkon dzeivuoja vīna,
+jo vakar naizguoja pi ūtra veira.</p>
+</font>
+
+
+</body></html>

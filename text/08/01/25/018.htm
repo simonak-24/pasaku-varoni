@@ -1,0 +1,154 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>24</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font face="RimTimes" size="6">
+
+</font><p align="CENTER"><font face="RimTimes" size="6"></font><font size="5">Stiprais Ansis.</font></p><font size="5">
+</font></b><font size="3">
+
+<p align="JUSTIFY">18. A. 650 A. M. Skrupska no vecas māmiņas Neretā, Folkloras
+krātuvē.</p>
+
+<p align="JUSTIFY">Reiz viens kungs salīgst kučēru par vienu knipi. Puisis teic, ja
+viņš gadu izdzīvos, tad viņš kungam dos vienu knipi; bet ja ne, tad lai kungs dod
+viņam. Kungs apzinās, ka pie viņa neviens nevar ne mēnesi nodzīvot, kur tad nu gadu!</p>
+
+<p align="JUSTIFY">Reiz gadās, ka kungam jākauj dikti liels vērsis. Kungs domā, kā
+tikt ar to galā, bet kučērs pieiet un nosit vērsi ar diviem knipjiem. Nu kungs paliek
+no brīnumiem vai stīvs. Viņš domā: "Tagad viņš mani nositīs."</p>
+
+<p align="JUSTIFY">Kungs zina vienas sudmalas, kur dzīvo velni. Nu viņš domā:
+"Sūtīšu kučēru turp, tad jau velni viņu saplēsīs."</p>
+
+<p align="JUSTIFY">Vienu dienu kungs teic uz kučēru, lai šis aizvedot uz dzirnavām
+labību samalt. Kučērs arī paņem un aizved. Viņš paņem vienu lūciņu,, piebrauc
+pie durvim. Velns priecīgi pretim - domā: "Būs viens ķēriens," un liek
+kučēram, lai šis tik nesot labību iekšā. Bet kučērs atkliedz: "Kas? vai man
+būs jānes? Vai nezizi, ka tev pašam ir jānes?"</p>
+
+<p align="JUSTIFY">Nu velns saraujas un domā: "Ar šo vīru nevaru vis
+ielaisties."</p>
+
+<p align="JUSTIFY">Bet visvairāk velns baidās no tā lūciņa. "Sazin, ko viņš ir
+nodomājis darīt?"</p>
+
+<p align="JUSTIFY">Viņš paķeŗ maisus un ienes iekšā. Kučērs nu arī liek visu ko
+padot un pienest. Citi velni, nekā nezinādami, neklausa. Tad kučērs saķeŗ visus,
+pārmauc tiem ādu pār acim un iesviež beigtus kaktā. Vecais velns, visu šo
+redzēdams, tikai trīc no bailēm. Viņš jautā, kādi milti būšot jāmaļ, smalkāki
+vai rupjāki. Kučērs atbild, lai parādot, kādi šim esot. Velns, baidīdamies pats
+pienest, uzbeŗ labību uz gaŗas lāpstas un pasniedz. Kučērs atbild, ka būšot labi.
+Nu milti ir gatavi, kučērs uzsēžas uz vezuma un liek velnam padot šim grožus. Velns
+iet trīcēdams, bet kā paņem grožus un pasniedz kučēram, tā šis apmetina lūciņu
+velnam ap kaklu, piesien to pie ratiem un liek zirgiem skriet, cik tik jaudā, pa reizei
+uzšaudams arī velnam. Tā nu atbrauc mājā. Kungs ierauga miltus samaltus un arī velnu
+piesietu pie ratiem. Viņš teic: "Mīļo kučēr, atlaid to velnu un prasi, cik
+daldeŗu tu gribi, un ej projām!"</p>
+
+<p align="JUSTIFY">Kučērs tik to bija gaidījis, paprasa labu tiesu daldeŗu un aiziet
+projām. Nu kučērs palika par bagātu vīru.</p>
+</font>
+
+
+</body></html>

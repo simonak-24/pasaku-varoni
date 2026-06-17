@@ -1,0 +1,181 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>59</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Sieva bēg no muļķa vīra.</p>
+</font></b>
+
+<p align="JUSTIFY"><strong>1. </strong>A. 1685. J. Gobziņš Rudbāržos. LP, VI, 374,
+111. M. Bohm, Lettische Schwānke, 54, 33.</p>
+
+<p align="JUSTIFY">Vienreiz bijis muļķis un tas, par nelaimi, iedomājies precēties,
+bet meitas bildināt nemācējis. Nu, ko nu cita darīt - lūdzis mātei, lai tā viņam
+sievu pārvestu. Labi. Bet mātei tai laikā zosis perinājušās un tās tādās reizēs
+smalki apskatāmas; tādēļ pēc līgavas braukdama, piekodinājusi muļķim: "Kad
+perinātājas grib no ligzda noiet, tad tu laid, lai izplunčojas; bet drīzi vāc tās
+atpakaļ, lai olas neatdziest!"</p>
+
+<p align="JUSTIFY">Māte aizbraukusi, un nu cieši zosis uzlūkojis. Uz vienreiz nāks
+viena mātīte zemē un klaigādama upē iekšā. Šis vāc, vāc - nevar iedabūt
+atpakaļ tik drīzi: kā būtu gājis upei pa šo malu, zoss otrā malā; ka otrā malā,
+zoss šinī malā. Nu muļķim iešaujas prātā: olas atdzisīs, labi nebūs! Nu šauj uz
+kūti, sēdēs pats olām virsū. Sēž, sēž - pārnāk zoss,, vēl šis sēž. Zoss gan
+klaigā: "Ej nu nost!" bet šis iesēdējies - sēža laba - un neiet vis nost.
+Vakarā pārbrauks māte ar līgavu, tā šis kā zoss tēviņš kliegdams pretim, lai
+redzētu jauno sievu. Bet māte - gan tā redz, kas noticis - vaimanā: "Ak tu
+muļķis, ak tu muļķis! Nu jau tu pats būsi sēdējis zoss ligzdā - būs
+sašķaidījis vai visu perekli - redz, kāds tu izskaties!"</p>
+
+<p align="JUSTIFY">Muļķis nu arī atjēdzas, ka ir gan sasēdējis olas, bet neko:
+apčamdās, apčamdās - labs. Kā jau pie darba daždien drēbes aptraipās, kur tā vari
+izsargāties, jāsaka.</p>
+
+<p align="JUSTIFY">Bet līgava saŗauc pieri un nodomā: "Labi nebūs, laidīšos
+gudrāki pa nakts krēslu atpakaļ."</p>
+
+<p align="JUSTIFY">Un tā nu naktī viņa saka brūtgānam: "Pagaidi, pagaidi, es
+drīzi atkal ienākšu!" Bet muļķis atceras: ,;Tā nevar vis laist māte taču
+minēja vakariņās: "Dēls, turi nu cieti to mantu, ko tev šodien pārvedu, sieva
+ir dārga rota!" tādēļ droši ir droši - iesliešu striķī un tad laidīšu
+laukā!" Labi, iesēja striķī, izlaida līgavu laukā un drīzi jo drīzi vilkšus
+vilka atkal atpakaļ. Bet sieva bija atraisījusi mezglu, iesējusi striķī kazu un pati
+aizbēgusi. Muļķis ievilka kazu istabā, čamdīja, čamdīja pa tumsu, nevarēja
+saprast vairs, vaicāja mātei : "Mem, mem, kas te grab pa grīdu, vai manai sievai
+kurpes ir?"</p>
+
+<p>"Jā, dēliņ, tā jau visām sievām!"</p>
+
+<p align="JUSTIFY">Šis čamdījis vēl: "Mem, mem, vai manai sievai ragi arī ir? </p>
+
+<p align="JUSTIFY">"Jā, dēliņ, visām sievām cieti ragi!"</p>
+
+<p align="JUSTIFY">Šis apčamdījis arī kazai bārdu: "Mem, mem, manai sievai viss
+ģīmis ar matiem!"</p>
+
+<p>"Jā, dēliņ, sievām jau gaŗi mati, tavai lai!"</p>
+
+<p align="JUSTIFY">Šis čamdījis arī kazai pupas: "Mem, mem, manai sievai
+pupi!" </p>
+
+<p align="JUSTIFY">"Jā, dēliņ, tā jau visām sievām!"</p>
+
+<p align="JUSTIFY">Beidzot apčamdījis arī ļipu: "Mem, mem, manai sievai
+ļipa!"</p>
+
+<p align="JUSTIFY">Nu māte vairs nesapratusi, kas tā par ļipu, iededzinājusi uguni un
+skatījusies: "Tā jau kaza, dēliņ!"</p>
+
+<p align="JUSTIFY">"Vai traks;!" šis nu arī atjēdzies, "tad viņa mani
+atstājusi, jāskrien pakaļ!"</p>
+
+<p align="JUSTIFY">Skrējis, skrējis - panācis gan; bet 1īgava nu izmetusies
+četrrāpus ceļam krustiem pāri, šis atskrējis pa tumsu - žogs priekšā! Nu skrējis
+atpakaļ pēc cirvja žogu ārdīt un, kamēr nu atskrējis, līgava jau bijusi mājā.</p>
+
+<p align="JUSTIFY">Lūk, tā muļķis palicis bez sievas un no tā 1aika visiem muļķiem
+sievas nepastāvot.</p>
+
+
+</body></html>

@@ -1,0 +1,280 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>21</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Divi ceļotāji.</font><font size="4"></font></p><font size="4">
+</font></b><font size="3">
+
+<p align="JUSTIFY">2. A. 613. J. Ozols Saukā. Brīvzemnieka "Mūsu tautas
+pasakas" I, 23. L. P. VII, II, 25, 5, 11.</p>
+
+<p align="JUSTIFY">Reiz gāja pa pasauli kurpnieks un skrodelis. Kurpnieks bija
+draudzībā ar pašu vellu, bet skrodelim bija Dievs sirdī. Kurpniekam bija naudas kā
+vellam pelus, tomēr viņš krāpa un plēsa, kur varēdams; skrodelim bija naudas un citu
+laicīgu mantu maz, bet viņš dāvāja katram nabadziņam kādu grasīti; katram
+sērdienītim un gŗūtdienītim<b> </b>kādu maizes riecentiņu, katram izsalkušam
+lopiņam kādu kumosu. Kurpnieks gan teica skrodelim, lai tas neesot tik devīgs, jo kad
+pašam pietrūkšot, tad būšot jākaŗ zobi vadzī. Bet skrodelis tam mēdza atbildēt:
+"Gan jau Dieviņš palīdzēs!"</p>
+
+<p align="JUSTIFY">Tālāk ejot, devīgam skrodelim arī tiešām viss izbeidzās. Bads
+bija klāt - ko nu darīt? Skrodelis cieta, cieta, bet pēdīgi teica savam ceļa biedram:
+"Vadzi, brālīt, vai nevari man dot kādu gabaliņu maizes? Neesmu jau pāri dienas
+nekā ēdis."</p>
+
+<p align="JUSTIFY">Kurpnieks atteica: "Kā, vai tev vairs nav maizes? Kur tad tavs
+Dievs, ka viņš tev nepalīdz?"</p>
+
+<p align="JUSTIFY">"Gan jau Dieviņš palīdzēs, tikai šimbrīžam, paša grēku
+dēļ, man pietrūcis ko ēst. Dod man cik necik maizes, es tev atdošu."</p>
+
+<p align="JUSTIFY">"Gan jau Dieviņš palīdzēs!" zoboja bezdievis kurpnieks.
+"Vai tu arī zini, ka tev, uz Dievu paļaujoties, divās trijās dienās
+jānosprāgst badā, ja tev nedodu maizes? Atsakies labāk no Dieva un dzīvo kā es, tad
+tev nekad netrūks maizes."</p>
+
+<p>"Ne, no Dieva neatsacīšos, gan viņš palīdzes."</p>
+
+<p align="JUSTIFY">"Klausies, ja tev tāda stipra ticība uz Dievu, tad derēsim. Es
+došu tev maizi, bet ja tavs Dievs tev nepalīdz to trijās dienās atdot, un tu no Dieva
+neatsakies, tad izduršu tev acis. Bet ja viņš tev palīdz, tad dotā maize nav
+jāatdod."</p>
+
+<p align="JUSTIFY">Labi skrodelis ar kurpnieku salīga. Pagāja viena diena, pagāja otra,
+pagāja arī trešā, bet nabaga skrodelim nebija maizes ko atdot. Nu kurpnieks stājās
+virsū skrodelim, lai vai atsakās no Dieva, vai ļauj izdurt abas acis. Un skrodelis
+palika pie Dieva un ļāva labāk izdurt abas acis.</p>
+
+<p align="JUSTIFY">Nu gāja tālāk abi, aklais skrodelis un redzīgais kurpnieks.
+Pēdīgi tie nonāca kādā mežā, tuvu pie lielas, lielas pilsētas. Še kurpnieks
+nosēdināja savu nelaimīgo ceļa biedru apakš liela kupla ozola un sacīja, lai tas
+pagaidot, kamēr šis būšot atpakaļ atnākt, jo iešot pilsētā maizes pirkt. Bet
+bezdievis, aklo ceļa biedru vienu mežā atstājis, aizgāja projām un nenāca vairs
+atpakaļ.</p>
+
+<p align="JUSTIFY">Skrodelis gaida, gaida, bet viss velti. Viņš gaida, klausās un
+dzird: arvienu jo vairāk apklust putnu dziesmas, koki sāk savādi šņākt un gaiss
+metas auksts. Nu viņš nomana, ka nakts un ka kurpnieks to nežēlīgi piekrāpis, mežā
+vienu atstādams. Ko nu darīt? Koku aptaustījis, tas sāk rāpties augšup, jo mežos
+plēsīgi zvēri. Par laimi zemākais zars arī nav augstu. To sasniedzis, viņš uzkāpj
+uz otru, uz trešo, kamēr atrod tādu vietu zaru žuburā, kur var itin brangi
+nosnausties nakts laikā. Snauž viņš kokā - te ap pusnakti sanāk viens pēc otra
+vesela meža muižas saime: zaķis sulainis, lapsa kūmiņš vagārs, vilks muižkungs un
+lācis lielskungs. Sanākuši sarunājas. Sulainis prasa: "Ko lai tāds dara, kas
+akls?"</p>
+
+<p align="JUSTIFY">Lielskungs, liels zintenieks, atbild: "Ja tāds, saulei lecot,
+trīs reizes izmazgātu acis ar rasu, tad tas dabūtu atpakaļ savu acu gaismu."</p>
+
+<p align="JUSTIFY">Te vagārs jautā: "Kā gan pilsētā, kas tagad slāpst nost,
+varētu atkal dabūt ūdeni?"</p>
+
+<p align="JUSTIFY">Lielskungs, liels zintenieks, atbild: "Pilsētā liels akmens; ja
+to sašķeltu krusteniski četros gabalos, tad būtu ūdens diezgan."</p>
+
+<p align="JUSTIFY">Bet muižkungs vaicā: "Kā lai izdziedē zemes valdnieka vienīgo
+meitu, kas nav nedz dzīvotāja, nedz mirēja? Valdnieks gan izsludinājis dot tam to par
+sievu un pusi no valsts klāt, kas viņu izglābtu, bet kā nav, tā nav glābēja."</p>
+
+<p align="JUSTIFY">Lielskungs, liels zintenieks, atbild: "Kambarī, kur tā guļ, pie
+siekšņa, zem grīdas, paglabāti trīs āboli: viens sudraba, otrs zelta, trešais
+dimanta. Kad tos ābolus izņemtu, krusteniski pārgrieztu un viņai iedotu ābolu
+sēklas, tad tā tūdaļ atžirgtu."</p>
+
+<p align="JUSTIFY">Tā sarunājušies, visi četri aiztecēja katrs savu ceļu. Nu
+skrodelis kokā jo līksms, miegs tam vairs nenāk ne prātā, viņš pateic savam Dievam
+un gaidīt gaida rītu atnākam. Kādu brītiņu gaidījis, tas jau arī dzird lakstīgalu
+pogojam, vēl paiet brītiņš, te paceļas gaisā cīrulis un dzied savu dziesmu. Te jau
+arī žubīte žubina, žagata žadzina, dzeguze kūko, vālodze, staltkāja, kaņepju
+putniņš, cielava, paceplītis, strazds - visi čalina, čīkstina un vīteŗo katrs savu
+rītā dziesmu. Nu skrodelis, putniem dziedot, kāpj no koka zemē un lielāko zāli
+sataustījis un roku rasā saslapinājis, saulītei lecot, izslauka reiz savas acis un
+mana jau rīta blāzmu. Otru reizi ar rasu acis apmazgājis, viņš jau itin labi spēj
+vērot kokus. Trešo reizi ar rītā rasu jo labi acis izmazgājis, tas redz visu vēl
+labāki nekā senāk. Nu skrodelim lielu lielais prieks. Dievam pateicis par atdabūto acu
+gaišumu, viņš taisni iet uz pilsētu.</p>
+
+<p align="JUSTIFY">Pilsētā nonācis, skrodelis redz: riktīgi - visi ļaudis pēdīgi
+izslāpuši, iet galvu nodūruši bēdīgi kā pusmiruši. Viņš prasa pilsētniekiem,
+kas tiem par nelaimi uzbrukusi, ka tie tik vareni izmisuši. Viņam atbild: "Vai
+svešniek’, kā lai mēs neizmistam, kad mums visā pilsētā nav ne lāsītes
+ūdens? Bija mums ūdens diezgan, bet tas viss izsīka. Ja ūdens neatdabūnam atpakaļ,
+tad mums visiem posts."</p>
+
+<p>"Tad jau jārauga, vai īsti nevar atdabūt ūdeni."</p>
+
+<p align="JUSTIFY">"Ai, svešniek, ja tu mums padarītu to labumu, tad jau tevis gan
+nepiemirstum."</p>
+
+<p align="JUSTIFY">To sacījuši, tie ved viņu pie paša valdinieka. Šis sola labdarim
+naudas dot pūriem, ja viņš pilsētai atgādā atpakaļ ūdeni. Skrodelis apņēmās to
+izdarīt, ja viņam tik dod četrus krietnus dzirkaļus. Brīnējās gan, kam akracim
+vajaga dzirkaļu, bet deva arī. Dzirkaļus dabūjis, skrodelis lika tiem krusteniski
+sašķelt četros gabalos pilsētas lielo akmeni, bet tā ka lai neatplīstu neviena
+šķembelīte. Dzirkaļi arī to padarīja, un tiklīdz kā sašķēlās lielais pilsētas
+akmens krusteniski četros gabalos, te arī visas akas pildīt pildījās ar ūdeni. Nu
+pilsētniekiem bija prieks bez gala; tie gribēja labdari tīri ar naudu apbērt un
+slavēja un daudzināja to vairāk nekā kādu citu.</p>
+
+<p align="JUSTIFY">Bagāts palicis, skrodelis nopirka dārgas drēbes, saģērbās un
+izgreznojās par smalku kungu. Nu to nebūt nevarēja vairs pazīt, ka tas kādreiz bijis
+nabaga skrodelis. Kā kungs viņš aizgāja valdnieka pilī un izteicās liels dakteris no
+tālienes. Pilī visi bija ļoti bēdīgi, jebšu pilsētai<b> </b>vairs netrūka ūdens.
+To redzēdams, skrodelis prasīja: "Kādēļ jūs še visi tā noskumuši, kad
+pilsētā ļaudis priecin priecājās?"</p>
+
+<p align="JUSTIFY">Pilsētnieki atbild: "Vai svešniek, kā lai neskumstam? Mūsu
+valdnieka vienīgā meita gaužam slima; tā nav nedz dzīvotāja, nedz mirēja un neviens
+dakteris to nespēj paglābt."</p>
+
+<p>"Tad jau jārauga, vai īsti nevar glābt valdnieka meitu."</p>
+
+<p>"Ai, dakteŗa kungs, ja jūs to izdarat, tad jūs dabūsit valdnieka meitu par
+sievu un pusi no valsts klāt."</p>
+
+<p>"Tad vediet mani pie valdnieka!"</p>
+
+<p align="JUSTIFY">Aizveda pie valdnieka svešzemes dakteri un šis prasa, lai tam dodot
+divus galdniekus. Valdnieks brīnējās, kam dakterim vajaga galdnieku, bet pēdīgi deva
+arī. Nu skrodelis lika galdniekiem izcelt grīdu kambarī, kur gulēja slimniece, un
+izņēma pie pašā sliekšņa trīs ābolus: vienu sudraba, otru zelta, trešo dimanta,
+pārgrieza ābolus, izņēma ābolu sēklas un sāka dot valdnieka meitai. Sudraba ābola
+sēklas norijusi, slimniece jau palika žirgtāka; zelta ābola sēklas apēdusi, tā jau
+pacēlās gultā; bet dimanta ābola sēklas baudījusi tā piecēlās stāvu un bija
+pavisam vesela. Nu tik bija valdniekam un visai valstij prieks diženi liels. Drīzi arī
+dzēra kāzas un saprecināja skrodeli ar valdnieka meitu un deva jaunajam pārim pusi no
+valsts par pūru līdz. Skrodelis bija ļoti labs valdnieks savai zemei; zem viņa ļaudis
+dzīvoja priekā un laimē.</p>
+
+<p align="JUSTIFY">Reiz jaunais valdnieks gāja pa savu pilsētu pastaigāties un sastapa
+it neviļus uz ielas kurpnieku. Kurpniekam tolaik jau neklājas visai labi, jo kā gan var
+klāties labi vella kalpam, kur Dieva kalps par valdnieku? Savu veco ceļa biedru
+ieraudzījis, bezdievis kurpnieks nāca viņam klāt un sāka ar to runāt. Jaunais
+valdnieks nebija arī nedz lepns, nedz atcerējās tā, ko bezdievis tam darījis ļauna.
+Valdnieku laipnu redzēdams, kurpnieks kāroja zināt, kā gan viņš, nabaga skrodelis,
+nācis tādā godā un mantā. Šis sacīja, ka Dievs tam palīdzējis, un izteica bez
+viltus savam bijušam ceļa biedam visu, ko akls būdams un kokā sēdēdams, sadzirdējis
+no meža zvēriem. Kurpnieks nu gaužam lūdza valdnieku, lai tas jel viņu novedot pie
+tā ozola, un lai tam arī izduŗot acis. Valdnieks gan noveda kurpnieku pie ozola, bet
+acis tam nedūra vis ārā. Nu ņēma kurpnieks pats īlenu un izdūra sev abas acis un
+uzrāpās arī pa zariem kokā. Ap pusnakti - riktīgi: visa meža muižas saime atkal
+klāt zem ozola un sāk tūdaļ sarunāties. Lielskungs lācis ar bargu balsi uzprasa
+saviem apakšniekiem: "Kuŗš gan tas pļāpa, kas visu izpaudis, ko toreiz
+spriedām? Pilsētai tagad ūdens diezgan un valdnieka meita arī vesela. Vai tik tu,
+sulain, to neesi darījis? Tu jau kustini ausis bailīgi kā jau zaķis?"</p>
+
+<p align="JUSTIFY">Visi lielkungam iztapt gribēdami un bīdamies, ka tik tos pašus
+nesāk tirdīt un vajāt, stājās zaķītim virsū. Šis, nabadziņš, gan liegšus
+liedzās, dievot dievojās, bet vis velti. Jau vagārs kūmiņš kampj to aiz kakla un
+grasās tam paīsināt mēli. Sulainis, lielās izbailēs, itkā Dievu lūgdams, paskatās
+uz augšu, uz debesim, ierauga kurpnieku kokā un sauc, ko spēj: "Rau, rau, tas tur
+noklausījies!"</p>
+
+<p align="JUSTIFY">Tūliņ lāča lielskungs pats kāpj ozolā, nogāž kurpnieku zemē un
+muižkungs ar vagāru to saplosa gabalu gabalos.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,132 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Svētais rijā.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">10. A. 752. S k o l n i e c e A. O z o l e n o 79
+g. v e c ā A. O z o l a S ī k l e s c i e m ā.</font><font size="4"></font></p><font size="4">
+</font>
+
+<p align="JUSTIFY">Reiz staigājis viens ceļotājs pa pasauli. Ejot viņam sacēlies
+liels lietus un uznākusi tumsa, ka ne acī duŗams nevarējis redzēt. Te uz vienu reiz
+viņš ieraudzījis kaut kur tuvumā mazu uguntiņu. Gājis uz turieni, pieklauvējis pie
+durvim un lūdzis, lai laižot iekšā. Durvis tikušas atvērtas un ceļinieks iegājis
+ļoti nabadzīgā istabiņā, kur dzīvojuši ļoti dievbijīgi ļautiņi. Sieviņa nu tur
+sagādājusi ceļotājam vakariņas. Priekš gulēt iešanas vēl visi kopā pateikušies
+Dievam, tad gājuši reizē pie miera.</p>
+
+<p align="JUSTIFY">No rīta, kad ceļotājs atmodies, istabā vairs nebijis neviena
+cilvēka. Ceļotājs ātri apģērbies, gājis laukā un iedams projām aizdedzinājis
+mājiņu. Nu sieva ar vīru bēdājušies, kur jems naudu citu mājiņu uztaisīt.</p>
+
+<p align="JUSTIFY">Vienu dienu vīrs sāk rakt vecās mājiņas akmeņus laukā. Rok, rok
+- te uz reiz uzrok kādu lielu apaļu podu, izveļ to laukā, attaisa vaļā: pods pilns
+ar zelta naudu. Nu nabaga ļaudis palika bagāti, uztaisīja jaunu skaistu māju un
+dzīvoja laimīgi.</p>
+
+
+</body></html>

@@ -1,0 +1,225 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>23</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Labie brāļi.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">23. A. 303. D. Ozoliņš Jaun-Rozē. LP, V, 157.</p>
+
+<p align="JUSTIFY">Kuodai muotei bej divi padāli. Raizi muote sadusmūjsīs iz padālim
+un dzinusi obus mežā. Neikā dorīt - bij jūīt. Mežā bruoļi ilgi moldijšīs;
+beidzūt pī kristceļa nūrunājši šķirtīs un īduort ūzūlā nāžus, kotrs sovu.
+Pāc goda loika jūnuokūt obim nāžus skotītīs. Jti tūmār vīns, vai ūtrs
+naatnuoktu skatītīs, tod otnuocējs nū nāžim vārūtu: ju nāzs nūruosājis, tod
+naotnuocējam posoulē nalabi klāšūtīs, ju spūžs, tod lobi. Tā nūrunādami, obi
+izšķīrušīs: mozākīs oizguojs po kraisu rūku, līlākīs po lobu.</p>
+
+<p align="JUSTIFY">Ūtrā dīnā līlākam godījīs pilsātā īīt. Un tuo pilsāta
+ķieniņš bej mirs, otstuodams jounu otraikni, or trim maitām. Bet tois dīnās
+ķieniņa otroikne bej nūdūmājsa vēl pracātīs; viņa izsludinājsa tuodu ziņu,
+pilī nūlikšūt (oizdedzanāšūt) svaces pī grīstim un nu kotram jūeimūt svacim po
+opašku: pret kuŗu tod svaces poklanīšūtīs, tū otroikne pīņamšūt por sovu
+ķieniņu. Ak tu žālīgīs Dīviņ! kuŗam nu natiks por ķieniņu buot? Toulīt
+vusuvusuodi sonuokuš pilī; bet svaces naklanījšās nei pret vīnu. Beidzūt īs ori
+līlākīs bruols iz sovu loimi. Un tūs breinumus! Kuo guojs - vusas sveces klonījšās.
+Toulīt ķieniņa otroikne pīguojusa opkampt un teikusa: "Tis muns ķieniņš!"</p>
+
+<p align="JUSTIFY">Mozākīs bruols tu&amp;127;rpretim ilgi somoldījīs po posouli un
+stoigādams īmuocījis putnu valūdu. Nu guojs, guojs un orvīn īprosījis putniņim:
+voi nazinūt, kur viņa bruols polics? Putniņi otteikuš: "Mēs dūmājam - tovs
+bruols por ķieniņu tics!"</p>
+
+<p align="JUSTIFY">Poguojs atkal gobaliņu - prosījs citim putnim: voi nezinūt, kur
+viņa bruols polics? Tī otteikuš : "Dūmājam - tov s bruols por ķieniņu
+tics!"</p>
+
+<p align="JUSTIFY">Poguojs vēl, skrājušas zūsis golvām. Prosījs: "Meiļās
+zūsis, poteicat, kur muns līlākīs bruols polics?"</p>
+
+<p align="JUSTIFY">"Tovs līlākīs bruols pilsātā por ķieniņu. Nuoc tik po tū
+ceļu, klxr mēs skrejam, tod pī bruoļa danuoksi."</p>
+
+<p align="JUSTIFY">Nu guojs, guojs - beidzūt otrods tuodu' pilsātu, kur nabejs
+ķieniņa. Pilsātnīki sūlījš tik tū por ķieniņu calt, kos īspiešūt vusu
+pilsātu or zalta noudu otpirkt. Un tuo nu možākīs bruols īguojs tai pilsātā un
+opmetīs pī kuoda bekera. Bet tis bekers bejs līls būrs: viņš nūbūrs vusus
+pilsātnīkus, kuo navīns naguojs pī cita bulku pierkt, kuo tik pī viņa. Mozākīs
+bruols, pī bekera dzeivūdams, nūskotījīs viņa būra gudrības un beidzūt muocījs
+lobāki būrt, neikuo viņš pots. Podzeivājs vēl tuodu loiku un nu muocījs tik tuoļu
+būrt, ko vusas šļīkas (spļaudekļi), kū spluovs, polikuš por zalta dukātim. Tuo nu
+viņš sospļuovs līlu kaudzi dukātu un tod nūpircs pilsātu or vusu tū pili, kur
+ogrāk pilsātas ķieniņš dzeivājs.</p>
+
+<p align="JUSTIFY">Bet taī ķieniņa pilī mozākīs bruols itin najouši otrads treis
+puora rūku oplīkamu gradzanu. Tūs poglabājs cīti.</p>
+
+<p align="JUSTIFY">Te pāc kuoda loika līlākā bruoļa pomaitas izdzierdušas, ko toi un
+toi pilsātā ešūt jounam ķieniņam jouki rūku oplīkamī gradzani. Vacākā pomaita
+toulīt sotoisījsīs iz pilsātu īt gradzanus pierkt. Nūguojsa un izkoulājsīs ilgu
+loiku, bet mozākīs bruols por daudz duorgi nūprosījs. Beidzūt, kod voirāk nadevusa,
+bruols teics: "Kū tur ilguoki steivāsimīs, lobāk darīsam tuo: atvāli mun vīnu
+nokti tovā ķieniņa pilī un tovā gultā pogulēt, tod vīnu puori gradzanu
+otdūš."</p>
+
+<p align="JUSTIFY">Lobi. Loi gulūt! Bruols nūguojs leidz. Bet kos ir? Vacākā pomaita
+uztaisījsa gultu tuodā vītā, kur opaškā nateirumu bedre. Tikū nu bruols īgulējīs
+gultā, tuo īkritis bedrē. Nū reita por loimi nuocs veirs bedri teirīt un tis nu
+izvilcs bruoli loukā. Bruols puorguojs žālūdamīs muojā. Te pāc kuoda loika
+otnuokusa ūtra pomaita rūku oplīkamūs Ūradzanus pierkt. Por ūtru puori gradzanu
+bruols atkal tik pot daudz nūprosījs. Navarējš soleigt. Beidzūt bruols otteics:
+"Kū tur ilguoki steivāsimīs - otvāli mun vīnu nokti tovā gultā gulēt, tod
+ūtru puori gradzanu atdūš!"</p>
+
+<p align="JUSTIFY">Lobi, loi gulūt! Bet kos ir? Ūtra pomaita uztoisījsa gultu tuodā
+vītā, kur opaškā oudans pograbs. Tikleidz nu bruols īgulējīs gultā, tuo īkrits
+oudans bedrē. Por loimi nū reita veirs nuocs oudani smalt un tis nu izvilcs bruoli
+loukā. Bruols puorguojs žā&amp;127; lūdamīs muojā.</p>
+
+<p align="JUSTIFY">Te pāc kuoda loika otnuokusa traša pomaita trašū gradzanu puori
+pierkt. Bet bruols otkal duoŗgi nūprosījs - navarējš soleigt. Beidzūt bruols
+otteics: "Kū tur ilguoki steivāsimīs - otvāli mun vīnu nokti tovā gultā
+pogulēt, tod gradzanus otdūš."</p>
+
+<p align="JUSTIFY">Lobi. Loi gulūt. Bruols nūguojs leidz. Vokarā trešā muosa
+guldināja viņu pī sevis gultā. Ūtrā reitā tis otmūdīs un īguojs pošā ogrumā
+ķieniņa duorzā. Tur bejšas šoupuksnes, or ripu šoupūjamas. Bruols īkuops
+šoupuksnēs pošoupūtīs. Bet toi pošā breidī obas vacākās ķieniņa pomaitas
+slapani poloiduš's tū ripu voļā un šoupuksnes, spākā īguojušas, oizsvīdušas
+bruoli puor deviņām ķieniņa volstīm līlā tuksnasī. Bruols bādādamīs stoigājs
+po tuksnasi un nazinājis; kur nu īt, kur naīt. Beidzūt sotics vilku un loudzīs, loi
+ešūt tik lobs un oiznasūt pi trašās ķieniņa pomaitas, Vilks ponas's līlu gabalu;
+beidzūt taics: "Kuop, bruoli, zamē - voirāk ceļa nazinu!"</p>
+
+<p align="JUSTIFY">Nūkuops nū vilka un guojs otkal. Sotics luoci baidzūt un loudzīs:
+loi ešūt tik lobs un oiznasūt pī trašās ķieniņa pomaitas. Lobi. Nas's ori līlu
+gobalu; beidzūt taics: "Luoc, bruoli, zamē voirāk ceļa nazinu!"</p>
+
+<p align="JUSTIFY">Nūkuops un auojs otkal, kamār tod sotics brīdi or rogīm. Nu
+loudzīs, loi brīds ešūt tik lobs un nasūt pī trašās ķieniņa pomaitas. Brīds
+ponas's tuodu gobalu un tod sacījs : "Kuop zamē un aij tur pī tuo akmina, tur
+otradīsi šūpuksnes ripu, kuŗu obas vacākās</p>
+
+<p align="JUSTIFY">ķieniņa pomaitas šait otsvīda. Sotveri ripu, īripini tū un
+staidzīs tod pokaļ, kur viņa ripū!"</p>
+
+<p align="JUSTIFY">Bruols poripinājs ripu un nu tik staidžrs pokaļ. Ripa tikmār
+ripūjusīs, kamār opstuojusīs pī trašās ķieniņa pamaitas durīm. Bruols poņiems
+trašū pomaitu un guojs iz muoju pī ūzūla, kur nāži bej īduorti, ju gods potlaban
+nūbaidzīs. Bet prūjām ajūt, tis dusmās nūbūrs obas vacākās ķieni&amp;127;a
+pomaitas por ķievām.</p>
+
+<p align="JUSTIFY">Ūtrā dīnā līlākīs bruols radzājs, kuo viņa trašā pomaita
+pozoudusa, kuo obas vacākās por ķievāŗn un nazinājs, kū dorīt, kū na. Beidzūt
+sodūmājs trašū pomaitu īt meklat. Guojs, guojs danuocs pī ūzūla nāž's
+skoteitīs. Un re, kos por breinumim: īroudzījs pī ūzūla mozākū bruoli or trašū
+pomaitu. Mozākīs bruols toulīt izstuostījs, kuo vuss godījīs un nu nūrunajš tuo:
+mozākam bruolim jūotbur ķievas por cilvākim, tod viņš nalīdz trašū pomaitu
+precēt. Lobi. Tuo polics un nu vuss baidzis, kuo vaijag.</p>
+
+
+</body></html>

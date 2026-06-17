@@ -1,0 +1,254 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>11</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Mednieks izglābj princesi.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>&nbsp;</b></p>
+
+<p align="JUSTIFY"><b>11. </b>A. 303. 304. V. Vīdneris Skrundā, Brīvzemnieka kr. LP,
+VI, 125, 10. AŠ, II, 96a.</p>
+
+<p align="JUSTIFY">Vecos laikos vienam ķēniņam bija divi zveji, viens bagāts, otrs
+nabags. Un tam nabagam nebija neviena &amp;127;&amp;127;bērna; bez tam sieva arvienu
+naidojās, ka nespējot maizi nopelnīt zvejodams, neesot vīra vērts un kā nekā. 'Tas
+viņam aplam grauza sirdī, ka sievišķi tā var teikt, sevišķi vienu dienu, kad atkal
+ar sievu bija saķildojies, raudādams apsēdās upmalā par tādu likteni un ilgi
+pārdomāja, ko nu darīt? Pēdīgi iesaucās: "Es vilkšu Laimas lomu - kas tad ir,
+tas ir!"</p>
+
+<p align="JUSTIFY">Un izmetis tīklu, sāk vilkt - tīkls tik smags, tik smags. Izvelk
+malā - vairāk nebija, kā viena pati zivtiņa. Svejš bēdīgi nopūšas, iemet zivtiņu
+kulē un ies mājā. Bet nu zivtiņa sāk runāt: "Ņem, nokasi mani - manas zvīņas
+ir zelta; ieber tās kabatā, tad tev no zvīņām būs nauda!"</p>
+
+<p align="JUSTIFY">Zvejš tā padarīja un nu bija naudas pilnas kabatas; bet zivtiņu
+viņš palaida upē atpakaļ. Pārgājis mājā, izbēra naudu uz</p>
+
+<p align="JUSTIFY">galda un lepodamies rādīja sievai; bet sieva, naudu savākusi,
+uzplījās: "Saki, kur to naudu ņēmi, saki, kur ņēmi?"</p>
+
+<p align="JUSTIFY">Vīrs nesaka, jo viņam zivs bija aizliegusi teikt. Un kā nu nesaka,
+sieva vēl vairāk moca šo: laikam jaunu amatu esot pieņēmis, cilvēkus laupot,
+tādēļ nevarot teikt! Gan šādiem, gan tādiem vārdiem šo kaitina, ka nemaz
+apnesties. Vīrs miera dēļ teiks arī tad: no zivs zvīņām nauda esot cēlusies. Bet
+sieva nu netic ne tik. Kā varot no zvīņām nauda rasties? Iekāms tādu zivi
+nepārnesot parādīt, viņa teikšot un teikšot, ka cilvēkus aplaupījis, ir ķēniņam
+to neslēpšot.</p>
+
+<p align="JUSTIFY">Nu nekā vairs darīt, iet upmalā un velk atkal Laimas vilcienu. Ja,
+kā velk - izvelk to pašu zivi; bet zivs saka: "Nu tu parādi mani savai sievai un
+tad sadali mani piecos gabalos. Vienu gabalu dod savai sievai apēst, otru savai ķēvei,
+trešo savai kuņai, ceturto savai kaķei, bet piekto pabāz ķēves stelliņģa
+pagrīdē!"</p>
+
+<p align="JUSTIFY">Zvejš tā padarīja. Un nu pēc laika sievai piedzima divi dēli ar
+zelta matiem, ķēvei radās divi kumeļi zelta spalvā, kuņai divi kuceni zelta spalvā,
+kaķei divi kaķēni zelta spalvā. Kad dēli bija pieauguši, tad vienreiz ķēniņam
+gadījās jāt gaŗām zveja mājai un tas, ieraudzījis skaistos zēnus, prasīja zvejam,
+lai to vienu atdodot viņam - būšot audzināt un apgādāt kā savu bērnu. Zvejam gan
+īsti netika, bet aizliegties ķēniņam arī nevar - atdeva. Un tur pilī zēnam dikti
+labi klājās, ķēniņš šo vairāk iemīlēja nekā savu miesīgu dēlu. Visur, kur
+vien ķēniņš gāja, tur šis līdz, jo viņš mācēja ķēniņam brīnumu pa prātam
+izdarīt.</p>
+
+<p align="JUSTIFY">Bet ķēniņa paša dēls to ņēma par jaunu, ka tēvs svešu vairāk
+piemīl nekā viņu. Un tai gadā ķēniņam gadījās karā aiziet. Tad ķēniņa dēls
+sagudroja zeltmati nogalināt. Viņš viņu uzkrāpa augšistabā un izgrūda pa logu
+ārā, lai krizdams nosistos. Tomēr tas bija laimīgs kritiens, ne sasisties nesasitās,
+tik viegli nonāca zemē un tā tūlīt projām pie sava īstā tēva, pie zveja. Lai
+darot, ko gribot, viņš pilī vairs nepaliekot, tur sitot cilvēkus nost, būšot jāt
+labāk pasaulē.</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Labi!" tēvs teica - lai jājot! Un iedeva vienu no tiem
+  ērzeļiem, vienu no tiem suņiem, vienu no tiem kaķiem, kas bija dzimuši no tās zivs.
+  Bet dēls teica: "Kur es jāšu? Kam tāds zirgs zelta spalvā, tam arī vajaga
+  iemauktu un sedlu, kā pieklājas."</p>
+</blockquote>
+
+<p align="JUSTIFY">Tad tēvs atminējās to piekto zivs gabalu, ko pagrīdē bija
+pabāzis, un pacēla grīdu, lai redzētu, kas tur labs gadījies. Pacēla - ieraudzīja
+lepnas lietas - zelta sedli un zelta iemaukti tur bija. Nu apsedloja dēlam staltu kumeļu
+un izvadīja ar zelta suni un zelta kaķi pa vārtiem tālā pasaulē.</p>
+
+<p align="JUSTIFY">Dēls jāja vienu dienu, otru dienu, vienu nedēļu, otru nedēļu un
+uzjāja svešu ķēniņa pilsētu. Bet pilsētā bija visi bēdīgi. Ķēniņa vienīgā
+meita bija jaatdod zalktim, kam divpadsmit galvu.</p>
+
+<p align="JUSTIFY">Turpat aiz pilsētas zalktis mājoja kalnā un ikgadu viens jauns
+sievišķis tam bija jāziedo, citādi viņš vēma tādu jipti ārā, ha pa septiņi
+jūdzi viss tā kā ar uguni sadeg. Un šogad ķēniņa meitai pienāca kārta iet kalnā
+šim velnam par laupījumu.</p>
+
+<p align="JUSTIFY">Dēls, to dzirdēt dabūjis, prasīja pilsētniekiem: "Vai tad
+neviena nav, kas var ķēniņa meitu glābt no tā niknā nagiem? Vai nebūtu man
+brīv?"</p>
+
+<blockquote>
+  <p align="JUSTIFY">Tie teica: "Tu vari iet, bet velti būs ar zalkti iesākt."
+  "Nekas!" dēls atsacīja, "lai būtu, kas būdams - es iešu." Un no
+  rīta liels laužu pulks izvadīja ķēniņa meitu no pilsētas.</p>
+</blockquote>
+
+<p align="JUSTIFY">'Tad dēls pasauca savu zelta suni, zelta kaķi, apsedloja zelta zirgu
+un jāja izvadītājiem līdz. Nonākušiem pie zalkšu kalna, laužu pulks apstājās;
+bet ķēniņa meita gāja kalnā augšā un dēls, no &amp;127;aužu pulka atšķirdamies,
+jāja viņai līdz. Citi jau brīnījās : "Kas tas par trakuli ar suņiem un kaķiem
+tīrā zeltā? Vai tas grib velnam &amp;127;rīklē iejāt?"</p>
+
+<p align="JUSTIFY">Bet viņš jāj un jāj. Un kad nu uzjāja pus kalnā, tad kalns sāka
+rūkt kā visbriesmīgākais pērkonis, visa zeme trīcēja. Tomēr tas vēl tikai bija
+iesākums. Kalna galā troksnis jo lielāks sacēlās un tagad velns izšāva vienu galvu,
+prasīdams dēlam: "Ko tu te meklē?"</p>
+
+<blockquote>
+  <p align="JUSTIFY">Dēls atteica: "Es esmu nācis šo sievišķi pārstāt!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Un tūlīt laida suni ar kaķi galvai virsū. Iesāka plēsties ;
+kamēr tie plēsās - dēls tad ar zobinu nobeidza galvu pavisam. Bet nu nāca galvas cita
+pēc citas no zemes ārā un gribēja šo nojiptēt ; bet suns ar kaķi plēsās, zirgs
+atkal spārdīja, mīņāja galvas un šis tikai zirga mugurā pa cirtienam vien visas
+vienpadsmit atšķēla no rumpja - negantnieks nobeidzās.</p>
+
+<p align="JUSTIFY">Tad ķēniņa meita bija priecīga bez gala, ka dēls no nāves
+izglābis un tūlīt iedeva zelta gredzenu par derības zīmi, norunādami pēc gada laika
+kāzas svinēt. Labi. Dēls nu atšķīrās no saderētās līgavas, izgrieza visām
+zalkša galvām mēles, iebāza kabatā un aizjāja ar suni <b>un </b>kaķi pa otru pusi
+kalnam, ka nozibēja vien. Bet meita prieka pilna nāca no kalna zemē - uz mājām iet.
+Un kad gabalu no kalna bija nokāpusi, tad - kur gadījies, kur ne --piekūlās pie viņas
+viens vīrišķis. Tas nozvērina viņu pie miesas un dvēseles, ka esot viņas glābējs,
+lai citādi mājā nesakot. Nozvērinājis labi, tas sabāza nocirstās galvas maisā un
+gāja ar tām ķēniņa meitai līdz uz pili. Ķēniņš - ko tas - tas ticēja arī
+blēža vārdiem un rīkoja kāzas; bet ķēniņa meita atsacīja: "Es nevaru ātrāk
+precēties, kamēr gadu būšu trūvējusi." Blēdim tas bija gan aplam ilgi, bet, ko
+darīt - jāgaida.</p>
+
+<p align="JUSTIFY">Pagāja gads - zveja dēls vēl nebija klāt - kur aizkavējies, kur ne
+- un nu ķēniņa meita vairs nespēja pretoties, bija tā kā rītu jāpošas ar blēdi
+laulāties. Bet rīta agrumā zveja dēls tomēr</p>
+
+<p align="JUSTIFY">bija klāt kā norunāts todien kalnā. Viņš ienāca pilsētā un
+vaicāja: "Kas jums te par līksmību?"</p>
+
+<p align="JUSTIFY">Pilsētnieki atteica: "Mums pērn bija bēdu laiki, šogad kāzu
+laiki. Ķēniņa meita šodien precās ar savu glābēju."</p>
+
+<p align="JUSTIFY">To padzirdējis, zveja dēls tūlīt aizsūtīja savu zelta suni ar
+kaķi pie ķēniņa meitas, lai zin, ka viņš nu atnācis. Šī ieraudzīja brūtgāna
+zelta lopiņus un tūlīt brauca pa pilsētu tam pretim godam sagaidīt. Bet ķēniņš
+vēl nesaprata, kas tas ir un kas tas nava? Un atbraukušiem pilī atpakaļ, ķēniņš
+vaicā meitai : "Kas tas par tādu ar zelta zirgu, zelta suni un zelta kaķi?"</p>
+
+<p align="JUSTIFY">Meita sacīja: "Tas mans brūtgāns, īstais glābējs, jo viņam
+ir zalkša mēles. Šim blēdim, tikai galvas vien."</p>
+
+<p align="JUSTIFY">Ķēniņš pārliecinājās - ir gan tā! - un nu atdeva meitu zveja
+dēlam, bet blēdi lika nomaitāt.</p>
+
+
+</body></html>

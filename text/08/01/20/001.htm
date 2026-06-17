@@ -1,0 +1,162 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>20</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Žīds ērkšķu krūmā.</font><font size="4"></font></p><font size="4">
+</font></b><font size="3">
+
+<p align="JUSTIFY">1. A. 592. "Dundurs Pats", 1878, 3 (14).</p>
+
+<p align="JUSTIFY">Viens zaldāts izdienējis ķēniņam 25 gadi. Ķēniņš viņu
+atlaidis vaļā, iedevis 3 mārciņas maizes, 3 mārkas naudas. Uz mājām nākdams,
+viņš saticies ar vienu nabagu, kas Dievu lūdzis. Tam viņš iedevis vienu mārciņu
+maizes un vienu mārku naudas. Kad kādu gabalu bijis pagājis, tad saticies atkal uz
+ceļa ar vienu nabagu. Tam iedevis atkal vienu mārciņu maizes un vienu mārku naudas.
+Vēlāku saticis vēl trešo nabagu. Tam atdevis to pēdējo mārciņu maizes un to
+pēdīgo mārku naudas. Šis nabags iedevis viņam par to plinti. Zaldāts gan negribējis
+ņemt, tādēļ ka neesot nekāds medinieks; bet nabags sacīja, ka viņš taču ar kroņa
+lietām esot strādājis un lai šaunot vien tik uz to pusi, kur putnus redzot skrejam,
+tad būšot viņi pagalam. Zaldāts ar' saņēmis to plinti. Pēdīgi nabags vēl devis
+vienas spēles. Zaldāts negribējis ņemt un sacījis, ka šis neesot nekāds spēlmanis,
+bet nabags pastāvējis uz tam, ka lai tik ņemot vien un lai par to nemaz nebīstoties,
+ka spēlēt nemākot. Ka tik vien dancotāji gribēšot, tā šis uzspēlēšot. Zaldāts
+arī paņēmis tās spēles. Līdz kādu gabalu pa ceļu bijis pagājis, viņš
+ieraudzījis lielu pulku putnu pa gaisu skrienam un tiešam ar' mēģinājis ar to plinti
+šaut. Putni tūliņ krituši zemē un iekrituši vienā ērkšu krūmā.</p>
+
+<p align="JUSTIFY">Žīds kāds braucis ar glāžu vezumu, redzējis lielu pulku putnu
+nokrītam, gājis pie zaldāta un teicis: "Dod man arī vienu!"</p>
+
+<p align="JUSTIFY">Zaldāts atteicis, lai ejot un ja gribot, lai ņemot vai visus. Līdz
+ko nu žīds ērkšu krūmā bijis iebridis, palicis zaldāts par to plinti ļoti
+priecīgs, ņēmis tās spēles un mēģinājis spēlēt. Ko nu zaldāts sāk spēlēt,
+tā žīds sāk dancot pa ērkšu krūmu un tikām dancojis, kamēr drēbes noplīsušas
+un miesa metusies asiņaina. Ka nu zaldāts vairs nespēlējis, tad ticis žīds ārā.
+Žīds par to noskaities, dzīries zaldātu apsūdzēt, bet līdz nosēdies uz sava
+glāžu vezuma, sācis zaldāts atkal spēlēt un žīds dancojis pa glāžu vezumu,
+kamēr visas glāzes saplīsušas smalkās druskās. Zaldāts nu vairs nespēlējis.</p>
+
+<p align="JUSTIFY">Žīds iebraucis pilsētā un sūdzējis tiesas kungiem, ka zaldāts
+viņu sasitis un viņa glāžu vezumu saplēsis.</p>
+
+<p align="JUSTIFY">Tiesas kungi prasījuši žīdam, vai viņš to zaldātu pazīstot<b>. </b>Žīds
+teicis, ka viņu jau visi varot pazīt un ka viņam esot stiebrs plecos. Tiesas kungi dod
+žīdam zaldātus, lai iet un lai saņem to zaldātu cieti un atved priekš tiesas. Tiesas
+kungi vaicā zaldātam, kam šis žīdu sakāvis, bet jo vairāk zaldāts liedzas, jo
+naigāki žīds uztiepjas. Pēdīgi tiesas kungi nospriež, ka zaldāts pakaŗams. Kad nu
+zaldātu veduši uz karātavām, lūdzis viņš tiesas kungu, lai vēl ļaujot viņam
+priekš miršanas uzspēlēt. Tiesas kungi viņam ar to brīvību paļāvuši. Žīds, to
+dzirdēdams, gan brēcis: "Nedo viņam tā pidele - sien mani pie vāģa, sien mani
+pie vāģa!"</p>
+
+<p align="JUSTIFY">Tiesas kungi ar žīdu piesējuši pie ratiem. Zaldāts sācis tad ar
+spēlēt un tā spēlējis, ka žīds ar visiem vāģiem gaisā lecis un pat tiesas kungi
+sākuši līdzi lēkāt. Visi, kas vien zaldāta spēles dzirdējuši, visi dancojuši.</p>
+
+<p>Tiesas kungi palaiduši abus divus vaļā, zaldātu ir žīdu.</p>
+</font>
+
+
+</body></html>

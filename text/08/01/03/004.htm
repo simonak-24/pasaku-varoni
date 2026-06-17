@@ -1,0 +1,166 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Raganas šķiltavas.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">4. A. 562. K. Corbiks, I.ivbērzē.</font></p><font size="3">
+
+<p align="JUSTIFY">Agrāk, kā jau vecos laikos, zaldātiem bijis jādienē dividesmit
+pieci gadi. Viens zaldāts, savus gadus nodienējis, vecs un noplīsis pamazām rāpies uz
+mājām. Bet ceļā tam sācis gribēties ēst, smēķa ar' nebijis, un pliekanu dūšu
+tas apsēdies ceļa malā pie kāda koka, kas bijis ar tukšu vidu. Pienākusi viena
+vecene un prasījusi: "Ko tu, vecīti, te sēdi kā sasalis?"</p>
+
+<p align="JUSTIFY">"Kā nu nesēdēšu? Beidzamie spēki pagalam un maizes kumāsa
+arī nav."</p>
+
+<p align="JUSTIFY">"Es tev varētu dot šķiltavas un tad tu varētu smēķēt, bet
+par to tev man jāmaksā kāda artaviņa."</p>
+
+<p align="JUSTIFY">"Ko tad es maksāšu? Tu jau pati redzi." </p>
+
+<p>"Nu, kad tev nav ko maksāt, tad gavē vien tālāk!"</p>
+
+<p align="JUSTIFY">Vecais paņēmis zobenu, nocirtis vecenei galvu kā lupatu un paņēmis
+šķiltavas. Pirmo reiz kā šķīlis, izlēcis no tukšā koka suns ar tādām acīm ka
+šķīvjiem un prasījis: "Kungs, ko vēlies?"</p>
+
+<p align="JUSTIFY">"Ēst gribas."</p>
+
+<p>"Labi, pagaidi bišķīt, un es būšu drīz atpakaļ!"</p>
+
+<p align="JUSTIFY">Suns aizskrējis kā viesulis un pēc laika bijis atkal atpakaļ ar
+ēdienu. Nu vecim skunste rokā, šķīlis otrreiz, suns atkal klāt un prasījis tāpat.
+Nu vecis licis atnest naudu. Bet trešo reiz vecis jau gudrāks un teicis: "Tu man
+katru nakti nozodz ķēniņam pa vienam zirgam un atved pie manis uz veco būdu!"
+Suns arī to darījis.</p>
+
+<p align="JUSTIFY">Ķēniņš, dabūjis tādas nelietības zināt, licis vaktēt. Naktī
+suns klāt, paņem zirgu un nu aiziet, bet kalpi arī kā piķis līdz un apskatās, kur
+tad šo liks. Ieved būdā un noslēdz durvis ciet. Kalpi nu uzvelk ar sarkanu zīmuli
+krustu uz durvīm, un no rīta būs klāt. Bet vecis no rīta pamanījis, ka durvis
+apzīmētas, uzvilcis arī uz citām to pašu. Izmeklējuši visas malas, bet veco nevar
+atrast.</p>
+
+<p align="JUSTIFY">Otru nakti ķēniņš pavēlējis piesiet rīsu kulīti pie segliem ar
+mazu caurumiņu, kā rīsi var birt ārā. No rīta, pa pēdām iedami pakaļ, kur rīsi
+biruši, uzgājuši zirgu zagli. Saņēmuši veci aiz krāga un veduši uz cietumu.</p>
+
+<p align="JUSTIFY">"Nieki," ķēniņš teicis, "ko nu tādu vecu krāģi
+vairs cietumā liks, pēc trim dienām kaŗ nost!"</p>
+
+<p align="JUSTIFY">Vecais otru dienu lūdzis ķēniņu, uz deguna klupdams, lai viņam
+atnesot viņa vecās šķiltavas, gribētos vēl uztaisīt kādu dūmu priekš pēdējās
+stundiņas. Ķēniņš, neko nedomādams, pavēl, lai arī vecim atnes šķiltavas.</p>
+
+<p align="JUSTIFY">Trešā dienā, kad nu sanāk šo kārt, vecis izšķiļ savas
+šķiltavas un izlec trīs suņi. Vecais nu saka, nolietējiet man visus šos neliešus.
+Suņi ar to padara un vecais zaldāts ar savām šķiltavām izglābjas.</p>
+</font>
+
+
+</body></html>

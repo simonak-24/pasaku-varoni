@@ -1,0 +1,152 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>33</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Kā zemnieks ķeizaram rakstījis.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>1. </strong>A. 1387. V. Ozoliņš no Mades Ozoliņas
+Vestieniešos. LP,<b> </b>VI, 373, 110. Bohm, Lettische Schwanke, 71, 42.</p>
+
+<p align="JUSTIFY">Vienam zemniekam kunga cūkas bijušas izrakušas tupeņus. Viņš
+gribējis pie paša valdinieka sūdzēt, tādēļ ņēmies rakstīt ķeizaram grāmatu.
+Paņēmis papīri un taisījis gluži mazas actiņas, lielākas acis un itin lielus
+traipekļus. Pa tām starpām valdnieks bijis izgājis pastaigāties un neviļot gadījies
+sastapt šo zemnieku, kam tie tupeņi izrakti, un kas patlaban to grāmatu vēl
+rakstījis. Valdnieks to redzēdams, vaicājis: "Ko tu tur dari?"</p>
+
+<p align="JUSTIFY">Rakstot ķeizaram grāmatu! Ķeizars paskatījies, nevarējis nekā
+saprast: raibs vien pa papīri. Bet zemnieks izskaidrojis: Šitie mazākie, sīkākie
+punktiņi ir kunga suvēniņi, tie lielākie ir "kunga cūkas; bet šitās mazās
+mazās actiņas ir muni tupenīši, ko nositamās kunga cūkas izrakušas, un tad nu jūs
+paši varat saprast, kāda skāde man notikusi, tādēļ nesīšu sūdzības grāmatu
+ķeizaram." - Viņš nepazinis, ka tas pats bijis ķeizars&amp;127; ar ko runājis.</p>
+
+<p>"Labi!" ķeizars vēl paskubinājis, "tad tikai nes vien</p>
+
+<p align="JUSTIFY">Rītā, kad zemnieks atnācis pie valdnieka, vārtu sargi negribējuši
+šo iekšā laist, bet ķeizars zinādams, kas par lietu, pavēlējis ielaist.</p>
+
+<p align="JUSTIFY">Zemnieks ienācis, paklanījies līdz zemei un iesviedis ķeizarienei,
+princesēm pa saujai rāceņu klēpī, teikdams, ka tos kukuļam esot paņēmis līdz, un
+ka tie īsti labi esot ēdami tad, kad vērpjot, jo no tik garšīgiem tupeņiem, kā
+šie, ronoties pulka slieku (siekalu) un tās vērpējām papilnam vajagot. To teicis, tas
+pagriezies uz otru pusi un nodevis ķeizara sulaiņiem sūdzības rakstu. Nodevis - tie
+neviens nemācējuši izlasīt. Tad ķeizars licies saskaities esam un teicis sulaiņiem:
+"Dodiet man, jūs jau nekā nejēdzat. Tādu rakstu nevar izlasīt, ko tad jūs vēl
+manu maizi ēdat? Redziet, te stāv: šie mazie sīkie ir sūdzētāja tupenīši, šie
+lielākie ir kunga suvēniņi, šie itin lielie ir kunga cūkas; bet cūkas ar
+suvēniņiem ir šitos tupenīšus izrakņājuši, jo citādi viņus nemaz neredzētu: tie
+būtu apakš zemes un tagad viņus redz, tādēļ, ka izrakņāti. Un nu es pavēlu:
+kungam visi tie tupenīši godīgi jāatlīdzina."</p>
+
+<p align="JUSTIFY">Par tādu ķeizara gudrību, ka mācējis šās šņipiņas tā
+izlasīt, visi brīnījušies.</p>
+
+<p align="JUSTIFY">Piezīme. Tas ir vācu joks, kas ar laikrakstiem pie mums ieviesies,
+bet populārs tomēr nav palicis. P. Š.</p>
+
+
+</body></html>

@@ -1,0 +1,400 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="center"><font size="3"></font><strong><font size="5">Vīrs, kas pārvēršas par putnu un zivi.</font></strong><font size="3"></font></p><font size="3">
+
+<p align="JUSTIFY">2. A. 665. No Marijas Romaņenko, dz 1794. g. Ludzas apriņķa
+Stiglovas draudzē. W. Weryho, Podania, Lotewskie, Warszawa 1892, 101 (12).</p>
+
+<p align="JUSTIFY">Nabaga puisēns staigāja pa pasauli ubagodams. Kādu reizi viņš bija
+iegājis pie tirgotāja, kam tas bija ļoti iepaticies, un viņš teica savai sievai:
+"Mums bērnu nav, pieņemsim šo bārenīti; viņš mums palīdzēs un
+pakalpos."</p>
+
+<p align="JUSTIFY">"Vai paliksi pie mums?" tirgotājs jautā puisēnam. "un
+vai gribēsi būt par dēlu un mūs saukt par saviem vecākiem .</p>
+
+<p align="JUSTIFY">"Tētīt un māmiņ, es kalpošu jums uzticīgi un tirgošos kā
+jūsu īstais dēls."</p>
+
+<p align="JUSTIFY">Tā viņiem no šī laika klājās labi tirdzniecībā un viņu veikals
+arvienu bija pārpildīts.</p>
+
+<p align="JUSTIFY">"Labi, ka mēs pieņēmām šo bārenīti; pateicoties viņa
+laimei tagad nopelnām vairāk par vienu dienu, nekā priekš tam par nedēļu."</p>
+
+<p align="JUSTIFY">Puisēnam jau bija divdesmit gadu. Un kad tirgotājam tirgošanās
+klājās sliktāki, viņi runāja: "Droši vien puisēns mūs apzog, varbūt ir
+nodomājis precēties un no mums aizbēgt."</p>
+
+<p align="JUSTIFY">Puisēns izzinājis, ka viņu tura aizdomās, zvērēja, ka viņš
+nekā neņemot. Kādu reizi puisēnam parādījās sapnī vecītis, kas itkā pie viņa
+sērdams, teica: "Tev rītu jāaiziet no šejienes projām aizejot palūdz tirgotāja
+kundzi, lai tev ceļam kaut ko olas lielumā izceptu. Ja viņi tevi gribētu paturēt, tad
+pasaki, ka paturot viņi tikai zaudētu."</p>
+
+<p align="JUSTIFY">Tirgotāja sieva izcepa pīragu, un visi nosēdušies pie galda ēda,
+bet puisēns, gribēdams aiziet, lūdza no vecākiem viņu svētību. Vecāki sāka
+raudāt, un tirgotājs sacīja puisēnam: "Ej alus pagrabā, tur tu atradīsi
+divpadsmit muciņas ar zeltu; vienu no tām ņem sev līdza!"</p>
+
+<p align="JUSTIFY">Bet pa to laiku tirgotājs pavēlēja vienu muciņu piepildīt ar
+smiltīm un nolikt to turpat pie ieejas. Puisēns, ienācis alus pagrabā, sacīja
+tirgotājam: "Es, tēt, negribu izvēlēties, lai tad pati pirmā muciņa būtu
+mana."</p>
+
+<p align="JUSTIFY">Ar auklām piestiprinājis mucu pie pleciem, puisēns atsveicinājās
+un devās ceļā. Ejot pa ceļu, redz vecu baznīcu ar izsistiem logiem un saka: "Ak,
+Dievs, kāpēc lai nesu šo grūtumu, labāk atstāšu šo mucu šai baznīcā. Kad
+baznīckungs to atradīs, tad vai nu izlabos šo veco baznīcu, vai arī izdalīs zeltu
+nabagiem."</p>
+
+<p align="JUSTIFY">Noņēmis no muguras mucu un izsitis tai dibenu, ieraudzīja iekšā
+smiltis. "Ak, Dieviņ, es tur neesmu vainīgs. Tevi ir piekrāpis tirgotājs! Ko lai
+daru? Vai lai izkaisu šīs smiltis baznīcā, kur varētu labāki nomesties ceļos?"</p>
+
+<p align="JUSTIFY">Izkaisījis tās smiltis baznīcā un apkārt ap viņu, un drusciņ
+paņēmis sev līdza kabatā, viņš atkal aizgāja savu ceļu.</p>
+
+<p align="JUSTIFY">Ejot tālāk, dzird balsi: "Kas Dievam tic un visiem viņa
+svētajiem, lai mani izglābj!"</p>
+
+<p align="JUSTIFY">Puisēns, domādams, ka plēsīgi zvēri tur kādu apdraud, pieiet pie
+vienas egles, redz tanī čūsku sadegam.</p>
+
+<p align="JUSTIFY">"Izglāb mani!"</p>
+
+<p align="JUSTIFY">"Ja es zinātu, ka tu mani aicināji palīgā, tad es gan nebūtu
+nogājis no ceļa sāņis."</p>
+
+<p align="JUSTIFY">"Brālīt, izglāb!"</p>
+
+<p align="JUSTIFY">"Kā tad lai tevi glābju?"</p>
+
+<p align="JUSTIFY">"Kabatā tev ir smiltis, uzbeŗ tās uz egles, uguns nodzisīs un
+es nonākšu zemē."</p>
+
+<p align="JUSTIFY">Puisēns paklausīja un uguns nodziest, bet čūska aptinas viņam ap
+kaklu.</p>
+
+<p align="JUSTIFY">"Tu, ļaunā čūska! Ja es būtu zinājis, ka tu gribi mani
+nožņaugt, es gan nekad nebūtu tevi glābis."</p>
+
+<p align="JUSTIFY">Viņš gribēja iet tālāk pa kreisi, bet čūska viņu piespieda iet
+pa labi. Aizgāja pa labi. Ceļš bija gluži labs. Izgājuši no meža, viņi ieraudzīja
+skaistu pili, visu no zelta un sidraba. "Man jau ēst gribas," teica puisēns,
+"aiziešu pilī, varbūt kāds mani paēdinās."</p>
+
+<p align="JUSTIFY">Ieiet pilī, uzreiz jūt, ka čūska no kakla nozudusi. Pilī nav
+neviena cilvēka, galds apkrauts ar ēdieniem, tuvojas vakars.</p>
+
+<p align="JUSTIFY">"Paēdīšu," viņš teica, "pārgulēšu pa nakti un
+iešu atkal tālāk; kabatās līdza gan nekā neņemšu."</p>
+
+<p align="JUSTIFY">Paēdis un pateicies Dievam, viņš iegāja otrā istabā, kur atrada
+ar zīdu apklātu gultu. Viņš domā, ka šī gulta nav viņam taisīta, un nogulstas uz
+grīdas, bet matracis izlec no gultas un nokrīt uz grīdas.</p>
+
+<p align="JUSTIFY">"Ja nu gulta ir man taisīta, tad lai matracis labāk atkal
+atgriežas gultā." Matracis tūliņ ierodas gultā, kur nu viņš mierīgi
+pārgulēja pa nakti.</p>
+
+<p align="JUSTIFY">Rītā piecēlies, viņš ieiet otrā istabā un atrod tur vienu galdu,
+kas ir apklāts ar visādiem dārgiem ēdieniem, kā kādā karaļa pilī. Paēdis, viņš
+saka: "Pateicos Tev, Dieviņ, par pusdienu! Pateiktos arī saimniekiem, ja viņi
+šeit būtu!"</p>
+
+<p align="JUSTIFY">Uzreiz ieskrien karaļmeita un saka: "Tu esi izglābis mani, tagad
+izglāb arī manus brāļus. Viens no tiem ir par egli otrs par zivi, trešais par ērgli.
+Še tev būs zelta šķīvītis, spieķītis un vēstule. Kad izdzirdēsi koka
+čīkstēšanu, neej tuvu, jo tas var tevi nosist, bet pacel augšā roku ar vēstuli, un
+koks vairs nečīkstēs, nekustinās zarus, un tu mierīgi aiziesi gaŗām."</p>
+
+<p align="JUSTIFY">Iet puisēns un dzird koku čīkstam un zarus lokām. Viņš paceļ uz
+augšu roku ar vēstuli, koks noklus. Tas paņēma vēstuli, bet tās vietā iedeva
+puisēnam divus egles zariņus. Puisēns, izgājis no meža, ierauga vēl skaistāku pili
+nekā iepriekšējo. Jau tuvojas vakars, puisēns bija izsalcis un gribēja atpūsties.
+Iegājis pirmajā pils istabā, atrod tur galdu, klātu ar dārgiem ēdieniem, pēc
+karaļu parašas. Paēdis, viņš pateicās Dievam un iegāja otrā istabā, kur atradās
+gulta, un tur viņš pārgulēja pa nakti. Rītā paēdis un pateicies Dievam, puisēns
+gribēja aiziet, bet te uzreiz pilī ienāk jauns karaļdēls un saka: "Pateicos tev,
+brālīt, par to, ka esi izglābis mani un manu māsu!"</p>
+
+<p align="JUSTIFY">"Kā tad nu gan es tevi izglābu?"</p>
+
+<p align="JUSTIFY">"Tu iedevi man vēstuli un es paliku par karaļdēlu. Še tev būs
+šķīvītis ar sidrabu un vēstule. Paņēmis to no manis, aizej pie jūŗas, kad
+izdzirdēsi ūdens šļakstēšanu, pacel augšā šo vēstuli, citādi ūdens tevi
+aplies. Ja tu ceļā sastaptu laupītājus, tad šeit tev būs divi egles zariņi, kuŗus
+paņem padusēs, tad tu pārvērtīsies par koku."</p>
+
+<p align="JUSTIFY">Jūŗai tuvojoties, puisēns dzird ūdens šļakstēšanu, un izstiepj
+roku ar vēstuli. Vējš to viņam izrauj no rokām un aiznes ūdenī vienai zivij.
+Puisēns, iedams tālāk, ierauga vēl skaistāku pili, nekā iepriekšējās. - Pirmā
+istabā viņš atkal atrod ēdienus un dzērienus. Paēdis, viņš ieiet otrā istabā,
+redz tur gultu, kuŗā pārguļ pa nakti. Rītā viņš taisās aiziet projām, bet te
+viņam pienāk klāt jauns un daiļš karaļdēls un saka: "Es pateicos tev,
+brālīt, par to, ka esi izglābis manu māsu, kas bija par čūsku, manu brāli kas bija
+par egli, un mani, kas bija par zivi. Saņem no manis sidraba šķīvi un zivs zvīņus;
+ja tev ceļā būs kāda jūŗa, paliec padusē zvīņus un tu pārvērtīsies par zivi un
+pārpeldēsi jūŗai pāri. Ceļā redzēsi vienu ērgli uz vārtiem sēdam un sitamies ar
+asinim aptraipītiem spārniem. Tas ir mans brālis. Pamāte mūs visus ir nobūrusi.
+Šeit tev būs vēstule, kuŗu tu viņam parādi no tālienes, jo citādi viņš tevi ar
+spārniem nositīs."</p>
+
+<p align="JUSTIFY">Tālāku aizgājis, puisēns dzird' vārtus čīkstam un redz uz tiem
+ērgli sēdam. Viņš paceļ augšā vēstuli un parāda to, vējš izrauj to viņam no
+rokām un aiznes ērglim. Ērglis nozūd un nu vārti paliek klusu.</p>
+
+<p align="JUSTIFY">Puisēns ieiet pilī, un atrod tur ēdienus un dzērienus. Paēdis un
+padzēris, viņš ieiet otrā istabā, bet tur neatradis gultas, dodas trešā istabā,
+tomēr arī tur nav nekādas gultas. Tad viņš atkal atgriezās iepriekšējā istabā,
+paklāja savas drēbes, pārgulēja pa nakti.</p>
+
+<p align="JUSTIFY">Rītā nomazgājies un apģērbies, ienāca pirmajā istabā, kur
+atrada tādu pašu apklātu galdu kā vakar. Paēdis viņš sacīja: "Es pateicos
+Dievam; pateiktos arī saimniekiem, bet šeit neviena nav."</p>
+
+<p align="JUSTIFY">Turpat ierodas skaists karaļdēls un saka: "Pateicos tev,
+brālīt, par to, ka esi izglābis manu māsu, brāļus un mani, kas biju par ērgli.
+Raugi, pat līdz šim man elkoņi ir asinīs. Paņem šīs spalvas no maniem spārniem! Ja
+tu tās paliksi padusē, tad pārvērtīsies par putnu. Skrej taisni pie karaļa, tur
+spalvas no paduses paglabā, un tad tu izskatīsies par skaistu jaunekli. Karalis taisās
+uz kaŗu un meklē kalpotāju. Iestājies pie viņa dienestā!"</p>
+
+<p align="JUSTIFY">Puisēns iedeva karaļdēlam lakatiņu, sacīdams: "Ja no šī
+lakatiņa tecēs asinis, tad tas būs par zīmi, ka esmu nosists." Puisēns palika
+par ērgli un aizskrēja. Ieskrējis karaļa pilī, nolaidās uz grīdas un pārvērtās
+par jaunekli. "Karali, es meklēju dienastu."</p>
+
+<p align="JUSTIFY">Karalis viņu apkampa, nobučoja un pieņēma dienestā. Pēc kāda
+laika karalis devās kaŗā, paņemdams līdza arī savu kalpu. Pēc trim mēnešiem kaŗa
+gājiena, karalis pamanīja, ka savas bruņas esot mājā atstājis. Viņš lūdz savus
+ģenerāļus, lai viņi, triju dienu laikā atvestu viņam bruņas. Kas to izpildīšot,
+tam karalis apsolīja pusi no savas karaļvalsts un savu meitu par sievu. Neviens tāds
+neatradās, kas to varētu izpildīt. Tad karalis lūdz savu kalpotāju, kas arī
+patiešām apsola triju dienu laikā atnest viņam vajadzīgās bruņas. Paņēmis kādu
+nomērējušu ķēvīti, viņš aizjāja, bet ģenerāļi par to tikai pasmējās.
+Pagājis garām kaŗa transportam, kad viņu jau vairs nevarēja neviens saredzēt, tad
+viņš palaida ķēvīti vaļā, pārvērtās pats par putnu un aizlaidās uz karaļa
+pili.</p>
+
+<p align="JUSTIFY">Pilī pie loga stāvēja karaļmeita un gauži raudāja par to, ka
+tēvs esot bruņas aizmirsis mājās. Ērglis, noplivinājis spārnus gar karaļmeitas
+degunu, nolaidās pilī uz grīdas un pārvērtās par staltu jaunekli.</p>
+
+<p align="JUSTIFY">"Kā tad tu še tiki?" jautāja karaļmeita.</p>
+
+<p align="JUSTIFY">"Atlaidos šurp par ērgli. Ja vēlies, tad tev parādīšu arī
+citus savus mākļus. Liec atnest šurp vannu ar ūdeni!"</p>
+
+<p align="JUSTIFY">Karaļa pilī bija daudz viesu, lai karaļmeitai nebūtu gaŗš laiks.
+Jauneklis, visiem redzot, palika padusē egles zarus un pārvērtās par egles koku, par
+ko visi smējās un arī karaļmeita tapa jautra. Kad atnesa vannu un ūdeni, egle
+pārvērtās par jaunekli jauneklis atkal par zivi un ielēca ūdenī. Pēc tam izņēmis
+no paduses zivs zvīņus, pārvērtās atkal par jaunekli.</p>
+
+<p align="JUSTIFY">"Es tev, karaliene, parādīšu vēl vienu mākli, tikai sameklē
+tēva bruņas!"</p>
+
+<p align="JUSTIFY">Tad, pārvērties par ērgli, viņš iesāka sist ar spārniem viesiem
+par galvām, kas karaļmeitai sacēla smieklus. Atkal pārvērties par staltu jaunekli,
+viņš sacīja: "Karalis solījās atdot tevi par sievu tam, kas viņam atvedīšot
+bruņas."</p>
+
+<p align="JUSTIFY">"Es būšu tava, ja tēvs tā vēlās."</p>
+
+<p align="JUSTIFY">"Paņem no manis šo kūju. Ja es mirtu, tad tevi neviens par to
+neprasīs, bet ja palikšu dzīvs, tad atbraukšu un prasīšu šo kūju. Tad lūdz arī
+tu, lai tev parāda redzētos mākļus, no kuŗiem tu mani pazīsi."</p>
+
+<p align="JUSTIFY">Karaliene pārplēsa zīda lakatiņu uz pusēm un iedeva viņam vienu
+pusi; tad viņa pārlauza savu gredzenu un arī pusi iedeva viņam. Pēc tam jauneklis
+paņēma karaļa bruņas, atvadījās no karaļmeitas, pārvērtās par ērgli un
+aizlaidās. Karaliene skatījās uz viņu caur logu tik ilgi, kamēr tas nozuda no acim.</p>
+
+<p align="JUSTIFY">Bija pagājušas tikai div ar pus dienas, kad karaļa kalpotājs
+piejāja kaŗaspēkam ar to pašu ķēvīti. Viens ģenerālis, viņu ieraudzījis, metās
+tam virsū un, nocirtis galvu, iemeta pašu grāvī, bet pats, paņēmis bruņas, aizgāja
+pie karaļa. Karalis bij ļoti priecīgs, apkampa to un apsolījas atdot viņam savu meitu
+un pusi no savas valsts.</p>
+
+<p align="JUSTIFY">Karaļdēls, kas bija noburts par ērgli, un kuŗu puisēns izglāba,
+ieraudzīja, ka puisēna atstātais lakatiņš ir asinīs. Ieskrējis pie viena un pie
+otra no saviem brāļiem, viņš teica: "Mīļie brāļi, metat visu pie malas,
+skriesim glābt mūsu atsvabinātāju."</p>
+
+<p align="JUSTIFY">Jau bija pagājušas divas nedēļas un puisēna līķi jau bija
+sākuši putni knābāt. Karaļdēli, to nomazgāja, aplēja ar nedzīvo ūdeni, pēc tam
+uzlēja dzīvības ūdeni un puisēns uzcēlās augšā sacīdams: "Es ilgi esmu
+nogulējis!"</p>
+
+<p align="JUSTIFY">"Ja mēs neatnāktu, tad tu būtu aizmidzis uz mūžu. Paņem
+savas spalvas padusē un laidies pie karaļa, tur karaļmeita tiek piespiesta iziet pie
+cita par sievu. Karalis visādā ziņā gribot izdot savu meitu ģenerālim par sievu, bet
+viņa negribot iet, aizbildinādamās, ka ģenerālis neesot ņēmis no viņas tēva
+bruņas. Viņa pieprasīja arī, lai ģenerālis uzrādot tās lietas, kuras viņa
+iedevusi kopā ar bruņām."</p>
+
+<p align="JUSTIFY">Ģenerālis gan bija sapircis visādas mantas bet tur nebija nekā
+līdzīga tām lietām, kuŗas karaļmeita bija iedevusi tam, kas bija paņēmis tēva
+bruņas. Tad karaļmeita pieprasīja arī atkārtot tos savādos mākļus, kuŗus viņš
+tad būtu rādījis, kad bruņas paņēmis. Ģenerālis mēģina rāpus nostāties, rāda
+mēli, bet karaļmeitai tas nepatīk; arī viesi liecina, ka bruņu paņēmējs esot
+rādījis pavisam citādus mākļus. Tēvs viņai pavēl: "Ej pie viņa par sievu
+citādi es tev galvu nocirtīšu."</p>
+
+<p align="JUSTIFY">Kad karaļmeita jau bija sataisījusies uz laulībām, tad atskrēja
+trīs karaļdēli un bijušais karaļa kalpotājs. Pils priekšā viņi iesāka spēlēt
+sēru dziesmu. Karalis, izgājis ārā, jautā: "Ko tad jūs tā žēli spēlējat;
+šodien jau manai meitai ir kāzas'? Varbūt jums kādas pārestības nodarītas?"</p>
+
+<p align="JUSTIFY">"Liela pārestība mums izdarīta, nevainīgas asinis ir izlietas
+Karalis lūdz viņus pilī, viņi ienāk, un visi četri ir viens otram līdzīgi, kā
+pēc izskata, tā arī pēc auguma. Karaļmeita vienā no tiem pazina savu mīļāko, un
+piegājusi viņam klāt, sacīja: "Parādi man tos mākļus, ko tu tad rādīji, kad
+biji atlaidies pēc bruņām!"</p>
+
+<p align="JUSTIFY">Jauneklis, pārvērties par egli, iesāka ar zariem sist viesus, bet
+ģenerālim cirta par acim. Atnesa ūdeni, jauneklis pārvērtās par zivi un iesāka
+plaukšķināt ar asti, tā izskatījās reizām kā no zelta, reizām - no sidraba.
+Izlēcis no ūdens, atkal pārvērtās par jaunekli. Pēc tam pārvērtās par ērgli un
+ar spārniem iesāka sist ģenerāli, par ko visi viesi smējās. Tad atkal pārmainījās
+par jaunekli un teica: "Atdod manu kūjiņu!"</p>
+
+<p align="JUSTIFY">Karaļmeita atcerējās arī puslakatiņa un pusgredzena. Ar tādām
+lietām un bija pierādīts, ka viņš ir atnesis bruņas. Ģenerālis nožēloja, ka
+viņš neesot apķēries un atdevis pusi no sava lakatiņa. Karaļmeita, paņēmusi
+jaunekli pie rokas, piegāja karalim un sacīja: "Raugi, tēt, pie viņa ir spalvas
+padusē un viņš tev ir atnesis bruņas, un viņš ir arī mans mīļākais."</p>
+
+<p align="JUSTIFY">Karaļdēli pastāstīja, kā viņi bija izzinājuši par jaunekļa
+nāvi, un kā viņu atkal atdzīvinājuši. Karalis jautā viesiem, kā sodīt to, kas
+nevainīgas asinis izlējis. Ģenerālis, domādams, ka karalis esot nodomājis jaunekli
+sodīt, sacīja: "Piesiet zirgiem pie astēm un sarautīt gabalos."</p>
+
+<p align="JUSTIFY">Lai pārliecinātos, vai karaļdēli bija teikuši patiesību, karalis
+pavēlēja nocirst vienam no kareivjiem galvu.</p>
+
+<p align="JUSTIFY">Karaļdēli nomazgāja galvu ar nedzīvo ūdeni, tā pieauga klāt
+kaklam; otrs brālis viņu nomazgāja ar dzīvības ūdeni un kareivis, uzlēcis augšā,
+teica: "Kāds man kauns, ka biju aizmidzis karaļa pilī."</p>
+
+<p align="JUSTIFY">Pēc tam paņēma divpadsmit zirgus un pie to astēm piesēja blēdīgo
+ģenerāli un tad dzina tos uz visām pusēm.</p>
+
+<p align="JUSTIFY">Jauneklis salaulājās ar karaļmeitu, un karalis lūdza arī
+karaļdēlus palikt pie viņa uz visiem laikiem.</p>
+
+<p align="JUSTIFY">"Mums ir pašiem sava karaļvalsts," viņi atbildēja, un
+pēc kāzām viņi aizbrauca atkal uz māju un ielūdza karali pie sevis pasērsties.</p>
+
+<p align="JUSTIFY">Pēc karaļa nāves par visas karaļvalsts mantinieku palika jauneklis,
+kas vēl līdz šim tur valda ar savu sievu un dzīvo laimīgi.</p>
+</font>
+
+
+</body></html>

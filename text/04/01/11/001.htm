@@ -1,0 +1,199 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>11</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Puika kalpo Dievam un velnam.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">A. 710. 361. r. Rancāns, Rēzeknē.</p>
+
+<p align="JUSTIFY">Dzeivuoja vīns cylvāks ļūti nabogs, bet saime beja jam lela. Kotru
+godu tryuka maizes, tai ka gondreiž pa vysu pavasari vaiadzēja cīst bodu.</p>
+
+<p align="JUSTIFY">Tad vīnu reizi taidā gryutā laikā sadīunuoja jis sleicynuot sovus
+bārnus. Pajēme divi bārnus īlyka peitinē [pītene, grozs un aiznese uz upi
+sleicynuot. Īdams pa upes krostu, īraudzēja vacu veceli. Vecs suoka vaicuot vuorguļam
+: "Kū tu nes kerzē [kr., grozs]?"</p>
+
+<p align="JUSTIFY">Vuorguļs atbild, ka kalsus nas sleiynuotu. Tad vecs vēl vaicoj, bet
+otkon dzierd taidu pašu atbildi. Tik ka vecs trešu reiza pavaicuoja, tad tik vuorguļs
+pasacēja taisneibu. Vecs tūlaik lyka vnorgrrļam nest bārtus atpakaļ uz sātu, un ari
+pats reizē nūguoja uz vuorguIa muojom.</p>
+
+<p align="JUSTIFY">Īguojis satā, vecs līk vuorguļam dabuot nu cepļa syltas gaļas
+pusdīnem. Vuorguls veras uz veča, izplētis acs. Kur lai jis jem gaļi, ka jam jau sen
+ni kimūsa nav? Bet vecs attaisa cepli, un vuorguļs īrauga pylnu cepli vysaidu ēdīņu
+un maizes. Nūsabreinuojis nas vysu uz golda un pabaruoj vysus.</p>
+
+<p align="JUSTIFY">Tad vecs otkon soka uz vuorguĪa, lai jis īt uz klāvu [kūts] un
+nūkaun pašu tukluokū vērsi. Vuorguļs otkon dūmoj: vecs soka kaut pašu tukluokū
+vērsi, bet jam klāvā nav ni kūda ni tukla, tik vīna vīn gūtiņa. Tam laikam,
+radzādams jau. breinumu nav veča, īt uz klāvu un redz, ka pylns klāvs lūpu.
+Nūsaprīcoj vuorguļs un skrīn uz sātu pateikt večam. Bet vecs jam pīsoka, ka jis --
+kai tik paliks jaunuokam dālam ostoņi godi - lai atsyuta <b>tū </b>dālu uz ja, un
+īdūd komūleiti dīgu, kurs valdamīs nūvess vuorguļa dālu uz veci. Vuorguls apsūlej
+večam vysu tū izpildīt. Tad vecs atsavasaļoj un aizīt sovu celi.</p>
+
+<p align="JUSTIFY">Puorīt ostoņi godi un vuorguļs syuta sovu dālu uz veci, īdūd
+dālam komūleiti un pasoka, kur komūleits velsīs, tur lai jis īt. Dāls pajem
+komūleiti<b> </b>un laižas ceļā. Par nazcik dīnom teik pi veča ,an palīk dzeivuot.
+Vecs atļaun vuorguļa dālam staiguot pa .ysim kambarim, tik vīn vīnā aizlīdz īt.
+Bet vuorguļa dāls nanūcīš un īīt aizIīgtā kambarī. Īguojis redz, ka stuov pi
+sīnas yudena trauks un spīgels. Vuorguļa dāls pajem un nūmozgoj sev rūkas<b> </b>un
+ari pats nūsamozgoi. Tamā pat breidī apbierst rūkas ar sudobru un moti ar zaltu.</p>
+
+<p align="JUSTIFY">Atīt vecs un redz, ka vuorguļa dāls napaklausēja juo, bet šū
+reizi jam pīdūd. Nūslauka sudobru nu rūku, zaltu uz golvas pamat, bet otkon naatļaun
+īt vīnā kambarī. Vuorguļa dāls kaidu laiku nūcīš, bet golu golā īīt otkon
+kambarī, kurā vecs naatļuove. Īguojis īrauga smuku vēzdini [vēzda, kūja], pajem
+jū un pacyloj. Tamā pat laikā atīt ari vecs uz šū kambari un soka uz vuorguļa
+dāla: "Kū tu padarēji? Tu apsyti ar šū vēzdini pus pasauļa. Tu manis
+naklausēji un es vairs navaru tevi pi sevis turēt. Ei, kur gribi!"</p>
+
+<p align="JUSTIFY">Tai vecs palaiž vuorguļa dālu un īdūd iam leidza treis sāklas.</p>
+
+<p align="JUSTIFY">Pīsaka, ka naītu par kolpu pi taida saiminīka, kuram byus malni
+sprūguoti moti, un ari kur paliks dzeivuot, lai tur pasēj šuos treis sāklas. Tad vecs
+apsīn vuorguļa dālam golvu ar drēbes gobolu, un līk sacīt tam, kas vaicuos, ka golva
+suop.</p>
+
+<p align="JUSTIFY">Tai vuorguļa dāls laižas otkon ceļā. Īdams sateik cylvāku, kurs
+grib jū pajemt par kolpu; bet vuorguļa dāls līk jam paruodīt sovus motus. Cylvāks
+nūjem capuri, un paruoda sovus malnūs sprūguotūs motus; tad vuorguļa dāls atbild:
+"Naīšu par kolpu, tuodēļ ka tev malni sprūguoti moti."</p>
+
+<p align="JUSTIFY">Tys cylvāks beja valns. Jis tyulen aizskrīn uz sovu sātu, izpervej
+motu cytā kruosā. sasukoj un otkon aizīt vuorguļa dālam prīškā. Un tai jis
+apmuonej vuorguļa dālu, un tys palīk pī valna par kolpu.</p>
+
+<p align="JUSTIFY">Jis tagad īguodoj par tuom saīklom, kuras īdeve vecs, un pasēj
+zemē. Par laiku izaug treis uobelneicas: vīna medzes [baltkrievu un poļu miedz, varš,
+ūtra sudobra, treša zalta. Tai dzeivoj kaidu laiku vuorguļa dāls pi valna. Bet vīnu
+reizi valns soka uz vuorguļa dāla : "Tev daīs īt kautīs ar lelu pulku, jo
+izvarēsi, tad tev moksuošu, a cytaiž dīneisi pi manis par velti."</p>
+
+<p align="JUSTIFY">Vuorgua dāls aizzadūmoj, ka jam by us izvarēt un īguodoi par
+uobelneicom. Nūīt, nūlaiž zoru nū pyrmuos uobelneicas, cārt par uobelneicu. Izskrīn
+nu uobelneicas zyrgs. Sāst uz zyrg: vuorguļa dāls un aizskrīn kautīs. Dabraucis pi
+tuos vītas, kur beja saeits, īrauga pulku ļaužu, bet te kai skrīn zyrgs, tai vysus
+sameida.</p>
+
+<p align="JUSTIFY">Tad vuorguļa dāls brauc laimeigs atpakaļ un natuoli nu sā tas
+palaiž zyrgu un pats īt pi vuortu, sateik jū valns un vaicoj : Voi tev lūbēs?"</p>
+
+<p align="JUSTIFY">" "Lūbēs [lobās, izdevās]," atbild vuorguļa dāls.
+Valns palīk dusmeigs un otkon syuta kautīs. Vuorguļa dāls ari taipat dabuoi zyrgu nu
+ūtras uobeļneicas, aizjuoj un taipat apsyt vysus.</p>
+
+<p align="JUSTIFY">Bet vēl na gols, valns syuta trešū reizi. Tys pats ari nūteik i
+trešū reizi. Tagad jau nav kū dareit, vaiag valnam moksuot vuorguļa dālam par
+dīneišonu. Bet vuorguļa dāls na munis, kai tik dabuoja nu valna naudas, tai tyulen
+laidēs prūjom. Lobu laiku staiguoia pa vysom molom, koleidz otrada sovu tāvu un tad
+palyka dzeivuot pi juo.</p>
+
+
+</body></html>

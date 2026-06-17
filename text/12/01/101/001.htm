@@ -1,0 +1,213 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>101</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Lielie zvēri un lielās lietas.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>1.</strong> A. 1960. Dāvus ar Gotardu Kr. Vircavā. L. P. III,
+61.<font size="4"> </font></p><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font>Reiz bijis bagāts vīrs, tam bijusi daiļa meita. Daudz
+gribējuši daiļo bagātnieka meitu precēt; bet tēvs katru reizi atteicis: "Savu
+meitu došu tikai tam, kas vismaz tikpat bagāts, kā es!" Nevienam nebija tik daudz
+mantas un tādēļ meitai nekad no precībām nekas neiznācis.</p>
+
+<p align="JUSTIFY">Bet reiz gadījies manīgs tēva dēls. Tas iegādājies lepnu karīti,
+labus zirgus, atjautīgu kučieri un braucis pie bagātnieka meitas precībās. Uz ceļa
+tēva dēls prasījis savam kučierim: "Vai tu māki labi melot?"</p>
+
+<p align="JUSTIFY">"Melot nu gan ne, bet to apstpirināt, ko tu sacīsi, to protu
+labi."</p>
+
+<p>"Labi, tad laid uz bagātnieka pili!"</p>
+
+<p align="JUSTIFY">Drīzi bijuši bagātnieka pagalmā. Tēva dēls izkāpis no karītes,
+skatījies uz pili un brīnējies, brīnējies ilgu laiku.</p>
+
+<p align="JUSTIFY">Bagātnieks iznācis pretim un uzprasījis: "Pie mums ir drusku
+citādākas ēkas. Man pašam ir tāda pils, ka var augšstāvā dzirdēt eņģeļus
+dziedam."</p>
+
+<p>"Ko, vai patiesi? Vai nenāksi iekšā? Uz kurieni brauc?" ,;Man vēl tāls
+ceļš priekšā, labāk nemaz neiešu iekšā, lai velti nenokavētos."</p>
+
+<p align="JUSTIFY">"Ne, ne, tev jānāk iekšā. Mana meita šodien gardu azaidu
+izvārījusi. Tev jānāk paēst."</p>
+
+<p align="JUSTIFY">Iegājis arī. Bet kamēr tēva dēls ēdis, bagātnieks izlīdis pie
+kučieŗa taujādams: "Klausies, vai patiesi tavam kungam tāda pils, kā viņš tur
+pirmīt stāstīja? Augšstāvā varot dzirdēt eņģeļus dziedam."</p>
+
+<p align="JUSTIFY">"To es nezinu par eņģeļiem, jo neesmu nekad bijis augšstāvā,
+bet tikdaudz esmu redzējis pats savām acim: viņu dien vista bija uzkāpusi uz pils
+jumtu un lasīja zvaigznes."</p>
+
+<p align="JUSTIFY">To dzirdēdams, bagātnieks sadedzis ieskrējis pie tēva dēla un nu
+vasādi sācis klaušināt: kur braukšot, kādēļ braukšot?</p>
+
+<p>"Braukšu uz precībām!" tēva dēls atteicis.</p>
+
+<p align="JUSTIFY">Lai arī uz precībām," bagātnieks iesaucies; "šodien tik
+pat tevi projām nelaidīšu. Kur domā aizskriet, vakars tepat laukā." </p>
+
+<p align="JUSTIFY">Tēva dēls ļāvies pierunāties.</p>
+
+<p align="JUSTIFY">Pēc azaida bagātnieks vedis tēva dēlu dārzā un rādījis savus
+varenos kāpostus. &amp;127;Bet tēva dēls tik paraustījis plecus.</p>
+
+<p align="JUSTIFY">"Pie mums tādi kāposti nekas. Man pašam tādas galviņas,
+apakš kuŗām cilvēku desmit, divpadsmit no stiprāka lietus izglābjas."</p>
+
+<p align="JUSTIFY">To dzirdēdams, bagātnieks atkal aizvilcies pie kučieŗa appra
+sīties par kāpostiem. Kučiers atteicis : "Cik lieli tie šogad, to īsti nemāku
+teikt, jo šovasar neesmu bijis kunga dārzā; bet to gan zinu: pērn viesulis nocēla
+jumtu siena šķūnim; tūliņ nogriezām vienu kāpostu lapu un ar vienu pašu lapu
+uzlikām šķūnim jumtu." </p>
+
+<p align="JUSTIFY">"Vai patiesi?"</p>
+
+<p>"Nu, kā tad; tas pie mums nekas jauns."</p>
+
+<p align="JUSTIFY">Tagad bagātnieks vedis tēva dēlu siernīcā un rādījis savus
+lielos sierus, prasīdams: "Kā pie jums sierus taisa?"</p>
+
+<p>"Pie mums sierus min ar zirgiem."</p>
+
+<p align="JUSTIFY">To dzirdēdams, bagātnieks atkal aizvilcies pie kučiera apprasīties
+par sieriem. Kučieris atteicis : "Kā viņi tur sierus taisa, to nezinu, jo pie tā
+darba nekad mani neliek, bet tik zinu: viņu nedēļu gājam uz mežu malku cirst un
+paņēmām vienu sieru līdz. Pienāca azaids, sākām sieru robit ar cirvjiem un--ko
+domājie - izrobījām no siera vidus veselu kumeļu."</p>
+
+<p align="JUSTIFY">Tagad bagātniekam pieticis; tūliņ vedis tēva dēlu iekšā un par
+precībām vien runājis, pie kam aplinkus nevarējis diezgan savu meitu cildināt. Tēva
+dēls to nomanījis un tādēļ&amp;127; tīši pusbalsī pie sevis nobubinājis:
+"Laba sieva liela lieta. Kaut man būtu lemts, tādu dabūt. Bet viņa jau nenāks
+pie manis."</p>
+
+<p align="JUSTIFY">Bet gan bagātnieks šos vārdus sadzirdējis, tas tūliņ: "Kas
+neies pie tevis, pie tāda varena?"</p>
+
+<p align="JUSTIFY">"Tava meita!"</p>
+
+<p>"Viņa neies; nu to es redzēšu! Rītu lai sataisās, parīt darināsim kāzas,
+pēcparīt būs laulības un tad pavadīšu jūs uz māju."</p>
+
+<p>Tā palicis. No rīta tēva dēls pačukstējis savam kučierim:</p>
+
+<p align="JUSTIFY">"Klausies, mums izdevās viss labi; bet kamēr mēs te kāzojam,
+tev jāsteidzas uz māju un jāuzceļ no dēļiem augsts, augsts tornis, Tikdrīz es ar
+savu sievas tēvu braukšu mājā, tu aizdedzini augsto dēļu torni, lai kurās. Sievas
+tēvs tad prasīs, kas tur deg; es atteikšu : "Ak tu nelaime, kamēr kāzojām, mana
+augstā pils nodegusi, mani kāposti nosvilusi, mani sieri sagruzdējuši."</p>
+
+<p>Viss izdevies, kā norunāts. Sievas tēvs ļoti gan žēlojies par nodegušo pili, bet
+beigās iesaucies : "Vai man naudas trūkst? Še !" ,</p>
+
+<p>znotiņ, cik tev vajaga un taisi citu pili!"</p>
+
+
+</body></html>

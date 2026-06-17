@@ -1,0 +1,167 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>13</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Krievs debesīs un ellē.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">1. Skolnieks V. Juoņins Eglūnā.</p>
+
+<p align="JUSTIFY">Krievs pasaulē ir pārcietis visādus gŗūtumus un nu piedzīvojis
+visādas bailes, tādēļ viņš arī vairs ne no kā nebaidās. Tā vienam krievam bija
+reiz jāaiziet tālu tālu svešā 2emē. Viņa gāja gāja. kamēr apmaldījās.
+Maldīdamies viņš pēdīgi nonāk tādā vietā, kur zerrm beidzas un nevar vairs
+tālāku iet. Krievs bija ļoti nokusis un domāja turpat pārgulēt par nakti. Viņš
+iesit debesīs vienu naglu, pakaŗ tur savu mēteli un sāk pīpēt savu pīpi. Naglu<b> </b>sitot,
+izceļas 1iels troksnis, ko sadzird arī debesīs un aizsūta divus eņģelus
+ahskatīties, kas tur noticis. Aiziet eņģeli un redz: gul viena krievs uz kailas zemes
+ar akmeni zem galvas. Eņģeliem palika krieva žēl. Viņi to uzmodināja un aizveda uz
+debesim. Redzet debesu skaistumus, krievam pārgāja miegs un viņam arī vairs
+negribējās gulēt. Lai nu būtu jautrāks gars, viyš gribēja drusku uzpīpēt, bet par
+nelaimi bija aizmirsis savu pīpi. Tā nu krievs lūdz eņģeļiem: "Vai nevarētu
+drusku tabakas dabūt ko uzpīpēt?"</p>
+
+<p align="JUSTIFY">Nē. io gau `revar!" eņģeli atbild. "Tabaka ir nešķīsta
+zāle "</p>
+
+<p align="JUSTIFY">un debesīs tabaxas nepīpē."</p>
+
+<p align="JUSTIFY">"Ka nevar, nevar.," krievs pārdomā. "Bet vai
+brandvīns ir?" "Brandvīna arī nav, jo to ir velns izdomājis."</p>
+
+<p align="JUSTIFY">Krievs paliek bēdīgs un sāk klausīties, vai nedzirdēs kur kādu
+jautru dziesmu dziedam. Bet tādas arī nekur nedzird. Krievam vairs nepatīk iet kopā ar
+eņģeliem un viņš nobēdājas pie sevis: "Svētie debesīs, kā redzu, ne
+smēķē, ne dzeŗ, ne arī dzied, jautras dziesmas; bet dzīvs cilvēks jau nevar dzīvot
+kā uzzīmētais svētais."</p>
+
+<p align="JUSTIFY">Krievs nu aiziet un sāk meklēt tādas vietas, kur var izpriecāties.
+Vipš tikmēr staigā, kamēr nokrīt no debesim un no augstā kritiena paliek zemē
+gulam. Labu laiku gulējis, viņš pamostas un dzird, ka kāds pie viņa pienāk. Krievs
+prasa: "Vai tev nav kādas grlāzītes brandvīna?"</p>
+
+<p align="JUSTIFY">"lr gan!" nācējs atbild un atnes tūlin veselas div'
+pudeles. Izdzēris kādas glāzītes, krievs atkal prasa: "Vai nav ari tabakas?"</p>
+
+<p align="JUSTIFY">,Ir arī!" nācējs atbild uil atnes tūlin tabaku.</p>
+
+<p align="JUSTIFY">Pīpēdams, krievs dzird arī jautras dziesmas dziedam. Viņš mr prasa
+savam biedram: "Kur es atrodos?"</p>
+
+<p align="JUSTIFY">"Ellē," viņam atbild.</p>
+
+<p align="JUSTIFY">,,Kas tā par elli,'` saka krievs, "kur var dzert, pīpēt un
+jautras dziesmas paklausīties?"</p>
+
+<p align="JUSTIFY">Tā nu krievs paliek ellē un nemaz vairs negrib iet atpakaI uz
+debesim.</p>
+
+<p align="JUSTIFY">P i e z i m e. Attiecibā uz brantvinu vn tabaku sal. ceturtā sēiuma
+13. un t4. pasaku. P. Š.</p>
+
+
+</body></html>

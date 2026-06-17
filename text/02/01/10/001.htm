@@ -1,0 +1,145 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="center">Koka dēls.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>&nbsp;</b></p>
+
+<p align="JUSTIFY"><b>l. </b>A.301A. M. Starķis Lielvārdē, Ausekļa atl. r. LP, VI,
+115, 15a.</p>
+
+<p align="JUSTIFY">Citām reizēm dzīvoja saimnieks, vārdā Juris, kam nebija neviena
+paša bērna. Vienu ziemu Juris brauca uz mežu malkā un redzēja, ka citiem bij tik
+daudz bērnu. Viņš vaicāja: "Kur jūs ņēmāt tik daudz bērnu:"</p>
+
+<p align="JUSTIFY">"Kur ņēmām? Uztaisījām no malkas."</p>
+
+<p align="JUSTIFY">Tos vārdus Juris ielika cienā, un līdz ko mājā, tūlin izcirta no
+koka dēlu un nolika klētī, lai stāv, kamēr labāks padoms gadīsies. Bet ik Juris
+klētī gāja, ik uzrunāja koka dēlu: "Nu, dēls, mēs jau nokūlām un tu vēl
+guli!"</p>
+
+<p align="JUSTIFY">Trešo rītu, atkal klētī iedams, viņš sacīja tos pašus vārdus:
+"Nu, dēls, mēs jau nokūlām, tu vēl guli!"</p>
+
+<p align="JUSTIFY">Un, kas par brīnumiem. Līdz tos izteicis, koka puika ceļas augšā
+un iet tēvam līdz uz riju. Nu bija Juris bez gala priecīgs, ka reiz pie dēla ticis.</p>
+
+<p align="JUSTIFY">Tas nu tas. Bet - nezin - vienu reizi Juris bija kāvis vēršus un
+licis savam koka dēlam zarnas vārīt. Katls bijis dikti pilns un dēls tikai maisījis,
+arvienu uguni pakurdams. Te piegadījusies viena vecene teikdama: "Dēliņ. tu gan
+būsi dikti nokusis; ieej istabā atpūsties, es tamēr pamaisīšu zarnas."</p>
+
+<p align="JUSTIFY">Labi! Kokadēls gājis istabā. Bet līdz aizvēris durvis, vecene
+pakampusi katlu un prom kā devītais skritulis. Koka puika manījies paka]. Tomēr vecene
+attapusi ar visu katlu paskriet zem liela, liela akmeņa - caurums vien palicis. Bet koka
+puika nepalaidies, dzinies ir pa caurumu pakaļ, nokļuvis vecenes mājā un nokavis to.
+Turpat atradis arī savu katlu un lielu pulku zelta. Nu sagrābies zelta, paņēmis katlu,
+salicis krēslus citu cita galā un uzkāpis atkal laukā.</p>
+
+
+</body></html>

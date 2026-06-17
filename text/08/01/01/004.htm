@@ -1,0 +1,151 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Čūskas gredzens.</p>
+</font><font size="4">
+
+</font></b><p align="JUSTIFY"><b><font size="4"></font></b><font size="3">4. A. 560. K. Žiema, Ozolniekos pie
+Jelgavas. LP. IV, 223 (58).</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz bijis viens vīriņš; tas gājis medīt ar suni un kaķi, bet
+nekā neķēries. Beidzot mājā nākdams, saticis čūsku, gribējis to pašu šaut, bet
+čūska lūgusies: "Atstāj mani dzīvu - došu tev zelta gredzenu. Tas gredzens ir
+tāds: ja drusku pirkstos pagroza, tūliņ rodas galdiņš ar ēdieniem, dzērieniem, bet
+kad iebāž kabatā - galdiņš atkal nozūd."</p>
+
+<p align="JUSTIFY">Labi! vīriņš paņēmis gredzenu un nešāvis čūsku. Pēc tāda
+laika vīriņš apņēmis sievu. Bet tā bijusi briesmīgi ziņkārīga: Caurām dienām
+stājusi virsū, lai sakot, kur tādus ēdienus un dzērienus vienā gabalā ņemot?
+Viņš neteicis. Bet vienreiz vīriņš bija izgājis, gredzens aizmirsies uz galda. Sieva
+paņēmusi gredzenu un aizbēgusi pie savas mātes. Vīriņš pārnācis un nu nebijis
+nekā vairs ko ēst. Nu teicis uz suni un kaķi: "Steidzaties tai maitai pakaļ !
+"</p>
+
+<p align="JUSTIFY">Suns ar kaķi apmanījuši vīriņa sievu vienā pilī. Gribējuši
+iekšā iet, bet sieva likusi sulainim lielus suņus uzrīdīt šiem virsū. Sulainis
+tomēr nerīdījis, teikdams: "Lai dzīvo nabaga lopiņi!"</p>
+
+<p align="JUSTIFY">Otrā dienā kaķītim laimējies pelīti noķert. Suns teicis:
+"Nelaid peli ātrāk vaļā - lai iznes mums to gredzenu!"</p>
+
+<p align="JUSTIFY">Pelīte ielīdusi pilī un iznesusi gredzenu; kaķis iekampis gredzenu
+mutē un nu nesuši to uz māju. Bet par nelaimi upe bijusi</p>
+
+<p align="JUSTIFY">priekšā Nekā darīt - kaķis uzkāpis sunim mugurā un nu peldējis
+pāri. Upes vidū suns ieprasījies: "Vai tev ir vēl gredzens?"</p>
+
+<p align="JUSTIFY">Tiklīdz kaķis gribējis izteikt: ir! gredzens :izvēlies no mutes
+upē. Ko nu? Beidzot suns atradis vēzi. Tas bijis ļoti bailīgs. Bet suns vēzi
+:nelaidis vaļā, kamēr tas iznesis gredzenu no upes.</p>
+
+<p align="JUSTIFY">Nu skrējuši priecīgi uz māju. Ap pusnakti pārskrējuši pie
+vīriņa namdurvim un klauvējušies un klauvējušies. Bet vīriņš jau bijis nomiris
+badā; neviens nav atvēris durvis. Tomēr suns ar kaķi negājuši projām -
+klauvējušies tik ilgi, kamēr paši arī turpat nomiruši.</p>
+</font>
+
+
+</body></html>

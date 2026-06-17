@@ -1,0 +1,147 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>19</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Blēdīgā māte.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">1. A. 590. P. Š. no Bindu Annas Raunā.</font></p><font size="3">
+
+<p align="JUSTIFY">Viens kungs reiz aizgājis kaŗā un tur pazudis. Sieva ar dēlu gaida
+to mājā, bet nevar sagaidīt. Kad nu nedabūj nekādu ziņu, tad māte ar dēlu iet
+paši kungu meklēt. Iedams dēls uziet zemē vienu jostu un grib to pacelt, bet māte
+saka, kam šis tādus niekus ņemot rokā. Dēlam tomēr josta patīk un, mātei neredzot,
+šis to paņem un ajož ap vidu. Dēls tagad sajūt tādu lielu spēku, ka viņš var vai
+kokus ar visām saknēm izraut.</p>
+
+<p align="JUSTIFY">Tālāku ejot, māte ar dēlu iegriezās vienā mājā un pārgulēja
+tur par nakti. Mājas saimnieks bija milzis, kas mātei tūliņ piemetās par draugu.
+Dēlam nepatīk milzis, bet šis dēlu pavisam nevar ieraudzīt. Reiz abi sastrīdās un
+milzis grib dēlu nogalināt, bet dēls ir stiprāks un itin viegli nogāž milzi gar
+zemi. Milzis gan nekā nesaka, bet dusmas viņam ir vēl lielākas. No mātes viņš
+dabūj zināt, ka dēla spēks atrodas jostā, un nu nozog par nakti to jostu, kamēr
+dēls guļ. Rītā milzis aizviļ dēlu uz mežu un izduŗ tur viņam acis.</p>
+
+<p align="JUSTIFY">Nu dēls maldās raudādams pa mežu, kamēr pēdīgi viņam piesitas
+viens suns. Suns viņu aizved pie viena avotiņa un lūko tam izrādīt, lai šis tur
+nomazgātu savas acis. Dēls arī sāk mazgāt slimās acis, kamēr tās atkal sadzīst un
+viņš paliek redzīgs. Par dienu dēls ar suni nostaigā pa mežu, bet vakarā viņi
+aiziet klusām uz milža māju. Suns nu ielien milža istabā, paņem tur dēla jostu, ko
+milzis bija uzlicis pie savas gultas uz galda, un atnāk ar to pie dēla. Šis tagad
+apjož atkal savu jostu un nu ir atkal tikpat stiprs kā senāk. Viņš nu iet pie milža,
+pamodina to un prasa, kādēļ šis viņam acis izdūris. Milzis pamostas, ķeŗ pēc
+jostas, bet jostas vairs nav. Nu šis meklē kādu ieroci un taisās dēlam uzbrukt. Dēls
+to pamana, sagrābj milzi cieti un tikmēr cīnās, kamēr pēdīgi to nosit.</p>
+
+<p align="JUSTIFY">Kā nu milzis ir pagalam, tā arī suns pārvēršas par dēla tēvu,
+jo milzis to agrāk bijis nobūris. Tēvs, māte un dēls tagad atkal ir visi kopā,
+izlīgst savā starpā un dzīvo priecīgi.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Pie šās pašas pasakas var arī pieskaitīt trešā
+sējuma 14. pasakas trīs variantus (no 3. līdz 5.). P. Š.</p>
+</font>
+
+
+</body></html>

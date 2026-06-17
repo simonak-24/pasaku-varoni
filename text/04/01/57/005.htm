@@ -1,0 +1,225 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Kustonis iemanto ķēniņa meitu.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">5. A.<b> </b>41. A. Gari-Juone no M. Matisona Domopolē. </p>
+
+<p align="JUSTIFY">Dzeivuojuši vecīhs ar vecīti, jīm nabejs nivīna bārna. Siva
+aizkur cepli, a jis pajem gryudekli ( tīklu) un aizīt vēžu zvejuotu, zvejoj, zvejoj,
+bet nikas nazamat. Vē zvejoj, nikas gon vīns vēzs gryudeklī. , šu " soka
+"Byus gon ceplis izdzis s, bet es gon jau tevi izcep , vecīts. " "Lyudzams
+nacepj," soka vēzs, "es tev byušu par dālu. Ka tu man byusi par dālu, kur
+tad tu dzeivuosi?" vaicoj vecīts. "Lelā kubulā vajag pīlīt yudiņa, es tur
+dzeivuošu un izaugšu lels." atsoka vēzs.</p>
+
+<p align="JUSTIFY">Vecīts atnas vēzi uz sātu, vecīte jau cep1i izkurinuojuse gaida</p>
+
+<p align="JUSTIFY">"Nes šur dreižnok tu vēzi, lai es jū izcapu," soka
+vecīte.</p>
+
+<p align="JUSTIFY">Ja vēža nadūšu cept, jis byus myusim par dālu," atsoka vecs.</p>
+
+<p align="JUSTIFY">Kaids nu vēža dāls? Vajag izcept un apēst," runoj vecīte.</p>
+
+<p align="JUSTIFY">kubulu Vecs pajem lelu kubulu, aizlīk aiz cepļa, pīlej pylnu
+yudiņa, īlaiž vēzi lai dzeivoj. Pēc kaida laika sēd vecīte un vecīts cepļa
+prīškā; vēzs izlec's uz kubula molas, syt ar lāpom un soka: "Tēt, tēt, es
+gribu precētīs!"</p>
+
+<p align="JUSTIFY">"Kū tad, tu jemsi, dāls?" vaicoj vecīts. Jemšu kēneņa
+meitu," atsoka vēzs.</p>
+
+<p align="JUSTIFY">"Jem, jem, jo kēneņa meita īs pi tevis," soka tāvs.</p>
+
+<p align="JUSTIFY">Vēzs izlac nu kubula, pa jyuras dybynu aizlāpoj uz kēneņa pili,
+īčāpuoj pi kēneņa meitas, pasoka, ka gribs kēneņa meitu jemt sev par sīvu.</p>
+
+<p align="JUSTIFY">"Labi," atsoka kēneņa meita, es īšu gon pi tevis, tikai
+tev vajag iztaisīt par jyuru apzeļtītu tyltu nu sovas sātas leidz kēneņa
+pilei?"</p>
+
+<p align="JUSTIFY">Vēzs atlāpuoj pa jyuras dybyny uz sātu un pastuasta tāvam, ka
+kēneņa meita lyka jam iztaisīt par jyuru tyltu nu sovas sātas leidz kēneņa pilei.
+"</p>
+
+<p align="JUSTIFY">"Kai, tod tu, dāls, iztaisīsi tyltu par jyuru? "Gon jau
+iztaisīšu," atsoka vēzs.</p>
+
+<p align="JUSTIFY">Jis izīt uorā, īsveļpas - pīskrīn valni un saka: "Kas ta
+byus nostruodoj?"</p>
+
+<p align="JUSTIFY">"Vajag iztaisīt Par jvuru tyltu nu munas sātas leidz kēnea
+pilei," pavēļ vēzs.</p>
+
+<p align="JUSTIFY">Valni tyulin stuojas pi dorba un par nakti tylts gotovs; tylta molas,
+ji vē apsudobroj. Reitā vēzs aizčāpoj pa tyltu uz kēneņa pili un pasoka kēneņa
+meitai, ka par jyuru jau tylts gotovs. Kēneņa meita nīasabreinoj, kai vēzs īspēja
+par nakti iztaisīt tyltu par jyuru. Voi jan īšūt, vaicoj vēzs kēnēņa meitai.</p>
+
+<p align="JUSTIFY">"Izkaisi tyltu ar vysskaistuokom pučem, kaidas tikai ir<i> </i>pasaulī,
+tod es īšu pi tevis," soka kēneņa meita.</p>
+
+<p align="JUSTIFY">"Labi!" atsoka vēzs un pa jyuras dybynu atruapja uz sātu.
+"Kēneņa meita pasacīja, lai izkaisūt tyltu ar vysskaistuakom pučem
+pasaulī," pastuosta vēzs sovam tāvam.</p>
+
+<p align="JUSTIFY">Vēzs izīt uorā īsveļpas - pīskrīn valni un tī prosa: "Kas
+juodora?"</p>
+
+<p align="JUSTIFY">"Izkaisit tyltu ar vysskaistuokom pučem pasaulī," pavēlej
+vēzs.</p>
+
+<p align="JUSTIFY">Valni stuojas pi dorba un par nakti nūkaisa tyltu ar vysskaistuokom
+pučem pasaulī. Reitā vēzs otkon aizčāpuoj pa tyltu uz kēneņa pili, īīt pi
+kēneņa meitas un vaicoj, voi jau īšūt.</p>
+
+<p align="JUSTIFY">"Īšu!" atsoka kēneņa meita.</p>
+
+<p align="JUSTIFY">Sataisa kuozas, aizbrauc uz baznīcu un sasalauloj. Dzar vīsi kuozas
+labi ilgi. Mičuojūt vēzs nikai navar dasnēgt kēneņa meitai vaiņuku nūjemt, jis nu
+muguras pa lyndrakim izruopoj uz placim un ar lāpu raun pa vīnam zīdiņam un svīž
+zemē. Nazkai pasleed vēžam kuoja, jis nūkreit uz greidas un krizdams nūlauž sev
+vīnu kuoju. Dzeivoj nyu vēzs ar kēneņa meitu, jis kotru vokoru, īdams gulēt, nūvalk
+sovu našmukū kažūciņu, pasvīž tū zam gultas, tod ir cīši škaists migu ar
+kēneņa meitu.</p>
+
+<p align="JUSTIFY">Vīnu reizi vēzs aizguoja uz jyuru meklēt sev barības voi kuo tur.
+Kēneņa meita stuosta vīnai grapīnei: "Muns veirs byutu cīši šmuks, ka jam
+nabejs tuo kažūka."</p>
+
+<p align="JUSTIFY">" Tu sadadzynoj jam tū kažūku," soka grapīne.</p>
+
+<p align="JUSTIFY">"Kai tad es vani sadadzynuot kažūku?" vaicoj kēneņa
+meita.</p>
+
+<p align="JUSTIFY">"Tu vakarā paber korstas ūgles zam gultas. Jis nūviļcs
+kažūciņu, pasyīss zam gultas un uz korstom ūglem un jo kažūciņš sagruzs,"
+pamuoca grapīne.</p>
+
+<p align="JUSTIFY">Kēneņa meita tai i padora, paber vokorā korstas ūgles zam gultas,
+jis nūvalk kažūku, pasvīž zam gultas un guļ. Vēzs saūž gruzduma smoku un vaicoj
+sovai sīvai: "Kas tur gryuzd?"</p>
+
+<p align="JUSTIFY">"Meitas šūdīn zūs's svylynuoja," atsaka kēneņa meita.
+Vēzs pīsaceļ, pasaver zam gultas un Tedz, ka juo kažūks; vysā sagruds. Sasadusmoj
+jis par taidu nagūdu un izaškir ar sovu sīvu. Aizīdams pasoka: "Ka tu izēssi
+ūgļu kubulu, ūtru hubulu pīrauduosi pylnu osoru, tod es otkon atsagrīzšu
+atpakaļ."</p>
+
+<p align="JUSTIFY">Vēzs aizguoja pi vīnas rogonas, sasaprecēja ar jū un dzeivuoja.
+Kēneņa meitai tyka žāl sova veira, jei pajēmja vīnu kubulu pylnu ūgļu, a ūtru
+tukšu, ād ūgles un raud, cykam pīrauduoja pylnu kubulu. Reizi rogona pīāduse guļ,
+atīt kēneņa meiia, paklusam īčyukst ausī sovam veiram, ka jei jau vysu ir
+izdarējuse, izāduse vīnu kubulu ūgļu un ūtru pīrauduojuse pylnu osoru. Vēzs jem ar
+lāpam nūžņaudz rogonu un obeji aizbāg uz mežu. Idami pa mežu aizamolda i šūdīn
+meklej, vīns ūtru saukalēdamīs.</p>
+
+
+</body></html>

@@ -1,0 +1,174 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="center"><font size="3"></font><font size="5"><strong>Ķēniņa dēls pareģis.</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">1. A. 652. L. P. Džūkstē - Pienava, LP, I, 100
+66.</font></p><font size="3">
+
+<p align="JUSTIFY">Kādam ķēniņam piedzimst dēls, bet nav neviena krusttēva. Beidzot
+ķēniņš saka: "Kas rītu manai pilij pirmais gaŗām ies, tas būs mana dēla
+krusttēvs!"</p>
+
+<p align="JUSTIFY">No rīta itin agri iet nabags pirmais gar pili un ķēniņš viņu
+uzlūdz par krusttēvu. Pēc kristībām nabags saka: "Man nav nekā krustdēlam ko
+dāvināt, tādēļ novēlēšu viņam tādu laimi: viss, ko mans krustdēls vēlās, lai
+piepildās."</p>
+
+<p align="JUSTIFY">Kad jaunais princis jau paaudzis, tad kādu dienu viņa kopēja to
+izved dārzā padzīvoties. Kamēr princis padzīvojas, kopēja atkal paguļ; bet tā bija
+prinča nelaime, šī paguļa. Kāds kupris tai brīdī nokauj cāli, apslacina ar cāļa
+asinim prinča drēbes, izģērbj viņu pliku un pašu nozog, jo viņš zinājis,
+kāda laime princim no krusttēva novēlēta. Kopēja atmožas, paķeŗ drēbītes un
+vaimanā, ka nejauks zvērs princi apēdis. Ķēniņš sadusmojas nevien uz kopēju, bet
+arī uz ķēniņieni, ka tādu vaļu kopējai atvēlējusi. Kopēju tas dusmās liek
+dārzā dzīvu aprakt un ķēniņieni jūŗā dzelzs tornī ieslēgt. Kupris nu apģērbj
+princi svešās drēbēs un izaudzina lielu. Reiz tas paņem princi un iet ar savu sievu
+pa gaŗu ceļu. Ceļš lēti nebeidzas un tādēļ kupris princim rasa: "Kas mums te
+uz ceļa priekšā nāks?"</p>
+
+<p align="JUSTIFY">"Te nāks priekšā liela naudas kule. Ar naudu nopirksim pili un
+dzīvosim vareni."</p>
+
+<p align="JUSTIFY">Tā arī notiek. Kupris nu dzīvo bez bēdām un iet katru dienu
+medīt. Bet uz medībām ejot, tas katrreiz prasa princim: "Nu, dēliņ, kā man
+šodien laimēsies?"</p>
+
+<p align="JUSTIFY">"Tēt, nevienam tā neies, jums tik laimēsies; jūs nošausit par
+visiem vairāk."</p>
+
+<p align="JUSTIFY">Kādu dienu, kamēr kupris uz medībām, kupra sieva izstāsta princim,
+kā ar viņu toreiz noticis. (Kupris sievu ļoti nelabi turējis.) Princis, to zināt
+dabūjis, otrā rītā kuprim saka: "Tēt, šodien jums mežā nemaz nelaimēsies;
+citi nošaus daudz putnu, bet jūs neviena."</p>
+
+<p align="JUSTIFY">Kupris sadusmojas uz princi. Viņš pavēl sievai viņu nokaut un uz
+pusdienu izvārīt. Sievai prinča ļoti žēl. Viņa izstāsta kupŗa pavēli, bet
+princis pasmejas un pamāca sievu kupŗa melno suni nokaut, lai pusdienā izvārītu.
+Viņš atkal būšot palīst pagultē. Sieva tā izdara. Kad kupris suņa gaļu jau ēd,
+tad princis izlien no pagultes un uzsauc: "Se pagultē! paliec tu nu par suni!"</p>
+
+<p align="JUSTIFY">Kupris tūdaļ paliek par melnu plušķi Otrā dienā princis iet tēvu
+apmeklēt un plušķis tam tek līdz. Tēvs sēž pie loga un ļoti nobēdājies; viņš
+princi nepazīst.</p>
+
+<p align="JUSTIFY">"Kāpēc tādi bēdīgi?"</p>
+
+<p align="JUSTIFY">"Jā, atpakaļ gados nikni zvēri manu dēlu saplosījuši un
+par to bēdājos."</p>
+
+<p align="JUSTIFY">"Tēt, nebēdājaties, es esmu jūsu dēla. Redzat, šis plušķis
+mani nozaga; bet viņa paša sieva man visu izstāstījusi. Plušķi, paliec par
+kupri!"</p>
+
+<p align="JUSTIFY">To teicot plušķis paliek par kupri. Ķēniņš nu izlaiž savu
+ķēniņieni no dzelzs torņa un ieliek tanī kupri. Kupris tur nu smaka, kamēr nosmaka;
+bet vecāki ar dēlu dzīvo no jauna ļoti laimīgi. Arī kupŗa sievai iet labi, jo
+dzīvo savā pilī, kā dzīvojusi.</p>
+</font>
+
+
+</body></html>

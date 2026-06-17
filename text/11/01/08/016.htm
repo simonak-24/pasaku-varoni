@@ -1,0 +1,205 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Ezera saraukšana.</strong></font></p><font size="5">
+
+</font><p align="RIGHT"><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p>16. A. 1045. 1072. 1062. 1084. 1130. J. L e o n o v i č s, K a p i ņ u p a g. P. S t
+r o d a k r.</p>
+
+<p align="JUSTIFY">Pi vīna saiminīka beja daudz zūsu. Zūsis ganēja gons. Vīnā
+dīnā gons, atdzeidams zūsis uz muojom, tuos saskaitīja, bet izzaruodījuos, ka tryuka
+divu zūsu. Ūtrā dīnā pēc saskaitēšanas arī divu zūsu tryuka. Tai tys vylkuos
+kotru dīnu. Saiminīks redzēja, ka jam byus lels zaudējums, tuopēc jis pasacēja gona
+"Par pazudušom zūsim tu maņ moksuosi tik, cik es tev likšu.</p>
+
+<p align="JUSTIFY">Gons redzēja, ka jam samoksuot par zūsim nabyus spāka, tuopēc jis
+mēginuoja kaut kai maklačēt. Natuoļ nu saiminīka muojom beja azars, kuŗu sauce par
+Valna azaru, tuopēc ka tur dzeivuoja valni. Vīnā dīnā gons saveja sev rasnu un garu
+viervi, aizguoja uz azaru apsadās azarmolā; vīnu vierves golu īlaide azarā, bet ūtru
+golu turēja rūkuos. Napaguoja stunde, kai nu azara izskrēja sanyknuots valns un dusmuos
+klīdze uz gonu puiku : "Kū tu te dori, kū tu te myusus kaitynoj?"</p>
+
+<p align="JUSTIFY">Bet puika mīreigi atbiļdēja: "Es ar šū viervi volkuošu nu
+azara valnus un tūs mūceišu."</p>
+
+<p align="JUSTIFY">"Nu, nu, pamēginoj tu man tikai, tod es tevi nu šuos pasauļes
+nūslaucēšu un tymā pasaulē arī nadūšu dzeivuot." klīdze valns uz puiku.</p>
+
+<p align="JUSTIFY">"Pasavērsimēs, kas kū nūslaucēs nu šuos zemes, voi tu mani,
+voi es tevi?"</p>
+
+<p align="JUSTIFY">"Es tevi apēsšu!" </p>
+
+<p align="JUSTIFY">"Es tevi nūžņaugšu."</p>
+
+<p align="JUSTIFY">Valnam palyka baist, jo puika pret valnu uzzastuoja ļūti drūši.
+Puika tam lyka prīškā: juo valns puikai pībērs pylnu capuri zalta, tad tys tūs
+valnus, kas atsarūn šymā azarā, naaiztiks. Bet valns atbildēja: juo puika puorspēs
+valnu skrīšonā, akmiņu svīšonā, sviļpuošonā, tod valns tam samoksuos ar zaltu,
+bet juo nā, tod puiku nūgalynuos. Puika pādūmuoja, padūmuoja un apsajēmēs. Pyrmuo
+beja skrīšonuos.</p>
+
+<p align="JUSTIFY">"Kur tu maņi panuoksi, tu munu dālu napanuoksi, kuram ir tikai
+divi godi!" teice puika.</p>
+
+<p align="JUSTIFY">"Kur ir tovs dāls?" Puika pīvede valnu pi kryuma, kurā
+sēdēja zaķis un uzklīdze: "Sau!" Te zaķis švyk! un aizīt pa kryumim -
+valns tam pakaļ. Skrēja, skrēja un atsagrīzēs atpakaļ.</p>
+
+<p align="JUSTIFY">"Nu, puis, tovs dāls lobs skrējējs, napanuoču nikai; bet tu
+laikam vēl lobuoks?"</p>
+
+<p>"Saprūtams," atbildēja puika.</p>
+
+<p align="JUSTIFY">Pēc tam nuoce akmiņu svīšona. Puika sagiva zvierbuli un īsadynuoja
+kabatā. "Es jau kai svīsšu, to jau pagaidēsi, koleidz jys nūkriss uz zemi!"
+iīlījuos vains.</p>
+
+<p>"Bet es kai svīsšu, to i nasagaidēsi."</p>
+
+<p align="JUSTIFY">Valns, kai svīde, ka nūvurgžgēja vīn. Gaidēja, gaidēja, tūmār
+sagaidēja, ka akmins nūkrita uz zemi. Gons pacēle rūku "Jurkš!" un nav.
+Gaidēja, gaidēja - nasagaidēja. Zvierbulis aizskrēja un naatsagrīzēs atpakaļ. Gons
+uzvarēja valnu. Tagad nuoce svilpuošona.</p>
+
+<p align="JUSTIFY">Te valns dūmoj : "Tagad nu es uzvarēšu, jis jau laikam namuok
+sviļpuot, kai es."</p>
+
+<p align="JUSTIFY">Jis soka: "Ka es sviļpuošu, tod jau lopas biers nu kūkim."
+</p>
+
+<p align="JUSTIFY">Puika soka: "Bet es tai varu sviļpuot, ka tev golva
+apreibs!"</p>
+
+<p align="JUSTIFY">Valns kai sviļpuoja, tai iopas nūbyra nu kūkim un puikai golva suoka
+grīztīs riņķu riņķūs.</p>
+
+<p align="JUSTIFY">Puika soka: "Tu tikai aizsīn acis, kai es sviļpuošu, cytaidi
+tev acis izskrīs nu pīres!"</p>
+
+<p>"Labi, labi," atbildēja valns. Jis jau stuov ar aizsītom acim un galda, kod
+tys svelps.</p>
+
+<p>Ganos pajēme lelu vāzu un kal lyka ar vāzu par golvu vainam, ka tys nūkrita uz
+zemi, kai kyulis.</p>
+
+<p>"Tu vēl lobuok," teice valns caldamīs.</p>
+
+<p align="JUSTIFY">Nu gons beja uzvarējis valnu vysur; atlyka tikai valnam nest zaltu un
+pībērt puikai pylnu capuri. Valns aizskrēja uz elni pēc zalta, bet puika pajēme,
+izroka bedri tyvu pi akmiņa, puorplēse sev capuri un gaida. Valns nas zaltu. - Ber, ber
+- napīteik. Aizīt ūtru un trešu reizi pēc zalta uz elņi.</p>
+
+<p align="JUSTIFY">Golu golā tūmār pītyka gonam: "Nu tagad vari otkon īt uz
+azaru un tur mitētīs mīreigi," sacēja puika valnam.</p>
+
+<p align="JUSTIFY">Puika tagad suoka dzeivuot daudz boguotuok, kai juo saiminīks.</p>
+</font>
+
+
+</body></html>

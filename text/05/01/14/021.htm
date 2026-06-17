@@ -1,0 +1,187 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>21</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Abi dzīvē un nāvē savienotie draugi.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">21. A. 470. 840. K. Mačulāns no J. Poriņa Lašu pag. Zvirbuļos. LP,
+VII, I, 1212 (l).</p>
+
+<p align="JUSTIFY">Sija vienam lielkungam aplam sīkstule sieva. Pats lielskungs atkal
+bijis tik devīgs, ka nevienu azaidu bez ciemiņiem nemēdza paēst. Reiz gadījās
+ēdamā laikā, ka nebija neviena sveša cilvēka pie galda. Tad lielkungs izgāja laukā
+lūkoties, vai nenāks kāds pa ceļu. Ja, ieraudzīja nabagu. Atnāk nabags tuvāki,
+lūdzas dāvanas. Lielskungs jau grib teikt: "Nāc pie manis azaidā'"</p>
+
+<p align="JUSTIFY">Bet sīkstā cienmāte jau pasteigusies turpat dārza malā sīpolu
+izraut, iegrūzdama lūdzējam, lai tikai nu ietu projām. Lūdzējs patencināja par
+sīpolu un jau pagriezās aiziet; bet nu labsirdīgais lielskungs tam aizstājās ceļā:
+lai nākot azaidu iebaudīt! Labi. Paēda azaidu, nabags saka: "Cienīgs lielskungs!
+vai jūs nebūtu tik laipni arī pie manis kādreiz azaidu ēst?"</p>
+
+<p align="JUSTIFY">Šis atteic: "Labprāt, kādēļ ne? Bet kur jūs, vecais,
+dzīvojat?"</p>
+
+<p align="JUSTIFY">"Par to nebēdājiet, par ceļu, es atsūtīšu savu zirgu jūsu
+durvju priekšā, sēžaties tikai tam mugurā, tas jūs uz manu iedzīvi aiznesīs. Tikai
+jādami nebīstaties! Zirgs nesīs lielā ātrumā pār upēm, ezeriem, kalnu kalniem,
+leju lejām - aujiet tam pilnīgu vaļu."</p>
+
+<p align="JUSTIFY">Pēc pāris gadiem, kad sīkstā lielmāte bija mirusi, piesolītais
+zirgs vienu dienu gadījās durvju priekšā. Lielskungs sēdās mugurā un zirgs zibeņa
+ātrumā devās pār upēm, ezeriem uz jaukiem, jaukiem kalniem. Kalnos zirgs drusku
+skrēja lēnāk un lielkungam iekrita acīs pelēki akmeņi: tie gulēja viens otram
+sānos un zelta ābolītis lēca te uz vienu akmeni, te uz otru. Pajāja atkal gabalu --
+gulēja otrēji akmeņi viens otram sānos, bet akmeņiem vidū gulēja melna čūska,
+galvu piedurdama te pie viena, te pie otra akmeņa. Pajāja vēl gabalu, ieraudzīja lielu
+pulku avju mierīgi ēdam bezzāļu pļavā; bet pa gabalam bija cits avju pulks, tās
+lielā zālē izceltām galvām brēca pēc ēdamā. Pajāja atkal gabalu, gadījās
+augsts kalns un kalnā skaista pils. Pils pagalmā zirgs apstājās, durvīs pazīstamais
+nabags jau gaidīja lielkungu. Ieveda lielkungu iekšā, te viss tik krāšņs, tik lepns,
+vēl bagāts azaids gaidīt gaida. Ēda abi tērzēdami, beidzot lielskungs apvaicāsies
+par ceļā pieredzējumiem: par akmeņiem un aitām. Nabags atsaka: "Tie divi
+pelēkie akmeņi ar zelta ābolīti nozīmē divi laulātus draugus, kas saticībā kopā
+dzīvojuši; tie otrēji akmeņi ir divi nesaticīgi laulātie un velns -- melnā čūska
+-- ir ienaidības, nesaticības kurinātājs viņu starpā. Tas aitu pulks. ko redzēji
+bez zāļu pļavā mierīgi ēdam, ir tie cilvēki, kas mierā ar to mantu, cik viņiem
+piešķirts. Turpretim tas aitu pulks, kas lielā zālē brēktin brēca, ir tie, kam
+mantas diezgan un tomēr vēl saraust tie būtu Vēlējušies vai visu pasauli."</p>
+
+<p align="JUSTIFY">Kad abi bija paēduši, tad nabags iedeva lielkungam pils istabu
+atslēgas, teikdams: "Ej pa visām istabām aplūkot jaukumus; tikai viena istaba
+būs aizsieta ar vaigu, tur iekšā neskaties!"</p>
+
+<p align="JUSTIFY">Lielskungs, aplūkojis jaukās istabas, piegāja arī pie aizliegtām
+durvim un palūkojās drusku iekšā. Bet tur bija izbailes ko redzēt: liels katls
+vārījās uz ugunskura pilns cilvēku un starp tiem bija arī viņa lielmāte. Nu
+lielskungs palika bēdīgs: viens ir tas, ka aizlietā istabā skatījies, otrs, ka savu
+nelaiķa sievu katlā redzējis - tas, lūk, viņu aplam bēdināja. Bet viņš sadomāja
+visu izteikt nabagam - vai nebūtu tur kautkā līdzams? Nabags atteica: "Tevis dēļ
+atvēlēšu arī tev savu sievu glābt."</p>
+
+<p align="JUSTIFY">Viņš pasniedza lielkungam to sīpolu, ko lielmāte todien dārza
+malā nabagam par dāvanu bija atmetusi, - lai velkot ar sīpola lakstu no katla sīkstuli
+ārā! Lielskungs pasteidzās pie katla, iemērca sīpola lakstu cilvēku virumā un
+aicināja sievu, lai aizķeroties aiz laksta, vilkšot ārā. Sieva saķēra lakstu un
+šis nu velk. Bet citi katlinieki sāka ķerties tai aiz kājām, lai arī izkļūtu
+laukā; šī turpretim, skaudīga būdama, kratīja tos nost. Par nelaimi pakratīja par
+stipru, laksts trūka un sieva atkrita katlā atpakaļ. Tad nabags sacīja uz lielkungu:
+"Redzi, cik tava sieva skaudīga. Viņai bija žēl, ka citi viņas labad izglābsies
+no katla, tagad tai pašai jāpaliek visu laiku tur. Bet nu izmeklējies pa pili arī sev
+vienu istabu, jo drīzumā ir tu atnāksi šeit dzīvot."</p>
+
+<p align="JUSTIFY">Lielskungs izmeklēja sev vienu istabu skaistu jo skaistu un tad sāka
+domāt uz māju pusi doties, jo viņam izlikās, ka dienas trīs te jau sabijis. Nabags
+uzsēdināja savu viesi tai pašā zirgā un zibiņa ātrumā mans lielskungs pārskrēja
+pie savas muižas durvim. Bet brīnumi, tavi brīnumi! muižā viss pārvērties: citi
+audis, citi laiki, neviens viņa nepazīst. Nu tikai lielskungs atjēdzas, ka pulka pulka
+gadu sabijis pie nabaga un, ka viņam sen jau mirstamais laiks pāri, nu tikai katru
+brīdi jāsteidz mirt nost.</p>
+
+
+</body></html>

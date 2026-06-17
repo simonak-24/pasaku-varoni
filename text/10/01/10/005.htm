@@ -1,0 +1,215 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>1001005</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Kas apēdis sieru?</font><font size="4"></font></p><font size="4">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">5.<b> </b>A. 785. V. Baranovskis Latgalē.</font></p><font size="3">
+
+<p align="JUSTIFY">Dzeivuoja vīns pavisam nabogs žeids un sadūmuoja īt ubogūs. Īdams
+jis pīdzeivuoja daudzi monta. Pi juo dzeivuoja vīns nabogs katuols un tys, gribādams
+montu nu žeida izmuonīt, soka: "Vajag izpirinuot taidu kumeļi, kur ryukuotu pa
+gaisu."</p>
+
+<p align="JUSTIFY">Nu žeids lyudz tū nabogu, kai var izpirinuot taidu kumeļi. Jo
+pastuostēšūt, tūlaik šis atdūšūt visu muontu, kaids tik pi šuo tagad ir. Tys
+stuosta, ka vajagūt pūdiņu palnu pīgruobt un uz tīm ceļā molā sēdēt, tūlaik nu
+palnu izzaperēs kumeliņš. Tai žeids padora, pajam pūdiņu palnu un atsasāst ceļa
+molā un sād. Nu īt vīns ceļinīks, un nu juo izzatryuka začs. Bet žeids dūmuoja,
+ka nu juo palnim izskrēja zyrgs. Un jis tryucīs skrēja pakaļ začam, bet uotri pīkusa
+un tualuok naskrēja. Tai jis īdams satika vacu vecīti.</p>
+
+<p align="JUSTIFY">Vecīts soka uz žeida: "Vai tu ļičēt [ārstēt] muoki?"</p>
+
+<p align="JUSTIFY">Žeids soka: "Muoku".</p>
+
+<blockquote>
+  <p align="JUSTIFY">"A zuoles turi?" </p>
+  <p align="JUSTIFY">"Naturu," atbild žeids. "A tu turi?" soka žeida.</p>
+  <p>"Naturu," bet vēļuok soka, "turu."</p>
+  <p>"Nu ka turi, tūlaik īsim mes ļičētu ļaudis."</p>
+</blockquote>
+
+<p align="JUSTIFY">Tai jī obi sarunuoja un aizguoja. Īdami pa ceļu, vaicoj vīnam
+cylvākam: "Voi tu nazini, kas ir slyms?"</p>
+
+<blockquote>
+  <p>Tys atsoka: "Myusu kēniņa meita ir slyma."</p>
+</blockquote>
+
+<p>Nu jis jūs nūvad uz kēniņa meitu; kēniņš jūs sajam ar visleluokū prīcu.
+Pīguojuši pi ķēniņa meitas, vecītis soka: "Nu, celīs!" </p>
+
+<p>Tei pīzacēļa, tūlaik soka: "Nu, staigoj!".</p>
+
+<p>Tei suoka staiguot. Kēniņš soka: "Nu jyusim vajag moksas." Vecītis soka:
+"Navajag nikaidas moksas, mes staiguojam par velti!"</p>
+
+<p align="JUSTIFY">Tai jūs padzirdēja un pabaruoja, un tai jī guoja tuoiuok. Vecīts
+soka uz žeida: "Tu moksas naprasi, un jo tu praseitu, tūlaik mes navarim nivīna
+vairs ļičeit."</p>
+
+<p>Jī guoja, guoja ļūti tuoļi un īdami sateik vīnu ceļinīku. Tys ceļinīks
+vaicoj: "Voi jyus naasat tī doktori, kuŗi ļičej ļaudis?" </p>
+
+<p>"Nu, mes asam," sacīja ceļinīki.</p>
+
+<p align="JUSTIFY">"Jo jyus taidi doktori, tūlaik īsim uz munu kēneņi; jam ir
+vīna meita slyma."</p>
+
+<p align="JUSTIFY">Tai jī aizguoja, bet tī jau beja kēniņam meita nūmyruse. Vecīts
+soka: "Mes varam jū vēļ izļičēt."</p>
+
+<blockquote>
+  <p>Vecīts pīguojis soka: "Celīs, meita!"</p>
+  <p>Tei pīsacēļa, tūlaik soka: "Meita, staigoj!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Nu tei palīk vasala un staigoj. Kēniņš vaicoj: "Voā vajag
+moksas?" Vecīts atbild: "Navajag."</p>
+
+<p align="JUSTIFY">Žeids gon gribēja jimt, nu kai tys vecs najam, jam nikuo navar
+dareit, navar prasīt moksas. Vecīts soka: "Īdūsit myusim uz ceļa trejus
+sīrus."</p>
+
+<p align="JUSTIFY">Kēniņš ar prīku ideva trejua sīrus. Vecīts tūs sīrus atdeva
+žeidam, lai tūs sarguotu. "Jo kas apāstu tū snru, tūlaik mes labi navarātu
+ļičēt citus cylvākus."</p>
+
+<p align="JUSTIFY">Tai jī guoja tuoļuok, atsagula pi vīna kalniņa un tur puorgulēja
+nakti. Reitā vecīts īdevja luopstu žeidam un soka, lai rūk tū kalniņu. Tys izroka
+tū kalniņu, tī beja vara naudas katliņš. Nu jī guoja tuoļuok un vecīts pasoka jam
+nest leidza tū katliņu, luopstu un sīrus. Daguoja pī ūtra kalniņa, vecīts soka:
+"Atdūd šur man sīrus!"</p>
+
+<p align="JUSTIFY">Tys gon nagrib dūt, jo jis vīnu apēdis. Nu navar nikur 1eist, vajag
+dūt. Tai jis atdeva sīrus. Vecīts soka: "Kur tu vīnu sīru liki?"</p>
+
+<blockquote>
+  <p>Žeids soka: "Es nazinu."</p>
+  <p align="JUSTIFY">"Kai tu nazini? Tu apēdi!" Žeids soka:</p>
+  <p align="JUSTIFY">"Nudī, es naēžu!"</p>
+  <p>Tai vecīts soka žeidam: ,;Nu, rūc šeit."</p>
+</blockquote>
+
+<p align="JUSTIFY">Tys izrūk sudobra naudas kotliņu. Vecīts tam līk, lai nas leidza.
+Žeids nas daudzi lītu tagad: divi sīri, luopstu, katliņu vara naudas, katliņu sudobra
+naudas. Žeids tikkū varēja kusteitīs. Nu jī pīguoja vēl pi vīna kalniņa, vecīts
+soka: "Rūc te!"</p>
+
+<p align="JUSTIFY">Žeids rūk un izrūk katliņu zalta naudas. Žeids tagad palīk tik
+prīceigs, nazinuoja, kū darīt. Vecīts soka: "Jo tu pascēsi, kur tu liki tū
+sīru, tūlaik es tev atdūšu zalta naudas katliņu."</p>
+
+<p align="JUSTIFY">Žeids soka: "Nu, bruolīt, es apēžu tū sīru: man gribējās
+ēst."</p>
+
+<p align="JUSTIFY">Vecītis soka : "Nu redzi, ka pi tevis nav taisnības. Kab tu
+naapēds sīra, tūlaik varātu ļičēt ļaudis; a ka apēdi ta navar."</p>
+</font>
+
+
+</body></html>

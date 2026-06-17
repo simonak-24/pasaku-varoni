@@ -1,0 +1,165 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="center">Ellē un debesīs.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">5. V. Zacharska no 100 gadu veca M. Suša Makašānu pag.</p>
+
+<p align="JUSTIFY">Senejūs laikūs dzeivuoja šai pasaulī vīns zemnīks bez sīvas un
+dzeivuoja jis lahi un boguoti. Vīnu reizi jis sadūmuoja pamest vysu sovu saimnīceibu un
+zemi a braukt vai īt, kur ac's veras. Zemnīkam itam beja vuords Mikels. Tai Mikels
+izguoja nu sovys sātys un suoka celuot. Guoja jis guoja un tyka taišņi debesīs pi
+paša Dīva. Tā pi Dīva debesīs Mikels dzeivuoja cīši labi, Dīv s jū mīļuoja un
+žāluoja. Debesīs ar' taipat dzeivuoja daudz ļauža, vēļ vairuok kai šai pasaulī.
+Tī ļauds beja vysaidi natikļi, kuri naklausēja paša Dīva.</p>
+
+<p align="JUSTIFY">Vīnu reizi Dīvam cīši napatyka, ka dabasūs juo ļauds ni cik
+naklausa, jis pascēja Mikeļam izslauceit ustobu. Mikels arī suoka slauceit --
+slaucēja, slaucēja treis dīnas un treis naktis un golu golā izslaucēja vysu Dīva
+ustobu, bet pats cīši pīkusa. Atīt pats Dīvs un vaicoj Mikeļam: "Nu, Mikels,
+izslaucēji vysu ustobu teiri?"</p>
+
+<p align="JUSTIFY">Mikels jau atbildēia : "Žēleigs Dīvs, vysu ustobu islaucēju
+teiri teiri!"</p>
+
+<p align="JUSTIFY">"Labi!" pascēja Divs uz Mikeli, "tu vīns esi rikteigs
+un miļs cylvāks. Tu, kur treis dīnys un treis naktis slaucēji munu ustobu, tod tu
+izslaucēji vysus tūs ļauds, kuri beja lelys natikļi. Tagan dabasūs nav taidu ļaužu,
+jī vysi tagan alnī dag."</p>
+
+<p align="JUSTIFY">Ļauds, kuŗi beja izslauceiti nu dabasu, tvka alnī un dzeivuoja</p>
+
+<p align="JUSTIFY">ar vaļnim. Šai pasaulī dzeivuoja ari vīns gudrinīks, kurijis beja
+taids gudrs, ka jū nikai navarēja apgudreit pats lelyjs Lucypers, kurs sēdēja uz
+augsta krāsla un devja sovim vainim vysaidas pavēles. Vīnu reizi Dīvs tai padarīja,
+kab itys gudrinīks tyktu alnī pi valnu. Kai Dīvs gribēja, tai ari padarēja. Nūīt
+gudrinīks uz alni, Lucypers īraudzēja jū un nu reizis palyka cīši prīceigs.
+Lucypers -gribēja jū ībuozt lelā kotlā, bet<b> </b>gudrinīks alnī ar beja gudrs.</p>
+
+<p align="JUSTIFY">"Vasals!" runoj gudriniks uz Lucyperu, "es atguoju pi
+jums alnī un paleidzeišu jyusim, kai sagyut pati Dīvu un pasādynuot ytymā
+alnī."</p>
+
+<p align="JUSTIFY">Lucypers palyka prīceigs un dūmuoja, ka itys gudrinīks dūs jam
+sovys gudreibys un pasādynuos pati Dīvu pi juo alnī. Tai gudrinīks dzeivoj alnī godu
+treisdesmit un dūmoj, kū dareit, kat sagyut Dīvu. Ar valnu spāku gudrinīks sataisēja
+dzelža byuri un pascēja patim Lucyperam, lai jis īlein itymā byurī un apzaveras, vai
+jis styprs vai na: Dīvs jau ir stypruoks kai visi valni alnī. Gudrinīks pascēja
+Lucyperam: "Ka tu navareisi izleist, tad Dīvs ar' navareis izleist."</p>
+
+<p align="JUSTIFY">Lucypers īleida tymā buyrī, a gudrinīks jū aizsleidzja ar lelu
+atslāgu. Tai nu tuos dīnys tys lels Lucypers tagan sēd tymā byurī, a Dīvs kai beja
+dabasūs, tai ir.</p>
+
+<p align="JUSTIFY">Ļaud's, tī, kuri beja alnī, vysi pēc ituos pokutys [grēku
+nožēlošanas] nūguoja uz dabasim. Nu tuo laika vairuok lobi ļaud's naīt uz alni, a
+taišņi uz dabasu valsteibu.</p>
+
+
+</body></html>

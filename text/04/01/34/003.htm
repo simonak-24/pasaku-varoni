@@ -1,0 +1,205 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Baltā un melnā līgava. B.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A.<b> </b>403 B. M. Skrupska no vecas māmiņas Neretā. Folkloras
+krātuvē.</p>
+
+<p align="JUSTIFY">Vienai mātei bija meita un pameita, bet pameitu viņa nevarēja
+ieraudzīt ne acu galā. Bija ļoti auksta ziema ar daudz sniega, bet pamāte dzen
+pameitu, lai ejot ogu palasīt. Viņa domā: "Gan jau viņa nosals." Iedod vēl
+vienu riecinīti maizes un grozu, lai nu ejot.</p>
+
+<p align="JUSTIFY">Pameita iet un iet, bet no ogām nekā. Kur nu ziemu dabūsi ogu? Viņa
+iet tik mežā dziļāk, te viņa uziet vienu mājiņu, stāv un brīnās. iznāk vecs,
+vecs vecītis ar sirmu bārdu un prasa: "Ko tu, meitiņ, gribi?"</p>
+
+<p align="JUSTIFY">"Mīļo vectētiņ, vai tu nevari man pateikt, kur es lai ogas
+dabūju. Pamāte mani izdzina ogu meklēt. Ar tukšu grozu es nedrīkstu mājā
+rādīties."</p>
+
+<p align="JUSTIFY">Vecītis atbild: "Kur tad lai ziemu ogas dabūn? Bet nāc
+papriekšu sasildies, tu jau esi pārsalusi."</p>
+
+<p align="JUSTIFY">Pameita ieiet, vecītis padod beņķīti pie krāsns. Viņai. iegribās
+ēst un atceras pamātes doto maizi, izņem no groziņa un sāk ēst. Vecītis ierauga un
+prasa, lai šim arī iedodot. Pameita tūlin paņem, pārlauž uz pusēm un iedod. Kad
+bija apēduši, tad vecītis teica: "Tagad, meitiņ, paņem slotu, izej ārā un
+atslauki sniegu, tad varbūt dabūsi ogas."</p>
+
+<p align="JUSTIFY">Pameita paņem slotu, atslauka un pielasa pilnu groziņu ar ogām. Tad
+pateicas vecītim un taisās iet, bet vecītis vēlē viņai laimi un teic: "Ja tu
+runāsi, tad lai zelts birst no tavas mutes, un ja tu smiesies, tad lai dimants
+birst!"</p>
+
+<p align="JUSTIFY">Pameita pārnāk mājā ar ogām, un kā viņa runā, tā zelts birst
+no mutes, kā smej, tā dimants. Pamāte sūta arī savu meitu, lai viņa meklē sev tādu
+pašu laimi. Meita arī iet, uziet to pašu mājiņu un paliek pie vārtiem stāvot.
+Iznāk vecītis un prasa, ko šī vēloties? Šī atbild, ka ogas meklējot. Vecītis
+teic: "Kur tad ziemā lai ogas dabūn? Bet papriekšu ienāc iekšā
+apsildīties."'</p>
+
+<p align="JUSTIFY">Meita ieskrien iekšā, paķeŗ pati beņķīti, apsēžas, izņem
+divus rikus maizes un ēd. Vecītis lūdz, lai šim arī iedodat. Meita atbild : "Man
+pašai netiks, ko tad lai tev dodu?"</p>
+
+<p align="JUSTIFY">Kā meita bija paēdusi, vecītis saka: "Paņem slotu, izej ārā,
+atslauki sniegu, tur tu varbūt ogas dabūsi."</p>
+
+<p align="JUSTIFY">Meita paķeŗ slotu, izskrien, atslauka sniegu un piegrābj pilna grozu
+ogu. Vecītis pavada viņu līdz vārtiem un vēlē laimi: "Kad tu runāsi, tad lai
+tev vardes krīt no mutes un kad tu smiesies, tad lai krīt ķirzaki!"</p>
+
+<p align="JUSTIFY">Nu pārnāk īstā meita mājā. Kad viņa runā, tad krīt vardes, kad
+viņa smejas, tad ķirzaki.</p>
+
+<p align="JUSTIFY">Reiz gadās jāt ķēniņa dēlam garām. Tas ierauga tur tik skaistu
+meitu, kad tā runā --- zelts birst zemē. Tūlin viņš ņem to uz savu pili un nodzer
+kāzas.</p>
+
+<p align="JUSTIFY">Pamātei nu grauž sirdi kā tārps, ka viņa tik varētu savu meitu
+ielikt laimīgās pameitas vietā.</p>
+
+<p align="JUSTIFY">Ķēniņienei piedzimst puisītis. Pamāte nu aiziet uz pili,
+piedāvājas par kopēju un tiek arī pieņemta. Ķēniņam mājā neesot, viņa paņem
+slimo ķēniņieni, aiznes uz ezeru un iesviež ūdenī. Ķēniņiene tomēr nenoslīkst
+vis ezerā, bet pārvēršas par pīlīti.</p>
+
+<p align="JUSTIFY">Nu pamāte atved savu meitu, ieliek gultā, pieliek bērnu klāt un
+apvelk priekškarus visapkārt ap gultu. Pārnāk ķēniņš un dzird: bērns tik dikti
+raud. Ies skatīties - pieiet pie gultas, bet nobīstas. Viņa .skaistā sieva palikusi
+melna kā zeme! Kad tā runā, tad vardes krīt, kur viņa sievai zelts bira. Bet pamāte
+ņem iestāsta - tas viss no liela karstuma. Ķēniņš nekā auna arī nedomā.</p>
+
+<p align="JUSTIFY">Otrā rītā, ganiem ganot, izpeld maza pīlīte un vaicā: "Ko
+dara mans bērns, ko dara ķēniņš?"</p>
+
+<p align="JUSTIFY">Gani atbild: "Ķēniņš staigā bēdīgs, un bērns brēc caurām
+naktim."</p>
+
+<p align="JUSTIFY">Otru rītu arī tāpat izprasījusi, bet trešo rītu atkal
+izpeldējusi un teikusi: "Rītu nāks mežsargs un mani nošaus. Ja būtu viens, kas
+mani saķeŗ, tad es pārvērstas par cilvēku. Rītu vēl atnākšu, tad vairāk
+nevīkšu."</p>
+
+<p align="JUSTIFY">Nu ganiem paliek pīlītes žēl, iet pie ķēniņa un izstāsta visu
+dzirdēto un redzēto. Ķēniņš otrā rītā aiziet uz to vietu, kur pīlīte izpeldot,
+un noslēpoties aiz krūmiņiem. Kā tik pīlīte izpeld, tā ķēniņš to saķer un
+stipri satura. Nu pīlīte pārvēršas par viņa sievu. Sieva ņem izstāsta visu_
+patiesību, ko pamāte ar viņas izdarījusi.</p>
+
+<p align="JUSTIFY">Ķēniņš iet uz pili, paņem divas mucas, ar naglām sadzītas,
+vienā ieliek pamāti, otrā meitu un laiž tās no augsta kalna lejā. Abas ļaundares
+izlaiž savas melnās dvēseles.</p>
+
+<p align="JUSTIFY">Bet ķēniņš ar ķēniņieni nu dzīvoja laimīgi.</p>
+
+
+</body></html>

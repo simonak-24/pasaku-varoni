@@ -1,0 +1,219 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Divējādas līgavas. </p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. Lapas Mārtiņš Rūjienā. "Pasakas un nostāsti" 1902,
+21. </p>
+
+<p align="JUSTIFY">Viens jauns saimnieks bija apprecējis jaunu sievu, čaklu, krietnu un
+strādīgu kalponi, un ar to dzīvojis laimīgi, cik laimīgi dzimtļaudis viņos
+grūtajos laikos varēja būt. Bet viņu laimi kaimiņu saimniece apskaudusi, kas bija
+ļoti vēlējusies, lai kaimiņš apprecētu viņas meitu. Bet tā bijusi slinka,
+ķildīga un nespodra, un šādu nelabu īpašību dēļ jaunais saimnieks bija to atmetis
+un bildinājis kalponi. Kaimiņiene par to apņēmusies jaunajam, laimīgajam pāram
+atriebties. Viņa nu jaunajiem kaimiņiem izlikusies par draudzeni un devusi jaunai
+saimniecei dažādus padomus, sevišķi kas nākošai mātei der zināt.</p>
+
+<p align="JUSTIFY">Kad jaunā saimniece nākusi nedēļās, tad kaimiņiete tai jau laikus
+atvedusi un ieteikusi vecmāti, kas bijusi veca vecene, bez zobiem, nelaipnām acim, gaŗu
+līku degunu un tievu, gaŗu zodu, pie kuŗa bijis mazs matu kušķis. Ne saimniekam, nedz
+jaunajai saimniecei šī vecene nepatikusi, bet tomēr viņi to pieņēmuši par palīgu
+grūtajā stundā, lai neaizkaitinātu savu kaimiņieni.</p>
+
+<p align="JUSTIFY">Kad pienākusi grūtā stunda, vecmāte apkopusi slimnieci,
+noguldījusi viņas bērniņu tai blakus, pamudinājusi saimnieku, lai tik ejot gulēt, jo
+vis esot labi izdevies. Viņa pie slimnieces palikšot nomodā un to apkalpošot.</p>
+
+<p align="JUSTIFY">Saimnieks arī paklausījis.</p>
+
+<p align="JUSTIFY">Kad saimnieks otrā rītā agri pamodies un steidzies apraudzīt
+slimnieci, tad atradis vecmāti pie gultas sēžot un cietā miegā dikti krācot; bet
+gulta bijusi gluži tukša, bez slimnieces un bez bērniņa. Saimnieks izbijies un veceni
+stipri purinādams pamodinājis.</p>
+
+<p align="JUSTIFY">Kur slimniece un mans bērns palikuši?" viņš tai bargi uz"</p>
+
+<p align="JUSTIFY">saucis: "Slimniece ar bērnu guļ gultā," vecene
+žāvādamies atbildējusi: "Gulta ir tukša!" saimnieks tai uzsaucis:</p>
+
+<p align="JUSTIFY">"Tukša?" vecene atkal atkārtojusi un tad paskatījusies uz </p>
+
+<p align="JUSTIFY">gultu. ,,Patiesi tukša! Vai manu dieni ! Kā tas noticis?</p>
+
+<p align="JUSTIFY">"Tev jāzina, kur palikuši mana sieva un bērns!" saimnieks
+tai no jauna uzbrucis.</p>
+
+<p align="JUSTIFY">"Ja, saimniek, tas ir tiesa," vecene atbildējusi: "Es
+viņus arī rūpīgi uzraudzīju. Uz rīta pusi, kad māte un bērniņš mierīgi gulēja,
+arī man miegs ar varu uzlauzās. Tagad redzu, ka māte un bērniņš ir pazuduši."</p>
+
+<p align="JUSTIFY">Pārmeklējuši visu māju, visas ēkas, bet no saimnieces un bērniņa
+neatraduši ne pēdas.</p>
+
+<p align="JUSTIFY">Saimnieks par to bijis ļoti izmisis, bet vecmāte klusi aizgājusi.
+Nelaimīgais vīrs nu palicis viens pats mājā.</p>
+
+<p align="JUSTIFY">Kaimiņiene bieži atnākusi ar viņu un viņa māti parunāties, un
+katru reizi mēģinājusi jauno saimnieku pierunāt, lai tas rauga aizmirst savas bēdas,
+un lai izvēloties, sev jaunu mūža biedreni. Tā viņa runājusi savas meitas labā.</p>
+
+<p align="JUSTIFY">Saimnieks tik atbildējis: ,,Es vēl vienmēr ticu, ka savu zudušo
+sieviņu un savu bērniņu atdabūšu, un ja Dievs man palīdzēs to panākt, tad viņš
+sodīs tos, kas man šo ļaunumu padarījuši."</p>
+
+<p align="JUSTIFY">No tās reizes kaimiņiene vairs nekad neatnākusi un sargājusies
+sastapties ar, jauno saimnieku, kas tam bijis tikai pa prātam.</p>
+
+<p align="JUSTIFY">Reiz vasarā saimnieks kādā miglainā rītā viens pats savā pļavā
+pļāvis sienu, jo viņa kalps un kalpone bijuši muižas gaitās. Kad saimnieks apsēdies
+iebaudīt brokastu, rupju pelavu maizi un sālītas reņģes, tad gaiss izskatījies kā
+dūmu pilns, tā ka nebijis iespējams ne cik tālu redzēt. Uzreiz viņš redzējis, ka
+tuvējie krūmi pakustas un no tiem kautkas izlien un tuvojas viņam. Vispirms viņš
+domājis, ka tas ir kāds suns, bet drīz vien pazinis, ka nācējs ir vilks jeb vilka
+māte, tādēļ ka tai mazs vilcēns nācis pakaļ.</p>
+
+<p align="JUSTIFY">Pļāvējam īsti tuvu pienākusi; vilka māte attupusies viņam
+iepretī, ar ķetnu paglaudījusi vilcēnu un tad skumīgām acim viņu uzskatījusi.
+Saimnieks ātri piecēlies, paķēris izkapti un ar to vilka māti aiztriecis. Gabaliņu
+aizskrējusi, vilka māte vēlreiz skumīgi paskatījusies uz saimnieku un tad ar savu
+vilcēnu ietecējusi krūmos.</p>
+
+<p align="JUSTIFY">Pusdienā putru strebjot, viņš atkal ieraudzījis vilka māti ar
+vilcēnu. Tā viņa tuvumā tupējusi uz kāda akmeņa un zīdinājusi savu bērnu. Viņš
+redzējis, ka tai pat asaras birst no acim, gluži kā cilvēkam žēli raudot.</p>
+
+<p align="JUSTIFY">Viņš no savas pusdienas maizes nolauzis kādu kumosu un aizmetis to
+vilcenei, tā to ātri saķērusi zobos, kādu drumstalu iebāzusi vilcēnam žaunās un
+tad pati ātri noēdusi lielāko kumosa daļu.</p>
+
+<p align="JUSTIFY">Tajā pašā acumirklī vilcene un vilcēns uzreiz izlīduši no vilku
+ādas un pārvērtušies par cilvēkiem, sievieti un mazu puisēnu.</p>
+
+<p align="JUSTIFY">"Mīļais vīriņ," sieviete teikusi, "vai tu savu sievu
+vairs nepazīsti? Paldies tev, ka tu saprati manu lūgumu un mani atsvabināji no
+burvības!"</p>
+
+<p align="JUSTIFY">Nu sieva visu izstāstījusi, ka kaimiņiene ar raganas palīdzību to
+dabūjusi pie malas, pārvērsdama par vilkatu.</p>
+
+<p align="JUSTIFY">Pēc tik daudz pārciestiem grūtumiem vīrs ar sievu dzīvojuši
+laimīgi un viņu dēls arī ar laiku izaudzis par stipru un godīgu vīru.</p>
+
+<p align="JUSTIFY">Neģēlīgā kaimiņiene tūlin pēc tam, kad bija dabūjusi zināt, ka
+par vilkaci pārvērstā jaunā saimniece tapusi atkal par cilvēku, tik ļoti
+sabaidījusies, ka aiz bailēm saslimusi un ilgi, ilgi vārgusi, līdz izlaidusi garu.
+Viņas meita palikusi neprecēta, un jo vecāka viņa tapusi,<b> </b>jo vairāk viņas
+seja dabūjusi raganas izskatu.</p>
+
+<p align="JUSTIFY">Piezīme. Šī pasaka ir saīsināta, atmetot uzrakstītāja pieliktos
+liekos sīkumus. P. Š.</p>
+
+
+</body></html>

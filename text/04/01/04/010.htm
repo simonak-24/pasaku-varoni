@@ -1,0 +1,374 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Velns maisā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">10. A. 326. 3.30 B. Ernests Birznieks, Upīts, Dzirciemā. Jkr. III, 6.
+1. p. LP, VII, I, 206. 1. p. AŠ, III, 8e.</p>
+
+<p align="JUSTIFY">Vecs zaldāts, divdesmitpieci gadi savam zemes tēvam krietni
+nokalpojis, nāca uz mājām. Visu ceļu viņš bija pie jautras dūšas. Un kādēļ arī
+nepriecāties? Rags bija, tā sakot, kā piedzīts ar šņaucamo tabaku un bez tam vēl
+kabatā trīs spoži dukāti! Vai tas viss lai nedara cilvēku jautru?</p>
+
+<p align="JUSTIFY">Pa biezu mežu ejot, viņam nāk pretī sirms ubadziņš un lūdz
+kādas dāvaniņas.</p>
+
+<p align="JUSTIFY">"Ko es tev došu jeb ko knapināšu? Še tev ir vesels dukāts.
+Man vēl pašam paliek divi." Zaldāts iedod ubadziņam dukātu ta tikpat jautā
+dūšā turpina savu ceļu.</p>
+
+<p align="JUSTIFY">Ne visai tālu gājušam, viņam tāds Pats sirms ubadziņš atkal
+priekšā un lūdz atkal dāvaniņas.</p>
+
+<p align="JUSTIFY">"Kad es kautkur ceļā būtu kavējies; tad gandrīz varētu
+domāt, ka tas ir pirmītējais ubags, kuŗš jau vienu dukātu dabūjis," zaldāts
+paklusi murmina, "bet tas jau nevar būt! Še tev ir dukāts!" viņš diktākā
+balsī saka. "Ņem tikai droši, man vēl pašam viens paliek."</p>
+
+<p align="JUSTIFY">Zaldāts iet atkal tālāk gandrīz vēl jautrāks, nekā agrāki.
+Viņš iet, iet - uzšņauc savu tabaku un iet atkal. Pēc brītiņa viņš redz: pa ceļu
+viņam kustas pretim tāds pats ubags kā divi pirmie - ar garu, baltu bārzdu, lielu
+nūju rokā. Zaldāts jau pa gabalam izņem</p>
+
+<p align="JUSTIFY">savu beidzamo dukātu un sniedz ubagam pretim : "Še, bet tas ir
+mans beidzamais. Nu tikai man vēl paliek, kā tabakas rags."</p>
+
+<p align="JUSTIFY">"Dots devējam atdodas," ubadziņš teica un deva zaldātam
+kādu ādas maisiņu, "tas tev ir par taviem trim dukātiem. Tikko tu teiksi:
+"Au mak, au mak!" tā visi tavi precinieki būs makā iekšā un <b>netiks </b>vairs
+no tā ārā, kamēr tu tos atlaidīsi."</p>
+
+<p align="JUSTIFY">Zaldāts negrib, negrib ņemt, bet iedomājas: "Ko var zināt, vai
+kādreiz tāda maišeļa arī neievajagas?" un paņem.</p>
+
+<p align="JUSTIFY">"Kad man agrāk tāds maišelis būtu bijis, tad visu ienaidnieka
+kaŗa spēku tajā būtu sabāzis; tagad vairs man nav tādu pretinieku. Bet ņemt jau
+varu, kas zin, kur cilvēkam neatgadās pretinieki."</p>
+
+<p align="JUSTIFY">Mūsu zaldāts krauj maisu pār pleciem un dodas uz priekšu. Pret
+vakaru viņš pienāk pie kāda ķēniņa pils un lūdz naktsmājas. Ķēniņš negrib dot
+: "Man pašam tādas bēdas, ka nezinu, kur tverties; un es vēl pieturēšu svešus
+cilvēkus. Tagad beidzamā stunda klāt, kur mana meita jāsūta uz veco pili un vēl
+neviens nav pieteicies par sargu, lai gan par to apsolīju pat pus valsti."</p>
+
+<p align="JUSTIFY">"Kas tur jāsargā? - Es iešu sargāt!" zaldāts tūlin
+gatavs. Ķēniņš sāk stāstīt</p>
+
+<p align="JUSTIFY">savas bēdas : "Man pienāca no velna pavēle, ka man jāved visas
+manas trīs meitas, katra pa kārtai uz veco pili, kur velns tām būšot pakaļ. Es nu
+izsolīju pus valsti un vienu no savām meitām tam, kas viņas izglābs no velna
+nagiem."</p>
+
+<p align="JUSTIFY">"Vai esi ar mieru, kad es ietu viņas sargāt?" zaldāts
+prasa. Ķēniņš par to </p>
+
+<p align="JUSTIFY">ļoti priecīgs un prasa; kādu ieroču viņam vajadzēšot?</p>
+
+<p align="JUSTIFY">Dodat man vienu vezumu sveču!" zaldāts atteic un iet uz "
+pili. Sveces viņš visas aizdedzina un saliek logos. Pusnaktī piebrauc velns ar trim
+melniem zirgiem un lielu sulaiņu baru. Pašam velnam trīs lielas, briesmīgas galvas.
+Pilī tikdaudz ugunis ieraudzījis, velns sūta savu kučieri raudzīt, kas tur esot.
+Kučieris pienāk un klauvē; bet durvis nemaz netop atdarītas. Nu šis jautā: "Kas
+tās sveces tur tikdaudz aizdedzinājis?"</p>
+
+<p align="JUSTIFY">iekšpusē balss atbild: "Vecs zaldāts!"</p>
+
+<p align="JUSTIFY">"Kad jau vecs zaldāts, tad lai šo nakti paliek," velns
+atteic un aizbrauc projām.</p>
+
+<p align="JUSTIFY">Ķēniņš to rīta nāk raudzīt, vai kāds no pils gulētājiem vēl
+ir arī dzīvs; vadzi, zaldāts nāk smiedamies viņam pretī. Velns viņam nekā neesot
+darījis, tikai nākošā naktī solījies atkal atbraukt.</p>
+
+<p align="JUSTIFY">Nākošā naktī zaldātam jāsargā ķēniņa otra meita.. Zaldāts
+jau pie laika licis atvest divi vezumus sveču un noraudzījis krietna metamo no pīlāga
+koka. Tikko pusnakts klāt, te arī velns klāt ar sešām briesmīgām galvām un sešiem
+melniem ērzeļiem. Visa pils spīd vienās ugunis. Velns suta raudzīt. kas tur esot.</p>
+
+<p align="JUSTIFY">"Vecs zaldāts!" viņš dabon atbildi.</p>
+
+<p align="JUSTIFY">"Kad vecs zaldāts, tad lai guļ., atnākšu rītā." Velns
+aizbrauc. Otrā rītā</p>
+
+<p align="JUSTIFY">ķēniņš nobijies nāk raudzīt, vai zaldāts un viņa meita vēl
+dzīvi. Abi nāk priecīgi </p>
+
+<p align="JUSTIFY">smiedamies viņam pretī. Vēl velns nekā neesot darījis, solījies
+atbraukt rīt naktī.</p>
+
+<p align="JUSTIFY">Trešā naktī zaldātam jāsargā ķēniņa jaunākā meita. Zaldāts
+liek aizvest pilī trīs vezumus sveču un tās visas vakarā aizdedzina. Pats viņš ar
+savu ādas maisiņu nostājas turpat plāna vidū ar milnu rokā. Ap pusnakti piebrauc
+velns ar deviņiem melniem ērzeļiem, pašam velnam deviņas briesmīgas galvas. Viņš
+pats tūlin dodas pilī iekšā un grib zaldātu saplēst. Bet šis tikai iesaucas:
+"Au mak!" un velns ir maisā. Ko nu vairs taupīt? Zaldāts ņēmās ar milnu
+apstrādāt maisu. Velns iesākumā nekā - tikai šņāca vien pa maisu, bet vadzi,
+vadzi, sāk šim arī drusku kutēt; niezēt. Aa! nu veckungam varbūt, niez jau kauli,
+sāks lūgties: "Biju gan dzirdējis par veciem zaldātiem, bet to necerēju vis.
+Klau, brālīt, laid mani vaļā, dalīsimies uz pusēm, ņem tu pili, es ņemšu
+princesi."</p>
+
+<p align="JUSTIFY">"Nē, brāl," tā zaldāts, "tagad tu ātrāki ārā
+netiec, kamēr nosolies visu pili piebērt ar zelta naudu un apņemies uz šo pusi vairs
+ne pagrasīties; citādi tevi miekšķēju līdz beidzamajam."</p>
+
+<p align="JUSTIFY">"Palaid tikai mani vaļā, apsolīšu visu, ko tikai gribi, palaid
+tikai, brālīti, vaļā!" velns lūdzās.</p>
+
+<p align="JUSTIFY">Zaldāts arī palaiž; bet nu velns atkal lielajā: visas deviņas
+mutes vaļā un zaldātam virsū. Šis tikko vēl pajaudā "au mak!" iesaukties,
+velns tup atkal maisā un zaldāts zolē, ko nagi nes. Beidzot tomēr viņi izlīgst tā:
+velnam jāpaliek maisā, kamēr visa pils pienesta ar naudu, bet zaldātam vairs nav brīv
+sist. Ak tu manu dieniņu, cik tur to mazo velnēnu saradās! Viss kā čum un kust, kā
+skudru pūznī. Skan pa visām malām. Nauda vairojas acim redzot. Bet vēl vecais velns
+maisā skubina, lai tikai sasteidz, lai tikai sarauj, ka vēl priekš gaiļiem var
+pienest. Mazie ņemas arī, ka kūp vien. Zaldāts nevar beigt nobrīnēties: tādi mazi
+velnēniņi stiep tādus lielus maisus! Pils būs drīzi pilna, tikai vēl trūkst, ka
+vienā stūr: -- gailis pirmo reizi nodzied. Viens no mazajiem velnēniem iečukst
+vecajam, ka ellē vairs neesot naudas. Vecais vai no ādas sprāgst ārā:
+"Steidzaties, bērni, cik drīzi vien varat, man vēl mājās pagrabā ir sešas
+mucas tēvu tēvu nauda, atstiepiet to, bet cik tikai ātri vien varat!"</p>
+
+<p align="JUSTIFY">Visi aiziet vējam līdzīgi un ir drīzi vien ar naudu atpakaļ.
+Patlaban gailis dzied otru reizi, kad velns top palaists. Acumirklī ir visi prom, lai
+vēl priekš trešās gaiļa dziedāšanas varētu būt ellē.</p>
+
+<p align="JUSTIFY">Ķēniņš bija naktī lielo troksni un naudas žvākstēšanu
+dzirdējis un bailēs svīdis, ka nupat tiekot plēsta viņa meita un vecais zaldāts. No
+rīta agri, agri viņš jau. kājās un iet uz pili raudzīt,</p>
+
+<p align="JUSTIFY">kas būs noticis. Kas spēj izteikt vecā ķēniņa priekus, kad viņš
+ieraudzīja savu meitu un zaldātu sveikus un veselus un pie tam vēl pils pilna ar naudu!</p>
+
+<p align="JUSTIFY">Tai pašā dienā svinēja lieliskas kāzas: vecais zaldāts precēja
+ķēniņa jaunāko meitu un dabūja pus valsti pūrā līdz.</p>
+
+<p align="JUSTIFY">Bet ilgi vecais zaldāts nedabūja valdīt, jau trešā dienā pēc
+kāzām viņš nomira. Pie Dieva nogājis; viņš prasa darbu. Dievs saka: "Ko tad
+vecs zaldāts var citu darīt, kā pie durvim stāvēt?"</p>
+
+<p align="JUSTIFY">Tā nu vecais zaldāts bija pie Dieva pār durvju sargu. Nāve nāk
+darbu prasīt un grib iet pie Dieva; bet zaldāts pretī: "Tevi, tādu bīstamu
+tēviņu, nevar laist iekšā. Pagaidi, es apprasīšos un tad tev pateikšu."</p>
+
+<p align="JUSTIFY">Vecais zaldāts aiziet pie Dieva un prasa, kas Nāvei nākošos trijos
+gados jādara?</p>
+
+<p align="JUSTIFY">,,Jānokauj visi vecie cilvēki!" Dievs atteic. Zaldāts atpakaļ
+nākdams domā: </p>
+
+<p align="JUSTIFY">"Ko lai dara? Kad nokaus veco ķēniņu, kas tad valdīs par viņa
+un manu pusvalsti? . . . Pag, teikšu, ka Nāvei jāgrauž vecie ozoli."</p>
+
+<p align="JUSTIFY">Kā domāja, tā darīja. Pie durvim atnācis, viņš saka: "Dievs
+teica, ka tev nākošos trijos gados vecie ozoli vien jāgraužot!" Nāve aiziet
+pavisam saskābusi un grauž visu nolikto laiku</p>
+
+<p align="JUSTIFY">vecos ozolus. Pēc trim gadiem viņa ir atkal klāt darbu prasīt. Bet
+kā nu viņa izskatās? - Vāja, nodēdējusi, kā tur nekā vairs nav. Zaldāts mudīgi
+atkal pie Dieva, ko Nāve nākošos trijos gados darīšot?</p>
+
+<p align="JUSTIFY">"Kad visi vecie apkauti, lai tad kauj vidējos, pusmūža
+cilvēkus!" Dievs atteic.</p>
+
+<p align="JUSTIFY">Zaldāts iedams domā atkal: "Kad jau nu tā teikšu. tad mana
+sieviņa, mani brāli, māsas. visi, visi ir pagalam . Nekā, teikšu, lai grauž vidējos
+ozolus."</p>
+
+<p align="JUSTIFY">Ja. Pie durvim atnācis, viņš teic Nāvei: "Nākošos trijos
+gados tev jāgrauž vidējie ozoli!"</p>
+
+<p align="JUSTIFY">Nāve aiziet pavisam saskābusi un sagrauž visu laiku vidējos ozolus.
+Pēc trim gadiem viņa nāk atkal darbu prasīt. Bet nu viņa izskatās pavisam
+briesmīga: acis ievilkušās galvas kausi līdz pusei, vaigi pavisam izzuduši, āda
+viscauri pieglaudusies kauliem, pati spēj vēl tikko mēli pakustināt, darbu prasot.
+Zaldāts sabīstas: tādu jau Nāvi nedrīkst laist Dieva priekšā, lai tur nezin kas!
+Zaldāts atkal pats prom pie Dieva: "Kas Nāvei jādara nākošos trijos gados?"</p>
+
+<p align="JUSTIFY">"Kad tas padarīts, ko teicu, tad lai apkauj manus, bērnus!"
+Dievs atteic.</p>
+
+<p align="JUSTIFY">Zaldātam tas atkal nav pa prātam: "Varbūt, ka manai jaunai
+Sievai arī atradies kāds dēls; ko viņa no bēdām darīs, kad tas nomirs? Un maniem
+brāļiem, māsām jau paties: bērnu vai cik --tak tiem visiem jāmirst. Tas neiet!"</p>
+
+<p align="JUSTIFY">Pie Nāves atnācis, viņš saka: "Dievs teica, ka tev nākošos
+trijos gados jāgrauž mazie ozoliņi."</p>
+
+<p align="JUSTIFY">Nāve ar manāmu nepatikšanu aizvilkās prom un sagrauza atkal visus
+nākošus trīs gadus jaunos ozoliņus. Pēc notecējušiem gadiem viņa ieradās atkal
+pie Dieva aiz durvim prasīt darbu. Bet nu tikai nabadzītei ir lieli zobi un kauli - pat
+āda nozudusi. Zaldāts iet viņai darbu prasīt. Dievs saka: "Kad viņa visu
+darījusi, ko teicu, tad jau nu cilvēki visi apkauti. Lai viņa nāk pati iekšā!"</p>
+
+<p align="JUSTIFY">Nu ir vecais zaldāts sprukās! Nāve ieiet, bet Dievs vairs nemaz
+nepazīst. "Kas tu tāda esi?" Dievs prasa.</p>
+
+<p align="JUSTIFY">"Esmu Nāve," Šī atbild.</p>
+
+<p align="JUSTIFY">"Nāve?" Dievs brīnas. "Kā tad tu kaulos vien pie
+manis atnāci, kur tava miesa?"</p>
+
+<p align="JUSTIFY">"Kur tad deviņus gadus ozolus graužot var celties miesa!"
+Nāve sapīkusi atbild.</p>
+
+<p align="JUSTIFY">"Kas par ozoliem?" Dievs prasa.</p>
+
+<p align="JUSTIFY">Nu tikai iznāk, kādus kručkus vecais zaldāts iztaisījis. "To
+viņam nepiedošu!" Dievs dusmīgi noteic, "par sodu viņam tagad tevi jānēsā
+trīs gadi apkārt un tev pa to laiku jāapkauj, starp citiem, visi viņa
+piederīgie!"</p>
+
+<p align="JUSTIFY">Kas nu Dievam pretim runās? Zaldāts ņem Nāvi pa kamiešiem un iet
+prom uz pasauli. Vispirms zaldātam jānes Nāve uz savām tēva mājām, kur dzīvo viņa
+brāļi un māsas ar saviem piederīgiem. Viņi tur nonāk pašā vakarā. Abi ir krietni
+nosaluši un apsēžas pie krāsns sildīties. Visi māju iedzīvotāji ir slimi pie
+miršanas, kungst vien, dažs tikko vēl dveš, cits jau svīst nāves sviedrus. Vecajam
+zaldātam tā aptekas krama dūša, ka jāuzšņūc tabaks. Viņš izvelk savu radziņu,
+piedauza to pi krāsns stūra, iebeŗ tabaku starp īkšķa dzīslēm bedrītē un karkt!
+karkt! īešpūc abās nāsīs. Vadzi, Nāve ieskatās, ka zaldāts šņāc, viņa arī
+grib, prasa zaldātam, lai dodot uzšņūkt. Vecais zaldāts nedos vīs: "Dievs man
+nav teicis, ka man tev jādod tabaku šņaukt, man tik tevi ir jānēsā."</p>
+
+<p align="JUSTIFY">"Nu, tāpat pa draugam jau vari dot. Abi ejam vienu ceļu, abi
+varam kopā sašņaukt," Nāve lūdzas.</p>
+
+<p align="JUSTIFY">Zaldāts ir arī devējs. "Bet, kur tev lai uzbeŗ?" viņš
+prasa. "Uz tavu kaulaino plaukstu jau tikai izbārsta tabaku."</p>
+
+<p align="JUSTIFY">Ilgi abi gudroja, kā Nāve vislabāki varētu dabūt tabaku. Te
+vecajam zaldātam iekrīt labs padoms prātā : "Kad tu pa durvju šķirbām un
+atslēgu caurumiem vari izsprausties, tad jau manā tabakas ragā tiksi vēl
+vieglāki."</p>
+
+<p align="JUSTIFY">Nāve tūlin gatava līst. Bet tikko Nāve ragā iekšā, te zaldāts
+kurķi priekšā un nelaiž vairs to ne par ko ārā. Gan Nāve izlūdzas ar labu, gan ar
+ļaunu, bet zaldāts ne un ne - Nāve ir un paliek iekšā. Tikko Nāve ragā, te arī
+slimnieki sāk laboties un nepaiet ilgs laiks, kad jau cits par citu sāk cilāties un
+celties augšam. Pēc īsa brīža ir visi veseli.</p>
+
+<p align="JUSTIFY">Vecais zaldāts satura Nāvi trīs gadi raģelī. Kad laiks apkārt,
+viņš palaiž Nāvi ārā. un nes to pie Dieva. Dievs prasa: "Nu, vai apkāvi
+visus?"</p>
+
+<p align="JUSTIFY">"Kur tad jele maz varēju kaut, kad šis krama galva mani
+iespundēja tabakas ragā." Un nu Nāve ņemas stāstīt visu, kā noticis.</p>
+
+<p align="JUSTIFY">Dievs tagad ļoti dusmīgs, sarāj veco zaldātu un aizdzelt no savām
+acim projām. Arī Nāve dabūja savu tiesu: "Vai tad tev arī katru reizi bija
+jānāk prasīt, kas darāms! Tu zini, Nāve tu esi un arī zināsi, kas Nāvei jādara.
+Tagad cilvēki tik daudz savairojušies, ka tu tukšām rokām nekā neiesāksi, tādēļ
+ņem šo iskapti. Un prasīt tu vairs nekad nenāc: ko darīs, ko darīs? Pļauj tikai,
+kuŗam pietiec, vai viņš vecs, vai jauns, liels vai mazs bagāts vai nabags!"</p>
+
+<p align="JUSTIFY">Piezīme. Pasakas pirmā puse līdzinās sekošajam variantam. P. Š.</p>
+
+
+</body></html>

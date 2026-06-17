@@ -1,0 +1,143 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>19</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Acu liešana.</strong></font></p><font size="5">
+
+</font><p align="RIGHT"><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p>19. A. 1135. M. G a r k o l n e n o V. A i z p ū r e s J ā s m u i ž a s p a g. L a
+t v j u k u l t ū r a s k r.</p>
+
+<p>Vīnā jaukā dīnā izguoja valns pastaiguot, lai nūsavērt cylvāku dorbus. Te jis
+īraudzēja kalēju, kurs kausēja svynu.</p>
+
+<p>"Kū tu dori?" vaicuoja valns.</p>
+
+<p>"Es leju jaunas acis."</p>
+
+<p align="JUSTIFY">"Tys arī man derētu," nūdūmuoja valns. </p>
+
+<p align="JUSTIFY">"Kai tevi sauc?" "Mani sauc : es pats."</p>
+
+<p>"Nu tad īlej arī man jaunas acis!"</p>
+
+<p align="JUSTIFY">Kalējs padūmuoja un soka: "Cik tu man moksuosi?" </p>
+
+<p align="JUSTIFY">"Cik tev vajag?"</p>
+
+<p align="JUSTIFY">"Vīnu maisu zalta samoksuosi un es tev īlīšu jaunas
+acis." </p>
+
+<p align="JUSTIFY">"Labi," pasacīja valns un, aizskrējis, atnesja vīnu maisu
+zalta un samoksuoja kalējam. Tad kalējs soka: "Tev vajag pīsasīt pi benča! Valns
+pīsasēja pi benča. Kalējs pajēmja izkausītū svynu un aizlēja valnam acis. Valns nu
+bailem un suopem aizskrēja pi cytim valnim syudzītūs, bet tī prosa: "Kas tev
+ītū izdarīja?" "Es pats!" atbildēja valns. "Nu, jo tu pats
+izdadzynuoji, tad mes nikuo navaram tev paleidzēt!" atbildēja cyti valni.</p>
+</font>
+
+
+</body></html>

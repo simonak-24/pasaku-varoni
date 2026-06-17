@@ -1,0 +1,227 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Ar brīnuma lietām iegūtā ķēniņa meita.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">8. A. 569a. Jānis Treimanis, Bramberģē, 1873.
+g. LP. V, 216 (99).</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam ķēniņam aplam gudrs dēls; tikai svešuma vien vēl nekad
+nebija redzējis. Tēvs reiz iesakās: "Klausies, dēls, gudrs tu esi gan - kas to
+liegs - bet kas tā par dzīvi: māja vien, māja vien! Eji taču reizi plašo pasauli
+apskatīties un pameklējies sev sievu - es tavos gados sen biju apprecējies."</p>
+
+<p align="JUSTIFY">Labi. Dēls apsedlo kumeļu un aizjāj pasaulē. Jāj jāj - beidzot
+apmaldās dziļā mežā un nu gribas tā ēst, tā ēst, ka nekur šauties. Neko cita
+darīt - sāks tikai kā lauva rūkt: vai tad kāds itin nesadzirdēs. Jā, sadzird gan:
+pats lauva kāp pretim: ko gribot, viņu saukdams?</p>
+
+<p align="JUSTIFY">"Ēst, ēst! ujā! kā ēst gribas."</p>
+
+<p align="JUSTIFY">"Nieka labad tik dikti kliegt!" lauva pabrīnās un tūliņ
+ataurē meža zvērus. Papriekšu lācis atskrien noelsies: ko gribot? Atnes tam cilvēkam
+kādu nēsi medus!"</p>
+
+<p align="JUSTIFY">"Labi. Necik ilgi atskrien vilks: ko vajagot? Atnes tam cilvēkam
+labu jēra cepeti!"</p>
+
+<p align="JUSTIFY">"Labi. Atskrien arī lapsa: ko vajagot? Atnes tam cilvēkam zosu
+tēviņa cepeti!" "</p>
+
+<p align="JUSTIFY">Labi, viens divi ēdieni klāt. Nu ēd, nu mielojas, cik sirds
+kārojusi; beidzot lauva tik laipns šo no meža izvadīt un tad atvadās, ne godīgu
+paldies neprasīdams. Tik tālu viss gluži labi. Bet pēc lielā mielasta slāpes arī
+vairs netaupa: vai visa mēle krīt laukā, kā māc, un ūdeni nekur ieraudzīt. Neko
+iesākt, sāk vaidēt. Te - kur gadījies, kur ne - izlien mazs vīrelis, itin tāds
+žirgts: ko kunkstot? vai nelaba sirds mocot?</p>
+
+<p align="JUSTIFY">"Nē, nē - sirds laba; bet slāpes tādas, ka mutei ne augšlēja
+vairs nav mikla."</p>
+
+<p align="JUSTIFY">"Pag, pag, nesaki nekā! ače, mans trejdibenu kausiņš - dzer
+līdz pirmām ķimenēm, tad neslāps vairs; tikai nedzer līdz otrām ķimenēm, citādi
+gribēsies vēl dzert; un ja izdzertu līdz trešām ķimenēm, tad zvilst gar zemi
+apreibis." </p>
+
+<p align="JUSTIFY">Ķēniņa dēls izdzer līdz pirmām ķimenēm - ā! esot gan laibs!
+diezin, cik tāds kausiņš gan maksātu?</p>
+
+<p align="JUSTIFY">"Ko nu maksātu! - tik, cik tavs jājams zirgs,"</p>
+
+<p align="JUSTIFY">Vai! tad esot brangi - vai nevarot mīt kausiņu uz jājamo zirgu?</p>
+
+<p align="JUSTIFY">"Kālab ne? Mīsim!"</p>
+
+<p align="JUSTIFY">Labi. Vīrelis nu aizjāja svilpodams, šis paliek kājnieks. Nu, ko nu
+darīs - ies tikai uz priekšu. Iet, iet - beidzot apsēdīsies uz ciņa atpūsties. Bet
+tur ciņa tuvumā bija eža mātei bērni. Un kāds labs pārgalvnieks apspraudis ezēniem
+žodziņu: kociņu pie kociņa. Pārronas eža tēvs, nevar midzenim piekļūt. Gan
+uzskraidās šurp, turp, gan izgrūstās kociņus, bet viss velti. Te eža tēvs paskrien
+tādu gabaliņu sāņus un atšauj ar zaļu lapiņu mutē. Tagad vedas ātri: kuŗam
+kociņam lapiņu piegrūda, tas gar zemi plaudeniski, kuram piegrūž - gar zemi! Viens,
+divi eža midzenis klajš.</p>
+
+<p align="JUSTIFY">"Pag!" ķēniņa dēls pārdomā, "kas zin, tāda
+lapiņa man arī dienās der - jāpieglabā!"</p>
+
+<p align="JUSTIFY">Un nu ķēniņa dēls, ar lapiņu kabatā, ar kausiņu rokā, saņemas
+atkal labu cēlienu iet. Bet ne visai tālu gājis, ierauga lepnu pili. Tūliņ, zināms,
+poš taisni pilī pie paša ķēniņa: vai nevarot darba dabūt?</p>
+
+<p align="JUSTIFY">Kas viņš tāds esot, ar zobinu sānos? Ķēniņš novēro šo.</p>
+
+<p align="JUSTIFY">"Kas esmu? Ceļa gājējs, kas nu vairāk."</p>
+
+<p>Nu vai negribot viņam par sulaini kalpot?</p>
+
+<p>"Kālab ne? Cik dosi algas?"</p>
+
+<p align="JUSTIFY">Tik un tik. Labi, salīgst. Bet kas jaunajam sulainim par nedarbiem
+galvā! Tūliņ pirmā naktī piešauj eža lapiņu tām durvim, kur paša ķēniņa meita
+guļ. Durvis klaikt! vaļā un šis, kā tauriņš pie ķēniņa meitas iekšā, lai jel
+soloties viņam par līgavu!</p>
+
+<p align="JUSTIFY">Jā, jā - viņa labprāt ietu, tāds attapīgs zēns brīnum patīkot;
+bet ķibele tikai tā: tēvs par varu prcenot pie kaimiņa ķēniņa dēla. Gan
+negribējusi, gan pretojusies, bet, ko darīsi, citādi ķēniņa dēls, kā suns solījis
+tēvam virsū klupt - zemi izpostīt, ir pašu maitāt.</p>
+
+<p align="JUSTIFY">"Nu, pag, pag, meitiņ! vēl nesaki nekā jārauga tādi varmākas
+ievaldīt; es viņam parādīšu, kā suņi kož! Pasaki man tikai ceļu uz turieni,
+tūliņ prom neģēli slānīt."</p>
+
+<p>Labi, meita parāda ceļu.</p>
+
+<p align="JUSTIFY">Rīta agrumā jaunais sulainis jau kaimiņa ķēniņa pagalmā un
+tūliņ uz pēdām cirsties. Kaimiņa ķēniņš pagrābj arī savu zobinu un nostāsies
+itin lepni: ko šis īsti gribot? Bet tomēr sulainis iedomājas: "Pag, pag - pamaz
+pār tiltu! Kur mans kausiņš? Iekams sāku, jānodzeras kāds malks."</p>
+
+<p align="JUSTIFY">Un tā izdzer līdz pirmajām ķimenēm un steigdamies nomet kausu
+turpat zālē. Kaimiņa ķēniņš domā: "Tā tad velna kukainis! Nav ne svīdis,
+jau dzer."</p>
+
+<p align="JUSTIFY">Bet tai pašā acumirklī ciemiņš uzsauc: "Dzirdi tu! vai esi
+tas, kas mana sievas tēva zemi solījis postīt? Nāci nu šurp!"</p>
+
+<p align="JUSTIFY">"Tu man to teiksi!" kaimiņa ķēniņš dusmās atbild un nu
+abi saklūp ar zobiniem un cīnās ilgu laiku. Beidzot piegurst viens, piegurst otrs:
+vajagot atpūsties! Labi. Bet tamēr kaimiņa ķēniņš atceŗas: "Ā! tavā kausā
+laikam spēka zāles, tādēļ nevarēju tevi pārspēt - sadzēries priekšlaiku."</p>
+
+<p align="JUSTIFY">Un ne prasa, nekā - tūliņ pretinieka kausam mugurā un izdzer līdz
+otrām ķimenēm; nieki nebūs - vēl slāpst: kļaus cauri līdz trešām ķimenēm. Šis
+vēlē arī, lai tikai sadzeŗas bada kāsis. Bet kas nu par jokiem: uz reizi lielais
+tempējs zvilst iereibis gar zemi. Zināms, tagad negantnieks ātri dabūja, ko bij
+pelnījis.</p>
+
+<p align="JUSTIFY">Nu ķēniņa dēlam - jaunajam sulainim - bija kāzas ar ķēniņa
+meitu un sievas tēva zemei miers.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,238 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title> </title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Mednieks izglābj princesi.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>&nbsp;</b></p>
+
+<p align="JUSTIFY"><b>12. </b>A. 304. 516. K. Ieviņš Nogalē. LP, VI, 125, 7a.</p>
+
+<p align="JUSTIFY">Bija divi tēvi; tam vienam, bija viens vienīgs dēls un dikti slinks,
+otram bija pulki bērni un visi čakli. Kādreiz abi tēvi satikās; tad tas viens
+vaicāja: "Kā tas nākas? Tev tik pulki bērni un visi čakli, man viens pats būtu
+un tas pats slinks."</p>
+
+<p align="JUSTIFY">Otrs, kam tie pulkie bērni, atbildēja: "Kad rīkstes netaupa,
+tad bērni čakli!"</p>
+
+<p align="JUSTIFY">Slinķa tēvs, to dzirdējis, gāja mājās, nolauza rīkstes un
+sacīja uz dēlu: "Nāc man līdz uz ezeru!"</p>
+
+<p align="JUSTIFY">Dēls paņēma runci, ar ko vienmēr kopā krāsns augšā bija
+gulējis, un gāja tēvam līdz. Nonākušiem pie ezera, tēvs pamērcēja rīkstes un
+sāka dēlu pērt, bet pa tām starpām, kamēr pēra, notika nelaime - dēlam runcis
+izšmauca no rokām un mežā iekšā. Tad dēls lūdza tēva, lai nepeŗot vairs, lai
+laižot labāk pamukušo runci noķer&amp;127;. Tēvs laida arī. Bet dēls, mežā iegājis,
+apmaldījās runci meklēdams. Uzbruka nakts, viņš apgulās un nu sapņoja, ka maizes
+kukulis viņami pa muguru lido, bet viņš tik slinks bijis, ka nevīžojis rokas izstiept
+un kukuli paņemt.</p>
+
+<p align="JUSTIFY">Rītā pamodies, viņš pārdomāja sapni; bet tai brīdī - kur
+gadījies, kur ne - pienāk vērsis pie viņa un saka: "Kāp man mugurā, es tevi
+aiznesīšu pie viena ķēniņa, kam pavāra vajaga!"</p>
+
+<p align="JUSTIFY">Labi. Uzkāpa vērsim mugurā, aizjāja pie ķēniņa un salīga par
+pavāru. Un ķēniņam bija trīs meitas un visas trīs bija jāatdod velnam, ja negadās
+kāds, kas tās no velna atpestītu. Tad otrā dienā pavārs nogāja uz upes malu, kur
+viņa vērsis ēda, un prasīja tam, kas nu būšot? Ķēniņa pilī visi nobēdājušies
+un pati pils apvilkta ar trūdu audekli.</p>
+
+<p align="JUSTIFY">Vērsis atbildēja, ka nu ķēniņam jāved vecāko meitu velnam atdot.
+.</p>
+
+<p align="JUSTIFY">To dzirdēdams, pavārs nogāja uz mājām, notīrījās, visu
+padarīja, kas tai dienā darāms un, kad citi ar vecāko ķēniņa meitu nobrauca uz
+kalnu, viņš iešāva cepeti krāsnī, lai cep, un tad aizsteidzās teciņus vien uz upi
+pie vērša. Visi esot nobraukuši kalnā, ko viņš nu darīšot? Vai ar neiešot?</p>
+
+<p align="JUSTIFY">Vērsis sacīja: "Kāp man mugurā, mēs būsim tiem citiem
+priekšā!"</p>
+
+<p align="JUSTIFY">Uzkāpa mugurā - pa mazam brīdim bija kalnā klāt. Bet tūdaļ kalns
+sāka rībēt un velns ar trim galvām iznāca no kalna laukā, uzklupdams pavāram un
+vērsim. Nu sāka cīnīties - velns ēdās kā traks: bet vērsis to badīja, pavārs tam
+cirta ar zobinu, kamēr uzvarēja velnu. Uzvarējušiem kā pienākas, vērsis sacīja:
+"Bet nu steidz man mugurā, lobsim projām, kamēr tie ar ķēniņa meitu nava
+atbraukuši. Ta tad viņi brīnīsies, atrazdami velnu nokautu."</p>
+
+<p align="JUSTIFY">Un tā arī bija. Atbrauca ar meitu - velns pagalam un viss tracis
+gavilēdams griezās atpakaļ uz mājām.</p>
+
+<p align="JUSTIFY">Bet pavārs ātri, ātri vērsi bija atstājis upes malā un pats
+pārsteidzās cepeti raudzīt, kamēr tie nava atpakaļ.</p>
+
+<p align="JUSTIFY">Parauga - cepetis sadedzis. Nu aizskrēja vērsim padomu prasīt:
+"Ko lai daru? Cepetis sadedzis."</p>
+
+<p align="JUSTIFY">Vērsis saka: "Maza nelaime - aplaisti ar samazgām, pavāri, gan
+atmitīs labu labais."</p>
+
+<p align="JUSTIFY">Viņš tā darīja: aplaistīja ar samazgām, apvārīja un kad ienesa
+ķēniņam, tas ēda, nagus laizīdams, un to vien daudzināja: "Kur, jupis, pavārs
+šodien tik gardu cepeti grābis?"</p>
+
+<p align="JUSTIFY">Bet nu bija jāved atkal otra ķēniņa meita velnam un pavārs, tikko
+citi bija aizbraukuši uz kalnu, atkal iešāva cepeti krāsnī, noskrēja upes malā pie
+vērša, aizjāja pirmais kalnā un pa abiem, ar vērsi, nokava arī to velnu ar sešām
+galvām. Nokavis velnu, pavārs kā viesulis jāja ar vērsi atpakaļ un steidzās savu
+cepeti raudzīt; bet tie, atraduši arī šodien velnu nokautu, gavilēdami brauca ar otru
+ķēniņa meitu atpakaļ un nobrīnījās, kas tikai tas kavējs varējis būt?</p>
+
+<p align="JUSTIFY">Pavārs pārskrējis mājā, atron: cepetis vēl briesmīgāki
+sagruzdējis. Nu lobj pie vērša upes malā - tā un tā - ko būs darīt?</p>
+
+<p align="JUSTIFY">"Kas tur ko daudz darīt? Aplaisti ar samazgām, apvāri būs labu
+labais."</p>
+
+<p align="JUSTIFY">Skrien šis atkal atpakaļ glābt savu cepeti. Un saglāba, ienesa
+ķēniņam - tas nagus vien laizīja, cik gards.</p>
+
+<p align="JUSTIFY">Bet nu bija jāved arī trešā ķēniņa meita kalnā velnam atdot. Un
+šoreiz ķēniņš bija pavisam bēdīgs. Tad pavārs iešāva cepeti krāsnī,
+aizsteidzās ar vērsi pirmais kalnā un nokava velnu ar deviņām galvām. Šoreiz kalns
+trīcēja un drebēja -- velns bija</p>
+
+<p align="JUSTIFY">daudz gŗūtāki kaut, bet par abiem nokava. Kad nu ķēniņa meitas
+vedēji atrada ir to nokautu, tad visi tik dikti gavilēja, ka meži un birzes
+noklimstēja un ķēniņš to vien daudzināja: "Lai meklēšu kā meklēdams, bet
+glābēju vajaga atrast!"</p>
+
+<p align="JUSTIFY">Un glābējs - kur tas - tas atkal mājā savu cepeti raudzīt. Bet
+cepetis šoreiz tā bija sagruzdējis, ka čabēja vien. Nu aizskrēja upes malā pie
+vērša. Tā un tā - cepetis nekādā jēgā glābjams - čab jau! Vērsis saka:
+"Ej, ko nu melsies? Salaisti tikai labi ar samazgām, sasautē labi - būs mīksts
+kā pūpēdis! Bet nu vēl ko: neaizmirsti mani, kad tev labi klājas!"</p>
+
+<p align="JUSTIFY">Pavārs apsolījās; tad pārsteidzās mājā, saglāba cepeti, ienesa
+ķēniņam - ķēniņš ēda tencinādams. Bet ātri paēdis, saaicināja visus
+pavalstniekus pilī - būšot meklēt to, kas viņa meitas izglābis. Un nu ķēniņš,
+kad visi bija sanākuši, svieda zelta ābolu plānī. Kam tas ābols pieritēšot pie
+kājām, tas būšot meklējamais glābējs.</p>
+
+<p align="JUSTIFY">Svieda - ābols izritēja visiem pa kāju apakšu cauri un nemaz
+istabā neapstājās. Nu meklēja pa malu malām, kur viņš varētu būt apstājies.
+Atrada namā pie pavāra kājām.</p>
+
+<blockquote>
+  <p align="JUSTIFY">Tad atdeva pavāram jaunāko ķēniņa meitu par sievu.</p>
+</blockquote>
+
+<p align="JUSTIFY">Bet pēc kāzām viņš atminējās, ka vērsis upes malā, un
+steidzās to apraudzīt. Aizgāja - vērša nava vairs - ragi vien laukā. pats iestridzis
+zemē. Nu viņš žēlojās gauži; bet vērsis sacīja: "Ņem savu bērnu, kas tev
+laulībā pirmais dzims, un uzlej viņa asinis man, tad redzēsi."</p>
+
+<p align="JUSTIFY">Neko darīt - kad bērns piedzima, ņēma viņu, nokava un uzlēja
+asinis tai vietā, kur vērsis iestridzis.</p>
+
+<p align="JUSTIFY">Un kā uzlēja, tad notika brīnumi patiesi. No zemes izlīda vērša
+vietā stalts cilvēks un nokautais bērns piepēži pats atkal atdzīvojās. (Vērsis
+bijis noburts.) Nu ķēniņa znots pieņēma atburto par savu sulaini un visi dzīvoja no
+tā laika laimīgi.</p>
+
+
+</body></html>

@@ -1,0 +1,190 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Impampis.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">8. A. 571. J. Rupjais no Aloiza Luoča Asūnē.</font></p><font size="3">
+
+<p align="JUSTIFY">Vīnam kungam beja skaista meita. Jis gribēja muoneit jaunus puišus,
+lyka uzmaļavūt uz vuortu meitys bildi i pīrakstēja: "Kas atdzeivuos treis godi
+par kolpu; tam byus muna meita."</p>
+
+<p align="JUSTIFY">Cyti puiši ari atdzeivova treis godi, bet kungs sovys meitys nadūd.</p>
+
+<p align="JUSTIFY">Reizi vīns jauns puiss, īdams pa ceļi car [gar] muižas vuortim,
+īraudzēja tū biļdi. Daguoja kluot i suoka laseit, kas tī pīraksteits. Puorlasēja,
+īguoja pī kunga, suoka runuot ar kungu: "Prauda, kas tī uz vuortim
+pīraksteits?"</p>
+
+<p>" Prauda, " kungs soka, "dzeivoj vīn!"</p>
+
+<p align="JUSTIFY">Tad tys puiss suoka dzeivuot pī kunga i atdzeivova treis godi. Jau juo
+aizdzeivuotijai meitai byus uz nuokūšas svātdīnas kuozas ar cytu, a tys puis's par
+kuozom nikuo nazynova. Kungs jū pasyutēja uz mežu pēc molkas, a mežs beja tuolu,
+kaidas nedēļas div kū braukt. Nūbrauce uz mežu, pastatēja zyrgus, daguoja pi bārza,
+atsavilka ar ciervi cierst bārzam. Bārzs suoka runuot: "Lyudzams, mani nacārt, es
+tev pasceišu lobu padūmu."</p>
+
+<p align="JUSTIFY">Puis's nūlaide rūkas, suoka breinuotīs, ka baarzs runoj, vorbyut, ka
+tī valns<b> </b>īleida. Tad bārzs jam suoka runuot: "Brauc uz sātu, tī īt
+kuozas, jem tovu aizdzeivuotū meitu. Tu vysod soki: "Kai ir, tai lai ir!"
+tūlaik tai i palyks. A kod teiksi: "Kai beja, tai lai ir!" - palyks vyss pa
+vacam."</p>
+
+<p align="JUSTIFY">Puis's uz reizi sāda zyrgūs un brauce uz sātu. Atbrauca uz sātu jau
+zem dīnys. Vysi guļ, vīn kungs staigova ar panari rūkā pa muižu. Kungs soka:
+"Kur tu tai dreiži atbrauci?"</p>
+
+<p align="JUSTIFY">Puis's uz kunga soka: "Es tai ilgi probēju. Kai ir, tai lai
+ir!"</p>
+
+<p align="JUSTIFY">Vysi guļ, naceļas da dīniškuom [pusdiena]. Kungs ar staigoj ar
+panari rūkā pa muižu. Tūreiz kungs sacēja uz sīvas: "Kas te taids ir, ka gosti
+navar celtīs, i es panara nūlykt?"</p>
+
+<p align="JUSTIFY">"Kas byus?" sīva sacēja, "vajagana īt da kuo nibejs,
+voi da popa, voi da varažbitkys" [baltkrievu vorožbitka, burve].</p>
+
+<p align="JUSTIFY">"Vajagana īt da popa," kungs soka i syuta puisi da popa.</p>
+
+<p align="JUSTIFY">Pops uz reizys apsavylka. Pī popa beja moza kēveite, uz kuo juot.
+Pops izsāda uz kēveites un juoj. Dajuoja pī upis, īguoja, yudinī, mierkst kuojas. Jis
+kuojas uzcēle uz kēvis mugoras. Tad puis's soka: "Kai ir, tai lai ir!"</p>
+
+<p align="JUSTIFY">Pops navar nūlaist kuoju zemī. Atjuoja pops, juodelej pa muižu,
+navar nikuo padareit. Tad kungs uz sīvu soka: "Vajagana īt da varažbitkai," i
+syuta puisi da varažbitkai.</p>
+
+<p align="JUSTIFY">Varažbitka apsavylka i laidēs ceļā. Tys beja pavasarā. Daguoja
+varažbitka pī upes, kladkis [baltkr. kladko, laipa] beja nūnastys, daguoja bryst.
+Pacēle rindukus da ceļu - mierkst, vajagana celt tuoļuok. Brīn tuoļuok, ceļ
+augšuokan, brīn tuoļuok, ceļ augšuokan, dacēle da pošam ūkstam. Puiss soka:
+"Kai ir, tai lai ir!"</p>
+
+<p align="JUSTIFY">Varažbitkai navar drēbu aplaist, īt sasacālusēs uz muižu ar plyku
+ūkstu. Īt car kulu [piedarbu], timā kulā beja rejnīks. Kai izskrēja nu kula, kai
+dūs ar slūtu varažbitkai pa plyku ūkstu, puiss soka: "Kai ir, tai lai ir!"
+slūta i dālypa pī ūksta.</p>
+
+<p align="JUSTIFY">Staigoj varažbitka pa muižu ar slūtu pī plyka ūksta, nikuo navar
+padareit. Tad kungs soka uz puiša: "Mož', ka tu kū nibejs zyni?"</p>
+
+<p align="JUSTIFY">"Na uz taida tu patyki, muoneidams jaunus puišus. Vai atdūsi
+meitu?" soka puiss.</p>
+
+<p align="JUSTIFY">"Nu, lai ir tova meita," tūreiz soka kungs.</p>
+
+<p align="JUSTIFY">Tod puiss soka: "Kai beja, tai lai ir!"</p>
+
+<p align="JUSTIFY">Uz reizys vysi cēlēs i rozbrauca pa satom, kungs nūlyka panari, pops
+nūkuope nū kēvis, varažbitkai atkryta slūta nū ūksta, jei nūlaida drēbis i
+aizguoja uz sovu sātu. Puis's apsaženējuos [apprecējās] ar kunga meitu i dzeivova
+laimeigi.</p>
+</font>
+
+
+</body></html>

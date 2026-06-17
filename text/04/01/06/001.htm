@@ -1,0 +1,157 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Ķēniņa dēls muciņā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">A.<b> </b>331. Teicējs J. Razgals, Sakstagala pag. Kultūras balss kr.</p>
+
+<p align="JUSTIFY">Tuoļi nu mīstiņa mežā stuovēja moza muojiņa. Tymā muojiņā
+dzeivuoja buoriņi : bruols ar muosu. Bārni paši ryupējās par sevi. Meitina
+saiminikuoja muojuos, bet bruols lasīja molku un kurinuoja cepli. Tai vini ilgi
+dzeivuoja.</p>
+
+<p align="JUSTIFY">Kaidu reizi muižinīks, braukdams pa mežu, īguoja mozā muojiņā
+puorgulēt nakti. Buorinīši pījēmja muižinīku, un kad muižinīks braucja uz sātu,
+īduovynuoja meitai buciņu, teikdams: "Te byus tovs talismans!"</p>
+
+<p align="JUSTIFY">Muižinīks aizbraucja, bruols ar muosu gribēja pasavērt, kas ir
+buciņā īkšā, bet atskrēja pele un soka: "Navajag vērtīs buciņi, līcīt jū
+labuok uz cepa, lai mīrīgi stuov!'`</p>
+
+<p align="JUSTIFY">Peie pazuda. Tai buorinīši izdarīja. Guoja dīnas, buca vys stuov uz
+cepļa. Muosa soka bruoļam: "Pazavērsim, kas tur ir!'` Bet bruoļs teicja:
+"Na, muosiņ, lobuok, lai mīrīgi stuov!"</p>
+
+<p align="JUSTIFY">Muosa tūmār nabija ar mīru, un kad bruols aizguoja mežā, muosa
+attaisēja buciņu vaļā un nūsabeida, kad īraudzēja tur jaunekli. Jauneklis pajēmja
+jū aiz rūku un teicja: "Paļdis tev, sīviņ, ka tu maņi izlaidi nu šuo cītuma
+un devi man atkon breivību!"</p>
+
+<p align="JUSTIFY">"Bet kas tu esi?" vaicuoja meita.</p>
+
+<p align="JUSTIFY">"Es esmu nūluodātais kēniņa dāls, un tagad tu byusi muna
+sīva," atbildēja jauneklis.</p>
+
+<p align="JUSTIFY">Bet meita teicja: "Na, es nabyušu tova sīva par tū, ka es asmu
+buorinīte un man vēl ir brouls!"</p>
+
+<p align="JUSTIFY">"Tagad tev nav vairuok bruoļa, jo tu viņu puormainīji ar maņi,
+jis tagad atsāda manā vītā un aizskrēja meklēt laimi," soka jauneklis.</p>
+
+<p align="JUSTIFY">Meita pasaskatīja uz cepļa, kur stuovēja buca un viņas tur vairuok
+naradzūt, suoka rauduot, jo jai bija cīši žāļ bruoļa. Bet nikuo darīt, vajadzēja
+pamest sovu ustabiņu un braukt ar kēniņa dālu uz juo kēnesti.</p>
+
+<p align="JUSTIFY">Tai buorinīte palyka par kēninīni, bet juos bruoļs laikam vēl
+tagad vys meklej sev laimi un nivīns nazyna, vai sameklēs, jo jis ir nabogs.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

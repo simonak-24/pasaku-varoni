@@ -1,0 +1,388 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Zirņa dēls.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>&nbsp;</b></p>
+
+<p align="JUSTIFY"><b>3. </b>A.301A. Konstantins Raudive, Asūnes Baranovcu sādžā, J.
+Rupjā kr.</p>
+
+<p align="JUSTIFY">Kaidam tāvam beja divpadsmit dālu un treis meitas. Reizi vysi bruoļi
+nūguoja sīna pļaut, bet muosas lai nas jīm ēst. Muosas īvaicoujuos: "Kai jyus
+atrast?"</p>
+
+<p align="JUSTIFY">Bruoļi atbild : "Ej pa tū ceju, kur byus bolti zierņi
+pīkaisēti, ta myus atrassi."</p>
+
+<p align="JUSTIFY">Labi. Vacuokuo muosa nas bruolim dīniškas. Bet valns vysus zierņus
+salasēja un pīkaisēja pa sovu ceļu, kurs īt leidz valna pilei. Vacuokuo muosa nas
+bruojim dīniškas. Jei īt, īt pa tū celi, kur zieri pīkaisēti, beidzūt leidz valna
+pilei. Valns, īraudzē,js, sakēra sev par buobu.</p>
+
+<p align="JUSTIFY">Bruoli gaidēja, gaidēja, naatnas vys ēst. Jī sasadusmuoja uz
+muosuom un guoja poši uz sā.tu pušdīņuotu. Nūguojuši uz sātu suoka buortīs:
+"Par kū mums nanasūt pušdīnas?"</p>
+
+<p align="JUSTIFY">Muote aiz bailēm izplētja acis: "Jei jau prīkš pušdīnuom
+nūnase ēst jūs, varbyut putni nūlasēja zierņ,us, jei naatroda cela i
+aizbludēja."</p>
+
+<p align="JUSTIFY">Ūtru dīn' otkon īs vysi plaut sīna, tān jau pēc kuortas, vajag
+nest pušdīņas vidējai muosai. Taipat zierņu pīkaisēja pa ceļu, kai pyrmū reizi.
+Taipat izguoja ar vidējū muosu, kai ar vacuakū.</p>
+
+<p align="JUSTIFY">Trešā dīnā nūguaja otkon vysi pļautu. Tān [tagad] nas trešuo
+muosa āst bruolim. Arī palyka par valna buobu trešuo muosa. Bruoli pluavuši Leidz
+vokoram, bet ēst kai naatnas, tai naatnas. Jī, atguojuši uz sātu, vaicuoja: "Par
+kū myus naatņasjat ēst?" "Jei jau nu reita nūnesa ēst jūs.</p>
+
+<p align="JUSTIFY">Bruoli paēduši nu reita brūkastes devās muosu meklēt. .Jī īt,
+īt, daīt pī šmukas pils. Valns izskrīn, apgrīž visim golvas un sprauž uz mītu,
+kuri beja valna pilei tyvumā.</p>
+
+<p align="JUSTIFY">Muote gaidēja sovu bārnu, bet sagaidēt navar. Muote paņēme drēbes
+un nūnese uz jyuras velēt. Jei jyurī irauga boltū zierni vuornas ūlas lelurnā.
+Pajēme un apēde. Pēc treju dīnu jai dzyma dāls, kurs auga pa minutēm un pa stundēm.
+Pēc treju dinu taids dāls beja stypris, ka mežā varēja izraut pošu styprū ūzūlu.</p>
+
+<p align="JUSTIFY">Vīnu reizi muote pastuostēja: "Tev beja divpadsmit bruoļu un
+treis muosas, visi ir izgaisuši."</p>
+
+<p align="JUSTIFY">,,Ai, māmiņ, es īšu jūs meklēt!" "Nu, kur tu, dēliņ
+atrassi?" ,Atrasšu gon, māmiņ!"</p>
+
+<p align="JUSTIFY">Juo vuords beja Juoņs. Juonis nūīt uz kalvi, un nūkal symtu pūdu
+vāzdu. Juoņs tu pasvīde uz augšu, tei ka krita, drusku puorsalīca.</p>
+
+<p align="JUSTIFY">"Byus loba!"</p>
+
+<p align="JUSTIFY">Juoņs pajēme sovu vāzdu un devēs ceļā, meklēt bruoļu un muosu. </p>
+
+<p align="JUSTIFY">Meklēja jis vīnu dīn', ūtru dīn' ; bet trešā dinā atroda
+skaistas muojas. Viņš </p>
+
+<p align="JUSTIFY">īguoja ustobā un īraudzēja sovu vacuokū muosu. Muosa juo,
+īraudzējuse sovu</p>
+
+<p align="JUSTIFY">bruoli, un soka : "Kur tu, muns mīļais bruolīt, te patyki? Muns
+dads valns ar </p>
+
+<p align="JUSTIFY">treis golvas. "</p>
+
+<p align="JUSTIFY">jis tevi uz reizis apēss. Nikas!" "</p>
+
+<p align="JUSTIFY">Tad muosa bruoli apkurēja [apkvēpināja] ar sova dāda buarzdu un
+motim, un paglabuoja šapā [skapī]. Atskrīn valns ar trejuoan galvuom, un ūž:
+"Vū, kas ite ar kristīga cylvāka duku smird'."</p>
+
+<p align="JUSTIFY">"Ū, kas tys tev devēs, nabeja niktto!" "Nu, buob, dūd
+ēst!"</p>
+
+<p align="JUSTIFY">Buoba tyuleņ dūd sovam dādam ēst. Jei āzdama īsarunuo: "Kas
+byutu, juo atītu muns bruolis?"</p>
+
+<p align="JUSTIFY">Valns soka: "Kas byutu? Dūtum ēst, dzērt, tad vēl panuosuotum
+ozotī."</p>
+
+<p align="JUSTIFY">"Jis nasen ite beja:"</p>
+
+<p align="JUSTIFY">Valns suoka meklēt pa vysim koktim. Juons, tū dzierdādams, izlīn
+pats nu šapa [skapja[, un soka: "Es tepat asu."</p>
+
+<p align="JUSTIFY">"Nu muns švagris, ēd un dzer, es īšu drusku pagulēšu, asu
+pavysam pīkuss."</p>
+
+<p align="JUSTIFY">Valns aizmyga, un kruoce, ka vysa pile dimdēja. Juoņs tyu leņ
+pajēme sovu vāzdu, </p>
+
+<p align="JUSTIFY">un nūsyta valnam vys's treis golvas ernī. 'Tagad jis nūguoja da-
+vidējai muosai.</p>
+
+<p align="JUSTIFY">Jis īraudzēia, ka ustoba ir nu sudroba. Jis īguoja ustobā,
+īraudzēja sovu muosu, kura sēdēja zalta krāslā. Muosa, īraudzējuse sovu bruoli, i
+soka: "Kur tu, muns mīlais bruolīt, te patyki? Muns dāds valns tevi apēss. Jam ir
+sešas golvas."</p>
+
+<p align="JUSTIFY">"Nikas, naapēss," atbildēja bruols. Muosa pajēme bruoli,
+apkurēja ar valna buorzdu un m;otim, paglobuoja šapā. Valns atskrīn, ka pile vīn'
+nūdrebēja. Valns suoka ūst, un aizabluove : "Ui, kas te ar kristīga cylvāka
+ašņi smird?"</p>
+
+<p align="JUSTIFY">"Tev, jau tai ruodās, tu pa pasauli skraidīdams, pīūdi."
+"Nu, buob, dūd ēst!"</p>
+
+<p align="JUSTIFY">Valnam pīlēja ēst, un āzdama muosa īsarunuoja: "Kas byutu,
+juo atītu tovs švagris?"</p>
+
+<p align="JUSTIFY">"Nikuo nabyutu. Dūttun ēst dzērt un veļ panuasuotam
+ozotī." Juons tū dzierdādams, tyu1eņ izlin un īsasauc: "Es te asmu!"
+Valns jū īraudzēja un soka: ,,Nu, mums švagris, ēd, dzer,</p>
+
+<p align="JUSTIFY">a es īšu drusku pagulēšu, asmu cīši pīkuss."</p>
+
+<p align="JUSTIFY">Vēl nabeja paguojs i pīcu minutu, kad valns kruoce ka pils vīn'
+dimdēja. Juoņs pajēme sovu vāzdu un nūsyta vaļnam vysas golvas.</p>
+
+<p align="JUSTIFY">Un guoja tān da trešai muosai. Bet viņš iraudzēja brīsmīgu
+naradzātu pili, zalta, uz kaidu desmit atažu. Juoņs īguojis vydā, i īraudzēja sovu
+jaunuakū muosu. Muosa jū īraudzēja un īsasaucās: "Ak muns mīļais bruolīt,
+kur tu te patyki? Muns dāds valns ar divpadsmita golvuom, jis tevi uz reizes
+apēss."</p>
+
+<p align="JUSTIFY">"Nikas, naapēss."</p>
+
+<p align="JUSTIFY">Muosa bruoli apkurēja ar valna buorzdu un m,otim, i paglobuoja šapā.
+Atskrīn valns un ūž: "Ū, kas ti smird ar kristīga cylvāka duku?"</p>
+
+<p align="JUSTIFY">"Nu tev jau tai dūdas, pīūdi pa pasauli skraidīdāms,"
+atbildēja buoba.</p>
+
+<p align="JUSTIFY">Bruoļi gaidēja, gaidēja, naatnas vys ēst. Jī sasadusmuoja uz
+muosuom un guoja poši uz sātu pušdīņuotu. Nūguojuši uz sātu suoka buortīs:
+"Par kū mums nanasūt pušdīnas?"</p>
+
+<p align="JUSTIFY">Muote aiz bailēm izplētja acis: "Jei jau prīkš pušdīnuom
+nūnase ēst jūs, va:rbyut putni nūlasēja zierņ,us, jei naatroda ceļa i
+aizbludēja."</p>
+
+<p align="JUSTIFY">Ūtru dīn' otkon īs vysi pļaut sīna, tān jau pēc kuortas, vajag
+nest pušdīņas vidējai muosai. Taipat zierņu pīkaisēja pa ceļu, kai pyrmū reizi.
+Taipat izguoja ar vidējū muosu, kai ar vacuokū.</p>
+
+<p align="JUSTIFY">Trešā dīnā nūguoja atkon vysi pļautu. Tān [tagad] nas trešuo
+muosa āst bruoļim. Arī palyka par valna buobu trešuo muosa. Bruo]i pļuovuši leidz
+vokoram, bet ēst kai na:atnas, tai naatnas. Jī, atguojuši uz sātu, vaicuoja: "Par
+kū myus naatņasjat ēst?"</p>
+
+<p align="JUSTIFY">"Jei jau nu reita nūnesa ēst jūs."</p>
+
+<p align="JUSTIFY">Bruoļi paēduši nu reita brūkastes devās muosu meklēt. ,Jī īt,
+īt, daīt pī šmukas piļs. Valns izskrīn, apgrīž visim golvas un spŗauž uz mītu,
+kuri beja valna pilei tyvumā.</p>
+
+<p align="JUSTIFY">Muote gaidēja sovu bārnu, bet sagaidēt navar. Muote paņēme drēbes
+un nūnese uz jyuras velēt. Jei jyurī irauga boltū zierni vuornas ūlas lelumā.
+Pajēme un apēde. Pēc treju dīnu jai dzyma dāls, kurs auga pa minutēm un pa stundēm.
+Pēc treju dīnu taids dāls beja stypris, ka mežā varēja izraut pošu styprū ūzūlu.</p>
+
+<p align="JUSTIFY">Vīnu reizi muote pastuostēja: "Tev beja divpadsmit bruoļu un
+treis muosas, visi ir izgaisuši."</p>
+
+<p align="JUSTIFY">"Ai, māmiņ, es īšu jūs meklēt!" "Nu, kur tu,
+dēliņ atrassi?" ,Atrasšu gon, māmiņ!"</p>
+
+<p align="JUSTIFY">Juo vuords beja Juoņs. Juonis nūit uz kaļvi, un nūkaļ symtu pūdu
+vāzdu. Juoņs tu pasvīde uz augšu, tei ka krita, drusku puorsalica.</p>
+
+<p align="JUSTIFY">"Byus loba!"</p>
+
+<p align="JUSTIFY">Juoņs pajēme sovu vāzdu un devēs ceļā, meklēt bruoļu un muosu.
+Meklēja jis vīnu dīn', ūtru dīn'; bet trešā dīnā atroda skaistas muojas. Vipš
+īguoja ustobā un īraudzēja sovu vacuokū muosu. Muosa juo, īraudzējuse sovu bruoli,
+un soka : ,.Kur tu, muns mīļais bruolīt, te patyki? Muns dads valns ar treis golvas.
+jis tevi uz reizis apēss."</p>
+
+<p align="JUSTIFY">Nikas!" "</p>
+
+<p align="JUSTIFY">Tad muosa bruoli apkurēja [apkvēpināja] ar sova dāda buarzdu un
+motim, un paglabuoja šapā [skapī]. Atskrīn valns ar trejuom galvuom, un ūž:
+"Vū, kas ite ar kristīga cylvāka duku smird'."</p>
+
+<p align="JUSTIFY">"Ū, kas tys tev devēs, nabeja nikuo!" "Nu, buob, dūd
+ēst!"</p>
+
+<p align="JUSTIFY">Buoba tyuleņ dūd sovam dādam ēst. Jei āzdama īsarunuo: "Kas
+byutu, juo atītu muns bruoļis?"</p>
+
+<p align="JUSTIFY">Valns soka: "Kas byutu? Dūtum ēst, dzērt, tad vēļ panuosuotum
+ozotī."</p>
+
+<p align="JUSTIFY">"Jis nasen ite beja"</p>
+
+<p align="JUSTIFY">Valns suoka meklēt pa vysim koktim. Juons, tū dzierdādams, izlīn
+pats nu šapa [skapja[, un soka: "Es tepat asu."</p>
+
+<p align="JUSTIFY">"Nu muns švagris, ēd un dzer, es īšu drusku pagulēšu, asu
+pavysam pīkuss."</p>
+
+<p align="JUSTIFY">Valns aizmyga, un kruoce, ka vysa pile dimdēja. Juoņs tyu leņ
+pajēme sovu vāzdu,</p>
+
+<p align="JUSTIFY">un nūsyta valnam vys's treis golvas zemī. Tagad jis nūguoja da
+vidējai muosai.</p>
+
+<p align="JUSTIFY">Tis īraudzēia, ka ustoba ir nu sudroba. Jis īguoja ustobā,
+īraudzēja sovu muosu, kura sēdēja zalta kāslā. Muosa, īraudzējuse sovu bruoli, i
+soka: "Kur tu. muns mīļais bruolīt, te patyki? Muns dāds valns tevi apēss. ,Tām
+ir sešas golvas."</p>
+
+<p align="JUSTIFY">"Nikas, naapēss," atbildēja bruoļs. Muosa pajēme bruoli,
+apkurēja ar valna buorzdu un m;otim, paglobuoja šap,ā. Valns atskrīn, ka pile vīn'
+nūd;rebēja. Valns s.uoka ūst, un aizab[uove : "Ui, ka.s te ar kristīga cylvāka
+ašņi smird?"</p>
+
+<p align="JUSTIFY">"Tev, jau tai ruodās, tti pa pasauli skraidīdams, pīūdi."</p>
+
+<p align="JUSTIFY">"Nu, buob, dūd ēst!"</p>
+
+<p align="JUSTIFY">Valnam pīlēja ēst, un āzdama muosa īsarunuoja: "Kas byutu,
+juo atītu tovs švagris?"</p>
+
+<p align="JUSTIFY">"Nikuo nabyutu. Dūtum ēst dzērt un ve( panuosuotam
+ozotī." Juons tū dzierdādams, tyuleņ izlīn un īsasauc: "Es te asmu!"
+Valns jū īraudzēja un soka: .,Nu, mums švagris, ēd, dzer,</p>
+
+<p align="JUSTIFY">" a es īšu drusku pagulēšu, asmu cīši pīkuss.</p>
+
+<p align="JUSTIFY">Veļ nabeja paguojs i pīcu minutu, kad valns kruoce ka piļs vīn'
+dimdēja. Juoņs pajēme sovu vāzdu un nūsyta vaļnam vysas golvas.</p>
+
+<p align="JUSTIFY">Un guoja tān da trešai muosai. Bet viņš īraudzēja brīsmīgu
+naradzātu pili, zalta, uz kaidu desmit atažu. Juoņs īguojis vydā, i īraudzēja sovu
+jaunuokū muosu. Muosa jū īraudzēja un īsasaucās: "Ak muns mīļais bruolit, kur
+tu te patyki? Muns dāds valns ar divpadsmia golvuom, jis tevi uz reizes apēss."</p>
+
+<p align="JUSTIFY">"Nikas, ņaapēss."</p>
+
+<p align="JUSTIFY">Muosa bruoli apkurēja ar valna buorzdu un motim, i paglobuoja šapā.
+Atskrīn valns un ūž: "Ū, kas ti smird ar kristīga cylvāka duku?"</p>
+
+<p align="JUSTIFY">"Nu tev jau tai dūdas, pīūdi pa pasauli skraidīdāms,"
+atbildēja buoba.</p>
+
+<p align="JUSTIFY">Valns soka : "Dūd, buob, ēst!"</p>
+
+<p align="JUSTIFY">Buoba tyuleņ dūd dādam ēst, āzdama īsarunuojas : "Kas byutu,
+juo atītu muns bruo]is?"</p>
+
+<p align="JUSTIFY">"Nikuo nabyutu. Dūtum ēst, dzērt un vē1 ozotī
+panuosuotuan."</p>
+
+<p align="JUSTIFY">"Jis tepat beja."</p>
+
+<p align="JUSTIFY">Valns suoka meklēt. Juoņs tyuleņ izlīn nu šaņa un soka: "Es
+tepat."</p>
+
+<p align="JUSTIFY">Valns ju īraudzējis, soka: "Muns švagri, ēd, dzer, es īšu
+drusku pagulēt, asu pavysam pīkuss."</p>
+
+<p align="JUSTIFY">Valns tyuleņ aizmyga un kruoce, ka piļs vīn dimdēja. Juoņs pajēme
+sovu vāzdu un nūsyta valnam vysas golvas. Tad viņš izstaiguoja pa vysas komnatas;
+vīnā komnatā atroda vacu, vacu valnu, kurs beja pavysam vuajs. Juons tyuleņ gribēja
+juo sist, bet tys valns atsalyudz, un Juoņam īdeve živučus zuoļu. Juoņs tāņ
+pajēme savu muosu, un pilei ar vāzdu īsyta. Tyuleņ piļs puorsavērte par gradzynu.
+Juoņs pajēme' un ar muosu guoja. tān da vidējai. Juoņs izsyta juos piles ar vāzdu,
+tei palyka par gradzynu, un tān nuoguojuši da vacuokajai, īsyta ar vāzdu, pils palyka
+tyuleņ par gradzynu.</p>
+
+<p align="JUSTIFY">Vysus bruoaļus atdzeivynuoja ar živuču yudini, visi laimeigi
+nūguoja da sova tāva un muatei. Muote ar tāvu beja prīceigi sowu bārnu atagtryšanu.
+Varbyut, ka tān jī kur veļ dzeivuoj, ka nav myruši. '</p>
+
+
+</body></html>

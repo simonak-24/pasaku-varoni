@@ -1,0 +1,155 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>36</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Trijādas sievas.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">Teicēja 76. g. veca Īva Staleidzāne, Atašienes pag.</p>
+
+<p align="JUSTIFY">Kaidam tāvam ar muoti beja vīna paša meita. Meita ju beja lela un
+vajadzēja jau dūt pi veira. Atbraucja kaids bryutguons svuotūs un meita pasajīmia īt
+pi juo par sīvu. Ūtrā vokorā atbraucja ūtrs, un meita otkon pasajmja īt pi ūtra par
+sīvu. Trešā vokorā atbraucja trešs bryutguons un meita ari pi trešuo pasajēmja īt
+par sīvu. Ar vysim trejim bryutguonim meita nūsarunuoja taisīt kuozas vīnā vokorā.
+Tāvs ar muoti raud un nazyna kū danīt : meita vīna paša, bet treis bryubguoni. Jīm
+beja vē vaca kēve un kucīte. Kaidā dīnā īguoja vecīts un prosa tāvam ar muoti:
+"Kuo jyus raudit?"</p>
+
+<p align="JUSTIFY">"Kai mums naraudot?" atbildēja tāvs un muote, "meita
+vīna paša, bet pi trejim veirim juodūd!"</p>
+
+<p align="JUSTIFY">"Aizspīdīt par nakti klāvā meitu, kēvi un kucīti un vyss
+byus lobi," pamuocija vecīts un aizguoja sovu ceļu. Atguoja vakors. Tāvs un muote
+aizspīdja klāvā meitu, kēvi un kucīti. Reitā aizguoja tāvs uz klāvu pasavārtu un
+radz, ka klāvā treis meitas un vysas vīnaidas. Navar tāvs ar muoti pazeit, kura jūs
+meita, kura kēve un kucīte. Atguoja kuozu dīna. Sabraucja vysi treis precinīki.
+Precinīki zynuoja, ka tāvam ar muoti tik vīna meita ir un suoka streidētīs sovā
+stuorpā. Tāvs īvedja ustobā vysas tr'eis meitas un soka: "Jemīt, katrs kuru
+gribit!"</p>
+
+<p align="JUSTIFY">Meitas beja vysas uz mota vinaidas. Preciniki pajēmja pa vīnai
+meitai, nūdzēŗa kuozas un aizbraucja.</p>
+
+<p align="JUSTIFY">Pyrmajam precinikam beja krituse eistuo meita, ūtrajam kēve un
+trešajam kucīte. Pēc kuozu prmā svātdīnā tāvs ar muoti aizbraucja uz pyrmū znūtu
+pasavērt meitas. Veirs ar muoti navar atsateikt, ka meita vadakla cīši loba, gudra un
+struodīga.</p>
+
+<p align="JUSTIFY">Ūtrā svātdīnā tāvs ar muoti aizbraucja pasavārtu ūtru meitu.
+Veirs ar muoti navar atsateikt, ka meita cīši 1aba, gudra un struodīga, tikai tei
+vaiņa, ka cīši daudzi ādūte : paādūte pi golda ar vysim reizē, ejūte pi dorba un
+maizes kukuli nasūte leidza.</p>
+
+<p align="JUSTIFY">Trešā svātdīnā tāvs ar muoti aizbraucja uz trešū meitu
+pasavārtu. Veirs ar muoti navar atsateikt, ka meita cīši loba, gudra un struodīga,
+tikai tei vaiņa, ka jo izdzierstūte, kur kas lomuojas, tyuleņ atstuojūte vysu dorbu un
+skrīnūte, kaut uz ūtru cīmu. Tai tāvs ar muoti, cīmuodamīs pi meitom izzinuoja, ka
+jūs eistuo meita ir pi pyrmuo precinīka, kēve pi ūtruo un kucīte pi trešuo.</p>
+
+
+</body></html>

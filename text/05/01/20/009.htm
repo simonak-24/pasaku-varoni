@@ -1,0 +1,177 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title> </title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Raganas svešā zemē.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">9. A. 478. 313. Skolnieks V. Juoņins no P. Smugā Viļānu pag. </p>
+
+<p align="JUSTIFY">Vīnu reizi dzeivuojis tāvs, jam bejušas treis meitas. Meitas
+bejušas bez gola skaistas un par veiru gribējušas tuo, kas byus tik skaists kai jas. Nu
+vysom pasauļa molom braukuši svāti, a nivīns meitom nabejs pa pruotam.</p>
+
+<p align="JUSTIFY">Tūlaik valns apsabūrs par skaistu priņci i atbraucs precībuos uz
+vacuokū meitu; tei<b> </b>ar mīru un atsavasaiuojuse īt ar valnu. Jī nūguojuši lelā
+mežā, kur valns dzeivuojs; ustoba jam bejuse nu dasu, a pi ustobas gubā sakrauti
+nabašnīki. Valns soka: "Mēness spīž, nabašnīks brauc, moža tev baiss?"</p>
+
+<p align="JUSTIFY">"Baiss!" </p>
+
+<p align="JUSTIFY">Kai vīn meita tai pasoka; valns pajam jai nūplēš uodu a gaļi
+apād. Nu valns brauc otkon uz vidējū meitu, kura ari īt ar velnu Kai vīn jī pret
+valna ustabu, valns vaicoj : "Mēness spīž nabašnīks brauc, mož tev baiss?"</p>
+
+<p align="JUSTIFY">"Nav baiss!" ,</p>
+
+<p align="JUSTIFY">Otkon valns vaicoj, vai baiss. Meita atsoka: "Baiss!"</p>
+
+<p align="JUSTIFY">Valns jam jū i apād. Tūlaik brauks pēc jaunuokuos. Jaunuokuo muosa
+gan beiduos, ka naizgaist bez vēsts kai muosas, bet sūlējumu turēja un guoja ar
+skaistū princi (valnu). Kai vīn jī daīt pi ustobas, valnse taipat vaicoj:
+"Mēness spīž, nabašnīks brauc, mož tev baiss?"</p>
+
+<p align="JUSTIFY">" Nav baiss!" tai jei atsok treis reizes. Valns juos naād a
+vad pi sevis ustobā, daboj varžu, rupučtt, tuorpu i soka, lai ādūt; bet jei naād
+saceidama, ka šei paāduse. Vokorā; kad<b> </b>jī atsagulst gulēt, nu valna mutes īt
+brīsmīgi naloba smoka, tai ka meita tikkū var puorgulēt. Reitā valns skrīn naz kur
+uz pasauli, a jū pamat sātā pīsceidams, lai ap juo montu vīn nasagruobuojūt, a to
+šis apēsšūt. Kai vin valns īt pa ceļu, tai meita suoc vērtīs vīnā kastī un
+atrūn taidu atslāgu, kuru rūkā pajamūt, cylvāks palīk naradzams. Meita nu palykuse
+par naradzamu i gaidējuse, kod atīs valns.</p>
+
+<p align="JUSTIFY">Tai ap vokoru jis šņuokdams vīn atskrējs un saucs. kur juo sīva.
+Saucs, saucs - a nikas naatsasauc. Sasasirdējis jis sāstas pi golda un ād rupučus,
+vardes un cytus nateirumus Meita bejusi tīpat ustobā, i redzēiuse, ka valns tī ād.
+Jei nu rībuma pajāmiIse i pīspļuovuse valnam acis, tys tyulīt palicis par naradzamu
+un aizskrējis pa ceļu.</p>
+
+<p align="JUSTIFY">Meita tyulīt skrīn uz sātu, pasataisa par radzamu i izstuosta tāvam
+ar muoti vysu, kai bejs un ka muosu uodas guļūt pi šuos veira valna ustobas. Valnu šei
+padarējuse par naspēcīgu.</p>
+
+<p align="JUSTIFY">Jī vysi treis aizīt uz valna pili, apgloboj obas muosas. Vāluok jei
+atrūn veizes, kuras apaunūt, par vīnu reizi var nūspert septiņas jyudzes.
+Atsavasaluojuse nu tāva ar muoti jei pajam atslāgu, veizes i skrīn laimes maklātu. Tai
+jei nūteik zam zemes, kur vaidējs valns. Tam valnam bejs cīši skaists dāls, kurs jai
+patics, bet ruodētīs jei navarējuse, tyulīt tū saplāstu lelais valns</p>
+
+<p align="JUSTIFY">Vīnu dīnu, kod valna nabejs sātā, jei pasaruodējuse dālam, kurs
+jimā īzamīlējs i sacījis, lai bāgūt, a to tāvs jū saplēškūt. Meita nabāg i
+pastuosta par kūrpem i atslāgu. Nu jī nūzarunoj bēgt uz zemes viersu. Vīns pajam aiz
+vīna atslāgas gola, ūtrs aiz ūtra, apmauc katrs pa veizi i bāg.</p>
+
+<p align="JUSTIFY">Valns kai vīn īrauga, ka dāla nav, tai sulaiņus syuta, lai
+atvadūš dālu. Sulaiņi skrīn, skrīn, a nadadzan juo: jī izskrīn už zemes viersa.
+Meita vad savu veiru uz tū ustabiņu, kur dzeivuoja valns, i izstuosta vysu nu gola da
+gola. Skaistais valna dāls dasaguodoj, ka tys valns apbūrs šuo onkuļa pili i te
+vajagūt byut knopkai, kuru pospīžkūt i pils atsaraškūt. Beidzūt jī knonku atroda
+zam cepļa styura, paspīde i izzacēla skaista pils. Tūlaik jī nūtaisēja kuozas i
+dzeivuoja laimīgi.</p>
+
+
+</body></html>

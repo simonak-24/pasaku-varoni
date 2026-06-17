@@ -1,0 +1,247 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>32</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Mežonīgais vīrs.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 502. J. Ezers no Treijera Žaņa Gramzdā Jkr. V, 127. p. LP VII.
+II, 21, 1, 1.</p>
+
+<p align="JUSTIFY">Kādam ķēniņam bija dēls un trīs meitas. Dēlu viņš mīļoja
+vairāk par visiem bērniem. Ķēniņš bija viņam dēstījis ābeli, kam auga zelta
+āboli. Katru nakti nozuda pa ābolam. Princis pavēlēja cilpas ietaisīt ābēlē. Tavu
+brīnumu! Vīrs ar misiņa bārzda bija no rīta cilpās. Ķēniņš, gribēdams to
+rādīt saviem draugiem, liek vinu cietumā ielikt. Kamēr šis cietumā, tamēr
+rotaļojas princis ar ābolu blakus istabā. Bet tavu nelaimi! Ābols -- kā tas
+gadījās, kā ne - ierit pa caurumu pie Misiņbārzda.</p>
+
+<p align="JUSTIFY">Princis lūdzas: "Mīļo Misiņbārzd, atdod man ābolu!"</p>
+
+<p align="JUSTIFY">"Ja izlaidīsi mani no cietuma", teic Misiņbārzds,
+"tad dabūsi, ātrāki ne."</p>
+
+<p align="JUSTIFY">"To nevaru, cietuma atslēga manai mātei kabatā."</p>
+
+<p align="JUSTIFY">"Ej pie mātes", Misiņbārzds māca, "liec galvu
+ieskāties un izņem pa to brīdi atslēgu no kabatas. Mani izlaidis, atliec atslēgu
+tāpat atpakaļ."</p>
+
+<p align="JUSTIFY">Princis izlaiž Misiņbārzdu. Šis saka: "Kad tev kā vajaga, tad
+sauc mani un es būšu klāt."</p>
+
+<p align="JUSTIFY">Princis iet atkal pie mātes: "Ieskā man vēl galvu!"</p>
+
+<p align="JUSTIFY">Kamēr māte ieskā galvu, princis stumj lēnām atslēgu kabatā, bet
+māte to pamana.</p>
+
+<p align="JUSTIFY">"Ko tu darīji ar atslēgu?" viņa uzprasa. Dēls izstāsta
+visu. Sanāk viesi ķēniņam. Viņš ved Misiņbārzdu rādīt; bet cietums tukšs.
+Ķēniņiene pastāsta, kas noticis.</p>
+
+<p align="JUSTIFY">"Ārā no manas valsts!" ķēniņš tam bargi uzsauc,
+"tikai vienu vienīgu zaldātu ņem līdz un atstāj šo pašu stundu manu
+valsti!" Abi aiziet bēdīgi. Viņi nomaldās tuksnesī. "Skaties tik",
+zaldāts saka, "man tevis labad būs vēl badā jānomirst; uzturs jau iet pie
+beigām; ūdens ne lāsītes. Slāpst, ka vai mēle pie žaunām piekalst."</p>
+
+<p align="JUSTIFY">Princis atcērt: "Ko nu gvergzdi tik daudz. Rau', kur aka. Iesim
+turp."</p>
+
+<p align="JUSTIFY">Viņi nonāk pie akas, bet nevar sasniegt ūdeni. Zaldātam padoms
+drīzi rokā. "Nolaid mani pie kājām akā", viņš saka, "es nolaidīšu
+arī tevi, kad padzeršos."</p>
+
+<p align="JUSTIFY">"Labi!" Zaldāts padzēries, nolaiž princi akā.
+"Padzēru jau", šis sauc, "velc mani ārā!"</p>
+
+<p align="JUSTIFY">"Es ar tevi esmu apnicis līdz beidzamam", zaldāts atbild,
+gribu no tevis atsvabināties. Ja atdod man savas drēbes un ķēniņa dotās grāmatas,
+tad atstāšu tevi dzīvu, ja ne, tad vari akā palikt."</p>
+
+<p align="JUSTIFY">"Velc tik ārā", princis lūdzas, "atdošu visu."
+Tā notiek, viņi izšķiŗas.</p>
+
+<p align="JUSTIFY">Zaldāts noiet pie kāda ķēniņa, uzrāda savas grāmatas un
+ķēniņš viņu pieņem par dēlu. Negodīgas dzīvošanas labad drīzi viņu aizdzen.
+Viņš iestājas pie pūķiem dienestā.</p>
+
+<p align="JUSTIFY">"Ja tu mums katram atved labi skaistu meitu", pūķi saka,
+"tad dosim tev katrs divi pūri naudas." Zaldāts pārdomā, kā pie meitām
+tikt.</p>
+
+<p align="JUSTIFY">Princis, pa tam atnācis nepazīts sava tēva pilī, ir salīdzis par
+zirgu puisi.</p>
+
+<p align="JUSTIFY">Reiz viņš satiekas pie pils mūŗiem ar Misiņbārzdu un tam
+izstāsta savu ligu. "Gan mēs atriebsimies zaldātam", Misiņbārzds saka,
+,,vai nenāksi šovakar pie mums dzīrēs?"</p>
+
+<p align="JUSTIFY">"Labprāt!" zirgu Puisis atbild.</p>
+
+<p align="JUSTIFY">"Bet liec vērā", Misiņbārzds turpina, "ēst un dzert
+ir brīv runāt ne. 'Tagad steidzies, ka drīzi aiztiekam."</p>
+
+<p align="JUSTIFY">Dienas darbus Pabeidzis, princis iet tam līdz. Jūrmalā sēžas abi
+laivā un brauc. Malā tikuši, viņi nonāk lepnā pilī. Tur daudz viesu. Visi ēd un
+dzeŗ, bet nerunā ne vārda. Pēc kāda laika visi šķiŗas. Zirgu puisis paņem no
+turienes līdz sudraba zirgu.</p>
+
+<p align="JUSTIFY">Otrā vakarā tie brauc atkal uz dzīrēm. "Ēd un dzeŗ, cik
+gribi", Misiņbārzds piekodina, "bet nerunā tikai." Mājā braucot paņem
+puisis līdzi zelta zirgu. Trešā vakarā viņš pārved dimanta zirgu.</p>
+
+<p align="JUSTIFY">Neilgi pēc tam atjāj pie ķēniņa pazīstamais zaldāts. "Mans
+kungs mani sūta", zaldāts saka, "lai aizvedu viņam jūsu vecāko meitu."</p>
+
+<p align="JUSTIFY">"Manu vecāko meitu?<b> </b>Kas tad tāds ir tavs kungs, ka viņš
+man tā var prasīt?"</p>
+
+<p align="JUSTIFY">"Nebūs labi, ķēniņ!" zaldāts biedina, "mans kungs
+ir varens pūķis, viņš apspļaus jūsu zemi ar uguni un visu nodedzinās."
+"Došu jau savu meitu!" ķēniņš atbild izbijies. Zaldāts aizjāj. Ķēniņš
+izsludina: "Pusi no manas valsts dabūs tas, kas novedīs manu meitu pie pūķa un
+viņu atkal atvedīs dzīvu atpakaļ." Zirgu puisis apbruņojies, sēžas sidraba
+zirgā un jāj pie ķēniņa. Šis, viņu turēdams par kādu svešu princi, jauj tam <b>vest
+</b>meitu. Meita sēžas viņam aiz muguras un abi aizaulekšo.</p>
+
+<p align="JUSTIFY">"Dod man to meitu!" sauc pūķis jūrmalā, uguni spļaudams,
+ka sakarst zirga puiša bruņas. Bet šis tam virsū ar zobinu žvikš! un pūķis
+izstiepjas. Puisis izgriež tam mēli un paņem to līdzi. Ķēniņam liels prieks par
+atdabūto meitu ; bet varonis nozūd.</p>
+
+<p align="JUSTIFY">Otrā dienā zaldāts prasa otras meitas. Nepazīstamais klāt un
+aizved princesi. Pūķis ar trim galvām viņu sagaida jūrmalā un spļauj ugunis, ka
+bruņas top sarkanas. Puisis kā kaķis viņam kaklā,-- un visas trīs galvas zemē.
+Mēles izgriezis, viņš laiž mājā.</p>
+
+<p align="JUSTIFY">Trešā dienā zaldāts klāt un prasa jaunākās meitas. Ķēniņš
+apsola. Varonis atkal atjāj; bet šoreiz ar dimanta zirgu. "Lejat tagad ūdeni<b> </b>visos
+dzelzs katlos", viņš pavēl; tad saka, pagriezies uz princesi: "Nāc,
+ieķeries manam zirgam astē." Viņa ieķeŗas un tas aizjāj. Jūrmalā stāv
+pūķis ar sešām galvām. Puisis nolec no zirga. Pūķis nu kŗākdams, šņākdams
+viņam virsū; bet</p>
+
+<p align="JUSTIFY">puisis iegrūž laimīgi savu šķēpu pūķim kuņģī, kas
+grīļojas, mēles šaudīdams. Princis uzlec viņam kaklā, nocērt tam visas galvas un -
+izrāvis mēles - jāj uz māju.</p>
+
+<p align="JUSTIFY">Ķēniņš sauc: "Varoni! Ņem manu jaunāko meitu, lielākas
+algas man vairs tev nav."</p>
+
+<p align="JUSTIFY">"Ne, ķēniņ, to nevaru", zirgu puisis teic. "Esmu
+viņas brālis, tavs padzītais dēls."</p>
+
+<p align="JUSTIFY">Dēls gul tēvam pie krūtim un šis slacina viņa galvu prieka
+asarām.</p>
+
+<p align="JUSTIFY">Ķēniņš, dabūjis zināt zaldāta blēdību, izsūta kaŗavīrus,
+lai saķertu blēdi. Tas izdodas. Kamēr Misiņbārzds svin kāzas ar ķēniņa vecāko
+meitu, tamēr zaldātam jāgrauž pūķu mēles cietumā. Pēc kāzām viņu apžēlo.</p>
+
+
+</body></html>

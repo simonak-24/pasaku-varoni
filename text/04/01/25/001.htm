@@ -1,0 +1,207 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>25</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Vīrs meklē zudušo sievu.</p>
+</font>
+
+</b><p><b></b>&nbsp;</p>
+
+<p>1. A. 400. Burkinu Augusts Valmierā. LP, III, 31.</p>
+
+<p align="JUSTIFY">Reiz kādam jaunam saimniekam bijis kungam jāiet līdz uz medībām
+par dzinēju. Bet nu gadījies dzinējam tādu zvēru aplenkt, ko nevarējis nemaz
+izdzīt. Mocījies ilgu laiku. Beidzot zvērs nozudis kā ūdenī. Dzinējs atlaidies un
+gribējis atpakaļ griezties, bet tavu nelaimi. -- nevarējis vairs nevienas pazīstamas
+tekas atrast. Nu maldījies, maldījies, kamēr pienācis vakars. Nokrēslā jaunais
+saimnieks atlaidies pret ozolu un domājis turpat pa nakti palikt. Bet piepēži
+iespraušļojies pašā tuvumā zirgs. Viņš uzlēcis stāvus, noķēris zirgu pie sariem
+un domājis:</p>
+
+<p align="JUSTIFY">"Pag, pag, tagad esmu jāšus, jārauga vēl pamaldīties. Kas
+zin', vai nelaimējas ceļu atrast?"</p>
+
+<p align="JUSTIFY">Kā domājis, tā darījis. Nu jājis, jājis labu laiciņu. Uz vienu
+reizi tas pamanījis gaišas ugunis. Jājis klāt. Ak tu manu dieniņu! Ko nebija ne
+domājis, ne redzējis, to vajadzējis tagad maldoties pieredzēt, proti : pašā meža
+malā, stāvējusi skaista pils- ar zelta durvim un zelta logiem. Saimnieks tūlin
+piesējis zirgu lūku pavadā. un gājis iekšā. Bet tavus brīnumus! Kad jel viena
+cilvēka būtu. Ugunis gaišas, galdi klāti, ēdieni, dzērieni labi jo labi, bet ēdēja
+neviena. Izbrīnījies tādu laiku, gājis savu zirdziņu apraudzīt. Bet atkal brīnumi.
+Zirgs ievests zelta stallī un apkopts uz labāko.</p>
+
+<p align="JUSTIFY">"Nu, kad tevi!" viņš domājis un gājis atkal iekšā.
+Bijusi patlaban pusnakts. Te uz reizi vecs vecs vīrs sirmu bārdu iznācis no dibens
+istabām un saņēmis saimnieku laipni jo laipni. Saimnieks iesākumā tā kā sabijies;
+bet vecis teicis: "Nebīsties, es nekā jauna nedarīšu. Šī pils pieder man, tu
+vari palikt un dzīvot. Esmu noburts par zvēru; mana vecā māte bija ragana, tā to
+izdarīja. Tik pusnaktīs man vēlēts uz īsu brīdi par cilvēku palikt; cits laiks
+jānostaigā par zvēru. Tad tik nu to ievēro: apakš devītās istabas ir gaŗa ala, tur
+tu savu kāju nesper!"</p>
+
+<p align="JUSTIFY">Labi, vecis nu pazudis un saimnieks labi paēdis, padzēris un
+aizgājis gulēt. No rīta tas apstaigājis visas pils istabas; beidzot nonācis ir
+devītā istabā. Izskatījies, izskatījies, nezinājis, ko darīt: vai iet aizliegtajā
+alā, vai neiet. Apņēmies neiet. Pēc kāda brīža tas atkal pielīdis pie alas durvim
+un domājis: "Diezin, vai tur iekšā gaišs jeb tumšs?"</p>
+
+<p align="JUSTIFY">Viņš pavēris mazu mazu lietiņu alas durvis un domājis paglūnēt;
+bet durvis ar sparu atsprāgušas vaļām līdz galam un saimnieks gribot negribot
+atradies alā. Alas galā patlaban lēkusi saule, vidū bijis spožs rāms ezeriņš,
+ezeriņa malā meža līcis.</p>
+
+<p align="JUSTIFY">Saimnieks atlaidies meža līcī gaŗšļaukus un skatījies ūdenī.
+Viss bijis kluss, ne lapiņa nekustējusi. Te uz reizi sākuši it kā putnu spārni
+šmīkstēt. Saimnieks pacēlis acis un ieraudzījis gaisā trīs gulbjus. Tie
+nolaidušies ezeriņa malā, apskatījušies uzmanīgi uz visām pusēm un tad
+pārvērtušies par meitām. Pēc 'a brītiņa meitas norunājušas ezeriņā
+papeldēties. Viņas noņēmušas savus vaiņagus, pakārušas tos liepas zarā un
+pinušas matus vaļām. Bet saimnieks ātri ātri pagrābis vienu vaiņagu, paslēpis to
+apakš svārkiem un tecējis no alas ārā. Tā meita, kuŗai vaiņags piederējis,
+steigusies pakaļ un lūgusi, lai atdod viņas vaiņagu. Saimniekam meita ļoti patikusi,
+viņš neatdevis vis vaiņagu, bet vēl apkampis meitu ap vidu un iznesis to no alas
+ārā, lai celtu savam zirgam mugurā un bēgtu uz māju. Nu bēdzis, nu steidzies, kamēr
+sasniedzis savu māju.</p>
+
+<p align="JUSTIFY">Trešā dienā saimnieks gribējis ar jauno meitu kāzas svinēt. Bet
+meita vienmēr lūgusies "Atdod, puisīt, manu vaiņagu, atdod manu vaiņagu!"</p>
+
+<p align="JUSTIFY">Viņš domājis: "Rītu būs kāzas, var jau arī atdot, par to
+jau nekas!"</p>
+
+<p align="JUSTIFY">Atdevis; bet nu notikuši brīnumi: līdz ko meita<b> </b>uzliksi
+vaiņagu galvā, tā acumirklī pārvērtusies par gulbi un aizlaidusies projām uz savu
+alu. Saimniekam, to redzot, sirds pušu lūzusi no žēlabām pēc daiļās meitas. Viņš
+cieši apņēmies to atkal atdabūt, un tādēļ lēcis zirgam mugurā, lai steigtos uz
+skaisto pili. Aizjājis tur pašā pusnaktī. Viss cits bijis tāpat kā todien, tik vecis
+iznācis ļoti bargs pretim un uzsaucis: "Kā tu pārkāpi manu aizliegumu! Vai zini,
+tev uz vietas jāmirst."</p>
+
+<p align="JUSTIFY">"Ai, tētiņ," saimnieks lūdzies, "dari ar mani ko
+gribēdams, tik dzīvu atstāj."</p>
+
+<p align="JUSTIFY">"Labi, caur manu roku tev nebūs mirt, bet grūts darbs tev tagad
+priekšā. Ja vari to izdarīt, tad viss vēl labi; ja ne, tad nāve priekš acim. Tev
+jāiet caur viņu meža līci gar upmali vien un jānotiek līdz upes tiltiņam. Ejot
+visādi zvēri tevi aiztiks raugi no viņiem atgaiņāties; bet uz upes tiltiņa būs
+vislielākais zvērs - to raugi pārvārēt, tad būs labi. Bet ja tev tas neizdodas, tad
+mirsi."</p>
+
+<p>Saimnieks pakampis zobini un steidzies uz cīniņu.</p>
+
+<p align="JUSTIFY">Uz ceļa zvēri plosījušies kā traki, bet saimnieka zobins
+šķaidījis viņus, ka putējis vien. Beidzot nonācis pie tiltiņa. Liels svampis to
+sagaidījis un drāzis saimniekam virsū, bet šis, kā licis ar zobinu, tā lielajam
+zvēram galva atšķīrusies uz katru pusi</p>
+
+<p align="JUSTIFY">Uzvarētājs gavilēdams gājis atpakaļ uz pili. Bet te sagaidījuši
+to vēl lielāki prieki. Visi trīs gulbji bijuši pārvērtušies par daiļām meitām un
+vecis par cilvēku. Tie nākuši saimniekam pretim un nezinājuši no prieka, ko darīt.
+Beidzot vecis teicis: "Zvēru pārvarēdams, tu izglābi mūs un mūsu pili. Tādēļ
+ņem manu jaunāko meitu par sievu, to pašu, kuŗu tu todien gribēji un nedabūji, un
+visu mantu, kas man pieder."</p>
+
+
+</body></html>

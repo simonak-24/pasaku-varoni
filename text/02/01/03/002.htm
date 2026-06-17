@@ -1,0 +1,231 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pūķa kavējs dažādos apstākļos.</p>
+</b></font><font size="4">
+
+<p align="JUSTIFY">&nbsp;</p>
+</font><b>
+
+</b><p align="JUSTIFY"><b>2. </b>A.300. Vītols Stukmaņos. R. Auniņa "Ueber den lettischen
+Dachen-Mythus." 137. LP, VI, 3, 6.</p>
+
+<p align="JUSTIFY">Vecos laikos dzīvojis viens vīrs un sieva mazā mājiņā. Virs drīz
+nomiris, atstādams atraitni ar diviem maziem bērniņiem, vienu dēlu un meitu. Dēlu,
+Miķieli vārdā, un meitu, ar vārdu Tekla, māte rūpīgi kopusi un audzinājusi. Tā
+viņi dzīvojuši visi trīs kopā ilgus gadus laimīgi un bez bēdām.</p>
+
+<p align="JUSTIFY">Miķielis jau bijis pieaudzis brangs jauneklis, pašos spēka gados un
+viņa māsa skaista jaunekle, pašos ziedu gados, te viņiem negaidot uznākušas lielas
+bēdas. </p>
+
+<p align="JUSTIFY">Ļoti jaukā pavasaras dienā, jūnija mēnesī, Tekla iegāja savā
+puķu dārziņā puķes aplaistīt. Te uz reiz - kur cēlies kur ne - briesmīgs pūķis,
+ar dedzīgām, ugunīgām acim, sagrābis viņu ar saviem zvēra nagiem un aiznesis uz
+vareni augsta klinšu krasta, kur vēl neviena dzīva dvēsele nav bijusi.</p>
+
+<p align="JUSTIFY">Viņas brālis Miķielis pa to starpu bijis aizbraucis uz pilsētu
+mātei ko pārvest. Kad mājā atbraucis, saulīte taisījusies patlaban noiet. Istabiņā
+iegājis, viņš atrod māti sēžam.</p>
+
+<p align="JUSTIFY">"Kur ir mana māsa, Tekla?" "Viņas nav, viņas
+nav!"</p>
+
+<p align="JUSTIFY">"Māt', ko tu domā, kur viņa var būt palikusi?"</p>
+
+<p align="JUSTIFY">"Kas to, dēls, zina? Veci ]audis daudzina, ka esot dzirdējuši,
+ka tie briesmīgie pūķi nozogot bērnus, pat lielus cilvēkus, un tad aiznesot augstos
+klinšu krastos." Rītā dēls saka uz māti: "Es iešu māsas meklēt."</p>
+
+<p align="JUSTIFY">Miķielis nu taisījis trepes, lai varētu uzkāpt stāvos klinšu
+kalnos, un tad gājis māsas meklēt. </p>
+
+<p align="JUSTIFY">Kalnā uzkāpis, viņš gājis un gājis, kamēr pienācis pie vienas
+mazas mājiņas. Iekšā iegājis, viņš atradis vecu raganu sēžam. "Dēls, ko tu
+te meklē?"</p>
+
+<p align="JUSTIFY">Miķielis teicis : "Savu māsu, Teklu."</p>
+
+<p align="JUSTIFY">Viņas te nav. Taisies, kā tieci projām! Kad mans vīrs atnāks
+mājās un </p>
+
+<p align="JUSTIFY">tevi še atradīs, tad viņš tavu dzīvību vis netaupīs."
+Miķielis apdomājies, kas darāms, un tad steidzies projām.</p>
+
+<p align="JUSTIFY">Labu gabalu nogājis, Miķielis ieraudzījis smuku, smuku pili. Viņš
+ieiet iekšā un redz raganu ar trim galvām sēžam.</p>
+
+<p align="JUSTIFY">"Ko tu te meklē?" ragana viņam vaicājusi. Savu māsu,
+Teklu," Miķielis atbildējis. "Taisies, kā tieci projām!"</p>
+
+<p align="JUSTIFY">Miķielis jautājis: "Kas šai pilī dzīvo?"</p>
+
+<p align="JUSTIFY">Ragana tam atteikusi: "Mans vīrs un dēls. Viņi ir aizgājuši
+pie saviem strādniekiem."</p>
+
+<p align="JUSTIFY">Miķielis izvilcis zobenu un nocirtis raganai visas trīs galvas. Nu
+viņš staigājis pa visiem kambaŗiem, raudzīt, kas tur ir. Vienas durvis atvēris,
+viņš ieraudzījis savu māsu sēžam.</p>
+
+<p align="JUSTIFY">"Saki man, mās, kā tu šinī pilī tiki?"</p>
+
+<p align="JUSTIFY">Māsa nu stāstījusi, ka puķu dārziņā šo tas niknais elles zvērs
+sagrābis ar saviem briesmīgiem nagiem un atnesis uz savu pili un ka tas nelaižot šās
+ne dienu, ne nakti vajā. Brālis prasījis Teklai: "Kas tā par sievu, kas tur
+priekšā sēdēja? Es viņai nocirtu visas trīs galvas."</p>
+
+<p align="JUSTIFY">"Tā bija pūķu māte," māsa atbildēja. "Vai,
+Miķiel! Tu esi slikti darījis. Kad viņas dēls un vīrs atnāks, tad tie mūs dzīvus
+aprīs. Viņi ir pie strādniekiem, bet pusdienā viņi būs klāt. Bēgt arīdzan nekur
+nevaram, jo viņi mūs tikpat noķertu."</p>
+
+<p align="JUSTIFY">Neko darīt, Miķielis paslēpies turpat pilī un gaidījis pūķi
+pārnākam. Pulksten 11-os ieskrējis pūķis. Māti redzēdams paga1am, prasījis:
+"Kas manu māti nokāvis?"</p>
+
+<p align="JUSTIFY">Tekla sacījusi: "Te neviena sveša cilvēka nav bijis."
+"Ko tu melo! Es saožu svešu smaku."</p>
+
+<p align="JUSTIFY">Pūķis skrējis no viena kakta uz otru. Miķieli atradis viņš to
+sagrābis tūlīt ar saviem briesmīgiem nagiem. Bet Miķielis sakapājis pūķi ar savu
+zobenu gabalu gabalos. Pulksten 12-os atskrējis pats velns ar sešām galvām.</p>
+
+<p align="JUSTIFY">"Kas manu sievu un dēlu nokāvis?"</p>
+
+<p align="JUSTIFY">Tekla saka, ka šī nezinot. Velns teicis: "Te ir viens bijis: es
+saožu svešu smaku."</p>
+
+<p align="JUSTIFY">Tiklīdz, ka to izteicis, viņš pamanījis Miķieli. Nu tas gāzies
+Miķielim virsū un sācis lauzties. Minušies un minušies, kamēr Miķielis nolauzis
+velnam lielo pirkstu. Velns palaidis Miķieli tūlīt vaļā un teicis : "Ņem savu
+māsu un eij no manas pils projām, tikai atdod manu pirkstu!"</p>
+
+<p align="JUSTIFY">Miķielis ņēmis savu māsu Teklu, un gājis uz savu mājiņu pa to
+pašu ceļu, kur atnācis; bet velna lielo pirkstu satinis papīrā un iebāzis vestes
+kabatā. Pie krasta malas nonākuši, grib kāpt zemē, bet še tev - trepu vairs nebijis.</p>
+
+<p align="JUSTIFY">Ko nu darīt? Miķielis staigājis šurp un turp, gudrodams, kā tikt
+zemē. Te viņš iegādājies velna lielo pirkstu, to izvilcis, sācis mētāt no vienas
+rokas otrā. Uz reiz atskrējis niknais pūķis un prasījis: "Ko tu gribi, ko tu
+mana tēva pirkstu svaidi?"</p>
+
+<p align="JUSTIFY">"Es gribu savas trepes, lai varu tikt lejā," Miķielis
+pūķim atbildējis. Tūlīt saskrējuši daudz anķipku (velnu sulaiņu), atnesuši
+trepes un nolaiduši Miķieli un Teklu zemē. Tā viņi atkal nokļuvuši laimīgi mājās
+pie mātes.</p>
+
+<p align="JUSTIFY">Miķielis bijis mācīts mālderis un tā labi pārticis vīrs. Bet
+reiz bijis vienā pilsētā briesmīgi augsts tornis jānomālē. Izsolījuši lielu
+maksu, kas to darbu padarīšot. Neviens neuzdrīkstējis tik augsta torņa mālēt.
+Miķielis apņēmies par lielu, lielu maksu nomālēt. Viņš izvilcis atkal velna pirkstu
+un pasvaidījis no vienas rokas otrā. Uz reiz saskrējuši pulka anķipku; katram bijis
+podiņš rokā un pindzele aiz jostām. Nebijis viens divi trīs, tornis gatavs. Kad
+Miķielim bijis kāds darbs, ko pastrādāt, tad vajadzējis tik velna pirkstu pasvaidīt
+un tūlīt velni sanākuši un darbu padarījuši. Tā viņš palicis par ļoti bagātu
+vīru; bet velnam pirksta nekad vairs neatdevis.</p>
+
+
+</body></html>

@@ -1,0 +1,246 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pateicīgais mirons.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">8. A. 505. 307. Teicējs 39 g. vecs P. Strods Višķos. Latvju
+kultūras kr.</p>
+
+<p align="JUSTIFY">Kaids boguots rierguotnojs, mierdams zemē, pamuocīja sovu dālu:
+"Tu vīns pats nikod nabrauc ar precem aiz jyuras, bet daboj sev lobu draugu!"</p>
+
+<p>"Kur lai es jūs dabuoju?" prasīja dāls.</p>
+
+<p align="JUSTIFY">"Ej uz krūgu. Krūgā sdēs pi golda un dzers brandīnu trei
+siermi vecīši. Tu nūpierc pudeli brandīna un izdzer ar jīm kūpā jo<b> </b>jī
+atpierks, tad jem jūs par draugim; bet jo naatpierks, tad najem!"</p>
+
+<p align="JUSTIFY">Tāvs nūmyra un dāls guoja uz krūgu draugu maklātu. Krūgai pi
+golda sēdēja treis siermi vecīši un dzēŗa brandīnu. Dāls atsasāda pi vecīšu
+golda, nūpierka pudeli brandīna un izdzēra ar večim kūpā. Veči naatpierka.</p>
+
+<p>"Itī nav draugi", padūmuoja dāls un aizguoja uz sātu.</p>
+
+<p align="JUSTIFY">Ūtrā dīnā taipat dāls aizguoja uz krūgu. Krūgā pi golda
+sēdēja otkon treis siermi vecīši. Dāls nūpierka pudeli brandina un izdzēŗa kūpā
+ar vecīšim. Veči naatpierka. Dāls aizguoja uz sātu un trešā dīnā otkon guoja uz
+krūgu. Krūgā pi golda sēdēja otkon treis vecīši. Dāls nūpierka pudeli brandīna
+un izdzēŗa kūpā ar vicīšim.</p>
+
+<p align="JUSTIFY">"Tovu izdzēŗām, vajaga ari mums atpierkt", soka vecīši
+un nūpierka pudeli brandīna.</p>
+
+<p align="JUSTIFY">"Iti byus lobi draugi", padūmuoja dāls un gribēja īsuokt
+runuot, kai kaids nu vecīšim soka: "Vai tu, dāls, nameklej sev draugu?"</p>
+
+<p align="JUSTIFY">Dāls pīsazyna, ka jau trešū dīnu jis meklej draugus, bet taidu
+naatroda, kai tāvs stuostīja. Divi vecīši palyka pi golda sādādami, bet trešais
+aizguoja ar dālu kūpā braukt uz aizjyurom. Ceļā vecīts ar dālu nūsarunuoja vysu,
+kū tik nūpelnīs, dalīt uz pusem.</p>
+
+<p>"Kaidu montu vessim?" prosa vecīts.</p>
+
+<p align="JUSTIFY">"Man ir vysaids", soka dāls un izstuostija, kū varātu
+vest. "Tys monts nalobs", soka vecīts un aizguoja ar dālu uz jyuras krostu,
+pīlasīja tur lelu un mozu akmeņu. Akmeņus īluodēja kuģūs un aizbraucia.</p>
+
+<p align="JUSTIFY">Aizbraucja jī uz aizjyurom un vecīts soka: "Tagad, dāls, pajem
+drusku akmeņu, aiznes kēniņam un paruodi sovu preci!" Dāls īsēja mutautiņā
+akmentiņu, aizguoja pi kēniņa un paruodīja kēniņam sovas preces. Tī akmeņi beja
+duorgi akmeņi. Kēniņš beja ar mīru apmainīt preces ar dālu, bet soka: "Es
+apmainīšu preces, tikai tu vīnu nakti baznīcā pastuovi un pasorgoj!"</p>
+
+<p align="JUSTIFY">"Es aizīšu pi sova drauga un tad athildēšu", soka dāls.
+Tymā baznīcā, pogrobā, gulēja nūluodētuo kēniņa meita, kurai kotru nakti
+vajadzēja dūt pa vīnam cylvākam apēšonai. Dāls aizguoja pi vecīša un izstuostija
+jam, ka kēniņš apmainīs preces, tikai vajag vīnu nakti baznīcā sorguot.</p>
+
+<p align="JUSTIFY">"Tys jau nav nikas, vīnu nakti nūsorguot," soka vecīts,
+"tikai kad tu aizīsi uz baznicu, nūskaiti puotorus un tad īej zvaninīcā, izkuop
+uz zvona, apsatin ar zvona striči nu kuoju leidz golvai un sēdi mīrīgs!"</p>
+
+<p align="JUSTIFY">Dāls aizguoja uz baznīcu, nūskaitīja puotorus, izkuopja uz zvona,
+apsatyna ar zvona striči nu kuoju leidz golvai un sēd. Pašuos pusnaktīs pasaškeiŗa
+baznīcas greida, izzacēļa šķiersts un nu škiersta izlēcja nūluodētuo<b> </b>kēniņa
+meita. Meita izskraidīja vysus baznīcas koktus un naatroduse soka: "Vajag kaut kur
+byut!"</p>
+
+<p align="JUSTIFY">Tad īskrēja zvaninīcā un soka: "Gudrinīks, kur izkuopis, lai
+es nadabuoju!"</p>
+
+<p align="JUSTIFY">Dāls sēd uz zvona un nikuo nasoka. Meita suoka kuopt pa sīnu, bet
+palcuop, pakuop un kreit zemē. Tai jei kuopja daudz reižu, bet naizkuopja. Gailis suoka
+dzīduot un jei ar vysu škierstu pazuda. Dāls nūkuopja nu zvona, pīguoja pi oItora,
+atsametja ceļūs un skaita puotorus. Reitā kēniņš syuta sovus kolpus uz baznīcu
+iznest sorga kaulus. Kolpi aizguoja un sorgu atroda dzeivu. Kēniņš nūsabreinuoja, ka
+dāls palyka dzeivs, un soka: "Pasorgoj vē vīnu nakti un es tev īdūšu treis
+kuģi monta!"</p>
+
+<p align="JUSTIFY">Dāls aizguoja un soka sovam draugam: "Kēniņš dūd daudz monta,
+ka tik vē vīnu nakti sorguotu baznīcā!"</p>
+
+<p align="JUSTIFY">Vecīts īdevja sveci un soka: "Ej uz baznīcu, izkuop uz lūga pa
+lobai rūkai nu škiersta, apveļc ar sveci treis rinki un sēdi. bet verīs, ka drēbes
+nabvutu puori par rinkim!"</p>
+
+<p align="JUSTIFY">Dāls aizguoja uz baznīcu un sorgoj. Pusnaktīs pasaškeiŗa greida,
+pasacēļa škiersts un pīsacēļa nūluodātuo kēniņa meita. Tyuleņ jei aizskrēja uz
+zvaninīcu, bet nav! Tai meita izskraidīia vysas molas, bet navar atrast. Golā jei
+īsavēra, ka dāls sēd uz lūga un skrēja kluot, lal nūraut un apēst, bet par rinkim
+navarēja puorskrīt.</p>
+
+<p align="JUSTIFY">Nu munu rūku nalzbēgsi," pasacīja meita un vys pyulējās tikt
+"</p>
+
+<p align="JUSTIFY">puori par rijtkim, bet te gailis suoka dzīduot un jei ar vysu
+škierstu pazuda. Reitā kēniņa kolpi atroda dālu dzeivu un aizvedja pi kēniņa.</p>
+
+<p align="JUSTIFY">"Pasorgoj vēļ vīnu nakti un es tev pus kēnests atdūšu,"
+soka kēniņš dālam.</p>
+
+<p align="JUSTIFY">Dāls aizguoja pi sova vecīša un soka: "Kēniņš atdūd pus
+kēnests, ka tik pasorguotu vēļ vīnu nakti!"</p>
+
+<p align="JUSTIFY">Vecīts īdevja dālam škaplerus un rožoncas un soka: "Ej uz
+baznīcu un atsaguļsti tyvu pi tuos vītas, kur škiersts izaceļ un guli tymā pusē,
+kurā vuoks nūkreit. Kad kēniņa meita tevi atrass, tu izmet rožoncas un škaplerus uz
+juos un atsagrīz ar muguru, un narunoj ar tū nikuo. Jei paliks par čyuškom, zvērim,
+bet tu nasabeist un tik tad kad jei paliks par meitu, tad velc jū pi oltora un skaiti
+puotorus!"</p>
+
+<p align="JUSTIFY">Dāls aizguoja uz baznīct, atsagula tyvu pi tuos vītas, kur izzaceļ
+škiersts un guļ. Pusnaktīs pasaškeiŗa greida, izzacēļa škiersts un vuoks kai
+krita, tai apsedzja dālu. Meita meklēja, meklēja, bet navarēja atrast. Jau jei atguoja
+pi škiersta un gribāja gultīs škierstā, kai īraudzēja zam vuoka dālu. Dāls
+izsvīdja uz juos rožoncas un škaplerus, pasagrīzja uz kēniņa meitu ar muguru un gul.
+Meita suoka runuot ar dālu, bet dāls nikuo naatbiļd. Tad jei palyka Tar vysaidom
+čyuškom un ballīgim zvērim un<b> </b>baida dālu, bet dāls vys nasabeist un guļ. Kad
+meita paiyka otkon par meitu, tad dāls jīt aizvedja pi oltora un skaita puotorus. Reitā
+kēniņš syuta sovus kolpus izsvīst dāla kaulus uorā, jo jis nadūmuoja, ka trešū
+nakti dāls varēs atsorguot. Kolpi aizguoja un redz, ka dāls skaita puotorus ar meitu.
+Kēniņš nūsabreinuoja, kad atvedja dālu un juo meitu dzeivus un atdevja dālam pusi
+sovas kēnests un apprecēja ar meitu. Dāls pījēmja vysaida monta un brauc uz sātu.
+Jvuras vydā veīts soka: "Atmini myusu nūrunu - dalīt vysu mantu uz pusem, kū
+nūpelnīsim!"</p>
+
+<p>"Dalīsim!" atbildēja dāls.</p>
+
+<p align="JUSTIFY">Sadalīja dāls ar vecīti vysu montu. Tad vecīts soka: "Vajag
+sīvu arī dalīt!"</p>
+
+<p>"Dalīsim!" atbildēja dāls.</p>
+
+<p align="JUSTIFY">Vecīts izmyna ar vīnu roku kuoju uz dāla sīvas kuojas un, aiz
+ūtras pajēmis ar rūkom, puorplēsja meitu uz pusem. Nu meitas īkšīnes izskrēja
+vysaidas čyuškas un naškeisti gori. Tad vecīts paskoluoja obas meitas puses jyuras
+yudenī, salyka kūpā un meita palyka otkon taida pat, kai beja, bet pats vecīts
+pasacēļa gaisā un pazuda. Dāls ar sovu sīvu atbraucja uz sātu un dzeivuoja laimīgi.</p>
+
+
+</body></html>

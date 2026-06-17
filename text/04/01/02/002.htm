@@ -1,0 +1,168 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Slēpšanās no ķēniņa meitas.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 329. Teicējs A. Pabērzs Preiļos, Kultūras Balss kr</p>
+
+<p align="JUSTIFY">Vīns medinīks aizguoja uz mežu medīt. Tikkū jis īguoia mežā -
+veras: stuov vonogs. Medinīks dūmuoja: "Vīna olga, nūšaušu vonogu!"</p>
+
+<p align="JUSTIFY">Bet vonogs suoka lyugt, lai našaun: "Pajem nu munas astes vīnu
+spolvu un kad tev byus kaida nalaime, tu šū spolvu aizdadzynoj un es tev tūlaik
+varēšu paleidzēt!" soka vonogs.</p>
+
+<p align="JUSTIFY">Medinīks pajēmja spolvu un aizguoja tuo[uok. Veras: stuov meža kaza.
+Medinīks tikkū gribēja jū saut, koza jam soka: "Nasaun manis, lobuok pajem nu
+munas astes vīnu sprūdziņu vylnas. Kad tev byus kaida nalaime, aizdadzynoj iū, es
+tyuleņ byušu pi tevis un tev paleidzēšu!"</p>
+
+<p align="JUSTIFY">MediWs tai izdarīja, pajēmja vylnas sprūdziņu un aizguoja tuoļuak.
+Guoja jis, guoja un īsagribēja jam dzert. Pīgnoja jis pi ryucīša un tikkū suoka
+dzert, veras: zalta zivti:a stuov un soka: "Paleidz man, lobais cylvāks, puorīt uz
+upīti, man te tik gryuti dzeivuot! Puornes mani, es kaut kad tev ari paleidzēšu!"</p>
+
+<p align="JUSTIFY">Medinīks paklausīja zalta zivtiņas un aiznesja jū leidz upītei,
+īlaidja jū tur, bet pats guoja tuoļuok.</p>
+
+<p align="JUSTIFY">Guoja jis - veras : stuov ustabiņa. Īguoja jis īškā un redz : sēd
+vecenīte un raud. Medinīks vaicuoja: "Kuopēc tu raudi?" Vecenīte jam
+atbiļdēja: "Ir myusu kēnestī kēniņa meita, kura ar sovu taurini [stobriņu] var
+redzēt na tikai vysu pasauli, bet arī vysu, kas nūteik dabasūs. Jei ir pasacīja, jo
+jauneklis tai aizzaglobuos, ka viņa navarēs redzēt, tūlaik jei byus tam jaunekļam
+sīva, bet jo īraudzēs, tad nujems jam golvu. Jau tyukstūšas jaunekļu golvas gul
+zemē. Ari muns vīnīgais dāls ir nūsysts!"</p>
+
+<p align="JUSTIFY">Mediniks tyuleņ aizskrēja pi kēniņa un pasacīja, ka jis grib sovu
+laimi izraudzīt. Kēniņa meita pasasmēja un teicja: "Labi, treis reizes. tu
+nūsaglaboj, jo es tevis naatrasšu, tūlaik byušu tova sīva!"</p>
+
+<p align="JUSTIFY">Nuokūšā dīnā medinīks aizdadzynuoja vonoga spolvu. Atskrēja
+vonogs un kad dabuoja zynuot, kuo grib medinīks, vonogs nūglobuoja jū sovā pereklī,
+kurš beja iztaisīts tašņi akmeņa īškā. Lai kēniņa meita skotījās kai
+skotīdamuos sovā taurinī, bet navarēja nikur redzēt medinīka!</p>
+
+<p align="JUSTIFY">Ūtrā dīnā medinīks aizdadzynuoja vylnas sprūdziņu un veras: koza
+jau stuov. Jis izstuostīja jai sovu nalaimi. Koza īvedja jū dziļā dūbē, bet paša
+atsagula jam viersā. Lai kēniņa meita meklēja cik maklādama, bet medinīka naatroda.</p>
+
+<p align="JUSTIFY">Trešā dīnā medinīks aizguoja leidz upītei un suoka saukt zalta
+zivtiņu. Tei tyuleņ atskrēia un kad dabuoja zynuot, kuo grib medinīks, pavēlēja
+leidakai nūreit medinīku. Leidaka tai izdarīja. Ilgi meklēja kēniņa meita medinīku,
+tūmēr nikur juo nadabuoja. Tai kēniņa meita Pajēmja medinīku sev par veiru un jis
+dreiž! palyka par kēniņu.</p>
+
+<p align="JUSTIFY">Piezīme. Lai gan šī pasaka nav piesūtīta no citiem Latvijas
+apgabaliem, tomēr gluži sveša viņa nav ne Vidzemē ne Kurzemē. Raunā es pats tiku
+tādu pasaku dzirdējis, tikai neatceros vairs sīkumus. Kurzemē ir pazīstamais Alfrēds
+uzrakstījis ("Tautas pasakas", 1893. G) šādu variantu kopā ar citu pasaku
+par aizbēgušo sievu (skat. IV, 25, 3). P. Š.</p>
+
+
+</body></html>

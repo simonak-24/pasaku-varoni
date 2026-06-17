@@ -1,0 +1,183 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>25</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Burvis zārkā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">25. Lapas Mārtiņš Rūjienā, "Gudrais Ansis un velns" III,
+Smiltenē 1902., 13.</p>
+
+<p align="JUSTIFY">Kādā muižā dzīvojis bezdievīgs kungs, kas ne pats apmeklējis
+baznīcu, nedz saviem ļaudim jāvis to darīt. Dieva lūgšana, garīgu dziesmu
+dziedāšana un pātarošana bijusi pie viņa cieši aizliegta. Kungs bijis pārdevies
+velnam un velns izpildījis katru viņa vēlēšanos.</p>
+
+<p align="JUSTIFY">Bet kad dievbijīgais kungs nomanījis, ka viņam drīzumā jāmirst un
+sava dvēsele jāatdod velnam, viņš licis atlūgt mācītāju, lai atbraucot pasniegt
+viņam svētmielastu. Mācītājs iesākot gan negribējis izpildīt lūgumu, tādēļ ka
+kungs visu mūžu bija dzīvojis bezdievīgi, bet tad apdomājies cerēdams, ka kungs
+vecuma dienās sāks atgriezties pie Dieva, un tādēļ braucis pie kunga un izpildījis
+viņa vēlēšanos.</p>
+
+<p align="JUSTIFY">Pēc tam kungs mācītāju ļoti lūdzis, lai nebraucot uz māju, bet
+lai paliekot pie viņa pa nakti un lūdzot Dievu par viņu. Mācītājs papriekšu gan
+negribējis izpildīt šo lūgumu, bet tad apdomājies un tomēr to darījis redzēdams,
+ka kungs nopietni grib atgriezties un izglābt savu dvēseli.</p>
+
+<p align="JUSTIFY">Bet kādu brītiņu priekš pusnakts kāda melna karīte ar četriem
+melniem zirgiem ar lielu troksni piebraukusi pie kunga nama durvim un kāds melns kungs,
+kuŗu mācītājs tūlin pazinis par velnu, ienācis un pavēlējis kungam iziet un
+iekāpt karītē. Mācītājam velns sacījis: "Tu man gribēji atvilināt manu
+cilvēku. Tev nu jābrauc man līdz, lai tu redzētu, ka tava dievlūgšana še vairs neko
+nav līdzējusi. Tu vari braukt pats savos ratos."</p>
+
+<p align="JUSTIFY">Mācītājam bijis jāiet modināt savs kučērs un jāliek tam
+aizjūgt zirgi.</p>
+
+<p align="JUSTIFY">Kad mācītāja kučērs zirgus piebraucis pie kunga trepēm, velns
+trīcošu kungu kā nieku iznesis un iegrūdis melnajā karītē, tad nogaidījis, līdz
+mācītājs iesēžas savos ratos un tad pats arī iesēdies melnajā karītē un
+pavēlējis melnajam kučēram traukt.</p>
+
+<p align="JUSTIFY">Braukuši pa nepazīstamiem ceļiem un tumšiem mežiem, iīdz pēdīgi
+piebraukuši pie lielas pils. Tur velns kungu ienesis iekšā un pavēlējis mācītājam
+iet līdz.</p>
+
+<p align="JUSTIFY">Kad nu iegājuši pilī, velns kungu iesēdinājis nodedzinātā dzelzs
+krēslā un pavēlējis nolādēt Dievu.</p>
+
+<p align="JUSTIFY">Kungs cietis lielas mokas, bet tomēr nelādējis.</p>
+
+<p align="JUSTIFY">Tad velns atnesis nodedzinātu dzelzs ķemmi un ar to skrāpējis kunga
+galvu pavēlēdams: "Nolādi Dievu!"</p>
+
+<p align="JUSTIFY">Kungs lielās mokās sakodis zobus un nelādējis.</p>
+
+<p align="JUSTIFY">Tad velns sasaucis elles muzikantus un tos nosēdinājis ap kungu un
+pavēlējis viņiem pūst savās melnajās, lielajās taurēs. No tā izcēlies tik
+briesmīgs troksnis, ka mācītājam aiz šaušalām mati cēlušies stāvu un ausis
+aizkritušas ; bet kungam pa muti un degunu izplūdušas asinis</p>
+
+<p align="JUSTIFY">"Vai tagad nolādēsi Dievu?" velns jautājis.</p>
+
+<p align="JUSTIFY">Kungs vairs nevarējis izturēt mokas un nu lādējis Dievu. Pēc tam
+velns kungu iemetis vārošā katlā un mācītāju izgrūdis no pils sacīdams:
+"Turpmāk vairs nelūkā man novilināt manu cilvēku!"</p>
+
+<p align="JUSTIFY">Melnās karītes vairs nebijis pils priekšā. Mācītājs iesēdies
+savos ratos un kučērs sācis braukt.</p>
+
+<p align="JUSTIFY">Kad izbraukuši no tumšā meža, tad ceļš kučēram bijis pazīstams
+un viņš rīta krēslā nobraucis mācītāja muižā. Bet mācītājs no piedzīvotām
+izbailēm saslimis.</p>
+
+<p align="JUSTIFY">Piezīme. Še salīdzināms iepriekšējās pasakas 14. variants. P.
+Š.</p>
+
+
+</body></html>

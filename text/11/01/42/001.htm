@@ -1,0 +1,145 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>42</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Velns mācās spēlēt.</strong></font></p><font size="5">
+
+</font><p align="RIGHT"><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p>l. A. 1159. J. S p r o ģ i s, K o k n e s ē. B r ī v z. "S b o r ņ i k",
+73, 59. LP, VII, II, 3, 3, 1.</p>
+
+<p align="JUSTIFY">Vienam muižniekam bija ieviesušies rijā pasauls velnu, neviens
+kristīts cilvēks vairs nevarējis tur apmesties. Muižniekam žēl sava īpašuma,
+taujājis pēc cilvēka, kas jel riju iztīrītu, bet neviena atrast.</p>
+
+<p>Te vienreiz ieteiksies šis citas rijas rijkurim: "Ja izgulies vienu nakti manā
+rijā, atdošu tev savu meitu par sievu." Rijkuris tīri nezin, ko darīt, aplam
+tiktos kunga meitu apņemt.</p>
+
+<p align="JUSTIFY">Pienāk vakars, rijkuris pierunā strādniekus līdzi nākt uz velnu
+riju. Strādnieki klausa arī, iet. Šie nu visi brangi vēli sēž rijā te piepēži
+velns diviem zirgiem karītē klāt, izlec no karītes, rijā iekšā. Rijkuris patlaban
+stabulējis jauki jo jauki. Velns klausīties, klausījies - nieki nebūs - lūgs, lai
+viņam arī dodot stabuli pastabulēt. Rijkuris iedod stabuli, bet velnam nekādā jēgā
+neskan.</p>
+
+<p align="JUSTIFY">Velns vaicā: "Kāpēc tev tik brangi skan, man ne pēc kā?"
+"Tāpēc ka tev pirksti resni - maksā, pataisīšu tos tievākus, tad arī tu
+stabulēsi krietni."</p>
+
+<p align="JUSTIFY">Velns par mācību apsolījis savu karīti ar zirgiem. Nu rijkuris
+padabū turpat svārpstu, ieurbj sienā desmit caurumus; bet strādnieki atkal tamēr
+notēsuši desmit puļķus. Velns tad sabāzis visus pirkstus caurumos un rijkuris ar
+puļķiem tos piepuļķojis. Velns kliedzis, ka sāpot, bet rijkuris mierinājis, lai
+paciešoties, lai. Beidzot ne par ko nevarēdams vairs paciest, sācis lādēties velns,
+izrāvis visu baļķi no sienas, ieskrējis ezerā ar to.</p>
+
+<p>Rijkurim palikusi karīte un zirgi ; arī kunga meitu apņēmis un dzīvojis bez
+bēdām.</p>
+</font>
+
+
+</body></html>

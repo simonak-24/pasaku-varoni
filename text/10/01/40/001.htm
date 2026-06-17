@@ -1,0 +1,187 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>1004001</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Ķēniņš Brusubārda.</font><font size="4"></font></p><font size="4">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">l. A. 900. A.<b> </b>Lerchis - Puškaitis,
+Džūkstē-Pienavā. LP, I, 26, 5.</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz kādam ķēniņam bija princese. Šis ķēniņš gan bija viens no
+niknajiem; bet viņa princese bija dusmīgāka par dusmīgajiem. Ķēniņam bija gan gadi
+septiņdesmit pāri; bet princese totiesu vēl ne piecdesmit gadu veca. Septiņdesmit
+dzīŗas ķēniņš bija darinājis, kur ielūdza tikai princeses preciniekus; bet
+septiņdesmit reiz zaķis pārlēca preciniekiem pār ceļu. Aizvakar precēja vēl
+ķēniņš Brusubārda pēc princeses; bet princese smādēja viņa resno degunu. Nu
+vecais ķēniņš, pusvalsti dzīŗās jau iztērējis, nosacīja īsi: "Vēl
+beidzamo reizi tevis dēļ dzīŗas taisīšu un kuŗš tad pirmais uz dzīŗām atnāks,
+lai ir tavs vīrs!".</p>
+
+<p align="JUSTIFY">Atnāca nabags pirmais; Brusubārda mazliet nosebojās.</p>
+
+<p align="JUSTIFY">"Kad tevi jupis!" princese dusmās izsaucās; bet ķēniņš
+piesita ar kāju un pavēlēja pie nabaga aiziet.</p>
+
+<p align="JUSTIFY">Nabags gan mantas ziņā bija nabags; bet apķērībā šis nebija
+bešā. Tūlīt tas nosvieda otru tarbu un uzspieda sievai to valkāt: sievai jau vīram
+esot jāpalīdz.</p>
+
+<p align="JUSTIFY">Tā nu abi - katram tarba sānos - pārgāja mājās. Otrā dienā
+šis, sievu mīlēdams, palīdz tai mežā žagarus lasīt un smago žagaru nastu mugurā
+celt. Pēc azaida abi gāja purvā klūdziņas griezt, kur sieva nemācēdama, sagraizīja
+tā nagus, ka vīriņam jāsapūš bez elpas un asinis jānomazgā purva netīrajā
+ūdenī. Šī gan sāka tur vaimanāt, brēkt, bet nabags prata vislabāki klusināt.
+Atnāca trešā diena, kur pilsētā tirgus. Nabags paņēma no sievas pūra naudu,
+sapirka tirgū traukus un lika sievai pārdot. Vēl šī ne pundeļa nebija pārdevusi,
+jau brauca Brusubārda tirgū un sabrauca visus nabaga traukus.</p>
+
+<p align="JUSTIFY">Mājās ejot, sieva sāka prašināt: kam plašās lankas, bagātās
+druvas gan piederot.</p>
+
+<p align="JUSTIFY">"Brusubārdam!" viņš atbildēja un nelikās vairāk ne
+zinot.</p>
+
+<p align="JUSTIFY">Pagāja dažas nedēļas. Nabags ar sievu apgāza pasauli darbiem: raka
+gŗāvjus, stīpoja traukus, lēja sveces, baŗoja kaimiņam sivēnus, ganīja cūkas.
+Vēl būtu padarījuši šodien kautko; bet Brusubārdam iekrita dzīras un nabagu
+nevienās dzīŗās jau nedrīkst trūkt, nedz arī trūkuši, jo kam tad gan aizkrāsne
+pasaulē.</p>
+
+<p align="JUSTIFY">Brusubārdas pavārs pacienāja nelūgtos viesus ar maizi un gaļu. Nu
+varēja tiešām jau aiziet; bet sieva - katros sānos pa podiņam ar dzīru putru -
+pavēra ziņkārīgi durvis un glūnēja dzīŗu istabā uz viesiem. Patlaban arī
+bundzinieks bungoja, taurinieks pūta, pie kam trīs pāri izlēca un griezās ko spēja.
+Ceturtais parāva nabaga sievu caur pusatvērtām durvim un grieza, kamēr podiņi
+sašķīda un putra izlija. Sievai par sasistiem podiņiem bija jādzird no vīra
+pārmetumi līdz asarām.</p>
+
+<p align="JUSTIFY">Beigās uznāca ziema, kur strādāt arī nabagam īsti netikās, bet
+toties mīļāki ubagot. Ubagojot tas nonāca ar sievu pie sievas tēva ko lūgties.
+Vecajam ķēniņam gan bērna bij žēl, bet tomēr it bargi uzprasīja: "Vai nu
+gribi pie Brusubārdas iet?"</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Iešu, iešu!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Bija nu Brusubādam ar princesi gan kāzas: ēda un dzēra, ka gar
+bārdu vien notecēja; bet mute nekā nebaudīja.</p>
+
+<p align="JUSTIFY">Pēc kāzām nu iznāca, ka nabagam pašam jau sieva. Vecais ķēniņš
+tik bija pavēlējis, lai nabags klusu atstāj savu veceni viņa pilī, lai varētu
+izlikties par princeses vīru un tādā vīzē stūrgalvīti pārmācīt.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Lai gan šī pasaka ir droši vien pie mums ienākusi
+no Vācijas (sk. Ievads 91.l.p) tomēr nav jādomā, ka Grimmu variants še būtu bijis
+vienīgais pirmavots (sk. Ievads, 109.l.p.). No Zvaigznītes tulkojuma gan ir cēlies
+Strazdabārdas nosaukums, bet ar to nav vēl sacīts, ka arī Strazdabārda būtu nācis
+no tā paša avota. Ka šis kēniņš pārģērbjas par spēlmani (Spielmann), tas arī ir
+viens vācu pasaku motīvs. Epizods par uzminēto uts ādu ir nevien vāciešiem, bet arī
+mazkrieviem pazīstams. P. Š.</p>
+</font>
+
+
+</body></html>

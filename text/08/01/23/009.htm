@@ -1,0 +1,209 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Divi ceļotāji.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">9. A. 460. 613. A. Lerchis - Puškaitis
+Džūkstē - Pienavā. L. P. I, 49 (17).</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam tēvam trīs dēli: divi gudri, viens muļķis. Reiz divi gudrie
+iet pasaulē vēl gudrības mācīties, bet muļķīgais klusu aizbēg no mājām
+brāļiem pakaļ un tos panāk lielā mežā. Šinī mežā visi trīs met kauliņus, lai
+zinātu uz kuŗu pusi katram jāiet. Muļķīgajam krīt pa labo roku iet. Bet ja kāds
+ātrāk pārnāktu un gribētu izzināt, kā katram svešumā klājas, tad norunā: iedurt
+zināmā ozolā katrs savu tēva dotu nazi. Kuŗam nazis norūsējis, tam labi neklājās;
+kuram spožs, tam labi. Tā brāļi izšķīrās! Muļķīgais pirmo nakti pavada turpat
+mežā. Viņš uzlien lielā ozolā, apjož siksnu ap ozolu, gar rumpi un tad guļ. Ap
+pusnakti gulētājs uzmožas un izdzird, ka zem ozola čukst. Viens prasa: "Ko tu
+laba šodien redzēji?"</p>
+
+<p>"Redzēju trīs brāļus, kas katrs pa savu ceļu aizgāja."</p>
+
+<p>"Raugi viņus rokā dabūt, jo viņu dvēseles man brangi derētu," pirmais
+atbildētājam pavēl.</p>
+
+<p>"Nu, ko tu laba redzēji?"</p>
+
+<p align="JUSTIFY">"Es redzēju vienu slimu princesi. Mācītājs viņai deva
+dievmaizīti, bet dievmaizīte nokrita pie altāra zemē un liels krupis, nevienam
+neredzot, ievilka dievmaizīti apakš altāra. Zināms, ja dievmaizīti krupim atņemtu,
+tad princese tiktu vesela, bet kas lai to zin!"</p>
+
+<p align="JUSTIFY">"Gādā, ka par krupi neviena dvēselīte nedabū zināt!"
+pirmais otram atkal pavēl.</p>
+
+<p>"Nu, ko tu laba redzēji?"</p>
+
+<p align="JUSTIFY">"Es redzēju vienā ķēniņa valstī no karstuma un sausuma visu
+ūdeni izžuvušu. Bet pusjūdzi no ķēniņa pils ieraudzīju lielu akmeni, ko paceļot,
+būtu ūdens upēs, akās, ezeros bez gala.</p>
+
+<p align="JUSTIFY">"Gādā, ka par akmeni nedabū neviens zināt citādi; visas šīs
+dvēseles atspirgtu un dzīvotu vēl ilgi, kamēr dažas no viņām rokā dabūtum."</p>
+
+<p align="JUSTIFY">Beidzot pavēlētājs teic, itkā atminēdamies: "Pag! izgudrojiet
+visi kopā, kā šos trīs brāļus visvieglāki rokā dabūt."</p>
+
+<p align="JUSTIFY">"Es domāju," viens tūdaļ priecīgi iesaucās, ,ka
+visvieglāki viņus tā savaldzinātum. Mēs būsim trīs mūzikanti, viens ar pijoli no
+zirga galvas, otrs ar tauri no zirga kājas un trešais ar basi no zirga astes. Ja brāļi
+uzminētu, no kā šie mūzikas daiki taisīti, tad dosim viņiem trīs kules naudas; ja
+ne, tad viņu dvēseles mūsu nagos. Bet, iekams deram, mums labi priecīgi jāuzdzīvo,
+jālēc un jāspēlē. Tad brāļus labi iekārdināsim."</p>
+
+<p align="JUSTIFY">Tagad spriedēji aiziet. Tiem ne jausmas, ka ozolā to visu kāds
+noklausījies. Saulītei lecot, muļķīgais atstāj ozolu un steidzas pie slimās
+princeses. Izteic par krupi un padara princesi tai pašā dienā veselu. Ķēniņš aiz
+priekiem gan nelaiž glābēju projām, uzspiezdams muļķīgajam princesi precēt, bet
+šis atbild: "Kāzas noturēt vēl laika diezgan, man jau vēl citi apsēsti
+jāatpestī. Atpestīšu ir tos un tad."</p>
+
+<p align="JUSTIFY">Ķēniņš paklausa un pavada spožā karītē savu nākamo znotu līdz
+otra ķēniņa robežai. Ak tu žēlīgais Dievs! Šinī ķēniņa valstī viss iztvīcis:
+akas tukšas, upes tukšas, peļķes un ezeri sausi, ka nav ne ko maizes izcept.
+Muļķīgais brālis nu parāda akmeni, ko paceļot tik daudz ūdens nāk, ka paši
+cēlāji tikko izmūk. Ķēniņš aiz priekiem glābēju vai pat uz rokām nesdams,
+uzspiež, lai viņa vienīgo meitu precot. Nu muļķīgajam jau divas brūtes. Bet šis
+tūdaļ precībās neielaižas, tik atbild: "Kāzas noturēt vēl laika diezgan, jo
+man vēl citi apsēsti arī jāatpestī. Atpestīšu tos un tad."</p>
+
+<p align="JUSTIFY">Pēc trijām dienam muļķīgais brālis steidzās uz to vietu
+atpakaļ, kur naži iedurti, un redz, ka abu brāļu naži norūsējuši, bet viņa spožs
+kā saule. Ko nu? Jāiet jau brāļiem palīgā. Iet, iet kamēr beidzot abus atron pie
+mūzikantiem. Viens grib derēt, otrs tāpat. Bet muļķīgais brālis der tūlīt uz
+karstām pēdām un uzmin uz matu visus mūzikas daikus. Viņš paņem 3 kules naudas m
+ved brāļus pie tēva uz mājam. Viduvējs brālis labprāt grib līdz iet; bet vecākais
+klusu rauga viduvējo pierunāt, labāki muļķīgo brāli nokaut, lai tēvs nezinātu, ka
+muļķīgais gudrāki izdarījis par viņiem. Muļķīgais, vecākā brāļa nodomu zināt
+dabūjis, nemaz par to neļaunojas, bet saka: "Mīļo brāl! vai es vainīgs, ka 3
+kules naudas nopelnīju? Ja tev ar šīm 3 kulēm, mūsu starpā izdaloties, nepietiek,
+tad pamācīšu, kā viens pats pie citām tiksi. Ej mežā, pie tā un tā ozola, uzlien
+vakarā viņa zaros un noklausies naktī, ko apakšā runā. Es tā darīju un - redzi -
+man 3 kules naudas. "</p>
+
+<p align="JUSTIFY">Vecākais brālis aiziet pie ozola un šie abi atkal griežas pie tēva
+uz mājām.</p>
+
+<p align="JUSTIFY">Nakti vecākais brālis dzird zem ozola, kā runā: "Brīnums! kas
+gan varēja mūsu norunu izzināt? Vai nebūs tik kāds to visu noklausījies? Jārauga,
+vai nav kur kāds uz koku uzlīdis!"</p>
+
+<p align="JUSTIFY">Velni sāk meklēt un atron ozolā vecāko brāli, ko tūliņ dusmās
+saplosa.</p>
+
+<p align="JUSTIFY">Muļķīgais brālis mājās izstāsta tēvam un viduvējam brālim
+pilnīgi visu savu laimi un atgadījumu. Viņš uzaicina vidējo brāli vienu princesi
+precēt un pats otru. Abi brāļi bijuši tik vienādi, kā izspļauti.</p>
+
+<p align="JUSTIFY">Tā arī notiekas. Pēc labiem gadiem muļķīgais brālis aizbrauc ar
+savu ķēniņieni pie viduvējā brāļa ciemā. Un nu abi brāļi izstāsta savām
+sievām, kā toreiz ar precībām gājis. Sievas pasmejas par tādu gudrību un dzīvo
+laimīgi, kā dzīvojušas.</p>
+</font>
+
+
+</body></html>

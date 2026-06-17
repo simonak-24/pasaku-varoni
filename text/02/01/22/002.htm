@@ -1,0 +1,174 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Sadancotās kurpes.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 306. J. Bankins "Šis un tas" II, 1875, 23.</p>
+
+<p align="JUSTIFY">Kādam vīram bija tādi svārki (jupķis), kad šis tos apvilka
+mugurā, tad viņu nemaz vairs nevarēja redzēt. Tās zemes ķēniņam bija divi meitas,
+kas, pa nakti apkārt staigādamas jeb vazādamās, iknaktis noplēsa pāra jaunu kurpu.
+Bet neviens cilvēks nevarēja zināt, kurp tās iet, kur ne. Tad šis vīrs ar saviem
+brīnuma svārkiem apsolījās ķēniņam meitas novaktēt, ja šis tam trīssimti rubļu
+maksāšot.</p>
+
+<p align="JUSTIFY">Vīrs, apvilcies savus brīnuma svārkus, nostājās vakara pie pils
+stūra un gaidīja tur meitas. Kad visi pilī bija aizmiguši, tad šās pa durvim laukā
+un devās prom, bet vīrs steidzās viņām no pakaļas. 'Tās nu gāja tālu, tālu un
+nonāca pie lielas upes, tur jau cēlājs uz tām gaidīja un pārcēla viņas pāri. Nu
+ceļš gāja caur lielu zelta mežu, tur vīrs nolauza zaru no koka, kā krakšķēja
+vien, un iebāza to savā kulē. Viena meita, to dzirdēdama, prasīja otrai: "Kas
+tur bija?" '</p>
+
+<p align="JUSTIFY">Otra atbildēja: "Laikam tur kāds putns skrien."</p>
+
+<p align="JUSTIFY">Caur zelta mežu izgājušiem, tiem nu bija jāiet caur sidraba mežu.
+Vīrs atkal nolauza zaru un iebāza savā kulē. Meitas jau runāja savā starpā, tur
+laikam kāds viņām nākot no pakaļas.</p>
+
+<p align="JUSTIFY">'Tagad viņām bija jāiet caur dimanta mežu, kur vīrs nolauza
+dimanta zariņu no koka. Caur dimanta mežu izgājušas, tās nonāca pie dziļas gravas,
+kur sānos bija liela ala. Meitas papriekšu un vīrs no pakaļas devās alā iekšā.
+Kādu gabaliņu pagājuši, viņi redzēja divus cilvēkus pāra zābaku dēļ kaujoties,
+bet tie bija tādi, kad tos uzmauca kājā, tad tikpat ātri varēja skriet kā vējš.
+Vīrs neredzot paņēma zābakus un steidzās meitām no pakaļas. Par kādu gabaliņu
+atkal ieraudzīja divus cilvēkus plēšoties pēc savādas cepures, jo kas šo cepuri
+uzlikās galvā, tas varēja skriet pa gaisu. Vīrs arī šo cepuri paņēma sevim.</p>
+
+<p align="JUSTIFY">Alā izgājuši <b>cauri, </b>tie nāca uz smuka klajuma, kur stāvēja
+skaista pils un tai pilī dzīvoja velli. Meitas iegājušas pilī, satikās ar velliem,
+bučojās ar tiem un tad sāka tik trakiski dancot, kamēr kurpes pagalam. Vīrs, kaktā
+stāvot, visu nolūkojās. Kad gaisma vairs nevarēja būt tālu, tad meitas sacīja uz
+velliem: "Mums tagad jāiet prom un jāsteidzas uz māju."</p>
+
+<p align="JUSTIFY">Vells iznesa sidraba biķeri, .lika uz galda un deva tām vīnu dzert,
+bet vīrs paņēma to un iebāza savā kulē. Neviens nu nezināja, kur biķeris palicis,
+kur ne. Tad iznesa zelta biķeri, ko arī viņš no galda tāpat noņēma. Pēdīgi iznesa
+dimanta bi.ķeri, kuru vīrs arī velliem noņēma un iebāza savā kulē. Kad nu vellam
+vairs cita trauka nebija, tad viņš iznesa mālu podu, pilnu ar vīnu. Kad vecākā meita
+bija podu dalikusi pie mutes un dzēra, tad vīrs dastājies sita ar to viņai pa pieri,
+ka tā pārplīsa. Vells nu gāja stīpu meklēt, ar ko pieri sastīpāt.</p>
+
+<p align="JUSTIFY">Meitas nu, viena ar sastīpātu pieri, otra gan vēl vesela, bet abas
+ar gluži noplīsušām kurpēm devās uz māju. Vīrs, uzmaucies<b> </b>ātruma zābakus,
+uzlicis gaisa cepuri galvā, aizsteidzās papriekšu uz māju un izstāstīja visu, ko
+bija redzējis un piedzīvojis.</p>
+
+<p align="JUSTIFY">Ķēniņš sasauca savus kalpus un gāja meitām pretī. Meitas, to
+ieraudzījušas, sāka bēgt, bet ķēniņš tām dzinās pakaļ,<b> </b>panāca viņas un
+noķēra. Kad viņš tām prasīja, kur bijušas, tad viņas atbildēja, nekur, bet vīrs,
+rādīdams savas zīmes, ko bija līdza ņēmis, kā nolauztos zariņus, paņemtos
+biķerus, arī uz meitas pārsisto pieri rādīdams, lika tām visu priekšā un sacīja,
+ka tās bijušas pie velliem pilī.</p>
+
+<p align="JUSTIFY">Ķēniņš sadusmojies, lika savas netiklās un neģēlās meitas
+pakārt un vīram izmaksāt solītos trīssimti rubļus.</p>
+
+
+</body></html>

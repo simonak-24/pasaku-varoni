@@ -1,0 +1,355 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Sapnis</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5"><strong>Sapnis.</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">19. A. 725. S k o l n i e k s A n t o n s Č e i
+č i n ī k s L i v ā n o s.</font><font size="4"></font></p><font size="4">
+</font>
+
+<p align="JUSTIFY">Beja vīns cīši boguots saiminīks, dzeivuoja jī divējūs ar sīvu,
+turēje kolpus i kolpyunes, beja pylnas klēts maizes i pilni klāvi lūpu. Reizi jī
+sagaidēja lelu prīcu: dzyma vīnā naktī jīm dāls i kēvei kumeļš. Dāls i kumeļš
+reizē auga i beja kai draugi. Daguoja dālam školas godi, laide jū školuos. Leidz
+septeņpadsmit myuža godim izguoja jau daudzi školu, a kume&amp;127;š septeņpadsmit
+godu vacs beja kai treju godu tik. Ar tū dālu zyrgs dzeivuoja kai puors pruotīgu
+cylvāku, puikas runu pazyna i viņa vuorda cīši klausēja. Tāvs um muote beja
+dūmuojuši un gudruojuši, kaidā školā dūt tuoluok sovu dālu, bet jau navarēja
+atrast. Golu golā sadūmuoja dūt taidā školā, ka izzamuocītu vysa pasauļa gudrību,
+zynuotu kū cylvāks dūmoj, varātu par vysaidu palikt, saprostu lūpu, putnu, zvēru,
+kūku volūdu.</p>
+
+<p align="JUSTIFY">Reizi tāvs sagatavej ceļā uz školu i obēji ar dālu dūdās
+ceļā, nimoz nazynuodami, kur taida škola ir. Īt jī īt pa ceļu gar azara molu, teik
+mežā, paīt mozu gabaleņu, sateik pretim ejūšu naļelu vaceiti ar garu garu siermu
+buordu. Padūd veceits lobu dīnu i vaicoj : "Kur to jūs, bārni, ceļuosit?"</p>
+
+<p align="JUSTIFY">Izstuosta veceišam tāvs, uz kaidu školu. Prosa veceits : "A kur
+to ir taida škola?"</p>
+
+<p>Atbild tāvs, ka nazyna.</p>
+
+<p align="JUSTIFY">"Nu to redz bārns," soka veceits, "jo nazini, kur jei
+ir, to juos i naatrassi. A jo gribi, tod atstuoj sovu puiseiti pi manis i leidza par godu
+atej uz šytū vītu, pajemsi sovu dālu ar vysam zynuošonom, kaidas tu gribi sasnēgt;
+tik naaizmiersti, īdams pakaļ, pajemt sudobra rubļi, ar kū školu apmoksuot. Zini, ka
+škola naudu moksoj," pasasmēcje veceits.</p>
+
+<p align="JUSTIFY">Tai ar šaidu nūrunu tāvs atstuoja dālu i pots atguoja uz sātu.
+Gars beja gods gaideit, ka nazynuoja, kur dāls ir, bet sagaidēja gon. Pajēms tāvs
+duorgas duovonas, pulka naudas, laidēs ceļā uz zynuomu vītu. Redz: atīt veceits ar
+dālu, sasveicynoj vysi i tāvs veceišam dūd duorgas duovonas, bet veceits nīkuo najam.
+Dūd otkon zalta un sudabra naudu, bet veceits tuos arī napījam pajam tik vīnu sudobra
+rubli, saceidams : "Palīcīt vasali, paldīs! Kū bejam nūrunuojuši, tū
+izdarējam. Dzeivuojīt laimīgi, ar Dīvu!"</p>
+
+<p align="JUSTIFY">Tū runuodams, veceits izgaisa nu juo acim. Tāvs ar dālu laidīs uz
+muojom. Tāvs pavysam aizmiersa tū, kur un dēļ kuo juo dāls beja godu muocījīs, jo
+nabyutu gar azara molu ejūt aizkrēcs krauklis. Tyuleņ tāvs īguoduoja, nu kurīnes juo
+dāls īt, i pavaicuoja: "Pasoki, dāls, kū šys krauklis soka."</p>
+
+<p align="JUSTIFY">"Navaru sacīt," atbild dāls. </p>
+
+<p>"Par kū tu navari?" vaicoj tāvs.</p>
+
+<p>"Pa tū, ka jo es pasceišu, tu mani tyuleņ īsvīsi šymā azarā." </p>
+
+<p>Tāvs ar dūsmem: soka: "Redzi vēl kū devu školā, bāduojūs klapatējūs, i
+vēl jis kū man soka. Sok mudruok."</p>
+
+<p>"Ni par kū," atbild dāls.</p>
+
+<p align="JUSTIFY">"Soki dreižuak," ļeluos dusmēs klīdz tāvs. "</p>
+
+<p align="JUSTIFY">"Nu labi!" soka dāls, "tys krauklis sacēja, ka tu man
+par divi nedēļas dūsi sovu golvu nūcierst."</p>
+
+<p align="JUSTIFY">Tāvs ar dusmi pakērs dālu i īsvīž jū azarā, pots nūskrīn uz
+sātu atpakaļ naatsavārdams i sīvai par nūtykušū nikū nasacīdams, tik maloj, ka
+vairs naredzēje nī veceiša ni dāla. "Še tev atpakaļ vysas duovonas."</p>
+
+<p align="JUSTIFY">Muote cīši nūskuma i gauži rauduoja. Rauduoja arī tāvs par
+padarītu slapkavību, bet kū lai dor! Kas padarīts, tys padarīts. Ka tāvs dālu
+īsvīde azarī, nabeja vēl symts sūļu puorguojis, kai ļela zivs puisīti nūreja.
+Byudams zivs īškinē, puisīts daboj sova nazeiša i suoc zivi nu īškas badeit un
+graizeit. Zivs, suopēs byudama, nazyna, kur skrīt, bet puiseits graiza un boda bez
+puorstuošonas. Zivs dūdās dziļumā, saklumā, nu ļelom suopem skraida škārs garum
+azara, golu golā izzasvīž jau uz sausas zemes. Dzierd niu puika, ka zivs sytas pa
+sausumu, vēl vairuok boda un graiza. Zivs jau zaudej spākus, puorstuoj kustēt i
+beidzās. Tūlaik puika jamās pi grīzšonas vīnā vītā, lai izgrīztu caurumu un
+tiktu laukā. Izgrīzis suonūs caurumu, jis izleida. Aizzagribējīs beja cīši ēst,
+sameklēja puora sausu žogoru, sakurynuojs guni; suoce tū pošu zivi grīzt pa
+gabaleņam cept i ēst. Capdams zivi, jis klausuos: brauc pa ceļu; var just, ka brauc
+kaids kungs ar puori zyrgu. Tyka braucējs tyvuok pi juo i jis dzierd, ka kungs vaicoj
+kučeram: "Kai tu dūmoj, voi man lūbsīs tī, kur es braucu?" </p>
+
+<p align="JUSTIFY">Kučers atbild: "Nazynu."</p>
+
+<p>Bet puika uzklīdz vysā bolsā: "Nasalūbs vys."</p>
+
+<p align="JUSTIFY">Kungs, izdzierds kryumūs klīgšonu, līk zyrgus apturēt i vaicoj:
+"Kas tī kū runoj?"</p>
+
+<p align="JUSTIFY">I dzierd atbildi: "Tev tī nasalūbs, paprīšku vaidzēje treis
+gadi cyukas atganīt, tod braukt. Tu pots nazini, ka tu brauc uz rogonas meitu
+svuotūs."</p>
+
+<p align="JUSTIFY">Kungam apjam; baile i breinums, kas te var byut, ka tik smalki jū
+zyna. Syuta kučeri, lai tys līn kryumūs, apsaveŗ, kas tī ir un kas runoj. Kučers
+apsaveŗ -atguojs, stuosta, ka puika guni kurynoj, ļelu zivi cap i vairs nikuo. Kungs
+sauc : "Draudzeņ, ej šur!"</p>
+
+<p align="JUSTIFY">Puika atīt, izstuosta kunga vītu, dzeivi, liktini, dūmas i uz
+prīšku naveiksmes. Tūlaik kungs prosa: "Kū man dareit, ka laimīgi dūtūs?"</p>
+
+<p align="JUSTIFY">Atbild viņam puika: "Najem ļaunā, ka es teiču par treju vosoru
+cyuku ganīšanu, bet bez tuo tu navari tī laimīgs byut, tik nuovi dabuosi. Jo pajemtu
+leidza mani par svuotu un ļautu man pilnīgi pec sovas zynuošonas reikuotīs, tod tik
+tev lūbtūs."</p>
+
+<p>"Lyudzu braukt leidza," soka kungs,</p>
+
+<p>Brauc, brauc jī trejūs gobolu - sateik cylvāku, kurs īt grauz dams apses myzu.
+Vaicoj svuots: "Kas tu esi par cylvāku?" </p>
+
+<p>"Asmu āduojs," atbild ceļaguojējs.</p>
+
+<p>"Sēst šur pi myusu, brauksim reizē!" soka svuots,</p>
+
+<p align="JUSTIFY">Brauc niu četrūs, pabrauc gobolu, īt cylvāks, capuri pīškībs. </p>
+
+<p align="JUSTIFY">"Kas tu esi par cylvāku," vaicoj svuots.</p>
+
+<p align="JUSTIFY">"Asmu dzāruojs," atbild ceļaveirs. </p>
+
+<p align="JUSTIFY">"Sēstīs rotūs, brauksim vysi!"</p>
+
+<p align="JUSTIFY">Brauc, brauc niu pīcūs - gobolu puorbrauc, panuok vēl cylvāku i
+vaicoj svuots: "Cylvāks, kas tu esi."</p>
+
+<p align="JUSTIFY">"Asmu soltums," atbild svešinīks.</p>
+
+<p align="JUSTIFY">" Sēstīs rotūs!" soka svuots.</p>
+
+<p>Kungam apjam breinums, dēļ kam viņš losa leidza vysaidus tī āduojus un
+dzāruojus, i, dusme, ka sešūs juobrauc, i četri sveši cylvāki. Ap vokoru nūbrauc
+leidz golam, meita i sīvas muote -kungs nazynuoja, ka jei ir rogona - pījam ar ļelu
+prīcu. Suocās ēsšona, dzeršona un lustēšona - vysi krītni paād, padzer. Reitā
+sīvas muote salīk ēdīņus uz golda i soka: "Niu, gasteņi, iedīt, tod varēset
+braukt leimeigi ar meitu."</p>
+
+<p align="JUSTIFY">Vysi labi paēde i kungs taids prīcīgs, ka vyss labi izzadevēs, bet
+te vēl na vyss. Rogona daguojuse skubynoj ēst, bet vysi jau seiti.</p>
+
+<p align="JUSTIFY">"Jo jūs šytuo, kas uz golda, nanūēssit, tod vysim nuove,
+" soka rogona.</p>
+
+<p align="JUSTIFY">Kungs ažna [baltkr. ažna, pat] nūdrebēje nu bailes, ka tī juoād
+pīcdesmit cylvākim, i tod naveiks. A kū šī seši i jau seiti paāduši
+padareiškūši?</p>
+
+<p align="JUSTIFY">"Voi jau naēssit vairuok?" vaicoj rogona. "</p>
+
+<p>"Moz te vēl kuo ēst," atbild svuots, "gatavej vairuok." </p>
+
+<p>Kungs vysā nūsabeist niu, a svuots redz kungu iztrauktu i soka: "Āduojs, ād
+tairā."</p>
+
+<p align="JUSTIFY">Āduojs ka taisa vaļā muti, vyss ir teirs. Svuots tik klīdz ,
+vairuok lai nas, un rogona ar kolpyunem nūsveiduse nas leidz tam, kols nav vairs kuo
+nest. Svuots tik klīdz pēc vairuok. Rogona sanas myltus, gryudus, pat ar vysim traukim,
+un āduojs vysu nūād. Kungs tagad redz, ka laimīgs ar svuotu, palyka prīcīguoks un
+gaida, kas tuoluok nūtiks. Rogona pīlīk niu dzērīņu tū pati atkuortuodama, kai i pi
+ēdīņim. Bet dzāruojs, ar svuota pavēļi, nūdzer na tik veinu un cytus gordūs
+dzērīnus, bet pat yudini nu okas. Rogonai vairs ni gryuda labības; ni kimūsa maizes,
+ar kū gostu mīluot, ni pošai kuo ēst, yudiņa - i tuo nav tyvumā. Juolaiž prūjom
+taidi gosti, a to i poši radzams beigs. Rogonai vēl īskrīn dūmas, kai jūs
+nūnuoveit, līk kolpyunem sa kurynuot čuguna pierti tik korstu, ka par dividesmit osu
+kluot navarātu daīt.</p>
+
+<p align="JUSTIFY">"Tagad, cīmiņi, paēdīt padzerīt, niu varēsit braukt ar meitu
+prūjom. Man jau nav pošai vaira nikuo ēst ni dzert. Tik pyrmuok vajag vysim nūīt uz
+pierti izzapērt. A jo piertī naīsit, tod byus nuove vysim."</p>
+
+<p align="JUSTIFY">Lai jau kungam svuotam un cytim, bet i bēdīgam kučereišam leidza
+juovuorej. Laižas vysi uz pierti, bet taids korstums, ka ni tyvumā. Svuots tik pasoka:
+"Soltums, aļuo."</p>
+
+<p align="JUSTIFY">Tys ka spļaun viersā, reizē apleik solta, spļaun ūtru reizi pa
+durovam, vydā tik solta kai olūts, ažna treisas jam. Grīžas vysi atpakaļ un svuots
+saklīdz: "Kas te par apsmīkli, ka pierts solta?"</p>
+
+<p align="JUSTIFY">Redz rogona, ka nikuo navar padareit, laiž prūjom cīmiņus. Sasāst
+rotūs vysi i meita leidza, a kungs bryugons, navar veikt nūsaprīcuot, ka jam deve pots
+Dīvs taidu svuotu. Pabrauce gabaleņu, svuots pavēlēje izkuopt āduojam, dzāruojam i
+soltumam, bet kungs nagrib atlaist nivīna, tik uz svuota pīsacējuma vaidzēje atlaist.
+Svuots pats tod nūbrauce leidza ar kungu. Kuo tik tī nabeja? Beja sagatavuotas tik
+boguotas kuozas, tī beja vysaidu gordumu, vysaidu spālmaņu.</p>
+
+<p align="JUSTIFY">Kai tik kuozas beidzēs, svuots atsavadējs aizguoja. Nadūdams sevi
+pazeit, īt uz tāva sātu. Daguojis klausuos, ka pi tāva sataisīta balle. Īīt kai
+svešinīks, izjam jū arī kai cīmiņu. Cikom vysi dzeŗ, lustej i vysaidas sarunas
+sarunoj, daīt leidz tam, ka tāvs, saiminīks, lilējas, ka šam asūt astoņpadsmit godu
+zyrgs, bet nikas ar jū navars pajuot. Jo atsarostu, kas pajuotu, tam šys vars atdūt
+sovu golvu nucierst. Nusaklausējs svešinīks - dāls juo, soka: "Kas tī par zyrgu
+var byut, ka ar jū navar juot? Es pajuošu ar kaidu grib zyrgu."</p>
+
+<p align="JUSTIFY">"Labi," soka saiminīks, "varu dūt galvu nūcierst, jo
+tik pajuos kurs."</p>
+
+<p align="JUSTIFY">Rauga vysi cīmiņi, īt kluot pi zyrga, bet nivīns navar, ni īmovu
+danest. Golā daīt svešais puika, zyrgs bubinēdams skrīn prīškā, pīleikst pi
+zemes, tys sāst mugurā bez īmovim pavysam. Izzajuodelej molu molas, nūkuop zemē,
+pavēlej zyrgam īt klāvā, itys juo bolsa klausa. Nūsabreinoj vysi, bet saiminīks
+vairuok, ka ogruok tik juo dāls varējs ar tū zyrgu reikuotīs tai, bet niu tok jam
+dāla nav. Par sovu izrunu saiminīks dūd svešam puikam ciervi rūkā, īt pi bluča,
+nūlīk sovu golvu nūcieršonai, bet puika dūd sevi pazeit sacīdams: "Tētiņ,
+mīļais, vai nav tīsa, kū krauklis sacēja?"</p>
+
+<p align="JUSTIFY">Tāvs tikkū naapgeiba nu puorsteiguma, metīs dālam ap koklu
+rauduodams un lyugdarms pīdūšonas. Dāls vysu pīdūd i līk napīminēt puorguojušū.
+Tūlaik suocās nu jauna lustēšona un prīca.</p>
+
+<p align="JUSTIFY">Puordzeivuoja dāls treis mēneši, sadūmuoja apcīmuot kungu, kuram
+beja par svuotu. Nūīt leidz viņa rūbežom - veras, ka kungs gona cyukas, konkorūs
+apsavilcīs. Pīīt jis kluot i soka: "Kū to tu dori? Ej uz sātu par cīmiņu, a es
+paganīšu cyukus tovā vītā."</p>
+
+<p align="JUSTIFY">Kungs beistas tū darīt, sīva pazeis, bet svuots soka: "Ej
+drūši, puormeisim drēbem tik, sīva tevis napazeis. Zyni, ka es tevis namuonīju
+nikod!"</p>
+
+<p>Kungs palīk mīrā, svuots soka: "Zyni, ka es tevi gribu pestīt nu cyuku
+ganīšonas, a to pec vēl kas zyn, kas var byut." Puorsamej drēbem, kungs palīk
+par svešinīku, a svuots par cyuku gonu. Pīsoka svuots kungam: "Jo sīva cels
+krāslu, sēd; a jo nē - stuov!"</p>
+
+<p align="JUSTIFY">Kungs pīsoka nūīdams, lai cyuku agri nadzan uz sātu, vokorā ka
+saule nūrītēs, tod tik var dzeit, i vēl paruoda vīnu cyuku, kuras klāvā navarūt
+īdzeit, kols pabučuoškys zam astes. Tikkū kungs sātā īīt, gons tyuleņ, suoc
+sukuot cyukas ar puotogu, cik vin līn, un trauc muojuos. Īrauga sīva, ka veirs cyukas
+attrauc, jau izīt prīškā un krotuos ar pierstu; bet gons pretim krotuos ar peickas
+kuotu. Satrauc cyukas klāvā, bet tei vīna stuov pi durovu lipu pacāluse. Gons,
+apgrīzis ap golvu peickas kuotu, ka mat par dybynu cyukai, tei až nasamona, kai par
+slīksni puorlekt. Sadzan cyukas; aiztaisa klāvu i īt uz ustoba. Sīva prīškā i
+čerās veiram cakulā, bet tys tī pat uz pogolma svīž pi zemes un ar peicku nūād
+muguru, cik vīn līn. Īt ustobā verās: kungs stuov. Tyulen saklīdz: "To šytai
+dori, cīmiņš īguojis stuov kai suns! Meklej dreiži ar kū miļuot!"</p>
+
+<p align="JUSTIFY">Pats tyuleņ svīž konkurus zemē, īguojs drābu kambarī apsavalk
+lobuos kunga drēbēs sāst ar cīmiņu pi golda dzer un ād i mīloj cīmiņu. Tai laiks
+nūīt leidz vokoram. Nakti puorguļ, reitā vēl cīmuojas un mīluojas obēji - jau i
+sīva ar peicku nadaboj. Daīt vēl vokors, pēc vokoriņom nūīt gulātu, zynoms
+cīmiņš sovā kambarī un gultā, kungs ar gaspažu sovā, bet tai vēl gribēs
+puorspēt veiru. Viņa napazyna, ka cīmiņš ir juos veirs, bet šū par veiru tur,
+tuodēļ ka tys beja tai padarējs. Tik kū tys aizmyga, gar molu gulādams, ka tei gryude
+zemē, reibējēs vin. Tys tryucīs kuojuos, jēme peicku un suoce otkon myzuot, koļs tei
+apsajēmēs vysod byut loba. Pec tam vēl puordzeivuoja dīnu, tod pavadēja cīmiņu.
+Paguojuši gobolu, puorsagērbe sovuos drēbēs i izzaškeirēs. Nu tuo laika leidz šai
+dīnai dzeivoj kungs par eistū kungu.</p>
+
+
+</body></html>

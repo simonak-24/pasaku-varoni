@@ -1,0 +1,285 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Dieva dot? sieva</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Dieva dotā sieva.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 4b5. C. A. Lerchis-Puškaitis Džūkstē-Pāenavā. LP, I, 13.</p>
+
+<p align="JUSTIFY">Kādam tēvam ir viens ' dēls. Reiz pavasarī kungs izliek tēvu no
+mājas, un nu nabadziņam jāiet diedelēt. Arī dēls iet pasaulē `un salīgst pie
+mācītāja par kalpu. Pēc trim gadiem tas dabū no mācītāja trīs grašus algas un
+tad taisās aiziet, Aizejot viņš domā vēl pie akas nodzerties; bet - tavu postu -
+dzeŗot trīs graši plunks! dibinā. Mācītājs, pa logu puiša nelaimi redzē= dams,
+saka: "Ja gribi, dēliņ, grašus atpakaļ dabūt, tev vēl jākalpo atkal trīs
+gadi, katrn gadu viens grasis izsmelsies." .</p>
+
+<p align="JUSTIFY">Tā arī notika. Atkal pēc trim gadiem projām ejot, mācītājs iedod
+puisim atdabūtos grašus, mazu šļirceniti, lakatiņu un šādu padomu:
+"Šļircenē ievelc ūdeni, aplaid ūdens strūklu ap sevi riņķī un paklāj
+lakatiņu pagalvī, tad ļaunums tevim nekāds nenotiks."</p>
+
+<p align="JUSTIFY">Pirmajā naktī puisim iekrīt mežā pārgulēt. Viņš dara, kā
+mācītājs mācījis, un aizmieg. Te ap pusnakti nāk lauvas rūk- damas, bet ne tuvāk
+kā līdz strūklītes apriņķim : pak1anās godbijīgi - aiziet. Pēc lauvām nāk
+lāči, tad vilki; tie dara tāpat. Gaismiņai austot, attek skaista meitene smaidīdama
+pie strūklītes apriņķa un, puisi lēnā balsī uzmodinādama, saka: "Puisīt,
+brālīt! tu vari pie manis tikt, bet es pie tevis nevaru. Sniedz, brālīt, roku un ved
+mani pār strūklītes robežiņu. Nebaidies, jo neesmu nekāds ķēms: ķēmam nav
+miesas, nedz kaulu."</p>
+
+<p align="JUSTIFY">Puisītis sniedz roku, bet tad arī uz mūžu. Priecīgs, par Dieva
+doto līgaviņu, tas tagad jūtas 1aimīgākais pasaulē. Bet līgava tam izskaidro:
+,Mežā pie lāčiem, vilkiem laime vēl nav pilnīga. Nāc tik man līdzi, izvedīšu
+tevi tavā tēva-tēvu sētiņā, druviņā atpaka], un tad dzīvosim laimīgi."</p>
+
+<p align="JUSTIFY">Tā arī notiek. Tēva-tēvu māja tiek atrasta. Būdiņa pa to laiku
+sakritusi, un kamēr šis aiztek uz muižu pēc cirvja, taln varena pils uzcelta un kāzas
+sataisītas. Tomēr trešā dienā arī skauģa netrūkst. Un tas bija tā:</p>
+
+<p align="JUSTIFY">Kaimiņos tiesnesis, jauno ļaužu pārliecīgo laimi redzēdams,
+aiztek uz muižu un stāsta kungam šos brīnumus: , Ko domā, tāds knēvelis,
+uzdrošinās tavā piederumā pili celt. Izsvied jel tos ārā, lai godīgi pelna
+maizi!"</p>
+
+<p align="JUSTIFY">Kungs aizsūta darbinieku un liek prasīt, kas tur dzīvo? Darbiniekam
+atbild: nabaga vīra dēls.</p>
+
+<p align="JUSTIFY">Nu tiesnesis kungam saka: "Liec šim nabaga vīra dēlatn lāci no
+meža pārjāt. Ja viņš var, tad lai dzīvo pilī."</p>
+
+<p align="JUSTIFY">Bet ko nu taisnam padarīsi? Nabaga vīra dēls izklāj lakatiņu un
+pārjāj lāci, ka noput vien. Lācis, muižā vaļā ticis, sāk visas malas apgāzt un
+nu kungam vēl jālūdzas, lai lāci aizve d.</p>
+
+<p align="JUSTIFY">Tā nu paiet trīs nedēļas. Pēc trim nedēļām tiesnesis atkaI
+klāt pie kunga.</p>
+
+<p>;,Kā viņš uzdrošinās uz tava piederuma pili celt? Pavēli viņām jūsu tēva
+naudu uzmeklēt. Ja var, tad lai viņš dzīvo!" Nabaga vīra dēls apņemas pateikt,
+kur nauda glabāta; bet</p>
+
+<p align="JUSTIFY">tikai pēc septiņiem gadiem. Viņam papriekš jāuzbraucot debesīs
+pie kunga tēva un jāpaprasot, kur to apglabājis.</p>
+
+<p align="JUSTIFY">Tiesnesis dzirdēdams, ka nabaga vīra dēls uz debesim brauks, lūdz
+viņu līdz paņemt. Labi. Tiesnesis sakauj lopus, sacepj maizi, ko septiyi gadi izteikt
+un tad trešajā dienā ieronas norunātā vietā, tīrelī pie egles, ar visu savu
+pārtiku.</p>
+
+<p align="JUSTIFY">Nabaga vīra dēls turpretim atnāk pie egles tikai ar mazu nūjiņu,
+ko sieva iedevusi. Viņš pavēl tiesnesim egles galotnē ķāpt. Pats nosēžas uz egles
+saknēm kā krēslā, un tad piesit trīs reizes ar nūjiņu pie egles knauks! knauks!
+Visa egle paceļas kā putns. 1'ikai pret debesim tiesnesis atminas savu lielo pārtikas
+maisu, kas palicis tīrelī zemē. Lec nu pakaļ, 1ec!</p>
+
+<p align="JUSTIFY">Debesīs tie vispirms ierauga mazu kroģeli, kur divi plūcas.
+Plūcējies šos abus redz gaŗām ejot un sauc pilnā kaklā uz nabaga vīra dēla:
+"Dieva znot, aizbildi arī par mums!"</p>
+
+<p align="RIGHT">"Nezinu, vai esmu Dieva znots!" šis atbild un iet savu ceļu.
+Nu nonāk pie sudmalām, kur suņi kauc dienu un nakti. Arī šie tāpat sauc: "Dieva
+znot, aizbildi arī par mums!"</p>
+
+<p align="JUSTIFY">Bet drīz aiz sudmalām redzams liels lauks, kur cilvēks pie ci1vēka
+ar deguniem ar.</p>
+
+<p align="JUSTIFY">Arī šie tāpat sauc: "Dieva znot, aizbildi arī par mums!"
+"Nezinu, vai esmu Dieva znots!"</p>
+
+<p align="JUSTIFY">Netālu aiz lauka tie ierauga lielu piena jūīu, kur laiva pie laivas,
+pilnas ar cilvēkiem. Jūŗa mutuļo un viļņo tik briesmīgi, ka jādomā: laivas
+apgāzīsies un braucēji acumirklī noslīks.</p>
+
+<p align="JUSTIFY">Arī šie sauc: "Dieva znot, aizbildi par mums!" Beidzot abi
+nonāk līdz debess vārtiem un klaudzina.</p>
+
+<p align="JUSTIFY">Dievs atdara vārtus un brīnās: "Manu mīļo znotiņ, ko tu te
+dari?"</p>
+
+<p align="JUSTIFY">"Ja nu, Iiungs mani sūtīja apprasīties, kur viņa tēva nauda
+atrodoties? Ja nepateikšot, tad manu pili atņemšot."</p>
+
+<p align="JUSTIFY">"Zinu jau, zinu it visu. Saki, vai šis nav tas tiesnesis, kas
+kungam tādu padomu deva?"</p>
+
+<p align="JUSTIFY">"Nezinu, vai kāds viņam padomu devis", Dieva znots atbild.</p>
+
+<p align="JUSTIFY">"Bet es to zinu. 'Tādēļ ej, taisno tiesnesi, tur pie viņiem
+dzelzs ratiern, izjūdzi sava kunga tēvu un iejūdzies pats uz septi- ņiem gadiem, lai
+vecais tamēr atpūšas."</p>
+
+<p align="JUSTIFY">"Bet nu saki, manu znotiņ, ko nākot tu 1aba še debesīs
+rcdzēji?"</p>
+
+<p>114 115</p>
+
+<p>"Redzēju krogus priekšā divus plūcamies."</p>
+
+<p align="JUSTIFY">"'rie ir tie, kas zemes virsū krogos plūkušies, un nu tādiem
+te jāplūcas bez mitēšanās līdz pastaŗa dienai. Nu, ko vēl redzēji ?"</p>
+
+<p>"Dzirdēju pie sudmalām suņus kaucam."</p>
+
+<p align="JUSTIFY">"Tie ir tiesas vīri un vagāres, kas nepatiesi mazos virsze- mes
+spīdzinājuši. Te viņiem tā jākauc līdz pastaŗa dienai. Ko vēl redzēji?"</p>
+
+<p>"Redzēju uz lauka cilvēkus ar deguniem aŗam."</p>
+
+<p align="JUSTIFY">"Tie ir tie, kas kaimiņa tiesu un ežas izaruši, jeb kas citādi
+caur kādu netaisnību mantu iedabūjuši. 'Tā viņiem jāar līdz pastaŗa dienai. Ko
+vēl redzēji?"</p>
+
+<p align="JUSTIFY">"Redzēju lielu piena jūŗu, kur slīka, slīka, bet
+nenoslīka." "Tās ir raganas, kam tā jāslīkst līdz pastar a dienai."</p>
+
+<p align="JUSTIFY">Pēc septiņiem gadiem kunga tēvs pateic, ka viņa nauda, 7 tnucas
+zelta un 7 mucas sudraba, aprakta zem maizes kambaŗa. Dievs nu pavēl tiesnesi atjūgt un
+atkal kunga tēvu iejūgt. Kad tas bij izdarīts, tad Dieva znots uzsauc: ,,Egle, nes mūs
+no de- besim zemē!"</p>
+
+<p>Abi atkal nonāk zemē.</p>
+
+<p align="JUSTIFY">No rīta muižas vagāre uzskrej pie kunga un teic, ka ties- nesis
+atkal mājā.</p>
+
+<p align="JUSTIFY">Kungs tūdaļ atsauc tiesnesi, bet to ieraudzīdams brīnās: Vai
+brālīt kur tu vājš palicis - tīrā asaka! Vai tad tev tur debesis nemaz ēst nedeva.
+Vai dabūji arī ko par naudu zināt?"</p>
+
+<p>Deva an bet cik tad nu tur deva. No naudas arī neko ne dabūiu zināt Jāsauc nabaga
+vīra dēls, varbūt ka tas ko zinās." Par dzelzs ratiem tiesnesis ne vārdipa
+nestāsta.</p>
+
+<p align="JUSTIFY">Kungs nu atsauc nabaga vīra dēlu un dabū no šā zināt, kur nauda
+paglabāta. Kungs par atrasto naudu priecīgs bez gala, atvēl šim savā pilī dzīvot,
+cik ilgi grib.</p>
+
+<p align="JUSTIFY">Pēc kādām nedēļām tiesnesis atkal pie kunga: "Kādēļ tauj
+tiem tur dzīvot? Vai zini ko? Liksim darbiniekiem lielo katlr ar piķi pildīt labu uguni
+pakurt un tad lai tie lec tur iekšā." -.</p>
+
+<p align="JUSTIFY">Viss tā tiek izdarīts, bet šie divi nemaz nedeg piķī: mazgā- jās
+kā pirtī un lasa bez apziņas zelta dukātus l$ešās.</p>
+
+<p align="JUSTIFY">"Kungs!" tiesnesis, to redzēdams, iesaucās, "tas tavs
+katls, piķis un ma1ka! Kā viņi tā var zelta dukātus lasīt!"</p>
+
+<p align="JUSTIFY">Ir gan mans", 1cungs atbi1d, "bet ko tur lai dara?"
+"</p>
+
+<p align="JUSTIFY">Ko iur lai dara? Lai lec ārā. Leksitn mēs iekšā dukātus "</p>
+
+<p>iasīt!" Leksim." "</p>
+
+<p>Det tikko abi ielēc, tā vārās vēl šo baltu dienu.</p>
+
+<p align="JUSTIFY">Nabaga vīra dēlam nu paliek pils un vēl kunga muiža ar visu mantu.</p>
+
+
+</body></html>

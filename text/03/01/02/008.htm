@@ -1,0 +1,242 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>pasaka/070p95.txt</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+
+<p align="center"><strong><big><big><font face="RimTimes">Ragana zārkā. </font></big></big></strong></p>
+
+<p><font face="RimTimes">8. A.306. 307. J.Dīcmanis Lieģos Lejas Kurzemē. "Pasaku
+vācelīte" 1891., 5. Saīsināta pie LP VII, , 194. 1. p. 11 un AŠ, III, 2f. </font></p>
+
+<p><font face="RimTimes">Pie kāda saimnieka dzīvoja puisis, vārdā Pēteris. Šis bija
+ļoti nonīcis un novārdzis. Kādu dienu, uz lauka strādājot, pienāca ciemiņa puisis
+pie viņa. Ciemiņa puisis, redzēdams viņu tik ļoti novārgušu un vāju, sacīja uz
+Pēteri: "Vai, kāds tu ļoti novārdzis un nogājies izskaties! Vai tev saimnieks
+nemaz nedod ēst, jeb vai tev ir pārlieku grūti darbi? Saki man, kas tev īsti ir par
+nelaimi? Tevi nemaz vairs nevar saukt par Pēteri, bet par Vārgu Pēterīti!"
+"Kā nebūšu tāds novārdzis? Saimnieka māte mani iknaktis jāj. Tikko esmu jau
+iemidzis, te viņa klusi pienāk pie manis, uzmauc man iemauktus galvā un es tūlin topu
+par smuku, melnu zirgu. Tad viņa man sēžas mugurā un jāj pa pasauli. Un tā viņa
+mani jāda iknaktis," Pēteris atbildēja savam draugam. "Neesi jel muļķis!
+Neļaujies sev bez laika ādu novilkt! Vai zini ko? Klausies draugs, man ir tevis gaužam
+žēl, mitosim vietas! Nāc tu pie mana saimnieka, es iešu pie tava. Gribu redzēt, vai
+vecā ragana ar mani arī tā varēs spēlēties un mani tāpat jādelēt, kā viņa ar
+tevim tagad dara?" Tā itin nopietni sacīja ciemiņa puisis. Pēteris bija pilnīgi
+mierā un viņi tai pašā dienā samitojās. Tūlin pirmā naktī saimnieka māte
+pienāca iten klusi pie puiša gultas un uzmauca iemauktus viņam galvā. Puisis arī
+ļāvās un likās, ka ir cieti aizmidzis. Tiklīdz kā vecene iemauktus bija uzmaukusi,
+te tūlin puisis palika par smuku, melnu zirgu, kā jau Pēteris viņam to bija sacījis.
+Vecene nu sēdās smukajam melnelim mugurā un aizjāja no mājām projām. Viņa nojāja
+pie kādas tumšas, zemē iegrimušas pils. Vecene piesēja savu melno pie koka, kur jau
+daudz tādu zirgu atradās piesieti, un iegāja pilī. Bet ko melnelis dara? Šim paliek
+garlaicīgi pie koka piesietam gaidot. Viņš nomaucās un gāja pie pilsloga skatīties,
+ko vecene iekšā dara. Viņš redzēja caur logu pilī lielu pulku velnu, kuri visādi
+iekšā trakoja un ermojās; starp šiem viņš redzēja arī savu jājēju, saimnieka
+māti. Piepēži kāds no velniem uzsauca: "Bērniņi, līksmojieties, bet apskatiet
+arī savus zirgus!" Puisis to izdzirdis, tūlin skrēja atpakaļ pie minētā koka un
+iebāza galvu iemauktos. Velni tur pilī trakoja un maisījās līdz pat pusnaktij.
+Tiklīdz gailis padziedāja, te visi bija atkal zirgos un katrs aizjāja uz savām
+mājām. Otru nakti vecene tāpat klusiņām pienāca pie puiša gultas un mauca viņam
+iemauktus galvā, bet puisis šoreiz neļāvās vis uzmaukties, saķēra iemauktus un
+uzmauca tos vecenei pašai galvā. Vecene tūlin palika par smuku melnu ķēvi. Puisis
+sēdās ķēvei mugurā un nojāja pie kalāja. Viņš lika kalējam piesist ķēvei podu
+grūtus pakavus, iten sarkani nodedzinātus. Kalējs nodedzināja pakavus iten sarkanus
+kā uguni un tad lika ķēvei pie kājām. Kas ķēvei par lielām sāpēm! Ķēve gan
+spraukšļāja un spārdījās, bet tas nekā nelīdzēja. Kad ķēve bija apkalta, tad
+puisis vēl labi izjājās un tad laida uz mājām. Tūlin ari gailis padziedāja, ķēve
+krita savā gultā palika atkal par veceni, visas četras izstiepa un bija pagalam. No
+rīta saimnieks ieraudzīja savu māti gultā nomirušu guļam un pie rokām un kājām
+dzelza pakavus. Saimnieks tūlin saprata, ka viņa puisis to darījis. Viņš teica uz
+savu puisi: "Es labi zinu, ka tu manu māti nomocīji, tādēļ bez soda tu nevari pa
+likt. Citu sodu es tev nedošu par tavu pārgalvību, tev tikai va jaga trīs naktis manu
+māti rijā sargāt." Puisis bija ar tādu sodu mierā un sacīja uz saimnieku:
+"Bet Jums man jādod simts rubļu par pirmās nakts sargāšanu." Saimnieks
+apsolīja puisim simtu rubļu, domādams: "Gan jau puisis atradīs savu galu
+rijā!" Vakarā puisis paņēma no saiminieka simtu rubļu un izgāja. Viņš nogāja
+pie otra saiminieka, kurš bija liels burvis, un izteica saimniekam savu grūto likteni.
+Saimnieks teica puisim: "Ja tu man dod pusi no tās naudas, tad tevi pamācīšu, kā
+tev jādara, lai tu dzīvs paliktu." Puisis bija pilnīgi tā mierā, jo viņam bija
+diezgan bail, ka velni viņu nenomāc. Viņš iedeva saimniekam piecdesmit rubļu.
+Saiminieks nu mācīja puisi: "Kad tu noej rijā, tad ieej istabiņā un uzgulies uz
+devīto ārdu, tad velni tevis neredzēs." Puisis nu nogāja rijā, iegāja
+istabiņā un apgulās uz devīto ārdu. Ap pusnakti viņš izdzirda rijas tuvumā lielu
+troksni. Pēc kāda maza brītiņa pienāca rija pilna ar velniem. Šie sāka puisi
+meklēt, bet nevarēja viņu nekur atrast. Viens no velniem teica: "Tēvs mums labu
+kumosu ir nolicis, bet mēs to nevaram atrast!" Puisis uz ārdiem gulēdams, visu
+redzēja un dzirdēja. Viņam visi kauli purēja no bailēm. Kamēr viņi tā vēl
+meklēja, gailis pa dziedāja un visi velni bija atkal projām. No rīta saimnieks
+steigšus dodas uz riju, domādams atrast savu puisi velnu nogalinātu, bet nekā - puisis
+nāk trallinādams saiminiekam pretī. Otru nakti bija puisim atkal jāiet veceni sargāt.
+Vecene bija nolikta istabiņā apakš ārdiem. Puisis šoreiz prasīja saimniekam divi
+simti rubļu par mātes sargāšanu. Saiminieks arī nežēloja divisimti rubļu, jo
+šonakt, viņš domāja, velni viņu tā kā tā saplēsīs. Puisis, paņēmis naudu no
+sava saiminieka, aizgāja atkal pie pazīstama saiminieka un teica, ka viņam šonakt
+atkal jāiet saiminieka māti rijā sargāt, un ka saiminieks esot viņam divisimti rubļu
+iedevis. Saiminieks teica: "Dod man pusi no naudas, tad es tevi atkal pamācīšu,
+kā tev būs darīt, lai tu dzīvs paliec." Puisis bija pilnā mierā un iedeva
+saiminiekam simtu rubļu. "Nogājis rijā, ielien rijas krāsnī, tur tevi neviens
+nedz redzēs, nedz dabūs," saiminieks teica puisim. Puisis pateicās saimniekam,
+aizgāja uz riju un ielīda krāsnī. Ap pusnakti pienāca atkal pilna rija velnu, gan
+lielu, gan mazu, un sāka riju cauri meklēt. Papriekš viņi izmeklēja pie darbu, tad
+nojumu un pēdīgi sanāca visi istabiņā. "Te viņam visādā ziņā vajaga būt uz
+ārdiem," kāds pavecīgs velns iesaucās. Velni ņēmās istabiņu meklēt un
+vandīja visas malas apkārt, tā kā saiminieka māti gandrīz ar visu zārku apgāza,
+bet puiša nevarēja dabūt. Velni palika it dusmīgi, un neģēlīgi bļāva: "Tēvs
+mums gan labu kumosu nolicis, bet mēs to nevaram atrast!" Te arī tūlin gailis
+padziedāja un visi velni bija no rijas ārā un prom. Saiminieks no rīta uz riju
+atnācis, atrada puisi dzīvu. Vēl pēdējo nakti bija puisim jāiet veceni sargāt
+Saiminieks šonakt puisim deva trīssimti rubļu. Puisis bija arī mierā, viņš dabūja
+no saiminieka naudu, aizgāja pie sava padomnieka un pasacīja viņam, ka vēl šo trešo
+nakti viņam jāejot uz riju. Saiminieks teica puisim; "Šoreiz ir ļoti grūti
+apstākļi, bet nekas! Dod man pusi no naudas, es tev gribu labprāt arī šonakt
+izlīdzēt. Noej uz mežu, nogriez liepas un novij labi paresnu lūka virvi. Kad tu noej
+rijā, tad piesien to piedarbā pie devītās šalmenes (kņutas) un pats iesēdies
+virvē, tad viņi tevis neredzēs!" Puisis nogāja uz mežu, novija garu lūka virvi
+un nogāja uz riju. Rijā viņš piesēja virvi, tad pats viņā iesēdās un gaidīja,
+kas tālāk notiks. Šonakt, tāpat kā divi pirmās naktis, pienāca pilna rija velnu.
+Šī nakts bija puisim visbailīgākā. Kāds starp velniem bija no izskata visulielākais
+un vecākais, ļoti lieliem acuvākiem, uzačiem. Šis bija pats velnu tēvs. Kad velnēni
+bija riju izmeklē juši un puiša nebija atraduši, tad vecais pilnā riklē
+uzbļāva!" Dēls, paņem mēslu dakšas un pacel man acuvākus, tad es viņu gan
+ieraudzīšu!" Dēls paņēma dakšas un pacēla vecajam acuvākus. Tikko vecais acis
+uz augšu pacēla, viņš tūlin ieraudzīja puisi pie šalmenes sēdam un skaļi
+iesaucās, tā ka visa rija notrīcēja: ,Rau, kur viņš jau tup, tur augšā
+jumtā!" Velni runāja: "Kā viņu dabūsim zemē?" Vecajam ienāca derīgs
+padoms prātā, viņš teica: "Mans dēls, skrej pēc zāģa!" "Kur tad ir
+zāģis?" dēls prasīja. "Zāģis ir aiz Melnās jūras," vecais atteica.
+Dēls skrēja pēc zāģa. Puisim palika bail, kad atnesīs zāģi, tad virvi
+pārzāģēs, viņam būs jākrīt zemē un velni viņu saplēsīs. Nepagāja ne piecas
+minūtes, kad dēls bija ar zāģi jau klātu. Velni tūlin sāka virvi zāģet pušu.
+Vēl viena pati prīste tikai turējās, tad virve būs pušu un puisim vajadzēs krist
+zemē, velniem par zobiem, kuri jau no prieka lēkādami un mutes izplētuši, uz augšu
+skatījās un gaidīja nokrītam solīto kumosu. Bet puisim par lielu laimi gailis tanī
+pašā acumirklī padziedāja un visi velni, cik ātri vien varēdami, aizskrēja no rijas
+projām. Puisis arī šoreiz bija glābts. Saiminieks rītā brīnīdamies ieraudzīja
+savu puisi vēl dzīvu. Ceturto nakti saiminieks sūtīja atkal puisi uz riju, nevis māti
+sargāt, bet aizvest viņu un paglabāt kapos. Saiminieks grib vai traks palikt no
+dusmām, ka nekādi puisim nevar atriebt par mātes nogalināšanu. Viņš dod šoreiz
+puisim četri simti rubļu, lai puisis iet māti uz kapiem aizvest un aprakt, cerēdams,
+ka šonakt velni puisi visādā ziņā saplosīs. Puisim jābūt mierā. Viņš aizjūdz
+divus zirgus pie ratiem, paņem no saimnieka četri simti rubļu naudas un brauc uz kapiem
+rakt vecenei bedri, bet iepriekš, savam saimniekam nemanot, viņš nobrauc pie sava
+zināmā saimnieka, burvja, un izteic tam savu bīstamo uzdevumu, kas puisim darīja
+vairāk rūpes un bailes, nekā visi iepriekšējie. "Dod man pusi no naudas, tad
+gribu arī šai reizē tev labprāt palīdzēt," saimnieks sacīja. Puisis bija
+mierā un iedeva viņam divisimti rubļu. Saimnieks viņam sacīja: "Noej tūlin uz
+kapiem un izroc bedri. Pēc tam noej uz mežu, nogriez liepas, novij no tām labi garu
+lūku virvi un pataisi deviņas sērmokšļa stīpas. Vakarā rijā deviņām stīpām
+apstīpā vecenes zārku, un ar lūka virvi cieti pārsējis, ieliec viņu ratos. Tad par
+nakti aizved veceni uz kapiem un aproc!" Puisis tā pamācīts pa dienu visu it labi
+sataisīja. Kad nakts iestājās, puisis veda veceni uz kapiem aprakt. Viņš nebija vēl
+necik tālu pabraucis, kad jau liels pulks velnu gar ratiem saradās un gāja gar abām
+pusēm līķim līdzi. Te uz reiz sāk rati un līķis degt. Puisim paliek ļoti bail,
+viņš nezin vairs, ko darīt! Mukt nevar, jo apkārt ratiem ir velnu, ka mudž vien!
+Viņš brauc tik ar vien tālāk uz priekšu, rati un zārks vienumēr vēl deg. Jau
+nokrīt no zārka viena stīpa, otra, trešā, ceturtā, pietkā, sestā, septītā un
+vēl astotā viena pati stīpa vien tik vēl turējās. Bet puisim par lielu laimi bedre
+jau arī bija klāt! Viņš tūlin iegrūž veceni bedrē un apmet ar smiltim. Velni kāpa
+uz vecenes kapu un sāka visi viņu mīdīt un palika vēl vecenes kapu mīdot, bet puisis
+pārbrauca mājās sveiks un vesels.</font></p>
+
+
+</body></html>

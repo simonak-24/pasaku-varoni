@@ -1,0 +1,225 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Uzticamais Jānītis.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">8. A. 516. F. Rattermanis, Kandavas izloksnē. A. Bīlenšteina kr. LP,
+VI, 307 (72).</p>
+
+<p align="JUSTIFY">Vienreiz jāj viens ķēnūš uz jakt un atrad vienē mežē vien bēn;
+tas bij puisēns un ļoti smuks. Ķēniš pajēm viņ līdz uj mājam un lik ar sov dēl
+reizē izskolt.</p>
+
+<p align="JUSTIFY">Vienreiz tie jāj ciert un ieraudzēj vien smuk un plat plac, ar avot
+vidē. Kad tie mājē pījāj, tad tie līdz tēv, lai uz to viet vien traktier būve.
+Lab. Kad tas traktiers gatavs bij, tad žīd mālders to izmālej.</p>
+
+<p align="JUSTIFY">Ne ilg pēc tam veceis ķēniš nomir un jauneis palik viņ vietē.
+Kādreiz jāj viņ div to traktier apskat’ties un palik tur pa nakt. Tei traktierē
+nedzīvej neviens cilveks un taču tie atrad gaid pill ar ēdieniem un zirg sils pills ar
+auzam. Nu tie izstaigej viss kamburs un atrad vienē kamburē lot smuk sievišķ
+uzmāllit. Tie lik to žīd atsaukt un prasēj: kur tas tād smuk sievišķ redzējs. Tas
+atbildēj: "Trešē pasaulē!"</p>
+
+<p align="JUSTIFY">Tad tie sataisījās uz trešej pasaul jāt un tūlīt gāj gulēt.
+Ķēniš gulēj iten ciet aizmidzies, bet Dabutsdāls nemaz nevare gult. Te pusnaktē
+ienāc trīs jumpravs iekšē un vien uz otrs tā teic : Va viņ dābs ar?"</p>
+
+<p align="JUSTIFY">"Kāpēc ne? Kad tik viņ gudr būs. Kad viņ jās, tad būs vien
+liel up priekšē; zemē ir vien slotiņ, kad ar to slotiņ te(i) upe sit, tad ir tilts
+pār, un kad ar to slotiņ uz to tilt uzsit, tad tas tiIts nozūd, un tad ir otrē
+pasaulē. Kad nu kād gabal pajāj, tad ir viens liels akmens un balt nūjiņ klāt; kad
+ar to nūjiņ uz to akmen uzsit, tad ir trešē pasaulē."</p>
+
+<p>Bet ta treše teic: "Nekā, tad viņ ar vēl nav dabuiš."</p>
+
+<p align="JUSTIFY">Pirme atteic: "Viņ dābs ar, kad tie ies pie sudrab kalēj, un
+liks sudrab putn taist, kas smuk dzied, tad ta princes gribs to putn pirkt, bet lai viņ
+maks nepras, lai twāpat atšķinķe."</p>
+
+<p align="JUSTIFY">Otrs teice: "Tad tiem ar vēl nav, tiem jāapstelle pie zelt
+kalēj zelt lāč ād: vienam jālien tē ādē un otram jādīdin, tad ta princes gribs
+to lāc pirkt, bet lai maks nepras, lai atšķinķe viņ."</p>
+
+<p align="JUSTIFY">Treše teic: "Viņam ar vajag mieg zāls līdz, jo kad viņš būs
+princess gulamē kamburē un princess ies ēst, tad tam jāielej mieg zāls iekš to vīn,
+tad ta dzerdam alzmigsies."</p>
+
+<p align="JUSTIFY">Kad jumpravs tā bij runeišs, tad tās pazude; bet Dabutsdēls vis bij
+noklausējies. Kad tie no rīt izcēlās, tad bij akal ēdien zirgiem un pašiem. Nu tie
+jāj un atrod, kā tās jumpravs bij teikš. Bet kad viņ ta ķēniņ pil ieraudzei, tad
+iejāj pie vien sudrab kal;.j, un apstellēj to putn. Tutns bij ā tr gatavs, un tie
+atšķinķēj to te princese. Tad viņ vēl aizgāj pie zelt kalēj un apstellēj zelt
+iāč ād. Kad ād bij gatav, Dabutsdēls ielīd tur iekšē un ķēniņ dēls to dīdēj
+princess log priekšē. Princes gribēj to pirkt, bet tas atšķinķē akal. </p>
+
+<p align="JUSTIFY">Princs zelt lāc piesēj savē gulamē kamburē. Bet, kad viņ ēst
+gāj, Dabutsdēls pielēj mieg zāls vīnam klāt, um kad princes vīn dzēr, tad
+alzmigās. Kad to iācs redzēj, tad tas Iīd no savs āds Iaukē, nolaid aizmiguš
+princes ķēniņ dēlam, kas apukš 1og stāvej un nolaidās ar beidzot pats. Nu tie kāp
+uz zirgiem, pajēm princes līdz un jāj projam. Bet kad manēj, ka drīz atmod'sies, tad
+viņ nolik tās zemē un aizjāj tād gabaliņ tālāk. Princes atmodās, brīnējās un
+sāce brēkt. Šie nu jāj klāt. Piejāj, princes lūdz, lai viņs iīdz jem. Lab. Nu
+jāj, jāj - atjāj akal uz to traktier - jau va</p>
+
+<p align="JUSTIFY">kars metas. Traktierē viss galds bij pills ar visādiem ēdieniern,
+dzērieniem un arī trīs gultas uztaisīts. Zirgiem bij auzs silē un nu tik tie sēdās
+pie gald klāt ēst. Paēduš - gāj tūlin gult; jo bij piekusš dikt. Ķēniš un
+princes akai gulēj kā nomirš, bet Dabutsdēls nevarēj gult. 'i'ad ap pusnakt ienāc
+akal trīs jumpravs an sāk runt; ta vien teic: "Re, va viņ nedabej?"</p>
+
+<p>Otr atbildēj: "Dabe gan, bet vēl nav mājās!"</p>
+
+<p align="JUSTIFY">Trešej teic: "Kad tie gudr būs, tad viņ to mājē ar
+(pār)dābs, jo kad tie jās, tad uz vien tilt kraukls brēks, un viņ pa tilt jādam
+nositsies; bet kad viņ to kraukl nošaus, tad nekas nekalts. Un māj tuvumē vecej
+ķēniņien nāks ar smuk zirg pret u.l gribs, lai tā princes tur virsē sēž; kad tā
+sēds, tad tā nositsies, bet kad tam zirgam kakl nocirts, tad nekas nebūs. Un kad tie nu
+mājē būs, tad tiem dos vīn dzert; bet iekš princess glāz būs j;ipt iekšē, tā
+dzerdam būs pagalam; glāz jāsaplēš, tad nekas nekaits. Un kad tie nu guls, tad tā
+vecej ķēniņien pārvērtsies pa ērgl un ielaidsies pa lodziņ to princes nožņaugt;
+bet kad vecei ķēniņienej tad kad nocērt, tad paliek vis dzīv; bet kas to dzird un
+kādam teiks, tas paliks viscaur pa akmen."</p>
+
+<p align="JUSTIFY">Kad tās jumpravs tā bij runējš, tad tās pazud. Bet Dabutsdēls
+palik noskums un domēj: kā tas to vis vart izdart?</p>
+
+<p align="JUSTIFY">Un kad tie nu no rīt aiziāj līdz to tilt, tad viens kraukls brēc;
+bet Dabutsdēls to nošāv.</p>
+
+<p align="JUSTIFY">Tālāk pajājuš, nāc vecej ķēniņiei ar smuk zirg pret un teic, ka
+tas neklājas caur pilsāt diviem uz vien zirg jāt. Kad Dabutsdēls to dzirdēj, tas
+pajēm sav zoben un cirt tam zirgam kakl nost. Ķēniņ dēls gan palik dusmīgs, ka tād
+smuk zirg nomaitējs, bet viņš atteic: "Tu nezin, kamdēļ tas labi ir!"</p>
+
+<p align="JUSTIFY">Mājās tiean dev vīn dzert; bet Dabutsdēls princess glāz saplēs un
+teic, lai no viņ glāz dzeŗ. Par to ķēniņ dēls akal apskaltās. Kad tie nu gult
+gāj, Dabutsdēls ielīd papriekš tē kamburē un paslēpās. Un pusnaktē viens putns
+ielaidās pa log un apstājās uz gults mals. Dabutsdēls pakamp sov zoben un cirt pēc to
+putn, bet nocirt tik vien kāj, putns akal izlaidās pa Iog ārā. Tas zobens iegāj iekš
+gults im ķēniš atmodies lik viņ sajemt, tāpēc ka esot gribējs viņ nokaut.
+Dabutsdēls gan teic, ka viņš tam tik daudz līdzējs; bet nekas neģeldē, nospried, ka
+esot jāpakaŗ. Bet pie kartavam viņš lūdz, lai sauc ķēnig, viņam esot jārunē kas
+ar to. Lab. Nu viņš ķēniņam izteic vis gal no gal; un kad tas no tā kraukl tm zirg
+teic, tad viņš palik līdz pusei pa akmen. Ķēniš gan lūdz, lai tālāk neteic, bet
+viņš atbildēj: "Ko nu vairs ģeld!"</p>
+
+<p align="JUSTIFY">Un izteic vis, un palik viscaur pa akmen. Kad to tas ķēniš redzēj,
+tad viņš sāk raud't un lik to akmen baznīcē ielikt.</p>
+
+<p align="JUSTIFY">Pēc gad piedzim ķēniņam smuks dēls, ko tas gauž mīlēj. Bet
+viņan nāc arvien sapņos, lai viņš baznīcē uz to akmen sov dē1 nokauj, tad tas
+Dabutsdēls taps dzīvs. No iesākum tas negribēj, bet pēc pajēm sov zoben līdz un
+gāj ar dēl uz baznīc. Kad piegāj pie akmen. tad ātr nokav dēl un raud'dams steidzās
+pa durvim ārē. Bet vien balss sauc tam no pakaļs pakal. Viņš atgriezās apakaļ un
+redzēj sov draug pret nākam ar nokaut dēl uz roks, tas ar bij dzīvs. Tad sāk ab no
+priek raud't un gāj uz pil. Dabutsdēls apprecēja ķēniņ mās un dzīvei laimig.</p>
+
+
+</body></html>

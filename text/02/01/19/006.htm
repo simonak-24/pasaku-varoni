@@ -1,0 +1,390 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="center">Labie brāļi.</p>
+</font>
+
+</b><p><b>6. A. </b>303. A. Bīlenšteins Jaun-Aucē, R. Auniņa "Ueber den lett.
+Drachen-Mythus" 132. LP, VI, 125, 21. AŠ.II, 95c. </p>
+
+<p>Vienreiz viens vecs zveijnieks dzīvojis, un viņš ik dienas tik divi zivis noķēris.
+Tā viņš tur ilgi dzīvojis un viņam nebijis neviena bērna un viņš būtu vēlējies
+kādu dēlu.</p>
+
+<p align="JUSTIFY">Kad viņš atkal vienu dienu bijis jūrmalā, tā atskrien pie viņa
+viena liela līdaka un viņš to noķeŗ. Šī lūdzas, lai atlaiž vaļā, ka viņš šo
+atlaidīšot, tad šī viņam par šo atsūtīšot divi zivis. Tās lai viņš pārnesot
+mājā un izvārot un tad lai iedodot savai sievai. Ja viņa abjas tās zivis apēdīs,
+tad viņai dzims divi dēli.</p>
+
+<p align="JUSTIFY">Tā nu viņš dara. Šī apēd tās zivis un viņai arī dzem divi
+dēlēni, tādi smuki ar zeltītiem matu galiņiem.</p>
+
+<p align="JUSTIFY">Ka jau viņi lielāki paauguši, tā viņi abi divi vienreiz prasa, lai
+&amp;127;auj mācīties ģēģeŗa amatā. Ko nu šis darīs? Viņš no tā laika, ka
+viņam tie divi dēli bija dzimuši, arī vairāk to zivu nebija saķēris, kā tik
+ikdienas četras, katram pa vienai.</p>
+
+<p align="JUSTIFY">Tā viņš vienu dienu akal aiziet un zvejo un zvejo, un sazvejo liela
+pulka zivu. Tās viņš nu pārdod un par to naudu nu viņiem nopērk katram vienu
+jaktssuni, šīstašu, plinti un visas lietas, un liek ģēģeŗa amatā izmācīties. Un
+ka nu viņi izmācījušies, tad viņi aiziet projām uz svešu zemi. Tā viņi staigā
+kādu laiku kopā abi divi; bet viņiem nav nekādas laimes.</p>
+
+<p align="JUSTIFY">Tā viņi vienreiz akal iet, uziet krusta ceļu. Te viņi nu saka:
+"Līdz šim mums nekādas laimes nav bijis, tālab mums te nu būs jāšķiŗas.
+Viens iesim pa labu roku, otrs pa kreisu roku."</p>
+
+<p align="JUSTIFY">Un ka nu kādreiz zinātu, kā katram iet, viņi iedur turpat tais
+ceļa jūtīs nazi vienā ozolā. Ja tas nazis būs norūsējis, tad ies slikti tam otram,
+ja spožs, tad ies labi. Un tā viņi aiziet viens pa labu, otrs pa kreisu roku.</p>
+
+<p align="JUSTIFY">Un nu ņemsim to, kas pa to labu roku aizgāja, lai tas otrs paliek.
+Tā tas pirmais nu iet un iet, un ierauga vienu zaķi turpat viņam priekšā skrejam.
+Viņš paņem savu plinti un nu šaus viņu zemē. Tā tas zaķis lūdzas, lai nešauj, ka
+viņš ies viņam līdz un viņam kādreiz bēdās palīdzēs.</p>
+
+<p align="JUSTIFY">Tā nu šis nešau un iet projām un satiek vienu lapsu. To nu grib
+šaut zemē; tā akal lūdzas, lai nešau, ka ies viņam līdz un kādreiz bēdās
+palīdzēs.</p>
+
+<p align="JUSTIFY">Šis viņu nešau vis un iet akal tālāku. Tā pa tādu gabalu satiek
+vienu vilku. Tas akal tāpat lūdzas, lai atlaiž, ka ies līdz un kādreiz bēdās
+palīdzēs. To akal nešau. Tā satiek lāci. Tas akal tāpat lūdzas. Itin beidzot
+trāpās lauva, to nu grib šaut zemē ; tā akal tāpat lūdzas, ka ies viņam līdz un
+bēdās palīdzēs.</p>
+
+<p align="JUSTIFY">Tā nu viņš jāj tālāku un tie zvēri visi nu nāk viņam 1īdz, un
+jāj un jāj, un beidzot uzjāj vienu krogu un turpat i liels pilsāts. Ka nu viņš pie
+tā kroga tur i, ta viņš ierauga, ka visi cilvēki no tā pilsāta nāk ārā. Viņš
+iet tai krogā un prasa tam krodziniekam, kālab tie cilvēki tur no tā pilsāta nāk
+laukā itin visi. Tas krodzinieks viņam saka, ka to pilsātu vells apsēdis un neviens
+vai nevarot tur stāvēt iekšā.</p>
+
+<p align="JUSTIFY">Tā, ko nu šis darīs? Viņš nojāj uz pašu to pili, ieliek tur savu
+zirgu un savus zvērus turpat apšķūnī un pats iet tai pilī iekšā. Tā viņš ieiet
+tur iekšā un atron: tur uz galda ir visi ēdieni un dzērieni un vēl viena butele un
+tur uz tās buteles virsū uzrakstīts, ja kam kas tait, tad a tām zālēm, kas tai
+butelē, lai apmazgājot, tad palikšot akal vesels.</p>
+
+<p align="JUSTIFY">Labi. Tā nu viņš gaida pusnakti. Ka<b> </b>nu jau gandrīz pusnakts,
+tā viņš dzird, ka nāk pa trepēm augšā. Tā tas viens saka: "Kas ies pa
+priekšu?"</p>
+
+<p align="JUSTIFY">Tas otrs saka: "Kas ta nu ies? Lai iet mazais Kristapiņš pa
+priekšu."</p>
+
+<p align="JUSTIFY">Tā nāk nu iekšā un tas Kristapiņš šim virsū, šo salauž un
+šim iegrūž citus dūrienus. Un visi akal prom. Šis pierāpjas pie galda un paņem to
+buteli, apmazgājas un paliek akal vesels.</p>
+
+<p align="JUSTIFY">Otru nakti akal paliek viens pats tai pilī. Ka nu pusnakts, ta dzird
+akal, ka nāk pa trepēm augšā. Tā tas viens saka: "Kas ta nu ies
+papriekšu?"</p>
+
+<blockquote>
+  <p>Tas otrs akal: "Lai nu iet gaŗais Juris papriekšu."</p>
+</blockquote>
+
+<p align="JUSTIFY">Ja, tā nu akal iet iekšā un tas Juris viņu salauž un viņam
+iegrūž dūrienus. Un nu visi tie velli akal projām. Tā viņš pic'rāpās akal pie tā
+galda, paņem to buteli un apmazgājas un paliek akal vesels.</p>
+
+<p align="JUSTIFY">Ko nu viņš lai iesāk? Nu redz, ka nekā nevar darīt; viņš grib
+jāt projām. Tā viņš uzkāp savam zirgam mugurā, paņem savus zvērus un nu jās
+projām. Ka nu piejāj pie tiem pilsāta vārtiem, tā nekā, vārti cieti, un nevar vis
+tapt laukā. Tā nu viņš jāj akal apakaļ un iet tai pilī iekšā.</p>
+
+<p align="JUSTIFY">Ka nu nāk tā trešā nakts, ta viņam iešaujas prātā, ka tie
+zvēri solījušies viņam palīdzēt un paņem nu tos visus uz to pili līdz. Nu akal
+nāk pusnakts un dzird, ka nāk akal pa trepēm augšā. Tā tas viens prasa: "Kas nu
+šoreiz ies iekšā?"</p>
+
+<blockquote>
+  <p align="JUSTIFY">Tas otrs: "Lai iet mazais Kristapiņš." Kristapinš neiet.</p>
+  <p>"Nu, lai iet gaŗais Juris."</p>
+  <p>Juris arī neiet un neiet, sit tu viņu nost.</p>
+</blockquote>
+
+<p align="JUSTIFY">"Lai iet nu tas trešais" (i ka tevi piķis, tam akal to
+vārdu nevaru atminēt!)</p>
+
+<p align="JUSTIFY">Tas ārī negrib iet, bet beidzot ies gan šis nu tur iekšā. Kā šis
+nu tur ienāk iekšā, tā viņš arī laiž visus tos zvērus šim virsū; šie nu to
+sātānu saplēš, šis laukā un tie citi projām un bēgdami iesvieduši pa durvim vienu
+princesi iekšā pavisam sarautu čignē (muskulā) no tā sātāna. Šis iedod viņai
+tās zāles, kas tai butelē, un apmazgā pa virsu un šī nu paliek vesela un i tik
+skaista princese, tāda.</p>
+
+<p align="JUSTIFY">Otru rītu nu šie abi staigā pa to pilsātu. Tie &amp;127;audis
+dabūjuši zināt, ka tie velli aizdzīti, nāk akal visi apaka&amp;127; un visi kaufmaņi
+uzceļ šo pa ķēniņu un šis apprec to princesi, bet šī apsien visiem tiem zvēriem,
+katram vienu bantīti ap kaklu, lai var pazīt.</p>
+
+<p align="JUSTIFY">Tas otrs iejāj tāpat tādā mežā un satiek vienu zaķi, lapsu u. t.
+t., kā tas pirmais. Tā viņš iet un a visiem tiem zvēriem iziet no tā meža un uziet
+vienu krogu, un tur tāpat viens pilsāts klāt, un viņš dzird, ka tai pilsātā tur
+spēlējot. Tā viņš iet tai krogā un prasa,'kālab tur tai pilsātā tā spēlējot?
+Tas k&amp;127;rodzinieks saka, ka 'tur tai pilsātā pavisam ūdens trūkstot un tur tas
+vells ar deviņām galvām to ūdeni aizturot un tam ikdienas esot viens cilvēks jādo.
+Un nu šodien esot tā ķēniņa meita uzlozējse un šodien tam vellam došot. Tā viņš
+prasa tam krodzeniekam, vai tam neesot kas ēst. Tas krodzenieks saka, ka viņam cits
+nekas neesot, kā tik viena pussiļķe. Tālab viņa krogu arī par siļķu krogu esot
+iesaukuši.</p>
+
+<p align="JUSTIFY">To pus siļķi nu viņš izcep un apēd un aiziet akal a visiem saviem
+zvēriem projām un staigā tur gar jūŗmalu. Tā viņš redz, ka tas kučieris to
+princesi ved projām. Te šis nu liek tai princesei izkāpt un ved līdz. Tā nu
+viņi&amp;127; kādu gabalu paiet un apsēžas un gaida. Ta pa kādam laikam nāk tas
+pūķis arī. Un tā tas pūķis sauc, lai viņš to princesi atdod. Tā šis akal saka,
+lai viņš pats nāk viņai pakaļ. Kā nu tas pūķis nāk, tā šis laiž visus savus
+z&amp;127; ērus viņam virsū un nu viņi stangojas, kamēr tie zvēri viņu pievinn, un
+šis pieiet un nocērt tam visas tās deviņas galvas., un no katras tās galvas izgriež
+tās mēles un tās iebāž savā šīstašā un tās galvas, tās paliek turpat. Tā ka
+nu šis akal iet projām, ta tā princese nomauc savu gredzenu un pārlauž savu gredzenu
+uz pusēm. To vienu pusi iedod viņam un to otru patur pati un apsien katram tam zvēram
+bantīti ap kaklu. Un viņa šo grib pa velti vest līdz uz savu pili, lai šis paliek pa
+to ķēniņu; bet šis neiet un neiet un tā nu viņi izšķiŗas.</p>
+
+<p align="JUSTIFY">Bet šis, tas kučieris, nav arī tik muļķis. Viņš salasa visas
+tās galvas tais ratos un nozvērina to princesi cieti, lai saka, ka viņš esot to pūķi
+nokāvis, citādi šis tevi nokaušot. Nu, ko nu šī lai dara? Tiek nu viņai nāve šā
+kā tā. Viņa apsolās gan. Kā nu pārbrauc uz to pili, tā šis tūlīt saka, ka viņš
+esot to vellu ar tām deviņām galvām nokāvis. Tad nu ķēniņš vai šim neliek ne
+zirgus jūgt zemē, nekā un liek apģērbt un šim dos to savu princesi pa gaspažu lai.
+Ja, tā šis arī tūlin viņu grib precēt. Ne tā, viņa saka, ka viņa ātrāki pie
+viņa nevarot iet, kā kad viņa būšot gadu un septiņas nedēļas aptrūvējse. Tā nu
+tas gads un sešas nedēļas paiet un viņam nu tūlin būs kāzas ar to princesi.</p>
+
+<p align="JUSTIFY">Tā šis, tas jēģeris, staigā akal ar saviem zvēriem un aiziet
+līdz tam siļķu krogam. Tur viņš dzird, ka tai pilsātā spēlē, ka trīc vien. Tā
+viņš akal prasa tam krodzeniekam, kālab tur spēlējot?</p>
+
+<p align="JUSTIFY">Šis teic, ka priekš gada laika tas ķēniņa kučieris to princesi no
+tā pūķa esot izglābis un nu viņam a to princesi būšot kāzas arī palikšot par
+ķēniņu. Labi. Tā šis nu prasa tam krodzeniekam, vai nav kas ēst? Viņš teic, ka
+viņam cita nekā neesot, ka tik viena pus siļķe. Nu, ko tur no vienas pus siļķes
+ēdīs? Viņš pakar tam lācim spanni ar cedelīti un tur ieraksta, lai piekrau to spanni
+ar kāpostiem. Kā nu tas lācis tur līdz tai kukņai noiet, tā šī (princese) ierauga
+to lāci un pazīst tūlin to savu bantīti, ko viņa tam apsējse gar kaklu un domā:
+"Nu viņš taču tālu nevar būt", un tā tam pavāram liek to spanni piekraut
+ar kāpostiem un tas lācis nu pārnes.</p>
+
+<p align="JUSTIFY">Nu kā tā kāpostus bez gaļas vārīs? 'Tur jau vajag gaļas arī
+iemest iekšā. Un nu raida vilku gaļai paka]. Ieraksta cedelīti un pakar to vilkam pie
+kakla un tas aiziet. Tā ķēniņa princese ierauga akal to vilku un to tūlin pazīst no
+tās bantītes, ko viņa šim apsējse gar kaklu. Viņa liek akal nogriezt lielu gabalu
+gaļas &amp;127;n to piesiet pie kakla un vilks pārnes akal to galu.</p>
+
+<p align="JUSTIFY">Kā bez maizes ēdīs? Nu raida akal lauvu maizei pakaļ. Pavārs uzkar
+akal kukuli maizes. Un nu vajag akal alus. Raida akal lāci tam alum pakaļ un šī nu
+visus tos zvērus pazīst un domā: "Viņam tepat kau kur vajag būt."</p>
+
+<p align="JUSTIFY">Tā otru rītu viņš iet uz to pilsātu. Ienāk tai kukņā, viņš
+prasa tam pavāram, vai nevajag viņam kāda puiša. Tas pavārs teic: "Man vajag gan
+- šodien man tik daudz darba."</p>
+
+<p align="JUSTIFY">Un tā viņš paliek tuŗ par kukņas puisi. Kā nu tas pavārs tai
+princesei to kapiju taisa, tā viņš lūdz to pavāru, vai nevarot dot pasmeķēt, kā
+tā kapija smeķ, ko ķēniņi dzer.</p>
+
+<p align="JUSTIFY">"E, ko niekus," tā tas pavārs teic, "tāpat smeķē,
+kā jau katra kapija."</p>
+
+<p align="JUSTIFY">Kā nu viņš tā lūdz, šis to do gan. Un tik drīz, ka nu šis to
+glāzi pie mutes pieliek, ielaiž to gredzenu iekšā un saka: "Citāda jau ir gan,
+tik gārda, tik gārda!"</p>
+
+<p align="JUSTIFY">Kā nu ienes to kapiju iekšā un šī nu dzeŗ, tā viņa mana, a
+tc&amp;127; kaŗotīti maisīdama, ka tai glāzē cits kas ir un izņem to gredzenu. 'Tā
+viņa tūlīt iziet kukņā pie pavara un prasa: Vai te neesot kāds svešs cilvēks?</p>
+
+<p align="JUSTIFY">Tas pavārs saka: "Te ir gan, viens šorīt atnāca un man
+prasīja darba un es viņu pieņēmu te pa kukņas puisi."</p>
+
+<blockquote>
+  <p>"Nu, vai viņš nav dzēris no manas kapijas?"</p>
+</blockquote>
+
+<p align="JUSTIFY">Nu pavārs paliek itin auksts no bailēm un teic, ka tas esot viņu
+lūdzis, lai tik bišķīt dodot pasmeķēt. Tā nu viņa tūlin šo pazīst un ieved
+iekšā un aizslēdz savā kambarī. Priekš laulāšanas viņa lūdz, lai viņai vēl
+papriekšu jau vienu notikumu stāstīt. Un viņa teic: "Man pazuda viena atslēga.
+Kā nu es nevarēju to vai</p>
+
+<p align="JUSTIFY">dabūt, tā es liku citu uztaisīt. Pa kādam laikam dabūju arī to
+veco atslēgu un man ir divi."</p>
+
+<p align="JUSTIFY">Un tā nu viņa prasīja tam savam brūtgāņam, kuŗu atslēgu šai
+būšot brūķēt, vai to veco, vai to jauno? Šis saka, lai labāki to pašu veco
+brūķējot. Tā šī izved to savu riktīgo glābēju no tā kambara un teic: "Tas
+ir mani izglābis, tas nokāva to vellu un tu mani pašu toreiz gribēji nokaut, ja es
+neteikšot, ka tu mani esi izglābis."</p>
+
+<p align="JUSTIFY">Bet tas šīs tēvs, tas vecais ķēniņš, netic un prasa, vai esot.
+kādas pierādīšanas? Tā tā princese saka: "Nu, tēvs, vai tad kāda galva arī
+bez mēles i?"</p>
+
+<p align="JUSTIFY">Tā visi skatās, nekā, nevienai galvai nav mēles. Nu šis izvelk no
+savas šīstašas visas tās mēles un liek klāt pie katras galvas; ja un itin visas
+pas'. Tā nu visi redz, tas tēvs lai, ka šis i,. kas to pūķi nokāvis un tūlin šo
+salaulā a to princesi, un paliek pa ķēniņu, un to kučieri liek iekš dzelzu mucas
+nomaitāt.</p>
+
+<p align="JUSTIFY">Un tā šie dzīvo kādu laiku kopā. Uz vienreiz viņš izjāj uz
+jakti. Tā viņš jāj un jāj un uz vienreiz viņš ierauga zaķi, grib to šaut, bet tas
+vēl i pa tālu un viņš nu jāj nu grib pietapt klātāku, bet nekā. Tas zaķis skrien,
+kamēr noskrien līdz lielam placim un tur pazūd, ka ne redzēt, ne dzirdēt. Tai plača
+malā stāv viena veca vecene un tur kuŗas uguntiņa. Tā viņš piejāj un prasa tai
+vecenei, lai tam do uguns pīpi uzsmēķēt: bet šī ātrāki nedo tās uguns, kamēr
+viņš &amp;127;ausies noglaudīties. Viņš domā, tas jau nekas nebūs, un ļaujas gan.
+Tik drīz, ka šī noglauda, tā viņš paliek par akmeni, un tā viņa pataisa tos visus
+viņa zvērus lai pa akmeņiem.</p>
+
+<p align="JUSTIFY">Tas otrs brālis akal iedomājas: "Kuš, jāiet būtu paskatīties
+pie tā ozola, kā manam brālim iet? Vai tas nazis tur i sarūsējis. vai vēl
+spožs?"</p>
+
+<p align="JUSTIFY">'Tā viņš noiet pie tā ozola, skatās: tas nazis pavisam
+norūsējis. "A," tā viņš domā, "nu viņam slikti iet."</p>
+
+<p align="JUSTIFY">Tā nu viņš jāj un jāj un grib nu izklaušināt, kā tam viņa
+brālim klājas. Tā viņš nu beidzot uzjāj to siļķu krogu. Tā tas krodzenieks iznāk
+viņam pretī un teic: "Vai, cienīgs ķēniņ, ku jūs tik ilgi bijāt? Visi citi to
+pašu dienu no tās jakts pā'jāja un jūs tik ilgi tur bijāt aizkavējušies."</p>
+
+<p align="JUSTIFY">Viņi abi divi, tie brāļi, akurāt tāds viens, kā otrs
+izskatījušies. Šis nu mana gan, kas tur par nelaimi būš. Aiziet uz to pilsātu,. tur
+tā ķēniņiene tāpat, kā tas krodzenieks viņu tur par savu vīru, bet viņš nekā
+vēl nesaka. Kā nu atnāk vakars un iet gulēt, tā nu viņam jāiet pie viņas gulēt.
+Viņš nekā nesaka vis, iet gan, bet ieliek zobinu starpā. Tā ķēniņiene pa to ļoti
+noskumst, ka viņš nekad nebij tā darījis un tagad nu liek zobinu starpā.</p>
+
+<p align="JUSTIFY">Otru rītu viņš nu jāj akal uz jakti. Nu tā ķēniņiene nelaiž.
+Viņa saka: ,,Tagad tu tik ilgi esi bijis uz jakti, un tik drīz kā pā’jājis
+mājā, tu jāj akal," un lūdzās, lai paliek mājā; bet šis neklausa un jāj to
+brāli raudzīt.</p>
+
+<p align="JUSTIFY">Tā viņš akal ierauga vienu zaķi, to grib šaut zemē un dzenas tam
+paka&amp;127; un aiznāk līdz tai lielai atmatai un tur akal pazūd tas zaķis. Tā
+viņš ierauga tos akmiņus un tur tāda vecene, tā tur kur' uguntiņu un sildās. (Tā
+tā vella māte a tām deviņām galvām:.) Šis nu saprot gan, kas te pa stiķi i. Tā
+viņš prasa akal tai vecenei, lai do uguns pīpi uzsmēķēt. Ja, viņa dos gan, bet lai
+viņai papriekšu &amp;127;aujas noglaudīties. A, tā šis a kančuku viņai virsū, lai
+taisa akmeņus dzīvus. Šī gan negrib, bet viņš ar to kančuku tai tik ilgi drāž pa
+ādu, kamēr viņa akal sataisa visus tos zvērus dzīvus. Nu nāk pie tā cilvēka. Nu
+viņa to negrib dzīvu taisīt. Nu viņš akal šo tik ilgi mizo, kamēr viņa i to
+pataisa dzīvu. 5is prasa, kālab šī brāli esot pa akmini pataisīse? Šī saka:
+"Ja, kā ta viņš manu dēlu nokāva?"</p>
+
+<p align="JUSTIFY">Un nu viņi abi divi šo krustis pācēt pušu. Nu šie abi jāj uz to
+pilsātu un kā nu tā ķēniņiene nevarējuse šo izšķirt, tālab ka akurāt tāds
+viens bijis, kā otrs, tā tas riktīgais vīrs šai devies pazīstams un viņai visu
+izteicis, kā tas bijis, un tas otrs brālis akal jājis projām nu uz savu valsti un tā
+tad viņi šķīrušies.</p>
+
+
+</body></html>

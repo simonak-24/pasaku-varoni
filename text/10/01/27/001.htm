@@ -1,0 +1,203 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>1002701</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Labi meli.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">l.<b> </b>A.852. Pogu Jānis, Bechmanis,
+Bramberģniekos. LP, V,<b> </b>341 (147). M. Boehm, Lettische Schwanke, 36, 27.</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam tēvam trīs dēli: divi gudri, trešais muļķis. Reiz visi
+trīs brāļi aiziet pasaulē un ceļā maizei paņem līdz arī kumosu zaļas gaļas.
+Vakarā gudrie brāļi saka: "Vajadzētu zaļo gaļu uzcept; bet kur te mežā uguni
+dabūsi?"</p>
+
+<p align="JUSTIFY">"Dabūsim gan!" muļķītis ieteicas, "es uzlīdīšu
+egles galotnē un skatīšos meža kokiem pāri, vai tad itin nesaredzēšu kautkur
+tālumā uguni." Labi, uzlīdis galotnē, vērojis, vērojis - jā, tur un tur
+spīdot gan uguns, lai vecākais brālis aizejot pakaļ! Vecākais brālis aizgājis un
+atradis vecīti pie uguns.</p>
+
+<p align="JUSTIFY">"Labvakar, veco tēv! aizdod mums uguni zaļu gaļu
+pacepties."</p>
+
+<p align="JUSTIFY">"Labprāt, dēls! Bet man ļoti tiktos tavu apķērienu dzirdēt:
+vai vari man labus melus pastāstīt? Ja to iespēji, uguni dabūsi; ja<b> </b>nē,
+mārciņa gaļas no ciskas ārā."</p>
+
+<p align="JUSTIFY">Vecākais brālis gudrojis, gudrojis melus, nekas neiznācis. Vecītis
+izgriezis mārciņu gaļas no ciskas un palaidis bez uguns.</p>
+
+<blockquote>
+  <p>Nu taisās vidējais brālis uguni dabūt.</p>
+</blockquote>
+
+<p align="JUSTIFY">Aiziet - vecītis saka: "Labprāt, dēls! Bet man ļoti tiktos
+tavu apķērienu dzirdēt: vai vari labus melus izdomāt? Ja spēsi, uguni dabūsi; ja ne,
+divas mārciņas gaļas no ciskas ārā."</p>
+
+<p align="JUSTIFY">Vidējais brālis gudrojis, gudrojis melus - nekas gudrs neiznācis.
+Vecītis izgriezis divas mārciņas gaļas no ciškas un palaidis bez uguns.</p>
+
+<blockquote>
+  <p>Beidzot aizgāja muļķītis.</p>
+</blockquote>
+
+<p align="JUSTIFY">Labvakar, veco tēvs! vadzi, iedosi drusku uguns; mums tur cepeši
+cepami."</p>
+
+<p align="JUSTIFY">"Tev laba mute, dēls! voi tu, varbūt, varēsi labus melus
+sadomāt? Ja vari, uguni dabūsi; ja ne, trīs mārciņas gaļas no ciskas ārā."</p>
+
+<p align="JUSTIFY">"Veco tēv! kas nu melus nesagudrot? Re, labu patiesību, tas jau
+gŗūtāki. Bet to gan saku: ja melus neizgudrotu, tad nedosi man uguni un izgriezīsi
+trīs mārciņas gaļas; ja turpretim izgudroju, tad paņemšu uguni un izgriezīšu tev
+trīs mārciņas gaļas."</p>
+
+<p>"Jā, jā - to tu vari darīt; bet nu sāc!"</p>
+
+<p align="JUSTIFY">"Sākšu gan - atļauj tikai siekalas norīt. Redzi, veco tēv,
+reiz staigāju pa mežu un esmu tā izsalcis, tā izsalcis, ka vēlējies mēli norijis.
+Te paceļu acis, ieraugu dobumā trīs izceptus balodīšus, tik mīkstus kā pūpēžus.
+Nu raušu balodīšus ārā - kas ir? Nevaru roku iedabūt dobumā. Pag! domāju,
+līdīšu pats pakaļ! Ielienu, noēdu balodīšus - nevaru vairs izlīst: ače noēdies
+tik resns - tai platumā, skaties! - kur, jāsaka, izlīdīsi? Nu gudroju, gudroju;
+beidzot man iešaujas itin gudrs padoms galvā: aizteku mājā pēc cirvja, izrobu dobumu
+lielāku un nu izlienu ērti jo ērti."</p>
+
+<p>"Tas viss var būt, dēls!"</p>
+
+<p align="JUSTIFY">"Pagaidi! vēl nesaki: tas var būt! apklausies tālāk! Un tā nu
+eimu no meža ārā, uz reizi dzirdu briesmīgu troksni. Domāju: ja pasaule negāžas,
+tad tur cits kas drīzi kritīs. Apskatos - kur nu no nieka pasaules tas troksnis, bet,
+ače, pavisam cita nelaime : septiņas bites kaujas ar astoņiem vilkiem. Gribu iet
+šķirt - domāju: kad no trokšņa neaizkrīt ausis, tuvāk pieiedams. Beidzot notālumā
+uzsaucu labi pikti: "Ko kaujaties, pagāni?" Bites atbild: "Ko tad darīt!
+vilki, varmākas, grib no mums, no katras bites, astoņi mucas medus izspiest." Es
+pārdomāju: tā ir gan varmācība! Tūliņ izrauju zobinu, nokauju vilkus, novelku
+ādas, izžāvēju, uzsienu ādu saini mugurā un nu iešu uz labu laimi pārdot."</p>
+
+<p>"Tas viss var būt, dēls!"</p>
+
+<p align="JUSTIFY">"Pagaidi! nejaucies starpā! - Eimu, eimu, te padzirdu: debesīs
+esot tirgus. Ko nu gaidīt? Kāpu kalnā, un tikai eimu uz augšu. Līdz ko esmu kalna
+galā, te gadas caurums un kā krītu caurumā, iekrītu pašā tirgū. Pārdodu ādas un
+nu apskatīšos, ko nomirušie dara. Kas ir: ieraugu tavu tēvu un manu tēvu; bet manam
+tēvam klājās labāki: viņš kāpa tavam tēvam mugurā un jādelēja, lai put -".</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Tas nav tiesa! kā vari tā teikt?" vecītis iesaucies.</p>
+</blockquote>
+
+<p align="JUSTIFY">"Nu, zināms, ka tas nav tiesa, bet es jau tikai gribēju uguni
+dabūt un no tavas ciskas tik daudz gaļas, cik maniem brāļiem izņēmi."</p>
+
+<p>Neko darīt vairs. Vecītim bija jādod uguns un jāļauj no ciskas trīs mārciņas
+gaļas izgriezt.</p>
+</font>
+
+
+</body></html>

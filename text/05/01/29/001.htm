@@ -1,0 +1,173 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>29</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Padēls un īstais dēls mežā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 481. Teicējs 65 g. vecs A. Dreizuļs Makašānu pag. Kultūras
+balss kr.</p>
+
+<p align="JUSTIFY">Vienai mātei bija īstais dēls un padēls. Padēlam bija kuprs
+mugurā un pamāte to ne acu galā nevarēja ieraudzīt. Katru dienu bārenim bija jāiet
+ganos un tai pašā laikā vēl jādara citi darbi.</p>
+
+<p align="JUSTIFY">Reiz atkal kuprainais puika gana govis un aitas, un ganīdams pin
+pamātei grozu. Te uz reizi iznāk no meža liels lācis, pieiet pie puikas un saka:
+"Palīdzi man krāsni izkurināt!"</p>
+
+<p align="JUSTIFY">Puika arī tūlin paklausa, sameklē mežā malku un sāk kurināt
+lāča krāsni. Krāsni izkurinājis, puika grib iet pie saviem lopiem, bet lācis viņu
+aiztura prasīdams: "Ko tu vēlies par savu darbu?"</p>
+
+<p align="JUSTIFY">Puika, baidīdamies, ka lopi kur neaizklīst. sāk tikai raudāt un
+nevar nekā izrunāt. Lācis atkal prasa: "Saki man, ko tu gribi, es tev
+palīdzēšu."</p>
+
+<p align="JUSTIFY">Puika raudādams atbild: "Es gribētu, ka es varētu savu kupru no
+muguras izdziedēt. Pamāte jau tā mani moka ar darbiem, bet kupra dēļ man vēl apsmej
+. . "</p>
+
+<p align="JUSTIFY">Lācis ir ar mieru un saka: "Es tev palīdzēšu, bet papriekšu
+tu man izsukā muguru un nomazgā kājas!"</p>
+
+<p align="JUSTIFY">"Labi!" atbild kuprainītis, "es varētu gan to
+izdarīt, bet man ir bailes lopus atstāt. Ja es pazaudēšu lopus un nesapīšu grozu,
+tad pamāte mani sitīs."</p>
+
+<p align="JUSTIFY">" Viss būs labi!" saka lācis, "nāc tik man
+līdza!"</p>
+
+<p align="JUSTIFY">Puika nu aiziet ar lāci uz pirti un sāk viņam mazgāt kājas un
+muguru. Peŗot lācim muguru, puika uz reiz mana, ka lāča vairs nav, bet viņš peŗ
+pats savu kupru. Kuprs viņam noiet, turpat priekš acim stāv jauns grozs, pilns ar zelta
+naudu, un visi lopi ēd mierīgi zāli. Vakarā puika dzen priecīgs savus lopus mājā un
+izstāsta visu pamātei, ko redzējis un piedzīvojis.</p>
+
+<p align="JUSTIFY">Otrā rītā pamāte grib, lai nu viņas īstais dēls ietu ganos.
+Īstajam dēlam bija sarkans deguns un māte gribēja, lai šis no tā<b> </b>lūkotu
+izdziedēties. Tāpat arī māte cerēja dabūt grozu ar zelta naudu.</p>
+
+<p align="JUSTIFY">Īstais dēls ar sarkano degunu nu aiziet ganos, sēd pie saviem
+lopiem, dzied un pin grozu. Iznāk lācis no meža un liek ganam krāsni kurināt, kur
+pīrāgus cept. Puika atbild: "Cik tu gudrs! Man jāgana lopi un jāpin grozs!"</p>
+
+<p align="JUSTIFY">Lācis aiziedams nokrīt zemē, sasit sev kāju un lūdz puiku, lai
+sasienot šim sasisto kāju. Puika nu paņem koku un sāk lācim sist par galvu. Tai
+brīdī aizskrien viņa lopi, puika sāk dzīties lopiem pakaļ un lācis aizbēg uz
+mežu.</p>
+
+<p align="JUSTIFY">Visu diena puika izmeklējas lopus, bet nevar nekur atrast. Noguris un
+novārdzis, viņš vakarā pārnāk mājā, un liekas tūlin gultā. No rīta nu visi
+redz, ka puikam viena deguna vietā ir tagad divi sarkani deguni. Tā nu viņam jāpaliek
+neglītam un nabagam.</p>
+
+<p align="JUSTIFY">Padēls turpretī atstāj savu pamāti, aiziet uz pilsētu un dzīvo
+laimīgi un bagāti.</p>
+
+
+</body></html>

@@ -1,0 +1,227 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>p6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Galdiņ, klājies.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">1. A. 563. K. Žiema Ozolniekos pie Jelgavas. LP.
+III, 22 (10).</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam tēvam bijuši trīs dēli: divi gudri, viens muļķis. Kādu
+dienu viens gudrais dēls sācis tēvam virsū plīties, lai laižot viņu pasaulē. Tēvs
+laidis. Nu gudrais dēls gājis, gājis, bet kā par nelaimi, nevarējis nekur darba
+dabūt. Beidzot saticis vienu vīru un lūdzies, lai jau dodot kādu darbu. Vīrs
+atteicis: "Ja esi mierā ar to algu, ko no laba prāta samaksāšu gada galā, tad
+nāc šurp."</p>
+
+<p align="JUSTIFY">Dēls bijis ar mieru. Kad gads bijis pagalam, tad vīrs iedevis dēlam
+galdautu par algu sacīdams: "Uzcītīgi tu man kalpoji, labu algu dabūsi! Šis
+galdauts vairāk vērts nekā nauda. Tev viņš tik jāizklāj un jāiesaucas:
+"Galdaut, klājies!" tad tūlīt gadīsies tur virsū gardākie ēdieni,
+labākie dzērieni!"</p>
+
+<p align="JUSTIFY">Dēls pateicies un gājis uz māju. Bet pusceļā uznācis vakars,
+bijis jāiegriežas pie kāda saimnieka pārgulēt. Saimnieks uzņēmis gan, bet gribējis
+arī zināt, kas tas par galdautu.</p>
+
+<p align="JUSTIFY">"Tas ir tāds galdauts, kam nevar teikt: "Galdaut,
+klājies!" dēls atbildējis un tad aizgājis gulēt.</p>
+
+<p align="JUSTIFY">Bet kamēr dēls gulējis, saimnieks paņēmis galdautu un uzsaucis:
+"Galdaut, klājies!" Tūlīt gadījušies gardākie ēdieni, labākie dzērieni.
+To redzēdams, saimnieks paņēmis dēla galdautu un nolicis citu savu galdautu tai
+vietā. Otrā dienā dēls, nekā ļauna nedomādams, pārgājis mājā un stāstījis
+tēvam, lai tūlīt aicinot viesus, viņš būšot ar savu galdautu visus labi pacienāt.
+Viesi sanākuši. Nu dēls gribējis rādīt, ko viņa galdauts spēj, viņš uzsaucis:
+"Galdaut, klājies!" Bet nekā, - galdauts neklājies un neklājies. Dēls gan
+sācis brīnīties, bet ko tas viss līdzēja? Viesi sākuši smieties, tēvs palicis
+dusmīgs, visa lielība bijusi vējā.</p>
+
+<p align="JUSTIFY">Drīz pēc tam atkal otrs gudrais brālis plijies tēvam virsū, lai to
+laižot pasaulē. Tēvs laidis. Šis nu gājis, gājis, bet arī nevarējis nekur darbu
+atrast. Beidzot saticis to pašu vīru un lūdzies, lai dodot darbu. Vīrs atteicis:
+"Ja esi mierā ar to algu, ko no laba prāta samaksāšu tev gada galā, tad nāc
+šurp."</p>
+
+<p align="JUSTIFY">Otrs dēls bijis ar mieru. Gada beigās vīrs iedevis otram dēlam aunu
+par algu, sacīdams: "Uzcītīgi tu man kalpoji, labu algu dabūsi! Šis auns vairāk
+vērts nekā nauda. Tev tik jāuzsauc: "Auniņ, gremo!" tad auns tūlīt
+atgremos zelta dukātus."</p>
+
+<p align="JUSTIFY">Otrs dēls pateicies un gājis uz māju. Bet pusceļā uznācis vakars;
+bijis jāiegriežas pie tā paša saimnieka pārgulēt, kur toreiz brālis gulējis.
+Saimnieks uzņēmis gan, bet gribējis arī zināt, kas tas par aunu.</p>
+
+<p align="JUSTIFY">"Tas ir tāds auns, kam nevar teikt: "Auniņ, gremo!"
+otrs dēls atbildējis un tad aizgājis gulēt.</p>
+
+<p align="JUSTIFY">Bet kamēr šis gulējis, saimnieks paņēmis dēla aunu un nolicis
+citu savu aunu tai vietā. No rīta otrs dēls pārgājis mājā un stāstījis tēvam,
+lai saaicinot viesus, viņa auns būšot visus bagātīgi apdāvināt. Viesi sanākuši.
+Nu otrs dēls tūlīt ņēmies rādīt, ko viņa auns spēj, viņš uzsaucis:
+"Auniņ, gremo!" Bet nekā, auns negremojis un negremojis. Dēls nu gan
+brīnojies, bet tikpat: viesi sākuši smieties, tēvs palicis dusmīgs, visa lielība
+vējā.</p>
+
+<p align="JUSTIFY">Pēc kāda laika atkal muļķītis plijies tēvam virsū, lai laižot
+pasaulē; bet tēvs teicis: "Tavi gudrie brāļi nekā neizdarīja, ko tad tu domā
+pasaulē izdarīt?"</p>
+
+<p>"Tēt, vai nu ko izdaru, neizdaru, bet laid mani!"</p>
+
+<p align="JUSTIFY">Tēvs laidīs arī. Muļķītis nu gājis, gājis, kamēr saticis to
+pašu vīru. Lai dodot darbu! muļķītis kaulējies. Vīrs atteicis: "Ja esi mierā
+ar to algu, ko no laba prāta samaksāšu tev gada galā, tad nāc šurp."</p>
+
+<p>Labi, bijis mierā.</p>
+
+<p align="JUSTIFY">Gada galā vīrs iedevis muļķītim rungu sacīdams: "Uzcītīgi
+tu man kalpoji, labu algu dabūsi! Šī runga vairāk vērts nekā nauda. Tev tik
+jāuzsauc: "Runga sit!" tad runga tūlīt mizos katru, kas tik tev iedomājies
+pāri darīt."</p>
+
+<p align="JUSTIFY">Muļķītis pateicies un gājis uz māju; bet pusceļā uznācis
+vakars, bijis jāiegriežas pie tā paša saimnieka pārgulēt, kur toreiz abi brāļi
+gulējuši. Saimnieks uzņēmis labprāt, bet gribējis zināt, kas tā par rungu.</p>
+
+<p align="JUSTIFY">"Tā ir tāda runga, kuŗai nevar teikt: "Runga, sit!"
+muļķītis atbildējis un nolicies gulēt.</p>
+
+<p align="JUSTIFY">Bet kamēr šis gulējis, saimnieks tīkojis pēc rumgas. Viņš
+domājis: "Ja galdauts un auns tik derīgi, tad jau runga būs vēl derīgāka."</p>
+
+<p align="JUSTIFY">Un tūlīt paņēmis rungu, uzsaukdams: "Runga, sit!"
+Acumirklī runga paklausījusi, uzlēkusi saimniekam mugurā un devusi un devusi.
+Iesākumā nabadziņš gan kaunējies bļaut, bet kad jau vispāri rādījušies zilumi,
+tad sācis bļaut nelabā balsī. Nu skrējis muļķīti modināt, lai pestījot. Bet
+muļķītis teicis: "Ja atdosi galdautu un aunu, ko brāļiem noņēmi, tad
+pestīšu."</p>
+
+<p align="JUSTIFY">"Atdošu, atdošu!"</p>
+
+<p align="JUSTIFY">Labi. No rīta muļķītis pārgājis ar galdautu, aunu un rungu mājā
+un teicis tēvam, lai saaicinot viesus. Tēvs domājis: "Laikam atkal rādīs kādas
+blēņas, bet ja nu tā grib, saaicināšu ar."</p>
+
+<p align="JUSTIFY">Viesi sanākuši. Bet muļķītis nerādījis vis blēņas. Kā
+uzsaucis: "Galdaut, klājies!" tā arī bijuši ēdieni, dzērieni visulabākie.
+Visi ņēmušies mieloties. Pēc maltītes muļķītis vēl iestiepis aunu, licis tam
+gremot dukātus un apdāvinājis visus bagātīgi; tik abiem gudrajiem brāļiem vēl ar
+to nepieticis. Tie zaimojuši muļķīti teikdamies, ka galdautu un aunu viņi
+nopelnījuši un nevis muļķītis. Ja muļķītis esot nopelnījis kautko, tad lai rādot
+šurp. To dzirdot, muļķītim aptecējusies sirds; viņš iesaucies: "Te ir mans
+nopelns: "Runga, sit!"</p>
+
+<p align="JUSTIFY">Acumirklī runga klupusi brāļiem, zaimotājiem, virsū, devusi un
+devusi. Šie saukuši, lai glābjot, lai pestījot; bet muļķītis atteicis: ,;Ātrāk
+nepestīšu, kamēr apsolaties mani nekad vairs par muļķi nesaukt, nedz arī
+zaimot."</p>
+
+<p>Brāļi apsolījušies; muļķītis tūdaļ atpestījis.</p>
+</font>
+
+
+</body></html>

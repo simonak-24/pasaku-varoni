@@ -1,0 +1,191 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vīrs meklē zudušo sievu.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">8. A. 400. A.<b> </b>Gari-Juone no 65 g. vecas Zaščerinskas,
+Domopolē. Kultūras balss kr.</p>
+
+<p align="JUSTIFY">Vīns puiss lauluojas ar vardi. Varde pasoka: "Ka tu lauluosīs un
+mani pasauksi par vardi, tod es palikšu par putnu un aizskrīšu."</p>
+
+<p align="JUSTIFY">Daīt vīns puiss pi bryuguona un prosa: "Ar kū tu
+lauluojīs?" "Ar vardi," atsoka bryutguons.</p>
+
+<p align="JUSTIFY">Varde tyulin palīk par putnu un aizskrīn. Īt nyu jis sovas sīvas
+vaicuotu īt, īt, daīt pi vīnas ustabiņas. Tei ustabiņa grīžas uz vīnas kuojas,
+jis grib tikt īškā, bet nekur nava durovu, pa kurom varātu tikt īkšā. Grīž nu
+vīnas puses grīž nu ūtras puses, bet nikuo. pasaver nu zemines, redz caurumu un īlein
+ustabiņā īškā. Te sēd vīna rasna rogona ar dzelža čičim .</p>
+
+<p align="JUSTIFY">"Voi naredzēji munas sīvas?" vaicoj jis.</p>
+
+<p align="JUSTIFY">"Redzēju gon," atsoka rogana, "bet tev nasacīšu, uz
+kuru pusi aizguoja, cykam pagrīzīsi mani."</p>
+
+<p align="JUSTIFY">Puiss sajem rogonu grīzt, bet taida gryuta, ka tikkū pagrīzja.
+Tūreiz rogona soka: "Ka izīsi nu munas ustabiņas, tod ej pa upes molu, tī
+aizguoja tova sīva."</p>
+
+<p align="JUSTIFY">Īt jis pa upes molu, otkon redz, ustabeņa grīžas uz vīnas kuojas.
+Grīž ustobiņu uz vīnu pusi, nava durovu, grīž uz ūtru pusi, redz durovas. īīt
+īškā. Te sēd brīsmīgi rasns valns, jis vaicoj valnam: "Voi naredzēji munas
+sīvas?"</p>
+
+<p align="JUSTIFY">"Redzēju gon. Paceļ mani, tad pasacīšu, uz kuru pusi
+aizguoja."</p>
+
+<p align="JUSTIFY">Jis pajem , ceļ, ceļ - izceļ jau sev uz golvas, valns kai raun
+vaļā, tai aptaisa cylvākam vysu golvu. Tys izzanas nu ustobas uorā un aizīt kai
+izaustīts [sasists].</p>
+
+<p align="JUSTIFY">Īt otkon, redz vīnn ustabiņu, īīt īškā, te sēd vecs un
+vecīte. Puiss vaicoj jīm: ;,Voi naredzējāt munas sīvas? Kur es jū varātu
+atrast?"</p>
+
+<p align="JUSTIFY">"Ej uz jyurmolu, tur aug lels ūzūls. rūc zam tuo ūzūla, cykam
+izraksi skreini. Pajem mītu, puorsit tū skreini, nu skreinis izskris začs. Puorsit
+zači, tod izskrīs vysta, puorsit vystu, nu vystas izzaveļs ūla, tanī ūlā byus
+gipts. Ar tū gipti tu nūtrucēsi valnu un pajemsi sovu sīvu," pomuocīja vecīts.</p>
+
+<p align="JUSTIFY">Puiss aizīt uz jyurmolu, suok rakt zam ūzūla, izrūk dzelža
+skreini, pajem mītu puorsyt tū skreini, nu skreines izskrīn žačs, puorsyt zači,
+izskrīn vysta, jis puorsyt vystu un nu vystas izzavej ūla. Puiss pajem ūlu īlīk
+kešā un īt tuoļuok. Tei ūla īzaveļ jyurā. Jis atsasēdis jyuras molā, raud. Nu
+jyuras izmaun lela leidaka un prosa jam: "Kuo tu raudi?"</p>
+
+<p align="JUSTIFY">"Ūla īzavēle jyurā, un es navaru tuos izvilkt. Mīļo zivtiņ,
+iznes man nu jyuras tū ūlu!" lyudzas puiss.</p>
+
+<p align="JUSTIFY">Leidaka nūgrima jyurā nn pēc nailga laika iznesja jam nu upes tū
+ūlu. Pajēms ūlu, puiss īlyka kešā un guoja tuoļuok. Īt, īt - redz lelu, skaistu
+muoju īrt īškā, valns suok ūšņuot un soka: "Kur te kristīta cylvāka
+smoka?"</p>
+
+<p align="JUSTIFY">"Nav te nikaidas kristītu cylvāku smokas. Žugure nesja kaulu,
+īmetja škārstinā un suoka smirdēt," atsoha juo sīva. Valns apsaver, īrauga
+cylvāku un grib jū apēst, bet cylvā</p>
+
+<p align="JUSTIFY">kam beja taida capure, kai tik izlīk jū golvī, tai navar juo vairs
+redzēt. Valns prosa, lai cylvāks pasaruoda.</p>
+
+<p align="JUSTIFY">"Labi, es pasaruodīšu tev pa ustobas lūgu, thkai tu aizej treis
+symti osu nu lūga, cytaidi tu manis naredzsi," soka cylvāks.</p>
+
+<p align="JUSTIFY">Valns ar mīru, aizskrīn treis symti osu nu lūga un veras, cylvāks
+jam pasaruoda pa lūgu. Nyu jis skrīn dreiži atpakaļ, dūmoi - tagad gon es cylvāku
+apēsšu. Cykam valns skrīn uz ustobu, cylvāks nūstuoj pi durovom. aizzaraun aiz
+stenderes un stuov. Kai tikai valns sper kuoju par slīksni, jis nūsvīž ūlu zemē,
+ūla puorpleist, izzalej nuovīga gipts un valns nūsatručej. Puoŗpleisušuos ūlas
+vītā aizzadag svece un valns pagolam.</p>
+
+<p align="JUSTIFY">Tūreiz puiss pajem sovu sīvu i šūdin dzeivoj laimīgs!</p>
+
+
+</body></html>

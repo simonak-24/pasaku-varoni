@@ -1,0 +1,146 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Dieva spēks, zivs padoms.</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">16. A. 675. J. Johansone Rīgā, A. Bērzkalnes
+krājumā. </font></p><font size="3">
+
+<p align="JUSTIFY">Dzīvoja reiz ķēniņš un ķēniņiene. Ķēniņa pamāte bija burve,
+bet pati apsūdzēja ķēniņam viņa sievu; ka tā esot burve. Ķēniņš tai noticēja,
+ieslodzīja savu sievu muca un ielaida jūrā. Mucā ķēniņa sievai piedzima dēls,
+kurš ļoti ātri auga. Naktī uznāca vētra un mucu izsvieda malā. Dēls saplēsa mucu
+un viņi laimīgi izkļuva uz sauszemes. Meža uzbūvēja mazu mājiņu un te viņi
+apmetās uz dzīvi.</p>
+
+<p align="JUSTIFY">Pagāja vairāk gadu. Dēls, ko nosauca par Miķēli, bija izaudzis
+liels un stiprs. Pa mežu staigādams, viņš uzgāja pili, kura bija apgaismota. Viņš
+iegāja pili iekšā, bet tur nebija nevienas dzīvas dvēselītes, viss bija klusu.
+Miķēlis ar savu māti tad te apmetās dzīvot.</p>
+
+<p align="JUSTIFY">Pagāja kāda nedēļa, bet vēl neviens cilvēks nerādījās. Kādu
+dienu Miķēlis, nākdams no meža, redzēja pie pils vecu vīru, kas visādi ķēmojās.
+Viņš veco gribēja sagrābt, bet tas pārvērtas par mušu. Miķēlis izveicīgi mušu
+noķēra un, iebāzis maisa, iekāra viņu skurstenī.</p>
+
+<p align="JUSTIFY">Kādu reiz, kad Miķēlis nebija mājā, burvis maisā saka lūgties
+Miķēļa mātes, lai izlaizot to no maisa ara bet viņa nelaida. Nu burvis lūdza, lai
+tik ar adatas galu izdūrāt caurumu, viņam pietrūkstot gaisa. Nevarēdama noklausīties
+tādas lūgšanas, viņa izdūra caurumu, burvis pārvērtas par odu un izlīda laukā.</p>
+
+<p align="JUSTIFY">Ķēniņiene nu Miķēlim izstāstīja, kas noticis. Tas tūlīt gāja
+burvi meklēt, atrada to meža uz akmeņu sēžam un no muguras piegājis, saķēra.
+Viņš pārnesa burvi atkal mājā un iebāza tai paša maisā pavisam piemirsdams, ka tur
+ir caurums. Burvis gan tūlīt atkal par odu izlaidās, bet Miķēlis dabūja viņu pie
+laika nosist.</p>
+
+<p align="JUSTIFY">Tikko burvis bija nosists, akmeņi, kas atradās pili, visi pārvērtas
+par cilvēkiem. Atdzīvojās arī viena princese, kura bija apburta par akmeni. Miķēlis
+tagad apprecēja princesi un palika pilī dzīvot.</p>
+</font>
+
+
+</body></html>

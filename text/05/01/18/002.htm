@@ -1,0 +1,154 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Sp?l?t?js ell?</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Spēlētājs ellē.</p>
+</font></b>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A.476. K. Bankers no Priedes Dundagas Laukgalos. LP, VIl, I, 614. 1.
+p. 5. </p>
+
+<p align="JUSTIFY">Bijis reiz koklētājs. Tas vienu vakaru vēlu nācis no dzīŗām
+mājā un ceļā sastapis vienu sievieti, tā devusi labvakaru. Saņēmis. Nu sieviete
+lūgusi, lai nākot viņai līdz drusku pakoklēt, dabūšot pilnu kokli zelta naudas.
+Koklētājs nodomā: "lešu arī!"</p>
+
+<p align="JUSTIFY">Iet, iet - nonāk pie vecas, pagrimušas pils. Ieiet iekšā jauka
+lielistaba, vidū divi pelēki stabi. Bet nu sanāk pilna lielistaba ļaužu, visi sveši.
+Ienācēji apsēžas, šim lai pasniedz krēslu. Tā nu apsēžas, sāks koklēt. Koklē,
+kolē kādu stundu - svešie ļaudis dej un lec, ka put vien. Kā šis apstāsies
+atpūsties, dejēji arī apstājas un iet otrā pusē lielistabā ēst. Bet iedami ikviens
+piegriežas pie stabiem, noslauka pie katra staba vienu vaigu.</p>
+
+<p align="JUSTIFY">Koklētājs to redz, nodomā: "Ko tādi tur slauka? Kas šiem tā
+par ticību?"</p>
+
+<p align="JUSTIFY">Kamēr visi pie galda tur ēd, šis slepeni pie viena staba klvt, arī
+nogrūž kreiso vaigu gar to. Paēduši,. nāk atkal visi atpakaļ dancot, šim jākoklē
+vēl. Koklējis, koklējis - te laiks jau uz mājām iet, viesi pazūd.</p>
+
+<p align="JUSTIFY">Nu sieviete ņem viņu, ieved pagrabā, tur sešas mucas pi1^ias zelta
+naudas. Piebeŗ kokli pilnu ar zeltu, vēl vienu liekšķeri pie- cievām iebeŗ svārku
+stūrī un tad izved ārā uz dižceļu netāļu no mājām, tai pašā vietā, kur
+satikusi. Pārnāks nu koklētājs mājā, apskatīsies savu dabūto zelta naudu - kad
+tevi jupis! - nav nauda, jēli zirga renguļi tie ir! ,</p>
+
+<p align="JUSTIFY">Kur tādus likt? Izbeŗ visus turpat ārā. Rītā paņems savu kokli
+grib tīrīt, pakrata - birst skaidra zelta nauda ārā. Ies palūkot aiz durvim, kur
+vakar renguļus bēris, tāpat skaidra zelta nauda. Nu, ko nu? Nu salasa, nu ir naudas vai
+cik.</p>
+
+<p align="JUSTIFY">Bet drīzumā pilsētā tirgus. Naudas šim diezgan, ies uz tirgu.
+Tirgojas, skatās tur - uz reizi ierauga to pašu sievieti, kas tonakt vadājusi. 1'ā
+šis tūlīt klāt : "Vai jūs ar ī te atnākuši tirgū?"</p>
+
+<p align="JUSTIFY">Bet sieviete par to vārdu, ne tev, ne man - dod šim pa kreiso aci un
+acs ārā. Paliek stulbs ar to aci un ar vienu vien nevar vairs sievieti saredzēt. Tā
+bijusi tā acs, ka pie staba noslaucījis.</p>
+
+
+</body></html>

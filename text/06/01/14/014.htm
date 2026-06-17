@@ -1,0 +1,229 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>14</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Uzticamais Jānītis.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">14. A 516. A. Lerchis -Puškaitis Džūkstē. LP, III, 66 (35). </p>
+
+<p align="JUSTIFY">Reiz kādu bārenīti nodevuši pie ķēniņa par avju ganu. Bet drīzi
+zēnam izlicies, ka avis ganīt tīri niecīgs darbs. (Viņam no laika gala bijuši varen
+stipri kauli un ļoti attapīga galva.) Tas sācis, avis ganīdams, no meža visādas
+gudrības mācīties. Beigu beigās izmācījies tik tālu, ka sapratis koku un putnu
+valodu.</p>
+
+<p align="JUSTIFY">Kādu dienu, kamēr avis gremojušas, zēns apgulies pie veca ozola. Te
+uz reizi ozols sācis runāt, sacīdams: "Redzēs gan, cik ilgi man tas zobins būs
+jāglabā? Nu jau tik daudz gadu, bet neviens vēl nav tam paka nācis."</p>
+
+<p>"Kas tas par zobinu?" otrs ozols prasījis.</p>
+
+<p align="JUSTIFY">"Tam zobinam pīlādža spals; ar viņu var katru velnu no
+maitāt."</p>
+
+<p align="JUSTIFY">To dzirdēdams, zēns uzlēcis kājās un sācis ozola dobumā
+čamdīt. Meklējis, meklējis, beidzot uzķēris varenu ieroci. To nu katru dienu klāt
+vien nēsājis. Citi ļaudis gan taujājuši, kur tādu esot ņēmis, bet zēns
+atbildējis: "Atradu mežā".</p>
+
+<p align="JUSTIFY">Tā tas palicis. Te vienu reizi tāls, tāls ķēniņš atsūtījis
+varenu kuģi ar jaunām ziņām. Svešie kuģinieki tur izkāpuši malā, kur zēns avis
+ganījis. Zēns tūliņ prasījis: "No kurienes nākat, uz kurieni ejat?"</p>
+
+<p align="JUSTIFY">"Mēs nākam no tālas zemes. Mūsu ķēniņš sūtīja tavam
+ķēniņam pakaļ, lai brauktu mums līdz un palīdzētu apbrīnot devīto brīnumu, kas
+nule pat mūsu ķēniņa valstī iegadījies."</p>
+
+<p align="JUSTIFY">"Labi, labi, bet tad man jābrauc savam ķēniņam līdz par
+sargu." Svešie nu nogājuši pie ķēniņa un pierunājuši to itin drīzi līdz
+braukt. Otrā dienā ķēniņš taisījies uz ceļu. Gana zēnu gan negribējis līdz
+ņemt, bet kad nu tas tā lūdzies - paņēmis to arī. Uz jūŗas gana zēns apjozis savu
+zobinu un lepni vien staigājis ķēniņam pēdu no pēdas pakaļ. Bet uz kuģa bijuši
+divi kraukļi. Tie sākuši sarunāties: "Pag, pag, drīzi svešajam ķēniņam dos
+ēst; bet pie maizes ir nāves zāles klāt. Tikko ēdīs, būs pagalam. Bet ja kāds to
+zinātu un ķēniņam pasacītu, tad teicējs pēc trim nedēļām un trim dienām pats
+paliktu līdz ceļiem par akmeni."</p>
+
+<p>Gana zēns, to dzirdēdams, domājis: "Vienalga, vai palieku līdz ceļiem, vai
+līdz kaklam par akmeni, teikt teikšu tikpat ķēniņam."</p>
+
+<p align="JUSTIFY">Viņš pateicis, ķēniņš neēdis un palicis dzīvs. Otrā dienā tie
+. paši kraukļi atkal sarunājušies: "Pag, pag, drīzi svešajam ķēniņam dos
+dzert, bet pie dzēriena ir nāves zāles klāt. Tikko dzers, tad tas būs pagalam. Bet ja
+kāds to zinātu un ķēniņam pasacītu, tad teicējs pēc sešām nedēļām un trim
+dienām pats paliktu līdz krūtim par akmeni."</p>
+
+<p align="JUSTIFY">Gana zēns, to dzirdēdams, domājis: "Vienalga, vai palieku līdz
+krūtim, vai līdz kaklam par akmeni, teikt teikšu tikpat ķēniņam."</p>
+
+<p>Viņš pateicis, ķēniņš nedzēris un palicis dzīvs.</p>
+
+<p align="JUSTIFY">Trešā dienā tie paši kraukļi atkal sarunājušies: "Pag, pag,
+mūsu ķēniņš patlaban pabeidzis pie vārtiem dziļo alu rakt. Līdz ko nu svešais
+ķēniņš caur vārtiem brauks, tā vāks ielūzīs un svešais iekritīs alā. Bet ja
+kāds to zinātu un ķēniņam pasacītu, tad teicējs pēc deviņām nedēļām un trim
+dienām pats paliktu viscaur par akmeni."</p>
+
+<p align="JUSTIFY">Gana zēns, to dzirdēdams, domājis: "Vienalga, un ja es arī
+tūlīt par akmeni paliktu, teikt teikšu tikpat ķēniņam."</p>
+
+<p align="JUSTIFY">Viņš pateicis. Līdz ko nu izkāpuši no kuģa un piebraukuši pie
+pils vārtiem, tā gana zēns uzsaucis: "Ķēniņ, liec apturēt zirgus! Iesim pa
+mazajiem vārtiem pilī, tas pieklājīgāki izskatās!"</p>
+
+<p align="JUSTIFY">Ķēniņš iegājis ar gana zēnu pa mazajiem vārtiem pilī. Tās
+zemes ķēniņš saņēmis viesus laipni jo laipni, un vakarā tos guldinājis mīkstā
+gultā.</p>
+
+<p align="JUSTIFY">Bet tā bijusi tik viltība. Naktī laipnais ķēniņš atsaucis velnu
+ar trim galvām un licis, 1ai viņa viesus nogalina.</p>
+
+<p align="JUSTIFY">Trijgalvis ielīdis pie ķēniņa un uzgāzies tam virsū; bet gana
+zēns izrāvis savu zobinu un nocirtis velnam visas galvas. Viena pile no velna asinim
+uzpilējusi ķēniņam uz pieri un nebijusi noslaukāma, bet gana zēns pili izsūcis un
+to nospļāvis zemē.</p>
+
+<p align="JUSTIFY">Otrā naktī nācis sešgalvis ķēniņu nomākt, bet gana zēns
+izrāvis savu zobinu un nocirtis velnam visas sešas galvas. Viena pile no velna asinim
+uzpilējusi ķēniņam uz pieri un nebijusi noslaukāma, bet gana zēns izsūcis pili un
+to nospļāvis zemē.</p>
+
+<p align="JUSTIFY">Trešā naktī nācis deviņgalvis ķēniņu nomākt; bet gana zēns
+izrāvis savu zobinu un nocirtis velnam visas deviņas galvas. Viena pile no velna asinim
+uzpilējusi ķēniņam uz pieri un nebijusi noslaukāma, bet gana zēns izsūcis pili un
+to nospļāvis zemē. To padarīdams, gana zēns iesaucies: "Ķēniņ, te vairs
+ilgāki nepaliksim, iesim no pils ārā uz jūrmalu un brauksim uz māju. Trīs velnus
+esmu jau apkāvis, kas zin, cik vē1 nenāks?"</p>
+
+<p>Abi klusītiņām izlīduši no pils un aizsteigušies uz jūrmalu.</p>
+
+<p align="JUSTIFY">Tur vēl stāvējis tas pats kuģis, ar kuŗu tie arbraukuši. Ļaudis
+uz kuģa vairs nebijuši, tik abi kraukļi tur sēdējuši.</p>
+
+<p align="JUSTIFY">Mājā braucot, kraukļi atkal sarunājušies: "Redz nu, mūsu
+ķēniņš viesus jau palaidis ar sešiem brīnumiem vien vaļā; tos beidzamos trīs
+nemaz neparādījis."</p>
+
+<p align="JUSTIFY">"Kur tad nu parādīs," otrs krauklis atbildējis,
+"viņam jau līdz tāds gana zēns, kas visu zin un visu padara. Bet tā nu bija gana
+zēna laime, ka apkāva trīs velnus, citādi gudriniekam būtu bijis jāpaliek pēc
+deviņām nedēļām trim dienām viscaur par akmeni."</p>
+
+<p align="JUSTIFY">To dzirdēdams, gana tēvs priecīgs uzprasījis kraukļiem:
+"Krauklīši, melnie putni, vai jūs patiesi to skaidri zināt, ka nu man vairs nav
+jāpaliek par akmeni."</p>
+
+<p align="JUSTIFY">"Zinām gan!" kraukļi atbildējuši un tad acumirklī
+nozuduši kā ūdenī.</p>
+
+<p align="JUSTIFY">Pēc tāda laika abi laimīgi pārbraukuši mājā. Ķēniņš tagad
+nezinājis, kā gana zēnam atmaksāt. Viņš viņu apdāvinājis bagātīgi un iecēlis
+har savu padoma devēju.</p>
+
+
+</body></html>

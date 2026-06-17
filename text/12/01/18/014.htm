@@ -1,0 +1,146 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Vilt?ba un l?ttic?ba</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Viltība un lētticība.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>14.</strong> A. 1539. Latvju kultūras pasaka no Latgales.</p>
+<font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font>Dzeivuoja vīns zemnīks un tī pat natuoļi nu zemnīka
+dzeivuoja vīns žeids. Zemnīks beja poruodā žeidam vīnu kapeiku. Vīnu reizi atīt
+žeids pi zemnīka un vaicoj paruodu. Zemnīks jam atbildēja: "Zyni, Jankeļ,
+šudiņ pi manis nav, bet tu atej pareit, es tev tūlaik atdūšu."</p>
+
+<p align="JUSTIFY">"Labi," pasacīja žeids un nūgūoja uz sovu sātu. Atīt
+tei dīna, kod atīs žeids pēc kapeikas, bet zemnīks dūmoj: kai tie pataisīt, kab
+vēļ nu žeida dabuot kaidi rubļi divi, vai treis. Sadūmuoja zemnīks, aizkurinuoja
+cepli, pastatīja pūdu ar yudeni ceplī. Pūdā yudeņs suoka virt. Zemnīks verās caur
+lūgu, ka īt žeids pēc kapeikas. Zemnīks tyuleņ izjēmja nu cepļa pūdu ar yudeni un
+pastatīja uz durovu slīkšņa. Īīt žeids ustobā, verās: stuov uz slīkšņa pūds
+ar yudeni un vuorējas. Žeids nu reizis sasabeida un tad vaicoj nu zemnīka: "Kū,
+sabris, pi tevis uz šlīkšņa vuorējas pūdā yudens, guņs nav?"</p>
+
+<p align="JUSTIFY">Zemnīks jam atbildēja: "Te pi manis ir taids pūds: pīlej
+yudeņa un pastot, kur grib, bez vysaidas guņs yudeņs tyuleņ virs!"</p>
+
+<p align="JUSTIFY">"A!" pasoka žeids, "bet zyni kū, sabris, puordūd tu
+man itū pūdu!"</p>
+
+<p align="JUSTIFY">"Dēļ kuo na, pierc!" atbildēja zemnīks.</p>
+
+<p align="JUSTIFY">"Cik tu gribi par itū pūdu?"</p>
+
+<p>"Nu, cik, treis rubļi," atbildēja zemnīks.</p>
+
+<p align="JUSTIFY">"Nu labi," pasacīja žeids ,samoksuoja zemnīkam treis
+rubļi par pūdu un valcoj tū poruoda kapeiku. Zemnīks jam atbildēja, ka nav pi juo
+smolkas naudas.</p>
+
+<p>"Nu lai palīk uz cytas reizes."</p>
+
+
+</body></html>

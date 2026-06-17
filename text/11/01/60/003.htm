@@ -1,0 +1,186 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Pats nocērt to zaru, uz kā sēd.</strong></font></p><font size="5">
+
+</font><p align="CENTER"><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p>3. A. 1240. V. Z a c h a r s k a n o 76. g. vecā O. M e š k o K a u n a t u p a g a s
+t ā. V. P o d i s k r ā j u m ā.</p>
+
+<p align="JUSTIFY">Vīnu reizi guoja pa ceļu vīns čygons, jū uz ceļa aptvēra nakts,
+jis īguoja vīnā ustabeņī un prosuos pi saiminīka naktsmuoju. Saiminīks nagribēja
+laist čygonu un pascēja: "Pi manis šā nakti nav kurinuota ustoba, nav
+molkys."</p>
+
+<p>Lygons nagribēja īt uz cytu ustobu praseitīs un pascēja uz saiminīku:
+"Īlaid, es reit īšu uz mežu un atnesšu molkys." Saiminīks pascēja:
+"Labi," un īlaidja čygonu ustobā uz naktsmuoju. Porgulēja čygons nakti, uz
+reita saiminīks jū pabaruoja. Čygons runoj uz saiminīku: "Dūd ciervi, es īšu
+uz mežu pīciersšu un atnesšu molkys!"</p>
+
+<p align="JUSTIFY">Saiminīks īdevja čygona&amp;127;m ciervi, čygons nūguoja uz mežu.
+Mežā čygons izleida uz kūka un ar ciervi cārt tū pat zoru, uz kura pats stuov.
+Taišņi ap tū laiku guoja mežasorgs un īraudzēja čygonu, kurs, sādādams uz zora,
+cārta tū pat zori. Mežasors runoj uz čygonu: "Verīs, tu ar vysu zoru nūkrissi
+zemē un vari nūzasistīs uz nuovis."</p>
+
+<p align="JUSTIFY">Čygons nikuo naatbildēja, a mežsorgs nūguoja pa sovu ceļi. Cik tī
+čygons cārta tū zoru un golu golā nūcierta, bet pats ar vysu zoru nūkrita uz zemes
+un cīši nūzasyta. Kod čygons pazacēla nū zemes, dreižuok nūskrēja pakaļ pēc
+mežasorga, dreiži jū dadzyna un vaicoj: "Pasoki, lobais cylvāks, tu man, vai
+dreiži es mieršu zemē?"</p>
+
+<p align="JUSTIFY">Mežasorgs runoj uz čygonu: "Tu miersi zemē tūlaik, kod tev
+pakaļa byus solta."</p>
+
+<p align="JUSTIFY">"Paldīs, lobais cylvāks, pascēja čygons, un kotrys nu jūs
+nūgaoja pa sovu ceļi.</p>
+
+<p align="JUSTIFY">It čygons un vys rauga ar rūku sovu pakaļi. Laiks beja zīmys solts.
+Guoja, guoja čygons - rauga pakaļi - jau solta.</p>
+
+<p align="JUSTIFY">"Vot," dūmoj čygons, "tagan tuo jau nuovja, vajag
+mierst zemē!"</p>
+
+<p align="JUSTIFY">Atsasāda čygons taišņi uz patja ceļa un gaida tuos nuovis, a
+pakaļa nu soltuma tai saļ, ka čygons jau ar bolsu klīdz: "Ak, Dīveņ, atlaid
+munus grākus, kurus: asmu padarējis uz šuo pasauļa, un pījem mani dabasu
+valsteibā!"</p>
+
+<p align="JUSTIFY">Kod čygons itūs vuordus runuoja, brauc pa ceļu vīns muižynīks un
+veruos, ka uz poša ceļa sēd cylvāks, un juo kučērs klīdz: "Dūd ceļi, kas par
+cylvāku!"</p>
+
+<p align="JUSTIFY">Bet čygons nikuo naatbilda. Tūlaik muižynīks runoj uz kučēri:
+"Ej, pazaverīs, kāids tī cylvāks? Vai jis: dzeivs, vai nadzeivs?"</p>
+
+<p align="JUSTIFY">Kučērs rīīt pi čygona un vaicoj: "Kū tu te dori?" </p>
+
+<p align="JUSTIFY">"Nuoves gaidu," atbildēja čygons.</p>
+
+<p align="JUSTIFY">"Kai tod tu zvni, ka nuove nuok pi tevis kluot?" vaicoj
+kučērs.</p>
+
+<p>"Maņ pakaļa jau solta," atbildēja čygons, "mieršu zemē."
+Kučērs aizguoja pi kunga un izstuostēja, kū čygons jam runuoja. Muižnīks
+sazadusmuoja dūmuodams, ka čygons jū izasmej, un pasyutēja kučēri, kab jis labi
+čygonu nūsvetēja ar puotogu.</p>
+
+<p align="JUSTIFY">Kučērs tyulen pajēmja rūkūs puotogu, daguoja kluot pi čygona un
+suoka ar puotogu jū svetēt par muguru, bet tai labi svetēja, ka čygons tai svaidējās
+nu molys uz molu un ar rūku vys dalīk pi pakaļis. Nu tuos sveteišonys jam tyka
+korstums un tai pat pakaļa ar palyka sylta. Čygons dalīk rūku pi pakaļis - sylta. Jis
+nu reizis pazacēļa, palyka prīceigs un klīdz: "Puotoga muna dzeiveiba," un
+izruovja nū kučēra tū puotogu nu rūku un dreižuols nūskrēja uz mežu. Tai jū
+kučērs nasagyva.</p>
+
+<p align="JUSTIFY">Muižynīks ar sovu kučēri nūbraucja, a čygons pa šū dīnu
+st&amp;127;tigoj ar sovu dzeiveibys puotogu.</p>
+</font>
+
+
+</body></html>

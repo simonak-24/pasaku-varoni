@@ -1,0 +1,206 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>17</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Baltā un melnā līgava. A.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">17. A. 403 A. A. Gari-Juone no 42 g. vecas P. Purmalietes, Dricēnos.
+Kultūras balss kr.</p>
+
+<p align="JUSTIFY">Vīnu reizi dzeivuoja tāvs un muote, jīm beja dēliņš un meitene.
+Dreiži vacuoki nūmyra un bārni palyka vīni. Mierdami vacuoki pīsacīja, lai jī vīns
+ūtru naatstoj un lai dzeivoj saderīgi. Bārni sova tāva un muotes pīsacīšonu jēmja
+pi sirds.</p>
+
+<p align="JUSTIFY">Pyrmajā godā bruolīts aizguoja peļņā, a muosiņa ar boltū
+sunīti palyka sātā; nūpelnējis treis rubļus, jis tūs atsyutēja muosiņai. Utrā
+godā jis nūpēlnēja sešus rubļus un taipat atdevja vysus sovai muosiņai. Tod jis
+sarunuoja pi kēneņa par zyrgu kūpēju, tys kēneņš dzeivuoja aiz malnom jyurom.
+Kēneņa sulaiņi īsādynuoj puiku kuģī un aizvedja par malnom jyurom uz kēneņa pili.
+Kēneņa pilī dzeivuadams, jis bīži vīn īguoduoja par sovu muosiņu un stypri
+nūžāluoja, ka navar juos satikt, a ni nūsyutīt naudu. Reiz jis atsasēdis uz staļļa
+durovu slīkšņa, gauži rauduoja. Tū pamanīja kēneņš, un daguojis pi puikas, prosa:
+"Kuo tu, puisīt, raudi?"</p>
+
+<p align="JUSTIFY">"Es raužu, ka navaru paleidzāt sovai muosiņai, kura ar sunīti
+dzeivoj sātā aiz malnom jyurom. Muna muosiņa ir cīši loba ura skaista,"
+pasacīja puika.</p>
+
+<p align="JUSTIFY">"Pajem kuģi un brauc, atved sovu muosiņu uz pili," soka
+kēneņš.</p>
+
+<p align="JUSTIFY">Bruolīts stypri nūsaprīcuoja, sādās kugī un par malnom jyurom
+aizbraucja pi sovas muosigas, pajēmja muosiņu un boltū sunīti, īsādynuoja laivā un
+laidjās ceļā. Pa jyurom braucūt, viļņi leiguoja kugi un muosiņai suoka grīztīs
+golva un jei saka: "Bruolīt, man grīžas golva."</p>
+
+<p align="JUSTIFY">"Nu kreiti jyurā īškā!" atsoka rogona, kura beja
+apsamatuse par bruolīti.</p>
+
+<p align="JUSTIFY">Pēc kaida laiciņa otkon jei soka: "Bruolīt, man jau pavysam
+apsagrīzja golva."</p>
+
+<p align="JUSTIFY">"Kreiti jyurā ar vysu sunīti. Kuo tu vēļ vaicoj? Es jau ūtru
+reizi tev saku," atsoka taipat rogona.</p>
+
+<p align="JUSTIFY">Muosiņai palīk nalabi pi pruota, ka juos bruolīts jai soka krist
+jyurā, jei dūmaj: "Leidz šam man beja taids labs bruolīts, vysod paleidzēja, un
+nyu grib, lai es nūsleikstu. Nu, pag," dūmoj jei, "paprasišu vēj trešū
+reizi, kū jis pasacīs."</p>
+
+<p align="JUSTIFY">Jei šoka: "Bruolīt, man jau pavysam nalabi palīk, es vairuok
+navaru dzeivuot, kū man darīt?"</p>
+
+<p align="JUSTIFY">"Kū tur vēļ prosīt? Es jau tev div reizes sacīju: kreiti
+jyurā ar vysu boltū sunīti!"</p>
+
+<p align="JUSTIFY">Tūreiz jei tyulin īkrita jyurā ar sovu boltū sunīti. Pēc breiža
+bruolīts atīt muosiņas apsavārtu un muosiņas vītā īrauga vacu rogonu ar leiku
+dagunu, grumbuoju pīri un ar ratim garim zūbim. Suokumā jis taišņi puorsabeida, bet
+pēčuok padūmuoja: "Varbyut uz jyurās i puorsameja juo muosiņa."</p>
+
+<p align="JUSTIFY">Atbrauc uz kēniņa pili, kēneņš īt apsavārtu skaistū muosiņu un
+īrauga taidu najēdzīgu rogonu. Jis sazadusmuoja uz puikas; kam tys maloj, un īlyka jū
+cītumā. Bruolīts gauži rauduoja, bet nazynuoja, kū darīt. Par tū laiku muosiņa
+beja izpeldējuse nu jyuras un syutīja ar boltu sunīti kēneņam zalta cymdus, lai tikai
+izlaiž juos bruolīti nu cītuma. Rogana īraudzējuse, ka sunīts nas zalta cymdus, tūs
+atjēmja nu sunīša un vēļ sunīšam atlauzja vīnu kuojiņu; nabadziņš aizlēcja uz
+jyuru kaukdams vīn nu suopem.</p>
+
+<p align="JUSTIFY">Ūtrā dīnā muosiņa ar osorom prosa sunīša, lai tys nūnas
+ķēneņam kraklu un lai paprosa, ka kēneņš izlaistu juos bruolīti nu oītuma. Sunīts
+nas kraklu, īkūdis zūbūs, rogana aizīt prīškā, atjem kraklu nu sunīša, atgrīž
+sunīšam obejas austiņas un palaiž vaļā. Sunīts otkon aizskrīn uz muosiņu kaukdams
+vīn.</p>
+
+<p align="JUSTIFY">Kēneņa struodnīki beja redzējuši, ka Iru jyuras izīt skaista
+meita un nazkū ar boltū sunīti syuta uz piļs pusi, un par tū pastuostīja kēneņam.</p>
+
+<p align="JUSTIFY">Trešā dīnā kēneņš aizguoja uz jyuras molu, pazaslēpja vīnā
+mozā ustobiņā un gaida, kas nūtiks. Nu jyuras izguoja skaista meita, jei īdevja
+sunīšam duorgu capuri un prasīja, lai tū capuri jis atdūd kēneņam, un lai paprosa,
+lca juos bruolīti kēneņš izlaistu nu cītuma. Sunīts aiznas capuri<b> </b>uz pili, te
+rogona tyuļin prīškā, atjem nu sunīša capuri, izdur tam obējas actiņas un palaiž
+vaļā. Sunīts otkon skrīn uz jyuru kaukdams vīn. Muosiņa palyka brīsmīgi
+nūskumīga, juo tei beja pādējuo dīna, kod jis varēja izīt nu<b> </b>jyuras un jai
+tyuliņ vajadzēja uz vysim laikim aizīt jyurā. Te uz reizes nūskanēja zūbyna
+ciertīns un kēneņa dāls puorcierta kēdi, ar kuru muosiņa beja pīkēdēta pi jyuras.
+Skaistū muosiņu kēneņš atvedja uz pili. Pilī jei pastuostīja, ka braucja par molnom
+jyurom un īkrita īškā, un ka syutīja kēneņam zalta cymdus, kraklu un capuri, lai
+tikai izlaiž bruolīti nu cītuma, ar vuordu sokūt, pastuostīja vysu, kai beja nu
+dzeives suokuma leidz šam laikam.</p>
+
+<p align="JUSTIFY">Tūreiz kēneņš izsludynuoj pa vysu valsti, ka jis pajems sev par
+sīvu tū, kura atness taidus cymdus, krakla un capuri, kurus bolts sunīts ir nu jyuras
+iznesis. Rogona nūsaprīcuoja un ar vysam lītom, kai lykta pi kēneņa. Jei nyu
+prīcuojās, ka tiks kēneņam par sīvu. Kēneņš pīsēja rogonu pi sveču zyrga un
+sadadzynuoja; bruolīti izlaidja nu cītuma, muosiņu pajēmja sev par sīvu, sataisīja
+brangas kuozas un dzeivoj laimīgi!</p>
+
+
+</body></html>

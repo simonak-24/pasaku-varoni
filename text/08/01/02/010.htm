@@ -1,0 +1,218 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="center"><font size="3"></font><font size="5"><strong>Brīnuma lampa.</strong></font><font size="4"></font></p><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">10. A. 561. Skolnieks L. Daugulis no A. Dauguļa
+Ludzes apr., Kārsavas pag., N. Rancāna kr.</font></p><font size="3">
+
+<p align="JUSTIFY">Dzeivuoja vīns veirs viers zemes, saucs vuordā Juons. Jis jau beja
+vacs un tuodēļ uotri nūmyra. Palyka juo dāls. Dāla</p>
+
+<p align="JUSTIFY">kristtāvs beja nu cytas pilsātas. Reizi kristtāvs gruomotā izlosa,
+ka vīnā olā asūt divpadsmit lampu, nu kurom vīnpadsmit dag gaiši un vīna tikkū
+dag. Tei lampa, kurei vuoji dag, tei ir laimes lampa. Un izlasēja arī, ka tū lampu var
+dabuot tikai šauceiša Juoneiša dāls.</p>
+
+<p align="JUSTIFY">Kristtāvs tyuleņ aizguoja uz sovu kristdālu, bet kristdāla nabeja
+muojuos. Jis beja aizguojis uz tū pilsātu, kur dzeivuo kristtāvs. Nūguoja kristtāvs
+maklātu kristdāla. Kristtāvs īt pa īlu, skotuos: īt bārnu pulciņš. Jis prosa:
+"Nu, bārni, voi nav šeit Šauceiša Juoneiša dāla?"</p>
+
+<p align="JUSTIFY">Vysi bārni aizbāg, kurs kuru molu. Skotuos: nuok ūtrs bārnu pulks.
+Prosa jīm: "Voi nav pī jums Šauceiša Juoneiša dāla?"</p>
+
+<p>Otkon vysi izkleist, kurs uz sovu molu. Nuok trešs bārnu pulciņš. Sauc uz bārnim:
+"Voi ir šeit Šauceiša Juoneiša dāls?"</p>
+
+<p>Vysi otkon izkleida, bet vīns nu viņim palyka. Tys beja</p>
+
+<p align="JUSTIFY">Šauceiša Juoneiša dāls. Jam kristtāvs pībēra pylnas kabatas ar
+konfektem un sacīja uz kristdālu: "Īsim uz olu, tur dag divpadsmit lampu, nu kurom
+vīna ir, kura dag vuojuok. Ej tu īška olā un paņem tū vuojuok dagūšū lampu."</p>
+
+<p align="JUSTIFY">Šauceiša dāls lein olā un palyka tur ilguoku laiku. Staiguoja jis
+pa olu un nūnuocja pī tuo kambara, kur atsarūn tuos divpadsmit lampas. Pajēmis tū
+vuojuok dagūšū lampu, īt uorā nu olas. Kristtāvs soka uz kristdālu: "Kuopēc
+tik ilgi kavējis? Voi atrodi lampu?"</p>
+
+<p align="JUSTIFY">"Atrodu," sacēja kristdāls. </p>
+
+<p align="JUSTIFY">Kristtavs soka: "Dūd maņ lampu!"</p>
+
+<p>Puisāns soka: "Pyrmuok izveļc mani nu olas!" </p>
+
+<p>Kristtāvs soka: "Pyrmuok dūd, tod viļkšu!" </p>
+
+<p>"Izvelc, tūlaik dūšu!"</p>
+
+<p align="JUSTIFY">Kristtāvs sadusmuojis, pajēma ar akmini aizvēla tū olu. Puisāns
+īt atpakaļ, olas dybynā un naatrūn tuo vysa, kas tur beja. Staiguoja, staiguoja -
+īraudzēja styklu. Pīguojis pi stykla, suoka grabynuot ar pierstim. Kai tik paskribynoj,
+tyulen izskrīn divpadsmit gudrinīki un soka: "Kū, kungs, gribi?"</p>
+
+<p>"Es gribu, lai mani iznastu nu olas uorā."</p>
+
+<p align="JUSTIFY">Jī tyuleņ tī tai pajem un tyuleņ kai ar vēji uorā iznas.
+Kristdāls vēl paskribynoj, otkon izskrīn tī poši divpadsmit gudrinīki un vaicoj:
+"Kū, kungs, gribi?"</p>
+
+<p>"Es gribu, lai mani aiznastu leidz muna tāva muojai."</p>
+
+<p align="JUSTIFY">Tī gudrinīki pajem un aiznas tū puiku, un vaicoj: "Šeit, voi
+nā?"</p>
+
+<p>"Šeit!" soka puika.</p>
+
+<p align="JUSTIFY">Kad jau beja divdesmit godu, jis aprecējās un lampu tū, kuru jis
+beja pajēmis nu olas ,izlīk uz kaptura [baltkr., kaptur, krāsns-</p>
+
+<p align="JUSTIFY">augša]. Reizi poša kristdāla nabeja muojuos, taišņi tymā pat
+dīnā atbrauc kristtāvs ar smukom lampom un apmej ar tū, kura stuovej uz kaptura.
+Atsagrīzīs muojuos, veiriņš vaicoj sīvai: "Kur tei lampa, kura beja uz
+kaptura?"</p>
+
+<p align="JUSTIFY">Sīva soka: "Nazkaids cylvāks braukuoja un meja vacuos ar jaunom,
+un as īraudzēju: vīna lampa uz kaptura guļ apputējuse, pajēmu un sameju."</p>
+
+<p align="JUSTIFY">Kristtāvs, aizbraucis muojuos, paskribynoj drusku ar pierstim un
+atskrīn divpadsmit veiri un vaicoj : "Kuo tev vajag?"</p>
+
+<p>Atbild kristtāvs: "Es gribu, lai vysa piļs atnuoktu šeit!"</p>
+
+<p align="JUSTIFY">Tī gudrinīki paņēma tū piļi um atnesa. Tymā pilī dzeivuoja
+kristdāls ar sovu sīvu, bet veira tymā laikā nabeja muojuos: jis kaut kur beja
+aizguojis. Nuok uz muojom, skotuos: pils jau pavysam cytā vitā. Veirs soka sīvai :
+"Jo tū Sampu pajemsi, tod atdūd man."</p>
+
+<p align="JUSTIFY">Īt veirs caur tū pili, kurā beja juo sīva. Sīva pajam attaisa
+lūgu un sasīn vysus ručinikus [dvieļus], dečus, vēl tūmār mozlīt tryukst. Tod
+veirs soka uz sīvu: "Pīsīn vēl bizi, tod pītiks!"</p>
+
+<p align="JUSTIFY">Tod sīva pajem bizi, atgrīž, pīsīn, un tai izvylka veiru ūtrā
+stuovā, īlyka skreinē un aizslādzja. Atskrīn kristtāvs, soka: "Kur tja taida
+smoka!"</p>
+
+<p align="JUSTIFY">"Nav nikaidas smokas," sīva soka. "Tu laikam, pa
+pasauli skraideidams, pīlasēji vysaidu smoku. Nuoc, sēstīs pī golda un dzersim!"</p>
+
+<p align="JUSTIFY">Dzersim!" soka kristtāvs. "</p>
+
+<p align="JUSTIFY">Kristtāvam sīva īdēvja daudzi styprūs dzērīnu. Kad jau
+kristtāvs beja stypri pīdzērīs, tad sīva soka kristtāvam: "Dud lampu, lai es
+jū nūlīku skreinē un aizslādzu."</p>
+
+<p align="JUSTIFY">Kristtāvs atdūd lampu kristdāla sīvai un tei īlīk tū skreinī,
+kur guļ kristdāls. Nu togod veiram omots beja rūkā. Pajēmis lampu un paskribynuoja -
+tyuleņ atskrīn divpadsmit veiri un vaicoj: "Kuo vajag, kungs?"</p>
+
+<p>Tod soka veirs: "Vajag šū veiru nūsvīst zemē caur lūgu!" Tī gudrinīki
+pajem un nūsvīž kristtāvu zemē un nūsyt. Un tagad jī lobi dzeivoj un laimi
+pīdzeivoj.</p>
+</font>
+
+
+</body></html>

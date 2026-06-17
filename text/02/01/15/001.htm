@@ -1,0 +1,381 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>l5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Ķēves dēls.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>1. A. </b>303. 300. 313. J. Vilsons Nigrandā, Brīvzemnieka kr. LP,
+VI, 115, 8.</p>
+
+<p align="JUSTIFY">Vienreiz viens kungs braucis pār upi un ieraudzījis mazu zivtiņu ar
+spožām, spožām zvīņām. Uz zvīņām bijis rakstīts: "Kas pirmais mani ēdīs,
+tam piedzims varens dēls!"</p>
+
+<p align="JUSTIFY">Kungam bērnu nebijis, viņš noķēris zivtiņu un licis meitai
+izvārīt cienīgai mātei, noteikdams pie nāves, lai no viruma nebaudot. Meita
+izšķērž zivi, izlej samazgas ārā un sāk vārīt. Vēl nebija ne mutuļa metis, te
+ķēve, gar durvim staigādama, sāļumus laizīdama, ielaiza pirmā arī zivs samazgas.
+Meitai atka1 izšļācās vāroties katls, tā iemērc pirkstu un arī pabauda dažus
+pilienus; bet pati cienīgā nu tikai dabū no zivs tā trešā baudīt.</p>
+
+<p align="JUSTIFY">Un kas nu notiek? Pēc kāda laika ķēvei piedzimst pirmai dēls --
+tas . bija varens, meitai arī piedzimst dēls - bet tas jau vairs nebija tik varens. Un
+cienīgai beidzot arī piedzimst dēls, bet tas tikai tāds pats kā kuŗš katrs
+cilvēks.</p>
+
+<p align="JUSTIFY">Kad zēni bija lieli izauguši, tad tie aizjāj pasaulē un aiznāk pie
+vienas pils. Tai pilī nebija neviena cilvēka un tomēr tur viss bija apkopts: zirgi
+stallī nobaroti, gludeni nosukāti, istabā galdi apklāti, gultas uzčubinātas - viss,
+viss, ko vien vēlies. Bet ap pašu pili tecēja riņķī dziļa upe, pār ko bija celts
+košs tilts.</p>
+
+<p align="JUSTIFY">Vakarā tie divi aiziet gulēt; bet Ķēvesdēls paņem suni un gaili
+biedros, ielien patiltē un gaidīs, vai kāds pa nakti nerādīsies.</p>
+
+<p align="JUSTIFY">Gaida, gaida - nemana neviena. Te īsti priekš pusnakts sāk sunītis
+ņurdēt, gailītis kurkt un viens jājējs, uz tilta nostājies, ievaicāsies: "Ko
+tu te ņurdi un ķirksti? Vai domā, ka man par tevi kādas bēdas? Un ir, kad tu pats
+Ķēvesdēls būtu, arī tad tevis nebīstos."</p>
+
+<p align="JUSTIFY">To dzirdēdams Ķēvesdēls, no patiltes iznākdams, nostājas
+jājējam pretim: "Te es esmu! Ko vēlies?"</p>
+
+<p align="JUSTIFY">"Ko vēlos? Es appūtīšu versti zemes ar sudrabu, tev arī tas
+jāspēj."</p>
+
+<blockquote>
+  <p>"Pūt vaļām!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Un jājējs - tas bijis velns - appūta veselu versti ar sudrabu. Nu
+pūta Ķēvesdēls; bet tas appūta veselu versti ar zeltu un pārspēja velnu.</p>
+
+<p align="JUSTIFY">Tagad velns gāja spēkos un iedzina uz pirmā sitiena Ķēvesdēlu
+līdz auklu vietai; bet Ķēvesdēls velnu papriekšu līdz ceļiem un tad uz trim
+sitieniem līdz kaklam. Beidzot vēl nocirta velnam galvu un tad lēnā garā iegāja
+pili, kur sagulēja līdz lielai gaismai.</p>
+
+<p align="JUSTIFY">Otru vakaru Ķēvesdēls piespieda meitas dēlu tiltu apskatīties; bet
+tas, diedelnieks, paskatījās, paskatījās tādu brīdi, un tad ievilkās šķūnī
+salmos snaust. Īsi priekš pusnakts Ķēvesdēlam prāts nav mierīgs - ies apskatīties,
+kā šim labi klājas. Aiziet ne tev viena meitas dēla, ne šī, ne tā - uzticies nu
+tādam. Ko nu? Stājas pats vietā. Nav labi apgriezies, sunītis jau ņurd, gailītis
+kurkst un viens ievaicāsies: "Ko tu te ņurdi un ķirksti? Vai domā gan, ka tev,
+Ķēvesdēl', izdosies ir mani pagūt, tāpēc ka vakar manu brāli nokāvi?"</p>
+
+<p align="JUSTIFY">Bet Ķēvesdēls to nemaz neklausās, nostājas jājējam ,pretim un nu
+spēkojas tāpat kā. vakar. Beidzot Ķēvesdēls, velnu līdz kaklam zemē iedzinis,
+nocērt tam kaklu un tad ieiet pilī, kur saguļ līdz. lielai gaismai.</p>
+
+<p align="JUSTIFY">No rīta, brokastu ēdot, viņš apvaicāsies meitas dēlam, vai uz
+vakti būdams, šis neesot dzirdējis troksņa?</p>
+
+<blockquote>
+  <p>"Ne, ne - itin nekā &amp;127;auna nemanīju!"</p>
+</blockquote>
+
+<p align="JUSTIFY">"Ja, ja, ticams gan, ka nebūsi manījis nekā jauna. Kādi
+ļaunumi tad nu migacim gadīsies? Bet to jums abiem pasaku: uz jums palaisties nevaru ne
+par naga melnumu, tādēļ nākamu nakti iešu pats uz tiltu. Tomēr šoreiz drošības
+labad atstāšu jūsu ziņā divus traukus. Vienā ieliešu ūdeni, otrā vīnu, un tad
+nu, nomodā palikdami, vērojiet uzmanīgi! Ja ūdens paliek par vīnu un vīns par
+ūdeni, tad esmu briesmās, tad steidzaties man palīgā."</p>
+
+<blockquote>
+  <p>Labi, labi - to viņi izdarīšot gan!</p>
+</blockquote>
+
+<p align="JUSTIFY">Un novakarā Ķēvesdēls atkal paņēma sunīti un gailīti un
+aizgāja savā patiltē.</p>
+
+<p align="JUSTIFY">Ap pusnakti izdzirst jājam pār tiltu, ka tilts brakšķēt brakšķ.
+Tūlin arī sunītis ieņurdas, gailītis iekurkstas, bet jājējs saka: "Ko nu
+ņurdi un ķirksti? Kad tu ir pats Ķēvesdēls būtu, ir tad tevis nebīstos."</p>
+
+<p align="JUSTIFY">Ķēvesdēls, bo dzirdēdams, iznāk no pati1tes: "Ko gribēji? Te
+esmu!"</p>
+
+<p align="JUSTIFY">"Pagaidi, kundziņ!" velns (jājējs) iebļāvās,
+"divus dēlus man nokāvi, bet nu nokaušu tevi pašu!"</p>
+
+<p align="JUSTIFY">Šis velns bijis īsts bļauris ar trim galvām un neganti zvērošām
+acim.</p>
+
+<p align="JUSTIFY">Un tā nu tūlin abi nostājušies viens otram krūtīs. Velns
+iesaucies: "Pūt sudrabu!"</p>
+
+<blockquote>
+  <p>Ķēvesdēls atteicis : "Pūt pa priekšu!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Un velns pūtis arī un appūtis trīs jūdzes ar sudrabu; bet
+Ķēvesdēls saspēries un appūtis piecas jūdzes ar zeltu.</p>
+
+<p align="JUSTIFY">Tagad velns gājis spēkos un iedzinis Ķēvesdēlu uz pirmā sitiena
+līdz ceļiem. Nu Ķēvesdēls sapratis: joki nav -- tādēļ sacījis: "Man zābaks
+tik neganti grauž kāju, ka nemaz stingri nostāvēt."</p>
+
+<p align="JUSTIFY">Lai novelkot zābaku, velns atsaka. Bet Ķēvesdēls to tikai
+vēlējies. Viņš norauj zābaku un aizsviež tik sparīgi uz pili, ka pilij visi deviņi
+skursteņi nogrūst.</p>
+
+<p align="JUSTIFY">"Nu taču viņi atplētīs acis, tie diedelnieki,"
+Ķēvesdēls domā, bet nekā. Abi biedri guļ šņākdami, lai tur gāžas, kas grib, un
+nemaz neredz, ka traukos ūdens par viņu palicis un vīns par ūdeni.</p>
+
+<p align="JUSTIFY">Brīdi izgaidījies, nevar palīdzības sagaidīt, ies atkal spēkos.
+Bet šoreiz velns iedzen Ķēvesdēlu līdzi jostai un Ķēvesdēls velnu līdz ceļiem.
+Neko darīt - jāsaka, ka arī otrs zābaks kāju grauž.</p>
+
+<p align="JUSTIFY">Novilks nu to zābaku un sviedīs uz pili. Pilij nogāžas viss jumts,
+kas par sviedienu; bet šie kā guļ, tā guļ.</p>
+
+<p align="RIGHT">Brīdi izgaidījies - cik ilgi gaidīsi? Jāiet atkal spēkos. Bet
+šoreiz velns iedzen </p>
+
+<p align="RIGHT">Ķēvesdēlu līdz kaklam zemē un Ķēvesdēls velnu tikai līdz jostai.
+Labi redz: </p>
+
+<p align="RIGHT">viens vairs atķeparāties nevar, tādēļ saka: "Pagaidi, pagaidi
+drusku, man kakla drāna neganti grauž, noraisīšu.</p>
+
+<p align="JUSTIFY">Kēvesdēls noraisa kakla drānu un drāž to pašu uz pili, beidzamos
+spēkus saņemdams. Kakla drāna sagāž pili pavisam un nu šie, miega pūžņi,
+atmodīsies gan vienreiz. Vai akls! - pieskries traukus skatīties: vīns pārvērties par
+ūdeni, ūdens par vīnu un tā griežas un tā maisās it kā verdots ūdens katlā. Šie
+tīri pārbīstas un steidz palīgā. Aizskrien - Ķēvesdēls līdz kaklam zemē. Ko nu
+gaidīt? Klūp velnam mugurā un tad pa trim kopā nobeidza gan rezgali.</p>
+
+<p align="JUSTIFY">To padarījuši, visi trīs likās gulēt un sagulēja līdz lielai
+gaismai.</p>
+
+<p align="JUSTIFY">Tad Ķēvesdēls sacīja tā uz saviem biedriem : "Sedlosim zirgus
+un jāsim no šejienes projām!"</p>
+
+<p align="JUSTIFY">Labi. Sasedloja zirgus. Bet Ķēvesdēls vēl paņēma uz sava zirga
+trīs mucas siļķu un tad visi aizjāja pār tiltu. Tilta galā Ķēvesdēls atkal
+sacīja: "Vai ziniet ko? Jūs man līdza neizjāsit tikpat - man jāsteidzas, cik
+ātri vien varu, tādēļ griežaties, uz kurieni pašiem iepatīkas, es jāšu viens pats
+savu ceļu."</p>
+
+<blockquote>
+  <p>Labi. Šie mierā un tā nu izšķiras.</p>
+</blockquote>
+
+<p align="JUSTIFY">Bet Ķēvesdels vēl nebij pajājis ne labā .gabalā, te izdzird aiz
+muguras it kā kad auka, vai viesulis celtos, tik dobji sāk rūkt. Paskatās atpakaļ -
+ierauga: velna māte šņākdama nāk pakaļ. Nu satver pirmo mucu siļķu un drāž to
+pašu velna mātei rīklē. Šī norij arī, ka nemaz gandrīz neiešķaudās un vēl
+nedomā atkāpties; bet drīzi jo drīzi sāļais kumoss taču sāka veceni slāpināt un
+gribot negribot bija jāmeklē lakt.</p>
+
+<p align="JUSTIFY">Kamēr šī tur laka, Ķēvesdēls atkal jau gabalā. Bet velna māte,
+visus strautus izlakusi, vēl dzinās otrreiz pakaļ. Nu Ķēvesdēls pagrāba otru mucu
+siļķu, iedrāzdams neģēlei rīklē. Atkal velna mātei bij jālok, un šoreiz tā
+izlaka visas upes un tad dzinās trešreiz pakaļ. Bet Ķēvesdēls iedrāza trešo mucu
+siļķu rīklē. Tagad velna mātei bij slāpes bez gala, viņa izlaka visus ezerus,
+kamēr atlakās, un tad atkal dzinās pakaļ.</p>
+
+<p align="JUSTIFY">Bet Ķēvesdēls par to pastarpu bija iejājis vienā smēdē pie
+kalēja. Tomēr ir te velna māte atjoza, sākdama smēdes jumtu gŗaut. To kalējs
+nevarēja vēlēt, viņš sacīja: "Lai paliek jumts! Grauz labāk pamatā caurumu un
+pabāz mēli te smēdē, tad uzlikšu Ķēvesdēlu tur virsū un tu viņu dzīvu ierausi
+rīklē."</p>
+
+<p align="JUSTIFY">Tāds padoms velna mātei patika, ātri ātri tā izgrauza pamatu un
+iešāva mēli. Bet nu Ķēvesdēls pasmiedamies pienagloja ar sakarsētu dzelzi velna
+mātes mēli pie zemes un tad pārvarēja negantnieci viegli jo viegli.</p>
+
+<p align="JUSTIFY">Laiku pabijis pie kalēja, Ķēvesdēls atkal aizgāja pasaulē. Gāja,
+gāja - beidzot iegriezās vienā pilī, kur salīga par nama puisi. Bet otrā trešā
+dienā pils kungs sacīja: "No šī brīža tev cita darba vairs nedošu - tikai
+jāapkopj divi lopi: viens zvērs un viena ķēve&amp;127;. Zvēru tu barosi ar auzām,
+bet ķēvi ar maitas gaļu. Un šos lopus kopdams, neej nekad ēzdams kūtī, to
+neaizmirsti! Tad še tev vēl divas atslēgas no divām akām; tā viena atslēga ir
+ūdens akas atslēga, tur tu vari atslēgt un ūdeni smelt, kad tikai ievajagas. Bet otras
+akas atslēgu pieglabā cieši un nekad neiekāro šo aku atslēgt, ir paskatīties tanī
+nedrīksti."</p>
+
+<blockquote>
+  <p>Labi. Viņš pielūkošot gan pa prātam izbēdāt.</p>
+</blockquote>
+
+<p align="JUSTIFY">Tā pagāja mēneši. Un ik kungs pārradās - daudz viņš mājā
+nestāvējis - ik atrada visu labākā kārtībā.</p>
+
+<p align="JUSTIFY">Te vienu rītu - kas ir? Ķēvesdēls aizgulējies. Nu tu nelaime!
+Pamožas - saule jau brokasta laikā un lopi kaut jele viens kopts būtu. Nu lēks, nu
+pakamps brokasta tiesai tāpat gabaliņu maizes un ēzdams steigsies uz kūti. Bet kas par
+brīnumiem? Ieiet ēzdams kūtī - ķēvei mēle atraisījusies - sāk runāt cilvēku
+valodā, lai dodot jele 1ūdzams viņai 1abāk auzas un zvēram maitas gaļu!</p>
+
+<p align="JUSTIFY">"Liela baža māt!" viņš domā, "došu arī!" un
+tā iedod zvēram maitas gaļu, šij auzas. Bet kas nu bij par jokiem? Zvērs nav vēl
+labi saēdies, jau delamais klāt un nīkst un nīkst acim redzot, kamēr palika ceļams
+un nosprāga.</p>
+
+<p align="JUSTIFY">Tomēr ķēve, to visu redzēdama, palika nemierīga. Viņa saka savam
+kopējam: "Mums jābēg! Teci tādēļ mudīgi aizliegto aku atslēgt. Tur atradīsi
+šķīstu zeltu iekšā. Pamērc zeltā roku un noglaudi sev matus, tad tie paliks par
+zeltu un laistīsies spožumā. Ir otrreiz iemērc roku zelta šķīstumā un paberzē
+krūtis, tad krūtīs tev gadīsies spoža zvaigzne. Beidzot paņem vēl 1īdz suku,
+susekļi, putekšļu rīksti, segu un sēdies tad man mugurā, lai varam bēgt no
+šejienes. Bet ja tev kāds paka&amp;127; dzītos, tad pirmāk nosvied suku, pēc tam
+susekli, putekšļu rīksti un vispēdīgi segu - gan būs labi."</p>
+
+<p align="JUSTIFY">Ķēvesdēls, zināms, nekavējās arī, atslēdza aku, noglaudīja
+matus, paberzēja krūtis, paņēma līdzņemamās lietas, sēdās ķēvei mugurā un
+aizjāja aulekšiem, ka zelta mati un zelta zvaigzne krūtīs vien tikai nozibēja.</p>
+
+<p align="JUSTIFY">Bet ne visai ilgi, pils &amp;127;kungs arī paka&amp;127; un turpat jau
+gandrīz gandrīz min papēžus. Ķēvesdēls nosvieda suku. No sukas iz</p>
+
+<p align="JUSTIFY">cēlās augsti kalni un dziļas gravas. Kamēr nu pils kungs kalniem un
+gravām pārmocījās - kur šie jau - gabalā. Tomēr ne visai ilgi, panāca atkal.</p>
+
+<p align="JUSTIFY">Tagad Ķēvesdēls nometa susekli. No susekļa izcēlās biezi, biezi
+krūmi un brikstalas, ka ne pelīte nevarēja izsprausties. Kamēr nu pils kungs pa
+brikstalām izmocījās - šie atkal gabalā. Tomēr pils kungam viens paņēmiens -
+panāca atkal bēdzējus.</p>
+
+<p align="JUSTIFY">Nu Ķēvesdēls nometa putekšļu rīksti. No rīkstes izcēlās liels
+biezs mežs ar tādām lūžņām, ka ne cilvēks, ne lops cauri tikt. Kamēr nu pils
+kungs biezumiem izspŗaudās - šie atkal gabalā. Tomēr pils kungam viens paņēmiens -
+panāca atkal bēdzējus.</p>
+
+<p align="JUSTIFY">Tagad Ķēvesdēls nometa segu. No segas gadījās bez gala liels
+ezers. Pils kungs atloba pie ezera - nevarēja pāri tikt. Ko Lita darīt? Jozīs gar
+krastu ezeram apkārt. Skrēja, skrēja lielu laiku aizelsies, bet kā nav ezeram gala,
+tā nav. Beidzot vīrs saspērās un raudzīs citādi: - likās līdz ausim ūdenī un nu
+peldēs ezeram pāri. Bet taī pašā brīdī sacēlās liela stipra auka un tā nu
+turējās peldētājam pretim. Ik šis gabaliņu būtu papeldējis, ik auka atsvieda
+atpakaļ, kamēr lielo peldētāju pagalam nogurdināja un nogremdēja dzelmē.</p>
+
+<p align="JUSTIFY">To redzēdams, Ķēvesdēls priekā gavilēja, jo nu vienreiz bija
+miers gan pašam atpūsties, gan ķēvi atdusināt.</p>
+
+<p align="JUSTIFY">Labi - tas nu viss brangi. Bet kad nu atdusas brīdis bija aiztecējis
+un Ķēvesdēls atkal savu ķēvi gribētu sedlot, te itin piepēži ķēvei cits kas
+iešāvies prātā: Lai nesedlojot vis vairs viņu, bet lai labāk nocērtot ar zobinu
+viņai kaklu!</p>
+
+<p align="JUSTIFY">"Kas tās par lietām'?" Ķēves dēls vai pārbrīnās,
+"es iešu labu ar ļaunu atmaksāt!"</p>
+
+<p align="JUSTIFY">Bet ķēve tikai skubina: "Cērt, cērt, ko kavējies, ja gribi
+mani pestīt!"</p>
+
+<p align="JUSTIFY">Neko darīt - cirtīs arī. Un kā nu nocērt --- vai tie nav silti
+brīnumi? Ķēve pārvēršas par skaistu princesi, patencinādama: , Labi, ka klausīji
+man! nu esmu atpestīta, jo pils kungs, mani zagdams, nobūra mani un ieslodzīja savā
+stallī. Esmu ķēniņa meita."</p>
+
+<p>Un nu Ķēvesdēls pārveda princesi pie tēva un atdeva viņam meitu. Bet princeses
+tēvs sacīja: "Tāpēc ka esi izglābis manu bērnu no nezaņķa, es tev viņu
+atdošu par sievu - tu būsi mans pēcnācējs."</p>
+
+
+</body></html>

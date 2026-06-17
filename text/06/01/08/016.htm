@@ -1,0 +1,223 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Vienacīte, Divacīte, Trijacīte.</p>
+</font></b>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">16. A. 511. St. Uļanovska Viļānos. Zbior wiadomos'ci do antrapologii
+krajowej. T. 18. Krakavā 1895, 342 (25).</p>
+
+<p align="JUSTIFY">Bjeja buorineitja, i bjeja jai pamuotja. cīši naloba, cīši
+sirdjeiga. A eistuo muotja nūmierdama pamjatja jai gūtjeņu, i muotia jai lyka, kab itū
+gūtjeņu globuotu, i pascjēja jai tai: "Mjeitiņ, tjei nabyus towa gūtjeņa, byus
+tova laimja!"</p>
+
+<p align="JUSTIFY">Pjēc tuo, ka tāvs pajēmja ūtru sīvu, pamuotja izdzyna jū gonūs i
+īdjeva jai kūdjeļi spŗāst, i soka jau pamuotja: "Kab maņ byutu kūdjeļa šmuki
+sasprāsta un talkuos [gurstēs] satjeita dzjeis!"</p>
+
+<p align="JUSTIFY">Nūguoja buoriņeitja iz gonim, i apzaskuovja ap gūtjeņu, i raud, i
+soka rauduodama: "Gūtjeņ munu mīlū, kū es tagan padaŗeišu? Kai es par vīnu
+dīnu cik [tik] daudzi saspŗēsšu?"</p>
+<b>
+
+</b><p align="JUSTIFY"><b></b>A gūtjeņa atsoka jai: "Naraud, buoriņeiti! Es tjev byušu
+paleidzjāt."</p>
+
+<p align="JUSTIFY">Pajāmja tūs lyn'c, sagramova, sagramova, caur vīnu ir caur ūtru
+aus'tjeņu dzjeji izlaidja, i cik šmuku, cik lobu! Satyna talkuos, i buoriņeitja
+nūņasja iz sātu, atdevja pamuotjal. Pamuotja breinīs, kur jei cik mudri padaŗēja!</p>
+
+<p align="JUSTIFY">Iz ūtrys dīnys īdjevja jai otkon spŗāst, i otkon jai tai pat
+gūtjeņa paleidzjāja, i tai jei daŗēja par cik dīnu! Pamuotja breinīs, ka vyss iai
+kas ir, kas lai paleidz. A jai bjeja treis mjeitys, sovys eistys, tjei pamuotjai. Jei
+izsyuta sovu mjeitu, pyrmū, iz gonim, ar tū buoriņeiti leidza, i saka: "Pilnavoj
+[uzmani], kas jai paleidz tī daŗēt!`'</p>
+
+<p align="JUSTIFY">A tai mjeitai bjeja pīcys acs. Ateit buoriņeitja iz gūtjeņu, soka
+jei rauduodama: "Gūtjeņ, kū mjes daŗeisim tagan, ka jai izsyuta sovu mjeitu
+šūdīn maņa jau pilnavuot?"</p>
+
+<p align="JUSTIFY">A gūtjeņa atsoka: "Naraud', buoriņeit', byus padaŗeits! Pajem
+tu jū klēpī, golvu juos, īskoy tu jai golvu, i soki īskodama: "Mīdz, vīnu
+actjeņu, mīdz ūtru actjeņu, mīdz trešu actjeņu, mīdz catūrtu, mīdz pīktu!"
+Jei aizmigs, a mjes padaŗēsim, kū mums vaidzjēs."</p>
+
+<p align="JUSTIFY">Buoriņeitja tai ir padaŗēja - aizmyga tjei meitja. Jei daņasja
+lyn'c pi gūtjeņis, jei sagramova, caur vīnu, caur ūtru austjeņu izlaidja dzjeis,
+satyna talkuos. Pjec tuo buoriņeitja pīcjēļa tū mjeitur ka jau laiks bjeja īt iz
+sātu, i atdevja tū dzjeji pamuotjai sasprāstu. Pamuotja vaicoj iz mjeitu sovu:
+"Voi tu ŗedzēji, kas jai tai dora?"</p>
+<b>
+
+</b><p align="JUSTIFY"><b>A </b>mjeita atsok:a: "Es bjeju aizmygusja, mamjeņ, es naasu
+ŗēdzjējusja nikuo, kas jai paleidzja."</p>
+
+<p align="JUSTIFY">Iz ūtrys dīnys svuta jei ūtru mjeitu, a tjei jau tuŗēja sješvs
+acs. Buoriņeitja otkon ta!ipat padarēja, vysvs sešys acs aiz midzjāja i dzjeju
+saspŗāstu nūnesja pamuotjai. Otkon vaicoj pamuotja: "Voi ŗedzjēji, kas jai
+paleidz?"</p>
+<b>
+
+</b><p align="JUSTIFY"><b>A </b>mjeita atsoka: "Na, mamjeņ, es naŗedzjēju, es bjeju
+aizmygusja."</p>
+
+<p align="JUSTIFY">Iz trešys dīnys syuta jei trešū mjeitu sovu, a tjei jau turēja
+septiņis acs. Jei izguoja gonūs ar buoriņeiti. Tjei buoriņeitja aizmidzjāja sješys
+acs, a sjepteitū aizmiersa aizmiidzjāt jau sješys aizmygušys, a sjepteitā vaļā. I
+jei ar tū aci vysu ŗēdzjēja, kai gūtjeņa buoriņai paleidzjāja. Atguojusja iz
+sātu, vysu muotjai pasacjēja.</p>
+
+<p align="JUSTIFY">Pjēc tuo pamuotja suok runuot vjeiram -sovam, kab tū gūtjeņu
+nūkautu, ka jei vaca, naloba. I vyss vjeiram runoj, kab jū nūkaut i nūkaut. Vjeirs jau
+pazvoļēja [atļāva] jai. Buoriņeitja nūtak rauduodama iz gūtjeņu i soka: Gūtjeņ
+mīlū, tevi nūkaut grib!"</p>
+
+<p align="JUSTIFY">A gūtjeņa atsoka: "Naraud, buoriņeiti! Koč mani nūkaus, a
+tova laimja dzjeiva byus, tovys laimis nikos tjev naatjims. A kai mani nūkavs, to tu
+vaicoj, kab tjev dūtu zornys munys tjeiŗēt. Tu tjeirēj gleiši i atrassi tu zierņeiti
+zalta. Pajem tū zierņeiti, īstot' duorzjeņā, i tjev izaugs uobeļneica."</p>
+
+<p align="JUSTIFY">A tamā uobjeļneicā zalta uobjeļeiši ar taidu lobu smoku, ka
+aizūst navar! Kas brauc tivi, tys grib uobjeļu nūpierkt, a uobjeļneica nadalaiž. Kai
+daīt voi pamuotja, voi mjeitys, to jei augši cjeļas zori. A ka atīs buoriņeitja, to
+jei nūzalaiž iz zjemi i zori nūleikst. Bjeja tai, i bjeja može [varbūt] kaidi div
+godi, i ļaud's suoka runuot, ka uobjeļneica buoriņeitis vīn klausa.</p>
+
+<p align="JUSTIFY">Dazazyna [izzināja] kungs boguots, i atbrauc, i grib uobjeļu pierkt -
+lai cik ira duorgi, kab toļko [tikai] puordūtu. Pamuotja salaidjēja [uzposa] sovys
+mjeitys, a buoriņeiti zam kubula pabuozja. Nūīt iz uobjeļneicu, a uobjeļneica
+nadalaiž. Kungs soka: "Atvjedīt maņ tū buoriņeiti, kura var daīt pi tuos
+uobjeļņeicas!"</p>
+
+<p align="JUSTIFY">Pamuotja soka, ka jal taida murza, taida malna, zam silis guļ; a kungs
+lī!k, kab jū šam atvashu. Navarēja nikuo padaŗēt, to jū i atvjedja iz kungu. Kungs
+kal jū īraudzjēja, pajēmja aiz rū'kys, īsādynuoja kaļaskā [karītē] sovā i
+nūvjedja jū pa ceļu. A tjai uobjeļneica nūzruoja pakaļ pjec juos pa gaisu. Tys kungs
+apzažeņēja [apprecējās] ar tū buoriņeiti. l par cik laika atbraucja iz pamuoti
+paruodjīt jū i soka tai: "Redz, kaida jei šmuka ira! A tu sacjēji, ka jei murza
+našmuka."</p>
+
+<p align="JUSTIFY">Pamuotja vaicoj: "Kū jai ktngs padaŗēja, ka jei tahda šmuka
+palyka?"</p>
+
+<p>Kungs soka: "Es jai vacū uodu nūmauču."</p>
+
+<p align="JUSTIFY">Pjec tuo pajēmja i nūbraucja pa ceļu. Pamuotja pasaucja sovu mjeitu,
+pošu vacuokū, i suok jai uodu plāst zjemjā. Jei klīdz, a muotja soka: "Klusi,
+byusi šrnuka!"</p>
+
+<p align="JUSTIFY">Nanūplēsja vjēļ uodys, a jei, plēškūtja uodu, i goru izlaidja.
+Ūtrai i trešai taipat, vysys treis nūgubjēja nu pasauļa, i poša nu siržu
+pourpleisa.</p>
+
+<p align="JUSTIFY">I es tī bjeju, jēžu i dzjēru, par lyupom tjecjēja, mutjā ne
+lāsjeitis nabjeja.</p>
+
+
+</body></html>

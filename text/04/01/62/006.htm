@@ -1,0 +1,199 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Meitene, kas savus brāļus meklē.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">6. A. 451. Teicējs 67 g. vecs A. Kovaļevskis Bebrenē. </p>
+
+<p align="JUSTIFY">Vīnam kēniņam beja desmit dālu, bet meitu nabeja. Kaidureiz
+kēniņš sacīja kēniniņai: "Jo myusim byutu meita, tad es itūs desmit dālus
+nūnvovētu"</p>
+
+<p align="JUSTIFY">Kēniniņa nikuo naatbildēja un, kēniņam un dālim naradzūt,
+pastuovīgi rauduoja. Dasmytais dēliņš beja pavysam mozs, jū vēl muote auklēja, jis
+redzēja muoti pastuovīgi raužūt.</p>
+
+<p align="JUSTIFY">Kuo tu raudi?" vīnu reiz prasīja dēliņš muotei. "</p>
+
+<p align="JUSTIFY">"Kai man narauduot, ka tāvs, kēniņš, pasacīja: jo myusim
+byutu meita, tad vysus desmit dālus nūnuovētu," atbildēja muote. Mozais bruolīts
+vysu izstuostīja leluokim bruolīim un jī vysi bāga uz mežu dzeivuotu. Mežā
+bruolīši kuopja kotru dīnu kūkā pasavērt, kaids kārūgs byus izcalts uz ķēniņa
+piļs. Jo boltois, tod bruolīšim byus pīdzimis atkan bruolīts nu ji varēs īt
+atpakaļ uz pili dzeivuotu; bet jo sorkonais, tad byus pīdzymuse muosiņa un byus
+juopalīk mežā. Vīnā dīnā bruolīši īkuopuši kūkā, īsavēŗa sorkonu karūgu
+un pīsazvērēja naīt uz sātu bet dzeivuot vysu laiku mežā. Bruolšši iztaisa mežā
+sev ustobiņu un dzeivoj. Jī beja nūsarunuojuši sovā storpā nūnuovēt kotru
+sīvīti, kuru satiks mežā, jo caur sīvīti vajadzēja jīm dzeivuot mežā.</p>
+
+<p align="JUSTIFY">Meitiņa beja pīdzymuse cīši skaista un ar zvaigznīti pīrē, un
+beja jau desmit godu vaca. Vīnu reiz meitiņa īsavēŗa savu bruolīšu krekliņus un
+prasīja nu muotes: "Mama, myusim ir puisīšu krekliņi, kur ir tī bruolīši, kas
+jūs nosuoja?"</p>
+
+<p align="JUSTIFY">Muote suaka rauduot un saka: "Vēļ kad tu ītabeji pīdzymuse.
+tāvs pasacīja: jo myusim pīdzymtu meitiņa, tod es vysus desmit dālus nūnuovētu.
+Tovi bruolīši itū izzynuoja, aizbāga uz mežu un<b> </b>vairs naatsagrīzja."</p>
+
+<p align="JUSTIFY">Meitiņa padūmuoja: "Muni bruolīši aizguoja uz mežu manis
+dēļ, īšu arī es uz mežu jūs maklātu!"</p>
+
+<p align="JUSTIFY">Meitiņa aizguoja uz mežu. Deviņi bruolīši guoja medībuos uz
+putnim un zvērim, bet dasmytū atstuoja muojuos gatavuot ēdīni, Muosiņa guoja, guoja
+pa mežu un pīguoja pi brolīšu ustabiņas. Tymā dīnā muojuos beja palicis jaunuokais
+bruolīts. Muosiņa apsavēŗa ustabiņas, īguoja īškā un prasīja: "Vaitu vīns
+pats te dzeivoj?"</p>
+
+<p align="JUSTIFY">"Na" atbildēja bruolīts, "mes dzeivuojam desmit
+bruolīši; šitdīn deviņi aizguoja medībos un es vīns palyku muojuos." Muosiņa
+saprota, ka tī ir juos bruolīši un palyka pi jim dzeivot. Na par ilgu laiku atguoja nu
+meža deviņi bruolīši. Bruoliši beja aizmiersuši sovu nūrunu, ka nūnuovēs kotru
+sīvīti, kuru satiks, un beja pricīgi, ka atnuocja pi jīm muosiņa un juos
+nanūnuovēja. Muosiņa dūmoj: "Ar kū es sovus bruolīšus īprīcynuošu?"</p>
+
+<p align="JUSTIFY">Natuoli nu bruolīšu ustabiņas beja rogonas duorzs, kurā auga
+skaistas pučes. Muosiņa aizguoja uz rogonas duorzu nūplyucja desmit pučīšu un,
+atnasuse, īdevja pa vīnai pučītei kotram bruolīšam. Na par garu laiku atīt rogona
+pec pučēm un soka: "Kuodēļ tu guoji puču plyuktu? Es tuo tev naļaušu! Tovi
+vysi desmit bruolīši par kraukļim nūskrīs!"</p>
+
+<p align="JUSTIFY">Bruolīši pasataisīja par kraukļim un aizskrēja. Muosiņa raud un
+prosa rogonu atgrīzt bruolišus par cylvākim. Ta rogona soka: Jo tu puordzeivuosi
+septiņi godi narunuodama un nasasmīdama, tad tovi bruolīši paliks par cylvākim.</p>
+
+<p align="JUSTIFY">Muosiņa apsajmja tū vysu izpildīt. Tai muosiņa palyka mežā vīna
+paša un dzeivoj. Laiks guoja un juos drēbītes pavysam beja sapleisušas, tai ka jai
+vajadzēja staiguot vysā plykai. Turpat mežā jei beja atroduse ūzūla sīkstu, kurā
+par nakti gulēja.</p>
+
+<p align="JUSTIFY">Kaidā dīnā kēniņa dāls ar cytim medinīkim staiguoja pa mežu
+medībuos. Taisni kēniņa dāla prīškā suņi izdzyna plykū meitiņu, kura īskrēja
+ūzūla sikstā un nūsaglobuoja. Sīkstas vīns gols beja aizbuozts ar lopom, ūtrs
+caurs. Suņi pīskrēja pi sīkstas un suoka rīt. Kēniņa dāls ar taurem sasaucja cytus
+medinīkus. Medinīki sacīja: "Jo esi muons, mes tevi šausim: jo cylvāks, tad
+izleiņ. Meitiņa izleida un nikuo narunuoja. Medinīki suoka prasīt, kas jei taida ir,
+kai jei mežā, bet meitiņa naatbildēja nivīna vuorda. Vysi nūsprīdja, ka meitiņa ir
+māma. Kēniņa dālam meitiņa cīši patyka un<b> </b>jis aizsyutīja sovus kolpus uz
+pili pēc drēbem, vysudurguakom.</p>
+
+<p align="JUSTIFY">"Lai jei ir māma, bet dzierdēt dzierd, tut es jū jemšu sev par
+sīvu!" pasacīja kēniņa dāls.</p>
+
+<p align="JUSTIFY">Kalpi atnezja vysuduorguokuos drēbes, apgērbja meitiņu, aizvedja uz
+pili un taisa kuozas. Kuozu dīnā meitiņa izguoja uz gaņkom, lai sēstu zyrgūs un
+brauktu uz baznīcu. Jau beja paguojuši septiņi godi nu tuo laika, kai juos bruolīši
+aizskrēja par kraukļim. Meitiņa, stuovādama uz gaņkom, isavēŗa sev ap golvu
+grīžūtīs desmit kraukļu un soka: "Desmit krauklīši grīžas, vai nav muni
+bruolīši?"</p>
+
+<p align="JUSTIFY">Tyuleņ kaukļi nūsalaidja zemē un palyka par cylvākim. Meitiņa
+suoka runuot un kūpā ar brtiolīšim nūdzēŗa kuozas un dzeivuoja laimīgi.</p>
+
+
+</body></html>

@@ -1,0 +1,170 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vienacīte, Divacīte, Trijacīte.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 511. A.<b> </b>Kreicbergs Dzirciemā. LP, VI, 818 (5) </p>
+
+<p align="JUSTIFY">Mātei bija trīs pašas meitas un viena pameita. Pašas meitas bija
+gauži slinkas un izlutinātas; pameita ļoti strādīga un čakla. Un viņai vienai patei
+arī visi darbi bija jānostrādā: rītiem agri, agri vajadzēja istabu izslaucīt,
+traukus nomazgāt, mātei un mātes meitām acu ūdeni ienest, žagarus sacirst, uguni
+sakurt, rāceņus nokasīt - visu, visu padarīt, ka var, saulei lēcot, govis vēl
+izslaukt un laikā ganos aizdzīt. Un tur ganos viņai atkal citi sieviešu darbi bija
+jāpastrādā: jāaplāpa mājinieki, piederīgie, jāada, jāsavērpj vilna, lini; pa
+ziemu atkal, kad ganos negāja, aužamais bija jāapauž vienai patei. Bija gan daudz, oti
+daudz darbu nabadzītei; bet par laimi nelaiķa mātes melnā govs palīdzēja vērpjamo
+savērpt: govs tikai apēda vilnu, vai arī linus, un pēc laiciņa gatava dzija nāca pa
+nāsim ārā, tīdamās ap ragiem. Viņa tad kamolā vien satina, tas viss.</p>
+
+<p align="JUSTIFY">Bet drīzi pamāte apmanīja: tur sava lieta tais ganos, un sūtīja pa
+kārtai mātes meitas apskatīties. Pirmo dienu atnāca jaunākā; pameita sacīja:
+"Pagulaties, preilenīte!"</p>
+
+<p align="JUSTIFY">Šī negribēja gulēt. Kā neguļ, pameita sāk dziedāt miega
+dziesmas: "Eja, ēja man actiņa, ēja, ēja man actiņa!"</p>
+
+<p align="JUSTIFY">Mātes meita jau noliekas gar zemi. Nu dziedāja tālāk: "Migu,
+migu vienactiņa migu, migu vienactiņa!"</p>
+
+<p align="JUSTIFY">Jaunākā mātes meita, kuŗai tikai viena acs bija, tūdaļ aizmiga.
+Kamēr šī nu izgulējusies, pameitai jau kamols no melnās govs ragiem notīts.
+Pārgājušas ar lopiem mājā, māte vaicāja: "Nu, ko laba pieredzēji ganos?"</p>
+
+<p align="JUSTIFY">Nekā neredzēju. Es drusku apgulos, un aizmigu par nelaimi!" Nu
+sūtījuse otru mātes meitu. Tai bijušas divi acis pierē. Bet pameita ir to aizmidzina,
+dziedādama. "Migu, migu vien actiņa, drīz aizmigsi ātri actiņa!"</p>
+
+<p align="JUSTIFY">Trešo dienu sūtījusi trijaci, tai bijušas divi acis pierē,
+trešā, slepenā acs, pakausī. Pameita to nezinājusi un tādēļ dziedājusi tāpat kā
+vakar: "Migu, migu vien actiņa, drīz aizmigsi otr' actiņa!"</p>
+
+<p align="JUSTIFY">Tās divi acis tad arī aizmigušas, bet pakauša acs palikusi vaļā
+un visu noskatījusies; kā šī ar melno govi rīkojas. Tūdaļ pamāte melno govi nokava
+un iekšas apraka dārza kaktā. Pameita ilgi apraudāja savu gosniņu. Bet uz vienu reizi
+šī apmana, ka taisni uz govs bedres sāk zelta ābele augt ar zelta āboliem. Nu viņa
+ēda zelta ābolus un priecājās ļoti. Te - kas ir - mātes meitas arī klāt zelta
+ābolus baudīt; bet ābele cēlās uz augšu, nevarēja sasniegt.</p>
+
+<p align="JUSTIFY">Un tas gadījās, ka otrā, vai trešā dienā pats ķēniņš brauca
+bur gaŗām un, ieraudzījis tik skaistus ābolus, kāroja pirkt kādus. Viņš
+paaicināja mātes meitas, lai noraujot! Bet ābele cēlās uz augšu, nekā šīs
+nedabūja. Nu aicināja pameitu ābolus raut. Tā nebija ne klāt piegājusi labi --
+ābele nolaida zarus līdz zemei pielasīja pilnu priekšautu un pasniedza ķēniņam.
+Ķēniņš vareni priecājās par skaistiem āboliem un tīšām apvaicājās, kādēļ
+ābele šai tikai dodoties rokā? Pameita nu izstāstīja galu no gala, kā bija noticis.
+Ķēniņš klausījās, klausījās - tad sacīja tā: "No šī brīža tava dzīve,
+sērdiene labā, pārmainīsies. Tu man brauksi līdz un paliksi par ķēniņieni ; bet
+tavas pusmāsas būs tev par apkalpotājām ! "</p>
+
+<p align="JUSTIFY">Un tūlin iesēdinājis pameitu karītē, aizvedis uz pili; bet zelta
+ābele gājusi pameitai līdz un nostājusies pils priekšā.</p>
+
+
+</body></html>

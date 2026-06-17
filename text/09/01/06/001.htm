@@ -1,0 +1,163 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="center"><font size="3"></font><font size="5"><strong> Zvēru valoda.</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">1. A. 670. Kr. Oļļe Maz-Salacas Valtenbergā.</font></p><font size="3">
+
+<p align="JUSTIFY">Vecos laikos dzīvojis mežsargs, kas bijis liels mednieks, un viņam
+bijuši divi suņi: viens vecs, otrs jauns. Pavasaŗos mežsargs gājis uz medņiem un
+ņēmis līdz abus suņus.</p>
+
+<p align="JUSTIFY">Vienā skaistā pavasaŗa vakarā mežsargs gājis atkal uz medņiem,
+aizgājis mežā un nosēdies uz viena liela celma, Laiks bijis diezgan vēss un tādēļ
+mežsargs salasījis žagarus un iekūris pie lielā celma uguni. Te no celma apakšas
+izlīdusi liela balta čūska, sākusi runāt kā cilvēks un lūgusi mežsargu, lai
+viņš izdzēšot uguni, jo zem celma esot viņas ligzda ar maziem bērniņiem. Mežsargs
+arī tūliņ paklausījis un izdzēsis uguni. Baltā čūska pateikusies Mežsargam un
+projām iedama sacījusi: "Par to, ka mani paklausīji, tu no šī laika sapratīsi
+visu zvēru valodu, bet tikai nestāsti nevienam par balto čūsku un par to, ka saproti;
+zvēru valodu, jo ja to stāstīsi, tad tu mirsi."</p>
+
+<p align="JUSTIFY">Mežsargs vēl nebijis atjēdzies no pirmiem brīnumiem, kad jau
+dzirdējis savus suņus runājam. Vecais suns sacījis jaunajam: "Šonakt mūsu
+mājā būs zagļi un tādēļ vienam no mums jāiet uz māju. Iešu labāki es, jo esmu
+vecāks un prātīgāks, tu paliec šeit un palīdzi mežsargam!" To teicis, viņš
+tūliņ aizskrējis.</p>
+
+<p align="JUSTIFY">Ap brokašu laiku suns atkal atnācis atpakaļ un mežsargs
+noklausījies, ka šis stāstījis otram sunim: "Kad aizskrēju mājā, zagļi jau
+sāka lauzt klēts durvis. Es pieslējos pie loga un riedams uzmodināju visu māju."</p>
+
+<p align="JUSTIFY">"Nu, ar ko tad saimniece tevi par to pamieloja brokastīs?"</p>
+
+<p align="JUSTIFY">"Viņa izskaloja galda slaukuli, kad bija noslaucījusi galdu, un
+deva man samazgas."</p>
+
+<p align="JUSTIFY">Mežsargam mājā pārnākušam, sieva stāstījusi par zagļiem un
+gudro sunīti.</p>
+
+<p align="JUSTIFY">"Bet kādēļ tu par to sunim brokastīs devi tikai galda
+slaukuļa samazgas?"</p>
+
+<p align="JUSTIFY">Sieva no brīnumiem acis vien ieplētusi un prasījusi vīram, kas šim
+to stāstījis. Kad mežsargs atbildējis, ka tas esot noslēpums, ko izstāstot. viņam
+pašam būtu jāmirst, tad sieva raudādama un lūgdamās, pavisam viņu samulsinājusi,
+jo bijusi briesmīgi ziņkārīga un pļāpīga.</p>
+
+<p align="JUSTIFY">Vīrs, redzēdams, ka no sievas vairs vaļā netiks, ienesis istabā
+garos salmos, gulies virsū un gribējis jau sākt stāstīt, bet tai pašā brīdī
+istabā pie vaļēja loga pielecis gailis, nostājies istabas vidū un sacījis:
+"Kikerigū, man divpadsmit sievas, un visas viņas nevarētu izdabūt no manis, lai
+es izstāstu savus noslēpumus, bet tev ir viena pati, un tu to pašu nevari
+savaldīt."</p>
+
+<p align="JUSTIFY">Mežsargs, to dzirdēdams, uzlēcis no zemes, paķēris koku un
+izvadījis sievu pa durvīm laukā. Pēc tam viņš vēl ilgi, ilgi dzīvojis.</p>
+</font>
+
+
+</body></html>

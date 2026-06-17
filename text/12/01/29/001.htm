@@ -1,0 +1,144 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>29</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="center">Sadauzītais kungs.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>l. A. 1571. No Derīgu grām. nod. kalendāra 1925. g. P. Birkerts,
+II, 99, 1619.</p>
+
+<p align="JUSTIFY">Viens muižkungs bijis vairāk reizes dzirdējis, ka daudz kūlēju pa
+kuļamo laiku tik šurp turp pa riju un ap riju nolodājot un noguļot. Reiz viņš
+aizgājis pats uz riju noskatīties un ielīdis nemanot palievenī salmos, kamēr
+strādnieki taisījušies uz kulšanu. Viens strādnieks tomēr to redzējis un pieteicis
+rijniekam. Šim tūdaļ iekritis prātā bargo muižnieku brangi izmozēt. Kādam
+kūlējam viņš paklusām ieteicis, iai nolienot kaut kur projām. Pa tam jau klājiens
+bijis sataisīts.</p>
+
+<p align="JUSTIFY">"Nu ātri pie kulšanas!" rijnieks uzkliedzis kūlējiem.
+"Bet vai visi arī tik esot, vai kāda netrūkst? . Kā tad - viena trūkst! Nu, kur
+tas varētu būt ielīdis? Vai gan nelietis nebūs kur nolīdis un apgulies? E, Dibenu
+Kārli, iesim uzmeklēsim! Tas rakaris jau pie pirmā klājiena trūkst. Nu pag, es viņam
+parādīšu!"</p>
+
+<p align="JUSTIFY">Gājuši meklēt, papriekšu, zināms, pa citām vietām, tad uz
+palieveni. Kārlis pirmais tumsā atdūries pret cilvēku. "Lūk, še viņš
+guļ!"</p>
+
+<p align="JUSTIFY">Rijnieks jau tūliņ sācis apstrādāt muižkunga muguru: "Ak
+tā, sliņķi, rakari! tā man lodāt pa palieveņiem, kad citi strādā
+nosvīduši!"</p>
+
+<p>Pēdīgi taču muižkungs sācis brēkt, ka šis tas esot. ?" </p>
+
+<p>"Ai, cienījamais muižas kungs! Kas to būtu domājis rijnieks izsamisis
+izsaucies.</p>
+
+<p align="JUSTIFY">No tā laika muižas kungs vairs negājis tumsā darbiniekus
+pārraudzīt.</p>
+
+
+</body></html>

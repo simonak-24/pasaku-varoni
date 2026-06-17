@@ -1,0 +1,190 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Velns māca brantvīnu dedzināt.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">5. F. Pudžs no V. Karčevska, Jāsmuižas pagasta Nīdermuižas
+ciemā. N. Rancāna kr.</p>
+
+<p align="JUSTIFY">Vīnā valstī dzeivava vīns ļūti padīveigs (dievbijīgs) cylvāks,
+kam nabeja nivīna grāka. Vīnu dīnu veceits aizguoja ortu un pušdīnom pajāmja
+gabaleņu maizis. Ntaizi leidz ar sovu sveitu [svārkiem] veceits nūlyka pi kuorklu
+kryuma. VaIns jū gribēja dabuot kaut vīnā grākā, pajēmja juo maizi un īsvīdja
+kryumā, dūmaodams, ka veceits, naatradis maizis, suoks lomuotīs.</p>
+
+<p align="JUSTIFY">Atnuoja pušdīnu laiks, vecīts nyu gribēja suokt ēst, bet daguojis
+pi kryuma, naatroda vairs sovas maizis. Nimaz nasalomavs, jis pateicja Dīvam un aizguoja
+otkon ortu. Valns par tū palyka ]ūti dusmeigs. Vacuokais valns ari sasadusmova uz
+valnāna, ka jis nakuo navar padareit, lyka par struopi jam tik ilgi dzeivuot pi veča,
+cikom nu juo dabuos kaida grāka.</p>
+
+<p align="JUSTIFY">Vīnā zīmys vokorā pi saiminīka īīt puiss, kas meklej sev dorba,
+un soka: "Es lelas algas naprasu, bet struoduošu tikai par vādaru."</p>
+
+<p align="JUSTIFY">"Kū lai dors? Ir juopījam!" atsoka saiminīks.</p>
+
+<p align="JUSTIFY">Nuokūšā reitā saiminīks ar pusi īt uz mežu molkys grīzt.
+Grīzuši vāsalu dīnu un pīgrīzuši vasalu asi. Vokorā saiminīks syuta puisi uz
+sātu, lai padūd lūpim ēst, saceidams: "Es vēl paškaldeišu molkys."</p>
+
+<p align="JUSTIFY">Puiss soka: "Aj tu uz sātu kai vacuoks cylvāks, bet es
+paškaldeišu molkas."</p>
+
+<p align="JUSTIFY">Saiminīkam aizejūt, puiss aizšvelpe. Uz reizes pīskrēja daudz
+valnu un visi stuojuos uotri pi dorba. Par nelelu laiceņu molka beja saškaldeita. Pats
+saiminīks byutu molku škaldījis vasalas treis dīnas.</p>
+
+<p align="JUSTIFY">Ūtrā dīnā saiminīks nūguoja uz mežu un redzēja, ka saškaldeita
+vysa molka, par kū jis ūti nūsabreinova. Taipat ūtrā dīnā viņi izgrīza asi molkas
+un ar valna paleidzeibu vysu saškaldēja. Apleicēji [apkārtējie] auds ūti
+breinuojuos. Dorbs jīm ļūti labi veicēs un saiminīks uz reizes palyka boguots.</p>
+
+<p align="JUSTIFY">Namanūt pīguoja pavasars. Nyu vajadzēja art un ecēt zemi un
+gatavuotīs uz siešonu. Saiminīka kolps sacēja: "Šūgad byus ūti korsta un sausa
+vosora, ir juosēj pļovuos un zamuokuos vītuos, tod tikai izaugs maizja."</p>
+
+<p align="JUSTIFY">Puiss jiudzja zyrgu un suoka art plavas un īlejas. Ļauds dūmova, ka
+jī ar taidim dorbim dreiži izgaiss. Tai jī dreiži izstruoduoja zemi un apsēja
+teirumus. Tagad jīm palyka tikai nadaudz maizis. Fuiss sacīja: "Es nu miltim muku
+iztaiseit gordu boltu iudisneņu, nu kura saiminīks un saimineica byus jaurri un
+prīceigi, ka pat nu prīcas doncuos."</p>
+
+<p align="JUSTIFY">Saslaucējis vysus orūdus, saiminīks salasēja tikai garču labsibas.
+Valns tū lyka dziernovuos un pītraucja vasalu vuoceli myltu. Tod nu miltitn iztaisēja
+ūti pateikamu iudisneņu, nu kuo saiminīks ar saimineicu beja ūti jautri. Saimineica
+sacīja, lai saiminīks pasauc rodu, tad varēšūt kūpā pasaprīcuot. Valns sacēja:
+"Gūdeibas atliksim leidz rudiņam, tod pīaugs vairuok maizes, un arī vairuok
+varēs iztaiseit lobuo iudisneņa."</p>
+
+<p align="JUSTIFY">Atguoja māslu tolkas laiks un saiminīks sacēja: "Vajadzēs
+taiseit tolku."</p>
+
+<p align="JUSTIFY">Kolpam beja baist, ka tolkas auds napazeitu, ka jis ira valns. Jis
+sacēja uz saiminīku: "Natais nikaidas tolkas, es vīns pats māslus izsvīsšu uz
+teiruma, tikai nūka lelus dzelža sokumus ar četrom storom."</p>
+
+<p align="JUSTIFY">Kalējs vaicava zemnīkam, kū jis dareis ar tik lelim sokumin, ka tūs
+pat gryuti cyluot, na tikai struoduot. Saiminīks soka: "Par tū nav kū bāduot. Man
+muojuos ir kolps, kurs varēs ar jīm struoduot."</p>
+
+<p align="JUSTIFY">Valns jēma sokumus rūkā un suoka vasalus māslu vazumus laist pa
+gaisu uz teiruma. Par stundes laiku klāvi beja izmāsti. Kotra māslu guba atsaroda sovā
+vītā. Saiminīks pi māslu uordeišonas atstruoduoja treis dīnas.</p>
+
+<p align="JUSTIFY">Rudenī pīauga ļūti daudzi maizis. Tagan saiminīki pītaisēja
+daudzi gorduo iudisneņa un īaicynuoja rodus. Valns ari aicynuoja vacuakū valnu grākus
+pīraksteit. Vacais valns tyulen īleida paceplī ar lelu gruomotu. Visi ūti
+nūsadzjēra, tai ka nikuo naatjādza un nūkrituši gulēja uz greidas. Tagan jī poši.
+muocēja taiseit lobū iudisneņu. Vacais valns pīrakstīja ļūti daudz grāku. Nu tuo
+laika valnānam vairs navajadzēja pi saiminīka kolpuot.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

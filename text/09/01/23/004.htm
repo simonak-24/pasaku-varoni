@@ -1,0 +1,178 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Sapnis</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Sapnis.</font><font size="4"></font></p><font size="4">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">4. A. 725. A. L e r c h i s - P u š k a i t i s
+D ž ū k s t ē - P i e n a v ā. LP, I, 51, 18.</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam ķēniņam 3 bērni : 2 dēli un 1 meita. Visiem trijiem katru
+rītu jāstāsta tēvam, ko izgājušā naktī sapņojuši. Jaunākais dēls stāsta
+arvienu pirmais; bet vienā rītā tas negrib stāstīt. Kad beidzot tēvs ar varu
+uzstāj, tad nabadziņš stāsta ar', un proti: tēvs, ķēniņš, būšot savu dēlu pats
+kādreiz apkalpot, ienesdams sudraba bļodā acu ūdeni un zelta kausā dzērienu.
+Ķēniņš, tādu sapni dzirdēdams, sadusmojas un domā: viņš, liels izaudzis, atņems
+man valdību un iecels mani, vecu vīru, par savu sulaini. Likšu labāk to pie laika
+aizvest tālā, lielā mežā un palaist tur, lai ne mūžam manu pili neatrastu.</p>
+
+<p align="JUSTIFY">Kā domājis, tā darījis. Ķēniņa dēls nu neēdis maldās ilgi jo
+jo ilgi pa mežu. Lai varētu pārtikas sadabūt, tas nolauž lielu rungu, ar kuŗu
+laimējas stirnu nosist. Bet stirnu ēdot, tam pierodas biedrs lācis: Šis cepeti
+saozdams, čāpo pa ceriem klāt. Ķēniņa dēls atdod pusstirnas lācim un lācis aiz
+pateicības parāda tam būdiņu, kuŗā divi akli veči dzīvo. Veči pieņem viņu
+bērna vietā un liek bucīšus ganīt, cieši pieteikdami, lai tikai bucīšus nekad
+nedzenot tur uz viņu kalnu.</p>
+
+<p align="JUSTIFY">Bet puika neklausīja. Otrā dienā bucīši visu dienu ganās
+aizliegtā kalnā. Zēns pie tam mierīgi nodarbojas ar stabulīšu maukšanu. Te ap
+vakaru - kur gadījies, kur ne - liela stipra ragana ar nazi rokā grib zēnu noķert. Bet
+zēns izvairās un sāk savu stabulīti pūst. No tam raganai gribot negribot jālec,
+kāmēr apreibst. Tikko ragana apreibusi nokrīt, puika paņem viņas pašas nazi un
+&amp;127;to nokauj. Lācis visu to noskatās un izlien no krūmiem. Viņš lūdz, lai
+raganu viņam atdotu, pie kam pasaka, ka kociņš, no kuŗa stabulīte maukta, esot viņa
+audzināts.</p>
+
+<p align="JUSTIFY">Trešā dienā iznāk tāda pati ragana; bet tai tāpat iziet.
+Ceturtajā dienā iznāk vēl jo briesmīgāka ragana un draud: "Manas masas tu gan
+nokāvi, bet no manis nekādā ziņā neizbēgsi!"</p>
+
+<p align="JUSTIFY">Puika uz viņas plukšķēšanu nemaz neklausās un pūš tikai savu
+stabulīti, lai ragana dabūtu lēkt. Tomēr šī nelec vis riņķī, kā abas pirmajās,
+bet tikai uz vienu kāju, uz otru kāju. Puika pūš, pūš, kamēr nogurst, bet tā
+nekrīt un nekrīt. Te lācis no meža ārā un pasviež zēnam lielāku stabulīti, ko
+pūšot raganai jākrīt gar zemi. Puika tūdaļ grib raganu nokaut, bet šī lūdzas un
+apsolas visu ko darīt, palīdzēt, ja &amp;127;tikai dzīvu atstāšot.</p>
+
+<p align="JUSTIFY">"Labi, bet tad saki man, kur palika abu vecīšu acis?" </p>
+
+<p align="JUSTIFY">"Pirtī uz palodas," ragana atteic.</p>
+
+<p>"Nu, kā tad lai viņas atkal ielieku?"</p>
+
+<p align="JUSTIFY">"lzkurini pirti, nosēdini vecos uz lāvu, iespied vienu aci,
+paper ar pirts slotu, iespiedi otru aci, paper atkal ar<b> </b>slotu!"</p>
+
+<p>"Nu, kā lai tieku pie sava īstā tēva?"</p>
+
+<p align="JUSTIFY">"Zem pirts grīdas ir pagrabs, kurā zelta zirgs. Uzlec tam
+mugurā, tad pārtiksi."</p>
+
+<p align="JUSTIFY">Tā nu ragana izmāca zēnu un tādēļ paliek pie dzīvības.
+Ķēniņa dēls izdara visu, ko no raganas izdabūjis: vecīši paliek redzīgi un zelta
+zirgs arī atrasts. Viņš šķīrās no vecīšiem, kā arī no lāča, un pārjāja pie
+tēva viens, divi.</p>
+
+<p align="JUSTIFY">Tēvs, ieraudzīdams zelta zirgu, domā diezin kāds augsts, bagāts
+ķēniņa dēls nāk pie viņa ciemoties. Viņa sulaiņi tam izliekas apkalpošanai daudz
+par zemiem. Nekā darīt, jānes pašam no rīta sudraba bļodā acu ūdens un zelta
+kausā dzēriens. Dēls nomazgājies, paēdis, padzēris, dodas tēvam pazīstams un nu
+abi tikai atminas, kas toreiz nosapņots. Vecais tagad atzīst, ka toreiz velti baiļojies
+un dēlam nepatiesi pāri darījis.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,150 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>92</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="center">Svētie kaņepēs.</p>
+</font></b>
+
+<p align="JUSTIFY"><strong>1.</strong> A.<b> </b>1844. St. Uļanovska Vilānos. Zbior
+wiadomosci do antropologii krojowej. T. XVIII, Krakavā 1895, 490. 22.</p>
+
+<p align="JUSTIFY">Dzeivuoja pops, a pi popa bjeja kolps, jis dzeivuoja pi juo, i jam
+paslikti bjeja: dorba gona, a āst pamoz, paslikti. Jis, kur atrozdoms pi popa sīvys, voi
+tī svīksta, voi krejuma, voi gaļis. pa kimūsam atgrīž i aizkūž, i kejumu izdzjer.
+l vvs jau tjei popa sīva nūjādz, ka ir aiztykts. Jei popam pasoka, ka aiztykts, a
+kolpam nasoka nikuo, ka vjāļ nebjeja juo dajāgusja. A tys kolps sadūmoj, ka byus
+slikti, ka jei jau mierkavoj pilnavuot, kas tū dora. Vot jis nūīt iz baznijcu, pajem
+vysim svātjejim izzīž mutis ir buordys, kuram ar kejumu, kuram ar svīkstu, aŗ kuram
+gaļis gobulu īsprīž zūbūs.</p>
+
+<p align="JUSTIFY">Atīt jau tys pops iz baznijcu reitā, vjeras, ka svātī vysi
+apzatupušīs (aptraipījušies) āzdami jau. Nu i pasauc jis sīvys, ka šy, dūmuojusi,
+ka kolps, a tī svātī šym tū doruši. Kai jēmja pjeicku pops, aizzasirdjāja stipri
+iz jūs, ka šam cik reizi vysu izāduši, ka suoka pjārt - pjāra, pjāra, cik vīn
+sirds ņasja. Iepjāra jau jūs, cik gribjēja.</p>
+
+<p align="JUSTIFY">A bjeja popam duorzs kaņepu apsāts, Iyls. Jis naimovāt struodnīku
+nagrib, kolpam juoplēš vīnam patjam. Vot jis pajem i sanas tūs svātūs kaņēpjās,
+tys kolps jau. Īt otkon reitā pops baznijcā, vjeras, ka nivīna svātuo nava, vaicoj iz
+kolpu: "Može tu redzjēji, kur jī nūguoja, svātī tī?"</p>
+
+<p align="JUSTIFY">Kolps soka: "A vot šys jiudini ņes's, dzierdjēja, ka kaņepjās
+murš nizkas!"</p>
+
+<p align="JUSTIFY">Nūīt pops jau vārtūs i atrūn jūs tī, jis prosa, prosa jūs,
+lyudzas, lai īt iz baznijcu, atīs svātdīņa, saīs ļauds, a nivīna svātuo
+baznijcā! Jī naklausa popa, naīt iz baznijcu. Vot jis prosa kolpa, lai īt jūs
+puorprosjēt, ka juo naklausa. A kolps atsoka: šys dzierdjējis, ka cīši aizzasirdjāja
+iz juo, kam jūs pjāra, ka jī tai runuojuši: šy jau pasjēdjēšķūs par dīnu
+kaņepjās, a par nakti šmaukškūš gobulā!" </p>
+
+<p align="JUSTIFY">Pops nūzabjeida, suok lyugt kolpa, šys tjev symtu rubļu moksuoškys,
+tik savjad jūs baznijcā! Nu, tys kolps cikom par nakt saņasja jūs baznījcā, a
+kaņepis vys's izlauzjēja, nivīnys napamjatja" ka jau tī svātī tai padarēja nu
+siržu. Pjēc tuo symtu rubļu dabuoja nu popa, a popu i bjez kaņepu i bjez naudys
+pamjatja.</p>
+
+
+</body></html>

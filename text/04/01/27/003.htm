@@ -1,0 +1,162 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Puisis apprecē čūsku.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. I. Johansone Rīgā. A. Bērzkalnes krājumā. </p>
+
+<p align="JUSTIFY">Reiz dzīvojusi zvejnieka atraitne ar savu dēlu Jāni. Jānis bijis
+vēl mazs un viņa pelnījusies ar tīklu lāpīšanu. Būdiņa, kuŗā viņi dzīvojuši,
+bijusi ļoti sakritusi un tās iekšienē bijusi redzama liela nabadzība.</p>
+
+<p align="JUSTIFY">Kad Jānis paaudzies, viņš gājis pie kaimiņa par puisi. Kādu dienu
+saimnieks viņu aizsūtījis sienu pļaut. Pirmo dienu nopļāvis pļavu un otru dienu
+pļāvis gar kalna apakšu. Pašā pusdienas laikā, Jānis, piekusis no pļaušanas,
+atsēdies ieēst līdzpaņemto maizi un piedzert no krūzes ūdeni.</p>
+
+<p align="JUSTIFY">Te no otras puses kalna iznāk viena daiļa meita, pieiet pie Jāņa un
+saka: "Dievs gausina!"</p>
+
+<p align="JUSTIFY">Jānis saka: "Paldies!" un prasa, no kurienes šī tāda, jo
+viņš šo redzot pirmo reizi un visas citas meitas viņam esot pazīstamas. Meita saka,
+ka viņa nevarot teikt, kas viņa tāda un no kurienes, bet ja šis apņemoties viņu no
+auna gara atpestīt, tad gan dabūšot zināt. Jānis saka, ka viņš gribot viņu
+atpestīt, bet tik lai sakot, kas jādara.</p>
+
+<p align="JUSTIFY">Meita nu stāsta, ka pēc darba beigšanas lai nākot uz kalnu un
+pieklauvējot trīs reizes, tad būšot redzamas durvis, pa tām lai ejot lielā zālē un
+tur viņš ieraudzīšot ēdienus un dzērienus, lai labi paēdot un tad, lai ejot tai
+istabiņā, kas stāvot pa labi. Tur viņš ieraudzīšot uz zīda spilvena guļam čūsku
+ar zelta kroni galvā. Kad pulkstens nositot divpadsmit, lai ņemot čūskai pie galvas un
+žņaudzot. Tad nākšot pa visām durvim iekšā gan mazas gan milzīgi lielas čūskas
+un metīšoties viņam virsū, taisīšoties dzelt bet lai izturoties mierīgi un tik
+turot to čūsku ar kroni, tad nekāds ļaunums nebūšot. Kad pulkstens sitīšot vienu,
+tad visas čūskas atkal aizbēgšot. Tad viņš varot čūsku laist vaļā un iet uz
+māju. Tā viņam jādara trīs naktis un ja viņš to varēšot izdarīt, tad būšot
+laimīgs cilvēks.</p>
+
+<p align="JUSTIFY">Jānis apsolās un, darbu beidzis, aiziet mājā. Nevienam nekā
+nesaka, klusi izzogas no mājas un aiziet uz kalnu. Viņš visu. tā izdara, kā daiļā
+meita viņam mācījusi, un beidzot nokļūst istabā, kur čūska guļ. Viņš saņem to
+pie galvas un sāk žņaugt, te saskrien pilna istaba ar čūskām, tās šņāc un
+taisās Jānim dzelt, bet Jānis visu iztur. Kad pulkstens nosit vienu, čūskas nozūd.</p>
+
+<p align="JUSTIFY">Jānis noguris aiziet uz māju un iemieg. Rītā saimnieks brīnās, ka
+Jānis nekad nav bijis jāmodina, kā šo rītu. Tā tas notiek arī otru dienu, bet
+trešo dienu čūskas šņāc daudz stipŗāki un viņu skaits ir uz pusi lielāks, kā
+pirmo dienu. Bet Jānis tik tur čūsku ar kroni. Te pulkstens nosit vienu, notiek liels
+sprādziens un Jānis paģībst. Atmodies viņš redz sev brīnum daiļu jaunavu ar zelta
+kroni galvā, tā viņam pateicas par glābšanu un saka, vai negribot ar viņu dzīvot
+šai pilī. Viņa esot ķēniņa meita, bet kāda ragana to nobūrusi par čūsku.</p>
+
+<p align="JUSTIFY">Jānis ar savu māti aiziet uz pili dzīvot un dzīvo laimīgi, kamēr
+tie mirst.</p>
+
+
+</body></html>

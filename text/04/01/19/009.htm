@@ -1,0 +1,145 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Velna kāzas.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">9. J. Rubenis Ērgļos.</p>
+
+<p align="JUSTIFY">Reiz divi jājēji jājuši pa ceļu, bet pavisam negaidot,
+apmaldījušies. Viņi piejājuši pie vienas svešas muižas, piesējuši tur zirgus Pie
+klēts un gājuši pilī ceļu prasīt. Pirmo satikuši istabas meitu, kurai tad nu
+prasījuši, lai parādot ceļu. Istabas meita atbild: "Man nav vaļas. Drīz vedīs
+brūti un man jāpucējas. Ejat labāk pie sulaiņa!"</p>
+
+<p align="JUSTIFY">Paiet nu pie sulaiņa; kas tāpat ātri ģērbjas un pucējas, un prasa
+tam. pēc ceļa. Sulainis atbild: "Drīz vedīs brūti, man nav vaļas. Ja gribat,
+prasat pašam kungam!"</p>
+
+<p align="JUSTIFY">Tā nu viņi iet pie kunga un redz, ka tas pašu laiku raksta ar lemesi
+uz vērša ādas. Viņi lūdz kungu, vai nevarētu viņiem ceļu parādīt. Kungs atbild v
+"Man pavisam nav vaļas. Tūlin vedīs brūti un man jāsaraksta Panāksnieki."</p>
+
+<p align="JUSTIFY">Abi jājēji nu iziet laukā un redz, ka tūlin ved brūti, kuŗā
+pazīst nāburgu mājas saimnieci. Viens vedējs to velk aiz dvieļa un divi ar bomjiem
+bīda no pakaļas. Bijis vēl liels pulks dažnedažādu pavadoņu: citi ar lopu kājām,
+citi ar ragiem un visi ar tādām pogām, ka laistījies vien. Vispēdīgi nācis liels
+pulks āžu un kazu.</p>
+
+<p align="JUSTIFY">Abi jājēji visu noskatījušies un sākuši arī iet baram līdza,
+lai redzētu, kas ar brūti notiek. Bet pavadoņu biezums šos tā saspiedis, ka pašureiz
+bijis vai jābeidzas nost. Viens tik ko vairs atguvies izsaukties: ,Ak, Kungs Jēzus
+Kristus, laid mani vaļā, es vairs nevaru izturēt!"</p>
+
+<p align="JUSTIFY">Pēc šiem vārdiem visi kāzinieki uz reiz nozuduši no acim un arī
+visa muiža pazudusi. Viņi atradušies turpat tuvu pie savas mājas un viņu zirgi
+bijuši piesieti pie egles. Mājā pārjājuši, viņi izdzirduši, ka viņu kaimiņu
+mājas saimniece pirtī dvielī pakārusies.</p>
+
+
+</body></html>

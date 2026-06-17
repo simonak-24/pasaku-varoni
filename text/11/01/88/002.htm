@@ -1,0 +1,139 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>88</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong> Laimīgais muļķis.</strong></font></p><font size="5">
+
+</font><p align="CENTER"><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p>2. A. 1415. S k o l n. P r e i ļ u p a g. N. R a n c ā n a k r.</p>
+
+<p align="JUSTIFY">Vīns cylvāks guoja pa ceļu. Tur mauduojuos tierguotuojs.
+Tierguotuojs suoka sleikt un bļaut. Cylvāks izdzierda un tuo pagluobja. Tierguotuojs par
+tū īdevja cylvākam zalta zyrga golvu. Cylvāks guoja uz sātu un satyka zyrgu
+tierguotuoju, kurs braucja ar zyrgim. Zyrgu tierguotuojs sacīja: "Atdūd man zalta
+zyrga golvu par vyslobuokū zyrgu."</p>
+
+<p align="JUSTIFY">Tys cylvāks atdevja. Jis vadās ar zyrgu un sateik: brauc vēršu
+tierguotuojs ar vēršim. Vēršu tierguotuojs soka: "Puormeisim ar tavu zyrgu uz
+vysu lobuokū vērsi."</p>
+
+<p align="JUSTIFY">Tys puormej. Vadās ar vērsi tuoļuok. Sateik vušku tierguotuoju
+braucūt ar vucinim. Vušku tierguotuojs soka: "Sameisim ar lovu vērsi uz munu
+vyslobuokū vucynu."</p>
+
+<p>Cylvāks puormej. Vadās ar vucynu uz sātu. Sateik syvānu tierguotuoju braucūt ar
+syvānim. Syvānu tierguotuojs soka: "Sameisim uz tova vucyna ar munu vyslobuokū
+syvānu."</p>
+
+<p align="JUSTIFY">Cylvāks samej. Jis nas syvānu uz sātu. Sateik: īt žīds ar kramku.
+Žīds soka: "Puormeisim tovu syvānu uz munas vyslobuokuos odotas."</p>
+
+<p align="JUSTIFY">Jī puormej. Cylvāks pajam vyslobuokū odotu un īt uz sātu. Daīt pi
+sēteņis - vajaga tī lekt puor. Jis kai lāc, tai odota izkreit un izgaist.</p>
+</font>
+
+
+</body></html>

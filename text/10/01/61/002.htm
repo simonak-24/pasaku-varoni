@@ -1,0 +1,166 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title> </title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Laupītājs precē trīs māsas.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">2.<b> </b>A.955, D. 311. P. Š. no gadu 40 vecas
+Annas Pīpiņas Skaistā.</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam bagātam tēvam bijušas trīs skaistas meitas, Viņām bijis
+gan daudz precinieku, bet nav gadījies neviens tāds, kas būtu vecākiem un meitām
+īsti pa prātam. Te vienu dienu iebraucis no tālienes viens svešs bagāts kungs, kas
+gribējis precēt vecāko meitu. Tas nu paticis tāpat meitai, kā arī vecākiem, un
+drīz vien nodzertas kāzas.</p>
+
+<p align="JUSTIFY">Pēc kāzām jaunais vīrs braucis ar savu sievu tūliņ uz savu māju.
+Nobraukuši labu gabalu, viņi nonākuši pie viena liela meža. Te nu vīrs nogriezies no
+ceļa un sācis lingu lingām braukt pa biezo mežu. Ilgu laiku tā braukdami, viņi
+pēdīgi nonākuši lielā meža biezoknī, kur atradusies maza mājiņa, kuŗā dzīvojis
+jaunais vīrs. Mājiņa bijusi ļoti skaista un tur netrūcis nekādu mantu. Pāŗa dienas
+jaunais vīrs ar savu sievu pavadījuši priekā un līksmībā. Tad vīrs aizbraucis uz
+lauku un atstājis sievu vienu pašu mājā. Projām braucot. viņš tai iedevis trīs
+ābolus: vienu dimanta, otru zelta, trešo sidraba, un stingri piekodinājis neiet tai
+istabā, kas ar lūku aizsieta. Jaunā sieva tomēr nevarējusi nociesties, un kā tik
+vīrs aizbraucis, tā arī tūliņ iegājis aizliegtā istabā. Tur vairāk nokauti
+cilvēki gulējuši savās asinīs. Viņa nu tā pārbijusies, ka āboli izkrituši no
+rokām zemē. Gan viņa drīz vien uzņēmusi ābolus, bet tie jau bijuši tā ar asinim
+aptraipīti, ka nevarējusi vairs nekā notīrīt. Kad vīrs pārnācis mājā, tas
+tūliņ redzējis, ka sieva ir bijusi aizliegtā kambarī. Vīrs par to ļoti saskaities,
+ievedis atkal sievu asiņu kambarī un nocirtis tai galvu.</p>
+
+<p align="JUSTIFY">Pēc kāda laika vīrs pārtaisījis, kā varēdams, savu izskatu
+pārģērbies citās drēbēs un braucis atkal pie bagātā tēva meitām precībās.
+Neviens tur viņu arī nav pazinis. Šoreiz viņš prasījis vidējo meitu par sievu.
+Vecāki žēlojušies, ka vecākā meita jau esot aizvesta tālā svešumā, tādēļ
+vidējās meitas negribot dot tik tālu projām. Svešais kungs stāstījis, ka turpat
+viņa kaimiņos jau dzīvojot arī vecākā meita. To dzirdēdami, vecāki arī
+apmierinājušies un tā nodzēruši kāzas arī ar otru meitu. Otrai meitai izdevies
+atkal tāpat kā pirmai meitai. Arī viņa dabūjusi galu laupītāja asiņu kambarī.</p>
+
+<p align="JUSTIFY">Pēc kāda laika laupītājs atkal pārģērbies par svešinieku un
+atbraucis precēt trešo meitu. Viņš atkal stāstījis, ka abas vecākās māsas
+dzīvojot laimīgi viņa kaimiņos, un tā melodams viņš dabūjis arī jaunāko māsu
+savos nagos. Bet jaunākā māsa bijusi uzmanīgāka par vecākajām. Kad laupītājs
+aizbraucis un atstājis viņai trīs ābolus, tad tā tos paglabājusi savā gultā, kad
+gājusi apskatīt aizliegto istabu. Tur nu viņa redzējusi abas vecākās māsas
+nokautas. Vīram pārnākot viņa izlikusies priecīga, itin ka nekā nebūtu redzējusi.
+Vīrs arī noticējis, ka viņa nekā nezina, un tā abi dzīvojuši dažu dienu gluži
+mierīgi. Tad viņa lūkojusi pārrunāt vīru, ka vajagot braukt pie viņas vecākiem
+pasērsties. Vīrs gan no iesākuma negribējis, bet kad sieva to katru dienu lūgusi, tad
+arī ļāvis pārrunāties.</p>
+
+<p align="JUSTIFY">Uz braukšanu taisoties, vīrs atļāvis ņemt līdza arī veselu kasti
+ar dāvanām. Jaunā sieva nu sakrāvusi kastes virsū visādas dāvanas, bet dibenu
+piebērusi pilnu ar zirņiem, un izurbusi tur vienu caurumu. Braucot pa visu ceļu nu
+biruši zirņi laukā. Tēva mājā nobraucot, meita tūliņ izstāstījusi, kāds
+briesmīgs laupītājs esot viņas vīrs. Tēvs tūliņ gādājis, ka laupītājs tiktu
+saņemts cieti. Pa izbirušiem zirņiem uzgājuši arī ceļu uz laupītāja māju mežā,
+kur atraduši daudz nokautu cilvēku un nolaupītu mantu.</p>
+</font>
+
+
+</body></html>

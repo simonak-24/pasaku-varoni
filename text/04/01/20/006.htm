@@ -1,0 +1,243 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Mirons kāzās.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">6. A. Lerchis-Puškaitis Dīrkstē-Pienavā. LP, Il, 43. </p>
+
+<p align="JUSTIFY">Divi puiši - viens drošs, otrs bailīgs - braukuši no pilsētas</p>
+
+<p align="JUSTIFY">mājā. Bijis jābrauc caur mežu. Saulītei norietot, bailīgais
+teicis<b> </b>: "Brāl, man tā šausmīgi - nebrauksim!"</p>
+
+<p align="JUSTIFY">Bet drošais atteicis: "Brāl, mežā tik patīkami --
+brauksim!" Abi iebrauc mežā. Pašu laiku palicis tik tumšs, lai ar pirkstu acī
+duŗ. Nu brauc, brauc; te uz reiz zirgs atduŗas kā pret celmu. Bailīgais sabīstas; bet
+drošais uzsauc: "Ej, sēnalu zaķi, ej! Vai kāpsi labāk ārā paraudzīt, kas tur
+zirgam uzgājis!"</p>
+
+<p align="JUSTIFY">Bailīgais nekāpj. Neko darīt --- jākāpj drošajam. Izkāpj tas,
+apčamda -- uz ceļa guļ līķis. To dzirdēdams, bailīgais dreb kā apšu lapa; bet
+drošais smejas: "Nomirušus nevar pa kājām atstāt, jāceļ ratos. jāved uz
+kapsētu."</p>
+
+<p align="JUSTIFY">Bailīgais gan lūdzas, lai viņu neķircinot un nebaidot; bet drošais
+tik ceļ mironi ratos sacīdams: "Redzēs, ja tu nomirsi, vai tevi mētās pa
+dubļiem?"</p>
+
+<p align="JUSTIFY">Nu brauc atkal tādu gabalu. Te uz reizi zirgs pa otram lāga
+apstājās. Drošais uzsauc: "Kāp, brāl, ārā, paskaties, kas tur par
+nelaimi!" Bet bailīgais ne nu vairs vārda parunāt, ne izkāpt. Drošais
+pasmiedamies izkāpj no ratiem un atron vēl otru līķi.</p>
+
+<p align="JUSTIFY">Vai akls!" drošais saka, "tev brāl, būs drīzi jāiet
+kājām; tu ," redzi, ka rati ar līķiem vien pilni</p>
+
+<p align="JUSTIFY">Bailīgais neatsaka ne vārda, lai zobo, lai smej -- viena maksa.
+Viņš tik trīc. Ko ar tādu darīt? Lai paliek ratos, ies labāk pats kājām. Drošais
+nu iet kājām un ratos guļ trīs līķi : divi augšpēdu, trešais uz acim ; tic divi
+bij patiesi līķi, trešais tikai bāls, kā līķis.</p>
+
+<p align="JUSTIFY">Ap pusnakti drošais bij izkūlies mežam cauri un sasniedzis turpat
+mežmalā kapus. Pie kapiem tas pietura, izceļ tos divus no ratiem, piebiksta tam
+trešajam pie sāniem un uzsauc;,: "Brāl, vai dzirdi, tos divus līķus nesīšu
+glabāt un, ja tu necelsies augšā, tad paglabāšu tevi arī!"</p>
+
+<p align="JUSTIFY">Tas līdzējis. Bailīgais uzlec stāvus un lūdzas lai neglabājot;
+viņš būšot dūšu saņemt: ka sēdēšot ratos un gaidīšot viņu atpakaļ.</p>
+
+<p align="JUSTIFY">Labi. Drošais paņem abus līķus un iet uz kapiem. Bet kapos viens
+kaps bij atdarījies un līķis aizgājis. Drošais kā iet, tā iekrīt vaļējā kapā
+tukšajā zārkā.</p>
+
+<p align="JUSTIFY">"Pag, pag," drošais domā, "redzēs, kur tu man būsi
+aizgājis. Tos divus paglabāšu tepat blakus un to trešo raudzīšu sagaidīt."
+Viņš izkauš kapam tāpat ar rokām abas malas, ierušina tur</p>
+
+<p align="JUSTIFY">atnestos līķus un tad iegulas tukšajā zārkā. Ilgi nebij jāguļ.
+Tūlīt pēc pusnakts liela vētra, viesuļi pārskrien pār kapiem, un re, līķis
+mājā. Viņš grib zārkā gulties lai ejot ārā; bet drošais atbild: "Ātrāk
+neiešu, kamēr pateiksi, kur esi bijis un kas tāds esi."</p>
+
+<p align="JUSTIFY">"Es biju kaimiņa saimnieka dēlam asinis izzīst."
+"Kādēļ tev tā vajadzēja darīt?"</p>
+
+<p align="JUSTIFY">"Ja, saimnieka dēls bildināja mani par līgavu, bet piekrāpa;
+es tad sametos ar velnu uz vienu roku un apņēmos atriebties, bet dzīvojot nedabūju
+atriebties, jo drīzi no sirdsēstiem nomiru. Tagad jaunais saimnieks bij izmeklējis citu
+līgavu un ritu būtu bijušas kāzas, bet es šonakt izjaucu kāzu priekus: izzīdu tam
+asinis -- atriebos."</p>
+
+<p align="JUSTIFY">"Nu, tad jaunais saimnieks pagalam?" "Pagalam!"</p>
+
+<p align="JUSTIFY">"Vai viņu atdzīvināt nav nemaz vairs iespējams?"</p>
+
+<p align="JUSTIFY">"Ir gan. Ja izzīstās asinis siltā pirtī ieberzētu, tad
+viltnieks atdzīvotos."</p>
+
+<p align="JUSTIFY">Nu kur tad asinis noliki?"</p>
+
+<p align="JUSTIFY">" kreiso "Asinis ir podā. Pods aprakts pie vārtu staba, pa</p>
+
+<p align="JUSTIFY">roku."</p>
+
+<p align="JUSTIFY">"Labi.<b> </b>Tagad vari nākt savā zārkā atpakaļ. "</p>
+
+<p align="JUSTIFY">To sacījis, drošais izlec no zārka, aiziet pie bailīgā un prasa:
+"Brāl- vai esi vēl dzīvs? Vai nekā neredzēji?" "Neredzēju, neredzēju
+- brauksim tik nu tālāk!"</p>
+
+<p align="JUSTIFY">No rīta drošais aizsteidzas uz kāzu namu. Visi bēdīgi -
+līgavainis pagalam. Drošais izrok asiņu podu, izkurina pirti, ienes nomirušo uz lāvu
+un tad saka smiedamies: "Ļautiņi mīļie! Nomirušus atdzīvināt nieka <b>lieta. </b>Izgājušo
+nakti man viens no bailēm nomira. Es tik piebikstīja pie sāniem un nomirušais izlēca
+kā rutks stāvus. Tādas lietas man iet kā liešus lej "</p>
+
+<p align="JUSTIFY">Drošais uzmet garu un sāk strādāt. Citi brīnās, bet drošais pēc
+kāda laika atbild: "Ko brīnaties, skataities ka jau muti plāta "</p>
+
+<p align="JUSTIFY">Pēc stundas laika mironis dzīvs. To redzēdami, piederīgie nezin aiz
+prieka ko darīt. Gan drošo uzteic, gan cienā, gan solās maksāt, gan visu mūžu
+pieminēt. Sievām turpretim bij cits darbs; tās izpauž brīnumus pa puspasauli: cita
+aizskrēja uz kaimiņiem, cita uz muižu, cita uz šo pusi, cita uz to.</p>
+
+<p align="JUSTIFY">Kungs muižā, tādus brīnumus sadzirdējis, liek drošo puisi atsaukt
+un apsola puisim jaunu māju dāvināt, ja iemācīšot arī viņam miroņus atdzīvināt.
+Puisim tas bij īsti pa prātam. Viņš saka: ;,Kungs, laba māja liela lieta. Labprāt to
+darīšu. Bet te mājā nevaru iemācīt. Iesim nākošu nakti uz kapsētu, tur
+parādīšu, kur gudrību smēlos."</p>
+
+<p align="JUSTIFY">Labi. Abi noiet priekš pusnakts uz kapsētu. Kaps tāpat vaļā, kā
+to nākt. Puisis ieguļas zārkā un saka kungam: "Gaidīsim tik nu, drīzi
+redzēsim!"</p>
+
+<p align="JUSTIFY">Pēc pusnakts vētra, viesuļi pārskrēja pār kapiem un acumirklī
+līķis mājā, lai gultos zārkā. Puisis nelaiž, lai pasakot, kur vandījies.</p>
+
+<p align="JUSTIFY">"Biju pie velniem. Velns man pavēlēja, lai nākošu nakti kungam
+asinis izzīžu."</p>
+
+<p align="JUSTIFY">Kungs, to dzirdēdams, tīri saplok.</p>
+
+<p align="JUSTIFY">"Nu, saki man, vai miera nekad nevari kapā dabūt? Cik ilgi velns
+tevi tramdīs?"</p>
+
+<p align="JUSTIFY">"Ja man kāds godīgs, žēlsirdīgs cilvēks uzgrieztu trīs
+krustus, tad tiktu no velna vaļām un dusētu kā visi miruši."</p>
+
+<p align="JUSTIFY">"Tā maza lieta! Guli tik zārkā, to padarīšu! "</p>
+
+<p align="JUSTIFY">Puisis uzgriež trīs krustus, vētra nostājas, kaps aizdarās. Puisis
+nu bij izglābis līķi un kungu. Kungs puisim aiz pateicības dāvina varenas mājas.</p>
+
+<p align="JUSTIFY">Piezīme. Šai Pasakai, kā liekas, stāv tuvu sekošais sabojātais
+variants. P. Š.</p>
+
+
+</body></html>

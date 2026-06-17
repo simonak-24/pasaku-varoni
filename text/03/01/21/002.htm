@@ -1,0 +1,163 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Cilvēku bērni pie sumpurniem.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A 327 A. Kārlis Bramanis Rīgas apr. LP, V, 3, l. AŠ, III, 7k. </p>
+
+<p align="JUSTIFY">Trīs sumpurņi barojuši vienu meitu ar riekstu kodoliem un saldu
+pienu. Meita domājusi: "Ko tie mani cienā, ko necienā?" Bet lūk, kad bijusi
+nobaŗojusies, kas nu sumpurņiem galvā: sakurinājuši trīs dienas cepli, pieteikdami
+savai mātei, lai cetur tajā dienā ap pusdienas laiku meitu iešauj izcept viņiem
+vakari ņās. Ceturtajā dienā tā ap rīta laiku sumpurņi vēl nav mājā; bet vecene
+brīnum pošas. Pienāk pusdiena: vai! neesot lizas! lai meita aiztekot uz kaimiņiem
+parunāt viņai drusku kas jāizce pot. Meita, zināms, mudīgi vien aizšauj lizai
+pakaļ. Kaimiņiene prasa: "Ko cepsit?"</p>
+
+<p align="JUSTIFY">"Nezinu teikt! Trīs dienas sakurināja cepli, bet ko tur ceps, to
+man nesaka."</p>
+
+<p align="JUSTIFY">"Ā! meitiņ, tevi, tevi ceps! Es skaidri noprotu. Bet esi gudra
+būs labi. Ja vecene liek uz lizas gulēt, saki: "Māte man to nav mācījusi
+parādi!" Vecene gulsies rādīt; bet grāb lizu un iešauj viņu pašu ceplī. Tikai
+aizcērt krāsns durviņas, lai neizkūņojas laukā. Tad paņem piestu, ieliec to gultā
+un apsedz ar sagšu tā, it kā kāds tur gulētu. Nu apaun vīzes otrādi, purna galus uz
+papēžiem, un teci tur projām uz upi, kur vītols pašā ūdens vidū aug. Uzlien
+vītolā un neliecies ne zinot, jo kur ūdens visapkārt, tur sumpurņi pēdas
+nesaodīs."</p>
+
+<p align="JUSTIFY">Meita patencina par padomu un nobēdājusies nes lizu: kad tikai
+izdotos? Pārnes lizu: vecene tūlin aicina pie cepļa: lai gu[ot uz lizu!</p>
+
+<p align="JUSTIFY">"Vai, memmiņa! māte man to nav mācījusi, ierādi drusku!"
+Ja, ja, vecene atbild, bet tad lai skatoties arī ar acim. Šī nu gulsies rādīt. Bet
+meita krapt? sagrābj lizu ar visu veceni, ceplī iekšā un durvtiņas ciet.
+"Spārdies vesela, vecā ragana!"</p>
+
+<p align="JUSTIFY">Tagad, nabadzīte, tikai steidz vīzes apaut otrādi un piestu gultā
+apsegt un tad prom uz upi vītolā. Tik tālu viss labi. Sumpurņi atkal pa to laiku
+mežā laizās vien, nevarēdami vakaru sagaidīt, jo labi zin : māte mājā cep cepeti.</p>
+
+<p align="JUSTIFY">Varēja būt tā labā pievakarē sumpurņi jau mājā. Ieiet iekšā:
+ā! māte vēl guļ dienvidu tas tas apsegtais piests. Nu nekas: paši arī varot izraut
+cepeti, ko velti modināšot. Labi, izrauj un ēd nost, nagus sūkādami. Ēd, ēd rumpis
+jau gatavs, vēl tikai rokas pirksti noskrubināmi; te kas tas? viens jau atplēš acis:
+"Vai, stulbie neredziet, tas jau mātes gredzens, te pirkstā!"</p>
+
+<p align="JUSTIFY">"Ej, trakais, ej! kas tad tas par māti, kas tur guļ?" tie
+divi arī ieskatīsies un modinās augšā.</p>
+
+<p align="JUSTIFY">Pieskrien pie gultas : "Tā tad blēde tā meita! izcepusi māti,
+padara tādu skaudumu un vēl piekrāpj mūs dzīsimies pakaļ!" Nu oduši un
+meklējuši pēdas; bet, kur saodīsi? Visas pēdas uz māju pusi vien ačgārni apautās
+vīzes. Beidzot ieraudzīs upē meitas ēnu. Un tā klāt un lok upi sausu, ka var meitai
+piekļūt. Bet negauši salakās par daudz, pārsprāga visi trīs un nu meita bij brīva.</p>
+
+
+</body></html>

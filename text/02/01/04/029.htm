@@ -1,0 +1,244 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>29</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Varonis izglābj trīs nolaupītas princeses.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>29. </b>A. 301 A. N. Rancāns Rēzeknē.</p>
+
+<p align="JUSTIFY">Ķēniņam beja treis meitas un kupčam treis dāli. Vīnu reizi rogona
+nūzūg ķēniņa meitas, bet nikas nazyna, kur juos palyka. Kad ķēniņš syuta pa sovu
+ķēnesti ziņi, kad kas atrass juo meitas, tad tim atdūs juos par sīvom. Kupča dāli
+sasarunuoj un vysi treis pajam pa lelai dzelža vāzai un laižas cejā. Īdami pa jyuras
+krostmali sateik cylvāku un tys soka uz jūs: "Metītīs ceļūs pret mani !"</p>
+
+<p align="JUSTIFY">"Kas tu taids esi, ka mes messimīs ceļūs?" vaicuoj
+bruoļi. Svešnīks atbild, ka jis ir stypruoks par vysu pasauli. Tamā vītā, kur jī
+sasatyka, beja brīsmeigi lels akmins. Kupča dāli soka: "Ka tu esi taids styprs,
+atvel šitū akmeni!"</p>
+
+<p align="JUSTIFY">Svešinīks parauga velt, bet navarēja akmiņa i pakustynuot. Tad
+paraudzēja velt vacuokais kupča dāls - drusku pakustynuoja. Vyduskais varēja labi vīn
+pakustynuot. Jaunuokais Velu Juons - tai sauce jaunuokū kupča dālu - ar vinu rūku
+atvēle akmini. Zam tuo akmina beja lela ola.</p>
+
+<p align="JUSTIFY">Svešinīks, kurs skaitēja sevi par jūti stypru, radzādams, ka ir
+vēl daudz stypruoki par jū - a jis styprus jūti cīnēja - nagribēja vairs ar jīm
+šķiertīs un palyka par draugu. Kupča dāli gribēja kai navīn tikt olā dūmuodami,
+ka ķēniņa meitas kas navīn paruove zam zemes. Tad jī dabuoja vierša uodas, pīveja
+viervu un pīsēja pi vierša uodas. Kaidā šyupelī jī dūmuoja laistīs olā; bet tys
+tū syuta, un nivīns nagrib laistīs zam zemes. Golā Veļu Juons sāst šyupelī un
+pīsoka jīm, ka gaideitu pi olas, kad jis pakustynuos šyupeli un ar šū dūs zeimii, ka
+tūlaik raut uz augšu.</p>
+
+<p align="JUSTIFY">Nūsalaidīs olā, Veļu Juons veras, ka tuoli pa lobai rūkai nazkas
+bolts speid. Jis laižas īt uz tū pusi, īt, īt un daīt pi pilsātas, kurā vysas
+muojas tārauda. Īdams pa īlu radz caur lūgu, ka aiz golda sēd vacuokuo ķēniņa
+meita un šyun. Jis īit tymā muoiā. Ķēniņa meita jū īrauga un vaicuoj: "Kai
+tu te tyki?"</p>
+
+<p align="JUSTIFY">Jis izstuosta, ar kaidu nūdūmu atguoja. Tad ķēniņa nueita gryuši
+nūsapyuš un soka: "Nazynu, vai tu varēsi moni izgluobt? Muns veirs ar trejom
+golvom un ļūti styprs."</p>
+
+<p align="JUSTIFY">Bet Veļu Juons nimoz nanūsabeist un soķa: "Kas byus, lai ir,
+bet raudzeišu gon ar jū spākuotīs!"</p>
+
+<p align="JUSTIFY">Ķēniņa meita nūsaprīcuoj, padzyrda ar veinu un nūglobuoj jū zam
+gultas. Par laiku atskrīn juos veirs, zeme vīn nūreib un soka: "Kur te kristeita
+cylvāka smoka?"</p>
+
+<p align="JUSTIFY">"Pa pasauli skraideidams pīsalasēji vysaidas smokas, tuodēļ
+tai runuoj. Kas te deve cylvāku?" atbild ķēniņa meita. Jei jam padūd vakareņas,
+pēc vakarēņu suoc īskuot golvu. Koļeidz īskuoj golvu, jis aizmīgst. Veļu Juons
+radz, tagad pats izdeveigais breidis, tryukstās nū zam gultas un apcārt jam vysas
+golvas. Tad ķēniņa meita soka jam: "Ej tuoļuok un izgluob munu vyduskū
+muosu!"</p>
+
+<p align="JUSTIFY">Īt jis tuoļuok un īīt pilsātā, kurā vysas muojas sudobra, radz,
+ka vīnā muojā sēd vyduskuo muosa. Jis tyuļeņ īīt tyrrīā muojā un izstuosta
+ķēniņa meitai, ka atguoja iū izgluobt. Jei ari taipat suoc bāduot: "Vai varēsi
+mani izgluobt? Muns veirs ar sešom golvom un ļūti styprs."</p>
+
+<p align="JUSTIFY">Bet Veļu Juons palyudz veina, palīn zam gultas un soka: "Tik
+aizmidzej, tad redzēsi!"</p>
+
+<p align="JUSTIFY">Zam vokora atskrīn juos veirs - muojas vīn nūtric. Jei jū pabaruoj
+unsuocīskuot golvu, jis nūsaskraidējis dreiži vīn aimīgst. Veļu Juons tyuleņ
+tryukstas nū zam gultas un apcārt jam vysas golvas.</p>
+
+<p align="JUSTIFY">Tad jei pasyuta Veļu Juoni tuoļuok uz jaunuokū muosu. Īt, īt jis
+un īīt pilsātā, kurā vysas muojas zalta, pašā skaistajā muojā īrauga jaunuokū
+kēniņa meitu. Tyuļeņ īīt tymā muojā un pastuosta, kuodēļ jis atguoja. Bet dzierd
+otkon tū pošu nū jaunuokuos meitas, ka juos veirs ļūti styprs un ar deviņom golvam.
+Veļu Juons, jau nūsitis divējus, nimoz nanūsabeist. Tad jaunuokuo meita soka:
+"Munu veiru nikaids zybyns najam, tik juo patis, bet jis jū vysuod [vienādi] tur pi
+sevis; tuodēļ kad jis aizmigs. tev daīs izraut jam nū rūku."</p>
+
+<p align="JUSTIFY">Veļu Juons taipat palyudz veina un līn zam gultas. Par nazcik laika
+atskrīn juos veirs - lūgi vīn nūreib. Jei tyuļeņ jū pabaruoj, padzyrda ar lobim un
+styprim dzērīnim, tad suoc īskuot jam golvu. Kai tik jis aizmīgst, tai Veļu Juons
+tyuleņ izraun nū juo zūbynu un apcārt jam vysas deviņas golvas.</p>
+
+<p align="JUSTIFY">Jaunuokuo meita ļūti nūsaprīcuoj, ka jau tagad byus breiva, un
+lyudz Veju Juoni nūvest jū uz tāvu. Tad laižās ji īt, bet ķēniņa meita radz, ka
+Veļu Juons vys veras atpakaļ. Jei vaicuoj: "Tev varbyut gribīs zalta? Juo gribi,
+jem kaidu gobolu!"</p>
+
+<p align="JUSTIFY">Veļu Juons tik parauga jemt, kai vyss mīsts sasalej par ūlu, tad jis
+pajam ūlu un īlīk kuldā [kabatā]. Īdami car sudobra pilsātu, pajam vyduskū
+ķēniņa meitu. Otkon Veļu Juons īt un veras atpakaļ. Tad ķēniņa meita, kura
+dzeivuoja sudobra pilsātā, vaicuoj: "Tev varbyut sudobra žāl, jem juo gribi kaidu
+gobolu!"</p>
+
+<p align="JUSTIFY">Kai tik jems Veļu Juons, tai ari vyss sasa1ej ūlā, tad jis līk
+kuldā un nūīt uz vacuokuo ķēniņa meitu. Ari pajam tū pilsātu ūlas veidā un tagad
+nūit vysi uz tū vitu, kur Veļu Juons parnete vierša uodu.</p>
+
+<p align="JUSTIFY">Tad pyrmuo sāst vierša uodā vacuokuo meita. Veļu Juons pakustynuoj
+vierves un bruoļi ar draugu, kuri palyka uz zemes, izvalk ķēniņa meitu. Izvylkuši
+suoc ap jū streidētīs. Jei soka uz jīm: "Velcit, byus vēl!"</p>
+
+<p align="JUSTIFY">Valk jī vēl, izvalk vyduskū ķēniņa meitu un otkon streiduos. Tad
+ķēniņa meitas līk jīm vēl vilkt, un jī izvalk tagad jaunuokū meitu. Nūlaiž otkon
+vierša uodu pēc Veļu Juoņa, sāduos jis, bet ūlas, kuruos beja sasalējušas
+pilsātas. Ļūti beja gryutas un nūtryuka vierves. Tai bruoļu rūkuos palyka tik
+vierves goli. Bruoļi nu dūmuoja, ka Veļu Juons jau ir nadzeivs, lai gon ķēniņa
+meitas runuoja cytaiž; bet jī nasaklausēja un laidēs prūjuom ar ķēniņa meitom uz
+ķēniņa pili.</p>
+
+<p align="JUSTIFY">Veļu Juons nūgaidējis lobu laiku pī olas, bet nikuo nasagaidējis,
+laidīs īt jau tagad pa kraisai rūkai un sateik tur rogonu. Kad līk jis rogonai, lai
+jei jū iznas nū zam zemes uz bolta pasauļa. Rogona gon nagribēja klauseit Veļu
+Juoņa, bet jis, moz dūmuodams, sāduos tik rogonai muāurā un suoka ar dzelža vāzu
+glaudeit. Rogona, ka tik dreižuok atsakrateit nu taida loba drauga, laidās skrīt kai
+zibins un jau par mozu breidi Veļu Juons tyka uz bolta pasauļa. Palaide tad rogonu ar
+mīru un pats nūguoja uz prīkšu; paguojis kaidu gobolu, jis īraudzēja nalelu
+ustobeņu. Iguojis ustobeņā Veļu Juons tur atroda vīnu vacu veceli, kurs vīns pats
+dzeivuoja šimā ustobeņā, un pi šuo veceļa tad ari Veļu Juons palyka dzeivuot.</p>
+
+<p align="JUSTIFY">Kēniņš, dagaidējis sovu meitu, palīk ļūti prīceigs un tyuļeņ
+grib izpildeit sovu sūlējumu: sataiseit kuozas. Bet ķēniņa meitas nalīk taiseit
+kuozu leidz tam laikam, kuoleidz juom kas sašyus taidas kūrpes, kaidas beja zam zemes.
+Ķēniņš tyuļeņ paslūdynuoj šitū vysai ķēnestei.. Izdzierst Veļu Juons, tad ap
+pušnakti pastota zalta pilsātu, pajam kūrpes un reitā līk večam nūnest kūrpes uz
+ķēniņu. Tad ķēniņa meitas otkon līk sašyut taidas drēbes, kaidas beja juom zam
+zemes. Kēniņš otkon paslūdynuoj par itū vysim, Ap pušnakti Veļu Juons otkon pastota
+zalta pilsātu, pajam drēbes un reitā nūsyuta veceli ar drēbes uz ķēniņa pili.</p>
+
+<p align="JUSTIFY">Tagad jau ķēniņa meitas puorsalīcynuoja, ka Veļu Juons, jū
+gluobējs, ir uz šuo pasauļa, jū nikas vairs navarātu taidas drēbes sašyut. Vysu
+vairuok nū tuo prīcuojuos jaunuokuo ķēniņa meita un ari juos beja Padūms, ka
+nataiseit kuozu, koleidz nabyus taidu kūrpu gan drēbu, kaidas beja zam zemes. Jaunuokuo
+ķēniņa meita līk tyuļeņ aizjyugt zyrgus, sāst ar veci kurs atnese drēbes, un līk
+jam vest uz sovu sātu. Nūvad vecs ķēniņa meitu uz sovu ustobiņu, kur jei pajam Veļu
+Juoni un atbrauc uz ķēniņa pili. Tagad jau ķēniņš sataisa jaukas kuozas un meitas
+arī, dagaidējušas eistuo sova gluobēja, vairs nasapretuoj. Tad Veļu Juons apprecēj
+jaunuokū ķēniņa meitu, vyduskais kupča dāls vyduskū meitu un vacuokais vacuokū
+meitu.</p>
+
+
+</body></html>

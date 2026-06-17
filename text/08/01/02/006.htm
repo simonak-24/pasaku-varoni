@@ -1,0 +1,213 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Brīnuma lampa.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">6. A. 561. A. Lerchis-Puškaitis Dzukste-Pienava. LP. II, 2, 2.</font></p><font size="3">
+
+<p align="JUSTIFY">Viens vīrs, caur mežu iedams, uzkūlies uz nelabām pēdām un
+apmaldījies. Maldītājs aizvilinājis viņu uz svešu, svešu apgabalu. Neko darīt -
+jāpaliek turpat mežā par nakti. Mīkstajās sūnās branga guļa; tas drīzi aizmieg.
+Bet klau! gaismiņai svīstot, koki sāk savā starpā sarunāties un uzmodina gulētāju.
+Viņš paplenž acis un noklausās visu. Egle saka: "Es zinu viņa tīreļa kaktā
+lielu alu. Ja tik kāds spētu smagās alas durvis uzcelt, tad tādam laimes
+papilnam."</p>
+
+<p align="JUSTIFY">Priede saka: "Bet es zinu, ka durvis atdaras un pašas no alas
+cauruma noveļas. Tik jāzin tie vārdi, kurus lielais putns zin. Šis lielais putns mājo
+alā no sendienām. Katru rītu, saulītei lecot, tas aizlaižas un katru vakaru,
+saulītei rietot, pārlaižas. Alas priekšā putns runā dažus vārdus, durvis tūlīt
+noveļas no cauruma un putns ieiet alā. Iekšā tas atkal saka tos pašus vārdus, durvis
+acumirklī aizveras. Ja kāds šos vārdus paturētu, tad iekšā tikt tīri nieka
+lieta."</p>
+
+<p align="JUSTIFY">Ozols saka: "Bet es zinu vēl to labāko. Tur alā ir viena čupa
+sudraba, viena čupa zelta un viena čupa dimanta, un pašā beidzamajā kaktā vecs
+lākturis. Ja lākturi mazuliet paberzē, tad tūlīt deviņi mazi vīriņi, tīri balti
+no galvas līdz kājām, klāt un izdara visu, ko tik vēlas ; bet ja no sudraba, zelta,
+vai dimanta čupas tik mazu niecinu ņem, tad no alas izkāpt velti."</p>
+
+<p align="JUSTIFY">Vīrs vakarā aiziet pie alas, paslēpjas un slepus noklausās putna
+vārdus. Lai nepiemirstu, tas daudzina šos vārdus cauru nakti. No rīta, putnam
+aizlaižoties, vīrs viegli jo viegli alā iekšā. Jā, itin pareizi - vienā kaktā
+sudrabs, vienā zelts, vienā dimants un vienā vecs, vecs lākturis. Viņš paņem
+lākturi un neskatās dimantiem ne virsū, lai jau tik tos neiekārotu. Bet, kas tev to
+dos? Līdz ko domā dimanta čupai gaŗām iet, te --dari, ko zinādams - jāņem un
+jāņem. Domātu, tīri ka vilkšus kāds tur pievilktu. Nu, paņems arī, bet ne daudz,
+tikai trīs mazus gabaliņus. Aiziet pie cauruma, grib ārā līst; bet nekā, smags kā
+traks, velk atpakaļ. Nomet vienu gabalu - jau vieglāki; nomet otru gabalu - var jau
+parāpties. Nu kad tik tālu, tad lai rāpjas, ka rāpdamies, trešo tik sviest ne.
+Rāpjas, rāpjas - izrāpjas arī. Nu ko tu padarīsi? Taču mazākais viens dimanta
+gabals.</p>
+
+<p align="JUSTIFY">Labi, tas ir tas. Bet nu vīram prātā tik lākturis. Viņš paņem
+lākturi, paberzē un tūlīt deviņi balti vīriņi klāt: lai dodot darba.</p>
+
+<p align="JUSTIFY">"Kādu darbu lai jums dodu? Gādājiet, ka tieku pie sievas
+mājā!"</p>
+
+<p align="JUSTIFY">Labi - viens, divi - mājā, vīriņi pazūd. Vīrs noliek lākturi uz
+krāsns augšu un aiziet klētī gulēt. Kamēr vīrs guļ, sieva ierauga lākturi un
+domā: "Sazin tevi, kur vecas grabažas vēl nemētājas. Tīri noputējis,
+nopelējis ; mazākais taču jānoslauka, tādā skalus dedzināt skaidri kauns."</p>
+
+<p align="JUSTIFY">Sieva paņem rīkdrānu, mazuliet paberž vienā vietā - neiet nost,
+paberž otrā vietā - neiet nost. Beidzot berzīs labi stipri - te deviņi balti vīriņi
+sadeguši klāt: ko gribot, kad tā uz reizi viņus tik steidzami saucot. Sieva atpleš
+muti un nesajēdz, kas ir, kas nav. Bailēs tā aizskrien uz klēti pie vīra un stāsta
+tam. Vīrs pasmejas sacīdams: "Ko nu, sieviņ, lai baltie vīriņi tik nāk uz
+klēti, gan jau zināšu, kas man vajadzīgs."</p>
+
+<p align="JUSTIFY">Atnāk vīriņi uz klēti: lai dodot darba. Vīrs liek uztaisīt zelta
+pili. Viens, divi - pils gatava: lai dodot atkal darba. Vīrs liek pagādāt gardus
+ēdienus. Viens, divi - ēdieni klāt: lai dodot atkal darba. Vīrs liek pagādāt labus
+dzērienus. Viens, divi -- dzērieni klāt: lai dodot atkal darba. Acumirklī neviena
+darba neesot: lai aizejot atpūsties. Viens, divi - vīriņi pazūd.</p>
+
+<p align="JUSTIFY">Tā nu vīrs savā zelta pilī dzīvo dažu gadu laimīgi: ja kas
+vajadzīgs - baltie vīriņi visu apgādā. Savu lākturi tas glabāja cieši: nakti
+turēja pie gultas, par dienu uz krāsns augšas. Tik dimanta gabals stāvēja klētī,
+tīnī, kā toreiz nolikts. Viņš iedomājās arī šo labāk pilī uzglabāt. Aiziet uz
+klēti, atver tīni, un brīnumi: dimanta gabals pārvērties par dimanta gredzenu. Labi,
+ka tā vēl, varu taču pirkstā uzbāzt. Kam jau reiz laime smaida, tam viss par labu
+izvēršas.</p>
+
+<p align="JUSTIFY">Tomē lielais putns, kamēr lākturis tam pazudis, nebija īsti
+laimīgs: lākturis bija vienīgais ierocis, ar kuru viņš kautcik bija atgaiņājies
+pret savu kakla kungu, nelabo garu. Un tagad viņam trūka lāktura, trūka balto
+vīriņu. Putns izmeklējas vispār pasauli, nevar atrast. Te kādu dienu, kamēr vīra
+nav mājā, putnam gadās par zelta pili laisties. Viņš ieskatās pili un ierauga tur
+savu lākturi. Nu ko tad vēl gan gaidīt? Sagrābj nagos un nes to uz savu alu. Bet līdz
+ko lākturis no pils lauka, te zelta pils pazūd kā ūdenī. Vīrs pārnāk mājā,
+skatās, meklē; bet kā nav, tā nav: pils tutū! Beidzot savās bēdās tas vairāk
+nezin, kā tik rokas lauzīt. Un te atkal brīnumi: tā rokas lauzot, knaibot, dimanta
+gredzens dabū paberzties un no tam tūlīt deviņi vīriņi klāt: lai dodot darba. (Šie
+melnie vīriņi par baltajiem vīriņiem drusku mazāki un labu tiesu nestiprāki).</p>
+
+<p align="JUSTIFY">"Uztaisiet man zelta pili, atdodiet man veco lākturi. Vairāk no
+jums nekā negribu," tā vīrs vaimanā. Bet melnie vīriņi atbild: "Ne mēs to
+varam, ne arī drīkstam. Un ja to darītum, tad ļaunais gars mūs apēstu. Bet klausies,
+tavs lākturis ir tagad tai pašā alā, kur lielais putns mājo. Šis putns nav nemaz tik
+briesmīgs, kā tu varbūt domā. Viņš ir tāds pats cilvēks kā tu; ļaunais gars
+viņu tik par putnu nobūris. Ja tu putnam, priekš saules lēkšanas no muguras puses
+klusu pielīstu un vienu spalvu izrautu, tad putns paliktu par ezi; un ja tu ezim ar
+zobinu kaklu nocirstu, tad ezis paliktu par cilvēku. Mēs nedrīkstam tev tur palīdzēt,
+jo citādi nelabais gars mūs apēstu; ceļu līdz putna mājoklim labprāt
+parādīsim."</p>
+
+<p align="JUSTIFY">Labi, ka tikdaudz. Melnie vīriņi nu vada vīru ilgu, ilgu laiku pa
+purvu purviem, kamēr tad reiz parada notālu alu. Vīrs nogaida mazu gaismiņu, klusu
+pielien putnam no muguras puses, izrauj vienu spalvu un gaida, kas nu notiks. Un re, putns
+pārvēršas par ezi. Ezim tas nocērt kaklu un nu tai vieta atgadas cilvēks, kas savam
+izglābējam nokrīt pie kājām, sacīdams: "Es esmu ķēniņa dēls; bet mani
+nobūra par šo putnu. Tu mani izglābi: lai puse no manas valsts notiek tev, otra puse
+man." To sakot, ala sagrūst un šie abi pateic Dievam, ka aiztiek veselu ādu
+projām.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,461 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Par zirgu pārvērstais jauneklis.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">4. A. 314. LP. Džūkstē-Pienavā. LP, II, 29.</p>
+
+<p align="JUSTIFY">Kādam ķēniņam bijuši septiņi dēli, vecākais bijis divdesmit
+pieci gadi vecs, jaunākais tik septiņi. Tomēr lai jaunākajam gadi, kur gadi, dūša
+turpretim viņam vienam pašam bija vairāk, nekā tiem citiem brāļiem par visiem
+sešiem kopā. Reiz tēvs bija nodomājis savus sešus vecākos dēlus uz svešām zemēm
+sūtīt, bet mazāko viņa jaunības dēļ mājā paturēt. Tomēr jaunākais ar to nav
+mierā, viņš saka: "Ja tu, tēt, mani līdz nelaidīsi, tad redzēsi pats, ka mani
+brāļi ne pārnāks, ne būs. Kas bez manis tur lai notiek?"</p>
+
+<p align="JUSTIFY">Tēvs, to dzirdēdams, apdomājas un laiž arī. Visi septiņi brāļi
+nu sarīko kuģi un laiž pār jūŗu uz svešām zemēm. Uz jūŗas vecākie brāļi
+griež kuģi pa kreiso roku, bet jaunākais saka: "Pa kreiso roku nevar braukt,
+jābrauc pa labo, ja neklausīsit, tad paši redzēsit, ka nomaldīsimies."</p>
+
+<p align="JUSTIFY">Tomēr vecie brāļi tev ies jaunāko klausīt: kā brauc, tā brauc pa
+kreiso. Bet jaunākajam bij taisnība, trešajā dienā kuģis tā nomaldījies, ka
+braucēji vairs nezin ne rīta, ne vakara. Nu groza kuģi vienā dienā uz to pusi, otrā
+uz to - nekā. Tā paiet viena diena, paiet otra, paiet viena nedēļa, paiet otra, paiet
+viens gads, paiet otrs, kāmēr jāsamaldās septiņi gadi. Septītajā gadā brāļiem
+vēl uznāk jaunas bēdas: sāk maizīte aptrūkt. Ko nu? To manīdams, jaunākais brālis
+uzsauc vecākajam : "Kāp kuģa mastos un skaties labi, vai tad nekur zemi
+ieraudzīt!"</p>
+
+<p align="JUSTIFY">Uzkāpj viens brālis, izrēgojas - neesot; uzkāpj otrs brālis,
+izrēgojas - neesot; izkāpās visi seši - kā neesot, tā neesot.</p>
+
+<p align="JUSTIFY">"Nu brīnumi!" jaunākais iesaucas, "jākāpj pašam,
+lai redzu, kas ir un kas nav!"</p>
+
+<p align="JUSTIFY">Uzkāpj jaunākais, skatās, vēro - te uz reizi "Ak, jūs
+nevēkļi, ne jūs ko redzat, ne zinat! Kā tad es noblenžu. Tur jau zeme ir! Zināms,
+labi jāskatās, jo acumirklī tā tik mušas lielumā saredzama!"</p>
+
+<p align="JUSTIFY">Nu griež kuģi uz to pusi un re, pēc trim dienām brāļi sasniedz
+malu un atron svešu, svešu pilsētu. Pilsētas ķēniņš iziet brāļiem pretim un
+uzņem tos laipni, kā jau nu ķēniņa dēlus. Ķēniņš tūlīt ieaicina visus
+septiņus pilī, liek labus ēdienus, dzērienus pagādāt un skubina, lai tik ēdot; pats
+turpretim, galda galā nosēdies, nebauda gandrīz ne kumosa. Jaunākais brālis, to
+redzēdams, prasa: "Kāpēc nebaudi saviem viesiem līdz? Tu redzi, ķēniņ, cik
+mums labi sekas; vai tev šodien ēst nemaz negribas?"</p>
+
+<p align="JUSTIFY">"Ne vakar gribējās, ne šodien gribas! Ko tur, brālīt,
+izteikt, kamēr manas septiņas meitas nozudušas, neiet nekas pie dūšas."
+"Vai sen jau, kamēr zudušas?"</p>
+
+<p align="JUSTIFY">"Būs gadi septiņi. Jaunākā toreiz bij septiņi gadi veca, un,
+kā pa dienasvidu izgāja savām māsām līdz, tā nozuda visas septiņas. Es gan
+sasolīju gandrīz pusvalsti tam, kas meitas atrastu; tomēr kā nekā, tā nekā."</p>
+
+<p align="JUSTIFY">"Bet, ja mēs, septiņi brāļi, tavas meitas atrastum, ko tu mums
+par to solītu?" jaunākais brālis uzprasa.</p>
+
+<p align="JUSTIFY">"Es, brālīši mīļie, tūlīt jums atdotu viņas par sievām:
+tev jaunākajam to jaunāko un tā pa kārtai vien, kamēr tad tavam vecākajam brālim
+piekristu tā vecākā."</p>
+
+<p align="JUSTIFY">"Labi, tad brauksim meklēt. Dod tik mums, mazākais uz septiņiem
+gadiem, pārtiku līdz!"</p>
+
+<p align="JUSTIFY">No rīta kuģis bij sarīkots. Brāļi uzvilka buŗas un nu gāja
+vaļām.</p>
+
+<p align="JUSTIFY">Uz jūŗas vecākie brāļi griež kuģi pa kreiso roku, bet jaunākais
+saka: "Pa kreiso roku nevar braukt, jābrauc pa labo, ja neklausīsit, tad paši
+redzēsit, ka apmaldīsimies."</p>
+
+<p align="JUSTIFY">Tomēr vecākie brāļi tev ies jaunāko klausīt: kā brauc, tā brauc
+pa kreiso. Bet jaunākajam bij taisnība, trešajā dienā kuģis tā nomaldījās, kā
+braucēji vairs nezin ne rīta, ne vakara. Vecie brāļi atkal grib kuģi sākt grozīt,
+bet jaunais saka: "Ko nu grazat, brauciet tik nu taisni projām. lai būtu kas
+būdams."</p>
+
+<p align="JUSTIFY">Tā paiet viena diena, paiet otra, paiet viena nedēļa, paiet otra,
+paiet viens gads, paiet otrs, kāmēr aiztek atkal septiņi gadi. Septītajā gadā sāk
+maizīte aptrūkt. Ko nu? To redzēdams, jaunākais brālis uzsauc vecākajam: "Kāp
+kuģa mastos un skaties labi, vai tad nekur zemi ieraudzīt?"</p>
+
+<p align="JUSTIFY">Uzkāpj viens brālis, izrēgojas - neesot; uzkāpj otrs brālis,
+izrēgojas - neesot; izkāpjas visi seši - kā neesot, tā neesot. "Nu
+brīnumi!" jaunākais iesaucas, "jākāpj pašam, lai redzu, kas ir, un kas
+nav!"</p>
+
+<p align="JUSTIFY">Uzkāpj jaunākais, paskatās, ja - tālumā zeme kā laba vīra dūre
+saredzama. Nu griež kuģi uz to pusi un re, pēc trim dienām brāļi sasniedz pašā
+jūŗas vidū augstas, stāvas klintis. ,Jaunākais brālis uztaisa gaŗu virves redeli,
+aizsviež to aiz kāda klintsstūŗa, lai aizķertos, un tad visi kāpj augšā. Augšā,
+tur brāļi atron jauku ābeļu dārzu un aiz dārza redz plašu, plašu noru. Seši
+brāļi paliek dārzā augļus ēst, bet jaunākais aiziet pār noru viens pats. Te, kur
+gadījies, kur ne, nāk liels milzis ar lielu rungu, spāres resnumā, pretim sacīdams :
+"Kur tu, tāds sisenis, mana valdnieka tiesā esi iekūlies? Eij ārā, uz pēdām
+eij ārā!"</p>
+
+<p align="JUSTIFY">Bet jaunākais brālis neiet. Kā neiet, tā milzis to iedzen līdz
+ceļiem zemē. Tagad jaunākajam brālim sirds aptek; viņš izrauj zobinu un nocērt
+milzim vienu kāju līdz ceļiem. Milzis no sāpēm nokrīt gar zemi un saka:
+"Necērt vairāk!"</p>
+
+<p align="JUSTIFY">"Labi!" jaunākais brālis atbild, "bet tad tev
+jāapsolās divas lietas, vienkārt manus sešus brāļus tur dārzā neaiztikt, un
+otrkārt, pateikt, kas tur tālāk šinī zemē redzams.</p>
+
+<p align="JUSTIFY">"Tavus brāļus neaiztikšu, bet kas šinī zemē labs redzams, to
+tev pateiks mans otrs brālis, kuŗu drīzi satiksi."</p>
+
+<p align="JUSTIFY">Jaunākais brālis aiziet tālāk. Te, kur gadījies, kur ne, nāk otrs
+liels milzis ar lielu rungu, spāres resnumā, pretim sacīdams: "Kur tu tāds
+sisenis, mana valdnieka tiesā esi iekūlies? Eij ārā, uz pēdām eij ārā!"</p>
+
+<p align="JUSTIFY">Bet jaunākais brālis neiet. Kā neiet, tā milzis to iedzen līdz
+pusei zemē iekšā. Tagad jaunākajam brālim sirds iedegas; viņš izrauj zobinu un
+nocērt milzim vienu kāju līdz pusei. Milzis no sāpēm nokrīt gar zemi un saka:
+"Necērt vairāk!"</p>
+
+<p align="JUSTIFY">"Labi!" jaunākais brālis atbild, "bet tad tev
+jāapsolās divas lietas, vienkārt manus sešus brāļus tur dārzā neaiztikt, un
+otrkārt pateikt, kas tur tālāk šinī zemē redzams."</p>
+
+<p align="JUSTIFY">"Tavus brāļus neaiztikšu, bet kas šinī zemē labs redzams, to
+tev pateiks mans trešais brālis, kuŗu drīzi satiksi.</p>
+
+<p align="JUSTIFY">Jaunākais brālis aiziet tālāk. Te, kur gadījies, kur ne, nāk
+trešais milzis ar lielu rungu, baļķa resnumā, pretim sacīdams: "Kur tu tāds
+sisenis mana valdnieka tiesā esi iekūlies? Eij ārā, uz pēdām ārā!"</p>
+
+<p align="JUSTIFY">Bet jaunākais brālis neiet. Kā neiet, tā milzis to iedzen līdz
+padusēm zemē iekšā. Tagad jaunākajam brālim asinis sāka virt ,viņš izrauj zobinu
+un nocērt milzim vienu kāju pavisam. Milzis " no sāpēm nokrīt gar zemi un saka:
+"Necērt vairāk!</p>
+
+<p align="JUSTIFY">"Labi! bet tad tev jāapsolās divas lietas, pirmkārt manus
+brāļus tur dārzā neaiztikt, un otrkārt pateikt, kas tur tālāk šinī zemē redzams.
+"</p>
+
+<p align="JUSTIFY">"Tavus brāļus neaiztikšu un par šo zemi varu tev tikdaudz
+pastāstīt: tā zeme ir apburta un pats valdnieks arī noburts stallī par ērzeli. Tev
+jāiet visnotaļ, pie šā ērzeļa, ja gribi kautko šinī zemē iesākt. Kad ieiesi
+stallī, tad ērzelis sāks briesmīgi trakot. Bet nebaidies, izej stallim cauri otrā
+galā, tur ieraudzīsi trīs apcirkņus: vaŗa, sudraba un zelta. Visi trīs apcirkņi ir
+pilni auzām. Ja pagrābsi auzas no vaŗa apcirkņa un ērzelim pabērsi, tad viņš
+tūlīt kaut cik aprims; ja pagrābsi auzas no sudraba apcirkņa un pabērsi, tad viņš
+jau paliks brangi rāms; bet, ja pagrābsi auzas no zelta apcirkņa un pabērsi, tad
+ērzelis būs lēnāks par jēru. Viņš tūlīt sāks ar tevi runāt un izteiks visu, kas
+darāms. Vairāk nezinu nekā teikt.`</p>
+
+<p align="JUSTIFY">Jaunākais brālis aiziet pie ērzeļa un izdara visu uz mata, kā
+pamācīts. Ja, itin pareizi, ērzelis beigās sāk runāt un saka tā: "Puisīt, tev
+vajaga gan, kā redzu, stipram un drošam būt. Vai tad trīs stipros milžus nemaz
+nesatiki?"</p>
+
+<p align="JUSTIFY">"Ja, kā tad, satiku gan; bet tos nabagus es pārvarēju. Tas
+trešais beidzot mani pamācīja, uz kurieni lai eimu un kas man darāms."</p>
+
+<p align="JUSTIFY">"Vai patiesi, puisīt, milžus pārvarēji? Nu, tad šīs zemes
+pūķi arī pārvarēsi. Pūķis dzīvo viņā pilī. Viņam ir deviņas galvas un
+briesmīgs spēks. Tas pats nobūra mani par ērzeli un nozaga kādam ķēniņam septiņas
+meitas, kuŗas tura ieslodzītas pilī, Bet uz pili tu ej pa dienas vidus laiku, pūķis
+tad gul. Ielien labi klusu un apbruņojies ar manu zobinu, kuŗš turpat pie sienas
+karāsies; ar savu zobinu neiesāc. Bez tam tu pūķim blakus ieraudzīsi divus zāļu
+trauciņus: pa labo roku tai trauciņā ir stipruma zāles, pa kreiso nestipruma. Tos
+trauciņus pārmij : stipruma zāles - pēc tam, kad pats no viņām esi iedzēris kādu
+kluncienu --noliec pa kreiso roku un nestipruma zāles pa labo! Kad tas viss padarīts,
+tad krauj ar manu zobinu pūķim, ko spēji un māki!"</p>
+
+<p align="JUSTIFY">Otrā dienā, pa pašu dienas vidus laiku, jaunākais brālis aiziet uz
+pili, apbruņojas ar ērzeļa zobinu, pārmij zāļu trauciņus un tad uzbrūk pūķim,
+nocirzdams ar vienu cirtienu sešas galvas. Pūķis tūlīt uzlec šņākdams, lai ar
+atlikušām tŗim galvām vēl laikā iekamptu stipruma zāļes un tad savu pretinieku
+norītu; tomēr vīram neizdevās, karsti kampdams, sakampās nestipruma zāles. Neģēlis
+gan taisījās nezāles laukā spļaut, bet tas nekā nelīdzēja, spēki bij pagalam un
+jaunākais brālis noņēma ir tās galvas kā cepures. Un līdz ko briesmonis krita, te
+viscaur radās jauna dzīvība: pilsēta pacēlās, cilvēki ņudzēja, lopi gadījās. To
+redzdams, jaunākais brālis tīri iztrūkās. Viņš aiztek uz stalli pie ērzeļa. Bet
+ērzelis priecīgs bez gala; viņš saka tā: "Tu esi vīra vērts! Paldies tev, ka
+izglābi manu zemi, manu pilsētu, manus audis, manu mantu un mani pašu! Trijdeviņās
+dienās palikšu par cilvēku, par šīs ;zemes valdnieku. Eij, brālīt, tagad uz pili,
+paņem manu zobinu par piemiņu un tad dari, kā tev pašam tīkas: vai nu paliec pie
+manis dzīvot. jeb dodies uz savām mājām. </p>
+
+<p align="JUSTIFY">"Ne, draugs, es labāk paņemšu tās septiņas ķēniņa meitas
+un " došos uz savu pusi, jo tēva mājās jau vislabāki klājās.</p>
+
+<p align="JUSTIFY">"Labi, labi, tik nepiemirsti manu zobinu!"</p>
+
+<p align="JUSTIFY">Jaunākais brālis nu paņem atrastās ķēniņa meitas un steidzas pie
+brāļiem uz jūŗas pusi. Septiņas ķēniņa meitas bij priecīgas bez gala, bet brāļi
+tik raustīja pļ_ecus un brīnījās. Patlaban visi bij nokāpuši no klintim uz kuģa;
+te jaunākais brālis sasit rokas: "Kur mans dāvinātais pūķa zobins! Tata
+aizmirsu! Kad tu izčibējis, jāiet pakaļ, to tik atstāt ne!"</p>
+
+<p align="JUSTIFY">Jaunākais brālis aiztek pēc zobina, bet citi brāļi negaida vis
+viņu. Tie norunā tā: "Brauksim tik projām, lai viņš paliek! Teiksim mūsu
+sievas tēvam. ka mēs viņa meitas izglābām; mazākais viens tad no mums sešiem dabūs
+jaunāko māsu par sievu. Un cik zinām, jaunākā māsa esot valsts mantiniece. Ja tā
+nedarīsim, tad jaunākais brālis paņems kreimu, mums paliks sūkalas. Un tad vēl, kur
+tad viņa lielība! Viņš tik izglābis, mēs dārzā puvuši, augļus ēduši, no
+milžiem baidījušies. Tā ja, citādi tā lieta neiet. Tik jāpiekodina jaunākai
+māsai, lai tāpat saka, kā mēs. Viņai jāapsolās klusu ciest."</p>
+
+<p align="JUSTIFY">Kā runāja, tā darīja. Brāļi aizbrauca - jaunākais piekrāpts.
+Nabadziņš gan atskrien atpakaļ ar pūķa zobinu rokā, bet brāļus ne dzirdēt, ne
+redzēt. Ko nu? Jāskrien pie ērzeļa. Aizskrien tur. ērzelis saka: "Es jau tev
+teicu, nepiemirsti tūlīt zobinu paņemt. Tagad ej ārā, tur tu pa kreiso roku
+ieraudzīsi ābeli ar zelta āboliem. Norauj trīs ābolus un ienesi man, tik pats neēd!</p>
+
+<p align="JUSTIFY">Jaunākais brālis iziet pēc āboliem. Bet āboli tik skaisti, tik
+skaisti. Viņš domā: "Vai tad nu ērzelis atkal zinās? Viens no tik vareniem
+āboliem jāpabauda."</p>
+
+<p align="JUSTIFY">Trīs ābolus iebāž kabatā, ceturto norauj iekosties. Bet, līdz ko
+ābolam iekosts, te nozūd āboli, nozūd ir pati ābele. Atkal nelaime. Ieiet pie
+ērzeļa, ērzelis saka: "Nu kāpēc neklausi, ko saku? Tā mājā netiksi. Eij atkal
+ārā, tur pa labo roku ieraudzīsi citu ābeli, ar tādiem pašiem āboliem, bet nu vairs
+neēd!"</p>
+
+<p align="JUSTIFY">Tagad jaunākais brālis paklausa. Ērzelis paņem ābolus un saka:
+"Kāp man mugurā, pārnesīšu tevi mājā. Mums ļoti jāsteidzas, jo pirmkārt
+mans laiks drīzi būs pāri par ērzeli būt, un otrkārt man ļoti patiktos, ja varētum
+taviem viltīgiem brāļiem priekšā aizsteigties."</p>
+
+<p align="JUSTIFY">"Par cik dienām tu domā mani pārnest līdz ķēniņa, mana
+nākamā sievas tēva, pilij?"</p>
+
+<p align="JUSTIFY">"Četrās dienās būsim klāt!" "</p>
+
+<p align="JUSTIFY">"Nu, tad nevaram brāļiem priekšā aizsteigties. Viņiem varens
+ceļa vējš un, ja tie nemaldās, tad pāris dienās viņi mājā. Citādi nekas, bet man
+tik bail, ka neģēļi neizkrāpj ķēniņam jaunāko meitu. Tās manas bēdas. Tomēr kas
+nu būs, tas būs."</p>
+
+<p align="JUSTIFY">To teicot, jaunākais brālis uzlēca ērzelim mugurā un tad aizjāja
+pa gaisu kā vējš. Uz ceļa ērzelis atdod tos trīs ābolus jaunākam brālim,
+sacīdams: "Ja esi noguris, tad svied vienu ābolu pār plecu. Tūlīt gadīsies
+ķēniņa pilsēta, kur varēsim par nakti palikt. Tik ievēro - no rīta svešais
+ķēniņš tev dāvinās visādas mantas, bet citas mantas neņem, paņem veco lakatu.
+kuŗā mantas bij iesietas. Tad vēl - ābolu pār plecu sviezdams, nepiemirsti teikt: nu
+ir laiks pie miera doties!"</p>
+
+<p align="JUSTIFY">Pret vakaru jaunākais brālis jūtas noguris. Viņš izrauj zelta
+ābolu, pārmet sev pār plecu un saka: "Nu ir laiks pie miera doties!"</p>
+
+<p align="JUSTIFY">Tūlīt ronas liela pilsēta un pats ķēniņš iznāk pretim jātnieku
+pie sevis ieaicināt. No rīta ķēniņš dāvina savam viesim šādas mantas; tādas
+mantas, bet viesis, pateikdamies vairāk neņem nekā, kā tikai vecu, vecu lakatiņu un
+tad aizjāj. Uz ceļa ērzelis prasa: "Vai dabūji lakatu?"</p>
+
+<p align="JUSTIFY">"Dabūju!" "Nu tad labi; tik pieglabā viņu cieti, tas
+tev savā reizē noderēs. Un ja šodien atkal jūties noguris, tad met otru ābolu pār
+plecu, sacīdams: "Nu ir laiks pie miera doties!" Tūlīt gadīsies ķēniņa
+pilsēta, kur varēsim par nakti palikt. Tik ievēro - no rīta tas ķēniņš tev
+dāvinās tādas pašas dārgas mantas, bet tās neņem, ņem kādu vecu lukturīti!"</p>
+
+<p align="JUSTIFY">Pret vakaru jaunākais brālis jūtas noguris. Viņš izrauj zelta
+ābolu, met to pār plecu un saka: "Nu ir laiks pie miera doties!"</p>
+
+<p align="JUSTIFY">Tūlīt ronas liela pilsēta un pats ķēniņš iznāk pretim jātnieku
+pie sevis ieaicināt. No rīta ķēniņš dāvina šādas lietas, tādas lietas, bet
+jaunākais brālis vairāk neņem, kā veco lukturīti un tad aizjāj pateikdamies.</p>
+
+<p align="JUSTIFY">Uz ceļa ērzelis prasa: "Vai dabūji lukturi?"
+"Dabūju!"</p>
+
+<p align="JUSTIFY">"Nu tad labi; tik pieglabā viņu cieti, tas tev savā reizē
+noderēs. Nu, ja šodien atkal jūties noguris, tad met trešo ābolu pār plecu, tos
+pašus vārdus sacīdams. Tūlīt gadīsies ķēniņa pilsēta, kur varēsim par nakti
+palikt. Tik ievēro - no rīta tas ķēniņš tev dāvinās tādas pašas dārgas mantas,
+bet tās neņem, ņem tikai tādu saziedējušu rausīti!"</p>
+
+<p align="JUSTIFY">Pret vakaru jaunākais brālis jūtas noguris. Viņš izrauj zelta
+ābolu, met to pār plecu un saka: "Nu ir laiks pie miera doties!" Tūlīt ronas
+liela pilsēta un pats ķēniņš iznāk pretim jātnieku pie sevis ieaicināt. No rīta
+ķēniņš dāvina šādas lietas, tādas lietas, bet jaunākais brālis vairāk neņem,
+kā saziedējušo rausīti un tad aizjāj pateikdamies.</p>
+
+<p align="JUSTIFY">Uz ceļa ērzelis prasa: "Vai dabūji rausi?"</p>
+
+<p align="JUSTIFY">"Dabūju!" , "Nu, tad labi; tik pieglabā to, tas tev
+savā reizē noderēs.` Ceturtā dienā pret vakaru jaunākais brālis bij pie nākamā
+sievas tēva pils klāt. Ērzelis tagad šķiŗas sacīdams: "Dzīvo tu laimīgi, man
+jāsteidzas atpakaļ, jo vēl tik dažas dienas, un tad mans laiks pāri!"</p>
+
+<p align="JUSTIFY">Jaunākais brālis nu domā savus viltīgos brāļus pie ķēniņa
+atrast; bet nekā: tie ar tik labu ceļa vēju sen jau mājā pārbraukuši,
+piestāstīdami ķēniņam pilnu galvu par saviem varoņa darbiem. Ķēniņš tad arī tā
+kā vakar atdevis katram vienu meitu pār sievu un visi vēl, tā kā šorīt,
+aizbraukuši pie tēva uz mājām. Viens gan gribējis ar visu varu ķēniņam jaunāko
+meitu izprecēt jaunākā negājusi un negājusi. Ķēniņš, to dzirdēdams, pats arī
+teicis: "Jaunākā pieder jaunākajam brālim un, kad nu jaunākais brālis pēc
+jūsu teikšanas pazudis, tad lai mana jaunākā meita labāk paliek pie manis."</p>
+
+<p align="JUSTIFY">Tā tad arī noticis. Bet kas nu bij par brīnumiem, kad tai pašā
+dienā pret vakaru jaunākais brālis pārradās un ķēniņam visu izstāstīja, kā
+īsti noticis. Vecais tīri no dusmām uz augšu lec.</p>
+
+<p align="JUSTIFY">Tāda viltība! Kam man tādiem blēžiem vajadzēja savas meitas dot?
+Kādi nav, kādi vēl nebūs! Bet tu, godīgo puisīti, še tev mana jaunākā meita un
+paliec pēc manas nāves par šīs zemes ķēniņu!"</p>
+
+<p align="JUSTIFY">Jaunākais brālis nu apņēma ķēniņa jaunāko meitu par sievu un
+domāja pie sievas tēva dzīvot. Bet otrā nedēļā tam iešaujas prātā: "Tā
+neiet, man jau jāpāriet pie tēva. Brāli būs ir tam pilnu galvu melu sastāstījuši
+un tad, lai nabaga tēvs, melkuļiem ticēdams, pēc manis velti bēdātos. Lai mana
+sieviņa paliek te, es iešu tēvu apraudzīt. Jaunākais brālis aiziet.</p>
+
+<p align="JUSTIFY">Bet brāļi, pamanījuši jaunāko nākam, sagrābj to cieti, aizveda
+uz mežu un iemet dziļā, dziļā lāču alā, lai badā nomirtu. Tēvs par visu to
+nedabūja itin nekā zināt. Tomēr jaunākais brālis nenomira vis badā. Viņš atminas
+sava lakata, luktura un rauša. Tikko lakatu zemē nosviedis, te gadās varena pils lāču
+alā: tikko lukturi uz galdu nolicis, te visa pils apgaismota; tikko rausi uz galdu
+nolicis, te gadās ēdieni, dzērieni vislabākie. Tā tas nu nodzīvo dziļajā alā
+vienu dienu, otru dienu, vienu nedēļu, otru nedēļu, vienu mēnesi, otru mēnesi; ne
+tev viena cilvēka gadās, kas palīdzētu, ne arī pats ārā tikt.</p>
+
+<p align="JUSTIFY">Jaunā sieviņa izgaidās vienu dienu otru dienu, vienu nedēļu, otru
+nedēļu, vienu mēnesi otru mēnesi; ne tev kādas ziņas pārnāk, ne arī vīra redz.
+Cik ilgi tā gaidīt? .Jāpaņem kaŗaspēks un jāiet meklēt. Kara spēks noiet pie
+vīra tēva vārtiem un pavēl vecākajam dēlam iznākt. ,Jaunā radiniece, kaŗa spēka
+vadone, uzprasa vecākajam, kur jaunāko brāli iegrūdis? Bet šis parausta plecus,
+nezinot nekā. Nu, ja nezinot nekā, tad lai nākot cits brālis teikt. Iznāk tas -
+tāpat. Beidzot sasauc visus sešus - tāpat nezinot un nezinot. Bet kas reiz melojis, kas
+tam otru reizi vairs ticēs? Tā arī te. Jaunā radniece tagad nosaka itin īsi:
+"Toreiz teicāt tāpat, kā nezinot, kur jaunākais brālis palicis, tagad tā pati
+nelaime. Kaŗavīri, grābiet viņus cieti un vediet līdz cietumā; gan viņi tad zinās,
+kur brālis palicis!"</p>
+
+<p align="JUSTIFY">Bet nu tik bij joki. Līdz ko sievas to sadzirdēja, ka vīriem jāiet
+līdz cietumā, tā visas sešas ārā un nu pilnā kaklā, lai laižot vaļā, lai
+laižot vaļā, viņas būšot teikt, kur brālis iegrūsts. Labi. Kad nu viss bij
+izstāstīts, tad kaŗaspēks, seši viltnieki blēži ar visām sievām un pats vecais
+tēvs dodas uz lāču alu jaunāko brāli meklēt. Neviens vairs neticēja, ka viņš vēl
+pie dzīvības. Bet aizgājuši tur, visi pārbrīnījās, lāču alā pils, un pilī
+jaunākais brālis vesels kā rutks. Viņa sieviņa raudāja, to ieraudzīdama, prieka
+asaras, bet vecais tēvs raudāja gan prieka, gan bēdu asaras. Jaunāko dēlu ieraugot,
+to pārņēma prieks; bet vecākos dēlus, tādus neģēļus, uzskatot - bēdas; atkal
+nezināja, kur rimties. Beidzot vecais saka: "Jūs, seši neģēļi, nost no manām
+acim: bet tu, manu dēliņ, paliksi pēc manas nāves par ķēniņu. Tu esi pelnījis, lai
+tev labi klātos."</p>
+
+<p align="JUSTIFY">Seši brāļi, to dzirdēdami, palika bāli, kā līķi. Viņi apkampa
+tēvu, apkampa jaunāko brāli un lūdzās, lai piedodot. Jaunākais brālis piedeva
+tūlīt, bet tēvs neļāvās nemaz pielūgties. Beidzot krita ir jaunākais tēvam klāt
+par brāļiem lūgdams, kamēr tad lielām mokām to piedabūja.</p>
+
+<p align="JUSTIFY">"Tomēr," vecais sacīja, "par saviem dēliem es jūs
+gan atkal pieņemšu, bet valsti mantos mans jaunākais!"</p>
+
+<p align="JUSTIFY">Tā nu jaunākajam iznāca divas valstis.</p>
+
+
+</body></html>

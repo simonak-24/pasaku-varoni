@@ -1,0 +1,256 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>11</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">11. A. 30. Teicējs J Jakuškins Rēzeknē. Latvju kultūras kr.</p>
+
+<p align="JUSTIFY">Vīnam tāvam beja treis dāli. Divi bruoļi beja gudri, bet trešais -
+muļkīts, tai saucamais Pelnruškīts. Vīnu reizi tāvs saslyma un nūmyra. Mierdams
+viņš sasaucja vysus treis dālus un teicja: "Kad es jau gulēšu zam valānom, tad
+jyus kotrs pēc kuortas, suocūt ar vacuokuo, aizīsit uz munu kopu un palyugsit par mani
+Dīvu."</p>
+
+<p align="JUSTIFY">Atguoja nakts. Nyu vajadzēja īt vacuokam bruoļam uz tāva kopu un
+lyugt Dīvu. Bet vacuokais bruoļs naguoja vys pats, bet suoka prasīt Palnruškīša. Tys
+ari paklausa un aizīt. Ilgi jis sēdēja uz kopa, lyugdams Dīvu. Tad pēški
+atsataisēja kops un nu turīnes izguoja viņa tāvs.</p>
+
+<p align="JUSTIFY">"Vai tu, dēliņ, te? Kuopēc tad naguoja vacuokais
+bruoļs'a" teicja tāvs, izīdams nu kopa.</p>
+
+<p>"Viņš naguoja," atbiļdēja Palnruškīts.</p>
+
+<p align="JUSTIFY">"Nu tad klausīs! Še jem šū zyrgu un kū gribi ar viņu, tū
+ari dori."</p>
+
+<p align="JUSTIFY">Tymā pat breidī, kai nu zemes izleida skaists zyrgs ar sadlim,
+īmovim un zalta zūbynu. Te tāvs īguoja škierstā un škiersts pamozom īguoja kopā.
+Pelnruškīts ar rūkom aprausja kopu, pajēmja zyrgu un aizguoja uz muojom.</p>
+
+<p align="JUSTIFY">Reitā vacuokī bruoļi prasa Palnruškīšam: "Nu, kas tī
+beja?" "Nikuo," atbildēja Pelnruškīts, "palyudzu, palyudzu Dīvu un
+atguoju."</p>
+
+<p align="JUSTIFY">Reitā vajadzēja īt pi tāva kopa vidējam bruoļam, bet tys taipat,
+kai vacuokais, naguoja, bet lyudzja Pelnruškīšam, lai tys aizīt. Palnruškis paklausa
+un aizīt ari šū reizi. Vēļ ilguok vajadzēja gaidīt šū reizi, nakai pyrmū. Bet
+golu - golā atsataisēja kops un nu turīnes izīt tāvs.</p>
+
+<p>"Un tu šūdīņ ari te? Par kū tad naguoja tovs bruoļs?" "Viņš
+nagribēja īt un lyudzja mani, lai es ateju. Es ari paklausīju un atguoju!"</p>
+
+<p>"Labi! Jo viņš paīt, tad es tev īdūšu ari ūtru zyrgu."</p>
+
+<p align="JUSTIFY">Tamā pat breidī atskrēja vīns zyrgs, leidzīgs pyrmam. Pēctuo
+tāvs īguoja dūbē. Palnruškīts aprausja ar rūkom dūbi un aizguoja uz muojom.
+"Nu; kū redzēji?" vaicoj bruoļi. kad Palnruškīts īguoja ustobā.
+"Nikuo," atbildēja Palnruškīts. "Kū tu tī redzēsi?"</p>
+
+<p align="JUSTIFY">Atguoja trešā nakts pēc tāva nuoves. Tagad vajadzēja īt uz tāva
+kopa jaunuokam bruoļarm, Paluruškam. Tys nikuo naprosa, bet pats tyulīt aizīt uz tāva
+kopu, nūsasāstās un salicis rūkas, suoc lyugt Dīvu. Tai paguoja gondriž vysa nakts,
+bet tāva kai nav, tai nav. Tik gaismiņai austūt, saulītei lācūt, atsataisēja kops
+un nu turīnes izguoja tāvs. Šūdīņ ari tu atuoji? Par vvsu tovu paklausīšonu es tev
+īdūšu, trešū zyrgu. Šūdīn es atguoju pādējū reizi. Vairs es uz šituo pasauļa
+nasaruodīšu. Palīc vasals!"</p>
+
+<p align="JUSTIFY">Tad viņš, kai agruok īguoja atkal dūbē. Palnruškīts pajēmja
+zyrgu un aizguoja uz muojom.</p>
+
+<p>Tamā pat laikā vīns kēniņš sovu meitu beja izcēlis uz ļūti augsta kolna. Uz
+tuo kolna varēja izkuopt tikai pa trepem. "Kas izskrīs ar zyrgu tai kolnā, vai ari
+kas izkuops bez zyrga, tam atdūšu sovu meitu," sacēja kēniņš.</p>
+
+<p align="JUSTIFY">Apzeimuotā dinā pi tuo kolna sasapulcēja ļūti daudz ļaužu. Ari
+Palnruškīša bruoļi apsadluoja lobuokūs zyrgus un braucja uz apzeimuotū vītu. Kad
+viņi beja jau gobolā, tad Palnruškīts ap' sadluoja sovu zyrgu un juoja bruoļim
+pakaļ. Panuocis bruoļus pusceļā, Palnruškīta tai īruovja viņim ar puotogu par
+placim, ka bruoļi tikkū nūsēdēja uz zyrgim. Pījuojis pi kolna, viņš pīskrēja pi
+zyrga golvas un leida par vīnu ausi īškā. par ūtru uorā. Tad izzaskatēja ļūti
+skaists, ar lobom drēbem, kai kēniņa dāls. Tad viņš īsyta ar puotogu zyrgam un
+zyrgs ar vīnu lēcīni izskrīn kolnā. Vysi sasyt plaukstīs un izlīda. Bet
+Palnruškīts pagrīzja zyrgu atpakaļ un ocumirklī pazuda. Atbraucis uz muojom, viņš
+pastatīja zyrgu stallī, īguoja ustobā un, kai nikuo nav bijis, atsasāda. Sabrauc ari
+viņa bruoļi.</p>
+
+<p align="JUSTIFY">"Bruoļ, beja, to beja," suoka iāluotīs obi bruoļi.
+"Kai panuocja kaids te skaists cylvāks, kai ruovja ar puotogu par placim, to tikkū
+gols napīnuocja. Un pēčuok tys pat cylvāks ar vīna lēcīni izskrīn uz kolna."</p>
+
+<p>"Mož es tur beju?" vaicuoja Palnuruškīts.</p>
+
+<p align="JUSTIFY">"Kū tu, sisiņs pļuopoj pi myusu vē lobuoki zyrgi, i to nikuo,
+kur to tev!"</p>
+
+<p align="JUSTIFY">Ūtrā dīnā ari vvsi beja pi kolna. Taipat ari Palnruškīša bruoļi
+aizbrauc uz turīni. Ilgi nadūmuodams, Palnruškis apsadluoja ūtru zyrgu un aizjnoj
+bruoļim pakaļ. Taipat kai pyrmū reizi, jis panuok viņus tikai pusceļā. Palnruškis
+ruovja ar puotogu pa divi reizes kotram, ka tī tai i aizdoncoj pa zyrga mugurom.
+Pījuojis pi kolna, Palnruškis par vīnu zyrga ausi īškā, pa</p>
+
+<p align="JUSTIFY">ūtru uorā. Ocumirkli viņš palyka par ļūti skaistu veirīti. Ar
+vīnu lēcīni viņš izskrīn kolnā un leidz princesei palīk tikai kaidas treis asis.
+Bet tyulīt viņš apsagrīzja un devjās prūjom. Atbraucis uz muojom, viņš īlaiž
+zyrgu stallī, īsvīž viņam sīna un pats atīt uz ustobu. Dreiži atbrauc ari viņa
+bruoļi.</p>
+
+<p>"Nu, kai kluojuos?" vaicuoj viņus Palnruškis.</p>
+
+<p align="JUSTIFY">"Šītū reizi vēļ slyktuok beja," atbildēja bruoļi, -
+"taids pat, kai vakar puiss kai dadzyna, kai īmetja pa divi reizes ar puotogu. tai
+tikkū dzeivi palykam. Un tad tys pat beja izskrējis kolnā, palyka tikai kaidas treis
+asis leidz kēneņa meitai un viņš pasagrīzja atpakaļ un kai ar vēji tai i
+aizskrēja."</p>
+
+<p>"Varbyut tī es beju?" vaicoj Palnruškis.</p>
+
+<p align="JUSTIFY">"Kur tev tī byut? Cyti na ar taidim zyrgim, kai tovi, i to
+navarēja izskrīt."</p>
+
+<p align="JUSTIFY">Pēc tam kēniņš paziņoj, ka šei byus pādējuo reizi un, ka nikas
+naizskrīs, tad precēsīs taipat. Šū reizi ļaužu pīsalasēja vēļ vairuok, storp
+kurim natryukst ari palnruškīša bruolu. Tikkū viņi beja izbraukuši, Palnruškīts
+sādās trešā zyrgā un juoja otkon uz tū kolnu. Panuokdams bruoļus pusceļā, viņš
+tai atvaik ikkatram pa treis reizes, ka viņi pat nūsaveļ nu zyrgu. Pījuojis pi kolna,
+viņš par vīnu zyrga ausi īškā, pa ūtru uorā un puorsavērtja par taidu ļūti
+skaistu. Kad viņš īsyta zvrgam ar puotogu zyrgs puorskrēja puori par vysu kolnu, tad
+apsagrīzja atpakaļ un izlēcja taišņi uz kolna, pi pašas princeses. Princese īdevja
+Palnruškīšam gradzynu, uz kura beja izrakstīts viņas vuords. Palnruškīts kai tik
+izmaucja gradzynu uz piersta un pateicja, ka viņa vuords ir Ontans, tai ik tu jū i
+redzēji, kai vīsuls aizskrēja ar sovu zyngu. Bez tam princesei beja vē cyts
+mīļuokais, pi kura viņa poša lai gon nagribēja īt, bet viņu spīdja tāvs ar muoti.
+Te tys princeses mīļuokais izplatēja taidu runu, ka Ontons ir nūmiris. Kad leidz
+laulības stundei beja palykuse tikai kaida pusdīna, tad vīnu reizi princese, dūdama
+ubagim mīlastu, sacēja: "Šete jyusim, tik palyudzīt Dīvu par Ontonu!"</p>
+
+<p align="JUSTIFY">Viņa pavysam naīvāruoja, kai viņa paša devja tam pat Ontonam, par
+kuru viņa lyka lyugt Dīvu, kurs izlicis kuli uz placim stuovēja storp cytim nabagim un
+beja gryuši izškirams. Tad Palnruškīts pasagrīzīs uz princesi teicja: "Bet
+Ontons ir dzeivs vēļ un kuopēc tad jyus likuot par viņu lyugt Dīvu."</p>
+
+<p align="JUSTIFY">Kēniņa meita Palnruški nūvedja uz muojom, lai lobuok par viņu kū
+dzierdātu.</p>
+
+<p align="JUSTIFY">"Vai jyus zynat Ontonu?" vaicuoja princese Palnruškai.
+"Es viņu zynu ļūti labi." atbiļdēja Palnruškīts.</p>
+
+<p align="JUSTIFY">Princese īraudzēja uz Palnruškīša rūkas apsītu pierstu ar ļūti
+nateiru lupotu, zam kura globuojas princeses gradzyns un ļūti spīdja Palnruški, lai
+tāvs apsīn pierstu, ar lobuoku lupotu. Nazaskotūt uz Palnruškīša pretuošonuos
+piersts tūmār tyka atraisīts. Princese nazynuoja vai ticēt sovom acim, vai naticēt,
+kad viņa īraudzēja uz ubaga piersta sovu gradzynu. Palnruškīts tyulīt izskrēja
+uorā un uzsvilpuoja, Tyulīt atskrēja trešais zyrgs. Palnruškīts caur vīnu zyrga
+ausi īškā aur ūtru uorā un tamā ocumirklī pasataisa kai par kēniņa dālu un
+tyulīt izsaucja princeses paradzātu veiru uz kauju. Kēniņa dāls nūsabeida un nimoz
+naguoja uz kauju. Tai princese izguoja pi veira pi sova Ontona - Pelnruškīša. Kuozas
+beja taidos boguotas un prīcīgas, kaidu pasaulē vēļ laikam nabija bejis.</p>
+
+
+</body></html>

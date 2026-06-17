@@ -1,0 +1,205 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5"><strong>Burvju dzirnaviņas.</strong></font></p><font size="5">
+</font><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">16. A. 565. Gotards Kr., Vircavā. LP. III, 60
+(30).</font></p><font size="3">
+
+<p align="JUSTIFY">Senos laikos nāve nokāvusi kādam mazam puisītim tēvu un māti.
+Puisītis bēdīgs staigājis pa pasauli. Reiz tas iegriezies lielā mežā. Tur
+nabadziņš maldījies tik ilgi, kamēr sasniedzis mazu mājiņu. Puisītis iegājis
+iekšā. Aiz galda sēdējusi veca vecenīte - tā bijusi Vēju māte - un prasījusi:
+"Puisīt, ko tu gribi ?"</p>
+
+<p align="JUSTIFY">"Gribēju naktsmājas lūgt. Cik man grūti!"</p>
+
+<p align="JUSTIFY">"Es tevi pieņemtu gan, bet kad mani četri dēli pārnāks, tie
+dusmosies. Bet, nekas, es tevi paslēpšu."</p>
+
+<p>Vecenīte uzvedusi zēnu uz augšieni un to paslēpusi.</p>
+
+<p align="JUSTIFY">Naktī pārnācis viens dēls, Ziemeļa vējš, un tūliņ mātei
+prasījis: "Kas te par svešu smaku?"</p>
+
+<p align="JUSTIFY">"Nekas, nekas, dēliņ!" Vēju māte nomierinājusi.</p>
+
+<p align="JUSTIFY">Ziemeļa vējš apmierinājies un aizgājis gulēt.</p>
+
+<p align="JUSTIFY">Drīzi pārnācis otrs dēls, Vakara vējš, un tūliņ mātei
+prasījis: "Kas te par svešu smaku?"</p>
+
+<p align="JUSTIFY">"Nekas, nekas, dēliņ!" Vēju māte apmierinājusi.</p>
+
+<p align="JUSTIFY">Vakara vējš apmierinājies un aizgājis gulēt.</p>
+
+<p align="JUSTIFY">Drīzi pārnācis trešais dēls, Rīta vējš, un tūliņ mātei
+uzprasījis: "Kas te par svešu smaku?"</p>
+
+<p align="JUSTIFY">"Nekas, nekas, dēliņ!" Vēju māte nomierinājusi.</p>
+
+<p align="JUSTIFY">Rīta vējš apmierinājies un aizgājis gulēt.</p>
+
+<p align="JUSTIFY">Drīzi pārnācis ceturtais dēls, Dienvidus vējš, un prasījis:
+"Māmuliņ, man liekas, ka te kāda savāda smaka?"</p>
+
+<p align="JUSTIFY">"Nekas, dēliņ! saki man labāk, kur tu šodien biji?"</p>
+
+<p align="JUSTIFY">"Biju laimības dārzā puķes pūst."</p>
+
+<p align="JUSTIFY">"Vai nevari man vienu puisīti uz turieni aiznest?"</p>
+
+<p align="JUSTIFY">"Kālab ne, māmiņ, kur viņš ir?"</p>
+
+<p>"Pagaidi, tūliņ ievedīšu."</p>
+
+<p align="JUSTIFY">Dienvidus vējš aiznesis bārenīti uz laimības dārzu. Tur tas
+uzvilcis puisītim zaļus svārku sacīdams: "Valkā vienmēr šos svārkus, tad cits
+neviens nevarēs tevi ieraudzīt, kā tik es. Bet viena lieta: pār šo grāvi tu neēj
+nekad, citādi nebūs labi."</p>
+
+<p align="JUSTIFY">Bārenītim nu klājies ļoti labi; viņš dzīvojis ilgus gadus vienā
+laimē, vienos priekos.</p>
+
+<p align="JUSTIFY">Bet reiz bārenītis ieraudzījis otrpus grāvīša piecas daiļas
+meitas. Viņš gribējis meitas pasmīdināt; tādēļ pārlēcis pār grāvīti un
+nobučojis vienu. Nobučotā smējusies pilnā kaklā un stāstījusi citām, ka viens
+viņu bučojis, tik neredzējusi, kas tas tāds bijis. Citas smējušās līdz,
+sacīdamas: "Citā reizē nelaid vairs bučotāju vaļām, noķer to aiz matiem un
+velci pie savām krūtim."</p>
+
+<p align="JUSTIFY">Pēc tāda brītiņa bārenītis gribējis pār grāvīti atpakaļ iet;
+bet neticis vairs pāri: bijusi liela uguns jūra priekšā. Nu nabadziņš skraidījis
+kā apjucis šurp un turp un nezinājis, ko darīt, ko iesākt. Bet tai pašā acumirklī
+iegadījies Dienvidus vējš un uzsaucis: "Ko tu esi darījis? Vai neteicu tev, lai
+neej pār grāvīti?"</p>
+
+<p align="JUSTIFY">To sacījis, Dienvidus vējš novilcis viņam zaļos svārkus un to
+izsviedis no laimības dārza ārā.</p>
+
+<p align="JUSTIFY">Bārenītis gājis pa ceļu vien projām. Uz vienu reizi tas
+sadzirdējis ko kunkstam. Paskatījies, ieraudzījis ceļa malā vezumu ar spārniem.
+Apakš vezuma gulējis cilvēks.</p>
+
+<p>"Kas tev noticis?" bārenītis jautājis.</p>
+
+<p align="JUSTIFY">"Ai, palīdzi man no vezuma apakšas iztikt; citādi mani
+nospiedīs." Bārenītis izvilcis nelaimīgo. Bet līdz ko tas bijis uz kājām, tā
+sagrābis bārenīti, sacīdams: "Vai zini, kas es esmu? Es esmu nāve. Astoņdesmit
+gadu tevi meklēju; nu reiz dabūju. "Nāve piespiedusi to pie krūtīm un tai pašā
+acumirklī bārenītis nomiris.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Šī pasaka ir bez šaubām cēlusies no pazīstamās
+Andersena pasakas par paradīzes dārzu. Pasaku pētītāju viņa interesē tikai tik
+tālu, kā viņa ir pārgrozījusies tautas mutē. Nav pietiekoša iemesla domāt, ka
+uzrakstītājs to būtu tīšām ņēmis no grāmatas, lai arī Vēju māte (t.
+tradicijās Vēja māte) un laimības dārzs nav īsti tautas valodas vārdi.
+Iepriekšējos variantus šī pasaka atgādina ar savu neapdomībā zaudēto laimi. P. Š.</p>
+</font>
+
+
+</body></html>

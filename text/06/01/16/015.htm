@@ -1,0 +1,167 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>15</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">15. A. 530. Bērzaunes pasaka Brīvzemnieka kr. LP, VI, 664 (124, 9).</p>
+
+<p align="JUSTIFY">Gudrie brāļi nevīžojuši tēva kapu sargāt, sūtījuši
+muļķīti. Tēvs tad izcēlies no kapa (pirmo nakti) un teicis: "Mans dēls, es
+redzu, ka tu mani mīlē, tāpēc ņem šo sudraba spieķīti. Kad tev kas ievajagās,
+uzsit ar viņu uz zemes, tūdaļ atskries sudraba zirgs un atnesīs arī sudraba drēbes
+tev pašam."</p>
+
+<p align="JUSTIFY">Labi. Rītā muļķītis aizgāja uz māju, aizbāza spieķīti aiz
+krāsns, pats ielīda krāsnī - citur brāļi tam neatļāva dzīvot un nestāstīja par
+nakts gadījumu nekā.</p>
+
+<p align="JUSTIFY">Otrā naktī dabūjis zelta spieķīti un trešā dimanta spieķīti,
+Bet tolaik gadījās, ka ķēniņa meitai nāca daudz precinieku un ķēniņš ne pie
+viena nelaida savu meitu, jo tā vēl bija par jaunu. Nevarēdams no preciniekiem
+atvairīties, tas uzveda meitu uz liela stikla kalna un lika sacīt: kas tur uzjāšot,
+tam tikai savu meitu par sievu atdošot. Tad gudrie brāļi apkala savus zirgus un jāja
+uz kalna; bet muļķītim tie iebēra vienu sieciņu zirņu pelnos, lai tas tikmēr
+izlasītu, kamēr šie kalnā.</p>
+
+<p align="JUSTIFY">Bet kad brāļi bija aizjājuši, muļķītis paņēma savu sudraba
+spieķīti, uzsita uz zemes un tūliņ viņa priekšā bija sudraba zirgs un pats arī
+bija ģērbies sudraba drēbēs. Zirgs kŗāca un visi zirņi tūliņ saskrēja sieciņā.
+Nu jāja uz stikla kalnu, kur jau daudz ļaužu bija sapulcējušies un uzjāja trešu
+daļu kalnam, ko neviens cits nebija iespējis. Tad viņš jāja atpakaļ uz māju, uzsita
+zirgam ar spieķīti un tas pazuda un arī viņa sudraba drēbes pazuda.</p>
+
+<p align="JUSTIFY">Muļķītis aizlika spieķi aiz krāsns un pats ielīda atpakaļ
+krāsnī. Par mazu laiciņu brāļi arī atjāja.</p>
+
+<p align="JUSTIFY">Nākošā dienā gudrie izbēra muļķītim divi sieciņu zirņu
+pelnos. Nu viss tiek izdarīts ar zelta zirga palīdzību.</p>
+
+<p align="JUSTIFY">Trešā dienā ar dimanta zirgu muļķītis sasniedza kalna virsu.
+Ļaudis lejā uzgavilēja; bet ķēniņš tam piesteidzās klāt un uzmauca dimanta
+gredzenu pirkstā; bet ar ķēniņa meitu muļķītis sirsnīgi apkampās. Drīzi ļaudis
+sāka šķirties un arī muļķītis atvadījās no ķēniņa un viņa meitas, aizjādams
+uz māju. Mājā, savu zirgu pazudinājis, ielīda krāsnī; bet ķēniņa doto gredzenu
+aptina ar pakulām, lai brāļi neredzētu. Pēc tam arī brāļi atnāca un stāstīja
+par dimanta zirgu, bet muļķītis to nelikās ne dzirdot.</p>
+
+<p align="JUSTIFY">Tad ķēniņš lika visus pavalstniekus sasaukt, lai redzētu, kam tas
+gredzens būtu. Visi atnāca, bet nevienam nebija. Nu ķēniņš prasīja gudrajiem: vai
+neesot vēl kāds mājā? Gudrie atbildēja: . Vēl ir gan viens brālis, bet muļķis,
+tas pa krāsni vien dzīvo!"</p>
+
+<p align="JUSTIFY">Ķēniņš sacīja: "Eita, sakiet ir tam, lai nāk!"</p>
+
+<p align="JUSTIFY">Labi, atveda. Muļķis nu nopina pakulas no gredzena, par ko brāļi
+ļoti iztrūkās. Bet vēl vairāk tie brīnījās, kad dumais uzsita ar spieķiem uz
+zemes un viņu priekšā stāvēja trīs stalti zirgi un pats dimanta drēbēs ģērbies.</p>
+
+<p>Tad muļķītis saprecējās ar ķēniņa meitu un valdīja laimīgi.</p>
+
+
+</body></html>

@@ -1,0 +1,228 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>15</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Ķēniņa meitu iesmīdina ar dažādām burvju
+lietām.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">1. A. 572. A.Gari-Juone no A.Grīstiņa Kokorevas
+pag.</font></p><font size="3">
+
+<p align="JUSTIFY">Dzeivuoja tāvs, jam beja treis dāli: divi gudri un vīns duraciņš:
+jis vīnmār kū izdūmuoja sovā vīglpruotībā. Reizi tāvs apsēj vosoruoju un palīk
+puori tai leidz pussīka mīžu, tūs nikur likt.</p>
+
+<p align="JUSTIFY">"Zyni, tāvs, kū es izgudruoju? Vajag atlykušūs mīžus izsēt
+piertī zam luoviņas, tī labi augs," soka duraciņš.</p>
+
+<p align="JUSTIFY">"Nu izsēsim tūs mīžus piertī zam luoviņu," atsoka
+tāvs. Tāvs pajem sātuvi, pīber mīžus, aizīt uz pierti un pasēj zam luoviņas.
+Mīži aug grīzdamīss vīn, duraciņš kotru reitu īt mīžus apsavērt. Atīt jis
+vīnā reitā un redz, ka mīžim styurīts nuāsts, dūmoj: "Kas te varēja tūs
+mīžus nūēst?"</p>
+
+<p align="JUSTIFY">Pastuosta tāvam, ka mīži ir āsti, tāvs aizīt pasaver: jā,
+taisnība: mīži ir āsti, vajag nūsorguot, kas mīžus ād. Pyrmā naktī syuta mīžu
+sorguotu jaunuokū dālu. Tys pajem mēteli, izlīk uz placim un švilpuodams vīn aizīt
+uz pierti, izkuop uz luoviņas un tēmej, kas atīs mīžus ēst. Reitā kad jau izlāc
+saulīte, jis dūmoj: "Kas tad dīnas laikā īs vaira mīžus ēst?" </p>
+
+<p align="JUSTIFY">Jis pajem mēteli, izsvīž uz placim, atīt uz ustobu līkas un guļ.
+Tāvs vaicoj: "Dāls, voi nūsorguoji, kas mīžus ād?"</p>
+
+<p align="JUSTIFY">"Nanūsorguoju," atsoka dāls, "gaismā, kad jau
+saulīte izlēcja, es atguoju uz ustobu."</p>
+
+<p align="JUSTIFY">Ūtrā naktī nyu syuta vidējū dālu mīžu sorguotu; tys pajem
+mēteli, izsvīž uz placim un švilpuodams īt, sorgoj, sorgoj vysu nakti - reitā, kad
+jau saulīte izlac, jis dūmoj: "Kas te vaira īs?"</p>
+
+<p align="JUSTIFY">Pajem mēteli, izsvīž uz placim, atīt uz ustobu, līkas un guļ.
+Aizīt duraciņš uz pierti pasavārtu, redz: puse mīžu jau nuāsta.</p>
+
+<p align="JUSTIFY">"Dāls, voi nūsorguoji, kas mīžus ād?" vaicoj tāvs.</p>
+
+<p align="JUSTIFY">"Nanūsorguoju, saulīte jau beja izlākuse, es, pajēms mēteli<b>,
+</b>atguoju uz ustobu gulēt," atsoka dāls.</p>
+
+<p align="JUSTIFY">Trešā naktī īs nyu pats duraciņš mīžus sorguot. Jis pajem
+mēteli, tai pat kai cyti bruoļi, izsvīž uz placim un aizīt šviļpuodams uz pierti.
+Sorgoj vysu nakti, bet nikuo nasagaida, kas mīžus āstu. Izlac saulīte, duraciņš
+naīt vys tyuliņ uz ustobu, bet atsagūlis uz luoviņas piertī, gaida, voi naatskrīs
+kas mīžus ēst. Saulīte jau lobā gabaliņā - īskrīn piertī milzīgi lels začs,
+palein zam luoviņu un ād mīžus. Jis nūlyurej, kreit začam viersā, sasaker aiz
+ausim, grib nūturēt zači, bet nikuo. Tys kai ar vēju aizzanas pa pierts durovom un
+taišņi uz mežu. Duraciņš navar tikt začam nu mugoras zemē, tys jū nas, nas pa
+bīzim mežim - pīkūst, nūkreit un nūsabeidz. Duraciņš pajem vāzu, izmauc zači uz
+tuos vāzas, puorsvīž par placu un īt pa mežu švilpuodams tuoļuok. Jis gribēja kai
+navīn tikt molā, klausās - dzierd: mežā zvīdz zyrgi. Īt jis uz zyrgu pusi, īt, īt
+- redz: zyrga golva vuoļuojas pa zemi un zvīdz. Jis nūsvīž zači, pajem zyrga golvu,
+izmauc uz vāzas, izlīk uz placa un īt tuoļuok šviļpuodams, bet vys klausās, voi kur
+kuo naizdziers. Paguojis gobolu, dzierd: mežā dzīd cīši skaistim, vysaidim bolsim,
+kai steidziņom. Nūzaprīcoj jis - nūdūmoj: tur ganes dzīd - īšu uz tū pusi, tur
+varbyut jau byus mola. Īt jis, īt pa mežu un vys klausās, kur dzīd. Daīt pi vīna
+calma - redz: uz tuo calma treis rīkstiņi doncoj un cīši šmuki dzīd. Jis pajem
+rīkstiņus, īlīk kešā, zyrga golva uz placim, un otkon īt tuoļuok, šviļpuodams
+vīn. Nūsaklausa - dzierd: meitas drēbes velej, tai skaiški vuolis syt zam takts. Nu
+tagad jau gon tyuliņ byus mola, jis īdams dūmoj, un īt uz tū pusi, kur dzierd
+vēlēšonu. Daīt jis pi velētuojom - redz: vuolītes doncoj pa benkīti, tai syt zam
+takts, dūmuot, ka drēbes velej. Jis pajem benkīti, pasyt padusē, vuolītes ībuož
+kešā un īt tuoļuok pa mežu šviļpuodams, vyss appleis's un apsakuortej's ar zyrga
+golvu. Mežā nazkas cārt molku, nyu jis īt uz molkas cierteeja pusi. Daīt - vīns
+vecelīts cārt molku. Vecelīts, īraudzējis duraciņu taidu skrondiņu, soka: "Kuo
+tu te, duraks, volkuojīs, apsakuorīs ar zyrga golvu un benkīti pasitis padusē?"</p>
+
+<p align="JUSTIFY">"Tī vysi ir muni paleigi," atsoka duraciņš, nūsvīž
+zyrga golvu zemē un pasoka: "Golva, pazvīdz un padoncoj!"</p>
+
+<p align="JUSTIFY">Golva tyuliņ suok zvīgt, doncuot, ka kauli vin brakš. Nūlīk
+benkīti, izlīk vuolītes tuos, otkon syt tai skaisti zam takts, ka prīca klausītīs.
+Izlīk rīkstiņus uz calma, tī kai steidziņas spēlej un dzīd. Molkas ciertējs
+pasasmēja un soka: "Te natuoļi ir kēneņa piļs, jam ir taida meita, kura nikod
+nasasmej. Kēneņš pasacījis: kas jū īsmīdynuos, tam jis sovu meitu atdūs par
+sīvu."</p>
+
+<p align="JUSTIFY">"Es gon jū īsmīdynuošu," soka duraciņš, pajem
+rīkstiņus īlīk kešā, benkīti pasyt padusē, vuolītes ībuož ūtrā kešā, zyrga
+golvu izmauc uz vāzas un īt uz kēneņa pili. Taisnība beja, kai molkas ciertējs
+pastuostīja. Natuoļi beja skaista kēneņa pils trejim stuovim augsta. Daīt jis pi
+piļs, izkuop uz gaņku, atsasāst un sēd. Kas durakam par bādu? Kēneņa kolpyune
+pamona, ka nazkas sēd uz pils goņkom, jej attaisa durovas, izīt un vaicoj: "Kuo tu
+te, taids duraks?"</p>
+
+<p>"Es gribu kēneņa meitu īsmīdynuot," atsoka duraciņš.</p>
+
+<p align="JUSTIFY">Kolpyune īīt pi kēneņa un pastuosta, ka uz piļs goņkom sēd vīns
+duraciņš, kurs sūlējas īprīcynuot un īsmīdynuot kēneņa meitu.</p>
+
+<p align="JUSTIFY">"Labi," atsoka kēneņš, "ved jū šur!"</p>
+
+<p align="JUSTIFY">Kolpyune īvad duraciņu pi kēneņa, jī izzarunoj, kēneņš izvad
+duraciņu pašā aukstējā, trešajā stuovā un pasauc meitu. Atīt kēneņa meita,
+atsasāst un verās, kas nūtiks. Cykom kēneņa meita guoja, jis beja īreikuojis taidu
+kai skotuvi, palaiž nyu duraciņš zyrga golvu uz greidas, nūlīk rīkstiņus, tod
+beņķīti un uz tuo izlīk vuolītes, un pasoka vysim: "Spēlējīt un
+doncojīt!"</p>
+
+<p align="JUSTIFY">Zyrga golva suok zvīgt, doncuot, vuolītes sist zam takts, rīkstiņi
+lakstīt<b> </b>un cīši skaiški dzīduot. Duraciņš pats ari grīžās, doncoj, ka
+lupotas vīn lāc. Kēneņa meita navarēja nūsaturēt nu smīkla un tai smējās, ka
+caur grīstim izkrita zamejā stuovā. Atguoja kēneņš, palilēja duraciņu, ka
+īprīcynuoja juo meitu, pajēmja zyrga golvu, rīkstiņus, beņķīti, vuolītes un
+īlyka vīnā kastē, lai stuov par pīmiņu. Duraciņu aizsyutīja uz pierti. Tys
+izzapēra, apsavylka jaunuos skaistuos drēbes un izzaruodīja cīši skaists. Kēneņš
+sataisīja lelas kuozas, saaicynuoja nu vysom molom cylvākus.</p>
+
+<p align="JUSTIFY">I es tur beju, redzēju, kai palaidja zyrga golvu, ka tei guoja pa
+greidu ripu ripom zvīgdama, kauli vīn brakšēja. Redzēju, kai rīkstiņi doncoja un
+dzierdēju jūs skaistū dzīduošonu. A vuolītes ka suoka sist zam takts, ni
+nūzaklausīt. Ka vysa muzyka roovja vaļā vīnā reizē, tod i es navarēju nūrimt nu
+lelas prīcas, laidu vaļā doncuot ar vysim kūpā. Es zynu ka i šūdīn duraciņš
+dzeivoj ar kēneņa meitu<b> </b>skaistajā pilī.</p>
+</font>
+
+
+</body></html>

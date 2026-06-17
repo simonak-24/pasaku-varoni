@@ -1,0 +1,240 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Brīnuma mālderis.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">3. A. 592. 577. Z. Sēle Smārdē. A. Bērzkalnes krājumā.</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz bijis bagāts kungs, viņam bijis viens vienīgs dēls un viņš
+to visādi izlutinājis. Dēls izaudzis liels palaidnieks. Beigās tēvs teicis: ja viņš
+neklausīšot, viņš to nodošot ganos. Dēls nav labojies, un tēvs to nodevis aitas
+ganīt. Bet viņš arī aitas nav labi ganījis. Viņš mācījis aitām iet rindā kā
+zaldātiem. Ja kāda aita bijusi pa daudz uz priekšu, to viņš aiz pieres pagriezis
+atpakaļ; kuras bijušas pa daudz atpakaļ, tās viņš aiz ausim pavilcis uz priekšu.</p>
+
+<p align="JUSTIFY">Reiz viņš ganīdams aizmidzis un sapņojis, ka viņam galvas galā
+izaudzis mazs zariņš un kāds viņam teicis, lai ceļoties augšā, nogriežot zariņu
+un uztaisot no tā stabuli. Ja viņš šo stabulīti pūtīšot, tad visi, kas to
+dzirdēšot, sākšot dancot. Kad viņš atmodies, viņš redzējis, ka viss bijis tā,
+kā bija sapņojis. Viņš nu arī uztaisījis to stabulīti un sācis pūst bez
+apstājas. Aitas palikušas pavisam vājas, jo zēns viņas pastāvīgi dancinājis. Tēvs
+par to sadusmojies un padzinis dēlu.</p>
+
+<p align="JUSTIFY">Padzītais dēls nogājis jūŗmalā un tur aizmidzis. Piebraukuši
+trīs zvejnieki nu paņēmuši viņu līdz. Laivā zvejnieki sākuši strīdēties. Viens
+teicis: "Man vajag dēlu."</p>
+
+<p>Otrs teicis: "Man vajag."</p>
+
+<p align="JUSTIFY">Trešais teicis: "Visgudrākais būs, ja mēs viņu pārdosim un
+naudu izdalīsim."</p>
+
+<p align="JUSTIFY">Beidzot zvejnieki, viņu noveduši tādā valstī, kur neviens
+nedrīkstējis bez ķēniņa atļaujas iebraukt. Ķēniņš, dabūjis dzirdēt par
+svešnieku, nospriedis, ka viņš pēc trijām dienām tiks pakārts, bet pa tām trim
+dienām viņš var iet pa visu pili pastaigāties.</p>
+
+<p align="JUSTIFY">Zēns, staigādams pa dārzu, redzējis vienā kokā pakārtu lielu
+grozu, kurā sēdējusi viena princese, bet tā bijusi no kādas citas valsts. Ķēniņam
+bija liels ienaids uz tās princeses tēvu un, viņam spītēdams, tas noķēris to
+princesi un ieslodzījis tai grozā. Kunga dēls, staigādams pa dārzu, izrunājies ar
+princesi un viņa izstāstījusi viņam visu, ka viņai citu neko nedodot ēst, kā pa
+dienu mazu gabaliņu maizes un glāzi kafejas.</p>
+
+<p align="JUSTIFY">Pienākusi arī tā diena, kur veduši aitu ganu uz kāršanu. Viņš
+gājis līdz un smējies, bet mācītāji teikuši, lai viņš nesmejoties vis, tā esot
+nopietna lieta, jo viņu tak kāršot. Tiklīdz viņš aizgājis pie karātavām, viņš
+sācis pūst savu stabulīti un visi, kas tur bijuši, sākuši dancot. Pats ķēniņš
+arī dancojis kamēr vairs nespējis. Tad ķēniņš viņam prasījis, vai viņš varot
+nospēlēt trīs dienas un trīs naktis bez apstājas, tad viņš viņu atlaidīšot
+brīvā un ļaušot izvēlēties visu, ko vien viņš gribot, tikai ķēniņa valsti ne.
+Viņš nu arī sācis spēlēt.</p>
+
+<p align="JUSTIFY">Kad viņš beidzis spēlēt, tad ķēniņš teicis, lai izvēloties
+maksu. Zēns atbildējis, ka citu neko nevēloties, kā tikai to princesi, kas sēžot
+dārzā tai grozā, bet ķēniņš to negribējis dot, sacīdams, lai vēloties ko citu,
+zēns tomēr citu neko negribējis. Ja ķēniņš atļāvis vēlēties, ko vien viņš
+gribot, tad viņš pastāvot pie solījuma un paģērējis princesi. Tad ķēniņš
+teicis: "Kad nu esmu solījis, tad ņem ar!"</p>
+
+<p align="JUSTIFY">Ķēniņš vēl iedevis viņam naudu, lai tik braucot prom. Un nu viņi
+aizgājuši uz vienu citu pilsētu un iegājuši vienā viesnīcā pa nakti gulēt.</p>
+
+<p align="JUSTIFY">Otrs ķēniņš atkal bija izsūtījis sūtņus pa visām malām
+meklēt savu meitu un izsolījis tam, kas to meitu atradīs, dot pusi no savas valsts un
+pašu princesi par sievu. Meklētāji arī iegājuši tai pašā pilsētā un tai
+viesnīcā, kur princese un aitu gans jau bija apgulušies. Vēlāk meklētāji
+prasījuši tam viesnīcniekam, vai viņš neesot redzējis tādu sievieti, rādīdami
+viņas bildi. Viesnīcnieks teicis: "Jā, viņa te ienāca un aizgāja gulēt."</p>
+
+<p align="JUSTIFY">Viesnīcnieks nu ielaidis meklētājus iekšā, kur viņi gulējuši.
+Meklētāji paģērējuši, ka princesei jāiet viņiem līdz un īsto atradēju viņai
+vajagot atstāt. Viņi nolikuši priekšā zobenus un paģērējuši, lai viņi abi divi
+zvēr, lai viņš sakot, ka neesot atradis, un šie teikšot, ka viņi atraduši princesi.
+Tā nu viņi nolaupījuši ganam visu mantu un atstājuši to kailu istabā.</p>
+
+<p align="JUSTIFY">Šie aizbraukuši prom, un viņš palicis viens pats. No rīta viņš
+uzcēlies, iegājis pie viesnīcnieka un prasījis viņam: "Kādēļ jūs man
+uzlaidāt tādus laupītājus?"</p>
+
+<p align="JUSTIFY">Viesnīcnieks ļoti nobijies, ka tā izdarījis. Gans lūdzis, lai tak
+viņam iedodot kādas drēbes, un nu viņš uzģērbies viesnīcnieka drēbes un aizgājis
+uz jūŗmalu apskatīties, vai viņa kuģītis nav aizgājis. Nekā, kuģītis ar’
+pagalam. Viņš apsēdies jūŗmalā saulītē un sēdējis, kamēr aizmidzis. Pa sapņiem
+viņam kāds pienācis klāt un teicis: "Ko tu guli? Celies augšā, tev apakš
+galvas ir viens akmens, pacel to akmeni, tur būs viena kastīte, tai kastītē būs
+pindzelīte un krāsas, un ko tu tik domā, to tu vienā vilcienā varēsi
+uzmālēt."</p>
+
+<p align="JUSTIFY">Viņš uzcēlies, atradis to kastīti un nu viņš domājis, ka viņš
+nu varētu visu izkrāsot, ko tik grib. Viņš pameklējis kabatā, atradis baltu
+papīrīti un domājis, ka viņš varētu uzkrāsot to princesi. Kā nu viņš vilcis, tā
+ar vienu vilcienu uzmālējis princesi uz matu tādu, kāda viņa bija. Viņš bija ļoti
+priecīgs, ka varējis viņu tā uzmālēt. Un nu viņš sācis krāsot bildes, viņam
+klājies ļoti labi, jo pelnījis daudz un varējis labi dzīvot. Tā viņš iegādājies
+sev labas jaunas drēbes un dzīvojis labu laiku.</p>
+
+<p align="JUSTIFY">Vienā dienā ķēniņš meklējis pa pilsētu sev jaunus māldeŗus.
+Viņš jau bija salīdzis divpadsmit mālderus, bet vēl meklējis trīspadsmito un
+salīdzis to aitu ganu, kas apsolījies viens pats divpadsmit dienās izmālēt visu
+ķēniņa pili. Ķēniņš baidījies: diezzin vai viņš to varēšot viens pats cilvēks
+izdarīt, bet zēns teicis, lai uz viņu pilnīgi palaižoties un visus citus, lai
+atlaižot.</p>
+
+<p align="JUSTIFY">Viņš tūlīt nobraucis līdz ķēniņam, tur nogājis, viņš pazinis
+arī princesi, ko bija izglābis. Tā pils piederējusi viņas tēvam un nu bija taisīta
+jauna uz viņas kāzām, un viņa tāpat pazinusi arī šo. Viņš tomēr viņai
+piekodinājis ka nedrīkstot doties pazīstami, un tā viņš sācis mālēt pili.
+Papriekšu viņš izmālējis laukus, pļavas, mežus ar visiem zvēriem, katrā istabā
+kaut ko savādāku, un tā viņš sācis mālēt, ka viņš ganījis aitas, un tad viņš
+izmālējis, ka viņš braucis ar kuģīti pa jūŗu, un ka viņu zvejnieki nozaguši.
+Tālāku izmālējis to dārzu ar grozu, kur princese sēdējusi iekšā, un to viesnīcu,
+kur viņi abi ar princesi gulējuši pa nakti, kur tad ienākuši tie meklētāji, kas
+viņiem uzspieduši nepareizo zvērastu.</p>
+
+<p align="JUSTIFY">Ķēķī viņš izmālējis galdu, nazi, dakšiņas, teļēķi un pats
+sevi, kur viņš sēž klāt.</p>
+
+<p align="JUSTIFY">Nu viņš paziņojis ķēniņam, lai nāk apskatīties, vai viss būs
+labi. Atnācis<b> </b>ķēniņš ar princesi un tie meklētāji skatīties, kuŗā istabā
+iegājuši, tie teikuši, ka ir ļoti skaisti. Bet kad gājuši tālāk un princese
+ieraudzījusi atkal, kur viņš ganījis aitas, viņa zinājusi, ka mālderis ir viņas
+glābējs, un viņa sūtījusi sulaini, lai iet viņam pakaļ un lai viņš nāk iekšā.
+Viņš tomēr vēl nav gājis iekšā. Tad viņi staigājuši tālāk un apskatījuši
+vienu istabu pēc otras. Beidzamā istabā princese vairs nav varējusi ciest, ieskrējusi
+pati viņam pakaļ un vedusi mālderi iekšā. Tie divi meklētāji sabaidījušies un
+domājuši, ka nu būs slikti, un gribējuši jau aizbēgt, bet tikuši saķerti. Tad
+princese teikusi: "Tas ir mans īstais glābējs!"</p>
+
+<p align="JUSTIFY">Tad viņa ar mālderi nosvinējusi kāzas, bet abi krāpēji tikuši
+iesieti zirgu astē un saraustīti.</p>
+
+<p>P i e z ī m e. Šīm pasakām stāv tuvu VI sējuma 13. numurs. P. Š.</p>
+</font>
+
+
+</body></html>

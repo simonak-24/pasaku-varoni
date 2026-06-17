@@ -1,0 +1,212 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Maģiskā bēgšana ar aizliegto kastīti.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 313. B Pogu Jānis, Bechmanis, Brambergā. LP, VI, 119, 2. piez.
+A III, 4s.</p>
+
+<p align="JUSTIFY">Vienā pilsētā bijis tik bagāts tirgotājs, ka nevarējis ne
+izskaitīt, nedz nozināt, cik mantas īsti bijis. Un šis tirgotājs vienu dienu
+ieraudzījis sētā sašautu ērgli. Paņēmis bisi un gribējis pavisam nogalināt; bet
+ērglis lūdzies: "Tu esi tak bagāts, dod man taču, ja ne vairāk, dzīvokli un
+ēdienu, kamēr vesels palieku, to atlīdzināšu septiņkārt."</p>
+
+<p align="JUSTIFY">Labi, ielaidis lielo ērgli šķūnī, piekrāvis šķūni pilnu ar
+gaļu un ēdinājis veselu gadu. Ērglis ēdis kā lielākais negausis un nemaz nepalicis
+labāks. Gada galā tirgotājs paķēris bisi un gribējis labāk tādu nošaut; bet šis
+lūdzies, lai kopjot vēl gadu.</p>
+
+<p align="JUSTIFY">Sakopis to gadu un nu jau tirgotājam apēdis tik daudz, ka varējis
+savu mantu saskaitīt, bet veselāks kā nepalicis, tā nepalicis. Gribējis atkal
+nošaut; bet ērglis lūdzies, lai kopjot vēl gadu -būšot septiņkārt aizmaksāt.</p>
+
+<p align="JUSTIFY">Trešā gadā ērglis rijis tik nesātīgi galu, ka bagātnieks palicis
+gluži nabags un uz gada beigām nevarējis nekā vairs ērglim atmest. Tad ērglis
+sacījis: "Tev vairs gaļas nav -- mēģināšu laisties!"</p>
+
+<p align="JUSTIFY">Uzlaidies pirmo reizi augstu gaisā, bet augstāk nevarējis vairs;
+otrreiz vēl augstāk; bet trešo reiz uzlaidies līdz mākuļiem, un kad nonācis zemē -
+teicis: "Nu esmu vesels! Ņem maizi līdz uz septiņiem gadiem un kāp man
+mugurā!"</p>
+
+<p align="JUSTIFY">Labi. Ērglis nesis tirgotāju pilsētas torņiem pāri un gaisā
+tīšām meties (sviedies) otrādi un kratījis nastu nost. Tirgotājs iecirtis nagus
+ērglim kaklā un lūdzies, lai taupot šo. Ērglis atteicis: "Vai man tāpat dūša
+netrīcēja, kad mani šāvi?"</p>
+
+<p align="JUSTIFY">To teicis, tas aizskrējis ar tirgotāju kalnu galiem pāri, apsviedies
+otrādi un atkal kratījis zemē; bet šis atkal iecirtis nagus un pielūdzies. Trešo
+reizi uzskrējis viņpus mākuļiem un kratījis vēl stiprāki. Tad tirgotājs ieķēries
+kaklā un lūdzies, viņš negribot ne mantas nekā vairs, bet dzīvu vien lai atstājot.
+Ērglis atteicis : "Nu Labi! tagad vari droši sēdēt man mugurā visus septiņus
+gadus, kamēr notiksim galā!"</p>
+
+<p align="JUSTIFY">Pēc 7 gadiem ērglis nolaidies pie varen greznas pils, pārvērties
+par cilvēku, izrāvis no sētas resnu mietu, iedevis to tirgotājam un sacījis :
+"Es iešu tagad iekšā pie savas vecākās māsas, un kad tu arī gribi iekšā
+tikt, tad piesit ar mietu pie pils stūŗa un prasi māsai mīlamo lādīti!"</p>
+
+<p align="JUSTIFY">Labi. Pa brītiņam tirgotājs piesitis ar mietu, iznākusi pati
+ķēniņiene šo ielaist, un nu šis prasījis mīlamo lādīti. Ķēniņiene atteikusi,
+visu mantu varot atdot, bet mīlamo lādīti vien neatdošot.</p>
+
+<p align="JUSTIFY">Tad ērglis, to dzirdēdams, paņēmis tirgotāju pa muguru un
+aizskrējis uz otru pili, pie otras māsas. Tur tāpat. Beidzot skrējis pie trešās
+māsas, jaunākās, un licis prasīt mīlamo lādīti. Tā devusi. Ērglis attaisījis
+mīlamo lādīti un tur bijis tik daudz mantas, ko vēl savu mūžu nebija redzējis.
+Izskatījies, izpriecājies, beidzot ērgļa kungs aizvēris lādīti un atdevis
+tirgotājam, pieteikdams, lai ātrāk vaļā netaisot, kamēr mājā. Tirgotājs vēl
+dabūjis zirgus, ratus un braucis mājā.</p>
+
+<p align="JUSTIFY">Tirgotājam ceļmalā uznākusi kāre mīlamo lādīti atvērt.
+Atvēris - tūdaļ gadījušies bez gala zaldātu un tie nolaupījuši visas mantas, pašu
+arī pliku noģērbuši. Nu tirgotājs sūkājies. Tad ērglis atskrējis pestīt; bet par
+to šim bijis jāapsola jaunais dēls pēc 21. gada. Apsolījis. Kad nu pārnācis ar
+mīlamo lādīti mājā un atvēris, tad zaldāti visas mantas sakrājuši spīķeŗos un
+sargājuši dienu un nakti. Drīzumā tad tirgotājs palicis vēl par tās pilsētas
+valdnieku, tik bagāts nu bijis.</p>
+
+<p align="JUSTIFY">Tirgotāja dēls pēc 21. gada vienu rītu iegājis pie tēva,
+vaicādams, vai tēvs viņu tikai neesot atdevis kādreiz velnam, jo šonakt viņam
+parādījies liels pelēks vīrs un vedinājis līdz'? Tēvs izstāstījis visu.</p>
+
+<p align="JUSTIFY">Tad dēls seglojis zirgu un jājis uz velna pili. izjājis, tur sētas
+vidū ieraudzījis logā vienu ķēniņa meitu sēžam. Tā iznākusi pretim, ievedusi
+iekšā, pacienājusi un tad teikusi, ka dēlam nu būšot jādzīvo pie viņas, bet šad
+un tad arī būšot jāiet uz otru pili, kur velns dzīvojot. Un kad viņš tur noiešot,
+tad velns viņu sēdināšot zelta krēslā un došot dzert no zelta kausa; bet lai
+nesēdot tur un lai nedzeŗot no tā, lai prasot koka krēslu, kur atsēsties un glāzi,
+kur nodzerties. Un kad velns glāzi sniedzot, lai atkal nedzeŗot, lai nosviežot glāzi
+zemē un sasitot, tad velns nespēšot nekā vairs padarīt.</p>
+
+<p align="JUSTIFY">Labi, dēls aizgājis un visu tā izdarījis, sasitis glāzi. Bet nu
+velns brīnījies, kas šis par gudrinieku, un tūdaļ sadevis smagus darbus. Pirmo nakti
+bijis kuģis jāuztaisa. Dēls pārgājis pie ķēniņa meitas, tā to izdarījusi, kamēr
+šis gulējis.</p>
+
+<p align="JUSTIFY">Otru nakti bijis jāiet tur - nekur un atnest šo - neko. Pārgājis
+pie meitas, tā teikusi : ,,Aizej ezera malā, tur būs savāda pīle ligzdā. Ieliec
+pīli ar ligzdu kurvī, apsedz, aiznes velnam - tā būs meklējamā lieta!"</p>
+
+<p align="JUSTIFY">Labi. Trešo nakti bijis jāuzceļ vaska baznīca ar zelta durvim un
+logiem. Kad nu pārgājis pie ķēniņa meitas, tā palikusi bāla un teikusi: "Ne es
+to protu, ne tu - tagad spruksim projām!"</p>
+
+<p align="JUSTIFY">Aizbēguši. Bēguši, bēguši - velns dzinies pakaļ. Nu šie pirmo
+reizi palikuši par aitu baru un vecu, vecu ganu, otrreiz par baznīcu un sirmu
+mācītāju, trešreiz par ezeru un asari. Nenoķēris, un nu velns palicis par briesmīgi
+lielu vērsi, dzēra ūdeni un bauroja kā traks. Dzēris tikām - pārsprādzis.</p>
+
+<p align="JUSTIFY">Nu ezers ar asari palikuši par cilvēkam, pārgājuši pie tirgotāja
+dēla tēva, apprecējušies un dzīvojuši laimīgi. Vēlāk ķēniņa meitas tēvs,
+dabūjis par savu meitu zināt, atdevis znotam valdību.</p>
+
+
+</body></html>

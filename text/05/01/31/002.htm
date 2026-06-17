@@ -1,0 +1,176 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Trīs vecītes par palīgiem.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 501. O. Kiršteins Kr. Misā. LP, III. 45.</p>
+
+<p align="JUSTIFY">Viņos laikos kādai mātei bijusi tāda meita bez mūža pavedieniem
+delnās (plaukstās). Ērmoti bijis arī tas, ka meita nevarējusi neviena darba pabeigt:
+visur ķēries, visur atdūries. Citi ļaudis turējuši viņu par slinku, bet patiesībā
+tā nemaz nebijis.</p>
+
+<p align="JUSTIFY">Reiz māte, nezin, kā sadusmojusies, ceļmalā kūlusi meitu. Braucis
+svešs kungs gaŗām. Tas prasījis: "Māmiņ, kādēļ kul savu bērnu?"</p>
+
+<p align="JUSTIFY">Māte negribējusi pavisam savu bērnu apkaunot, tādēļ teikusi:
+"Ja, kā nekulšu? Viņa man <b>visus </b>salmus sāk par zīdu savērpt un
+saaust."</p>
+
+<p align="JUSTIFY">Kungs, to padzirdējis, kā rūgta nāve virsū, lai dodot meitu viņam
+līdz, viņš būšot to apņemt par sievu.</p>
+
+<p align="JUSTIFY">Māte to atdevusi. Kungs pārvedis meitu pie sevis. Bet mājā tas
+apdomājies: "Kas zin, vai viņa patiesi māk no salmiem zīdu vērpt un aust? Pag,
+pag, likšu puišiem labu kaudzi nokŗaut. Ja tā salmu kaudzi savērps un saaudīs, tad
+precēšu, ja ne -- vedīšu atpakaļ."</p>
+
+<p align="JUSTIFY">Pret vakaru salmu kaudze bijusi nokŗauta. Nokrēslā meitai bijis
+jāsāk vērpt. Nabadzīte nogājusi pie kaudzes, raudājusi un raudājusi.</p>
+
+<p align="JUSTIFY">Te pienākušas trīs māmiņas: Vērpēja, Tinēja, Audēja,
+prasīdamas: "Meitiņ, kādēļ raudi?"</p>
+
+<p align="JUSTIFY">Ja, kā neraudāšu? Vai tas kādam iespējams? Man šī salmu kaudze
+jāsavērpj Par zīdu pavedieniem un jānoauž audekls."</p>
+
+<p align="JUSTIFY">"Nekas, meitiņ, mēs tev palīdzēsim."</p>
+
+<p align="JUSTIFY">Un tūdaļ vērpēja vērpa no salmiem zīda pavedienus. Tinēja tina
+pavedienus gar meitas rokām un darināja kamolu. Audēja atkal auda no kamola zīda
+audeklu.</p>
+
+<p align="JUSTIFY">Gaismiņai svīstot, salmu kaudze bija nozudusi un tai vietā gadījies
+gaŗš un plats zīda audekls. Meita nezināja, kā patencināt, kā atmaksāt māmiņām.
+Bet tās par atmaksu ne dzirdēt, tik iesaucās aiziedamas: "Parītu tev ar kungu
+kāzas. Ja tev laba sirds, tad aicini arī mūs kāzās."</p>
+
+<p align="JUSTIFY">Labi. No rīta kungs doti priecājies par zīda audeklu un darbīgo
+meitu. Viņš tūlin rīkojis lieliskas kāzas un saaicinājis pasauls viesu. Arī meita,
+līgava, sākusi naģi posties. Un nu par brīnumiem tā manījusi, ka darbi citādāki
+izdevušies, nekā senāk. Ko iesākusi, to arī drīzi pabeigusi; pat mūža pavedieni
+delnās bijuši gadījušies.</p>
+
+<p align="JUSTIFY">Kāzu rītā viesi sanākuši, tik tās trīs māmiņas vēl
+trūkušas. Līgava piegājusi savam kungam klāt un sacījusi: "Tu nezini, es
+ielūdzu arī mūsu kāzās trīs māmiņas; brīnums, kā viņas neatnāk."</p>
+
+<p align="JUSTIFY">Bet līdz ko izteikusi tos vārdus, te durvis atvērušās un
+Vērpēja, Tinēja, Audēja ienākušas istabā. Vērpējai no pavedienu laizīšanas
+bijušas tādas biezas lūpas kā kausiņi; Tinējai no tīšanas bijuši tādi pirksti
+kā tapas; audējai no aušanas bijušas tādas kājas kā dēlīši. Kungs, to
+redzēdams, prasījis, kamdēļ māmiņām tādi pirksti, tādas lūpas, tādas kājas
+esot? Māmiņas atteikušas: "No strādāšanas dienu un nakti. Tādēļ, ja savu
+sievu mīli, tad piešķir tai vieglas dienas, tad tai negadīsies tādas lūpas, tādi
+pirksti, tādas kājas."</p>
+
+<p align="JUSTIFY">Kungs nu apņēmies. Viņš dzīvojis ar savu sievu laimīgu mūžu.</p>
+
+
+</body></html>

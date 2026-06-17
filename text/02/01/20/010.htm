@@ -1,0 +1,223 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Mednieks izglābj princesi.</p>
+</b></font>
+
+<p align="JUSTIFY">10. A. 300. 304. J. Ozols Saukā, Brīvzemnieka kr. LP, Vl, 125, 8. </p>
+
+<p align="JUSTIFY">Senāki bija tā: viens vīrs ar savu sievu dzīvoja lielā, lielā
+nabadzībā, ne bērnu tiem </p>
+
+<p align="JUSTIFY">nebija, tik nabagi. Bet vienreiz vīrs satiek vecu tēvu, tas saka,
+Mārtiņa vakarā lai noejot</p>
+
+<p align="JUSTIFY">mežā, nocērtot kādu elksni un uzliekot krāsns augšā, tad pēc
+gada no tā viņam dēls </p>
+
+<p align="JUSTIFY">gadīšoties. Labi! Darījis tā.</p>
+
+<p align="JUSTIFY">Otrā Mārtiņu vakarā vīrs ar savu sievu sēd pie vakariņām savu
+elksnīti aizmirsuši un dzird bērnu brēcam. Iet skatīties -elksnis palicis par skaistu
+puisēnu. Nosaukuši puisēnu par Elkšņu Mārtinīti un audzinājuši par savu dēlu.</p>
+
+<p align="JUSTIFY">Sešpadsmit gadu vecs, Elkšņu Mārtinītis paņēma cirvi un aizgāja
+darbu meklēt. Gāja, gāja -- nonāca pie viena ķēniņa un saderēja par kazu ganu.
+Ķēniņš viņam deva labu algu, jo kalnā, kur kazas bija ganāmas, dzīvoja velni; tie
+arvienu gan kazas, gan ganus bija nolaupījuši.</p>
+
+<p align="JUSTIFY">Otrā dienā Elkšņu Mārtinītis izdzina kazas un nosēdās kalna
+malā uz liela akmiņa brokastī. Te - kur bijis, nebijis - velns ar trim galvām klāt:
+lai viņam arī dodot sviest' ar maizi! Elkšņu Mārtinītis iedod un velns nu ēd kā
+badakāsis vienu muti pēc otras. Bet Elkšņu Mārtinītis izgāja uz gudrību, viņš
+piepēži izlikās itkā diķti nobijies un iesaucās: "Velns, velns, tu būsi
+tūlīt pagalam! Tev liels cirmens pie rīkles pieķēries. Dod, es viņu noņemšu"</p>
+
+<p align="JUSTIFY">Velns atļāva. Bet Elkšņu Mārtinītis kā nu grāba velnu aiz
+rīkles, tā ar platcirvi visas galvas nost un pasvieda apakš lielā akmeņa.</p>
+
+<p align="JUSTIFY">Otrā dienā gluži tāpat viņš nokāva velnu ar sešām galvām un
+trešā dienā ar divpadsmit galvām. Nu Elkšņu Mārtinītim bija amats rokā velnus
+kaut, un viņš droši vien devās pa teku alā iekšā, no kurienes nokautie velni bija
+izlīduši. Labi! iegāja alā, tur pie vārtiem sastapa nejauku bābu, par sargu tā tur
+stāvēja. Bāba saka: "Ej, ej dēliņ, tikai iekšā, gan es durvis
+aizvēršu!"</p>
+
+<p align="JUSTIFY">Bet Elkšņu Mārtinītis atbild: "Kur tu aizvērsi? Tev jau
+tūlīt jāmirst, redzi, kāds liels cirmens tev rīkli kož. Dod, es viņu
+noņemšu."</p>
+
+<p align="JUSTIFY">Labi, lai ņemot! Bet Elkšņu Mārtinītis nemeklēja vis cirmeņus -
+sagrāba bābu aiz rīkles un nocirta ar platcirvi galvu. Nu iegājis iekšā, atrada
+visādus kaŗa rīkus: zobinus, šķēpus, ko neko, un arī varenu ka; a zirgu. Paņēmis
+zobinu, uzkāpis zirgam mugurā, tas lepni izjāja ārā un noglabāja kalna malā,
+mežā, nevienam ne vārdiņa pa atradumu neteikdams.</p>
+
+<p align="JUSTIFY">Un šim ķēniņam, kam Elkšņu Mārtinītis kazas ganīja, bija
+jāatdod savas meitas velniem ezerā. Papŗiekšu veda vecāko ķēniņa meitu. Tad
+Elkšņu Mārtinītis atstāja savas kazas, uzkāpa kaŗa zirgam mugurā, piejoza zobinu
+un aizlaida uz ezera malu, kur jau ķēniņa meita patlaban nāvi gaidīja. Ļaudis, tie
+atkal veselu versti atstātu, nolūkojās, kas ar meitu notiks. Un kādus brīnumus nu
+viņi redzēja! Atjāja lepns kaŗa vīrs Elkšņu Mārtinītis, lepnā kaŗa zirgā, un
+tiklīdz velns ar trim galvām iznāca no ezera, tā šis ar zobinu žviuks! uz vienu
+pnsi, žviuks! uz otru pusi - velnam galvas nost un ķēniņa meita glābta. Bet velna
+kavējs tūlin aizaulēkšoja - kur palika, kur ne. Viņš aizskrēja atpakaļ pie kazām
+un nelikās ne manāms.</p>
+
+<p align="JUSTIFY">Otrā dienā veda otru ķēniņa meitu. Nu iznāca velns ar sešām
+galvām no ezera un to arī Elkšņu Mārtinītis nokava.</p>
+
+<p align="JUSTIFY">Trešā dienā veda jaunāko ķēniņa meitu. Nu iznāca velns ar
+divpadsmit galvām. Vienpadsmit galvas viņš uz reizi nocirta; bet divpadsmito cērtot,
+velns ievainoja Elkšņu Mārtinītim kājai ikrus - asinis plūda. Tad jaunākā
+ķēniņa meita pārsēja ievainojumu ar savu drānu un tikko tas bija padarīts, viņš
+aizaulēkšoja atkal pie savām kazām.</p>
+
+<p align="JUSTIFY">Bet ķēniņš par varu gribēja zināt, kas tas tāds par glābēju
+bijis. Viņš sarīkoja lielas dzīres un prasīja vienam, otram, vai nezinot glābēju
+uzzīmēt? Neviens nezināja, tikai to bija redzējuši, ka pie ezera atjāj un aizjāj.
+Bet glābējs, Elkšņu Mārtinītis, pa dzīrām gulēja krāsnī, kājas izkāris; jo
+kungu pulkā viņam netika bāzties.</p>
+
+<p align="JUSTIFY">Pienāca pusdienas laiks, jaunākā ķēniņa meita izgāja pusdienu
+smelt, te pameta acis - ierauga: kazu gans krāsnī un kāja aptīta ar viņas drāniņu.</p>
+
+<blockquote>
+  <blockquote>
+    <p align="JUSTIFY">Kas kaitot kājai?</p>
+  </blockquote>
+  <p align="JUSTIFY">Esot nositis pie klints!</p>
+</blockquote>
+
+<p align="JUSTIFY">Bet atnāk ķēniņš skatīties, tas tādas blēņas netic, lai sakot
+taisnību!</p>
+
+<p align="JUSTIFY">Neko darīt - bija jāsaka, ka meitas izglābis. Nu ķēniņš, priekā
+neattapdams ne ja, ne ne - tūlin grib Elkšņu Mārtinīti saprecināt ar jaunāko
+ķēniņa meitu, kas drānu bija sējusi ap kāju; bet šis atsaka, viņš pa priekšu
+gribot vēl pie saviem vecākiem aiztikt un tad.</p>
+
+<p align="JUSTIFY">Labi! ķēniņš sadeva daudz naudas līdz, lai nu ietu ar godu; bet
+Elkšņu Mārtinītis tā ne : apvilka kaut kādus vecus kankarus mugurā, pielaida galvu
+pilnu ar zvērīšiem (utim) un tad gāja nelielīdamies pie vecākiem.</p>
+
+<p align="JUSTIFY">Nogāja tur - māte tūlīt pretim tik priecīga, tik priecīga, bet to
+arī gan saka : "Ai, dēls, labi, ka pārnāci, tu jau pa pasauli klaidīdamies vai
+pavisam būtu panīcis. Redzi, kā tu esi noplīsis, izpūris. Nāc, paieskāšu galvu,
+tev jau, kas zin, iemītnieku arī netrūks."</p>
+
+<p align="JUSTIFY">Iesāka ieskāt - ak tu vaimanas! - tik daudz zvērīšu, tik daudz
+zvērīšu, ka skaidri jāraud. Bet Elkšņu Mārtinītis atbild smiedamies: "Māte,
+kam utis, tam nauda!" un izbeŗ spožus dukātus, vai veselu sieku zemē. Nu māte
+redzēja, ka šim nav vis nelabi klājies pasaulē un sāka prašināt galu no gala.
+Mārtinītis tad izstāstīja arī un aicināja vecākus līdz uz ķēniņa pili savās
+kāzās.</p>
+
+<p align="JUSTIFY">Un aizgājuši uz pili, nodzēra kāzas ar jaunāko ķēniņa meitu un
+dzīvoja laimīgi.</p>
+
+
+</body></html>

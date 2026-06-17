@@ -1,0 +1,140 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Cilvēki pie velniem.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 327 A. Mārtiņš Usītis Lubānas Brantos. M. Celmiņa kr. </p>
+
+<p align="JUSTIFY">Lubānā vecus laikus bija rija tuvu pie muižas. Kādas divas verstes
+attālu bijis mazs šķūnītis un tai šķūnītī dzīvojis velns, bet tas gājis katru
+nakti uz rijām. Tai rijā ar vairāk nekas nedzīvojis, kā tikai rijnieks, bet tas bijis
+drošs un ne par ko nebēdājis. Kad velns atnācis, tad papriekšu visvisādi
+izķēmojies, gan par pūci, vanagu, par kali, un beidzot par cilvēku. Piegājis pie
+rijnieka viņš to sūta, lai ejot uz kungu pagrabiem un lai ēdot, cik vien patīkot.
+Rijnieks atbildējis, kā lai tiekot pagrabā, jo durvis esot aizslēgtas. Velns atteicis,
+lai ejot vien droši, jo visas durvis atradīšot vaļā. Rijnieks arī gājis katru
+nakti; bet nu viņš dzird, ka velns uz savu sulaini saka: "Nu gan jau būs
+nobarojies. varēs ņemt pie rokas!"</p>
+
+<p align="JUSTIFY">Rijniekam paliek nelabi ap sirdi; ja nu nevar atrast gudru padomu, tad
+gals klātu. Dienām un naktim domā, kā varētu tikt vaļā; uz reiz viņam iešaujas
+gudrs padoms prātā. Kad nākusi tā nakts, kad velns bijis norunājis vest viņu
+projām, rijnieks ņem novelk kreklu, bikses, cepuri; piebāž bikšu staras pilnas salmu
+un kreklu, sašnorē kopā un izliek cepuri galvā, ņem un pakaŗ pie piedarba durvim,
+bet pats aizlien rijā aiz krāsns un grib redzēt, kas tur iznāks. Tā ap pusnakti
+rijnieks dzird ka zvani vien attilkš. Velns ātri atrauj piedarba durvis, bet tikko
+atvēra, kad ar tūlīt atlēca nost, sasita rokas kopā un izsaucās: "Te nu ir viss
+mans pūliņš! domāju ņemt pie rokas un vest līdz, bet nu ir pats pakāries."</p>
+
+<p align="JUSTIFY">Velns ielēcis tūlīt vāģos iekšā un aizlaidis projām. No tā
+laika arī rijnieks vairs viens negulējis rijā. Par kādu laiku nodegusi rija un
+šķūnītis, abi vienā naktī.</p>
+
+
+</body></html>

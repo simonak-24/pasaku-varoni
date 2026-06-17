@@ -1,0 +1,228 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>27</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Burvis zārkā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">27. Lapas Mārtiņš Rūjienā, "Gudrais Ansis un velns" III,
+Smiltenē 1902.</p>
+
+<p align="JUSTIFY">Kādā muižā dzīvojis ļoti bagāts un skops kungs. Viņš visu
+mūžu palicis neprecējies, lai nebūtu jāuztura sieva un bērni Kungs dzīvojis lielā
+pilī, bet tā ziemā bijusi stipri auksta, tādēļ ka kungs aiz skopuma aizliedzis
+kurināt krāsnis. Tādēļ ka visas pils istabas bijušas aukštas, kungs dzīvojis,
+strādājis un ēdis savā guļamā istabā, kuŗa vienmēr bijusi silta, kaut gan arī
+tās krāsns netapusi kurināta. Kalponei bijs brīvu tikai no rīta ieiet kunga guļamā
+istabā, uztaisīt gultu un uzmēst istabu, ķēkšai turpretī bijis brīvu tikai
+maltītes laikā kungam ienest ēdienu un iznest tukšos traukus. Citiem muižas
+gājējiem bijis stingri aizliegts ieiet pie kunga, izņemot tomēr vagāru, kam bijis
+atļauts katrā laikā -tikai pašā pusdienā un pusnaktī ne - ieiet pie kunga, tam
+ziņot par muižas darbiem un saņemt kunga pavēles, jo vagārs izpildījis arī
+muižkunga vietu, tādēļ ka kungs aiz liela skopuma negribējis algot muižkungu.</p>
+
+<p align="JUSTIFY">Reiz vagārs steidzībā bijis aizmirsis, ka viņam ap pusdienas laiku
+aizliegts ieiet pie kunga, un tādēļ iegājis kaut ko nekavējamu pavēstīt un sācis
+ar kungu runāt. Bet tad viņš ieraudzījis, ka uz krāsns tup sarkans kaķis, ar kuŗu
+kungs sarunājies. Par traucējumu kungs vagāru ļoti dusmīgi, gluži zvēriski,
+uzskatījis, bet neko neatbildējis. Vagāram meties bailes un viņš tādēļ steidzies
+no kunga guļamās istabas laukā.</p>
+
+<p align="JUSTIFY">Kad vagārs vēlāk, atļautā laikā, iegājis pie kunga par to pašu
+lietu runāt, tad sarkanā kaķa uz krāsns vairs neredzējis un kungs ar viņu atkal
+runājis tikpat laipni, kā citās reizēs, neviena vārda neiebilzdams, par pirmītējo
+traucējumu.</p>
+
+<p align="JUSTIFY">Par šo kungu bijis izdaudzināts, ka tas mantas kārības un lieliska
+skopuma dēļ pārdevies velnam un ka velns tam sanesot naudu, ko tas glabājot tumšā
+istabā, lielos dzelzs šķirstos. Bet kad vagārs citiem muižas ļaudim pastāstījis
+par kunga istabā redzēto sarkano kaķi, tad vairs neviens nešaubījies par to, ka kungs
+stāv ar pašu velnu biedrībā.</p>
+
+<p align="JUSTIFY">Reiz kungs piepēži saslimis.</p>
+
+<p align="JUSTIFY">Viņš licis iesaukt savu vienīgo uzticības vīru, vagāru, un tam
+pasacījis, ka viņam drīzumā jāmirstot.</p>
+
+<p align="JUSTIFY">Vagārs dzīries no pilsētas likt atvest ārstu. kas kungu iz
+ārstēšot.</p>
+
+<p align="JUSTIFY">"To tikai ne!" kungs pretojies. "Ārsts man vairs nevar
+līdzēt, jo man jāmirst. Radinieku man neviena nav, kam atstāt savu mantu. Tādēļ ar
+manu naudu, ko atradīsi zem manas gultas dzelzs lādē, izrīko man kuplas bēres visiem
+muižas un pagasta ļaudim. Gādā par to, ka visi top bagātīgi paēdināti un
+padzirdīti. Pārējo naudu godīgi izdali visiem maniem dzimtsļaudim vienlīdzīgās
+daļās, lai viņi mani ilgi pieminētu un par manu dvēseli lūgtu Dievu. Līdz bēŗu
+dienai tev pa nakti jāsēž nomodā pie mana zārka, par ko tev nolēmu simts daldeŗus,
+kuŗus še tev jau tagad iedodu. Bēŗu vajadzības visas liec: sagādāt citiem ļaudim.
+Tev pašam tikai jāpārlūko, vai viss bagātīgi top sagādāts un sarīkots."</p>
+
+<p align="JUSTIFY">Vagārs apsolījis izpildīt kunga pēdējās pavēles.</p>
+
+<p align="JUSTIFY">Kungs nomiris. Vagārs no pilsētas licis pārvest greznu zārku,
+kuŗā ieguldījis kungu un tad mironu novietojis pils zālē. Tad viņš vairāk
+sapratīgiem vīriem uzdevis sagādāt bēŗu vajadzības.</p>
+
+<p align="JUSTIFY">Lai gan viņš zāles divas krāsnis licis pa dienai stipri iekurināt,
+tomēr zāle bijusi un palikusi auksta.</p>
+
+<p align="JUSTIFY">Vagārs neiedrošinājies viens pats pa nakti palikt pie mirona un
+tādēļ kādu vīru ņēmis sev biedros. Pie viņiem bijis ļoti auksti, pat brandavīns
+nebija varējis viņus sasildīt.</p>
+
+<p align="JUSTIFY">Nākošā dienā vagārs visu dienu licis kurināt zāles krāsnis un
+tās vakarā bijušas stipri karstas, bet zāle tomēr palikusi auksta un līķa
+sargātāji pa nakti atkal saluši.</p>
+
+<p align="JUSTIFY">Kaut gan vagāram no kunga guļamās istabas bijis bailes, tur reiz
+redzētā sarkanā kala dēļ, tomēr viņš pēdējā vakarā priekš bērēm saņēmis
+dūšu un licis mironu ienest kunga guļamā istabā, kuŗa vēl vienmēr bijusi silta,
+lai pēdējo nakti pie mirona nomvdā sēžot, nebūtu jāsalst.</p>
+
+<p align="JUSTIFY">Kad abi mirona sargātāji<b> </b>vakarā guļamā istabā iegājuši
+pie mirona, vagārs drošības dēļ paņēmis bībeli līdz. Bet tikko viņi apsēdušies
+un vagārs sācis šķirstīt bībeli, viņi blakus stāvošā tumšajā istabā, kur pēc
+aužu domām mirušais kungs bija paglabājis velna sanesto naudu, un kuŗas dzelzs durvis
+bijušas aizslēgtas, dzirdējuši savādu troksni, it kā dzelzs šķirstu vāki taptu
+atslēgti un vārstīti. Troksnis tapis vienmēr lielāks un ap pusnakti dzelzs durvis
+tapušas atslēgtas, tā kā vagāram aiz bailēm bībele izkritusi no rokām.</p>
+
+<p align="JUSTIFY">Tūlin pēc tam dzelzs durvis ar lielu troksni tapušas atgrūstas un
+kāds sarkans kalis pa tām iznācis un mirona sargātājus ugunīgām acim dusmīgi
+uzskatīdamies, tiem uzsaucis: "Vairs nelīdz ne jūsu Dieva lūgšana, nedz pātaru
+skaitīšana! Tas, kas te zārkā guļ, dzīvs būdams piederēja man un arī nomiris
+būdams pieder man! Taisaties tik projām!"</p>
+
+<p align="JUSTIFY">Mirona sargātāji aiz izbailēm vēl stomījušies; bet kad sarkanais
+kalis vienmēr pārvērties lielāks un nācis viņiem tuvāk, viņi mukuši pa durvim
+laukā un izskrējuši no pils, vairs neiedrošinādamies griezties atpakaļ.</p>
+
+<p align="JUSTIFY">Arī nākošā rītā, bēŗu dienā, vagārs ar savu biedru
+neiedrošinājies ieiet guļamā istabā, bet viņi gaidījuši mācītāju, kuŗš bijis
+aicināts mironu izvadīt ar dievvārdiem.</p>
+
+<p align="JUSTIFY">Kad mācītājs atbraucis, vagārs tam pastāstījis pagājušās nakts
+piedzīvojumu. Mācītājs papurinājis tikai galvu, bet neko neatbildējis. Viņš
+piegājis pie zārka un pavēlējis nocelt vāku. Bet zārku attaisot, izrādījies, ka
+viņā vairs nav mirons, bet apdedzis bluķis. Mācītājs pavēlējis tūlin zārkam
+uzlikt atkal vāku un pie zārka neizdarījis nekādas izvadāmās ceremonijas. Viņš
+pavēlējis zārku paglabāt kapsētā un par to, ka kunga līķis neatradies zārkā,
+neko neizpaust.</p>
+
+<p align="JUSTIFY">Mironu šķesteris paglabājis, tādēļ ka mācītājs licis
+pavēstīt, ka nevarot iet pie kapa, esot piepēži saslimis, bet viņš tik negribējis
+nākt, tādēļ ka zārkā vairs nebijis mirons, bet tikai bluķis.</p>
+
+<p align="JUSTIFY">Kunga bēres bijušas ļoti bagātas.</p>
+
+<p align="JUSTIFY">Vagārs pēc kunga nosacījuma izdalījis ļaudim zem kunga gultas
+dzelzs lādē atrasto mantu. Viņš aicinājis vairāk vīrus līdz uz guļamistabai
+blakus stāvošu tumšo kambari, to pārmeklēdami, viņi tur atraduši visu dzelzs
+šķirstu vākus vaļā un šķirstā naudas vietā tikai apgruzdušas koku lapas.</p>
+
+
+</body></html>

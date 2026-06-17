@@ -1,0 +1,186 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Lielie stiprinieki.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">2. A. 650 B. Lapas Mārtiņš, "Gudrais Ansis un Velns", III,
+1902., 82 (20).</p>
+
+<p align="JUSTIFY">Vienā pagastā reiz dzīvojis ļoti stiprs vīrs. Visā apgabalā
+nebijis neviena cilvēka, kas ar šo stiprinieku spēka ziņā būtu varējis mērīties.
+Tādēļ viņš bijis ļoti lepns par savu spēku un palicis lielīgs. Pēdīgi viņš
+sadomājis iet pasaulē un uzmeklēt otru līdzīgu stiprinieku, lai varētu ar to
+cīnīties. Vecāki vīri gan lūkojuši viņu atrunāt no tādām domām, bet viņš
+neklausījis.</p>
+
+<p align="JUSTIFY">Tā šis stiprinieks sācis staigāt pa pasauli. Reiz viņš
+apmaldījies mežā un tur uznākusi jau nakts. Bet tumsa viņam tomēr izdevies saskatīt
+kur tālumā uguns gaismu un viņš nu steidzies turpu. Tā viņš piegājis pie vienas
+mājiņas, kur atradis vienu veceni sēdam, kuŗai gaŗi zobi kā kuiļa ilkņi bijuši
+izspiedušies no mutes ārā. Vecene viņam jautājusi, kas šis tāds esot un ko
+vēloties.</p>
+
+<p align="JUSTIFY">"Vai es nevarētu dabūt pie jums naktsmājas, jo esmu mežā
+apmaldījies?" viņš atbildējis. "Es esmu stiprinieks un meklēju sev kādu
+pretinieku, ar ko varētu cīnīties."</p>
+
+<p align="JUSTIFY">"Manu vīru un dēlu arī daudzina par lieliem stipriniekiem, bet
+viņu nav tagad mājā. Kad tie nakti pārnāks mājā, tad jau rītu varēsit
+izmēģināt savus spēkus."</p>
+
+<p align="JUSTIFY">"Esmu priecīgs, ka esmu reiz atradis pretiniekus, bet vēl
+neticu, vai viņi būs man līdzīgi."</p>
+
+<p align="JUSTIFY">"Nelielies vēl par agru, kamēr neesi manus stipriniekus
+redzējis!"</p>
+
+<p align="JUSTIFY">Vecene atnesusi ciemiņam vakariņās milzīgu klaipu maizes un toveri
+putras, un tas arī krietni vien ēdis, jo pa mežu maldīdamies, bijis ļoti izsalcis.</p>
+
+<p align="JUSTIFY">"Kas tas par stiprinieku, kas tik maz ēd?" vecene sacījusi,
+ēdienu nokravādama.</p>
+
+<p align="JUSTIFY">Pēc vakariņām vecene uztaisījusi ciemiņam vienā kaktā cisas un
+aizgājusi arī pati gulēt. Naktī stiprinieks pamodies no savāda trokšņa, jo visa
+māja nodimdējusi no stiprinieku soļiem aiz durvim. Pārnācis vecenes vīrs ar dēlu un
+stiprinieks novērojis, ka tie esot velni. Viņš izlicies par aizmigušu un tik krācis.
+Vakariņās tēvs ar dēlu katrs noēdis milzīgu klaipu maizes un toveri putras.</p>
+
+<p align="JUSTIFY">"Kas tas tāds, kas tur kaktā guļ?" vecais velns jautājis
+vecenei.</p>
+
+<p align="JUSTIFY">"Tas ir kāds mežā apmaldījies cilvēks, kas še lūdza
+naktsmāju. Viņš esot stiprinieks un meklējot sev pretinieku, ar ko spēkoties."</p>
+
+<p align="JUSTIFY">"Kāds lielīgs nelga!" vecais velns izsaucies. "Kad es
+viņu uzaicināšu spēkoties, tad nositīšu ar vienu pirkstu. Nogulsimies mēs abi
+durvju priekšā, lai viņš pa nakti nevarētu aizbēgt."</p>
+
+<p align="JUSTIFY">Stiprinieks nezinājis no bailēm, ko darīt. Kad abi velni aizmiguši
+un sākuši jau krākt, tad šis piecēlies, atvēris klusām logu un aizbēdzis. Labu
+gabalu nogājis, rīta gaismā viņš jau dzirdējis, ka zeme dimd un velni dzenas šim
+pakaļ. Priekšā viņš ieraudzījis par laimi vienu milzi, kas nesis uz pleca divdesmit
+baļķu. Viņš pieskrējis tam klāt un savās izbailēs lūdzies, lai paglābjot viņu
+no velniem, kas šim dzenoties pakaļ. Milzis paķēris stiprinieku ar pirkstiem un
+iebāzis sev bikšu kabatā. Pieskrējuši arī abi velni un prasījuši bēgli rokā, bet
+milzis to izjēmis no kabatas, uzlicis sev uz galvas un sacījis: "Tepat viņš ir,
+nāciet tik un paņemiet!"</p>
+
+<p align="JUSTIFY">Kā nu velni ķērušies milzim klāt, tā šis tos sadauzījis ar
+vienu baļķi lēvaros, ka tur tikai smirdošu dūmu mutulis pacēlies.</p>
+
+<p align="JUSTIFY">Tad milzis nocēlis stiprinieku no galvas un sacījis: "Tu
+stāstīji, ka meklējot pasaulē tādu stiprinieku, kas tev būtu līdzīgs. Vai tev
+patiktu ar mani spēkoties?"</p>
+
+<p align="JUSTIFY">P i e z ī m e. Šī pasaka ir saīsināta, atmetot liekus
+izpušķojumus. Pavisam neveikli Lapas Mārtiņš ir še iepinis Pumura daudzināto
+Lāčplēsi. P. Š.</p>
+</font>
+
+
+</body></html>

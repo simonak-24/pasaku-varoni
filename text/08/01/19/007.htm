@@ -1,0 +1,154 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>a</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Blēdīgā māte.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">7. A. 567, 590. L.Uļjāna no A. Adjānas
+Latgalē, Latvju kultūras kr.</font></p><font size="3">
+
+<p align="JUSTIFY">Dzejvuoja tāvs, muote un div dāli. Muotei veirs napatyka, viņa
+gribēja precēt kēneņa dālu. Kēneņa dāls sacēja: "Tikai tod es īšu pi
+tevis, kad nūnuoveisi sovus obējus dālus."</p>
+
+<p align="JUSTIFY">Muote atdeve puisānus kukaram [pavāram], lai aizvad uz mežu un
+nūkaun. Kukars aizvede un gribēja kaut. Puikas lyudzīs, lai palaiž vaļā. Muote beja
+pīsacējuse, lai atnas viņai<b> </b>sirdes juos bārnu. Kukars nūkova mežā div
+suņus, bet puisānus palaide vaļā.</p>
+
+<p align="JUSTIFY">Guoja, guoja puisāni bruolīši pa mežu. Īraudzīja upi un dūmuoja
+sleicinuotīs. Tikkū samīdze acis, te jūs nūturēja vīns vecis un īdeve jīm deči,
+gradzynu un capurīti. Tod guoja puikas tuoļuok, īguoja vīnā piļsātā, tur
+izzašķeira un nazynuoja vairs vīns ūtra. Tamā piļsātā kēneņš meklēja sovai
+meitai veiru un sovai valstei vaļdinīku. Nūlyka sveci un pats kēneņš stuovēja
+kluotu. Kam garumejūt aizzadegs svece, tys byus par meitas veiru un valstis vaļdinīku.
+Kai guoja jaunuokais bruoļis garum, aizzadedze svece un viņam vajadzēja byut par
+kēneņa meitas veiru un tuos valstis vaļdinīku. Tai jū aizvede uz kēneņa pili.</p>
+
+<p align="JUSTIFY">Viņš apmaucja capurīti un juo nikas navarēja redzēt. Kēneņš
+soka: "Es tev, meit, veiru atvežu."</p>
+
+<p align="JUSTIFY">Izstaiguoja kēneņa meita vysu pili, bet navarēja atrast veira. Kad
+jis nūmaucja sovu capurīti, tad tik īraudzēja jū kēneņa meita. Kēneņa meita
+sacēja: "Kas mani apkartuos (nospēlēs uz kārtim), tam es byušu par sīvu."</p>
+
+<p align="JUSTIFY">Tys vecīts beja īdevis jam taidu gradzynu, lai juo nikas navar
+apkartuot. Sāduos abi kartuot un viņš apkartuoja kēneņa meitu. Tod kēneņa meita
+pajēme jū par veiru.</p>
+
+<p align="JUSTIFY">Reizi viņš īguoduoja, ka viņa bruoļa nav. Tai dūmuojūt,
+pīskrēja pi pilis stolts puisis, na zyrgā, bet dečī. Tys dečis beja taids, kur
+gribi, tur aiznes. Vacuokais bruolis beja pasacējis uz deči: "Aiznes mani uz munu
+jaunuokū bruoli."</p>
+
+<p align="JUSTIFY">Dečis jū ari atnese. Tagad bruoļi sarunuoja nūbraukt uz muojam sova
+tāva. Kad aizbraucja, tāvs ganēja cyukas, bet muote ar kēneņa dālu beja muojuos.
+Dāli pajēme tāvu un aizvede uz jaunuokuo bruoļa pili, bet tū kēneņa dālu un muoti
+nūcierta ar zūbynu.</p>
+</font>
+
+
+</body></html>

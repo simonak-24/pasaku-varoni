@@ -1,0 +1,293 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Varonis izglābj trīs nolaupītas princeses.</p>
+</b></font><font size="4">
+
+<p align="JUSTIFY">&nbsp;</p>
+</font>
+
+<p align="JUSTIFY">2. A. 301 A. Ābele Valkā, Magzin der Lett. lit. G. XVII, 1885,
+47.-51. 1. p.</p>
+
+<p align="JUSTIFY">Vienam ķēnīnam bīši trīs velli, kamēr jau no tēvu-tēvu laikim
+ieslēgti mūra pagrabos, priekš kurim dzelzs duris ar stiprām atslēgām bīšas
+priekšā. Kēnīns nevienam nav sacīš, kas tur iekšā ir. Viņa trīs meitas gauži
+gribēšas zināt, kas tanīs pagrabos ir. Vie[n]reiz ķēnīns nav mājā. Viņas
+dabūšas tās atslēgas rokā, iet un atslēdz katra savas duris vaļā. Tā velli
+tūlīt no pagraba ārā, katrs savu meitu, cie[t] un pa caurumu ellē iekšā.</p>
+
+<p align="JUSTIFY">Ķēnīns nāk mājā, dabū zipāt, kas noticis, liek tūlīt vienu
+virsnieku ar veselu rotu zaldātu, lai vaktē pie cauruma. Tas izvaktēš divpadsmit
+mēnešus, bet no meitām un no vellim ne smakas nejūt. Otrs un trešais virsnieks ar'
+izvaktēš, katrs divpadsmit mēnešus, bet nekā nedabū..</p>
+
+<p align="JUSTIFY">Tad viens vecs dzērājs vīrs, vārdā Plēša, iet pie ķēnīna un
+saka, ka viņš gribot lūkāt, vai nedabū meitas rokā. Ķēnīns par to ļoti
+priecājies un licis ātrumā visu sagādāt, kas pie tam ir vajadzīgs, lai veco Plēšu
+varētu ellē laist. Ķēnīns nu devis trīs visuzticamākos virsniekus un divpadsmit
+zaldātus. Tie nolaiduši Plēšu vienā vannī ar garu vindu pa drīzuļiem ellē.
+Plēša to vie[n] piesaciš, ja viņš pa trim dienām vindu nekustinājot, ta[d] viņš
+būšot no[st] būt.</p>
+
+<p align="JUSTIFY">Plēša tūlīt atrada pirmo meitu, kura sidraba kambari dzīvāja, un
+viņai skaists kronis bij galvā. Plēša deva labu dienu. Šī atbildēja: "Labdien,
+Vec - Plēša! Kas tevi te nesa? Mans vīrs i stiprs, tevi nokaus."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Plēša atbildēš: "Na, na! es jau nāču tev pakaļā."</p>
+</blockquote>
+
+<p align="JUSTIFY">Tur istabā uz loga bīšas divi glāzītes ar zālēm. Vienā tādas
+zāles: ja iedzer, ta[d] paliek gauži stiprs, un otrā atkal tādas: jā iedzer, ta[d]
+paliek gluži uļens. Tā meita nu devusi Plēšam iedzert tās stiprās zāles, un to
+vietā ielēsi tās uļenās zāles. Nu aizgāš Plēša gultā gulēt.</p>
+
+<p align="JUSTIFY">Uz pusdienu nāk vells mājā. Viņam bīšas trīs galvas un dzelzs
+nagi. Viņš sācis osties un sacīt: "Te ir tīri kā kristītu cilvēku
+smaka."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Sieva atbildēsi: "Man te viens radnieks no tēva atnācis."
+  Vells prasīš: "Kur viņš ir?"</p>
+  <p align="JUSTIFY">Sieva teikusi : "Tur gultā guļ."</p>
+</blockquote>
+
+<p align="JUSTIFY">Vells gāš aptaustītu. Ar saviem dzelzs nagiem taustīdams, iespiedis
+vells Plēšam degunu pavisam galvā iekšā, un nu sēdies pie galda, sācis ēst un ar'
+dzert no tām uļenām zālēm, domādams, ka tās tās stiprās esot.</p>
+
+<p align="JUSTIFY">Plēša gultā noglāstīš vie[n] savu degunu, ta[d] lēcis augšā,
+ķēris vella zobinu un ar to nocirtis vellam vis's trīs galvas kā leitenes no[st].</p>
+
+<p align="JUSTIFY">To dienu un nākušo nakti viņš palicis pie tās pirmās meitas:
+otrā dienā gāš pie otras meitas, kura zelta istabā dzīvāsi, un to sveicināš. Tā
+atbildēsi tāpat kā pirmā: "Labdien Vec - Plēša! Kas tevi te nesa? Mans vīrs ir
+stiprs, tevi nokaus."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Plēša atbildēš: "Na, na! es jau nāču tev pakaļā."</p>
+</blockquote>
+
+<p align="JUSTIFY">Tā otra meita ar zālēm tāpat darīsi kā pirmā. Uz pusdienu nācis
+vells mājā, tam bīšas sešas galvas un ar' dzelzs nagi. Ar' sācis ostīties un
+sacīt: "Te ir kristītu cilvēku smaka."</p>
+
+<p align="JUSTIFY">Sieva atteikusi: "Man te viens radnieks no tēva atnācis un tagad
+gultā guļ." Vells gāš taustītu un iespiedis divas ribas. Nu sēdies pie galda,
+sācis ēst un dzert no tām uļenām zālēm.</p>
+
+<p align="JUSTIFY">Plēša noglāstīš vie[n] savas ribas, lecis augšā un nocirtis
+vellam vis's sešas galvas.</p>
+
+<p align="JUSTIFY">Trešo dienu Plēša gāš pie trešās meitas. Tā dzīvāsi dimanta
+kambarī, un to viņš ar' sveicināš. Tā akāl atteikusi tāpat kā tās divas:
+"Labdien, Vec-Plēša! Kas tevi te nesa? Mans vīrs stiprs, tevi nokaus."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Plēša atbildēš: "Es jau nāču tev pakaļā."</p>
+</blockquote>
+
+<p align="JUSTIFY">T'rešai meitai bīš Kristīna vārdā. Tā iedevusi Plēšam tas
+stiprās zāles, un to vietā ielēsi tās nestiprās zāles.</p>
+
+<p align="JUSTIFY">Uz pusdienu nāk vells mājā ar deviņi galvām un dzelzs nagim. Tas
+vells ar' akal saka: "Te ir kristītu cilvēku smaka."</p>
+
+<p align="JUSTIFY">Kristīna atbild: "Man te viens radnieks no tēva atnācis un tur
+gultā guļ."</p>
+
+<p align="JUSTIFY">Šis nav gāš Plēšu taustītu, viņš sēdies vie[n) pie galda un
+sācis ēst. Jā šis ar' ietu Plēšu taustītu, tad viņu pagalam nospiestu.</p>
+
+<p align="JUSTIFY">Nu Plēša uzlēcis no gultas, saķēris vella zobinu un nocirtis
+astoņas galvas, bet devīto nav spēš; ar to sācis vells pretī ņemties. Plēša
+uzsaucis: "Kristī, svied vellam pirkstis acīs!"</p>
+
+<p align="JUSTIFY">Kristīna iesviedusi vellam pirkstis acis, un Plēša varēš nocirst
+devīto galvtt ar'.</p>
+
+<p align="JUSTIFY">Plēša nu gāš pie vindas un kustināš, lai šie augšā zin, ka
+viņš vēl i[r] dzīvs. Meitām nav vis bīš labs prāts no elles iziet viņām žēl
+bīš atstāt savus kamburus. Plēša teicis: "Tā i[r] maza lieta. Tos es varu līdz
+ņemt."</p>
+
+<p align="JUSTIFY">Plēša sacīš : "Par kamburiem bīš, par vistas poutim lai
+paliek!" un ielicis vis's trīs kalītē. Meitas gribēšas, lai Plēšu papriekš
+uzvelk, bet Plēša teicis: "Nē! es jūs papriekš uzvadīšu un smuki vannī
+iesēdināšu."</p>
+
+<p align="JUSTIFY">Meitas sāka žēloties: viena, ka skaisto kroni, otra, ka brengās
+kurpes, un trešā, ka smukuos kleitus būšot saburnīt pie augšā vilkšanas.</p>
+
+<p align="JUSTIFY">Plēša teicis: "Par kroni bīš, par puķīt' lai paliek!"
+un uzspraudis uz cepuri.</p>
+
+<p align="JUSTIFY">"Par kurpēm bīš, par siksnim lai paliek!" un iebāzis
+kalē. Par kleitim bīš, par lupatim lai paliek!" un ielicis kalē. Nu ielicis vis's
+trīs meitas smuki vannī un devis zīmi, lai velk.</p>
+
+<p align="JUSTIFY">Virsnieki uzvilkuši meitas un nav vai[rs] gribēši Plēšu vilkt; bet
+meitas teikušas: "Viņam ir dārgas lietas klā[t), mēs bez tām nevaram
+būt."</p>
+
+<p align="JUSTIFY">Nu ticis Plēša ar' uzvilkts gandrīz lidz cauruma galam; bet kad
+virsnieki pamanīja, ka Plēšam nekādu lietu nav klā[t), tad ielaida akal ellē
+iekšā, ka drīzuļi vie[n] norūca, un paši gāja ar meitām, pie ķēnīna un sacīja,
+ka viņi esot meitas izglābuši, bet nezinot, kur vecais Plēša esot palicis.</p>
+
+<p align="JUSTIFY">Nabags Plēša nu staigāja g1uži bēdīgs un badā nonīcis pa elli,
+kamēr uz vie[n]reiz uzgāja vella ābeļu dārzu, un pie vienas ābeles bīš viens
+radzīns piesiets. Plēša sāka pūst pie tā radzīna. Ta[d] atskrēš viens vella kalps
+un prasīš: "Cienīgs ķēniņš, kas tev trūkst?"</p>
+
+<p align="JUSTIFY">Plēša atbildēš: "Dodat man žigli ēst!" Tūlīt tika
+visādi ēdieni un dzērieni salikti uz galdu. Plēša nū' ēdis un dzēris, ko vie[n]
+spēš, tad gāš pie radzīna un pūtis akal.</p>
+
+<p align="JUSTIFY">Ta[d] vella kalps atskrēš un prasīš: "Cienīgs ķēnīns, kas
+tev trūkst?"</p>
+
+<p align="JUSTIFY">Plēša teica: " Gādājat man zirgu, ko uz Vidzemi sērstu
+jāt!"</p>
+
+<p align="JUSTIFY">Plēšam tika iedota liela vārna, ar to viņš izjāja no elles ārā.</p>
+
+<p align="JUSTIFY">Nu dabūja dzirdēt, kas virsnieki paši par glābējim uzdevušies, un
+katrs būšot vienu ķēnīna meitu precēt. Pirmā meita neiet, kamēr viņai tādu kroni
+do[d], kā vells ellē devis. Otra meita neiet, kamēr viņai tādas kurpes do[d], kā
+vells ellē devis. Un trešā ar' neiet, kamēr viņai tādus kleitus pagādā, kā ellē
+bīši. Nu tiek</p>
+
+<p align="JUSTIFY">izsludināts pa visu ķēnīna valsti, ka tas, kas minētās lietas var
+taisīt, dabūs lielu maksu. Plēša do[d] ziņu, ka viņš tādu kroni gan varot taisīt,
+jā viņam sieku sidraba naudas maksās un vienu zaldātu par vakti dos, ka viņš
+nepiedzer un neapguļās; tad līdz rītam būs gatavs. Plēšam tiek apsolīts sieks
+naudas un arī zaldāts par vakti dots. Viņš padzer pats, piedzirda zaldātu un guļ abi
+divi līdz</p>
+
+<p align="JUSTIFY">rītam. Rītā agri virsnieka sulainis ar sieku naudas klā[t), lai
+do[d] kroni. Plēša citim neredzot noņem puķīti no cepures un saka: "Par puķīti
+bīš, par kroni lai paliek!" Plēšam kronis gatavs. Otra meita neiet, kamēr viņai
+tādas kurpes gādā, kā viņai vells ellē devis. Tās Plēša pataisa tāpat kā kroni
+par divi sieki sidraba naudas. Un trešai meitai Plēša kleitus pataisa par trīs sieki
+sidraba naudas.</p>
+
+<p align="JUSTIFY">Nu visām trim tiek vienā svētdienā kāzas taisītas, un ar lepnām
+karītēm tiek uz baznīcu vestas. Vecais Plēša iet pa ceļu priekšā, ņem savus trīs
+poutus no kules ārā, sviež zemē un saka: "Par poutiem bīš, par istabām lai
+paliek!" Tūlīt stāv ceļmalā viena sidraba, otra zelta, trešā dimanta istaba,
+tik skaistas, kā pasaulē vēl nekad nav redzētas. Ķēnīna meitas tur garēm
+braukdamas ierauga savas istabas, tūlīt no vāģiem ārā, istabās iekšā un par lielu
+brīnumu atrod tur veco Plēšu priekšā. Nu tik zināms, ka Plēša ir tas izglābēš
+un ne tie virsnieki. 'Tie tika vis' trīs pakārti. To vecāko meitu ieņēma Plēša, un
+tās divas tāpat neprecēšās savu mūžu nodzīvoja. Kad vecais ķēnīns nomira, tad
+Plēša tika par ķēnīnu uzcelts.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

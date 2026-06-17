@@ -1,0 +1,191 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Galdiņ, klājies.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">9. A. 563. Skolniece J. Gabranova no B. Byntara,
+Eglūnā, N. Rancāna krājumā.</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz dzeivova vīna vecīte ar sovu dālu. Vīnu reizi vecīte soka
+dālam: "Tec, dēliņ, uz klēti pēc myltu!"</p>
+
+<p align="JUSTIFY">Puisāns cēlēs, apsavylkuos un aizīt ar garči uz klēti. Pajēmis
+myltus, puisāns īt nu klētis, bet paceļas lels vējs un iznas šam vysus myltus nu
+garčas. Īt jis otkon uz klēti, pajēm myltus un laižās īt uz muoju, bet vējs otkon
+iznas myltus. Tys pats nūtyka jam ari trešu reizi.</p>
+
+<p align="JUSTIFY">Tod puisāns laižas meklēt Zīmeļa vēju, kas iznese jam myltus.
+Guoja, guoja jis treis dīnas un treis nakt's - īguoja pi Zīmeļa vēja. Tys vaicoj:
+"Kas par dareišonom, puisi?"</p>
+
+<p align="JUSTIFY">Puisāns atsoka: "Es atguoju pēc sovu myltu, kurus tu man iznesi.
+Tagan man napalyka klētī nivīnas garčas myltu."</p>
+
+<p align="JUSTIFY">Zīmels soka: "Kū es tev varu dūt? Naudas jau man nav, ar kū
+nūmoksuot. A jo gribi, to es tev īdušu vīnu goldu, kuram tik juopasoka: "Golds,
+kluojīs!" tyuleņ jis kluosīs ar vysaidim ēdīnim un dzērīnim, un byus atkluots,
+koleidz nasaceis jam jau vysu nūjemt."</p>
+
+<p align="JUSTIFY">Puisāns beja ļūti prīcīgs par taidu lobu lītu, pajēme goldu un
+laidās uz sātu. Tai īdams vinš iguoja vīnā krūgā uz naktsmuojom. Krūdzinīks
+vaicoj : "Kū jyus gribit uz vokoreņom?"</p>
+
+<p align="JUSTIFY">Puisāns atsoka: "Man nikuo navajga, man ir vyss kas sovs."</p>
+
+<p align="JUSTIFY">Krūdzinīks breinovuos, ka puišam nikuo ņav, kai tik tys kūka
+golds. Kū jis ēss? Puisāns pastatej sovu goldu pi benča un soka: "Golds,
+kluojīs!" Tyuleņ golds apsakluojuos ar vysaidim ēdīnim un dzērīnim. Vysi
+ļaud's, kas tū redzēja, cīši breinovuos, a krūdzinīks dūmoj: "Pagaidi, es tev
+jū atmeišu, tev juo vairuok naredzēt!"</p>
+
+<p align="JUSTIFY">Kod puisāns aizmyga, krūdzinīks pajēme juo goldu un nūlyka sovu
+goldu tyma vītā. Reitā puisāns pīsacēlīs nūsamozgovuos i soka: "Golds,
+kluojīs!" Bet golds vairuok naklausa un nakluojas. Puisāns, apvilcis sovus svuorkus
+un pajēm’s capuri, īt otkon pi Zīmeļa, atdūd jam tū goldu un soka: "Kai
+jyus mani opmuonējuot! Es tik vīnu reizi paturēju vokareņis, a vairuok jis mani
+naklausa."</p>
+
+<p align="JUSTIFY">Zīmels soka: "Še tev vēļ šitas uozis, kurs kaisa naudu! Jam
+tik juopasoka: "Uozi, kaisi naudu!" to jis tyuleņ suoc kaisīt naudu."</p>
+
+<p align="JUSTIFY">Itys uozis puišam vēl lobuok patyka un jis tyuleņ aizguoja ar sovu
+uozi prūjom. Jis aizīt uz tū pošu krūgu, kuramā beja ogruok gulēj's, un uzprosa
+vokareņis. Kod juomoksoj, jis daīt pi sova uoža un soka: "Uozi, kaisi naudu!"
+Uozis suoc kaisīt naudu un puisāns samaksoj par vokareņom. Ka tik puisāns aizmyga,
+krūdzinīks pajēma tū uozi un puormeja jū ar sovu uozi. Reitā pēc brūkašku puis's
+grib otkon moksuot un īt pi uoza, bet uozis vairuok nasaklausuos. Tūreiz puis's vēl
+aizguoja pi Zīmeļa un soka: "Uozis tik vīn reiz pakaisēja naudu, bet vairuok
+nasaklausuos."</p>
+
+<p align="JUSTIFY">Zīmels jam atbild: "Krūdzinīks tev atjēme goldu un uozi; bet
+nyu es tev īdūšu vīnu vacu rungu, kurai tik juopasoka: "Runga, dauzi!" to
+jei tyuleņ suoc dauzīt."</p>
+
+<p align="JUSTIFY">Puisāns, pajēm's rungu, īt prūjom, un īdams īguoja vēļ tyma
+krūgā. Pec vokareņu krūdzinīks vaicoj : "Kas itā par rungu?"</p>
+
+<p align="JUSTIFY">Puisāns atbild: "Jei ir cīši loba līta. Ka tik pasoceis jai:
+"Runga, dauzi!" tai jei suoc dauzīt."</p>
+
+<p align="JUSTIFY">Kod puisāns jau gulēja gultā, krūdzinīks otkon daguojis da rungai,
+gribēja jū puormeit, bet puisāns tyuleņ pasacēja: "Runga, dauzi!"</p>
+
+<p align="JUSTIFY">Runga ari tyuleņ dauzīja krūdzinīku un jis suoka bļaut un
+lyugtīs: "Atlaid mani! Es tev atdūšu ari goldu un uozi!"</p>
+
+<p>Puisāns pasacēja: "Runga, mīrā!"</p>
+
+<p align="JUSTIFY">Tyuleņ runga palyka mīrā. Puisāns dabuoja sovu goldu un uozi,
+aizguoja uz sovu sātu un dzeivuoja laimīgi.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Tādu pašu pasaku ir uzrakstījusi L. Uļjana, Latvju
+kultūras krājumam. Tikai "Runga, dauzi" vietā ir tur teksts: "Byukoj,
+runga!" P. Š.</p>
+</font>
+
+
+</body></html>

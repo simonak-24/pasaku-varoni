@@ -1,0 +1,407 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Velna dotā sieva.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 456. D. J. Upīte no Lielā Sprūda Lubānas Sipiņos, M.
+Celmiņa kr.</p>
+
+<p align="JUSTIFY">Reiz bija divi brāļi, kuŗiem tēvs un māte mirdami bija atstājuši
+brangu māju ar labu. nevisai lielu zemi, un vēl kādu mazumiņu naudas. Viens brālis
+jau bija Pieaudzis un apprecējies, otrs vēl jauns. Abi brāļi dzīvoja mīlīgi un
+saticīgi, kopa rūpīgi savu zemi. kas viņiem arī brangu peņu atnesa. Pēc kādiem
+gadiem, arī jaunākais brālis bija pieaudzis un nodomājis precēties. Tā kādreiz
+viņš savu nodomu izteica arī savam brālim, kas ar to pavisam nebija mierā. No šā
+brīža jutās jaunākais brālis stipri apvainots un palika gluži noskumis un bēdīgs.</p>
+
+<p align="JUSTIFY">Rudens jau bija klāt un abi brāli bija jau savus augļus nokopuši,
+negribēja ne labprāt satikties ar brāli un viņa sievu. Tā viņš bija izraudzījis
+par savu vismīļāko vietu rijas krāsni, uz kuŗas viņš arvien mēdza dienām un
+naktim gulēt. Te viņam kādu nakti guļot, tā ap pulksten desmitiem, parādījās kāda
+slaida, mīlīga un brīnum skaista jaunava, ar kuŗu viņš tūlin atradās brīnum
+jaukā pilī. Te viņi ēd un dzeŗ un pēc patikšanas uzdzīvo. Pēdīgi staltā jaunava
+sāk viņam prasīt, vai viņš nevarētu šai savu roku piedāvāt un apsolīties par
+šās mūža biedru. Lai gan viņa šos pēdīgos vārdus bija runājusi, kā no viņa
+paša sirds, tomēr viņš vēl gribēja apdomāties un tūlin atbildes nedeva. Viņa arī
+atŗāva viņam apdomāties līdz nākamai naktij. Līdz ko pulkstens bija divpadsmit
+pagalam, nebija vairs no minētās jaunavas ne vēsts, un viņš atkal atradās viens pats
+rijā uz krāsns.</p>
+
+<p align="JUSTIFY">No šī brīža viņš paliek stipri domīgs un pats neizprot, vai
+viņš patiesībā redzējis to brīnum skaisto jaunavu un to skaisto pili, jeb viss tas
+bijis tikai sapnis. Vecākais brālis un viņa sieva tomēr zina un gan noprot, kas šim
+nu par graizēm.</p>
+
+<p align="JUSTIFY">Pienāk vakars, jaunākais brālis metas atkal uz savu zināmo
+naktsmāju, rijas krāsni, un apgulstas. Vēl viņš nebija nemaz aizmidzis, kad jau viņu
+apsveicina tā pati jaunava. Nu viņi atkal, kā jau papriekšu, atrodas tai skaistajā
+pilī, kur viņi pēc patikšanas uzdzīvo. Jaunava sāk viņu prašināt, vai jau viņš
+nebūšot apdomājies, jo viņam šonakt jāapsoloties palikt par viņas mūža biedru.
+Viņš lūdza vēl, lai viņam atļauj apdomāties līdz nākamai satikšanai. Viņa arī
+atļāva. Paiet pusnakts un jaunava nozūd ar visu to stalto pili no viņa acim, un viņš
+atrodas atkal viens pats rijā uz krāsns.</p>
+
+<p align="JUSTIFY">Pieiet vakars, steidzas atkal jaunākais brālis, visam aukstumam par
+spīti, uz savu zināmo guļas vietu, rijas krāsni. Rijas krāsns nebija vairs silta, jo
+viņa vairs netika nemaz kurināta; labības kuļamais laiks jau sen bija pagājis un
+citas vajadzības</p>
+
+<p align="JUSTIFY">arī nebija viņu kurināt. Šoreiz viņš ātri aizmiga, jo pēdīgā
+laikā viņš nevisai labi bija izgulējies. Ap pulksten desmitiem ir atkal jaunava klāt
+un modina viņu no miega ar diezkādiem nekādiem glaimiem. Atkal, kā jau citas reizes,
+tā arī šoreiz viņi atrodas tai pašā greznā pilī, kur viņi ēd un dzeŗ
+visdārgākos ēdienus un dzērienus. Pēdīgi pēc ilgas ķircināšanas dod viņš savu
+vārdu un apsolās būt par viņas mūža biedru. Tūlīt arī tika gredzeni pārmaukti un
+pārmainīti. Pēc gredzenu pārmaukšanas viņam bija viņai krusts jāpārmet, ko viņš
+izdarīja ar lielāko prieku.</p>
+
+<p align="JUSTIFY">Tagad viņa liek viņam priekšā, ka no šā brīža viņam
+vajadzēšot tikai pēc viņas pavēlēm un padoma dzīvot. Kad nu viņš bija
+apsolījies, viņa uzaicināja viņu iet uz istabu, uz viņa brāli un brāļa sievu.
+Iekāms uz istabu aizgāja, viņa šim pavēlēja acis aiztaisīt. Viņš arī tā
+izdarīja, bet acis attaisījis, ieraudzīja, ka vairs neatrodas vis tai pilī, bet rijā.
+Tagad viņi aiziet uz istabu, uz vecāko brāli un viņa sievu. Šie tik skaistu pāri
+redzēdami, aizmirst visu savu pretošanās iedomu un sāk tikai runāt par kāzu
+vīkšanu. Jaunākā brāļa saderētā līgaviņa atbild viņiem, ka tagad viņiem nemaz
+nevajagot steigties kāzas vīkšt, jo vēl neesot īstais laiks; kad viņa būšot teikt,
+tad lai tikai taisoties uz kāzām. Viņa arī vēl nekaunējās piezīmēt, ka no šā
+brīža visiem viņiem būšot jāklausa viņas pavēles un jādzīvo pēc viņas dotā
+padoma. Vecākais brālis ar savu sievu arī apņēmās viņas pavēlēm klau sīt un pēc
+viņas padoma dzīvot, ja tās pavēles un to padomu atradīšot par labu un derīgu.</p>
+
+<p align="JUSTIFY">Ziema bija notecējusi, jau iesācies pavasaris ar jaunu dzīvību.
+Skaistā jaunava gribēja visu apskatīt un aplūkot, un it īpaši tagad viņa gudroja,
+kā kārtīgi zemi iedalīt, jo viņa bija nodomājusi ierīkot augļu koku dārzu. Visi
+nu dzīvo pēc jaunavas pavēlēm, un visi darbi, ko viņa dara, izdodas ļoti labi.</p>
+
+<p align="JUSTIFY">Te kādreiz iesarunāja jaunā brāļa saderētā līgaviņa, ka tagad
+esot īstais brīdis atnācis kāzas vīkšt - tas bija vēlu rudenī, kad visi augļi jau
+bija nokopti. Vispirms viņa pavēl abiem brāļiem taisīt gaŗus galdus, kur būtu
+vietas kādiem tūkstoščetrisimti viesiem, bez pašiem. Kā pavēlēts, tā arī tiek
+darīts. Galdus uztaisa abi brāļi. Tad vēl viņa pavēl abiem brāļiem iet kāzeniekus
+ielūgt, katram jāielūdz septiņisimti. Nu tagad tik ir brāļiem ko domāt, kur nu lai
+viņi tik daudz kāzenieku ielūdz, un kā lai izzina, kad tas skaits pilns? Tagad jaunā
+pavēlētāja sūta vienu brāli pa to ceļu, kas iet uz rītiem - un otru, kas uz
+vakariem, un piesaka, ka tagad viņiem pretī ceļā iešot daždažādi ļaudis, gan
+bagāti, gan nabagi, gan jauni, gan veci, un ikkatram vajagot teikt, lai par trim dienām
+nākot uz kāzām viņi gan zināšot, uz kurieni un kur jāejot. Kad tas skaits pilns
+būšot, tad vairs neiešot neviens pats ceļā pretī, tad lai zinot, ka atpakaļ
+jāgriežoties.</p>
+
+<p align="JUSTIFY">Pēc trim dienām dzēra kāzas. Viņi ēda un dzēra tādus ēdienus
+un dzērienus, kādus tikai uz pasaules var iedomāties. Kāzas tika nodzertas. Nu gāja
+atkal viss tāpat pa vecam, jaunās pavēlētājas vadībā. Visi viņi dzīvoja
+vienprātībā un saticībā visu šo ziemas gabalu. Te kādreiz viņa uzrunāja savu
+vīru, ka viņiem jāejot viesos pie viņas vecākiem un māsām. Nu viņam arī nebija
+nekas pretī, jo viņam labprāt gribējās redzēt, kādi viņas vecāki ar māsām ir un
+kur viņi dzīvo.</p>
+
+<p align="JUSTIFY">Viņi taisījās iet kājām, bet vecākais brālis negrib viņus
+kājām palaist, viņš grib lai brauktu braukšus. Viņa par braukšanu negrib ne
+dzirdēt un atbild viņam, ka viņi būšot ilgāku laiku palikt, un ka vietām esot tik
+slikti ceļi, ka par braukšanu nevarot nemaz domāt.</p>
+
+<p align="JUSTIFY">No mājas iziedama, viņa izstāstīja viņam, ka šim tur bez viņas
+pašas un viņas atļaujas nebūšot ne ēst nedz dzert. Līdz ko viss bija izstāstīts,
+kā tam<b> </b>tur jāizturās, viņa tūlīt liek viņam acis aiztaisīt. Pēc kāda
+brīža attaisījis acis, viņš ierauga, ka viņi nu atrodas kādā greznā pilī.</p>
+
+<p align="JUSTIFY">"Te nu dzīvo mans tēvs un manas māsas. Tu zini, kā tev
+jāizturas. Paliec viens pats šai kambarītī, es iešu viena pati pie sava tēva, jo tev
+nebūtu vis labi, kad tu tur ienāktu."</p>
+
+<p align="JUSTIFY">Viņš arī paklausa viņai un paliek viens pats ierādītā
+kambarītī. Par neilgu laiku dzird viņš baŗoties tai kambarī, kur viņa sieva
+iegāja. No šās bāršanās viņš nevar neko saņemt, jo turpat viņa sānkambarī cep
+un vāra diezko neko, no kam arī izceļas brangs troksnis. Tagad viņš sēd un prāto,
+par ko gan viņi var tur bārties. Te uz reiz atveŗas tās pašas durvis, pa kuŗām
+viņa sieva iegāja, un tā prasa viņam, vai viņš esot ēdis. Viņš atbild, ka neesot
+ēdis.</p>
+
+<p align="JUSTIFY">"Nu labi, kad neesi ēdis, tad pacieties un sargies ēst bez manis
+un manas atļaujas!"</p>
+
+<p align="JUSTIFY">Durvis aizvērās, sāk atkal no jauna bārties jo ar lielāku troksni.
+Te viņš dzird, ka viņa sievai jau sola deviņus vezumus zelta, lai viņa paliekot ar to
+mierā, bet viņa atbild sakaisusies, ka viņa no zelta negribot ne dzirdēt, bet tikai
+lai viņai dodot to āmuru. Šoreiz viņš nevarēja neko skaidrāki saņemt, jo atkal
+apklusa un sāka lēnāki bārties. Tagad viņš tik dusmojas un spļaudās par savas
+sievas muļķību, ka viņa negrib tik daudz zelta pieņemt. Atveŗas atkal tās pašas
+durvis, prasa atkal viņa viņam: "Vai esi ēdis?"</p>
+
+<p align="JUSTIFY">Viņš atbild, ka neesot ēdis.</p>
+
+<p align="JUSTIFY">"Labi, kad neesi ēdis! Pacieties līdz galam, kamēr es būšu
+atpakaļ pie tevis."</p>
+
+<p align="JUSTIFY">Viņš nu gribēja tagad ar savu sievu ko runāt dabūt, bet viņa
+ātri aiztaisīja durvis un aizsteidzās projām. Viņš gan laikam citu neko nerunātu,
+kā tikai to, lai viņa Pieņemtu viņai solīto zeltu.</p>
+
+<p align="JUSTIFY">Kad viņa sieva bija aizgājusi, sacēlās atkal par jaunu vēl jo
+lielāks troksnis un bāršanās. Tagad viņš skaidri dzird, ka viņa sieva paģēr zaļu
+muciņu ar deviņām dzelzs stīpām un vienu āmuru. Tagad viņš atrodas vislielākā
+sakaisumā un pats pie sevis izsaucas : "Esi gan muļķe, ka zelta neņem. Vai tad
+mēs nevarētum labāk dzīvot kā pats grāfs? Vai tad mums mājā nav mucu un
+āmuru?"</p>
+
+<p align="JUSTIFY">Nu paliek troksnis arvien jo mazāks un mazāks. Ne pēc ilga laika
+viņa sieva iznāk turēdama rokā zaļu muciņu, ar deviņām dzelzs stīpām sastīpotu,
+un dzelzs āmuru.</p>
+
+<p align="JUSTIFY">Kad nu viņi cik necik bija uzkoduši, viņa lika šim atkal acis
+aiztaisīt. Acis attaisot, viņš ieraudzīja, ka vairs neatrodas vis greznajā pilī, bet
+sava brāļa mājas tuvumā. Vecākais brālis ar sievu jau sen ar ilgošanos bija
+gaidījuši un nevarēja nemaz izbrīnīties un izprast, kur viņi tik ilgi paliek. Taisni
+trīs gadi jau bij notecējuši tai dienā, kad viņi atkal pārnāca. Jaunākam brālim
+arī bija diezgan liels brīnums, ka viņi tik ilgi bija nodzīvojuši. Tagad tik viņš
+tika skaidrībā, ko tās trīs reizes nozīmēja, kad viņa sieva Pie viņa ienāca
+prasīt, vai viņš esot ēdis, jo viņa par gadu reizi bija prasījusi.</p>
+
+<p align="JUSTIFY">Bija atkal pavasaris, kad viņi mājā pārnāca. Tagad viņai bija jo
+svarīgs darbs priekšā, jo viņa bija nodomājusi pavasarī piedēstīt to zemes gabalu,
+ko viņa bija izvēlējusies augļu koku dārzam. Viņa izsūta abus brāļus pa tiem
+pašiem ceļiem, pa kuŗiem bija gājuši kāzu viesus lūgt, aicināt talcēnus, kas
+palīdzētu augļu kociņus sadēstīt. Viņiem atkal bij visi jāaicina uz talku, ko tik
+sastapa ceļā. Talkā bija visi tie paši, kas kāzās, izņēmot viņas trīs māsas.
+Priekš dēstīšanas tika ēsti un dzerti vislabākie ēdieni un dzērieni. Kad bija
+paēduši un padzēruši, tad tik gaidīja pavēles, kas viņiem jādara.</p>
+
+<p align="JUSTIFY">Tagad ņēma jaunā brāļa sieva zaļo muciņu, kas bija sastīpota ar
+deviņām dzelzs stīpām, un to dzelzs āmuru, un sāka dzīt tās deviņas dzelzs
+stīpas nost. Visi skatījās ar ziņkārību uz zaļo muciņu, bet visvairāk viņas
+pašas vīrs. Kad stīpas tika nodzītas un muciņa attaisīta vaļā, tad ieraudzīja, ka
+tur iekšā tādi zaļi kā stiebru gabaliņi sāka kustēt. Nu ņēma jaunā brāļa
+sieva vienu no tiem stiebriņiem un stājās pati izvēlētā dārza vidū un sprauda to
+taisni zemē, un pavēlēja visiem ņemt pavienam tādam stiebriņam un spraust tādā
+kārtībā, ka visi stiebriņi stāv no visām pusēm pret vidējo taisnā līnijā.</p>
+
+<p align="JUSTIFY">Līdz ko bija zaļos stiebriņus sadēstījuši, tūlīt tie
+pārvērtās Par ābelēm,- kuras acim redzot auga, plauka, lapoja un visi zariņi sāka
+ziedēt, vienos baltos ziedos. Pēc dārza ierīkošanas tika visi talcēni atlaisti. Nu
+viņi palika atkal četri vien un nevarēja vien nopriecāties par skaisto dārzu.</p>
+
+<p align="JUSTIFY">Rudens jau bija klāt un āboli bij pašu laiku nokārsuši. Tagad
+pavēlēja jaunā brāļa sieva savam vīram pa naktim dārzu sargāt un piesacīja, ka
+nākamo nakti būšot ābolu kupči braukt un gribēšot dārzu ar visiem augļiem
+nopirkt.</p>
+
+<p align="JUSTIFY">"Viņi solīs tev daudz zelta, lai tu viņiem dārzu pārdod, bet
+es tev stingri pavēlu un noliedzu, ka tu agrāk dārzu nedrīkstēs pārdot, kamēr es
+tev nebūšu pavēlējusi. Kad tu nu būsi atteicies un noliedzies, ka nepārdošot, tad
+viņi prasīs un lūgs tevi, lai tu viņiem atauj tos augļus pasmeķēt. Tad tu atbildi
+viņiem, ka brīv gan būtu, ja tikai varētu. Kad nu viņi nevarēs tos augļus dabūt
+pasmeķēt, tad viņi sāks tevi biedēt, kā tikai varēdami un prazdami. Saņem tad<b> </b>tikai
+dūšu un nebīsties ne no kādas viņu biedēšanas!"</p>
+
+<p align="JUSTIFY">Jaunākais brālis arī aizgāja vakarā uz dārzu un palika dārzā,
+kupčus gaidīdams. Tā ap pulksten desmitiem vai vienpatsmitiem atbrauca trīs spiku
+ragaiņi, lepnā karietē sēdēdami, kuŗai bija trīs melņi iejūgti. Līdz ko bija
+dabraukuši pie dārza, tūlīt pieturēja meļņus, izkāpa no karietes, piegāja pie
+dārza sarga, padeva labu vakaru un uzteica viņu par krietno dārza apkopšanu. Pēc
+šīs īsās sarunas prasīja viņi, lai viņiem dārzu ar visiem augļiem pārdodot.
+Sargs atbildēja, ka dārzu ne par kādu naudu nepārdošot. Nu viņi atkal prasa viņam,
+lai tak viņš viņiem atļaujot tos augļus pasmeķēt. Viņš atbild, ka brīv gan
+viņiem būtu pasmeķēt, ja tikai varētu. Nu viņi iet pie ābelēm, sniedzas pēc
+āboliem, ka varētu noraut, bet līdz ko sniedzas, te ābeles paceļas tādā mērā uz
+augšu, ka viņi nevar pasniegt. Kad nu viņiem dārzu nepārdod un augļu nevar dabūt
+pasmeķēt, tūlīt saceļas pērkoņa negaiss ar briesmīgu vēju. Izmēģinādami
+daždažādus baidekļus, gribēja viņu sabaidēt, bet viņš izlikās, it kā nekā
+nesajustu no viņu biedēšanas. Redzēdami, ka visas viņu pūles veltas, vīŗi sēdās
+karietē un laida projām, ka uguns vien nostiepās.</p>
+
+<p align="JUSTIFY">Līdz ko viņi bija aizbraukuši, palika atkal viss kluss un mierīgs.
+Rītā prasa sieva viņam, vai esot kupči bijuši? Viņš atbild, ka viss esot bijis, kā
+jau šim stāstīts. Viņa saka viņam, ka šī nakts viņam esot visvieglākā bijusi.</p>
+
+<p align="JUSTIFY">Nākamā nakts būs gŗūtāka un trešā vēl jo grūtāka un
+briesmīgāka. Esi tikai drošs, saņem dūšu un nebīsties ne no kādiem viņu
+biedekļiem!"</p>
+
+<p align="JUSTIFY">Pienāca atkal vakars un viņam vajadzēja atkal iet uz dārzu.
+Pulksten vienpadsmitos atbrauca seši spiku ragaiņi, lepnā karietē sēdēdami, kurai
+bij seši meļņi iejūgti. Dabraukuši pie jaunākā brāļa, padod labu vakaru un uzteic
+viņu par krietnu dārza apkopšanu, un sāk lūgt, lai viņš viņiem pārdod dārzu ar
+visiem augļiem, jo viņi būšot krietni aizmaksāt. Jaunākais brālis atbild, ka viņš
+ne par kādu naudu nepārdošot. Viņi sāk prasīt, vai brīv būtu viņiem augļus
+pasmeķēt. Šis atbildēja, ka brīv gan būtu, ja tikai varētu. Nu viņi iet pie
+ābeles un grib noraut un pasmeķēt. Līdz ko šie grib noraut, ābeles paceļas ar
+visiem augļiem uz augšu, tāpat kā tiem iepriekšējiem, tā kā viņi nevar dabūt
+noraut un pasmeķēt. Par dusmām, ka nepārdod un ka viņi nevar dabūt pasmeķēt, tie
+sāk viņu vēl briesmīgāk biedēt, kā tie trīs pagājušo nakti. Redzēdami, ka viņu
+biedēšana neko nelīdzēja, tie sēdās karietē, uzšāva meļņiem, laida projām, ka
+uguns vien nostiepās. Kad nu jaunākais brālis pārnāca mājā, pārprasīja atkal
+viņa sieva, vai esot kupči bijuši? Nu viņš izstāstīja, ka esot seši spiku ragaiņi
+bijuši, kuŗi vēl jo briesmīgāki biedējuši. Ja nu vēl nākamo nakti jo stiprāk
+būšot biedēt, tad būšot gan negribošam dārzs jāpārdod. Šos vārdus dzirdēdama,
+sieva viņam ar dusmām pavēl, ka nevajagot pārdot, un ja pārdošot, tad pats arī
+turpat uz vietas miršot un citiem pakaļā arī būšot jāmirst.</p>
+
+<p align="JUSTIFY">"Saņem vien dūšu, ceŗu, ka šo pēdīgo jo briesmīgāko nakti
+arī pārcietīsi."</p>
+
+<p align="JUSTIFY">Šo vakar jaunākais brālis aizgāja uz dārzu gluži noskumis, jo
+viņš zina gan, kā viņam tās divas naktis bija ap dūšu. Kur tad vēl šī jo
+briesmīgākā? Ap pusnakti bija deviņi spiku ragaiņi klāt, ar dvīņiem meļņiem vēl
+jo lepnākā karietē. Tāpat, kā tās divas, tā arī šonakt prasa, lai dārzu ar
+visiem augļiem pārdodot, jo viņi būšot krietni aizmaksāt. Dārza sargs atbildēja
+arī šiem, ka viņš nevarot un negribot ne par kādu naudu pārdot. Nu viņi atkal prasa
+tāpat kā tie priekšējie, vai viņiem brīv būtu pasmeķēt? Dārza sargs atbild:
+"Brīv gan būtu, ja tikai varētu."</p>
+
+<p align="JUSTIFY">Viņi iet tāpat pie ābelēm un grib noraut kādus augļus un
+pasmeķēt, bet līdz ko viņi sniedzas, tā ābeles pacēlās uz augšu, tā kā viņi ne
+viena paša ābola nevarēja dabūt noraut. Par visu šo, ka nu viņš dārzu nepārdod un
+augļu nevar dabūt pasmeķēt, viņi sadusmojas ..m sāk viņu jo briesmīgā mērā
+biedēt. Te piepēži sacēlās briesmīgs vējš ar zibeni un pērkoni, zeme sāka
+trīcēt, un mūsu sargs sāk pats pie sevis šaubīties un domā, diezin, vai vēl
+varēšot gluži vesels mājā pārnākt.</p>
+
+<p align="JUSTIFY">Viņš tomēr bija laimīgi pavadījis arī trešo nakti, un pārnāca
+rītā mājā spirats un žirgts pie savas mīļās sieviņas, kas jau ar ilgošanos bija
+to gaidījusi. Šoreiz sieva dod viņam šādu pavēli: "Tev vēl viena nakts būs
+jāsargā, un šai naktī būs viens pats kupcis, kuŗam tev jāpārdod dārzs bez kaut
+kādas kaulēšanās un jābūt ar tik mierā, cik viņš tev sola."</p>
+
+<p align="JUSTIFY">Pieiet vakars, nu viņam atkal jāiet ceturto nakti sargāt. Par neilgu
+laiku atnāk pie viņa kāds vecītis, uz kūjiņas atspiezdamies, padod labu vakaru,
+uzteic viņu par viņa krietno dārza apkopšanu, un sāk prasīt, vai dārzs pārdodams.
+Viņš atbild, ka pārdodams. Nu par cik tad viņš būšot pārdot?</p>
+
+<p align="JUSTIFY">"Nu cik jau nu jūs dosit, par tik es atdošu."</p>
+
+<p align="JUSTIFY">Nu viņš iebāž roku vestes ķešā un izvelk no tās pašas vecu,
+sapelējušu koka kapeiku un iedod viņam. Nu viņš gan vai zilu un zaļu spļautu, ja
+tikai viņš nebūtu iedomājies, ka caur to gauži apbēdinātu savu mīļo sieviņu, un
+ka nebūtu arī vairs savu solīšanu turējis.</p>
+
+<p align="JUSTIFY">Vecais vecītis tagad pavēl viņiem visus tos cilvēkus dārzā
+saaicināt, ar kuŗiem viņi ir draudzīgi un mīlīgi kaut kur sarunājušies un
+satikušies. Tagad tika atkal, visi tie tāpat saaicināti, kas toreiz bija kāzās un
+vēlāku talkā, dārzu ierīkojot.</p>
+
+<p align="JUSTIFY">Pēc kādām dienām bija visi tie audis sanākuši un nevarēja nemaz
+beigt priecāties par labo augļu izdošanos. Tā priecādamies, nebija nemaz nojēguši,
+ka vairs neatrodas vis uz zemes, bet gan augstu gaisā, starp debesi un zemi. Pirmāk
+viņi bija kādu pavēli dabūjuši, ka vajagot tikai uz augšu skatīties. Te uz reiz
+sadzirdēja pie debesim kādu skrapstēšanu: debesvārti atdarījās.</p>
+
+<p align="JUSTIFY">Es arī tur biju, man palika zemes gauži žēl un es atskatījos
+atpakaļ un ieraudzīju jodus kaujamies. Pa tam, kamēr es biju uz zemi atskatījies,
+debesvārti jau bij aizdarījušies, un tā es atrados viens pats kādā pakulu kambarī,
+kur mani kāds gars ar pakulām sagrāba un iebāza lielgabalā par puži -- un tā mani
+izšāva ar lielgabalu uz zemi. un tā es atkal atrodos uz zemes.</p>
+
+<p align="JUSTIFY">Tā staltā jaunava bijusi nolaupīts kristītu vecāku bērns staltā
+pils bijusi elne; tai zaļajā muciņā bijušas kristīto laužu nekristīto bērniņu
+dvēseles, tie spiku ragaiņi bijuši velni un <b>tas </b>vecais vecītis bijis pats
+Dievs.</p>
+
+
+</body></html>

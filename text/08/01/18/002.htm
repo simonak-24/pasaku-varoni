@@ -1,0 +1,162 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3"><b>
+
+</b></font><p align="center"><font size="3"><b></b></font><font size="5"><strong>Trīs vēja mezgli.</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">2. A. 578. Skolnieks A. Strungs no savas mātes
+Nīcā, K. Lielozola kr.</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz vienam tēvam bija ļoti slinks dēls. Caurām dienām viņš cita
+nekā nedarīja, kā tika braukāja pa grāvi vai upi, iesēdies kausā vai pirts ķipī,
+vai arī uzsēdies uz zāles ķulmja. Tēvs un māte par to uz dēlu bieži dusmojās un
+to arī pēra, bet nekas nelīdzēja. Māte reiz teica tēvam, ka jāpagādā kāds
+kuģinieks, kas iemācītu puiku braukt pa jūŗu, lai tad viņš braukā un pelna maizi,
+jo pēršana tā kā tā nelīdzot. Viņi nu arī atrada tādu kuģinieku un tas paņēma
+puiku mācībā. Tēvs pagādāja kuģīti un puika ar savu skolotāju devās jūŗā. Kad
+bija jau jūŗā iebraukuši puika prasīja: "Ko iesākšu, kad vētra sacelsies? Es
+jau nemāku kuģi valdīt."</p>
+
+<p align="JUSTIFY">Tad kuģinieks izņēma no kabatas vienu dzijiņu ar trim mezgliem un
+teica: "Kad tu pirmo mezglu atraisīsi, tad būs tāds vējš, ka visa jūŗa uz
+krastu gāzīsies; kad atraisīsi otru mezglu, tad viss atkal paliks rāms; bet kad
+atraisīsi trešo mezglu, tev būs labs ceļa vējš."</p>
+
+<p align="JUSTIFY">Vienu dienu viņi ar savu kuģi iebrauca ostā, kurā stāvēja daudzi
+kuģi un gaidīja uz ceļa vēju. Jaunais kuģinieks, pa krasta malu staigājot, satika
+princi, kas bija ļoti noskumis un arvien gŗūti nopūtās. Viņš nu prasīja princim,
+kādēļ šis esot tāds bēdīgs.</p>
+
+<p align="JUSTIFY">"Es esmu saderinājies ar viena ķēniņa meitu," atbildēja
+princis, "un uz rītu ir noliktas mūsu kāzas, bet arvien vēl nav ceļa vēja es
+netikšu pie savas līgavas, un viņa aprecēs citu."</p>
+
+<p align="JUSTIFY">Kuģinieks viņu apmierināja un solīja savā kuģī aizvest<b> </b>princi
+pie viņa līgavas. Princis bija ļoti laimīgs un apsolīja viņam dot pusi no savas
+valsts ja viņš laikā tiks pie savas līgavas.</p>
+
+<p align="JUSTIFY">Viņi abi sēdās kuģī un kuģinieks atraisīja trešo mezglu,
+sacēlās tūliņ ceļa vējš un tie devās ceļā. Jau vakarā ķēniņa dēls bija pie
+savas līgavas. Kad kuģinieks brauca prom, princis iedeva viņam vēstuli, lai to nododot
+viņa tēvam, vecajam ķēniņam. Kuģiniekam atbraucot, pie šī ķēniņa bija lielas
+viesības, jo bija sabraukuši daudzi ķēniņu dēli lūkoties skaistajā ķēniņa
+meitā. Šie ķēniņa dēli dzēra un priecājās cauru nakti, līdz beidzot visi pilī
+apgūlās. Bet no rīta, kad cēlās, pamanīja, ka ķēniņa meita ir nozagta. Visi bija
+ļoti bēdīgi, bet jo vairāk pats ķēniņš.</p>
+
+<p align="JUSTIFY">Kuģinieks tad sacīja: "Nebēdā, ķēniņ, gan mēs viņu
+atradīsim, sēdies tik manā kuģī un brauksim viņu meklēt."</p>
+
+<p align="JUSTIFY">Trešo mezglu atraisījuši, viņi aizbrauca ar ceļa vēju un drīzā
+laikā nonāca līdz vienai salai, kur bij apslēpta ķēniņa meita. Lai dabūtu
+ķēniņa meitu, viņš atraisīja pirmo mezglu, iepriekš savu kuģi noenkurojot.
+Sacēlās milzīga vētra un jūŗas ūdeņi bruka salai virsū un sāka to postīt. Visi
+ļaudis nu bēga uz kuģi, bet kuģinieks nevienu nelaida virsū. Uzņēma tikai ķēniņa
+meitu un aizbrauca. Ķēniņš bija ļoti laimīgs, ka atguvis savu meitu. Atbraucis
+mājās viņš atdeva kuģiniekam savu valsti un savu meitu par sievu.</p>
+</font>
+
+
+</body></html>

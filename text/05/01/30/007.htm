@@ -1,0 +1,183 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Velna vārds.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">7. A. 500. Dzērve ar Žiemu Mežotnē. LP, V, 371 (163). </p>
+
+<p align="JUSTIFY">Viens ķēniņš saderējis ar velnu tā: trijās dienās velnam
+jāuzcērt vaska Pils ar zelta gaili galā, un ķēniņam atkal jāuzmin velna vārds; bet
+ja ķēniņš neuzminētu, tad velns dabū ķēniņa valstī veselu novadu ar visiem
+cilvēkiem, par to ka pili cēlis. Labi! otrā dienā abi stājušies pie darba: velns
+rāvies nosvīdis, pili celdams, un ķēniņš, galvu nodūris, minstinājies velna
+vārdu. Tomēr velnam divās dienās vaska pils jau gatava, tikai trešā dienā vēl
+vajadzējis zelta gailim aiziet pakaļ, bet ķēniņam velna vārds nešaujas un nešaujas
+prātā. Viņš bēdājies: "Ē! kam tā maz vajadzēja derēt? Lai nu tas novads,
+kur novads, bet kur mani autiņi! Labāk atdotu kuŗam katram apsolīto novadu, ja tikai
+velna vārdu kāds uzminētu."</p>
+
+<p align="JUSTIFY">Te par laimi tai pašā dienā iegadījies nabagam pret vakaru ar savu
+skalu ķēveni caur mežu braukt. Nezin -- gribējis žagarus, ko tur pārvest. Bet
+ķēvene nespēkā, ik pakāpusi soļus pieci, apstājusies, un nabags notūļājies
+apnicis: nemaz uz priekšu padabūt. Tomēr šoreiz tas bija labi: jo, kamēr ķēvene
+vienā gabalā pūtusies, nabagam atlicies laika pie veca, doba ozola atsēsties; un tur
+tas nu piepēži izdzirdējis iekšpusē dziedam: "Aijā, aijā, lingu, langu! rītu
+pārnāks Īststātens; rītu pārnāks Īststātens, novadeli nopelnījis, pilsēteli
+uztaisījis.</p>
+
+<p align="JUSTIFY">Nabags, to dzirdēdams, nodomājis: "Nu saprotu, velns ceļ
+ķēniņam vaska pili un rītu tas pārnāks; bet ķēniņam jāmin velna vārds, un tas
+ir velna vārds: Īststātens."</p>
+
+<p align="JUSTIFY">Tūlin nabags izgāzis žagarus un steidzies pie ķēniņa, cik jau
+vien skalu ķēvene jaudājusi. Aizbraucis tur, ķēvene slapja kā izpeldināta. Nu, ko
+nu teiks tūlin, tas neklājas? Labāk uzmaucis zirģelim oderi un pats durvju priekšā
+sācis pātarus skaitīt tiem vārdiem: "Aijā, aijā, lingu, langu! rītu pārnāks
+Īststātens; rītu pārnāks Īststātens, novadeli nopelnījis, pilsēteli
+uztaisījis."</p>
+
+<p align="JUSTIFY">Te ķēniņa sulainis jau pavēris durvis, pikti uzsaukdams: "Ko
+tu, nabags, te gaudi, vai neiesi projām! Iznāks ķēniņš, tad redzēsi gan."</p>
+
+<p align="JUSTIFY">Bet nabags to nemaz nemož, tikai skaita savu: "Aijā, aijā,
+lingu, langu."</p>
+
+<p align="JUSTIFY">Te iznāks pats ķēniņš: "Nabags, ko tu te skaiti?"</p>
+
+<p align="JUSTIFY">"Skaitu velna pātarus: Aijā, aijā, lingu, langu! rītu
+pārnāks Īststātens; rītu pārnāks Īststātens, novadeli nopelnījis, pilsēteli</p>
+
+<p align="JUSTIFY">uztaisījis." "Kas tas par Īststāteni?" "Tas
+velna vārds!"</p>
+
+<p align="JUSTIFY">"Kuŗa velna?"</p>
+
+<p align="JUSTIFY">"Tā velna, kas vaska pili cēlis." "Ej jel ej! Kā tu
+to zini?"</p>
+
+<p align="JUSTIFY">"Man pateica ozols, es pateicu ķēniņam."</p>
+
+<p align="JUSTIFY">"Vai traks, tad nāc iekšā! Ja rītu tā būs patiesība, tad
+novadu tu dabūsi, būsi bagāts vīrs."</p>
+
+<p align="JUSTIFY">Labi! nabags iegājis pie ķēniņa un nu abi divi ar ķēniņu gaidīs
+rītu. Rītā velns ar zelta gaili klāt un tūlin uzceļ jumta galā. Zelta gailis jumta
+galā dzied kā bailes; bet velns ieskrien pie ķēniņa: "Nu ;mans darbs pabeigts,
+atdod novadu jeb pasaki manu vārdu!"</p>
+
+<p align="JUSTIFY">"Tavu vārdu? Tu jau esi Īststātens."</p>
+
+<p align="JUSTIFY">"Ja, ja, ja, - Īststātens, Īststātens!" velns iesaucies
+vien un nozudis kā dūmi.</p>
+
+<p align="JUSTIFY">Ķēniņš par to vareni priecājies un tūdaļ atdevis nabagam solīto
+novadu ar visiem ļaudim.</p>
+
+
+</body></html>

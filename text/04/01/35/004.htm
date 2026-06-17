@@ -1,0 +1,188 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Divējādas līgavas. </p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">4. Teicēja 76. g. veca Īva Staleidzāne, Atašienes pag. </p>
+
+<p align="JUSTIFY">Vīnai meitai beja muote un kolpyune. Muote ar kolpyuni meitai vysu
+struoduoja un meita auga, nikaidu dzeives gryutumu nazynuodama. Meitas kolpyune kur tik
+guoja, arvīn runuoja: "Bāda, bāda, kas tevi izbāduos?"</p>
+
+<p align="JUSTIFY">Meita itūs vuordus bīži nu kolpyunes dzierdēja un reizi prasa:
+,,Kī tys nūzeimej bāda, bāda, kas tevi izbāduos?"</p>
+
+<p align="JUSTIFY">Tad kolpyune pajēmja dīgu komūlīti, pasvīdja un soka: "Es tev
+paskaidruot navaru, bet tu ei pēc ituo komūlīša un izzynuosi, kū tys nūzeimej!"</p>
+
+<p align="JUSTIFY">Tad meita laidjās īt pēc komūlīša. Komūlīts šketerējās un
+meita īt pēc juo. Tai meita guoja dīnas divi, vai treis, posokā nav sacīts, un
+komūlīts pīvedja jū pi kaida kēniņa piļs vuortim. Uz vuortim ar zalta būrtim beja
+uzrakstīts: "Tys, kas naēss, nadzers, nagulēs un lasīs itūs rokstus treis
+dīnas, varēs īīt paitim vuortirn īškā un pīceļs cylvākus!"</p>
+
+<p align="JUSTIFY">Tuos piļs ļauds jau ilgus godus gulēja apbūrti. Meita atsasazda pi
+vuortim, naād, nadzer, naguļ un losa rokstus. Jau meita nūlasēja divi dīnas un jai
+brīsmīgi uzguoja mīgs. Te - kur bejuse, nabejuse - atīt vīna sīvīte. Tei beja
+rogonas meita. Meitai izspierga mīgs un tagad jei sasarunuodoma ar rogonas meitu, cītja
+trešū dīnu. Tai meita lasēja treis dīnas tūs rokstus naāduse, nadzāruse un
+nagulējuse. Kai tik beidzjās treis dīnas, vuorti atsataisīja un rogonas meita pyrmuo
+īskrēja īškā un pastuostīja pīsacālušajam nu apbūršonas kēniņam, ka jei
+nūlasēja. Meita pa treis dīnom beja nūvuorguse un lēni īsavylka pa vuortim. Rosonas
+meita pastuostīja kēniņam, ka tei nūvuorgūšuo meita atguojuse tik trešā dīnā un
+traucējuse jū lasīt. Kēniņš sasadusmuoja, īlyka nūvuorgušū meitu pogrobā,
+pīlyka pi pogroba durovom sorgu un baruoja pa lūdziņu, bet pats taisa kuozas ar rogonas
+meitu. Pyrms kuozom kēniņš sadūmuoja braukt uz pilsātu un nūpierkt vysim piļs
+ļaudim gastinčus. Braukdams uz pilsātu, kēninš prasīja nu vysim jaudim, kū kuram
+nūpierkt, un paprasīja ari nu meitas, kura sēdēja pogrobā. Meita soka:
+"Nūpiercīt man ļaļi, kura runoj!" Kēniņš pasasmēja un dūmuoja pats
+sevī: muļķam, muļķa gastiņes!"</p>
+
+<p align="JUSTIFY">Nūbraucja kēniņš uz pilsātu, sapierka vysim piļs jaudim
+gastinčus, kaidu kurs gribēja, un meitai atvedja ļaļi, kura runoj. Tai kai uz reita,
+kēniņš nūlyka kuozas ar rogonas meitu.</p>
+
+<p align="JUSTIFY">Meita sajēmja taidu ļaļi, kurai, kad pīspissi, jei izsoka:
+"Kū tu maņ pastuostīsi?"</p>
+
+<p align="JUSTIFY">Meita nūlyka ļaļi pret sevi un pīspīdja: "Kū<b> </b>tu maņ
+pastuostīsi?" prosa ļaļa.</p>
+
+<p align="JUSTIFY">"Es tev pastuostīšu un paskaidruošu, kū nūzeimej vuordi:
+bāda, bāda, kas tevi izbāduos?"</p>
+
+<p align="JUSTIFY">"Kad es dzeivuoju pi sovas muotes, tad kolpyune arvīn runuoja
+itūs vuordus. Vinu reizi es prasīju: "Kū tys nūzeimej?" Kalpyune man
+naatbildēja, bet īdevja komūlīti un sacīja īt pēc kamūlīša, tūlaik es
+izzynuošūt, kas tys asūt. Komūlīts škatynuojuos un es guoju pakaļ. Tai es guoju,
+guoju pēc komūltša un komūlīis mani atvedja pi ituos piļs vuortim. Uz vuortim beja
+uzroksts: "Kas treis dīnas naēss, nadzers, nagulēs un lasīs itūs rokstus, tys
+īīs pa vuortim īškā un apbūrtī iauds pīsaceļs." Es suoku lasīt un
+nūlasīju divi dīnas. Trešā dīnā atguoja rogonas meita un gaidīja, kad vuorti
+atsataisīs. Vuorti atsataisīja un jei īskrēja pyrmuo piļī pi kēniņa, bet es beju
+nūvuorguse par treis dīnas un navarēju paīt tai mudri. Rogonas meita mani apmaluoja
+kēniņam un tagad es saprūtu sovas kolpyunes vuardus: bāda, bādt, kas tevi
+izbāduos?" stuostīja meita ļaļai.</p>
+
+<p align="JUSTIFY">Itūs meitas vuordus dzierdēja pi pogroba durovom pastatītais sorgs,
+tyuleņ aizskrēja pi kēniņa un soka: "Tāvs, kēniņš, nasaprecej ar tū meitu,
+bet aizej pasaklausi, kū runoj sovai ļaļai tei meita, kura pasādynuota pogrobā!"</p>
+
+<p align="JUSTIFY">Reitā kēniņš aizguoja pi pogroba durovom un klausuos. Meita otkon
+pīspīdja ļaļai un ļaļa prosa: "Kū tu man pastuostīsi?" Meita atkon
+izstuostīja tū pašu, kū runuoja vakar, un vē turpynuoja: "Šūdīņ, kēniņš
+taisa kouzas ar tū rogonas meitu, bet man juosēd pogrobā un juorunoj ar tevi."</p>
+
+<p align="JUSTIFY">Vairuok kēniņš navarēja klausītis, attaisīja pogroba durovas,
+pajēmja meitu aiz rūkas un nūvedja uz sovu kambari, bet rogonas meitu pīsēja zyrgam
+pi astes un zyrgs jū saraustīja gobolūs. Kēniyš apsaprecēja ar meitu un šūdīy
+dzeivoj laimīgi.</p>
+
+
+</body></html>

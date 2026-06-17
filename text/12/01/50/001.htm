@@ -1,0 +1,159 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>50</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Necerēta laime.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>1. </strong>A. 1654 Auseklis Lielvārdē. Brīvzemnieka kr. LP,
+VI, 896 (133, 6).</p>
+
+<p align="JUSTIFY">Vienam tēvam trīs dēli. Vienreiz viņš vecāko dēlu veda ap saviem
+laukiem, tur gadījās liels, līks bērzs. Dēls saka: "Vai zini, tēt, kas te
+iznāk?"</p>
+
+<p align="JUSTIFY">"Nu, kas tad?"</p>
+
+<p>"Saku koki!"</p>
+
+<p align="JUSTIFY">Tēvs par to ļoti priecājās: "Tu esi man labs dēls, tā
+runādams, būsi man vecumā labs maizes devējs!"</p>
+
+<p align="JUSTIFY">Otrā dienā tēvs veda otru dēlu. Gadījās liela, liela liepa. Otrs
+dēls saka: "Vai zini, tēt, kas te iznāk?"</p>
+
+<p align="JUSTIFY">"Nu, kas tad?"</p>
+
+<p>"Segli!" Tēvs atkal priecājās: "Tu esi man labs dēls, būsi man
+vecumā maizes devējs!"</p>
+
+<p align="JUSTIFY">Trešā dienā veda trešo dēlu. Gadījās liels, liels ozols.
+Trešais dēls saka: "Vai zini, kas, tēt, te labs iznāk?"</p>
+
+<p align="JUSTIFY">"Nu, kas tad?"</p>
+
+<p>"Ceļa gājēja runga!"</p>
+
+<p>Tad tēvs dusmīgi atteica: "Tu man neesi vis labs dēls, tu būsi tikai tāds</p>
+
+<p>pasaules staigulis, nekāds maizes devējs vecumā." </p>
+
+<p>Un kad trešais bija paaudzis, tad tēvs to palaida, lai iet pa</p>
+
+<p align="JUSTIFY">pasauli. Viņš pirms aizgāja uz kalēju uzkalt desmit podu smagu
+rungu. Uzkala, runga bija par nestipru. Nu lika divdesmit podu smagumā kalt. Uzkala to,
+vēl runga locījās. Nu lika trīsdesmit podu kalt. Uzkala, tā drusku gan locījās,
+locījās, bet iztika un aizgāja pasaulē. Jāja, jāja - uzjāja lielu pļavu un pļavā
+lielu kuplu ozolu. To izrāva no saknēm un atrada trīs mucas naudas zem ozola. Nu
+piesēja pie ozola ķēvi un nosacīja tā: "Es iešu astoņi gadi pa pasauli un par
+astoņi gadi nākšu atpakaļ. Ja tev tad nebūs astoņi kumeļi radušies, tad
+nocirtīšu tev galvu."</p>
+
+<p align="JUSTIFY">Bet kad viņš nu par astoņi gadi atnāca, tad ķēve zviegdama veda
+savus astoņus bērnus pretim. Nu viņš paņēma savas trīs mucas zelta naudas, aizgāja
+uz tēvu un dzīvoja laimīgi.</p>
+
+
+</body></html>

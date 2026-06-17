@@ -1,0 +1,178 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>28</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Stiprais Ansis.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">28. A. 650 A. R. Banga Gulbenē. LP, VI, 396 (112, 14).</p>
+
+<p align="JUSTIFY">Vienai mātei bija stiprs dēls. Tas gāja peļņā un nopelnīja trīs
+pūri rudzu. Rudzus viņš lika pa muguru un nesa mājā; bet pienāca vakars. Par laimi
+gadījās krogs ceļā, kur domāja pārgulēt. Un tā nu viņš nosvieda rudzus pie kroga
+durvim zemē, pats iegāja iekšā, nolika labu nūju sev līdzās un aizmiga turpat uz
+galda. Bet rītā atmodies ieraudzīja: cūkas ēd viņa rudzus. Tūdaļ uzbļāva
+krodziniekam: "Dzen tu savas cūkas no maniem rudziem nost!"</p>
+
+<p align="JUSTIFY">Krodzinieks atbild: "Guli guli vien, ka tev lai labi
+izdodas!"</p>
+
+<p align="JUSTIFY">Un līdz krodzinieks to izteicis, nāk iekšā divpadsmit slepkavas,
+apstājas visapkārt galdam un grib dēlu nokaut; bet dēls trūkās, ķēra savu nūju,
+apsita visus slepkavas un vēl taisījās ir krodzenieku sist. Bet krodzinieks apsolījās
+trīs pūri zelta dot, lai viņu nesitot. Labi. Abi divi aizgāja uz pagrabu, kur dēls
+zelta sagrābās trīs pūri un pārnesa savai mātei.</p>
+
+<p align="JUSTIFY">Pēc kāda laika dēls atkal pagrozījās pa pasauli un salīga pie
+viena ķēniņa uz trīs gadi par puisi ar tādu norunu: tiklīdz trīs gadi beidzas,
+dēlam trīs reizi brīv ķēniņam iesist.</p>
+
+<p align="JUSTIFY">Bet kad dēls aizgāja uz ķēniņu, ķēniņš tūdalin sūtīja viņu
+uz vienām dzirnavām, kas bija velna apsēstas, lai tās viņš pārtaisot. Labi, dēls
+aiziet, sāk dzirnavas apskatīties. Kas ir? Ap pusnakti nāks velns ar divām galvām un
+kritīs šim virsū; bet dēls iekampj velnu padusē, ka daždien mazu bērnu, aiznes pie
+ķēniņa un vaicā: "Vai būs šo nonāvēt, vai dzīvu palaist?"</p>
+
+<p align="JUSTIFY">Ķēniņš atsaka, lai nāvē ja patīk. Labi, dēls tūliņ nes velnu
+uz lauku un nu maitās nost; bet velnam aplam labs lūdzamais, lai nesitot, viņš
+apsoloties visu mūžu dēlam par kalpu būt.</p>
+
+<p align="JUSTIFY">"Labi!" dēls atsaka, "bet tad tu man tūliņ no šī
+brīža kalposi par malkas skaldītāju un krāsns kurinātāju, kamēr es dzirnavas
+sataisīšu, un varbūt vēl citu darbu tev iedomu."</p>
+
+<p align="JUSTIFY">Tā palika. Otrā dienā velns palika malku skaldām, bet dēls
+aizbrauca mežā dzirnavām baļķa meklēt.</p>
+
+<p align="JUSTIFY">Baļķa dabūjis, lika uz pleca un nesa uz zirgu; bet zirga nebija
+vairs. Divi lauvas par to laiku bija apēduši un stāvēja pie kauliem rūkdami.</p>
+
+<p align="JUSTIFY">Nu dēls aplam sadusmojās, tūliņ sagrāba lauvas, aizjūdza zirga
+vietā baļķa vezumam priekšā, aizveda uz dzirnavām, uzcirta tās, ka var malt, un tad
+veda savus braucamos lauvas ķēniņam radīt, ko būšot darīt ar tiem?</p>
+
+<p align="JUSTIFY">Ķēniņš saka: "Paturi pats!"</p>
+
+<p align="JUSTIFY">Tas nu tas. Bet pēc kāda laika izcēlās ķēniņam kaŗš un
+ķēniņš dēlu vienu pašu sūtīja kaŗā, kas tur ir ir.</p>
+
+<p align="JUSTIFY">Dēls nu saposās vareni uz kaŗu, aizjūdza savus braucamos lauvas,
+paņēma velnu un aizbrauca pie ienaidnieka kaŗa spēka tik lepni, kā neviens vēl nebij
+braucis. Tur viņš sacīja: "Nu, velns, tagad tu arī strādāsi! Visas lodes, ko
+ienaidnieki šauj, tu sviedi viņiem pašiem atpakaļ!"</p>
+
+<p align="JUSTIFY">Velns tā darīja. Viens, divi - ienaidnieki bija pagalam un dēls tik
+pat lepni brauca atkal atpakaļ uz ķēniņu.</p>
+
+<p align="JUSTIFY">Bet drīzi pēc tam tie trīs nolīgtie gadi bija beigušies un dēlam
+nu pienācās ķēniņam trīs reizi sist. Neko darīt, ķēniņš nostājās, lai nu sit
+arī. Un kā nu sita pirmo pliķi - ķēniņš slapjš vien palika; tie divi pārējie
+pliķi nav kam sist.</p>
+
+<p align="JUSTIFY">Un dēls nu, zināms, pats palika par ķēniņu un dzīvoja labi.</p>
+</font>
+
+
+</body></html>

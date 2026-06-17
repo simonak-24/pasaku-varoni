@@ -1,0 +1,161 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>ll</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Dieva spēks, zivs padoms.</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">11. A. 675. E. Elksnītis no Līzes Lapaines
+Ikšķilē. </font></p><font size="3">
+
+<p align="JUSTIFY">Vienam tēvam bija trīsi dēli: divi gudri, viens muļķis. Gudrie
+brāļi brauca mežā malkā, bet muļķis gulēja mājā uz krāsns. Kādu dienu gudrie
+brāļi paņem muļķi līdz uz mežu. Muļķis atrod uz ceļa zivi un ielaiž to upē.
+Zivs tam par to pateicas un saka : "Ja tu kādreiz ko vēlies, tad pasauc tik
+mani." </p>
+
+<p align="JUSTIFY">Otrā dienā muļķis brauc atkal mežā. Uz mežu braucot, jābrauc
+gar ķēniņa pili. Muļķis redz, ka dārzā pastaigājas ķēniņa meita. Viņš
+vēlās: ,,Ak, mana zivtiņa, kaut šai meitai būtu bērns!"</p>
+
+<p align="JUSTIFY">Pēc neilga laika ķēniņa meitai arī piedzimst dēls. Ķēniņš nu
+prasa meitai: "Kas ir tava bērna tēvs?" Bet šī nevar nekā atbildēt.</p>
+
+<p align="JUSTIFY">Pēc gada ķēniņš sarīko lielas dzīres un ielūdza visu tautu.
+Bērnam tiek iedots ābols, ko tas nevar nevienam citam dot, kā savam tēvam. Bērns
+staigā visu dienu, bet nevienam cilvēkam ābolu, nedod. Beidzot vakarā viņš pieiet
+pie jaunuzceltās maizes krāsns un ielaiž tur ābolu. Sulaiņi nu skatās krāsnī un
+atrod tur muļķi. Ķēniņš par to ļoti noskaišas un nolemj savu meitu, znotu un
+bērnu nonāvēt. Viņš liek uztaisīt stikla laiviņu, iesēdināt tur visus trīs un
+palaist jūrā. Laiviņa peld; peld. Te muļķim iegribas ēst, viņš uzsauc:
+"Zivtiņ, zivtiņ, man gribas ēst!"</p>
+
+<p align="JUSTIFY">Tūdaļ ēdieni klāt. Ķēniņa meita, to redzēdama, vēlās, lai
+muļķis pagādā spilvenus un deķus. Tas arī notiek. Vakarā ķēniņa meita vēlās:
+"Kaut tas, kas tagad stāv uz mana tēva galda, būtu te!"</p>
+
+<p align="JUSTIFY">Tūdaļ galds ar ēdieniem klāt. Tā šie brauc pa jūru veselu
+nedēļu. Kādu rītu tie ierauga salu, kur tie arī izkāpj. Uz salas atrodas visādi
+augļu koki un puķes. Pašā salas vidū ir akmens ar trijiem stūriem. Muļķis. vēlās
+: "Kaut šis akmens pārvērstos par pili ar trijiem stūriem: viens dimanta, viens
+zelta, viens sidraba!"</p>
+
+<p align="JUSTIFY">Tas arī notiek. Pēc kāda laika muļķis vēlās: "Lai būtu
+tilts no manas pils līdz ķēniņa Pilij un lai tiktu nodots ķēniņam ielūgums uz
+kāzām."</p>
+
+<p align="JUSTIFY">Otrā rītā visi augstmaņi ar ķēniņu steidzas pār tiltu uz salu.
+Ķēniņš savu meitu un znotu vairs nepazīst. Visi nu dzer kāzas trīs dienas. Visi
+ēdieni un dzērieni tiek pasniegti zelta traukos. Vislielākais brīnums ir zelta vista
+un zelta cālis. Kāziniekiem projām ejot muļķis iebāž cāli ķēniņam kabatā. Pie
+tilta viņš kāziniekus aptur sacīdams: "Viens no jums ir nozadzis manu
+cāli."</p>
+
+<p align="JUSTIFY">Ķēniņš ļoti noskaišas un apsolās to nonāvēt, bet tagad
+ķēniņš ir piespriedis pat sev nāves sodu. Muļķis pieiet tam klāt un izvelk cāli.
+Viņš nu laižas ķēniņam pazīstams un piedod tam visu bargumu.</p>
+</font>
+
+
+</body></html>

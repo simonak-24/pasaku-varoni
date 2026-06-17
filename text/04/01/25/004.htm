@@ -1,0 +1,242 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vīrs meklē zudušo sievu.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">4. A. 400. Lapas Mārtiņš Rūjienā. "Pasakas un nostāsti"
+I 1902, i .</p>
+
+<p align="JUSTIFY">Kāds saimnieks vēlā vakarā pie mājas durvim dzirdējis mazu bērnu
+raudam. Ārā izgājis, viņš ieraudzījis mazu meitiņu, tikko gadu vecu. Viņš to
+ienesis iekšā, paēdinājis un tad saimniece</p>
+
+<p align="JUSTIFY">to rūpīgi guldinājusi savā vienīgā dēla šūpolī, kas bijis jau
+trīs gadi vecs un tādēļ šūpolī vairs negulējis. Kaut gan mācītājs trīs
+svētdienas ziņojis no kanceles, kaut gan muižas valde rakstījusi pienācīgām tiesām
+par bērna atrašanu, tomēr bērna vecāki palikuši nezināmi. Bērna atradējs
+saimnieks to tādēļ pieņēmis par savu audžu bērnu. Kad meitene paaugusi, tā katrā
+ziņā bijusi krietns, čakls un paklausīgs bērns. Tā ka audžu vecāki par viņu
+priecājušies.</p>
+
+<p align="JUSTIFY">Kad atrastā audžu meita bijusi pieaugusi, tad tā bijusi veikla un
+priekšzīmīga strādniece un visādi centusies atlīdzināt audžu vecāku
+audzināšanas pūles. Tikai tas bijis pie viņas kautkas savāds, ka viņa bijusi par
+daudz nopietna, nemīlējusi nekādas jautrības un nekad nepasmējusies. Arī no
+baznīcas apmeklēšanas viņa visādi raudzījusi izvairīties, aizbildinādamās, ka
+arī pa svētdienām mājās esot darba diezgan. Un darbi viņai brīnum ātri un veikli
+šķīrušies, tā ka prieks bijis noskatīties viņas darbos.</p>
+
+<p align="JUSTIFY">Saimnieka vienīgais dēls iemīlējis jaunavu, un arī viņa vecāki
+vēlējušies, lai no viņiem abiem iznāktu pārs, tādēļ ka atzinuši ka krietnākas
+sievas un saimnieces viņu dēls nevarētu dabūt. Viņš to pēdīgi arī apprecējis un
+viņa vecāki vecuma dēļ atdevuši jaunajam pāram māju.</p>
+
+<p align="JUSTIFY">Jauniem saimniekiem rādījusies būt jauna laime. Viss viņiem labi
+izdevies: labība vienmēr izdevusi daudz labāku ražu, nekā citiem saimniekiem, visi
+mājkustoņi bijuši brangi. Sevišķi piena un sviesta jaunai saimniecei bijis papilnam,
+tā ka kaimiņi sākuši to apskaust un daudzināt, ka visu to viņa nepanākot ar savu
+krietno darbību, bet viņai laikam esot kāda īpaša skola, īpaša gudrība, ar ko tā
+visu iegūstot; jo citi arī protot strādāt un strādājot, bet sekmes esot daudz
+vājākas. Bet šādas skaudības runas nenākušas jauno saimnieku ausīs, tādēļ ka
+viņi ar citiem nesatikušies, bet nodevušies vienīgi savam darbam. Jauno saimnieku
+laulība jau bijusi apsvētīta ar diviem bērniem un viņu labklājība visādi
+pavairojusies.</p>
+
+<p align="JUSTIFY">Kādas svētdienas rītā saimnieks uzrunājis savu laulāto draudzeni,
+ka šodien viņiem reiz jābraucot uz baznīcu, lai mācītājs un citi ļaudis nesāktu
+domāt, ka viņi esot bezdievīgi, kam nekas cits nerūpot, kā mantas krāšana un
+laicīga labklājība. Kaimiņi jau tā viņus apskaužot un aprunājot. Saimniece gan
+raudzījusi dažādi izvairīties no baznīcas apmeklēšanas; bet kad vīrs nekā nebijis
+pierunājams, lai viņu atstāj mājā, tad viņa braukusi līdz.</p>
+
+<p align="JUSTIFY">Baznīcā saimnieks sēdējis vīriešu pusē un saimniece sieviešu
+pusē, bet viens no otra necik tālu, tā kā saimnieks savu sievu gluži labi varējis
+saredzēt. Bijusi karsta diena un pie grūtiem nedēļas darbiem novārgušie baznīcēni
+pa sprediķa laiku gandrīz it visi snauduši. Tad uz reiz saimnieks ieraudzījis, ka
+viņa sieva pasmējusies. Tas bijis pirmo reizi, kur viņš savu sievu redzējis smejamies
+un vēl taisni baznīcā, kur smieties nepieklājas.</p>
+
+<p align="JUSTIFY">Kad viņi no baznīcas braukuši uz māju, vīrs tai jautājis,
+kādēļ viņa baznīcā smējusies.</p>
+
+<p align="JUSTIFY">To man nav brīv tev sacīt," viņa atbildējusi. "</p>
+
+<p align="JUSTIFY">Tāda liegšanās viņu padarījusi vēl ziņkārīgāku, un tādēļ
+viņš sievai bez mitēšanās uzstājies, lai saka, kādēļ viņa baznīcā smējusies.</p>
+
+<p align="JUSTIFY">"Nevēlies to zināt, mīļais vīriņ: jo man tiešām nav brīv
+tev to pasacīt. un ja es tomēr tev to pasacītu, tad es taptu nelaimīga un varbūt tu
+arī."</p>
+
+<p align="JUSTIFY">Bet viņas vīrs domājis, ka viņa to tikai tā izvairīdamies saka,
+un tādēļ jo stingri uzstājies, lai viņam pasaka, kādēļ viņa baznīcā smējusies.
+"Tu man pavēli tev to pasacīt un tādēļ man jāpaklausa: jo tu esi mans vīrs,
+kaut gan es zinu, ka tas nebūs par labu ne man nedz tev. Es tādēļ baznīcā smējos,
+ka redzēju, ka velns tos baznīcēnus, kas pa sprediķa laiku snauda, pierakstīja uz
+jēlas zirga ādas, bet tādēļ, ka snaudēju bija ļoti daudz, zirga āda bija par mazu,
+velns vienu ādas galu nolika zem mājām un otru ieņēma zobos un tā ādu paspīlēja
+lielāku. To redzot, man negribot bija jāpasmejas." Tā sieva stāstījusi.</p>
+
+<p align="JUSTIFY">Iet kā tad tu viena varēji saredzēt velna rīkošanos pa baznīcu,
+kad es un citi baznīcēni to neredzējām'?" vīrs jautājis. "Kad tev vienu
+noslēpumu esmu pasacījusi, tad man tev jāpasaka arī otrs," viņa atbildējusi.
+,Es tādēļ varēju saredzēt velnu , ka neesmu tāds cilvēks, kāds tu, bet ragana.
+Mana māte, kas arī bija ragana, vēlējās mani atsvabināt no velna varas un padarīt
+par godīgu cilvēku, tādēļ viņa mani jau mazu meiteni nolika pie tava tēva mājas,
+ka es taptu uzņemta par audžu meitu un uz audzināta pie godīgiem cilvēkiem. Man bija
+jāizturas nopietni un rāmi, bija uzcītīgi jāstrādā un jāatturas no baznīcas
+apmeklē šanas. Kad tu mani apprecēji, tad es sajutos ļoti laimīga, jo pēc mūsu
+kāzām man vēl tikai pieci gadi bija jāpavada par savādnieci, un pēc tā laika es no
+velna varas būtu pilnīgi atsvabināta, nebūtu vairs ragana un varētu dzīvot kā visi
+citi cilvēki. Un šie pieci gadi pēc maz mēnešiem būtu pagājuši un es būtu svabada
+un laimīga, ar tevi kopā pavadot savu mūžu, ja tu mani šorīt nebūtu piespiedis
+braukt tev līdz uz baznīcu, un man neatlaidīgi nebūtu pavēlējis, lai tev pasaku,
+kādēļ es baznīcā smējos. Bet tagad viss ir beigts, mana cerība pagalam un arī tava
+laime izirusi."</p>
+
+<p align="JUSTIFY">Viņas vīrs to nemaz neticējis, ko viņa tam bija stāstījusi, un
+viņai sacījis, ka viņš to visu atzīstot par tīrām blēņām. Bet viņa tad ar savu
+vīru visā baznīcas ceļā vairs neviena vārda nerunājusi. Arī tās dienas vakarā
+viņa bijusi pilnīgi mēma un ļoti skumīga. Viņa izskatījusies gluži pārvērtusies
+un izturējusies pret savu vīru tik vienaldzīgi, it kā tas viņai būtu gluži svešs.
+Pat savus bērnus viņa vairs nerādījusies mīlējot, jo saimnieka māte dzirdējusi, ka
+viņa paklusi sacījusi: "Tagad jūs esat raganas bērni!"</p>
+
+<p align="JUSTIFY">Naktī, kad visi gulējuši, mājas puisis, kas vēlu bija palicis
+krogā, pārnākdams redzējis, ka saimniece ar abiem bērniem iznākusi no istabas, vienu
+nesdama klēpī un otru, lielāko, vezdama pie rokas. Puisis, to redzēdams, pagalmā
+paslēpies aiz ratiem, lai slepeni noskatītos, ko saimniece darīs. Viņa izvilkusi kātu
+no slotas, kas pie durvju stenderes bijusi pieslieta, uzstājusies uz tā stakliski,
+paņēmusi abus bērnus sev priekšā un tad runājusi: "Tagad, mani bērniņi`
+aizjāsim uz manas mātes māju, jo še vairs nav mūsu māja un tādēļ mēs še vairs
+nevaram palikt."</p>
+
+<p align="JUSTIFY">Tad viņa uz slotas kāta pacēlusies gaisā un ar abiem bērniem vēja
+ātrumā aizjājusi pa gaisu. Puisis, to visu redzēdams, bijis ļoti izbijies un
+aizgājis uz klētiņu gulēt. Bet miegs viņam tonakt nemaz nenācis, tādēļ, ka
+vienmēr bijis jādomā par to, ko pagājušā naktī priekš pusnakts bija redzējis.
+Nākošam rītam austot, viņš izgājis pagalmā un redzējis, ka slota ar visu kātu
+stāv vēl pieslieta pie durvju stenderes. Puisis par to priecājies un domājis, ka viss
+tas, ko viņš pagājušā naktī redzējis, bijis tikai murgi, tādēļ, ka vakarvakarā
+krogā bija īsti daudz dzēris. Bet drīz vien izrādījies, ka saimniece ar bērniem pa
+nakti patiesi pazudusi, visiem māju iedzīvotājiem par lielu uztraukumu.</p>
+
+<p align="JUSTIFY">Iesākot saimnieks un viņa vecāki ticējuši, ka pazudusī saimniece
+vēl pārnāks. Bet tas nenoticis, tu kad puisis viņam pēdīgi pastāstījis, ko
+svētdienas vakarā, vēlu no kroga pārnākot, bija redzējis, tad saimnieks, atceroties
+to, ko viņa pazudusī sieva, no baznīcas uz māju braucot, viņam bija sacījusi, sācis
+arī ticēt, ka saimniece patiesi bijusi ragana, un viņu atstājusi, paņemdama arī
+viņa bērnus līdz. Viss šis piedzīvojums padarījis viņu nelaimīgu.</p>
+
+<p align="JUSTIFY">Līdz ar saimnieces pazušanu arī visa turība un laba kārtība
+mājā sākusi panīkt. Saimnieks nodevies žūpošanai, un pēdīgi kungs tam atņēmis
+māju.</p>
+
+
+</body></html>

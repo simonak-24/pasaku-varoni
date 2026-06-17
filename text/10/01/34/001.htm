@@ -1,0 +1,216 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>1003401</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Uzticamā ķēniņiene.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">A.<b> </b>887. V. Fiļšs no O. Volkova
+Sakstagala pag. Latvju Kultūras kr.</font></p><font size="3">
+
+<p align="JUSTIFY">Tuoļi nu myusu vīnā kēnestī dzeivuoja vīns kēneņč. Itys
+kēneņč sadūmuoja ženētīs, ilgi jis meklēja sev jaunivis, bet nikai dēļ sovys
+sirdis navarēja atrast. Vīnu reizi kēneņč nūbraucja uz medeibys, un īraudzēja uz
+teiruma ganeiti, kuŗa dzonuoja lūpus. Itei ganeitja beja meita vīna bedna zemnīka.
+Meita itei beja cīši skaista: juos skaistumu navarēja ni ar spolvu pīraksteit, ni
+posokā rozstuosteit, a ūtrys taidys nikur pasaulī nabeja. Dabraucja kēneņč pi ituos
+meitys,- apstuoja un runoj: "Vasala, skaistuo meitiņa!"</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Vasals kēneņč!" atbildēja meita. </p>
+  <p align="JUSTIFY">"Kaids tovs tāvs?"</p>
+</blockquote>
+
+<p align="JUSTIFY">"Muns tāvs bednais zemnīks, kurijis natuoļi nu šanins
+dzeivoj."</p>
+
+<p align="JUSTIFY">Kēneņč pavaicuoja nu meitys vuordu juos tāva, un nūbraucja pa sovu
+ceļi tuoļuok. Napuorguoja dīnys treis, atbrauc kēneņč uz tū cīmu, kur dzeivoj
+ituos skaistuos meitys tāvs. Kēneņč īguoja zemnīka ustobā un nūzavasoluoja:
+"Vasals, lobs cylvāks!"</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Vasals kēneņč!" atbildēja zemnīks.</p>
+</blockquote>
+
+<p align="JUSTIFY">Kēneņč suoka runuot: "Es atbraucu pi tevis praseit, kab tu man
+atdūtu par sīvu sovu meitu."</p>
+
+<blockquote>
+  <blockquote>
+    <p align="JUSTIFY">Zemnīks kēneņam atbildēja: "Jiusu vaļa!"</p>
+    <p align="JUSTIFY">"A tu gribi īt pi manis?" vaicoj kēneņč nu meitys. </p>
+    <p align="JUSTIFY">"Jā!" atbildēja meita.</p>
+  </blockquote>
+</blockquote>
+
+<p align="JUSTIFY">"Es tevi jemšu par sīvu, bet tu mani klausi, kū es tev
+pasceišu. Noklauseisi - muns zūbyns, tova golva nu placu." </p>
+
+<p align="JUSTIFY">"Labi, es klauseišu!"</p>
+
+<p align="JUSTIFY">Kēneņč izdevja pavēli pa vysim kēnestim, ka pi juo uz taidys
+dīnys byus kuozys. Atīt tei dīna, pībraucja pi kēneņa daudz gostu. Kēneņč atvedja
+sovu jaunivi cīma dŗābūs un ruoda sovim gostim, vaicuodams: "Nu, kai jiusim
+pateik muna jaunivja?</p>
+
+<p align="JUSTIFY">Vysi gosti atbilda jam: "Ka jums pateik, mums ar pateik." </p>
+
+<p align="JUSTIFY">Tūlaik kēneņč lyka, kab juo jaunivja apsavylktu kēneniņis
+dŗābūs. Jaunivja apsavylka un jī nūbraucja lauluotūs uz bazneicu. Pēc kuozu
+kēneņč suoka dzeivuot ar sovu sīvu un vīns ūtru mīļuot un žāluot. Par kaidu godu
+kēneņa sīvai dzyma dāls. Kēneņč runoj uz sovu sīvu;: "Dzymušais dāls na ir
+skaists puika, jū vajag nūgubeit; a to cyti kēneņi nu cytu kēnestju smīsīs nu myusu
+dāla, ka dāls myusu izguoja nu zemnīka morda."</p>
+
+<p align="JUSTIFY">Sīva soka uz kēneņi: "Kai tu gribi, tai dori; es nikuo navaru
+tev pretim runuot!"</p>
+
+<p align="JUSTIFY">Kēneņč pajāmja sovu dālu, runuodams uz sīvu, ka jis jū
+nūgubeis, bet kēneņč sovu dālu nagubēja, a atdevja audzeit, kab sīva nozynuotu,
+sovai muosai. Tai puorgoja vēl gods laika, kēneniņa radēja meitu. Ķēneņč otkon
+soka uz sovu sīvu: "Meita ir naskaista, jū ar vajag nūgubēt, par tū, ka vysi
+kēneņi nu manis smīsīs, ka pi manis ir meita nu zemnīka morda."</p>
+
+<p align="JUSTIFY">Sīva jam otkon atbilda: "Tova vaļa, kū tu gribi, tū
+dori."</p>
+
+<p align="JUSTIFY">Kēneņč pajāmja itū meitini un taipat nūnesja uz sovu muosu un
+atdevja muosai, kab jei ar itū meitini audzeitu da laika, koleidz jei izaugs lela. Tai
+puorguoja daudz godu, kēniņa dāls un meita izauga leli. Dāls šmuks puika, a meita
+vēl skaistuoka, ka taidys meitys navar pasaulī atrast.</p>
+
+<p align="JUSTIFY">Vīnu reizi kēneņč sasaucja vysus sovus kolpus un soka uz sovu
+sīvu, ka jis nagrib ar jū dzeivuot. "Tu esi zemnīka meita, a es asmu kēneņč.
+Vilc nu mugorys kēnenītis drābis, vilc sovus zemnīka drābis un ej dzeivuotu uz sovu
+cīmu da sova tāva."</p>
+
+<p align="JUSTIFY">Napascēja kēneņa sīva ni vuorda pretim, pajāmja nūvylka kēneņa
+dŗābus un apvylka sovus dŗābus, kuŗi beja jai nu sova tāva īdūty, un nūguoja
+dzeivuot uz cīmu da sovā vacā tāva un suoka otkon staiguot gonūs.</p>
+
+<p align="JUSTIFY">Kēneņč sadūmuoja uz ūtrys ženētīs, izdevja pavēli pa vysu
+kēnesti, ka uz taidys dīnys byus kuozys, un taipat pasaucja nu cīma sovu sīvu un
+pascēja jai, kab jei vysu labi sataiseitu muojuos, runuodams: "Tiuleņ atvesšu
+jaunu sīvu."</p>
+
+<p align="JUSTIFY">Sīva vysu sataisēja, stuov un gaida. Atvad kēneņč jaunivi, pēc
+juo atbraucja daudz gostu un sādās vysi pi golda. Kēneņč vaicoj sovai sīvai:
+"Nu, sīva, kai loba muna jaunive?"</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Ka dēļ tevis loba, tod ir dēļ manis vēļ lobuoka."</p>
+</blockquote>
+
+<p align="JUSTIFY">Tūlaik kēneņš pascēja sovai sīvai: "Ej un apvilc kēneniņis
+dŗābus un sēstīs ar manim pi vīna golda. Tu beji un byusi par munu sīvu, a itei
+jaunivja ir tova meita, a itys jaunais puiss ir tovs dāls.</p>
+
+<p align="JUSTIFY">Nu tuolaika kēneņč suoka dzeivuot ar sovu sīvu un puorstuoja jū
+muonēt, un da pošis nuovis jai vīrēja un jū mīļuoja.</p>
+</font>
+
+
+</body></html>

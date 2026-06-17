@@ -1,0 +1,260 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vīrs meklē zudušo sievu.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A.<b> </b>400. 329. Alfreds Kurzemē, "Tautas pasakas"
+1893, 12-16 (6).</p>
+
+<p align="JUSTIFY">Viens tēvs gribēja savu vienīgo dēlu Ancīti 1abi izskolot, bet
+nevarēja nekur tam skolas atrast. Te kādu dienu pie viņiem atnāca vecs, smalki
+ģērbies kungs un piedāvājās īsā laikā izmācīt Anšeli visās pasaules
+gudrībās. Tēvs par tādu piedāvājumu nezināja kā priecāties, kā pateikties.
+Viņš vēl dēlu nobučoja, piekodināja, lai uzcītīgi mācoties, un tad atlaida.</p>
+
+<p align="JUSTIFY">Vecais kungs, kas cits nekas nebija, kā burvis, aizveda puiku uz kādu
+brīnum skaistu pili. Te Anšelim bija ļoti laba dzīve. Visas gudrības viņš pāri
+nedēļās pamatīgi izmācījās un tam cita darba nebija, kā ēst, dzert, gulēt un
+apbrīnot pils jaukos kambarus, jeb pastaigāties pa apbrīnojami skaistajiem pils
+dārziem.</p>
+
+<p align="JUSTIFY">Viņa skolotājs izgāja katru dienu uz lauku tur Anšelim bija
+pilnīgi sava vaļa rokā. Ko viņš gribēja to darīja. Tikai žēl, ka ne pilī, ne
+viņas apkārtnē nevarēja uziet neviena cilvēka. Kad ēdamais laiks pienāca, tad
+neredzamas rokas apklāja galdus, un apkrāva tos ar visvisādiem ēdieniem un
+dzērieniem. Par velti Anšelis nopūlējās paslēpdamies un slepeni uzmanīdams, viņš
+nekā nevarēja nomanīt, un tam bij diena pēc dienas jāpavada drūmā vientulībā.</p>
+
+<p align="JUSTIFY">Vairāk mēneši jau bija aiztecējuši, kopš Anšelis uzturējās
+skaistajā velna pilī. Kādā dienā, kad viņa kungs un skolotājs bija atkal aizgājis,
+jauneklis, gaŗa laika mocīts, atstāja pili un sāka klejot pa plašo pils parku. Domās
+nogrimis, viņš gāja arvien tālāk . un tālāk; līdz nonāca pie kādas, visapkārt
+meža ierobežotas, jaukas pakalnes, uz kuŗas atradās trīs dārzi. Viens dārzs bija
+iežogots ar sudraba sētu, otrs ar zelta un trešais ar dimanta.</p>
+
+<p align="JUSTIFY">Līksmi gavilēdams Anšelis steidzās ieiet pirmajā dārzā. Ai, cik
+jauki tur viss bija! Tur auga visādi augļu koki. Skaistie, nogatavojušies angļi
+karājās vilinādami uz leju. Skaistas puķes kupli ziedēja un izplatīja pa visu
+apkārtni apreibinošu smaržu. Putniņi priecīgi lēkāja pa koku zariem, skandinādami
+savas saldās miesu un dvēseli pacilājošās meldijas. Avotiņi šur tur no zemes
+iztecēja un devās krākdami uz leju, kur tie par strautiņiem palikuši, tecēja pa
+puķaino pļavu tālāk. Zivtiņas priecīgi spēlējās strautiņu viņos un ūdens
+lāses krāsojās jaukajos saules staros dažādās krāsās.</p>
+
+<p align="JUSTIFY">Kādu brīdi Anšelis stāvēja kā apstulbis dabas jaukumos
+lūkodamies, tad viņš gāja pamazām tālāk uz dārza viduci.</p>
+
+<p align="JUSTIFY">Te viņš ieraudzīja skaistu lapeni un lapenē uz beņķa skaistu
+jaunavu sēžot un bēdīgi uz zemi skatoties.</p>
+
+<p align="JUSTIFY">Klāt piegājis un to apsveicinājis, viņš iesāka. par šo un to
+tērzēt. Kādu laiciņu laipni iztērzējies, Anšelis nevarēja atturēties to
+nenobučojis un neprasījis, vai gribot viņam par sievu palikt.</p>
+
+<p align="JUSTIFY">"Labprāt," jaunava atbildēja, "tik izlaid mani no šī
+dārza, kur es esmu ieslodzīta."</p>
+
+<p align="JUSTIFY">Jauneklis to apsolījās, un jaunavu pie rokas ņēmis, izveda no
+dārza un uzņēma ceļu uz pili. Bet kad tie kādā vietā pienāca tuvu pie jūrmalas,
+tad jaunava piepēži pārvērtās par pīli, ielaidās jūŗā un aizpeldēja projām.</p>
+
+<p align="JUSTIFY">Par tādu pievilšanu gauži noskumis, Anšelis aizgāja no jūrmalas
+uz pili un no tās neiznāca līdz pat vakaram.</p>
+
+<p align="JUSTIFY">Vakarā pārnāca viņa kungs dusmīgs mājās. Viņš bija sastapis
+bēgošo jaunavu, noķēris un pārvedis atpakaļ uz viņas dārzu. Tad viņš sauca
+jaunekli priekšā un tam cieti piekodināja, lai uz priekšu vairs tā nedarot un
+neklausot kādas jaunavas ierunām.</p>
+
+<p align="JUSTIFY">Otrā dienā, kad vecais izgāja atkal uz lauku un atstāja jaunekli
+vienu pašu, šis steidzās no pils ārā pastaigāties pa jauko apkārtni. Kādu brīdi
+staigājis, viņš nonāca atkal pie tās pakalnes, kur atradās tie trīs dārzi. Toreiz
+viņš vairs negāja sudraba dārzā, bet tam blakus stāvošā zelta dārzā. Te bija
+viss vēl daudz jaukāks kā sudraba dārzā. Dārza vidū starp daudz skaistām puķēm
+sēdēja jaunava, kas bija vēl daudz skaistāka par pirmo. Jauneklis to ieraudzījis,
+steidzās tai klāt, apsveicināja un ielaidās ar to valodā. Viņas balss skanēja tik
+mīlīgi un jauki, viņas seja bija tik daiļa, ka jauneklis kaislu jūtu sagrābts, to
+sirsnīgi apkampa, nobučoja un jautāja, vai viņa gribot tam par sievu palikt.</p>
+
+<p align="JUSTIFY">"Labprāt," šī atteica, "tik izlaid mani no šī
+dārza."</p>
+
+<p align="JUSTIFY">Anšelis aizmirsa savu solījumu un paklausīja skaistajai jaunavai,
+cerēdams nu droši laimes ostā iebraukt. Bet bija vīlies. Ārā tikusi, skaistule
+pārvērtās par slaidu stirnu un pazuda meža biezumos. Anšelim nekas cits neatlika, kā
+iet noskumušam<b> </b>uz pili atpakaļ.</p>
+
+<p align="JUSTIFY">Drīz arī pārnāca viņa kungs, kas arī otru jaunavu bija noķēris,
+un ar briesmīgām dusmām uzkliedza Anšelim, ja viņš vēl reiz tā darīšot, tad
+viņš to uz vietas nokaušot.</p>
+
+<p align="JUSTIFY">Rītā, kad Anšeļa kungs bija jau sen aizgājis, jaunekli pārņēma
+nesavaldāma iegriba, iet pastaigāties. Pie zināmajiem dārziem nonācis, viņš iegāja
+dimanta dārzā. Šis bija jaukākais no visiem. Aiz brīnumiem un prieka jauneklis
+pavisam apstulba. Bet ieraugot dārza vidū sēdošo jaunavu, kas atkal bija daiļāka par
+abām pirmajām, viņš apstulba. Visu aizmirzdams, viņš pie tās pieskrēja. apkampa un
+daudzreiz bučodams jautāja, vai tā gribot viņa sieva būt.</p>
+
+<p align="JUSTIFY">Skaistule, viņu brītiņu uzlūkojusi, teica: "Jaunekli tu man
+gauži patīci un es tev labprāt gribu par sievu palikt un nevis tā piekrāpt, kā to
+tās divas darījušas. Bet mūsu vēlēšanās var tik tad piepildīties, ja tavs un mans
+kungs to atļaus. Tāpēc ej tagad mierīgi uz pili un gaidi viņu pārnākam. Kad viņš
+pārnāks, tad izrādies gauži bēdīgs; tad viņš tev jautās, par ko tu noskumis.
+Izsaki tad droši, ko tu vēlies, un viņš to paklausīs."</p>
+
+<p align="JUSTIFY">Anšelis pateicās par padomu, noskūpstīja vairāk reizes savu daiļo
+līgavu un steidzās atpakaļ uz pili.</p>
+
+<p align="JUSTIFY">Kad viņa kungs pret vakaru pārnāca, tad viņš savu audzēkni atrada
+pils lielajā zālē noskumušu sēdam. Viņš tam jautāja, kālab tik skumīgs esot.
+Anšelis nu krita savam kungam pie kājām un sirsnīgi lūdza, lai viņam dodot to meitu
+par sievu, kas dimanta dārzā dzīvojot, un lai atlaižot viņu, ka tas varot iet uz sava
+tēva mājām.</p>
+
+<p align="JUSTIFY">Vecais viņa lūgumu paklausīja. Deva tam skaisto jaunavu no dimanta
+dārza par sievu, turklāt vēl bagātu pūru un atlaida, lai ejot uz Anšeļa tēva
+mājām. Šķirdamies vēl vecais Anšelim piekodināja, lai to balto drēbju, kas esot
+pašā pūra dibenā, nekad nenododot sievai uzvilkt, citādi tā palikšot neuzticīga.
+Tad viņi atvadījās un izšķīrās.</p>
+
+<p align="JUSTIFY">Anšelis pārnāca ar savu sievu par bagātu lielkungu mājās, jo
+vecais kungs jeb velns bija viņam daudz naudas līdz iedevis. Viņš nopirka lepnu pili
+un aicināja visus apkārtējos lielkungus un ķēniņus pie sevis uz viesībām, Bet
+viņa sieva bija bezgalīgi skaista, tā ka daudz to iemīlēja.</p>
+
+<p align="JUSTIFY">Reiz kāds ķēniņš to ieaicināja pie sevis uz balli. Sieva nu
+gribēja apvilkt baltās drēbes, bet vīrs stingri pretojās. Pēdīgi viņš,
+nevarēdams viņas lūgumam pretī turēties, arī pieļāvās un laida apvilkt baltās
+drēbes. Tikko tas bija noticis, tad viņa pārvērtās par baltu gulbi un aizlidoja pa
+gaisu.</p>
+
+<p align="JUSTIFY">Anšelis par to gauži noskuma un apņēmās savu sievu uzmeklēt, lai
+vai līdz pasaules galam būtu jāiet. Uz ceļa izgājis, viņš sastapa savu agrāko
+kungu. Tam viņš izteica savas bēdas un lūdza pēc padoma. Vecais, galvu pakratījis,
+sacīja: "Dēls, slikti esi darījis! Kam tev vajadzēja viņai jaut baltās drēbes
+apvilkt? Tagad viņa atrodas aiz trīsdeviņām ķēniņu valstim, pie kāda bagāta un
+varena ķēniņa. Ej! ja tev izdodas viņu atdabūt, būs labi, ja ne, tad nekā."</p>
+
+<p align="JUSTIFY">Anšelis nu steidzās knaši tālāk, līdz kamēr atrada to vietu, kur
+viņa sieva dzīvoja. Viņš to uzaicināja nākt atpakaļ, bet šī atteica, ka to tik
+tad darīšot; ja viņš tā noslēpšoties, ka viņa to nevarēšot dabūt zināt. Bet
+viņai bija tāds spieģelītis, kuŗā visu, ko vien gribēja, varēja ieraudzīt un
+dabūt zināt. Taču Anšelis ar kādas kalpones palīdzību noslēpās tā, kā
+ķēniņiene nevarēja pasacīt, kur viņš bija. Viņš pārvērtās par adatu un kalpone
+viņu aizsprauda aiz spieģelīša. Ķēniņiene<b> </b>viņa nevarēja ieraudzīt un aiz
+dusmām par spieģelīti, to iesvieda krāsnī ar visu Anšeli, bet šis žigli
+pārvērtās par putnu un izskrēja no krāsns, palika tad par cilvēku un krita
+ķēniņienei ap kaklu. Šī to arī nu pieņēma un gāja tam līdzi atpakaļ uz viņa
+mājām.</p>
+
+<p align="JUSTIFY">Viņi nu dzīvoja laimīgi ilgus gadus, piedzīvoja bērnus un bērnu
+bērnus.</p>
+
+
+</body></html>

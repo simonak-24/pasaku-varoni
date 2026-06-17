@@ -1,0 +1,203 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>15</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Mirons kāzās.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">15. Teicēja 76 fi. veca Īva Staleidzāne Atašienē. </p>
+
+<p align="JUSTIFY">Vīnu reiz cylvāks guoja par mežu uz kuozom. Ceļa molā stuovēja
+māslu skaudze, nu kuŗas izleida malns suns. Cylvāks nūsabeida, bet suns pīguoja jam
+kluat un prosa cylvāka bolsā : "Kur tu ej, cylvāks?"</p>
+
+<p align="JUSTIFY">"Uz kuozom," iis atbildēja. "Pajem mani leidza,"
+soka suns. "Kas tu taids esi?"<b> </b>prosa cylvaks.</p>
+
+<p align="JUSTIFY">"Es esmu valns," atbildēja suns un palyka par valnu.</p>
+
+<p align="JUSTIFY">Īt tys cylvāks kūpā ar valnu uz kuozom. Valns īdevja cylvākam
+pudelīti ar yudeni un soka : "Kad tu pasmērēsi aci ar itū yudani, tad tu
+redzēsi, kū es kuozuos darīšu, bet cyti nivīns manis naredzēs!"</p>
+
+<p align="JUSTIFY">Cylvāks paiēmja pudelīti, ībuozja kārmanā un īt tuoluok.</p>
+
+<p align="JUSTIFY">Vai valnu var nūsist?" prosa cylvāks. "</p>
+
+<p align="JUSTIFY">"Ja, var nūsist ar trešū mītu, kurs pītur divējus sātmaļa
+mītus pī vuortim. Bet vajag sist ar kreisū rūku un atpakaļ!" atbildēja valns.
+"Vai tu mani gribi nūsist?" prosa valns.</p>
+
+<p align="JUSTIFY">Na taidu lobu draugu es īšu sist!" soka cylvāks.</p>
+
+<p align="JUSTIFY">Tad, valns soka: "Es pyrmais kuozuos paēsšu un padzeršu!" </p>
+
+<p align="JUSTIFY">Cylvāks natic un soka, ka viši pyrmī paēss, bet vaļns soka: Mes
+valni varam ēst tikai tū, kū </p>
+
+<p align="JUSTIFY">mums atvēlej, un redzēsi, ka es pyrmais tikšu pasaukts, pabaŗots un
+padzirdīts!"</p>
+
+<p align="JUSTIFY">Aizguoja cylvāks ar valnu uz kuozom īguoia ustobā un valns nū
+cylvāka acim pazuda. Cylvāks atasāda, izsavylka pudelīti, pasmērēja ar yudeni
+kreisū aci un redz, ka valns sd uz trauku plauktiņa pi durovam, asti saritynuojis.
+Sabraucja kuozinīki. Vysi prīcigi un mīrīgi. Te valns nūlēcja rmt plauktiņa,
+īzjēmja kastīti un pagryudja vysim kuozinīkim zam dagtuta paūst. Kuozinīki suoka
+lomuotīs un kautīs, bet valns izlēcja uz plauktiņa un sēd. Saiminīks ar saitninīcu
+suoka mīrinuot kuozinīkus m kuozinīki nūsamīrēia.</p>
+
+<p align="JUSTIFY">Atnesšu ols, un tu, buob, atnes sīra uz tuo mīra!" soka
+saiminīks. Saiminīks aižguoja pēc ola un saiminīca pēc sīra. Nas saiminīca sīra
+škeivi par durovom ustobā. Valns mudri nūlēcja nu plauktiņa un pastatīja sovu asti
+saiminīcai ce]ā. Saiminicas kuojas sasapyna valna astē, jei pakrita, sīrs izbyra un
+soka: "Kas te, wlns, zam kuojom pynas?"</p>
+
+<p align="JUSTIFY">Valns mudri salasīja un apēdja sīru, izlēcja uz plauktiņa un sēd.
+Saiminīca aizguaja pēc ūtra škeiva sīra.</p>
+
+<p align="JUSTIFY">Nas saiminīks olu. Otkon valns nūlēcja nu plauktiņa un īpyna sovu
+asti saiminīka kuojuos. Saiminīks sasapyna, pakrita, ols izsalēja un saka: "Kas
+te, valns, zam kuojom pynas?"</p>
+
+<p align="JUSTIFY">Valns olu saloka, izlēcja uz plauktiņa un sēd.</p>
+
+<p align="JUSTIFY">Taisnība valnam, ka jis pyrmais paēdja un iedzēla," padū"</p>
+
+<p align="JUSTIFY">muoja cylvāks, ar kreisū aci tū vysu radzādams.</p>
+
+<p align="JUSTIFY">Kuozinīki sēd pi golda, ād., dzer, un sasarunoj mīrīgi. Te
+atbraucja uz kuozom divi bruoļi. Saiminīks atsādvnuoja jūs pi golda un bruoļi sēd
+mīrīgi. Valns nūlēcja nū plauktiņa, pīskrēja pi bruoļim un īdevja jim paūst nn
+kastītes, bet pats atkan izlēcja uz plauktiņa un sēd. Bruoļi suoka lomuotīs un vīns
+izruovis nazi, nūdyuŗa ūtru bruoli. Vainīgīt sasēja ar stričim, bet kuozinīki
+palyka namīrīgi un aizbāgalēja kotrs uz sovu sātu. Cylvāks ari nītsabeida un
+izguoja uorā īt uz sātu. Valns nūlēcia nu plauktiņa, izskrēja uorā un soka :
+"Es ari ar tevi īšu!"</p>
+
+<p align="JUSTIFY">"Ej, ej!" atbildēja cylvāks. Īt valns ar cylvāku uz
+sātu. Cylvāks piguoja pi sātmala un izruovja trešū mītu pi vuortim.</p>
+
+<p align="JUSTIFY">Vai tu mani gribi nūsist?" prosa valns. "</p>
+
+<p align="JUSTIFY">,Na tu man taids lobs draugs, es tevi nesisšu, bet mītu izruovu, lai
+atsasorguot nu cīma suņim!" atbildēja cylvāks.</p>
+
+<p align="JUSTIFY">Īt otkon valns ar cylvāku tuoluok un valns aizguoja par sūli divi
+cylvākam prīškā. Cylvāks pajēmja mītu kreisajā rūkā, atsagrīzja uz valnu ar
+muguru un sita jam reizi atpakaļ. Valns pakrita un klīdz: " Sit vēļreizi un
+nūsit mani vysā."</p>
+
+<p align="JUSTIFY">Bet cylvāks zynuoja, ka ūtru reizi sytūt, valns atsadzeivynuos un
+nasyta jam. Tad cylvāks atguoja atpaka uz kuozu ustobu un pastuostīja, ka na sasītais
+bruoļs vainīgs, bet valns. Saiminīks palaidja sasītū bruoli vaļā un vysi aizguoja
+pasavārtu valnu. Valns gulēja nadzeivs uz ceļa bez rūkom, kuojom, astes un golvas, kai
+kaids maiss.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

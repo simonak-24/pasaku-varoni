@@ -1,0 +1,225 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5"><strong>Blēdīgā sieva.</strong></font></p><font size="5">
+</font><font size="4">
+
+</font><p><font size="4"></font><font size="3">3. A. 566. Skolnieks V. Juoņins, Eglūnā.</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam tēvam bija trīs dēli. Viņš mirdams izdalīja viņiem savu
+mantu. Jaunākais dabūja tikai vienu vecu lūku tīkliņu. Nu viņš bieži vien ar savu
+tīkliņu gāja uz upi zvejot zivis. Vienu reiz viņš atkal aizgāja zvejot, iemeta savu
+tīkliņu upē un izvilka tikai vecu sapuvušu kaķi.</p>
+
+<p align="JUSTIFY">Otru reizi iemeta tīkliņu un izvilka tikai sapuvušu suni.
+Redzēdams, ka tanī vietā viņam neķeras, viņš sāka iet pa upes malu tālāk. Iet,
+iet un redz: uz otra upes krasta stāv skaista pils. Viņš mana, ka upe te ir sekla un
+var pāriet, tūliņ laižas iekšā un iet pāri. Bet kā tiek jau ap upes vidu, uz reizi
+upe paliek dziļa, puisis sāk slīkt un kliegt pēc palīga. Kliedzienu bija izdzirdējis
+tās pils kungs un izgājis ārā, sacīdams: "Ja apsolies šinī pilī nodzīvot
+viens pats visu gadu, tad neslīksi; ja ne, tad slīksi!"</p>
+
+<p align="JUSTIFY">Puisis apņēmās, ka dzīvošot, tikkai lai šo izglābjot. Nu uzreizi
+upe paliek atkal sekla un viņš pāriet uz pili. Ieiet pilī un sāk tur dzīvot.
+Dzīvoja, dzīvoja kādu laiku - viņam jau apnīk, nospriež bēgt projām. Nonācis
+līdz upes vidum, sāk slīkt, ka jākliedz atkal pēc palīga. Te - kur bijis, kur ne -
+otrā krastā stāv kungs un saka: "Ja gribi palikt dzīvs, tad nāc atpakaļ uz pili
+un dzīvo līdz gada beigām!"</p>
+
+<p align="JUSTIFY">Puisis aiziet ar' -neko darīt. Tikko gads beidzies, kungs klāt un
+saka: "Nu, kādu algu tu gribi par dzīvošanu? Vai zilu kreklu ar zobenu, vai naudu?
+Kad tu to kreklu pakratīsi, tad tavs pretinieks nometīsies uz reizi priekš tevis
+ceļos, un kad ar zobenu cirtīsi, tad nocirtīsi it visu, ko gribēsi."</p>
+
+<p align="JUSTIFY">Puisis domā, domā un pēdīgi saka: "Es ņemšu labāk zilo
+kreklu ar zobenu!"</p>
+
+<p align="JUSTIFY">Viņš pajem ar' tās lietas un sāk iet uz māju pie brāļa.
+Pienācis pie upes, viņš šaubās, vai šoreiz arī slīks, vai ne. Bet pārgājis
+pāri, ka tik kājas drusku saslapējušās. Iet un domā: "Raudzīšu izmēģināt
+to kreklu un zobenu, vai tik tas kungs nebūs manis piemānījis."</p>
+
+<p align="JUSTIFY">Iet, iet pa mežu un viņam pretī nāk liels lācis. Puisis tūliņ
+pakrata kreklu - lācis nokrīt ceļos; kā cērt ar zobenu, tā lācim uz reizi galva
+nost. Viņš ļoti nopriecājas, ka šīs lietas labi noderēs. Tai laikā ienaidnieka
+kaŗaspēki bija ielauzušies viņu zemē iekšā un laupīja visus ļaudis. Tad tas
+puisis aiziet uz ķēniņu un saka: "Es tavus ienaidniekus uzvarēšu, ja tu man dosi
+savu meitu par sievu un vienu trešo daļu no valsts."</p>
+
+<p align="JUSTIFY">Ķēniņš apsola, ka dos, un puisis aiziet viens pats uz kaŗu.
+Ķēniņam ļoti gribas zināt, kā viņš varēs pārspēt veselu kaŗa spēku, viņš
+aiziet uz vienu augstu kalnu un skatās. Puisis, aizgājis kaŗa spēkam priekšā,
+pakrata zilo kreklu, un visi kaŗa vīri nokrīt ceļos; kā cērt ar zobenu, tā visiem
+reizē galvas nost. Tagad puisis priecīgs iet pie ķēniņa, lai atdod meitu un trešo
+daļu no savas valsts. Ķēniņš atdod arī, ko bija solījis. Puisis apprecē ķēniņa
+meitu un dzīvo kādu laiku mierīgi. Bet ķēniņa meitai vīrs nepatīk, viņa bija jau
+agrāki vienu citu iemīlējusi. Jaunais ķēniņš to nomanīja un pastāvīgi valkāja
+zilo kreklu un nēsāja zobenu. Viņa sieva sāka to visādi pārrunāt, lai velkot taču
+kreklu zemē, tas jau esot gluži netīrs. Beidzot gan viņš arī paklausīja sievai,
+novilka savu kreklu un zobenu pakāra tur pat pie savas gultas. Tikko viņš bija
+aizmidzis, te viņa sieva tūliņ pajem kreklu ar zobenu un aiznes to savam mīļākajam.
+Vīrs rītā pamostas un skatās, ka pie sienas vairs nav ne krekla ne zobena. Viņš
+zina, ka nu nebūs labi, un nospriež tūliņ iet uz to kungu, kur bija vienu gadu
+nodzīvojis. Piegājis pie upes, viņš gan vēl baidās, vai tik neslīks, bet saņēmis
+drošu dūšu, iet tik pāri. Ūdens bijis šoreiz tik līdz ceļiem. Viņš tūliņ iet
+pilī pie kunga un žēlojas; ka šim nozaguši zilo kreklu un zobenu. Kungs saka:
+"Nu labi. Ka nozaga - nozaga. Es tev došu tādu spēju, ka tu varēsi par visu
+pārvērsties, par ko vien gribēsi. Tagad es tevi pārvērtīšu par zirgu un likšu tevi
+aizvest un pārdot tavas sievas brūtgānam. Tālāk gan tu pats zināsi, kas
+jādara."</p>
+
+<p align="JUSTIFY">Kungs tūliņ pārtaisīja puisi par zirgu un lika kalpam to novest un
+pārdot sievas mīļākam. Kalps to pārdeva tanī laikā, kad ķēniņa meitas nebija
+mājā. Brūtgāns, zirgu nopircis, iegājis pie savas mīļākās un teicis: "Es
+nopirku ļoti skaistu zirgu. Nāc tu arī skatīties!"</p>
+
+<p align="JUSTIFY">Viņa aiziet ar', bet apskatījusi to labi, saka: "Šis zirgs ir
+mana nāve. Rītā pat tu viņu nokaun un sadedzini un pelnus izšaun ar lielgabalu."</p>
+
+<p align="JUSTIFY">To runu bija noklausījusies kalpone, aizgājusi pie zirga un
+stāstījusi: "Rītā tevi nokaus ar zobenu, sadedzinās un pelnus izšaus ar
+lielgabalu."</p>
+
+<p align="JUSTIFY">Zirgs teic: "Lai kauj, tikai tu stāvi priekšā visiem ļaudim un
+turi priekšautu. Mana pirmā asins lāse tad ieskries tavā priekšautā. To tu nones pie
+ķēniņa meitas loga un apraus zemē."</p>
+
+<p align="JUSTIFY">Rītā izved zirgu no staļļa kaušanai. Kalpone nostājas visiem
+ļaudim priekšā un tura priekšautu. Un kā tik cērt zirgam ar zobenu, tā pirmā asins
+lāse nokrīt kalponei uz priekšauta. Viņa to aiznes pie tā loga, kur zirgs bija
+teicis, un aprauš zemē. Par nakti tanī vietā izaug skaists, skaists koks. Brūtgāns
+atkal ieraudzījis koku pirmais un sauc savu mīļāko: "Nāc šurp, paskaties, cik
+skaists koks ir izaudzis pie paša loga!"</p>
+
+<p align="JUSTIFY">Tā paskatās un saka: "Arī tas koks ir mana nelaime. Jem un
+nocērt to, sadedzini un izšaun pelnus ar lielgabalu."</p>
+
+<p align="JUSTIFY">Atkal to sarunu bija noklausījusies kalpone un aizgājusi pie koka
+teica: "Drīzi tevi cirtīs un sadedzinās un pelnus lielgabalā izšaus."</p>
+
+<p align="JUSTIFY">Koks atbild: "Lai cērt! Bet kad cirtīs, tad tu stāvi priekšā
+visiem ļaudim un turi priekšautu. Kā pirmo reizi cirtīs, tā pirmā skaida iekritīs
+tev priekšautā, un tu to aiznes un iesvied ezerā!"</p>
+
+<p align="JUSTIFY">Kalpone arī tā izdara. Kās cērt koku, viņa stāv visiem ļaudim
+priekšā un viņai priekšautā iekrīt pirmā skaida, un to nu viņa aiznes un iesviež
+ezerā.</p>
+
+<p align="JUSTIFY">Otrā rītā pa ezera malu iet ķēniņa meitas mīļākais un ierauga,
+ka tepat pie malas peld ļoti skaista pīle. Viņš drusku pabaida, bet tā nebēg. Viņš
+novelk drēbes un brien ezerā, lai to noķertu. Tā pamazām peld uz ezera vidu, viņš
+tik dzenas pakaļ. Tad pīle paceļas spārnos, aizskrien uz krastu un paliek par
+cilvēku. Šis cilvēks apvelk nu ķēniņa meitas drauga drēbes, savu zilo kreklu ar
+zobenu, tās vienmēr bija nēsājis viņa sievas brūtgāns. Tad jaunais ķēniņš
+aiziet pie ķēniņa un sūdzas, ko darījusi viņa meita. Ķēniņš tūliņ liek savu
+meitu un viņas brūtgānu piesiet zirgam pie astes un izraustīt gabalu gabalos.</p>
+
+<p align="JUSTIFY">Vīrs ar zilo kreklu un zobenu arī nedzīvo uz vietas, bet staigā pa
+pasauli un palīdz kaŗot te vienai, te otrai valstij.</p>
+</font>
+
+
+</body></html>

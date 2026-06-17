@@ -1,0 +1,145 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title> </title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Varonis izglābj trīs nolaupītas princeses.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>24. A.301. A. A. J. Kungs, Skrundas Būdniekos, Brīvz. kr. LP, VI,
+115, 24 turp. AŠ, II, 86 r.</p>
+
+<p align="JUSTIFY">Vienam tēvam trīs dēli: divi gudri, trešais muļķis. Bet tēvam
+bijusi zelta ābe1e ar zelta āboliem. Katru nakti lie1s putns zadzis šos ābolus.
+Raidījis dēlus sargāt. Gudrie izsargājušies savas naktis, nenosargājuši.
+Muļķītis paņēmis loku, iegājis dārzā. uzrāpies ābelē, loku uzlicis sev virsū
+un aizmidzis. Tiklīdz putns nu naktī atlaidies ābelē ābolu raut, muļķīša loks
+pakustējies un atmodinājis viņu. Nu kampis putnu, bet attapis tikai vienu spalvu izraut
+- putns pasprucis un iemeties zemē. Muļķītis taī vietā iedūris savu zobinu un nesis
+putna spalvu tēvam rādīt. Spalva spīdējusi kā uguns.</p>
+
+<p align="JUSTIFY">Bet rītā brāļi gājuši to vietu, kur zobins bijis iedurts,
+aplūkot un atraduši dziļu caurumu. Muļķītis nolaidies pa caurumu dibinā un atradis
+sudraba pili. Durvīs stāvējusi jauna meita, saukdama: "Jāni, Jāni, kur tu iesi?
+Tu esi mana tēva slepkava."</p>
+
+<p align="JUSTIFY">Viņš paklausījies un gājis tālāk. Atradis atkal zelta pili tur
+tāpat saukts. Gājis tāļāk, atradis dimanta pili.</p>
+
+<p align="JUSTIFY">Te gājis iekšā un atradis skaistu meitu. Tā iedevusi bundulu pilnu
+ar galu un sieru, pakulām aptītu. Nu gājis atkal laukā un saticis suni, tam pasviedis
+sieru. Bet kamēr suns sieru pa pakulām meklējis, muļķītis attapis šo nokaut. Otrā
+un trešā pilī tāpat izgājis.</p>
+
+<p align="JUSTIFY">[Brāļi izvilkuši gan izglābto ķēniņa meitu, bet muļķīti
+atstājuši alas dibenā. Staigādams viņš tur atradis ērgleni, kas apņēmusies viņu
+iznest no alas.] Ar to galu, kas atradusies dāvātā bundulā, viņš ēdinājis
+ērg1eni, kad nests pa jūŗu virszemē.</p>
+
+<p align="JUSTIFY">[Tad muļķītis aizgājis pie ķēniņa un pierādījis, ka viņš
+izglābis viņa meitu no apakšzemes. Blēdīgie brāli nu dabū savu sodu, bet
+muļķītis apprecē izglābto ķēniņa meitu.]</p>
+
+
+</body></html>

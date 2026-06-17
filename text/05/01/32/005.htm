@@ -1,0 +1,274 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Mežonīgais vīrs.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 502. A. Bīlenšteins 1862. g. Jaun - Aucē. LP, VI, 772 (127,
+1). </p>
+
+<p align="JUSTIFY">Vienam ķēniņam uzaudzis liels kalns gar logiem. Un viņš pavēl
+savam kaŗa pulkam, lai atrok to kalnu. Rakuši un uzgājuši tai kalnā vaŗa vīru. Tad
+ķēniņš vara vītu ielicis cietumā un gribējis citiem ķēniņiem rādīt par
+kumēdiņu; bet tas bijis Dievs. Un tā viņš - tas vaŗa vīrs - piesaucis ķēniņa
+dēlu pie cietuma lodziņa un teicis, ka viņa mātei (ķērniņienei) ir atslēga kabatā
+m lai saka, ka uts kož pakausī, lai viņa to meklē, bet lai pa(r) to tarpu lēniņām
+izņem to atslēgu no kabatas . . . Izņēmis un izlaidis to vaŗa vīru nocietuma - tas
+aizgājis projām. Nu ķēniņa dēls atkal gājis pie mātes un teicis, ka vēl uts kož
+pakausī. Kamēr māte pa pakausi meklējusi, iebāzis atkal to atslēgu lēniņām
+kabatā.</p>
+
+<p align="JUSTIFY">Pēc tam sabraukuši sveši kungi un ķēniņš prasījis to atslēgu -
+to vara vīru rādīt. Šī iedevusi. Nu atslēdz pagrabu -nav nekā vairs cietumā. Un
+kā nu nava, ved savu gaspažu pie karātavām, ka izlaidusi vata vīru -- tāpēc. Bet
+dēls nelicies ne zinis, tas izgājis ar balli laukā un svaidījis to. Un nu
+ieraudzījis, ka mammu ved pie karātavām - saucis: "Papu, ku(r) mammu vedat? Es
+pats vaŗa vīru esmu izlaidis!"</p>
+
+<p align="JUSTIFY">Tad ķēniņš sadusmojies uz dēlu un gribējis to nomaitāt; bet
+viņš teicis: "Kārt viņu nevar, kaut viņu nevar -- viņš pats ķēniņš pacelts
+-- jāved uz mežu, lai nošauj bende!"</p>
+
+<p align="JUSTIFY">Noved uz mežu - bende krāpj, ka abiem jāsašaujot putniņi uz
+maltīti. Bet ķēniņa dēls taču mana un nu žēlojies: "Ak tu, vaŗa vīrs! ka(m)
+tu man tā liki izlaist? Nu mani pašu šaus zemē!"</p>
+
+<p align="JUSTIFY">Tad vaŗa vīrs gadījies klāt un teicis, lai nebaidās, ka viņu
+nevarēs nošaut.</p>
+
+<p align="JUSTIFY">Un tā viņš gājis pa priekš(u), tas ķēnina dēls, pēc tā vara
+vīra padoma (bende gājis nopakaļus) un šaudījis putniņus. Piešāvis pilnu tašu;
+bet bende kā šāvis, plinte arvien noklačojusi.</p>
+
+<p align="JUSTIFY">Beidzot ķēniņa dēls piegājis klāt un prasījis: "Ko tu
+šauj? "Šauju putneļus!"</p>
+
+<p align="JUSTIFY">"Rādi, cik tu esi sašāvis!" Nevaru nevienu nošaut."
+"</p>
+
+<p align="JUSTIFY">"Tu melo, ka tu šauji putneļus - tu mani šauji; bet tu mani
+nevari nošaut - teic taisnību, ka tu mani šauji! Kad tu neteiksi ! ,tev še jāpaliek
+aukstam kā sunim "</p>
+
+<p align="JUSTIFY">Nu viņš saka: "Tiesa! Tavs papus lika tevi nošaut un pārmest
+tavu vienu aci un mazo pirkstiņu."</p>
+
+<p align="JUSTIFY">Un bendem ir bijis liels kvekšu suns, kurtu suns. Teicis:
+"Nošauj to suni, paņem to aci! un še tev mans mazais pirkstiņš, nogriezi,
+pā(r)rnesi un saki, ka tu mani nošāvis!"</p>
+
+<p align="JUSTIFY">Bende visu to padarījis - pārnesis.</p>
+
+<p align="JUSTIFY">Bet ķēniņa dēls gājis pa mežu vien. Gājis - izgājis no meža -
+uzgājis lielu placi (klajumu), tur bijis ozols; apsēdies pie tā ozola un teicis:
+"Vai, kā gribu ēst!"</p>
+
+<p align="JUSTIFY">Tā tas vaŗa vīrs gadījies atkal klāt un teicis: "Tu negribi
+ēst!"</p>
+
+<p align="JUSTIFY">Un tūlin negribējis vairs ēst. Tas bijis Dievs - ko teicis, tas
+noticis. Gāj(u)ši abi divi ar to vaŗa vīru un tā satikuši vienu nabagu. Un tā
+viņš teicis: "Vadzi, vecais, cik tu gribi pa(r) tavām drānām - vai divi sieki
+naudas, vai sieku?"</p>
+
+<p align="JUSTIFY">Viņš teicis: "Vai, Dieviņ! ku(r) ta(d) es savas drānas
+izdošu! Vai es iešu pliks?"</p>
+
+<p align="JUSTIFY">Beidzot ta(d) prasījis sieku naudas par drānām; Dievs Iedevis to.
+Ķēniņa dēls nu apģērbis nabaga drānas; savas drānas atkal atdevis nabagam mugurā
+un tad aizgāj(u)ši atkal katrs savu ceļu; bet tas vaŗa vīrs pazudis. Beidzot
+ķēniņa dēls, viens pats, iegājis vienā pilsētā un iestājies vienā namā pie
+viena kunga par porīteli, jo vecais porītelis bij palicis slims. Un vienu dienu
+ķēniņa dēlam bij jābrauc līdz tiem kungiem. Viņi brauc, brauc; bet nu kungs
+gribējis, lai ķēniņa dēls labāk paliek par kučieri. Kad nu tā, tad šis izgājis,
+ku(r) neviens cilvēks neredz, un saucis vaŗa vīru: "Ak, tu, vaŗa vīrs!"</p>
+
+<p align="JUSTIFY">Vaŗa vīrs gadījies. Nu teicis: "Mani grib, ka es palieku pa(r)
+kučieri!"</p>
+
+<p align="JUSTIFY">Tad Dievs teicis: "Tu pa(r) kučieri nepalieci! Eji citā namd,
+piestājies pie pavāriem par palīgu!"</p>
+
+<p align="JUSTIFY">Saderējis pie pavāra. Vecais pavāris izgājis vienreiz cierēt un
+tam piestājējam bija jātaisa kungiem špināti. Bet vecais pavāris slepani aizlīdis
+aizdurvē lūkot, kā jaunais varēs. Un varējis gan: paņēmis špinātus. iesviedis
+cūkām draņķī, izgājis laukā, saplūcis gar žogmalēm nātres, gušņas un
+uztaisījis no tiem kungiem maltīti. Kungi ēduši tencinādami un gribējuši, lai
+jaunais nu paliek pa(r) pavāru - vecajam (ēdiens) tā nebijis. Nepalicis. Tā atkal
+jaunais gājis cierēt un vaktējis aizdurvē veco. Vecajam atkal špināti bij jātaisa.
+Viņš nu arī iesviežot špinātus draņķī, ieries gušņas, nātres un izvāra
+kungiem ēst. Bet kungi saprot, ka nav špināti -- neēd un grib to ķēniņa dēlu pa(r)
+pavāru, lai tas vecais atstāj. Jaunais neapsolās, iziet laukā un piesauc to vaŗa
+vīru Tas gadās. Jaunais saka: "Mani grib, lai pa(r) pavāru palieku!"</p>
+
+<p align="JUSTIFY">Vaŗa vīrs saka: ,;Tu nepaliec(i) pa(r) pavāru!" un pazūd
+atkal.</p>
+
+<p align="JUSTIFY">Bet viņš nu iziet otrreiz laukā un piesauc: "Ak, tu, vaŗa
+vīrs!"</p>
+
+<p align="JUSTIFY">Vaŗa vīrs atkal gadās un saka: "Nu tu eji pie dārzniekiem
+pa(r) dienderi!"</p>
+
+<p align="JUSTIFY">Labi! Noiet uz citu pilsētu, sader pie dārznieka, izdzīvo, izmācās
+itin ātri un vienu dienu, darbu pakopis, spēlē ar sudraba balli. Pats kungs to redz un
+nu grib, lai šis paliek pa(r) dārznieku. Bet viņš iziet (no dārza) un piesauc:
+"Ak, tu, vaŗa vīrs!"</p>
+
+<p align="JUSTIFY">Vaŗa vīrs gadās. Šis saka: "Mani grib, lai palieku pa(r)
+dārznieku!"</p>
+
+<p align="JUSTIFY">"Tu pa(r)dārznieku nepalieci!" vaŗa vīrs atteic un pazūd.
+Bet viņš nu iziet otrreiz laukā un piesauc: "Ak, tu, vaŗa vīrs!"</p>
+
+<p align="JUSTIFY">Tad vaŗa vīrs iedevis bruņas, zobinu, zirgu un teicis: "Nu tu
+jāji uz kaŗu!"</p>
+
+<p align="JUSTIFY">Paņēmis, nojājis uz to kaŗu, trīsreiz apsities apkārt, tad tas
+karš viss šķiries un beidzies. Bet vaŗa vīrs bij teicis, lai, kaŗu beidzis, tur
+nestāv, bet lai, trīs reiz apsities kaŗa vidū, steidzas atpakaļ uz to pilsētu, kur
+pa(r) dārznieku bija. Pā(r)nācis, piesaucis atkal vara vīru - tas iedevis zelta balli
+un nu jaunais dārznieks spēlējis ar to. Kungs to redz un nu grib un grib, lai šis
+paliek pa(r) dārznieku. Bet viņš iziet no dārza un piesauc: "Ak, tu, vaŗa
+vīrs!"</p>
+
+<p align="JUSTIFY">Vaŗa vīrs gadās. Šis saka: "Mani grib, lai palieku pa(r)
+dārznieku!"</p>
+
+<p align="JUSTIFY">"Tu pa(r) dārznieku nepalieci!" vaŗa vīrs atteic un
+pazūd. Bet viņš nu iziet otrreiz laukā un piesauc: "Ak tu, vara vīrs!"</p>
+
+<p align="JUSTIFY">Tad vaŗa vīrs gadās un saka: "Jāji atkal uz kaŗu! Bet nu tev
+ies slikti, labi vairs neies," bet lai trīsreiz apsitas un lai tik(ai) drāž
+mājās.</p>
+
+<p align="JUSTIFY">Nojāj - trīsreiz apsitas apkārt un jāj atpakaļ; bet karš dzinās
+paka un nocērt šim labo kāju. Nu apsien to kāju ar šņubdrānu, pā(r)jāj mājās un
+piesauc atkal: "Ak, tu, vaŗa vīrs!"</p>
+
+<p align="JUSTIFY">Vara vīrs gadās. Paŗāda to kāju.</p>
+
+<p align="JUSTIFY">"Tev tā kāja vesela!" Un patiesi paliek vesela.</p>
+
+<p align="JUSTIFY">Nu viņš (jaunais dārznieks) spēlē ar to zelta balli un svaida
+ķēniņa Princese grib, lai viņai atdod to balli. Viņš teicis: "Kad tu mali
+vēlēsi pie sava lauka nama durvju sliekšņa nakti izgulēties, tad es tev
+atdošu."</p>
+
+<p align="JUSTIFY">Labi. Viņš nu atdod zelta balli; bet tai vietā viņam ir atkal cita
+balle, dimanta balle. Tad atkal tā princese lūdzas, lai dimanta balli atdod. Viņš
+atteicis: kad ļausies izgulēties pie viņas klāt, tad atdos. Ļāvusies. Tad atdevis
+dimanta balli -- iziet un sauc atkal: "Ak, tu, vara vīrs!"</p>
+
+<p align="JUSTIFY">Vaŗa vīrs gadās un saka, ka atkal jājāj uz kaŗu. Jāj, apsitas
+trīsreiz apkārt, kaŗš dzenas pakaļ, bet viņš šoreiz izmuka no tiem krieviem. Bet
+mājā jājot, princese parādījusi šo savam tēvam un pateikusi, kas īsti bijis tas
+lielais kaŗa kungs. Nu apprecējis un princesi.</p>
+
+
+</body></html>

@@ -1,0 +1,265 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>42</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">42. A. 530. A. Gari-Juone no 75 g. veca T. Gailuma Domopoles pag.
+Latvju kultūras kr.</p>
+
+<p align="JUSTIFY">Kai beja cytureiz. tai i itū reiz - dzeivuoja vīns tāvs, jam beja
+treis dāli : divi gudri un vīns muļkīts. Jīm beja pasātas auzas un naktīs nazkas
+auzas ēdja Tāvs soka vacuokājam dālam: "Ej, dāls, un sorgoj par nakti auzas,
+nazkas juos ād."</p>
+
+<p align="JUSTIFY">Pyrmā naktī sasataisīja un aizguoja auzu sorguotu vacuokais dāls.
+Jam beja bails uorā gulēt, jis īleida piertī un puorgulēja par nakti. Reitā atīt uz
+ustobu, tāvs vaicoj : "Nu, kū tur, dāls, redzēji, kas tī myusu auzas ād?"</p>
+
+<p align="JUSTIFY">"Kū tī redzēsi?" dāls atsoka, "vējš pyuš, lopas
+čaukst, nikuo naredzēju."</p>
+
+<p align="JUSTIFY">Nyu ūtrā naktī īt ūtrais dāls, tys ari beja bailīgs, puorgulēja
+piertī un atīt reitā uz ustobu. Tāvs otkon vaicoj: "Nu, kū tur. dāls, redzēji,
+kas tī myusu auzas ād?"</p>
+
+<p align="JUSTIFY">"Kū tī redzēsi?" dāls atsoka, "vējš pyuš, lopas
+čaukst, nikuo naredzēju."</p>
+
+<p align="JUSTIFY">Trešā naktī prosās muļkīts: "Tēt palaid mani šūnakt auzu
+sorguotu."</p>
+
+<p align="JUSTIFY">Bet tāvs soka: "Kū jau tu nūsorguosi, ka divi gudrī navarēja
+nūsorguot?"</p>
+
+<p align="JUSTIFY">muļkīts vys prasīja tāvu, lai palaiž jū auzas sorguot, tod tāvs
+ari palaidja. Dāls aizguoja uz teirumu atsasāda auzu molā un sēdēja leidz pusnaktim.
+Te jis dzierd: zeme vīn atreib. Pusnaktīs atskrēja uz auzom vīns skaists zyrgs v vīna
+spolva zalta, ūtra sudobra, tai i laistās. Muļkīts klusiņom dasalavēja pi zyrga,
+sakēra jū un gribēja vest uz sātu, lai nūdūd struopi par auzu ēsšonu.</p>
+
+<p align="JUSTIFY">Tūreiz tys zyrgs suokās prasītīs, lai jū palaiž vaļā, par tū
+šis vysod paleidzeiškūt, kur tikai vajadzēs. Lai atīt uz mežu un tikai pasauc, šis
+tyuliņ byuškūt kluot. Muļkīts paklausīja un palaidja jū vaļā. Reitā jis atguoja
+uz sātu, tāvs vaicoj muļkīšam: "Nu, kū tur, dāls, redzēji, kas tī myusu
+auzas ād?"</p>
+
+<p align="JUSTIFY">"Kū tur redzēsi? Vējš pyuš, lapas čaukst, nikuo
+naredzēju." Pēc tam kunga meitai muižā beja kuozas, vacuokī bruoļi obēji
+taisījās uz tīni. Vīns bruols izmozguoja cyuku un ūtrs kozu, tod kotrs atsasāda uz
+sova lūpiņa un guoja uz muižu. Muļkīts prasīia tāvam, lai ari jū palaiž; tāvs
+suokumā nagribēja, bet pēcuok palaidja. Jis aizguoja uz mežu uzklīdzja un zyrgs beja</p>
+
+<p align="JUSTIFY">kluot. Jis pastuostīja zyrgam; ka grib juot uz muižu kuozuos, bet jam
+nava jaunu svuorku. Zyrgs soka: "Īlein pa vīnu aisi man īškā un pa ūtru izlein
+uorā!"</p>
+
+<p align="JUSTIFY">Muļkīts pa vīnu ausi īleida īškā un pa ūtru izleida uorā un
+tod jam beja skaisti jauni svuorki. Jis sādās zyrgam mugurā un dzynuos pēc bruoļim,
+dadzinis tīis pusceļā uzklīdzja: "Kizi, koza kuorklūs, cyuka dubļūs!"</p>
+
+<p align="JUSTIFY">Koza tyuliņ īskrēja kuorklūs un pa kuorklim skrīdama applēsja
+bruoļam, kurs juoja uz kozas, vysas rūkas. Cyuka īkrita dubļūs, izzīdja vysu tū
+bruoli, kurs juoja uz cyūkas. Jī obēji grīzjās uz sātu, a mukīts aizjuoja uz
+muižu, pa kuozom labi izzadzeivuoja, sādās zyrgam mugurā, atjuoja uz mežu īleida pa
+vīnu ausi īškā, pa ūtru izleida uorā un otkon beja taiduos pat appleisušuos
+drēbēs. Atguoja uz sātu lykās uz cepļa un gui leidz reitam.</p>
+
+<p align="JUSTIFY">Dreiži pēc tam kēneņš izsludinuoja pa vysu valsti, ka atdūs sovu
+meitu par sīvu tam, kurs dalēks leidz trešuo stuova pils lūgam un izjems nu kēneņa
+meitas rūkas gradzynu. Obēji bruoļi taisījās ceļā, vīns izmozguoja cyuku, ūtrs
+kozu, sādās sovim lūpiņim mugurā un juoja uz pili pi kēneņa meitas.</p>
+
+<p align="JUSTIFY">Tod trešais dāls iyudzja tāvu, laijū palaiž uz mežu sēņu
+palasītu. Tāvs suokumā nagribēja, bet pēcuok palaidja. Jis aizguoja uz mežu pasaucja
+zyrgu un tys tyuliņ atskrēja. Jis sacīja zyrgam, kai lai šis juoj uz kēneņa meitu
+taiduos sapleisušuos drēbēs, bet zyrgs jam sacīja: "Īlein pa vīnu ausi man
+īškā um pa ūtru izlein uorā!"</p>
+
+<p align="JUSTIFY">Tys ileida pa vīnu ausi īškā un pa ūtru izleida uorā un beja
+skaistuos jaunuos drēbēs kai kungs, sādās uz zyrga un aizjuoa sovim bruoļim pakaļ.
+Jis panuocja bruoļus pusceļā un uzklīdzja: "Kizi koza kuorklūs, cyuka
+dubļūs!"</p>
+
+<p align="JUSTIFY">Koza tyuliņ skrēja kuorklūs, un pa kuorklim skrīdama, applēsja
+vysas rūkas un muti tam bruoļam, kurs juoja ar kozu cyuka īkrita dubļūs un izzīdja
+vysu tū broli, kurs juoja uz cyukas.</p>
+
+<p align="JUSTIFY">Muļkīts juoja tuoļuok, dajuoja pi pils, palēcja par vīnu stuovu un
+laidjās atpakaļ uz mežu. Tod īleida zyrgam pa vīnu ausi īškā un pa ūtru izleida
+uorā un izguoja otkon taids pat appleis's. Īdams uz sātu, pīlauzja mežā myusmēru un
+cytu sēņu, atnesis atdevja tāvam. Tāvs izlasīja lobuos sēnis, bet slyktuos izsvīdia
+uorā. Jis izkuopja uz cepļa un gulēja leidz reitam, nikuo nasacīdams. Naktī tyka
+sātā arī obēji bruoļi un ūtrā reitā otkon taisījas braukt pī kēnena meitas.
+Izmozguoja vīna sovu cyuku un ūtrs kozu, sādās un juoja uz pili. Muļķīts prasījās
+otkon uz mežu sēņu palasītu, nu suokuma tāvs nalaidja, bet jis izzaprasīja un
+aizguoja uz mežu. Mežā jis pasaucja zyrgu un tys tyulin atskrēja. Muļkīts pa vīnu
+ausi īleida īškā un pa ūtru izleida uorā un beja lobuos drēbēs kai kungs. āduos
+uz zyrga utu aizjuoja pakaļ cytim broļim. Panuocis tūs iis uzklīdzja: "Kizi koza
+kuorklūs, cyuka dubļūs!"</p>
+
+<p align="JUSTIFY">Koza tyuliņ skrēja kuorklūs un cyuka īleida dubļūs. Applāsti un
+nusazīduši obēji bruoļi dzynās atpakaļ uz sātu, a muļkīts juoja tuoļuok,
+dajuojis pi pils, jis jau palēcja par divējim stuovim un dreiži laidjās atpakaļ uz
+mežu. Mežā nūkuopja nu zyrga, pa vīnu ausi īleida īškā, pa ūtru izleida uorā un
+beja otkon vacuos appleisušuos drēbēs kai ogruok. Uz sātu īdams, jis mežā pīlauzja
+vysaidu sēņu un aiznesja tāvam. Tāvs jū labi izlomuoja, kam pīlauzja nalobū sēņu,
+bet muļķīts nikuo nasacīdams, uzkuopja uz cepļa un gulēja leidz reitam. Naktī
+atbraucja arī citi dāli.</p>
+
+<p align="JUSTIFY">Trešā reitā vē obēji bruoļi taisās ceļā. Izmozguoja vīns
+cyuku un ūtrs kozu, sādās kotrs uz sova lūpiņa un juoja uz pili pi kēneņa meitas.
+Muļķīts vēļ prasījās, lai tāvs jū palaiž uz mežu sēņu palasītu, a tāvs
+runuoja: "Tu napīlasīsi lobu sēņu."</p>
+
+<p>Bet jis sacīja: "Nyu, tēt, lasīšu tikai lobos vīn sēnis."</p>
+
+<p align="JUSTIFY">Tāvs jū otkon palaidja. Jis aizguoja uz mežu, pasaucja sovu zyrgu.
+Zvrgs tyuliņ atskrēja, muļkīts īleida pa vīnu ausi īškā, pa ūtru izleida uorā,
+jam beja lobas skaistas drēbes, kai kungam. Jis atsasāda uz zyrga un aizjuoja pakaļ
+sovim bruoļim, panuocis jūs, jis uzklīdzja: "Kizi koza kuorklūs, cyuka
+āubļūs!"</p>
+
+<p align="JUSTIFY">Koza īskrēja kuorklūs, a cvuka dubļūs, a jis aizjuoja uz pili pi
+kēneņa meitas. Dajuo jis jis palēcja par trejim stuovim un izjēmja kēneņa meitai nu
+rūkas gradzynu. Izjēmis gradzynu, jis aizjuoja atpakaļ uz mežu, īleida pa vīnu ausi
+īškā, pa ūtru izleida uorā un beja otkon taids pat nabogs kai ogruok.</p>
+
+<p align="JUSTIFY">Lēcja arī juo bruoļi, lai pajemtu kēneņa meitas gradzynu, bet
+nivīns navarēja dalēkt. Muļķīts uz sātu īdams, mežā pīlasīja sēņu, atnesja
+tāvam, pats aptinis rūku ar lupotu, lai naīraudzītu gradzynu cyti bruoļi, izkuopja uz
+cepļa un gulēja leidz reitam. Atbraucja ari bruoļi un stuostīja tāvam, ka beja vīns
+kungs, kurs dalēcja un pajēmja gradzymt nu kēneņa meitas.</p>
+
+<p align="JUSTIFY">Kēneņš izguojrs sacīja, lal reitā sasalosa vysi ļaudis uz pili.
+"Pi kura atsarass gradzyns, tys byus munas meitas bryuguons." Muļķīts, uz
+cepļa gulādams, vysu dzierdēja un prīcuojās, ka jū ari vess uz tīni. Tāvs
+īraudzīja, ka jaunuokajam dālam rūka apsīta ar lupotu un vaicoj : "Kam tev tei
+rūka apsīta?"</p>
+
+<p align="JUSTIFY">"Es pakritu uz calma un sasytu rūku," atsacīja muļkīts.
+"Muļkīšam nikur labi naīt," sacīja tāvs un- lykās gultā. Muļkīts vysu
+nakti navarēja aizmigt, par gradzynu vīņi dūmuodams. Jam gribējās pasavērt uz
+gradzyna, jis attyna lupotu īruovja guni un dreiži pasavēŗa uz gradzyna. Tāvs
+īraudzejis guns bluozmi, suoka klīgt uz muļķīti: "Kū tu tur ar guni dori? Vēļ
+sātu nūdadzynuosi!"</p>
+
+<p align="JUSTIFY">"Nā, tēt, es vairs nadegšu!" jis appyutja guni, aptina
+rūku ar lupotu un gulēja.</p>
+
+<p align="JUSTIFY">Reitā,vysi sasataisīja un guoja oz kēneņa pili. Muļkīšam beja
+sapleisušas drēbes, tuodēļ tāvs jū koktā vīn styumja un pats stuojās prīškā,
+lai nivīns naredz juo appleisušū dālu. Kēneņa meita meklēja sovu gradzynu pyrmuok
+pi kungim, bet naatroduse guoja uz durovom un atroda pi muļķīša. Jei jū aizvedja uz
+sovu kambari, apvylka jam skaistas jaunas drēbes. Muļkīts sādās uz sova zyrga un
+juoja uz baznīcu lauluotīs ar kēneņa meitu. Tāvs un vacuokī bruoļi mutes vīn
+plātīja nu breinuošonuos, ka jūs muļkīts palyka kēneņa meitai par bryuguonu. Kad
+atbraucja nu laulobom, tod dzēra boguotas kuozas, vysim devja ēst un dzert, cik gribi.</p>
+
+
+</body></html>

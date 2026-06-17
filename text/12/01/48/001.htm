@@ -1,0 +1,171 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>48</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Krītošais mironis izbaida laupītājus.</p>
+</font></b>
+
+<p align="JUSTIFY"><strong>1.</strong> A. 1653 B. A. Lerchis - Puškaitis, Džūkstē -
+Pienavā. LP. I, 34, 8.</p>
+
+<p align="JUSTIFY">Vienam tēvam bija trīs dēli: viens muļķis, divi gudri. Gudrie
+brāļi, lieli medinieki, aicina arvienu muļķi, sacīdami: "Vai redz, brāl! mēs
+jau pelnamies, kā nebūt: šaujam lapsas, vilkus, lāčus; bet tu tikai slinkodams guli,
+kā circenis pie krāsns. Gan tu redzēsi: tu ne mūžam bagāts netiksi! Ja šaut nemaz
+nemāki, tad jel uztaisi spostus un ķer zaķus, stirnas."</p>
+
+<p align="JUSTIFY">Muļķīgais paklausa brāļiem, uztaisa spostus un noliek tos mežā.
+Otrā rītā zaķis iekšā; bet šis noķerto atkal palaiž, lai iet, kur nācis. Mājās
+brāļi prasa: "Nu, vai bija ar kas iekšā?"</p>
+
+<p align="JUSTIFY">"Bija gan tāds šunelis; bet to jau palaidu, jo varen nejauki
+bļāva. To jūs jau zinit, ka man ļoti žēlīga sirds."</p>
+
+<p align="JUSTIFY">Brāļi nu piemāca, piekodina muļķīgajam trešā rītā bez
+žēlastības nosist, lai būtu kas būdams iekšā.</p>
+
+<p align="JUSTIFY">Trešajā rītā muļķīgais atron Savos spostos kaimiņa puisi, kas
+skurbumā, naktī mājās ejot, iekūlies spostos, un nosit to bez žēlastības. Brāļi,
+to dzirdējuši, aizskrien elsdami, pūzdami uz mežu un grib - lai lietu apslēptu -
+nelaimīgo turpat klusu aprušināt. Kad tevi jupis! bedre vēl nav ne pusrakta, te dzird
+vienu pulksteņiem braucam, ka skan vien. Lai braucējs varbūt nepamanītu, kas šiem aiz
+ādas, tie pavēl muļķīgajam nosisto ozolā uzvilkt, kur arī paši uzlien. Bet, kad
+jau kādureiz nevedas, tad arī uz katra soļa ķibeles vien un ķibeles vien. Tāpat tas
+notikās ar mūsu brāļiem.</p>
+
+<p align="JUSTIFY">Braucējs bija viens ļoti bagāts kungs. Tas nevilšu pavēl kučierim
+pie šā ozola apstāties, zirgu atpūtināt, pie kam paši domā uzkost.</p>
+
+<p align="JUSTIFY">Muļķīgais tura savu spostos nosisto, bet beidzot rokas nogurst un
+nosistais nokrīt zemē, kur kungs brokastu tur.</p>
+
+<p align="JUSTIFY">Kungs pārbīstas, atstāj visus ēdienus, dzērienus un laiž, ko māk
+projām. Gabalu braucis, apdomājas un saka kučierim: "Vai dzirdi! Ej atpakaļ un
+paskaties, kas tur īsteni bija. Es palikšu pie zirgiem. Neaizmirsti arī paņemt no
+turienes līdz dārgos nažus un ēdienus."</p>
+
+<p align="JUSTIFY">Kučieris aiziet un atron trīs vīrus pie brokasta mielojamies, itkā
+paši pie sava. Muļķīgais pielabina kučieri klāt, stāstīdams: "Muļķi, vai
+ēdīsi! Kad domā un kunga tādus gardumus sagaidīt?"</p>
+
+<p align="JUSTIFY">Kučieris neliekas arī daudz lūgties; bet par nelaimi tam ēdot
+iedūrās liela asaka mēlē. Asinis tek aumuļām un paēst arī vairs nevar. Viens no
+gudrājiem brāļiem, tādu nelaimi redzēdams, saka uz muļķīgo: "Neesi lempis,
+izrauj kučierim, ka viņš var ēst."</p>
+
+<p align="JUSTIFY">Muļķīgais domā, ka mēle jāizrauj. Viens kampiens un mēle ārā.</p>
+
+<p align="JUSTIFY">Kučieris savās sāpēs un bailēs, liek nekas vaļā un projām pie
+kunga. Kungs redz, kas noticis, aizbrauc, atstādams visus dārgos zelta nažus, ēdienus,
+dzērienus un traukus.</p>
+
+<p align="JUSTIFY">"Nu, jūs arvienu teicāt, ka es ne mūžam bagāts nepalikšot.
+Tagad ar saviem zelta nažiem un zelta traukiem esmu bagātāks par jums abiem. Nevajaga
+apsmiet, kad vēl labi nezina." Tā muļķis lielījās; bet brāļi nočukst:
+"Pelnīsim muļķītim maizi un neļausim viņam nekāda darba darīt; citādi viņš
+vēl mūs beidzot nogalinās."</p>
+
+
+</body></html>

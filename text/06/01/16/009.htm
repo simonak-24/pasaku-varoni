@@ -1,0 +1,197 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">9. A. 5.30. A. Gari -Juone no 42 r. vecas P. Pūrmalītes, Dricēnos.
+Latvju kultūras kr.</p>
+
+<p align="JUSTIFY">Vīnam tāvam beja treis dāli: divi gudri un vīns muļkīts, tāvs
+mierdams pasacīja, lai dāli treis nakt's zam eiles sorgoj juo dūbi. Pyrmajā naktī
+aizguoja vacuokais, jam bails beja sēdēt pi tāva dūbes: jis īleida kaidā koktā un
+porgulēja par nakti. Ūtrā naktī aizguoja ūtrais bruolis, tai pat īleid's, kur
+puorgulēja.</p>
+
+<p align="JUSTIFY">Trešā naktī guoja muļkīts tāva dūbi sorguot. Jis īdams uz
+kopim, pajēmja leidza skaliņus. Atguojis pi dūbes, dadzynuoja skaliņus un sorguoja
+dūbi; uz reita pusi atskrīn treis zyrgi. Vysi treis zyrgi breinīgi skaisti: vīnam
+pīrē auseklis, ūtram zvaigzne nu trešam mēness. Kur jam beja tūs zyrgus likt? Jis
+aizvad zyrgus uz mežu un palaiž mežā. Atīt reitā uz sātu, bruoļi prosa: "Kū
+loba redzēji par nakti?"</p>
+
+<p align="JUSTIFY">"A kū tī redzēsi? Vējiņš pyutja, lopas čaukstēja, nikuo es
+tur rnaredzēju," atsoka muļkīts.</p>
+
+<p align="JUSTIFY">Tamā laikā, kēneņš izsludynoj pa sovu kēnesti, ka tam, kurs
+pīktajā stuovā izlēks ar zyrgu un pajems nu kēneņa meitas rūkas gradzynu, tam jis
+atdūs sovu meitu par sīvu. Sazataisa muļkīša bruoļi un brauc; a jis aizīt uz mežu,
+sāst sovam zyrgam ar ausekli pīrē, mugurā un juoj uz kēneņa pili. Ceļā jis dadzan
+sovus bruoļus, sadūd jīm un pats aizjuoj pa prīšku. Pyrmajā dīnā izskrīn ar sovu
+zyrgu tikai ūtrajā stuovā, dreiži atjuoj uz mežu, palaiž zyrgu un gu sātā leidz
+ūtrai dīnai.</p>
+
+<p align="JUSTIFY">Ūtrā dīnā brauc bruoļi, jis otkon aizīt uz mežu, sāst mugurā
+tam zyrgam, kuram zvaigzne pīrē, ceļā dadzan sovus bruoļus un vēļ stypruok jīm
+sadūd, a pots aizjuoj pa prīšku uz kēneņa pili. Nyu jis daskrīn leidz caturtajam
+stuovam, atjuoj atpakaļ, palaiž zyrgu mežā un gu leidz nuokūšai dīnai.</p>
+
+<p align="JUSTIFY">Trešā dīnā bruoļi brauc otkon uz kēneņa pili, muļkīts aizīt
+uz mežu sāst nrugurā zyrgam, kurs ar mēnesi pīuē, un juoj uz pili. Leļu dadzan
+sovus bnuoļus un vēļ cīšuok sadūd jīm, pats aizskrīn uz kēniņa pili, izskrīn ar
+zyrgu pīktajā stuovā, pajem nu kēneņa meitas rūkas gradzynu un aizlaiž uz mežu.
+Mežā jis aptyn pierstu, kur ir gradzyns, atguojis uz sātu, īlein ceplī un guļ.
+Naktī jis atraisa pierstu un vyss ceplis palīk gaišs.</p>
+
+<p align="JUSTIFY">"Kū tu tur dori ar spičkom? Vēļ ustobu nūdadzynuosi,"
+vaicoj bruoļi. Muļkīts aptyn otkon pierstu ar lupotu.</p>
+
+<p align="JUSTIFY">Ūtrā dīnā bruoļi vaicoj muļķīšam: "Kam tev rūka apteita
+ar lupotu?"</p>
+
+<p align="JUSTIFY">"Mežā ciertu molku un ar ciervi puorciertu pierstu," atsoka
+muļkīts un īlein ceplī gulēt. Vēļ jam gribīs pasavērt speidīguo gradzyna un jis
+atraisa lupotu, bruoļi otkon jū salomoj.</p>
+
+<p align="JUSTIFY">Tod kēneņa meita brauc pa vysom sātom meklēt tuo, kurs pajēmja
+juos gradzvnu, izbrauc cauri vysu kēnesti - ni pi vīna nava. Golu golā jei atbrauc ari
+uz treju bruoļu sātu: bruoļi izzapucējuši gaida kēneņa meitas, a muļkeits gu[
+ceplī. Apsavāruse, kēneņa meita ni pi vīna naatroda sova gradzyna un vaicoj:
+"Voi jyusim nava vēļ kaida bruola?"</p>
+
+<p align="JUSTIFY">"Ir gon," atsoka bruoļi, bet jis taids muļkīts;
+puorcieršu rūku un aptin's guj ekur, ceplī!"</p>
+
+<p>"Velcīt jū uorā," soka kēneņa meita.</p>
+
+<p align="JUSTIFY">Obi bruoļi valk muļkīti nu cepļa uorā, a tys klīdz un spuordās
+pa cepli. Kad atraisīja lupotu, tod kēneņa meita pazyna sovu gradzynu muļkīša
+pierstā. Bet nikuo navarēja darīt, aizvad appleisušu, nateirū muļkīti uz kēRleņa
+pili.</p>
+
+<p align="JUSTIFY">Kēneņš īdūd jam lobu zyrgu un pasoka, lai tys juoj. Muļkīts
+sāstas ačaguorni zyrgam raitu, pajem asti zūhūs un syt par gurnim ar plaukstu, 1ai
+zyrgs īt. Šai tai aizsteivēja tū zyrgu leidz mežom, te nūplēsja uodu, sādās sovim
+mugurā izajuodelēja un aizīt uz sātu.</p>
+
+<p align="JUSTIFY">Ūtrā dīnā kēneņš dūd jam lobuoku zyrgu. Jis otkon taipat
+izzasāst atsprēkleņ zyrgam mugurā, īkūž asti zūbūs, aizzadzan leidz meža molai
+un nūplēš zvrgam uodu.</p>
+
+<p align="JUSTIFY">Trešā dīnā kēneņš sasauc vysu valsti, lai veras, kas nūtiks,
+kū jis padarēs ar zyrgu. Kēneņš īdūd jam pašu lobuokū zyrgu. Muļkīts atsasāst
+atsprēkleņ zyrgam mugurā un nūzadzan leidz mežam, te nūplēš uodu. Ļaud's
+nūpilņavuoja (novaktēja), kū jis dora, un īraudzēja mežā juo treis skaistūs
+zyrgus. Tod muļkīts sādās sovim breinīgi skaistim zyrgim mugurā un atjuoja uz pili.
+Vysi breinuojās, kur jis jēmis tik skaistus zyrgus.</p>
+
+<p align="JUSTIFY">Kēneņš tod sataisīja boguotas kuozas. Pate kluot beju. vysu
+redzēju, ēdu, dzēru, ka par lyupom vīn tecēja, bet mutē natyka.</p>
+
+
+</body></html>

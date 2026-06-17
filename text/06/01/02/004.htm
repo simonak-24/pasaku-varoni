@@ -1,0 +1,224 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Pārdabīgais palīgs.</p>
+</font></b>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">4. A. 504. E. Birznieks no Kriša Rozes Dzirciemā. Jkr, III, 58 (22).</p>
+
+<p align="JUSTIFY">Vīrs ganīja vakarā viens pats zirgus. Pie viņa atnāk viens melns
+kungs un prasa, vai viņš negribot naudas. Vīrs naudu gribētu gan, bet viņam bail, kad
+tik tur nav kādi kručki. Kas viņam tik vēlā vakarā piesolītu naudu? Viņš atteic,
+ka negribot naudu. Melnais kungs aiziet.</p>
+
+<p align="JUSTIFY">Pēc kāda brīža viņš ir atkal klāt un uzprasa vīram, vai tas
+negribot mīt zirgiem. Vīrs nu noprot, ka tas būs gan pats nelabais, kas viņam tādas
+lietas piedāvā, un tādēļ atteic, ka arī zirgiem negribot mīt. Melnais kungs aiziet.
+Vīrs noliekas uz sava čubu maisiņa gulēt, bet nevar aizmigt, viņam gribas ēst.
+Viņš ierauga turpat netālu no zirgiem uguntiņu spīdam. Viņš uzceļas un iet
+skatīties, kas tā par uguni. Viņš pieiet tuvāki un redz, ka melnais kungs cep
+rāceņus un ēd, ka šņakst vien. Pieguļnieks iet vēl tuvāki, bet melnais kungs
+neliekas viņu ne redzam un tik ēd rāceņus. Pieguļniekam tāda kāre pēc rāceņiem,
+ka viņš vairs nevar paciest, bet melnais kungs viņam nemaz nepiedāvā. Pieguļnieks
+pieliecas pats un paņem vienu rāceni. Pārliekam gards. Viņš liecas vēl pēc otra,
+treša. Uz reizi melnais kungs saka: "Ēst tu vari pilnu vēderu, bet tad tev man
+nākošu svētrītu jāsasien viena slotiņa."</p>
+
+<p align="JUSTIFY">Pieguļnieks domā : "Ēdis jau esmu, slota jāsien tik tā kā
+tā, labāki jau ēdīšu pilnu vēderu!"</p>
+
+<p align="JUSTIFY">Nu tik abi sukā, ko nagi nes. No rīta pieguļnieks pārdzen zirgus,
+bet viņam nemaz nav tā labi ap dūšu.</p>
+
+<p align="JUSTIFY">"Kas tā gan varētu būt par slotu, kas man viņam jāsien un pie
+tam vēl svētdienas rītā?"</p>
+
+<p align="JUSTIFY">Pieguļnieks visu nedēļu nevar vien izdomāt, kā tikt vaļā no
+slotas siešanas. Sestdienas pēcpusdienā viņš patlaban atspiedies pret arklu un domā
+atkal par rāceņu ēšanu un slotas siešanu, kad nāk vecs vīriņš un prasa, ko viņš
+tā domājot. Šis negrib teikt, viņš domājot tik tāpat šo to.</p>
+
+<p align="JUSTIFY">"Tu domā par rāceņu ēšanu un slotas siešanu!" vecais
+vīriņš viņam cieti noteic. "Man tu vari visu izteikt, tas tev nekā
+nekaitēs."</p>
+
+<p align="JUSTIFY">Arājs nu arī izstāsta visu, kā viņam to nakti ar melno kungu
+izdevies, un ka viņam tagad bailes, ka ar to tik nav iepinies kādā ķezā.</p>
+
+<p align="JUSTIFY">"Šinī reizē, ja tu mani klausīsi," vecais vīriņš teic,
+"tev vēl nekas nekaitēs; bet uzmanies, ka tu uz priekšu ar viņu neielaidies
+nekādās darīšanās. Svētdienas rītā paņem bībeli un aizsēdies aiz galda; kad tad
+viņš grib, lai tu viņam slotu sien, tad saki, lai tik viņš dod šurp zarus." To
+teicis, vecais vīriņš aizgāja.</p>
+
+<p align="JUSTIFY">Svētdienas rītā vīrs darīja, kā teikts: paņēma bībeli un
+aizsēdās aiz galda. Pēc brītiņa ienāk melnais kungs un sauc vīram, lai tas iet siet
+slotu. Vīrs paliek turpat aiz galda pie bībeles un prasa, lai kungs dodot zarus, viņš
+tepat sasiešot. Melnais kungs teic, ka zari esot mežmalā, bet vīrs uz turieni neiet.
+Melnais vīrs to arī par aunu neņem, bet sāk runāt par citām lietām.</p>
+
+<p align="JUSTIFY">"Kas tā varētu būt par mīklu: dzelzu cūka, linu aste - adata.
+Kas tas varētu būt?" melnais kungs prasa.</p>
+
+<p align="JUSTIFY">Vīrs sāk smieties. "Jūs jau paši pateicāt - adata, kas tad
+nekaiš uzminēt? Bet atminiet manu mīklu: viena kāja kā gailim, otra kā zirgam. Kas
+tas tāds ir?" vīrs prasa.</p>
+
+<p align="JUSTIFY">Melnais kungs pabāž savas kājas apakš beņķa un tad teic:
+"'Tā jau dzird runājam, ka velnam tādas kājas esot. Bet saki man, kas ir cietāks
+par akmeni un mīkstāks par pūpēdi?"</p>
+
+<p align="JUSTIFY">Vīrs minstinās, minstinās, bet nevar atminēt. Melnais kungs
+priecīgs aiziet projām. Arī vīrs priecīgs, ka ticis vaļā no slotas siešanas.</p>
+
+<p align="JUSTIFY">Pret vakaru vīrs aizved zirgus aplokā un grib patlaban nākt
+atpakaļ, kad melnais kungs viņam klāt, apmet viņam apaušus apkārt un ved viņu
+mežā iekšā, vienumēr saukdams : "Atmini manu mīklu: kas cietāks par akmeni un
+mīkstāks par pūpēdi?"</p>
+
+<p align="JUSTIFY">Nabaga vīrs aiz bailēm slapjš, kā nopeldināts, bet melnais kungs
+to velk arvienam dziļāki purvā iekšā, kamēr nonāk pie lielas slošu zaru čupas.
+Melnais kungs nostājas turpat un vīram nu jāsien slotas visu cauru nakti. Tikko gaisma
+sāk aust, melnais kungs pazūd. Vīrs sāk skatīties, kur tad viņš īsti ir. Lielā,
+lielā purvā, vismuklainākajā vietā. Viņa domātie slošzari ir cilvēku mati, zirgu
+astes, purva zāles, par sasienamām sloksnītēm viņš lietojis desas un dzīslas.
+Vīram pāriet drebu]i par kauliem. Viņš steidzās rīta krēslā tikt no purva ārā un
+prom uz mājām. Visu dienu viņš tikpat kā slims; ne viņš var strādāt, ne viņš
+var gulēt, viņa : it nekur nav miera. Vakarā viņš vairs nedzen zirgus, bet paliek
+turpat sētā stāvot. Bet melnais kungs atkal klāt un rauj vīru līdz uz purvu. Te
+viņam jāsien atkal visu nakti slotas.</p>
+
+<p align="JUSTIFY">Tā tas iet līdz pat sestdienai. Vīrs, pa naktim mocīts, ir pavisam
+slims, bet melnais kungs nāk katru vakaru viņam pakal un velk viņu pat no gultas
+laukā. Sestdienā vīrs ir pavisam pie beigām, kad ienāk atkal vecais vīriņš un
+prasa, kas vīram kaitot.</p>
+
+<p align="JUSTIFY">Vīrs pazīst, ka tas ir tas pats vecītis, kas viņu pirmo reizi
+izglāba no melnā kunga, un nu sāk lūgties, lai arī tagad palīdzot.</p>
+
+<p align="JUSTIFY">"Par tavu neklausību tu nu tagad esi dabūjis savu
+mācību," vecītis saka, "bet uz priekšu neielaidies ar viņu ne mīklu
+minēšanā, ne citās darīšanās, tad es tevi vairs nevarēšu tik lēti izglābt. Kad
+melnais tagad atnāk un tev liek minēt: kas cietāks par akmeni un mīkstās par
+pūpēdi, tad pasaki, ka tas ir, ko viņš katru dienu meklē dabūt - cilvēka
+dvēsele." Vecais vīriņš aizgāja.</p>
+
+<p align="JUSTIFY">Vakarā melnais kungs klāt un rauj atkal vīru līdzi. Šis nesaka
+nekā, bet nogaida, kamēr tas sāks daudzināt savu mīklu. Tikko melnais kungs
+ieteicās: "Atmini manu mīklu: kas cietāks par akmeni un mīkstāks par
+pūpēdi?" vīrs tūlin: "tas ir ko tu katru dienu meklē - cilvēka
+dvēsele."</p>
+
+<p align="JUSTIFY">Melnais kungs tūliņ palaiž vīru vaļā, sacīdams: "Nu,
+brālīt, tā nebija vis tava gudrība vien; te man atkal vecais tēvs iemaisījies
+amatā."</p>
+
+<p>To teicis melnais kungs pazūd.</p>
+
+
+</body></html>

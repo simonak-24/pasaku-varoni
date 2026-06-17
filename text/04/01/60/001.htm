@@ -1,0 +1,191 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>60</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<blockquote>
+  <blockquote>
+    <p align="CENTER">Noburtais ķēniņa dēls par precinieku.</p>
+    <p align="JUSTIFY">&nbsp;</p>
+  </blockquote>
+</blockquote>
+</b></font>
+
+<p align="JUSTIFY">1. J. Mezevskis Ozolnieku Tiltiņos. Jkr. V, 104 (68). </p>
+
+<p align="JUSTIFY">Reiz viens ģenerālis braucis ar savējiem pavizināties. Kad tie bija
+lielu mežu cauri izbraukuši, tad uznāca lietus un ģenerālis lika kučierim atpakaļ
+griezties. Atpakaļ braucot, viņi ierauga lielu pili, kuŗu tie nekad nebija redzējuši.
+Ģenerālis liek zirgus apturēt un sūta savu sulaini pili apraudzīt. Sulainis aiziet,
+bet nevar tikt iekšā, nāk atpakaļ un izstāsta visu saviem kungiem. Tad ģenerālis
+sūta kučieri, bet tam iziet tāpat kā sulainim. Nu iet viņš pats, bet arī netiek
+iekšā. Tāpat arī cienmātei neizdodas iekļūt pilī.</p>
+
+<p align="JUSTIFY">Beidzot iet preilene, enerāļa meita; viņa bez 'kavēkļiem ieiet
+pilī, bet tiklīdz kā preilene ir iekšā, tūlin aiz viņas aizkrīt durvis un visa
+pils pazūd. Ģenerālis liek meklēt pēc savas meitas, sameklē ilgu laiku ar daudz
+ļaudim, bet nevar dabūt ne pili, ne preileni. Tā nu viņš brauc bēdīgi mājās.
+Kamēr tiek mājās, ir pagājuši septiņi gadi.</p>
+
+<p align="JUSTIFY">Kad preilene iegāja pilī, tad tai no liela greznuma apžilba acis.
+Visas malu malas, visus plačus un gaņģus apgaismoja mirdzošas lampas. Ejot pa vienu
+gaņģi, viņa uzgāja durvis, kuŗās bija atslēga. Durvis atslēgusi, tā iegāja ļoti
+apgaismotā istabā, kur uz galda dega svece un gulēja zīmīte, uz kuŗas bija
+rakstīts: "Kad tējas laiks, tad v ar dabūt tēju, kad kafejas laiks, tad var
+dabūt kafeju un kad maltītes laiks, tad var dabūt maltīti."</p>
+
+<p align="JUSTIFY">To lasīdama, preilene sabijās un gāja atkal atpakaļ! Ejot tā
+atrada otras durvis ar veselu bunti atslēgu. Durvis atslēgusi, tā grib ieiet - te tai
+piešķīst pilnas acis ar ugunim, un tā ierauga istabas vidū zārku. Viņa gan
+satrūkstas, bet tomēr pieiet pie zārka, pie sevis sacīdama: "Nešķīsts gars jau
+tu esi, ārā es vairs nevaru tikt, tā kā tā man jāiet iekšā."</p>
+
+<p align="JUSTIFY">Uz zārka vāka bija rakstīts: "Še guļ viens ķēniņš,
+noburts uz septiņiem gadiem, septiņiem mēnešiem, septiņām nedēļām, septiņām
+dienām, septiņām stundām un septiņām minūtēm. Ja kāds ienācējs bīs ķēniņu
+pa šo laiku kopis, tad viņš no ķēniņa, kas pēc šī laika uzcelsies, dabūs: ja
+būs bijis vecs vīrs jeb veca sieviete, žēlastības maizi uz visu mūžu, - ja būs
+bijis jauns vīrietis, lielu gadu. un ja jauna sieviete, tad ķēniņš viņu ņems par
+sievu.</p>
+
+<p align="JUSTIFY">Preilene paliek pilī, apkopj istabas un tura īpaši arvien ķēniņa
+zārku tīru un spodru. Jau gandrīz viss laiks ir pagājis un drīzi ķēniņam jāceļas
+augšā, te preilene ierauga vienu sieviņu pa pils dārzu ejam. Viņa atveŗ logu un
+lūdz sieviņu uz īsu laika ienākt, lai lūdzēja varētu drusku pastaigāties ārā,
+tīrā gaisā. Sieviņa arī ienāk un preilene iziet. Bet tiklīdz ko preilene izgājusi
+dārzā, te tā dzird stiprus lielgabala šāvienus un ļaužu skaļu urrāšanu. Nu tik
+viņa atjēdzās, ka noteiktais laiks notecējis un ķēniņš uzcēlies. Viņa nezin, ko
+iesākt: vai projām iet, vai palikt? Bet apdomājusies, tā griežas pilī atpakaļ, iet
+pie ķēniņa un lūdz kādu dienestu. Ķēniņš, kas sieviņai jau piesolījies to par
+sievu ņemt, pieņem preileni par kukņas meitu. Drīz ķēniņš izrīko kāzas. Uz
+kāzām ķēniņš atļauj katram dienestniekam ko izlūgties. Cits vēlas šo, cits to,
+bet kukņas meita lūdz, lai ķēniņš viņai nopērkot to, ko no rīta pirmo vedīšot
+pilsētā pārdot.</p>
+
+<p align="JUSTIFY">Viens vīriņš ved no rīta pats pirmais kaltu akmeni pilsētā, kuŗu
+nu ķēniņš liek nopirkt un aizvest kukņas meitai. Meita viņu mazgā un pucē.
+Sulaiņi nevar vien diezgan izbrīnīties, ko kukņas meita ar akmeni darīs. Vakarā
+trīs sulaiņi iet viens pēc otra pie kukņas meitas durvim un klausas, ko viņa ar
+akmeni dara. Viņi dzird meitu runājam : "Es esmu te izvaktējusi tos septiņus
+gadus, septiņus mēnešus, septiņas nedēļas, septiņas dienas, septiņas stundas,
+septiņas minūtītes, un tāpēc man vajadzēja tikt par ķēniņieni un nevis šai
+svešai sieviņai, kas tik īsu brīdi bija istabā, kamēr es izgāju pastaigāties. Bet
+kad ķēniņš laulāsies ar viņu, to veco sieviņu, tad es iešu uz mežu un
+nogalināšos."</p>
+
+<p align="JUSTIFY">Sulaiņi šos vārdus dzirdējuši, izteic visu ķēniņam. Ķēniņš
+arī nāk klausīties un dzird tos pašus vārdus. Ķēniņš ieiet pie kukņas meitas,
+paņem viņu ap vidu, aizved viņu savā zālē un prasa tai, kādēļ gan viņa gribot
+sev galu darīt. Kukņas meita nu visu izstāsta, ko viņa redzējusi un darījusi.</p>
+
+<p align="JUSTIFY">Ķēniņš nu tura kāzas pēc divi mēnešiem, un nevis vairs ar veco
+sieviņu, bet gan ar jauno preileni. Tie trīs sulaiņi, kas ķēniņam deva ziņu, tiek
+par ģenerāļiem, bet ļauno veceni, kas bija ragana, notiesā uz nāvi.</p>
+
+<p align="JUSTIFY">Preilene nu aizraksta arī grāmatu savam tēvam, ģenerālim , lai
+nāk kāzās. Šis ļoti brīnās, ka viņa meita vēl dzīva, nobrauc ar visiem savējiem
+pie ķēniņa un dzīvo savas vecuma dienas priekos un laimē.</p>
+
+
+</body></html>

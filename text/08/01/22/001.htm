@@ -1,0 +1,148 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>22</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Veselības augļi.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">1. A. 610. 566. No N. Rancāna krājuma Eglūnā.</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz braukāja viens kaupmanis gar jūras malu un ieraudzīja vienā
+vietā ļoti skaistus ābolus. Viņš izkāpa no sava kuģa, piegāja pie tās ābeles,
+norāva vienu ābolu un apēda; bet tūliņ izauga viņam uz galvas varen lieli un smagi
+ragi, tā ka viņš tikko vairs varēja paiet. Turpat netālu viņš pamanīja arī vienu
+citu ābeli ar neglītiem āboliem. Viņš nu apēda arī vienu neglīto ābolu un smagie
+ragi viņam tūliņ nokrita no galvas. Kaupmanis pielasīja vienā groziņā skaistos un
+neglītos ābolus un aizgāja projām.</p>
+
+<p align="JUSTIFY">Gabaliņu pagājis, viņš atkal ieraudzīja ogu krūmus. Piegājis pie
+viena ogu krūma un apēdis kādas ogas, viņš palika no izskata ļoti vecs; bet kad
+viņš apēda kādas ogas arī no otra krūma, tad palika atkal tāds pats, kā bijis.
+Arī abu krūmu ogas viņš pajēma savā groziņā līdz, aizgāja atpakaļ uz savu
+kuģi, un pārbrauca mājā savā dzimtenē.</p>
+
+<p align="JUSTIFY">Pārnācis mājā, savas dzimtenes pilsētā, viņš apēda vienu savu
+ogu un palika par vecu vīriņu, aizgāja uz ķēniņa pili un pārdeva tur ķēniņa
+meitām skaistos ābolus. Kā tikai ķēniņa meitas drusku pabaudīja skaistos ābolus,
+tā tām izauga uz galvas lieli ragi, tā ka viņas nevarēja vairs no istabas tikt ārā.</p>
+
+<p align="JUSTIFY">Ķēniņš nu nezināja kā savas meitas glābt no tādas nelaimes.
+Aicina gan visādus dakteŗus, bet tie nekā nevar izdarīt. Tad ķēniņš izsludināja
+pa visu savu valsti, ka tam, kas viņa meitas izdziedēs, viņš maksās visu, ko vien
+dziedētājs vēlēsies. Tirgotājs tagad aiziet uz ķēniņa pili ar savu ābolu groziņu
+un iedod ķēniņa meitām katrai vienu neglīto ābolu. Tikko meitas bija apēdušas šos
+ābolus, tā tām tūliņ nokrita lielie ragi un tās izskatījās vēl skaistākas, nekā
+agrāk bija bijušas.</p>
+
+<p align="JUSTIFY">Kaupmanis nu prasīja par dziedēšanu pus ķēniņa valsti un jaunāko
+meitu par sievu. Ķēniņš, būdams laimīgs, ka ticis no tāda posta vaļā, bija arī
+ar mieru. Tā nu kaupmanis dabūja skaisto ķēniņa meitu un tika arī pats par
+ķēniņu.</p>
+
+<p>P i e z ī m e. Šī pasaka ir atstāstīta rakstu valodā. P. Š.</p>
+</font>
+
+
+</body></html>

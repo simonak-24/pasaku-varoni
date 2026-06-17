@@ -1,0 +1,177 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Joku maiss mājā.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>1. </strong>1528. Fl. Ankipāns Ludzas apr. Michalovas pag.</p>
+<font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font>Dzeivuoja dāls un muote. DāIs, palaidnis, grib tik slinkuot.</p>
+
+<p align="JUSTIFY">Jis tikai tū i zynuoja, ka padorīt kaidus jūkus. Reiz jau guoja
+kluotu zīma un suoka krist snīgs, bet gūvs kūtī stuov naāduse. Kū lai jei ād, jo
+Juoņs napīpļuovja sīva? Juoņs tagad guoja pa boltu snīdziņu sīnu pļautu.
+Nūpļuovis drusku vacuos zuoles, ībuozis maisā un pats atsasād viersom, zynoms, kai
+.lai nasād, jo kuojas jam sola, uz smīga stuovūt. Caur jū brauc cauri pops un soka uz
+juo: "Nu, jūku Juon, brauksim jūku taisītu."</p>
+
+<p align="JUSTIFY">"Brauksim! Bet maņ palyka jūku kulīte muojuos," sok jūku
+Juoņs.</p>
+
+<p>"Nu tad ej atnes!" soka pops uz Juonīša.</p>
+
+<p align="JUSTIFY">"Labi," atlbildēja Juonīts. "Maņ kuojas soļ. Īdūd
+maņ sovu zuoboku."</p>
+
+<p align="JUSTIFY">Pops īdevja zuobokus. Tagad jis jau suoka prasīt šļapas, svuorku un
+zyrgu. Pops jam vysu šū īdevja. Juoņs nūbraucja uz popa muoju un soka uz juo sīvas:
+"Maņ pops sacīja, lai tu vysu naudu atdūdūt un dažus smukuokūs traukus. Pops
+nūpierka zemi, bet pītryukst naudas."</p>
+
+<p align="JUSTIFY">Popa sīva pasavāruse, ka jam golvā popa šļapa, dūmoj, ka
+taisnība, un atdevja jam vysu naudu un dažus smukuokūs traukus. Jūku Juoņs, pajēmis
+naudu, atbrauc uz sovom muojom. Pops palicis sēd, sēd, bet juo sagaidīt navar. Pops
+pasacēlīs nūguoja uz muojom un vaicoj nu sīvas : "Vai nabeja atbrantcis jūku
+Juoņs ?"</p>
+
+<p align="JUSTIFY">"Beja atbraucis, es jam atdevu vysu naudu un palaižu atpakaļ uz
+tevi, jo jis teicja, ka vajag zemi pierkt, bet nav tev naudas."</p>
+
+<p align="JUSTIFY">Pops sasadusmuoja un dreiži nūskrēja uz jūku Juoni. Juoņs, tikkū
+atbraucis uz muojam, soka muotei: "Jo atbrauks pops, tad tu pasoki, ka es nūmyris un
+paglobuots pi lūga."</p>
+
+<p align="JUSTIFY">Pats Juoņs izbedja pi lūga dūbis un īleida vydā, pamatja tik mozu
+caurumīņi, caur kū atsapyust. Atguoja pops un vaicoj: "Kur Juoņs ?"</p>
+
+<p>"Nūmiris, un še pi lūga paglobuots," atbiļdēja vecīte."</p>
+
+<p align="JUSTIFY">"Jo jis nūmyris, tad tev daīs īt un divi godi atdzeivuot par
+kolpyuni," atbildēja pops.</p>
+
+<p align="JUSTIFY">Kad Juoņs izleida nu dūbis, pops jau beja nūguojis prūjom. Tagad
+jis vaicoj: "Kū teicja pops?"</p>
+
+<p align="JUSTIFY">Veciņa pastuostīja, ka šai byus juoīt un divi godi juodzeivoj jam
+par kolpyuni. Juoņs juos vītā pasajēmja atbyut divi godi par kolpu. Jis apsavylka
+meitas drēbēs un nūguoja uz popu. Kad Juoņs beja atdzeivuojis, kaids popa kolps
+gribēja ar jū apsaprecēt, tuodēļ, ka jis beja ar meitas drēbem, un dūmuoja, ka šis
+meita. Kuozu laikā, kad atguoja nakts, vysi guoja gulātu ustobā, bet jūku Juoņs ar
+sovu bryutgonu nūguoja uz klāva gulātu. Pēc breiža jūku Juoņš soka sovam
+bryutgonam: "Mani īlaid caur grīstim klāvā, maņ tur drusku vajag."</p>
+
+<p>"Par kū na? Varu īlaist," atbiļdēja bryutgons.</p>
+
+<p align="JUSTIFY">Tikkū jū īlaidja kūtī, Juoņs pīsēja pi kozas rogu viervi sovu,
+bet pats nūguoja uz &amp;127;muojom. Bryutgonam navar sagaidīt sovas bryutes. Vylka jis
+nu vysa spāka augšī sovu bryuti. Izviļcis pats nūsabeida, ka bryutes vītā beja
+koza. Pops pajemis kozu, nūvedja uz azaru un suoka svētīt, lai otkon palīk par bryuti.
+Pops ilgi jū svētej, bet koza bejuse, koza ir. Jūku Juoņs nūguoja uz muojom un
+dzeivoj pa šai dīnai ar popa naudu, jo nav myris.</p>
+
+
+</body></html>

@@ -1,0 +1,192 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Kalējs ar Nāvi.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">8. A. 330. A. P. Š. pēc P. Smeltera piezīmēm Latgalē. </p>
+
+<p align="JUSTIFY">Reiz dzīvojis viens kalvis, kas labprāt gribējis iedzert. Atnāk</p>
+
+<p align="JUSTIFY">pie šā kalvja viens vecs nabags un lūdzas naktsmājas. Kalvis ir ar
+mieru, paēdina nabagu un noliek viņu gulēt. No rīta piecēlies un paēdis, nabags
+taisās projām un prasa: "Kas man par naktsmāju būs jāmaksā?"</p>
+
+<p align="JUSTIFY">Kalvis atbild: "Nabagiem jau naudas nav, un es arī no viņiem
+nekā neprasu."</p>
+
+<p align="JUSTIFY">Vecītis prasa tālāk: ,,Vai tu varbūt nevēlētos bagātību, vai
+mūžīgu dzīvošanu?"</p>
+
+<p align="JUSTIFY">Kalvis atbild: "Kādu nu gan es, vecs kalvis, varu kārot
+bagātība vai mūžīgu dzīvošanu? Bet man te pie smēdes aug skaista ābelīte, kurai
+palaidņi arvien nozog ābolus. Man nu patiktos, ka neviens, kas tos ābolus aizkaŗ,
+netiktu tikmēr projām, kamēr es pats neatlaižu."</p>
+
+<p align="JUSTIFY">Nabags saka: "Labi! Bet vai tev vēl nav kāda
+vēlēšanās?" Kalvis saka: </p>
+
+<p align="JUSTIFY">"Pie manis atnāk viens otrs draugs iedzert un kārtis paspēlēt.
+Dažreiz man </p>
+
+<p align="JUSTIFY">vēl gribētos kādu brīdi padzīvoties, bet šis jau ceļas augšā
+un iet projām. Man patiktos, ka neviens no mana krēsla netiek tikmēr projām, kamēr</p>
+
+<p align="JUSTIFY">es viņa neatlaižu."</p>
+
+<p align="JUSTIFY">"Tā arī notiks," vecītis atteic un aiziet projām.</p>
+
+<p align="JUSTIFY">Kalvis nu dzīvo priecīgs, dzeŗ un spēlē kārtis, cik tik patīk.
+Kad viņš jau vairāk gadu bija tā dzīvojis un līksmojis, atnāk smuts un saka:
+"Nu tu jau esi diezgan dzēris un spēlējis, tagad tev jānāk man līdz uz
+elli."</p>
+
+<p align="JUSTIFY">Kalvis saka: "Kad jau jāiet, tad jāiet! Bet kamēr es savas
+lietas salieku, tikmēr tu varbūt norausi kādu ābolu no manas ābeles."</p>
+
+<p align="JUSTIFY">Smuts arī rauj vienu ābolu, bet nevar tikt vairs no ābeles nost.
+Kalvis nu sāk sist smutu ar āmuru un dedzināt ar karstu dzelzi. Viņš nelaiž tikmēr
+smuta vaļā, kamēr tas apsolās nekad vairs pie šā nenākt.</p>
+
+<p align="JUSTIFY">Otrā dienā ir atkal cits smuts klāt un tik ved kalvi uz elli. Bet
+kalvja piemānīts, arī šis dabū karstu pērienu un tik ar mokām vēl aizskrien
+projām.</p>
+
+<p align="JUSTIFY">Trešā dienā atskrien pats vecais smuts un uzkliedz kalvim:
+"Nāc man </p>
+
+<p align="JUSTIFY">tūlin līdza, manis tu ar saviem āboliem nepiemānīsi!" Kalvis
+atbild: "Iešu, jau iešu! </p>
+
+<p align="JUSTIFY">Tik pasēdies še vēl krēslā, kamēr es savas lietas salieku."</p>
+
+<p align="JUSTIFY">Kā nu smuts atsēstas krēslā, tā netiek vairs no krēsla nost.
+Kalvis nu atnāk ar lielo āmuru un sadod lielajam smutam vēl vairāk kā abiem
+pirmajiem. Tas tikko pusdzīvs vairs aizvelkas uz elli.</p>
+
+<p align="JUSTIFY">Ceturtā dienā kalvis savu mūžu bija nodzīvojis un mierīgi nomira.
+Ar visu savu lielo āmuru viņš nonāca pie debess vārtiem un lūdzās, lai laižot
+iekšā.</p>
+
+<p align="JUSTIFY">Svētais Pēteris pienāk pie vārtiem un saka: "Tu visu savu
+mūžu dzēri, spēlēji kārtis un mūžīgas dzīvošanas nemaz nevēlējies. Tev še
+vietas nav, ej tik projām uz elli!"</p>
+
+<p align="JUSTIFY">Kalvis nu aiziet ar visu savu lielo āmuru uz elli. Smuti, redzēdami
+kalvi ar āmuru nākam, visi aizbēga projām, kur katrs</p>
+
+<p align="JUSTIFY">varēdams. Kalvis sāk dauzīt ar āmuru elles katlus, kur tiek
+vārītas nabaga grēcinieku dvēseles. Bet tai dienā Dievs vēl nepieņēma ne kalvja,
+ne nelaimīgo dvēseļu. Otrā dienā kalvis dauzīja katlus, bet atkal bez panākuma.</p>
+
+<p align="JUSTIFY">Vēl trešā dienā kalvis dauzīja elles katlus un izlaida no tiem
+daudz dvēseļu. Tad arī Dievs apžēlojās par nabaga kalvi un viņa atsvabinātām
+dvēselēm, un visas viņas tika uzņemtas debesu valstībā.</p>
+
+
+</body></html>

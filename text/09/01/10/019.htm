@@ -1,0 +1,335 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>19</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Dieva spēks, zivs padoms.</strong></font></p><font size="5">
+
+</font><p><font size="5"></font><font size="3">19. A. 675. 707. V. Borkovskis Eglūnā.</font></p><font size="3">
+
+<p align="JUSTIFY">Vīnam tāvam, kuru sauca par bļūdnīku, beja treis meitenes. Vīnu
+reizi jam tuos meitines sadauzēja jaukdamās vairuokas bļūdas. Tāvam aizguoja dusmes
+un jis sovas meitas nūvad uz mežu, lai juos aizzamolda. Nu jis soka uz juom:
+"Bārni, īsim uz mežu ūgu lasētu!"</p>
+
+<p align="JUSTIFY">Meitines vysas brīsmīgi prīcīgas par taida tāva izteicīnu. Uotri
+daboj kotra sovu skalenīti un īt ar tāvu reize. Tāvs soka: "Nu jyus te varit
+pastaiguot, bet es pi vacuma pasēdēšu."</p>
+
+<p align="JUSTIFY">Meitenes izkleida kotra uz sovu pusi. Uz mežu jī aizguoja jau pēc
+pušdīnom. Tāvs manīdams, ka juo bārni jau tuoli meža losa ūgas, pamozom šļūkdams
+uz prīšku nūzuda nu jūs acim. Bet meitines, nūpītni losīdamas, naīsavēre nimoz,
+ka nav tāva un laiks jau timst. Kad navarēja saredzēt vairs ūgas, juos suoka vīna
+ūtru saukalēt. Saguojušas kūpā, īt maklātu tāva, bet tuo navar atrast. Meitenes
+suok rauduot, a rauduošana nikuo nepaleidz. Pīguoja gulēt par nakti mežā leidz dīnai
+jo uz muojom īt nazinuoja ceļa, kai acis beja nūgeibušas nu vīnmēreigas ūgu
+lasīšonas. Par nakti juos vysu aizmierst. Sapiņūs redz, ka staigoj pa muojom un tik
+pudus un bļūdas dauzuos.</p>
+
+<p align="JUSTIFY">Reitā paplēš acis un breinuojas: kur juos šeit otkon tyka, ka
+dūmuot vysu laiku muojuos beja. Nu spryuda otkon nu jauna sovas stobules ar rauduošonu.
+Timā laika goduos juot ķēniņam medībuos, un jis sastope tuos meitines. Redz skaistos
+meitines, īsādinoj juos sovūs rotūs un aizvad uz muojom. Poša vacuokuo jam brīsmīgi
+īpateikas un par nagaru laiku ķēniņš jū aprecej, bet juos muosas izsvuotoj cytim
+ķēneņim. Tai tod juos vysas treis muosas dabuoja sev ķēniņu veiru.</p>
+
+<p align="JUSTIFY">Pi šituo ķēniņa tyvumā dzeivuoja rogona un tai brīsmīgi
+napatyka, ka ķēniņš napracēja juos meitu, bet pajēme te kaszin kaidas pasauļa
+volkotnes.</p>
+
+<p align="JUSTIFY">"Tūmār es gon atrībšūs," nūdūmuoja rogona. Atsyuta jei
+ķēniņam gruomotu, ka juoīt karā, taids un taids ķēniņš pīsūlej karu.
+Ķēniņš, baidamīs, kab nanūsystu juo sīvas, tu pamat muojuos, lai dzeivoj, bet pats
+dūdas karā.</p>
+
+<p align="JUSTIFY">Par mēneši divēji pēc ķēniņa nūbraukšanas karā, ķēnenītei
+pīdzimst dāls. Ķēnenīte gribēja nūsaukt jū par pūdnīku, ka juos tāvs jau beja
+pūdnīks. Izzinuojuse rogona, ka jai pīdzima dāls, jei aizroksta ķēniņam gruomotu un
+tī pīroksta tai: "Tova sīva dzemdēja dālu, bet tam nav cilvāka izskats: puse
+vylka, puse suņa, tai ka tev pavysam kauns byus ruodīt sovim švāgerim. Lobuok ar vysu
+sīvu nūgalinuot."</p>
+
+<p align="JUSTIFY">Bet ķēniņš atroksta atpakaļ: "Lai ir, kaids byudams, bet
+juoaudzej un juotur, cikom es atbraukšu apsavārtu."</p>
+
+<p align="JUSTIFY">Rogona tū gruomotu viltoj un puortaisa, lai sīvu ar bārnu palaiž ar
+bucu plašajā jyurā. Rogona tū gruomotu nūdūd ķēniņa sulaiņim. Tī
+puorlasējuši, nikuo daudzi nasaprūt. Kai jī nikuo nadora, rogona vīnu nakti apbur
+vģsus sorgus un sulaiņus, jei teik kluot ķēnenītei, ībuoz bucā obējus ar dālu kai
+alzmigušus. Nūnas jūs uz jyuru un palaiž, lai mauduojas, cikom buca sapyus. Kluot vēl
+bēja īlykuse luopstu. Jo gadējumā var bģut vējs jūs iznas uz molas, tūlaik varēs
+sev maizes pīstruoduot kaut ar luopstu.</p>
+
+<p align="JUSTIFY">Rogona sovu meitu pataisa par taidu pat sīvu, kai beja juo ogruokuo.
+Par godu atbrauc ķēniņš nu kara un vaicoj : "Nu, a kur palyka tys skaistais, vai
+neskaistais puiškins?"</p>
+
+<p align="JUSTIFY">Rogona atsoka: "Kū tī uz juo vērtīs? Brīsmīgi nasikaists
+beja un es jū nūnuovēju ar tovu sīvu. Kuce beja un kucanu atnese: "</p>
+
+<p align="JUSTIFY">Ķēniņš pajam sovu sīvu kuru jau rogona jam beja viltuo juse, un
+soka: "Mes šūdīn brauksim pa jyuru pasavyzinuotīs." </p>
+
+<p align="JUSTIFY">Nu jī aizīt uz kugi un brauc. Uz pus jyuras redz, ka tepat na tuoļi
+brīsmīgi skaista muiža, bet šeit tuos nikod naibeja, cik reižu jis tyka braucis.
+Tagad tī ir kai breinums. Nu jis dabrauc apsa vārtu. Tivu pībraukt navarēja, jo yudens
+beja pavysam saklys. Apsavērīs par gobolu, jis nūbraucis uz muojom un stuosta rogonai.
+Bet tī ar jū reizē atbrauca arī juo dāls nu tuos solas. Jis juo namanēja, ka
+izzamete uz kuga un nūbrauca. Rogona par tū skaistumu nazinuoja, kas tī dzeivoj, un jei
+soka uz ķēniņa: "Aiz deveņom jyurom ir taida uobelnīca, ka lopas zalta, bet
+uabeļi sudobra un putni vysuvysaidi dzīd uz zorim."</p>
+
+<p align="JUSTIFY">Puiškins šitū runu nūsaklausēja, aizīt uz sovom skaistom muojom
+un stuosta sovam putniņam, kurs jam īdeve šitu skaistū muižu. Putniņš soka:
+"Ka tu gribi, mes varim nūskrīt un atnest tū uobelnīcu."</p>
+
+<p align="JUSTIFY">Kai itū putniņš pasacēja, .puiškins uzreizes gaisa palēcja nu
+leluos prīcas. Nu ji laidēs ceļa. Puiškins putniņam uzsāda uz spuornim, un tai jī
+turpinuoja ceļu puori pan deveņom jyurom un deveņim kolnim. Tūmār sasnēdza ji sovu
+mērki. Izruove uobelnīcu ar vysom saknem, atveda šeit un īstatēja pošā krosta
+molā.</p>
+
+<p align="JUSTIFY">Te otkon goduos ķēniņam braukt cauri, un jis pamona tū uobelnīcu,
+par kuru stuostīja rogona. Pībrauca pi krosta, paprasēja nu puiškina, lai vīnu uobeli
+jam īdūd pabaudēt. Puiškins labpruot pasnēdza ķēneņam uobeli. Ķēneņš pateicēs
+un nūbraucja uz muojom. Ar jū reizē taipat nūbrauc arī pūdnīks, juo dēls.
+Ķēniņš otkon stuosta rogonai: "Tu sacēji, ka par deveņim kolnim un deveņom
+jvurom atrūnās taida uobelnīca, ka lopas zalta un uobeļi sudobra. Uz tuos skaistuos
+solas arī ir tei uobelnīca ar taidom lopom un uobeļim."</p>
+
+<p align="JUSTIFY">Rogona soka: "Nu kas tī nīks! Ir zam deveņim lelim akmeņim
+kačs : vīna spolva zalta, ūtra sudobra."</p>
+
+<p align="JUSTIFY">Šitū runu nūsaklausēja tys puiškins. Nūguojis stuosta sovam
+putniņam: "Vīnā vītā zam deveņim akmeņim ir skaists kačs: vīna spolva zalta,
+ūtra sudobra."</p>
+
+<p>Putniņš atbild: "Mes varim dabuot, jo tu tik gribi."</p>
+
+<p align="JUSTIFY">Nu puiškins brīsmīgi prosa, lai tikai daboj. T&amp;127;ai putniņš
+ar puiškinu laižas skrīt uz tū molu, kur guļ skaistais kačs. Īskrīn briīsmīgi
+lelā mežā, ti beja vaca ustabeņa, pastatīta uz vīna akmeņa. Putniņš izjaucja tū
+ustabiņu, pīsauca valnus un pavēlēja tīm pacelt vysus akmeņus. Uotri beja akmeņi
+pacalti un kačš sagyuts rukuos. Atvad tū kači, palaiž vaļī uz sovas solas. Kačs
+kai skrīn apleik ap solu, brīsmīgi speid, daudz skaistuok un gaišuok, kai saule.</p>
+
+<p align="JUSTIFY">Goduos tam ķēniņam braukt pa jyuru un jis pamona tu kači, kurs
+apleik skraidēja ap solu. Ķēniņš pat uz muojom nagrib braukt, vīnmār verās uz
+kača un atsavērtīs navar.</p>
+
+<p align="JUSTIFY">Rogona nūsabāduoja, ka cik (tik) ilgi navar ķēniņa sagaidīt. Jei
+dūdas pa jyuru maklātu un atrūn ķēneņi stuovūt uz jyuras ar vysu kugi. Jei ju labi
+vīn izspovedej sacīdama: "Vēl ir pasaulē zalta lopsa par sešdesmit ķēnestem,
+un ja kad izrausi vīnu spolvu nu juos mugoras, jei mat zalta naudu, tikai maisu turi
+kluot."</p>
+
+<p align="JUSTIFY">Bet šitū otkon nūsaklausa puiškins. Rogona ķēneņi nūvad uz
+muojom. Ķēniņš navar atrast mīru, kai īsadumoj par tīm breinumim, kas tagad
+nūteik. Puiškins ar putniņu aizzalaižas par sešdesmit ķēnestem pēc lopsas. Lopsas
+dabuot nabeja cik (tik) vīgli, kai ituos vysas lītas.</p>
+
+<p align="JUSTIFY">Kai ji dzanas pēc juos, lai sagyutu, lopsa olā, aste vīn palīk
+radzama, kai ībāga. Nu jī leis obēji pakaļ. Dalein da tuos vītas, kur lopsai
+beidzās olas gols, un tī atrūn lopsu gulūt. Sajāmuši lopsu aiz kuojom, izraum uorā.
+Bet lopsa guļ kai nadzeiva. Putniņš dūmoj, ka ,lopsa nu bailem ir nūsabeiguse. Jī
+jū pameta guļūt un poši aizguoja ēdīnu maklātu.</p>
+
+<p align="JUSTIFY">Atīt paāduši - nav lopsas. Nazyna, voi jei poša aizguojuse, voi
+kaut kas aiznesis pa ceļu. Pa ceļu gon jī naskrīn. Sāstuos pi olas un gaidēs, cikom
+jei izleis. Par divas dīnas lopsa drūši lein uorā, jei zyna, ka nikas juos nagaidēs
+cik (tik) ilgi. Tikai jei izīt uorā, te putnis jai mugorā un skrīn ar jū reizē.
+Putnis cylvāka bolsā runoj: "Nu sagyušu!"</p>
+
+<p align="JUSTIFY">Jei skrīn da tuo, ka pīstuoj un nūkrīt. Putniņš jū nūvalk uz
+puiškinu. Puiškins lopsu uzlīk putniņam uz mugoras, pats sāstās viersā un
+aizlaižas svilpuodami uz muojom. Jī palaiž lopsu uz solas, lai pastaigoj pa zaļajim
+kriumiņim.</p>
+
+<p align="JUSTIFY">Pībrauc ķēniņš pi solas, pamona lopsu, par kuru stuostēja rogona.
+Nu jis izraun vīnu spolvu jai. Tei uzreizis suoc gubom kraut zalta naudu. Ķēniņš
+prosa, lai puordūd tū zalta lopsu, bet puiškins niparkū napuordūd. Puiškins soka:
+"Kam ta man tova nauda, vai ķēneste, ka man naudu poša lopsa kraun? Par tū naudu
+es vysu pasauli varu nūpierkt."</p>
+
+<p align="JUSTIFY">Ķēniņš redz, ka puiškina navar apmuonīt, un brauc uz muojom.
+Nūbraucis ķēniņš stuosta breinumus, kaidus redzējis solā. "Tī tymā solā ir
+taida dopsa: jo izrauni vīnu spolvu, to jei mat gubom zalta naudas. Tikai īspēj
+gruobt."</p>
+
+<p align="JUSTIFY">Rogona atsoka: "Ir jau tī breinums, bet varbyut tuo breinuma
+naesi redzejis ni dzierdējis, ka ir aiz trejdeveņim kolnim taids uozis: vīns rogs
+zalta, ūtrs sudobra. Jis nu vīna kolna lāc uz ūtru un ar rogim svaida tū zemi. Kad
+paceļ zemi ar lobū rogu, tad kolns palīk par zaltu, un kad ar kreisū, tad par sudobru.
+Tī ir jau vysi kolni jam puorlākalāti un vysi ir zalta un sudobra."</p>
+
+<p align="JUSTIFY">Puiškins, itū izdzierdis, tyuleit dūdās ar putniņu uz tū vītu,
+kur atsarūn tys uozis. Atvad tu uozi, palaiž uz solas. Sola beja leidzona, jam nabeja
+kuo svaidīt. Puiškins pīvodoj smilkšu ar akmiņim, saber divējus lelus kolnus. Uožam
+nu beja dorbs. Jis kai suocja nakts laikā svaidēt tūs akmiņus, uzreizes nu akmiņim
+izzataisēja zalts, kas nakts laikā brīsmīgi speidēja. Pats ķēniņš izzamūda nu
+mīga un suoka braukt ar kugi uz tū pusi vārtus. Tī tyvumā vyss beja gaišs, viss
+vīns kai dīnu. Ķēniņš vairs nazinuoja, kas te par breinumu uz ituos solas nūteik.
+Vysaidos pasaules gudrības. Rogona vys muonej, ka tī cik (tik) nīks, ,;bet kū
+skaistuoku var redzēt, kas zyna taidu malnu jyuru. Tī dzeivoj malna cyuka. Tei cuyka
+gryudus maļ myltūs, cap pluociņus un nu pluociņim kraun jyuras krostus."</p>
+
+<p align="JUSTIFY">Ķēniņam ar lels breinums par taidu cyuku. Puiškins, nūsaklausējis
+rogonas runu, dūdās ar sovu putniņu uz tū malnū jyuru un atvad tu cyuku. Uz jaunas
+vītas tykuse, cyuka brīsmīgi struodoj un taisa krostus nu pluociņim tai solai.
+Ķēniņš ar pamona tū malnū cyuku uz solas un grib jū redzēt. Nūbraucis uz muojom,
+ķēniņš stuosta rogonai : "Uz tuos solas ir jau malna cyuka, kur tu
+stuostēji."</p>
+
+<p align="JUSTIFY">Rogona atsoka: "Tī nav nikas! Pasaulī ir vīna skaista pilsāta,
+jū var atnest, jo dabuosi divēju bikeru Lai atnastu tū pilsātu, vajag pajimt vyspyrms
+bikeres un nu vīnas ūtrā laistīt dūmuojūt, kad pilsāta man ītu leidza. Daudzi ēst
+arī navajaga. Ceļam juopajam divpadsmit kukulīšu boltas maizes. Bet jo labi ēssi,
+tūlaik tai pilsāta naklausīs: naīs pakaļ."</p>
+
+<p align="JUSTIFY">Puiškins, izdzierdis itūs vuordus, dūnmoj : "Nu es gon dabuošu
+tū pilsātu!"</p>
+
+<p>Jis sastuosta sovam putniņam un dūdās maklātu tuos pilsātys. Pilsātu gon atroda,
+bet nazyna, kuramā muojā ir tuos bikeres. Izstaiguoja vysas muojas, bet nikur navar
+atrast. Braukdami uz muojom sadūmuoja īīt vēl pošā pādējā muojā, var byut tī
+byus tuos bikeres. Taisni tī ari atroda. Puiškins pat nivīnas bulciņas boltas maizes
+nabeja apēdis. Jis suoc laistīt nu vīna bikera ūtrā un dūmoj : "Lai man it
+leiza itei skaistuo pilsāta."</p>
+
+<p align="JUSTIFY">Putniņš puiškinam sastuosta, ka tai tuoli nanūīšut, jo celš
+ļūti gars : vairuoki symti verstu. "Un cikom tiksi muojuos, puorīs vairuok godi.
+Lobuok tev byutu, ka sāstūs m:an mugorā un laistītu sovas bikeres. Pilsāta taipat īs
+uz prīkšu pēc tevis pakaļ. Cik es uotri skrīšu, tik uotri pilsāta skrīs
+pakaļ."</p>
+
+<p align="JUSTIFY">Jis paklausēja putniņa padūma. Izzasāda tam mugorā un suoka
+laistīt nu vīnas bikeres ūtrā dūmuodams, lai it tik pat uotri uz prīkšu. Tys vyss
+tai nūtyka, kai beja sacīts.</p>
+
+<p align="JUSTIFY">Uotrā laikā jī tyka uz sovas solas ar vysu pilsātu. Ķēniņš,
+ūtrā dīnā braukdams, pamona brīsmīgi skaistu pilsātu uz tuos solas. Tagad jis navar
+nūcīst, jam vajag byut tī uz tuos solas viersā. Pībrauc pi solas, izkuop uorā.
+Sasateik ar puiškinu, pēc tam arī ar sovu agruokū sīvu. Jau lobi pazeit jis navarēja
+pēc izskata, tikai parunoj drusku. Tai jī pamozom runuojuos, cikom dazarunoj pi eistuos
+patīsības, kai beja nūticis, kad jis nūbrauca karā. Ķēniņš uz reizes apsarauduoja
+nu žāluma, kad pasacēja, ka jūs rogona īlykuse bucā un palaiduse pa plašu jyuru.
+Arī par sovu dālu ķēniņš beja brīsmīgi prīcīgs, kad jis cik (tik) lels izauga un
+brīsmīgi veikls. Ķēniņš nūdūmuoja rogonai atrībtīs. Jis sataisa jaunu kugi,
+pašā viersā iztaisa sēdekli, tu sēdekli apsmērej ar dorvu. Tod syuta rogonu ar sovu
+meitu uz kuga viersyunis, kur sataisīts sēdeklis. Šis arī izkuopšūt, lai varātu
+labi redzēt vysapkuort. Rogona dreiži vīn izskrēja augšā ar sovu meitu, atsasāda un
+sēd.</p>
+
+<p align="JUSTIFY">Ķēniņš īguoja kugī, aizdadzinuoja tu sēdekli un pats suoka
+bēgt. Rogona pamanējuse, ka kugis dag un ķēniņš aizbāg, jei tryukstuos nu sēdekļa
+celtīs nūst, bet par velti, kai atsasāduse, tai vairs navar pīsaceltīs. Jei bļaun
+vysaidim bolsim, bet nivīns nagluob. Tai rogana ar sovu meitu sadege.</p>
+
+<p align="JUSTIFY">Bet ķēniņš ar sovu pyrmū sīvu dzeivoj leidz myuža golam tymā
+solā. Sataisēja lelus svātkus, sasaucja nu vysom ķēnestem ķēneņus uz sovom jaunom
+kuozom.</p>
+</font>
+
+
+</body></html>

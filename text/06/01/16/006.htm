@@ -1,0 +1,185 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">6. A. 530. K. Bramanis Rīgas apkaimē. Brīvzemnieka kr. LP, VI, 688
+(124, 28).</p>
+
+<p align="JUSTIFY">[Reiz dzīvojuši trīs brāļi, bet abi vecākie turējuši jaunāko
+par muļķīti. Gudrie reiz aizjājuši ar skaistiem zirgiem uz glāžu</p>
+
+<p align="JUSTIFY">kalnu, kur atradusies ķēniņa meita, bet muļķītim nekā par to
+nestāstījuši un aizdzinuši to uz mežu sēņot. Muļķītis arī aizgājis uz mežu un
+sācis raudāt. Pienācis viņam viens vecītis, izprasījis visu un tad iedevis tam vienu
+spieķīti, ar ko varējis izsaukt brīnuma zirgus.] Šiem zirgiem (sudraba, zelta,
+dimanta) uz kalnu jājot pa muti nākusi uguns ārā, pa astes galu dūmi, un turpat pie
+viena ozola atvērušās durvis un iznākuši skaisti jaunekļi; tie nomazgājuši
+muļķīti, apģērbuši sudraba drēbēs (zelta, dimanta) un tad iedevuši zirgu, ai
+jāj.</p>
+
+<p align="JUSTIFY">[Ar sudraba un zelta zirgu muļķītis tikai pajājies glāžu kalnā,
+bet ar dimanta zirgu uzjājis Pa šā augšā un tā iemantojis ķēniņa meitu.] Bet kad
+muļķītim nu kāzas svinējuši ar izpelnīto ķēniņa meitu (kas glāžu kalnā
+sēdējusi), tad ķēniņš gribējis redzēt, kuŗš no viņa trim znotiem (viņam esot
+bijuši vēl divi znoti) lielāku godu izpelnīsies; viņš teicis: "Kurš var man
+sudraba cūku ar zelta sariem un dimanta sivēniem atnest'?"</p>
+
+<p align="JUSTIFY">Visi trīs znoti tūlīt apņēmušies iet meklēt. Tie divi gudrie
+znoti katrs dabūjuši no ķēniņa brangus zirgus un lepni jo lepni aizjājuši; bet
+muļķītis prasījis vecu, vecu zirģeli -- viņam jauna nevajagot. Aizjājis ar veco,
+ceļā apvedis veco zirgu trīs reizes ap sevi riņķī, tūdaļ no zirga iznākuši putni
+un apēduši to. Kad nu zirgs pats bijis noēsts, paņēmis tā zirga ādu, uzklājis uz
+sētu, izrāvis no viena putna vienu spalvu, uztaisījis no tās spalvas svilpīti,
+aizgājis ar šo svilpīti pie sava agrākai ozola, trīs reizes iesitis tur - iznākuši
+tie paši skaistie jaunekļi, sulaiņi, nomazgājuši viņu, apģērbuši sudraba drēbēs
+izveduši sudraba zirgu un nu aizjājis ar šo zirgu (to pašu, ar ko bij jājis glāžu
+kalnā) cūku meklēt. Jājis, jājis - nojājis mežā. Pa mežu jādams un putna
+svilpīti svilpēdams, piesvilpējis meklējamo sudraba cūku ar zelta sariem, dimanta
+sivēniem. Vedis cūku līdz uz mājām. Bet mājā jādams, jājis gar vienu krogu un tur
+abi pirmie znoti visu to laiku bija dzēruši. Ieraudzījuši pa logu muļķītim cūku,
+tie izskrējuši ārā - lai pārdodot cūku viņiem.</p>
+
+<p align="JUSTIFY">Muļķītis pārdod gan, bet citas maksas negrib, lai šie katrs no
+mugurām nodīrājot vienu sleju ādas un šim atdodot.</p>
+
+<p align="JUSTIFY">Gudrie znoti dīrā arī un nu muļķītis paņem slejas, šie cūku ar
+sivēniem.</p>
+
+<p align="JUSTIFY">Pēc tam ķēniņš atkal saka: "Kuŗš var man sudraba āzi ar
+zelta ragiem atnest?"</p>
+
+<p align="JUSTIFY">Muļķītis atkal tāpat dara, kā pēc cūkas jādams; bet šoreiz
+viņš liek znotiem mazos pirkstiņus nogriezt un tad atdod āzi. Pēc tam ķēniņš
+atkal saka: "Kurš var man dimanta kumeļu ar sudraba purnu zelta ausim un kapara
+asti atvest?"</p>
+
+<p align="JUSTIFY">Muļķītis atkal tāpat dara. kā todien, pēc cūkas jādams; bet
+šoreiz viņš liek znotiem mazos kājas pirkstiņus nogriezt un tad atdod kumeļu.</p>
+
+<p align="JUSTIFY">Pārgājuši mājā - šiem abiem nu bijis liels gods, muļķītim
+nekā. Un ķēniņš nu izrīkojis lielas dzīres; dzīrēs visi slavējuši un godājuši
+tos divus, bet muļķīti nievājuši par pēdīgu muļķi. Bet kad nu pie galda ēduši,
+dzēruši, tad tie divi znoti arvienu cimdus turējuši rokā apmauktus; bet cimdiem mazo
+pirkstiņu piebēruši ar smiltim, lai vaļēji nekarātos uz zemi. Te uz reizi
+muļķītis uzsaucis ķēniņam: kāpēc šie abi ar cimdiem ēdot, tas jau labi
+neizskatoties? Ķēniņš liek cimdus novilkt un nu redz, ka abiem mazo pirkstiņu nava.
+Muļķītis tad izņēmis no ķešas nogrieztos piekstiņus un saka, ka tos iemijis pret
+sudraba āzi, ko pats mežā noķēris. Gudrie nu no kauna pakrīt gar zemi; bet
+muļķītis rāda arī ķēniņam vēl nogrieztos kāju pirkstiņus, kuŗus esot iemijis
+pret kumeļu. Vispēdīgi parāda arī muguras slejus un saka, ka tos esot iemijis pret
+cūku. Tad ķēniņš teicis: "Nu, redziet, šo manu jaunāko znotu viņi saukāja
+par muļķi, bet naši ir tie lielākie muļķi: viņi pēc goda tīkodami apmaitā paši
+savus locekļus."</p>
+
+<p align="JUSTIFY">No tās dienas muļķīti visi ieredzējuši labi un godinājuši, kā
+pieklājas.</p>
+
+
+</body></html>

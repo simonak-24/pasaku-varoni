@@ -1,0 +1,196 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>14</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vīrs ceļo uz elli.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">14. A. 477. Lapas Mārtiņš no Rūjienas, Ērģemes un Ēveles
+draudzes. "Gudrais Ansis un velns" I, 1901, 52 (14).</p>
+
+<p align="JUSTIFY">Senos laikos Rūjienas apgabalā dzīvojis viens bagāts .un negants
+kungs. Vienu rītu tas pavēlējis savam kučēram, lai aizjūdz karītē zirgus. Kučērs
+aizjūdzis zirgus, piebraucis pie trepēm un gaidījis, gaidījis, bet kungs nenācis
+ārā. Gaidījis līdz pusdienai, bet kungs kā nenāk; tā nenāk.</p>
+
+<p align="JUSTIFY">Pēc pusdienas piepēži piebraucis kāds svešs kungs pie trepēm:
+melna karīte, divi melni zirgi priekšā un uz bukas melnās drēbēs ģērbies kučērs.
+Tūlin iznācis arī mājas kungs, iesēdies savā karītē un pavēlējis kučēram:
+"Brauc svešā kunga karītei pakaļ!"</p>
+
+<p align="JUSTIFY">Kučērs braucis kā pavēlēts. Pa dienu varējis labi braukt, bet
+vakarā iebraukuši lielā mežā, kur ceļa vairs nemaz nebijis. Braukuši pa kādu
+celmāju un milzīgi ātri.</p>
+
+<p align="JUSTIFY">"Sargies, ka tu neskaties atpakaļ!" kungs uzsaucis
+kučēram. "Neskatīšos, neskatīšos, cienīgs kungs!" kučērs atbildējis.
+"Bet kādēļ mēs braucam pa tik nederīgu ceļu? Tīrs celmājs!"</p>
+
+<p align="JUSTIFY">"Saturi muti un nerunā!" kungs tam bargi uzbrēcis.
+"Tie nav celmi, bet baznīcu torņi, pār kuŗiem mēs braucam."</p>
+
+<p align="JUSTIFY">Kučērs briesmīgi izbijies, bet nav iedrošinājies skatīties
+atpakaļ. Bet kad dzirdējis zem ratiem ūdeni plīkšķam, tad kučērs tomēr drusku
+atskatījies atpakaļ un redzējis, ka viņi brauc pa jūŗu, bijuši uz liela plosta, ko
+liels pulks melnu vīru dzinuši ātri uz priekšu. Karītes stāvējušas uz vietas, kaut
+gan kučēram izrādījies, ka zirgi skrien uz priekšu.</p>
+
+<p align="JUSTIFY">Pēdīgi jūŗa beigusies un viņi atkal iebraukuši lielā mežā.
+Meža vidū bijusi grezna pils, kuŗas logi bijuši apgaismoti. Ap<b> </b>pili bijusi
+augsta dzelzs sēta. Pie šīs pils viņi piebraukuši. Priekšējai karītei zirgi
+tapuši nojūgti un ievesti stallī, bet Rūjienas kungs iegājis pilī un pavēlējis
+savam kučēram ārā gaidīt. Kučērs gaidījis ilgu laiku un pēdīgi ieraudzījis tur
+sava kunga dārznieku Juri, kas jau priekš pieciem gadiem bija nomiris.</p>
+
+<p align="JUSTIFY">"Kāds jods tad tevi še atveda?" kučērs tam jautājis.
+"Tu jau pieci gadi esi mirons."</p>
+
+<p align="JUSTIFY">"Mirons gan," Juris atbildējis, "bet es kalpoju šajā
+pilī. Bet sargies, vecais paziņa, ka nekrīti ķibelē; še tev viegli var uziet
+briesmas."</p>
+
+<p align="JUSTIFY">"Na, kas tad še ko baidīties?" kučērs jautājis.</p>
+
+<p align="JUSTIFY">"Kā rādās, tu man netici. Vai gribi redzēt savu kungu, ko še
+atvedi?"</p>
+
+<p align="JUSTIFY">"Kur tad viņš <b>ir?" </b>kučērs jautājis. "Nāc
+līdza, parādīšu."</p>
+
+<p align="JUSTIFY">Mirušais dārznieks aizvedis kučēru pie viena loga un sacījis, lai
+pa to ieskatās iekšā. Kučērs ieskatījies un redzējis tur lielu istabu, kuŗas vidū
+bijis liels galds un ap to stāvējuši daudz velni. Uz galda gulējis izcepts kučēra
+kungs, un katrs velns tam piegājis un noplēsis ar zobenu kādu miesas gabalu, ko tad
+kārīgi norijis. To redzot, kučēram mati cēlušies stāvu. Viņš uzlēcis uz bukas un
+gribējis tūlin projām braukt; bet mirušais dārznieks to noliedzis, sacīdams:
+"Nebrauc vis, bet vēl drusku pagaidi! Tev iznesīs alu un sviestmaizi. Nedzer to
+alu, bet izlej to pār plecu, jo šis alus ir elles nāves-zāles. Ja to dzersi, tad tev
+mūžīgi būs jāpaliek še. Bet maizi iebāz kabatā, tā pārvērtīsies par tādu
+rakstu, kas tevi izglābs no ķibeles."</p>
+
+<p align="JUSTIFY">Kučērs nu arī tā darījis, kā dārznieks mācījis, un tad sācis
+braukt uz māju. Viņš domājis, ka bijis tikai divas dienas no mājas projām, bet
+bijuši pagājuši seši mēneši, līdz nokļuvis mājā. Ceļā viņam pašam un zirgiem
+uznācis bads, kādēļ bijis piespiests zirgus un karīti pārdot. Pēdīgi viņš nu
+arī ubagodams nonācis mājā. Viņš tūlin gājis pie kundzes un gribējis tai -
+izstāstīt, ko piedzīvojis. Kundze viņam nemaz neļāvusi runāt, bet tikai brēkusi:
+"Kur kungs, kur zirgi, kur karīte? Pagaidi, es tev rādīšu!"</p>
+
+<p align="JUSTIFY">Kundze tūlin likusi ieslēgt kučēru dzelzīs un aizvest kakla tiesas
+priekšā. Kučērs gan lūdzis piedošanas, bet tiesa par kunga pazaudēšanu nospriedusi
+tam<b> </b>nāves sodu: jāierok līdz kaklam zemē un tad ar arkla lemešiem jānorauj
+galva.</p>
+
+<p align="JUSTIFY">Tad notiesātais kučērs iedomājies velna pilī dabūto sviestmaizi,
+kas bija pārvērtusies par rakstu Šo rakstu viņš pasniedzis tiesnešiem. Tiesneši to
+izlasījuši un tad pasacījuši kucēram, ka sods viņam atlaists un viņš varot aiziet;
+tikai viņam piekodinājuši, lai nevienam nestāsta, ko piedzīvojis un kur viņa kungs
+palicis. Bet kučērs to tomēr izpaudis un tādēļ viņa piedzīvojums vēl šodien ir
+zināms.</p>
+
+
+</body></html>

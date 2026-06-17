@@ -1,0 +1,169 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Piem?n?tais padoma dev?js</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Piemānītais padoma devējs.</p>
+</font>
+
+</b><p><b>2. </b>A. 1585. V1. Pilipjonoks Asūnē.</p>
+
+<p align="JUSTIFY">Sen, senejūs laikūs, Peterburgā dzeivova nazkaids kungs, kam beja
+pazelteits uozis. Daguo laiks izbraukt (i)z dačys. Pi kunga bije pajimts skapskija
+Vaņka, dasavjārt sātys, baruot i mozguot uozi. Žīds Jankeļs pi kunga prasīja muojas
+vītas, bet kungs nagribjāja juo īlaist. Vaņka sacīja: "Man ar Jankeļi byus
+vjasjoļuok."</p>
+
+<p align="JUSTIFY">Tod kungs šīdu arī īlaidja. Kungs aizbruacja z dačys, jis izdjavja
+Vaņkam gruomotu, lai jī tū, kū vaidzjās, jam z gruomotys laukā. Nu raizis Vaņka ar
+Jankeļi dzeivova saticeigi. Vaņka cīš pasalaidja i suoka jimt z gruornotys tū, kū i
+navajaga. Pajimtū tavaru jis puordavova, i par tū naudu dzjāra brandivjaņi. Vaņka
+palyka par cīš lelu dzāruoju, dzjāra dīnu i nakti. Jankeļs palyka cīš sirdeigs z
+Vaņkys; i sacīja: "Vaņka, tu izgaissi!"</p>
+
+<p align="JUSTIFY">Uozi Vaņka i nadūmova mozguot, tys dzeivova pa sovai vaļai. Jankeļs
+sacīje Vaņkam: "Tu koč raizi pamozgoj tū uozi!"</p>
+
+<p align="JUSTIFY">Vaņka lomovuos i sacīje z Jankeļa: "Ej prūjom, a to as tevi
+nūsisšu."</p>
+
+<p align="JUSTIFY">Pēčuok Vaņka saprota, ka var byut slikti, byudams labi vīn girts
+(piedzēris), jis nūdūmova uozi nūvjast iz upi pamozguot. Uozi jis īgryudja upī, i da
+to tū damaudova, kamēr tys nūsleika. Nūsleikušū uozi Vaņka atņasja da sātai,
+nūplāsja jam uodu, i pakuora jū pi kunga ustobys. Jankeļs sacīje z Vaņkys:
+"Vaņka, kū tu padarēji?" Kai atbrauks kungs, tai tjev byus cīš slikti,
+pīmini munus vuordus! Tu, Vaņka dūd maņ pīcdesmit rubļu, as tevi gluobšu, a to tjav
+byus cītums."</p>
+
+<p align="JUSTIFY">Vaņka jam apsajāmja īdūt tūs pīcdesmit rubļu. Jankeļs sacīje:
+"Kai tu īsi da tīsys, tod as tevi pavuiceišu, kū runuot, i as ar ī ar tevi
+reizī nūīšu."</p>
+
+<p align="JUSTIFY">Par nazcik ielu laiku atbrauc kungs z dačys, nakti puorgulādams, jis
+pamanīje, ka uoža nava. Kungs vaicoj pi Vaņkys: "Kur tu lyki uozi; nūsyti, ci
+nūkavy?"</p>
+
+<p align="JUSTIFY">Vaņka puorsabeidīs sacīje: "As uozi kai mozgovu, jis i
+nūsleika."</p>
+
+<p>Kungs cīš aizzasirdīje, i izdzyna Vaņku nu ustobys. Tod jis pasaucja policijis,
+sastatīje protakolu . Kai jau kunga lītā, dreiž vaidzjā īt z tīsys. Vaņka īdams
+da tīsys, īguo pi Jankeļa, kap jis jū pavuiceitu. Žīds Vaņku pīvuicīje :
+"Kai tīsness kū nibejs vaicuos, tod tu tikai pamūrdi: -- Buļu - buļu -
+buļu." Tīsnes&amp;127;s Vaņku pasaucja, i vaicoj : "Nu kū tu tam uožam
+padarēji?"</p>
+
+<p align="JUSTIFY">Vaņka pīsapyutīs daguo da tīsneša, i nikuo narunova tik
+nūmūrminoj : "Buļu - buļu - buļu."</p>
+
+<p align="JUSTIFY">Tīsness vjāj pavaicova, Vaņka nikuo nascīje, stuovjā pīsapyutīs
+i mūrmynova. Tīsness radzjā, ka nikuo naizīs, i Vaņkam nikuo napīsprīdja. Jankeļs
+pajāmja Vaņku zam rūkys, i izvjadja uorā.</p>
+
+<p>Jankeļs prasīja naudys, a Vaņka vys narunova, a tikai mūrmynova. Žīds tai
+vaicova, i tai, a Vaņka nikuo narunova. Jankeļs pamjatja Vaņku i nūguo. Tai Vaņka
+bije attaisnuots, i žydjaņam naudys naatdjavja.</p>
+
+
+</body></html>

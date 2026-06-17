@@ -1,0 +1,257 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Kalēja dēls.</p>
+</b></font>
+
+<p align="JUSTIFY">1. A. 301A. J. Bankins "Šis un tas" II, 1875, 25.</p>
+
+<p align="JUSTIFY">Kādam kalējam bija gluži stiprs dēls. Kad tas bija izaudzis liels,
+tad viņš lūdzās tēvam, lai šis tam izkaļot tādu stangu, kurā būtu četri podi
+dzelzs un pieci podi tērauda. Tēvs viņam arī izkala tādu stangu, bet dēls sacīja,
+ka tā par&amp;127; vieglu, lai liekot vēl pieci Rodi tērauda klāt. Tēvs viņam
+pak1ausīja, bet dēls, to pacilājis, sacīja: "Tā gan man vēl drusku par vieglu,
+bet lai nu paliek." Dēls, paņēmis savu lielo stangu, nu gāja darba meklēt platā
+pasaulē.</p>
+
+<p align="JUSTIFY">Šurpu turpu staigādams tas pēdīgi nonāca pie kāda ķēniņa un
+prasīja tam darbu. Ķēniņš sacīja: "Man trīs meitas par nakti nozagtas. Ja tu
+viņas man vari dabūt rokā, tad es tev došu pusi no savas valstības un savu jaunāko
+meitu par sievu."</p>
+
+<p align="JUSTIFY">Kalēja dēls paģērēja divus palīgus, un ķēniņš viņam iedeva
+divus zaldātus. Nu viņi visi trīs devās ceļā, un gāja pa mežu mežiem meklēdami.</p>
+
+<p align="JUSTIFY">Reizu kalējdēls, gar lielu celmu iedams, spēra tam ar savu stangu.
+Celms no tā apgāzās, un šie tur redzēja lielu alu. Kalēja dēls nu gribēja kāpt
+alā, bet tā bija par dziļu, un tur nevarēja tikt iekšā. Abi zaldāti iegāja
+krūmos, nopina kurvi un sagrieza no klūdziņām gaŗu virvi. Tie nu ka1ēja dē1u
+nolaida papriekšu dibinā, tad viņa lielo stangu. Tas nu gāja pa alu uz priekšu,
+kamēr danāca pie dzelzu durvīm. Viņš tām spēra reizi ar savu stangu, un lūk! tās
+pašas atvērās.</p>
+
+<p align="JUSTIFY">Kalēja dēls, iegājis istabā, redzēja ķēniņa vecāko meitu. ~i,
+vipu ieraudzīdama, izsaucās: "Kam tu te esi nācis? Mans vīrs ir velis, viņš
+tevi vārīs darvas katlā."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Viņš tai atbildēja: "Nesaki nekā! Gan es viņu
+  nogalināšu." Kalēja dēls nu ielīda aizkrāsnī un tur nobēdzās.</p>
+</blockquote>
+
+<p align="JUSTIFY">Tad vells ar trim galvām, ienācis istabā prasīja: "Te ir
+sveša cilvēku smaka. Kur tā nāk?"</p>
+
+<blockquote>
+  <blockquote>
+    <p align="JUSTIFY">"Es nezinu," sieva atbildēja.</p>
+  </blockquote>
+</blockquote>
+
+<p align="JUSTIFY">Vells saskaities izmeklēja visus kaktus un pēdīgi atrada kalēja
+dēlu aizkrāsnī. Velts to veda ārā pie darvas katla un sacīja : "Kāp tik
+iekšā!"</p>
+
+<blockquote>
+  <p align="JUSTIFY">Tas sacīja: "Es nezinu, parādi man, kā jākāp"</p>
+</blockquote>
+
+<p align="JUSTIFY">Vells uzkāpa uz katla malu, pacēla kāju un sacīja: "Redzi, tā<b>
+</b>jākāp!"</p>
+
+<p align="JUSTIFY">Tikko vells kāju izstiepis, kalēja dēls zvēla tam ar stangu par
+muguru; šis tūlin iekrita darvas katlā tur bija pagalam. Tā viņam bija izdevies
+laimīgi dabūt vecāko ķēniņa meitu.</p>
+
+<p align="JUSTIFY">Tas nu gāja tālāku un iegāja otrā kambarī, kur dzīvoja vidējā
+ķēniņa meita. Šai bija vīrs ar sešām galvām; tā uz to sacīja: "Kādēļ tu
+še esi atnācis? Vells tevi pabāzīs apakš grīdas."</p>
+
+<p align="JUSTIFY">Sešgalvainais arī ienāca un sacīja uz kalēja dēlu: "Kas tev
+še vēlēja nākt? Nāc lai es tevi pabāžu apakš grīdas!"</p>
+
+<blockquote>
+  <p align="JUSTIFY">Vells, dēļus pacēlis, sacīja: "Lien apakšā!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Kalēja dēls vis nelīda, bet vilka vellam ar savu stangu par pakausi,
+ka šis pavēlās apakš grīdas. Viņš tūlin uzlika dēļus virsū un atstāja vellu
+apakš grīdas. Nu kalēja dēlam bija. jau otra meita rokā.</p>
+
+<p align="JUSTIFY">Viņš nu gāja trešajā kambarī, kur mājoja ķēniņa jaunākā un
+visskaistākā meita. Šī tam stāstīja, ka viņas vīram esot divpadsmit galvas, un tas
+viņu iedzīšot stāvu zemē. Kamēr tie runāja, tamēr divpadsmitgalvainais ienāca ar
+lielu baļķi uz pleciem, un tūlin uzprasīja: "Kas tev te vēlēja nākt?"</p>
+
+<p align="JUSTIFY">Vells tam spēra ar savu baļķi par pleciem, ka šis līdz ceļgaliem
+ieskrēja zemē; bet tad kalēja dēls deva ar savu stangu vellam par pleciem, ka tas
+līdz vēderam iegrima zemē. Vells vēl reizu sita kalēja dēlam un dadzina to līdz
+vēderam zemē; bet kad ka1ēja dē&amp;127;1s tam blieza, tad viņš līdz kaklam ieskrēja
+zemē. Vells nu vairs nevarēja sist; bet kalēja dēls vēl trešo reizu sita vellam par
+galvām un sadzina to pavisam zemē. Tā nu visas trīs pazudušās ķēniņa meitas bija
+rokā.</p>
+
+<p align="JUSTIFY">Viņš ar visām trīs meitām devās pa alu atpakaļ līdz caurumam.
+Tur nonākuši, lika zaldātiem uzvilkt papriekš vecāko meitu, tad vidējo, bet ar
+jaunāko tas gribēja tikt reizē augšā. Zaldāti sacīja, ka nespēšot izvilkt abus ar
+reizu. Viņš nu ielika savu stangu kurvī, bet tie to nevilka ārā. Tad iekāpa pats
+kurvī, šie arī viņu nevilka ārā sacīdami, lai liekot papriekšu ķēniņa meitu
+iekšā. Kad zaldāti arī trešo ķēniņa meitu bija izvilkuši, tad šie viņu ir tagad
+nevilka, bet sacīja uz to mēdīdami: "Tu nu vari tur palikt, mums pēc tevis vairs
+nav nekāda note."</p>
+
+<p align="JUSTIFY">Zaldāti paņēma meitas un devās uz mājām. pie ķēniņa. Kad
+ķēniņš prasīja, kur kalēja dēls palicis, tad viņi atbildēja, ka nikni zvēri to
+apēduši.</p>
+
+<p align="JUSTIFY">Kalēja dēls viens pats no dziļās bedres nevarēja tikt ārā,
+viņš gāja pa alu atpakaļ uz to istabu, kur divpadsmitgalvalno vellu bija, sadzinis
+zemē. Tur viņš saplēsa gultu un atrada mazu kastīti, kuŗā bija šā vella svārki
+un stabulīte. Kad ar to pūta, tad visi velli saskrēja kapā. Viņš, apvilcies vella
+svārkus mugurā, sāka pūst ar stabulīti, tad saskrēja visi velli un prasīja:
+"Kungs ķēniņ, ko gribat, lai mēs darām?" </p>
+
+<p align="JUSTIFY">Tas atbildēja: "Es gribu tikt virs zemes un apakš debess." </p>
+
+<p align="JUSTIFY">Nemanot tas uz reizu atradās uz liela klajuma, kur nebija neviena koka
+ne mājas,</p>
+
+<p align="JUSTIFY">bet stāvēja tik viens liels akmins.</p>
+
+<p align="JUSTIFY">Tur viņš, sakūris uguni, sadedzināja vella svārkus un sadauzīja
+ar savu stangu stabulīti sacīdams: "Ar to es vis negribu pe1nīt savu maizi."</p>
+
+<p align="JUSTIFY">Viņš, tā vientulis sēdēdams, sāka gauži raudāt. Tad viņam
+pienāca klāt liels vīrs, iedeva trīs ābolus un sacīja: "Sagriez tos uz pusēm
+un peldi par jūŗu. Kad tu esi piekusis, tad svied vienu ābola pusi ūdenī. Tad ikreiz
+atradīsies pilsēta, kur varēsi atpūsties un atspirdzināties. Nu sāc atkal peldēt,
+un ja tu par divdesmit četrām dienām izpeldēsi, tad tu dabūsi jaunāko ķēniņa
+meitu par sievu. Pēdīgajā pilsētā būs Liels zobins, ja tu viņu spēsi pakustināt,
+tad tu būsi desmit reiz tik stiprs kā tagad.</p>
+
+<p align="JUSTIFY">Kalēja dēls bija labs peldētājs, viņš savu lielo stangu uzlicis
+uz muguras, sāka peldēt. Vēl gan gluži nebija piekusis, bet svieda ābola pusi jūrā.
+Tūlin tam pilsēta stāvēja priekšā. Kur viņš iegājis paēdās un sāka atkal
+peldēt tālāk. Pēdīgajā pi1sētā iegājis, uzmeklēja lielo zobinu un mēģināja to
+kustināt; bet pirmo reizi tik drusku vien varēja pacelt, otru reizu jau vairāk, un
+trešo reizu to sagrābis, aizsvieda kā kādu skangalu. Tam nu vē1 bija kāds gabals ko
+peldēt. Viņš arī tur laimīgi pārpeldēja, un vēl nebija divpadsmit dienas
+pagājušas, kad nonāca pie ķēniņa un tam prasīja pēc apsolītās pusvalstības un
+pēc jaunākās meitas. Ķēniņš brīnīdamies prasīja: "Kas tu tāds esi? Es tevi
+pavisam nepazīstu."</p>
+
+<p align="JUSTIFY">Kalējadēls paņēma pili pie pundamentes, apgrieza to apkārt un
+iesprauga torni zemē. Kēniņš nu sāka lūgties un apņēmās tam dot visu ko
+apsolījis. Kalējadēls nu atgrieza pili atkal atpakaļ, dabūja pus valstības un
+jaunāko meitu par sievu.</p>
+
+<blockquote>
+  <p align="JUSTIFY">Ja tas vēl nav miris, tad viņš šo baltu dienu tur dzīvo itin
+  laimīgs.</p>
+</blockquote>
+
+
+</body></html>

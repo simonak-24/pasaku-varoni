@@ -1,0 +1,214 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Gar? diena</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Garā diena.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>8. </strong>A. 1541. 1210. 1540. Māturu Atis
+Grāvendālniekos. LP, VI, 370, 108. M. Bohm, Lettische Schwānke, 68, 41.</p>
+
+<p align="JUSTIFY">Vienam mūrniekam bijusi ļoti muļķīga sieva. Reiz viņš, no darba
+pārnākdams, iedevis sievai 25 rubļi: "Še, sieva, paglabā tos! Kad atnāks gaŗā
+ziema, tad jau viss būs jāatdod."</p>
+
+<p align="JUSTIFY">Sieva ielikusi naudu skapī. Otrreiz pārnesis 50 rubļu, treišreiz
+pat simtu rubļu un atkal tāpat teicis: "Še, paglabā! Atnāks gaŗā ziema, viss
+būs jāatdod."</p>
+
+<p align="JUSTIFY">Bet, kas nu par jokiem? Kamēr mūrnieks atkal pie darba, atnāks vienu
+dienu pie sievas gaŗš nabags un lūdzas dāvanas. Sieva saka: "Ej tikai projām!
+nevaru nekā dot. Atnāks gaŗā ziema - viss tā kā tā būs jāatdod."</p>
+
+<p align="JUSTIFY">Nabags, labs gudrinieks, nu sācis brīnīties: "Gaŗā ziema,
+gaŗā ziema! Nu es jau esmu tā gaŗā ziema; priekš kuŗas ziemas tad tu vēl
+taupi?"</p>
+
+<p align="JUSTIFY">Sieva domājusi: "Viena gaŗā ziema jau tikai laikam var
+būt?" un atdevusi nabagam visu naudu.</p>
+
+<p align="JUSTIFY">Pārnācis vīrs, sieva pretīm: "Vīriņ, aizvakar te bija gaŗā
+ziema, paņēma visu naudu; ak tavu gaŗu nabagu, šis garais ziema."</p>
+
+<p align="JUSTIFY">Vīrs pārbijies: "Ko? Patiesi atdevi, tu esi traka! Nu es iešu
+pa pasauli, ja vēl atradīšu trīs tādus muļķus kā tu, tad atstāšu tevi sveikā,
+ja ne, nudien, vai pakāršu vēl tevi!"</p>
+
+<p align="JUSTIFY">Labi, aizgājis muļķus meklēt. Gājis, gājis - nonācis vienās
+mājās - redzējis: sievas vilkušas govi uz jumtu. Vaicājis: kāpēc tā darot?</p>
+
+<p align="JUSTIFY">Jā, tur uz jumta smuka zālīte esot uzaugusi, tā noēdināma. Šis
+sācis smieties; kamēr tur smējies, apskatījies labi: govs nemaz nav dzīva, šīs
+vilkdamas ar valgu, nožņaugušas. Ēdini, nu ēdini!</p>
+
+<p align="JUSTIFY">ilgāki tādas nemaz vairs neskatījies, gājis tālāk. Gājis, gājis
+- nonācis pie lielas pils; tā bijusi vareni skaista. Nu šis izcēlis kaklu un
+skatījies: "Kas tas par varenu mūrnieka darbu!" Bet pils lielmāte, šo
+ieraudzījusi prasījusi: "Cilvēciņ, ko tu te skatiesi?" Atteicis: "Kas
+es par cilvēciņu? - Neesmu nekāds cilvēciņš, esmu eņģelītis, tīrs
+eņģelītis!"</p>
+
+<p align="JUSTIFY">Nu šī brīnējusies: "A tāds ir eņģelītis - pirmo reizi
+redzu! Saki, mīļo eņģelīti, kā tad manam mirušam bērniņam klājas?"</p>
+
+<p align="JUSTIFY">"Kā klājas? Kā tur tādam var klāties? Ganot cūkas ar basām
+kājām. Tāds jau nekad nav cūkas ganījis, nu viņš dabū tur izganīties; mūsu
+bērni, tie te izganās, kas viņus tur vairs dzenās? Bet tādiem tas itin veselīgs - to
+es arī saku."</p>
+
+<p align="JUSTIFY">Vai!" lielmāte žēlojusies, "vai nevari viņam zeķītes,
+kurpītes aiznest?"</p>
+
+<p align="JUSTIFY">"Kas par blēņām? Cūku ganiem kurpes! Ko tu vēl nepadzirdēsi?
+Drīzāk naudu kādu artavu!"</p>
+
+<p align="JUSTIFY">"Jā, jā - naudu, naudu!" lielmāte iesaukusies un
+piebērusi pilnu maišeli ar skaidru zelta naudu, lai nu nesot viņas cūku ganīšam.</p>
+
+<p align="JUSTIFY">Labi, paņēmis maišeli un aizgājis. Te pēc stundas laika, pārronas
+lielskungs, šī pretim: "Tā un tā - to laimi - aizsūtīju dēliņam lielu
+maišeli zelta apavas nopirkties"</p>
+
+<p align="JUSTIFY">Bet lielskungs, visu dabūjis zināt, traks: tūliņ lai seglojot
+zirgu, dzīšoties krāpniekam pakaļ! Un tad aizaulekšojis arī, ka nokūpējis vien.</p>
+
+<p align="JUSTIFY">Mūrnieks, pamanījis, ka pakaļ dzenas, ātri nolicis naudas maišeli
+krūmos, cepuri uz lielceļa un pats nosēdies, itkā cepuri sargādams. Piejājis
+lielskungs: ko te sēdot pie tās cepures? Vai labāk neesot manījis gaŗāmgājēju
+kādu ar maišeli pa muguru?</p>
+
+<p align="JUSTIFY">"Kā tad neredzēju? Priekš kādas pusstundas pagāja gan gaŗām
+tāds; un man likās, ka tur bija labs nesamais, brīnum salīcis nesa."</p>
+
+<p align="JUSTIFY">Vai traks! Tad še lec manā zirgā un steidz noķert, tu viņu "</p>
+
+<p align="JUSTIFY">taču labāk pazīsi, nekā es, tu redzēji tagadin, es viņu nekad
+neesmu redzējis."</p>
+
+<p align="JUSTIFY">"Jā, jā, kungs, zināms, ka pazīstu gan; bet nevaru jāt, man
+te apakš cepures jāsargā dārgs putns, tas pirkts manam kungam.</p>
+
+<p align="JUSTIFY">"Nu, nekas - viņš pasargāšot tamēr putnu, bet lai jājot!</p>
+
+<p align="JUSTIFY">"Jā, jā, kungs; bet es jau nevaru bez cepures jāt un šo cepuri
+nedrīkst kustināt."</p>
+
+<p>Nu, nekas - te esot viņa cepure; bet lai jājot!</p>
+
+<p align="JUSTIFY">Labi, paņēmis kunga cepuri, uzlēcis zirgā, iejājis ar līkumu
+krūmos, paņēmis savu naudas maišeli un prom uz mājām pie sievas. Nu ticējis, ka
+vēl citi muļķi pasaulē un neteicis ne vārda vairs sievai; bet par dabūto naudu
+nopircis lielu muižu un dzīvojis kā katrs muižnieks.</p>
+
+<p align="JUSTIFY">Lielskungs turpretim sasēdējis pie cepures līdz vakaram. Saulīte
+jau rietējusi, te iedomājies, viņam rūpot redzēt, kāds tas dārgais putns jeļ
+izskatoties. Pacēlis drusku, drusku cepures malu glūnējis: nav putna. Nu sabijies:
+,,Kad viņš atjās atpakaļ un redzēs, ka dārgo putnu neuzmanīdams esmu palaidis
+vaļā, ko tad? Labāk steigšos uz mājām, lai nemaz nedabū mani redzēt."</p>
+
+<p align="JUSTIFY">Un pārgājis itin priecīgs mājā, ka no ķezas gudri paticis vaļā.</p>
+
+
+</body></html>

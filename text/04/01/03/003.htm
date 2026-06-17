@@ -1,0 +1,196 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Kalējs ar Nāvi.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 330 A. J. Ezers no Ž. Treijeŗa Gramzdā. Jkr. V, 51. AŠ, III,
+8f.</p>
+
+<p align="JUSTIFY">Reiz izdienējis zaldāts salīgst pie Dieva par vārtu sargu. Nāk
+Nāve pie dieva.</p>
+
+<p align="JUSTIFY">"Iekšā nelaidīšu; saki, kas tev vajadzīgs, aiziešu par tevi
+izrunāties," zaldāts noteic.</p>
+
+<p align="JUSTIFY">"Gribu zināt, kādus cilvēkus būs nāvēt," Nāve atbild.
+Zaldāts aiziet.</p>
+
+<p align="JUSTIFY">"Cienīgs Dieva lielskungs," zaldāts vaicā, "Nāve
+grib zināt, kādus cilvēkus būs nāvēt."</p>
+
+<p align="JUSTIFY">"Septiņus gadus lai nāvē visus, lielus un mazus," Dievs
+pavēl. "Dievs lika tev </p>
+
+<p align="JUSTIFY">septiņus gadus lielus un mazus ozolus grauzt," zaldāts teic
+Nāvei.</p>
+
+<p align="JUSTIFY">Paiet septiņi gadi. Nāve klāt. Zaldāts nelaiž Nāvi iekšā, bet
+iet pats pie Dieva.</p>
+
+<p align="JUSTIFY">"Septiņus gadus lai Nāve nāvē pusmūža cilvēkus," Dievs
+pasludina.</p>
+
+<p align="JUSTIFY">"Dievs tev līka grauzt septiņus gadus pusaugušus ozolu,"
+zaldāts pasaka Nāvei.</p>
+
+<p align="JUSTIFY">Pēc septiņiem gadiem Nāve atkal klāt. "Kādus ozolu;. nu man
+būs grauzt?"</p>
+
+<p align="JUSTIFY">"Tīevus, gaŗus ozolus būs tev septiņus grauzt," zaldāts
+pavēl kundziski.</p>
+
+<p align="JUSTIFY">Nāve grauž, ka čirkst vien.</p>
+
+<p align="JUSTIFY">Cilvēki sāk brēkt uz Dievu, ka Nāve neizpilda savu amatu, ka
+pasaule par daudz pārpildīta, ka dažu labu moca pārliecīgs vecums. Dievs, zaldāta
+nedarbus sazinājis, viņu atlaiž no dienasta.</p>
+
+<p align="JUSTIFY">Nāve!" Dievs sauc pēc septiņiem gadiem, "ej nāvēt
+zaldātu."</p>
+
+<p align="JUSTIFY">"Zaldāt," Nāve saka, piegājusi pie zaldāta, kas patlaban
+šņauc tabaku, "Dievs man pavēlēja tev izkapti likt pie rīkles."
+"Nošņaucies pēdējo reizi no manas doželes." Zaldāts pasniedz tabakas dozi.</p>
+
+<p align="JUSTIFY">Nevaru tabaku sasniegt," Nāve saka.</p>
+
+<p align="JUSTIFY">"Kāp iekšā," zaldāts pamāca. Nāve iekāpj dozē.
+Brakts! vāks cieti.</p>
+
+<p align="JUSTIFY">"Zaldāt'," Dievs pēc septiņiem gadiem prasa, "kur
+Nāve?" "Varbūt vēl manā dozē," zaldāts lempīgi atbild.</p>
+
+<p align="JUSTIFY">"Laid viņu ārā!" Dievs pavēl. Zaldāts izlaiž.</p>
+
+<p align="JUSTIFY">"Ej vēl reiz zaldātu kaut!" Dievs nosaka. Nāvei ciskas
+dreb , kā apsei lapas,</p>
+
+<p align="JUSTIFY">bet iet. Zaldāts jau pagādājies zārku. Nāv atnāk.</p>
+
+<p align="JUSTIFY">"Gulsties zārkā, lai varētu tevi vieglāki nonāvēt,"
+nāve saka. "Parādi, kā jāguļ?" </p>
+
+<p align="JUSTIFY">zaldāts prasa. Nāve iegulstas. Zaldāts ar vāku brakts! virsū. Tad
+liek zārku par</p>
+
+<p align="JUSTIFY">pleciem un iestiepj purvā.</p>
+
+<p align="JUSTIFY">Pēc septiņiem gadiem Dievs pavēl Nāvi izlaist. Nomūļājusies nāk
+viņa pie Dieva.</p>
+
+<p align="JUSTIFY">"Cūka, kā tu izskaties!" Dievs uzsauc Nāvei. "Ej
+pirtī noperies un tad kauj zaldātu."</p>
+
+<p align="JUSTIFY">Nāve, kā noperējusies vista. nopurinās un skrej uz pirti.
+Nomazgājusies tā dodas pie zaldāta, iskapti izstiepusi pa cirtienam un zobus griezdama.
+Zobu griešanu dzirdēdams un gribēdams zināt, kas zobus griež, zaldāts pagriež galvu
+paskatīties. Te šmakš! viņam galva kā sprūte no pleciem zemē.</p>
+
+
+</body></html>

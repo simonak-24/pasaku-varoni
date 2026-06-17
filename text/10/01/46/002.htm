@@ -1,0 +1,130 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Gudr?s atbildes.</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Gudrās atbildes.</font></p><font size="5">
+
+</font></b><p align="JUSTIFY"><b><font size="5"></font></b><font size="3">2. A. 921. Raudaviete Bērzonē Etn. III,
+1893. LP, VII, II, 30, 2, 5a.</font></p><font size="3">
+
+<p align="JUSTIFY">Kāds puika vārījis namā putru. Kungam gadījies tur jāt gaŗām.
+Viņš iegājis nama durvīs un prasījis puikam: "a) Nu puisīt, kas te namā ir? b)
+Kas katlā? c) Kur tēvs? d) Kur māte? e) Kur brālis? f) Kur māsa?" Puika atkal
+atbildējis uz priekšējiem jautājumiem šā: "a) Pus otra vīra un zirga galva. b)
+Cits citu trenkājas. c) Aizgāja pastaigāties. d) Pērn bija raudāt un aizgāja
+dziedāt. e) Pušgaisu - nepieder ne Dievam, ne velnam. f) Aizgāja medīt: kuŗu zvēru
+nošaus, to atstās turpat, kuŗš paliks dzīvs, to nesīs uz māju.</p>
+
+<p align="JUSTIFY">Kungs sadusmojies par to, pastellējis puiku ar visu tēvu uz muižu,
+lai lielas mutes dēļ sodītu. Nu pie tiesas puika sacījis, ka šis tak taisnību vien
+esot runājis, jo a) Es biju pusvīrs, kungs - vīrs un zirgam tik galva. b) Zirņi. c)
+Tēvs aizgājis sēt - staigā pa tīrumu. d) Mātei pērn nomirusi meita - tad
+raudājusi; šogad dzimis dēls -- nu dziedot. e) Brālis aizgājis ozola doru dēt, esot
+bijis pušgaisu un neesot nekam piederējis. f) Māsa aizgājusi aiz nama blusīties:
+kuŗu blusu nokāva, atstāja turpat; kuŗa palika kreklā - to pārnes atpakaļ mājā. </p>
+</font>
+
+
+</body></html>

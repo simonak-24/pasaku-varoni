@@ -1,0 +1,189 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title> 24</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="center"><font size="4"></font><font size="5">Laime un nelaime.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">l. A. 735. V i l ķ e ŗ u K ā r l i s Z a ļ e
+n i e k o s. Jkr. IV, 28, LP, VII, I<b> </b>28, 2, 12b.</font><font size="4"></font></p><font size="4">
+</font>
+
+<p align="JUSTIFY">Dzīvojuši divi saimnieki - viens bijis bagāts, otrs nabags.
+Bagātais nenieka nestrādājis; nabaga saimnieks turpretim ņēmies sviedros no agra
+rīta līdz vēlam vakaram, &amp;127;bet nabags bijis, nabags palicis.</p>
+
+<p align="JUSTIFY">Reiz nabaga saimnieks pļāvis rudzus ar puišiem. Kad vakars
+pienācis, tas teicis uz puišiem: "Eita uz mājām, es pāriešu mazuliet
+vēlāku."</p>
+
+<p align="JUSTIFY">Strādnieki nelikušies to divreiz teikt; bet saimnieks aizgājis uz
+tuvējo krodziņu uztaisīt krūti, lai varētu iestiprināts rītu atkal bara galā
+stāties. Krodziņā pāri čarkas iemetis, tas devies uz mājām. Nakts bijusi gaiša,
+pilns mēnesis spīdējis. Lauki gājuši strēķos, un viņam gadījies iet par sava
+bagātā kaimiņa tikko nopļautu rudzu strēķi. Rudzi bijuši sasieti kūlīšos un jau
+sastatīti statiņos. Ejot tas ieraudzījis slaidu meiteni, ar rudzu rogu vaiņagu galvā,
+baltās drēbēs tērptu. Meitene lasījusi vārpas un bāzusi tās kūļos. Saimnieks
+viņu sveicinājis un sacījis: "Nāc labāk manā laukā vārpas lasīt; viņš
+tāpat jau bagāts, bet es nabags."</p>
+
+<p align="JUSTIFY">Meitene tam atbildējusi: "Es esmu villa Laima un ne tava. Lai
+tava Laima lasa tavas vārpas!"</p>
+
+<p align="JUSTIFY">Saimnieks nu prasījis, kur tad esot šā Laima. Viņa atteikusi, ka
+tai krodziņā aizdurvē, kuŗā tas nupat dzēris. Saimnieks teicis, ka viņš tur tās
+neesot redzējis. Laima, iedodama viņam baltu spieķīti; teikusi&amp;127;, ka katrs jau
+Laimas nevarot redzēt; bet lai viņš aizejot uz krodziņu un lai piesitot aizdurvē ar
+balto spieķīti, tad jau ieraudzīšot savu Laimu,</p>
+
+<p align="JUSTIFY">Saimnieks pateicies Laimai par visu labu un griezies atpakaļ uz
+krodziņu. Iegājis iekšā, piedauzījis aizdurvē ar balto spieķīti un - patiesi -
+ieraudzījis savu Laimu tupot kaktā. Saimnieks uzsaucis viņai: "Ko tad tu. te tupi,
+sliņķe, ka nelasi vārpas manā tīrumā kā kaimiņa Laima, kas lasa viņa
+tīrumā?"</p>
+
+<p align="JUSTIFY">Viņa atteikusi: "Par zemkopi būdams, tu tikpat nepaliksi
+bagāts; paliec labāk par uzpircēju, tad jo drīzi tiksi pie mantas." Saimnieks
+teicis, ka neesot naudas ko iesākt. Laima tam iedevusi vērdiņu, sacīdama:
+"Mājās iedams, nopērc par šo vērdiņu to lopiņu, kuŗu tu pirmo satiec; tad
+nokauj savas piecas raibās govis un uztaisi no viņu ādām lielu ori, bet ādas raibo
+pusi liec uz āru un, orē aizjūdzis visus četrus zirgus, ved lopiņus uz Jelgavu
+pārdot. Tā tu iedzīvosies naudā."</p>
+
+<p align="JUSTIFY">Kad saimnieks gājis mājās, bijusi liela diena, gani jau ganījuši
+savus lopiņus. Ganiem gaŗām iedams; tas ieraudzījis tiem vāveri. Saimnieks domājis,
+ka jānopērk vāvere, jo to saticis pirmo, tādēļ teicis uz ganiem: "Es jums došu
+veselu vērdiņu, atdodiet man vāveri!"</p>
+
+<p align="JUSTIFY">Viens gans gan teicis, ka nepārdošot vāveres būšot ko
+paspēlēties un papriecāties; bet otrs teicis, ka labāk, pārdot, būšot tad
+kreņģeļu nauda. Tikpat vāvere šiem izmukšot un ieskriešot mežā, tādēļ
+pārdevuši arī vāveri saimniekam. Šis mājās pārnācis, nokāvis visas gotiņas,
+uztaisījis no ādām lielu ori, un aizjūdzis orē savus četrus zirģeļus, tad vedis
+vāveri pārdot uz Jelgavu. Pie Lapu kroga pieturējis savus zirgus atpūtināt, nojūdzis
+viņus, padevis tiem ēst un pats iegājis krogā, ori ceļa vidū atstādams. Žīdiem,
+ieraugot savādu ori, ienācis prātā aplūkot, kas tanī atrodas. Viens žīds
+attaisījis mazo lūku un vāvere izšmaukusi žigli ārā un ieskrējusi mežā. Žīdiem
+palicis bail, vīrelis iznācis - sākšot šos vai popēt. Viņi nezinājuši ko darīt.
+Te izlaidējs sagudrojis, ka vāveres vietā jāiesviež akmens. Ņēmušies nu tikai
+akmeņus laist orē - pielaiduši vai pus ores.</p>
+
+<p align="JUSTIFY">Vīrelis, atspirdzinājies pie alus, aizjūdzis savus zirģeļus un
+pūtis vaļā, bet zirgi šim par lielu brīnumu, negribējuši vairs tā rikšot kā
+pirmīt. Nekā ļauna nedomādams, tas braucis tikai tālāk. Žīdi, gribēdami redzēt,
+ko šis iesākšot, akmeņus Jelgavā novedis, gājuši tam līdzi, viss liels bars.
+Nobraucis Jelgavā, saimnieks apturējis savus putās nobrauktos zirgus uz tirgus. Kungi
+un žīdi, ieraudzīdami savādo ori, apstājuši to no visām pusēm un prasījuši
+braucējam, lai parādot, kas tur iekšā. Šis rāpies no buka zemē, attaisījis lūku,
+bet tavu brīnumu! Vāverītes vietā atradis pus ores zelta gabalu. Laima pārvērtusi
+akmeņus zeltā. Žīdiņi šo ieraudzījuši, skrējuši pa galvu, pa kaklu pēc
+ormaņiem, ar kuŗiem tie aizbraukuši pret Lapu krogu, un piekŗāvuši katrs savu vezumu
+akmeņu. Veduši akmeņus uz Jelgavu domādami, ka arī tie pārvērtīšoties zeltā, bet
+nekā-akmens paliek akmens. Sadzinuši tā lielu čupu akmeņu, no kuŗiem to pašu vasaru
+sākuši bruģēt Jelgavu. Saimnieks izmainījis zeltu naudā, palicis ļoti bagāts un
+dzīvojis laimīgs. </p>
+
+
+</body></html>

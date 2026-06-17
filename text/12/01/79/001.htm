@@ -1,0 +1,203 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>79</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Duksis un Piksis.</p>
+</font></b><strong>
+
+</strong><p><strong>1. </strong>A. 1791. C. R. Girgensons Jaunpiebalgā 1823, 17. 1. p. Nach Langbeins
+Erzāhlung: Bist du da?</p>
+
+<p align="JUSTIFY">Divas mazas mājas bija tālu no citām mežā, tādā vidū, kur vēl
+dzīvoja tumši ļaudis, kas bijās no vella, ka tas varot sagrābt cilvēkus vai lopus,
+un tos vārdzināt. Abās mājās dzīvoja lieli šķelmji, kas bija palaiduši savus
+pirkstus uz zagšanu un viens otram palīdzēja citus aplaupīt. Viņi bija paši
+pielikušies liekus vārdus, ar kuŗiem tie savā starpā saucās, lai viņi tumšā
+naktī varētu labāk atrasties, kad tie, kur kopā uz zagšanu izgājuši, brīžam
+šķīrās. Tāds uzvārds bija vienam Piķis, otram Duksis.</p>
+
+<p align="JUSTIFY">Vienreiz viņi naktī izlīduši no sava meža, norunāja apzagt vienu
+zemnieku. Piķis gribēja nogriezt dārzā kāpostus, un Duksis tikām meklēt kūtī
+avenu. Šis gan lēnām vēra kūts durvis, bet tās tomēr čīkstēja. Saimnieks, vēl
+neaizmidzis, to sadzirdēja istabā, un sauca dēlam: "Anci, celies! Kūts durvis
+čīkst! Kas zin, vai žagļi nav kūtī?"</p>
+
+<p align="JUSTIFY">Ancis, no miega uzmodies, atbildēja: "Kad tur kas būtu, tad jau
+Duksis gan rietu." Šis bija arī mājas suņa vārds.</p>
+
+<p align="JUSTIFY">Tēvs viņam uzbārās, sacīdams: "Nu miguzi, piecelies jel un
+palūko, kas tur ir. Pasauc Duksi, kas zin, kur viņš ielīdis?" Ancis piecēlies
+izgāja laukā un sauca: "Duksi, Duksi!"</p>
+
+<p align="JUSTIFY">Suns bija aizvazājies nāburgos, bet zaglis kūtī, dzirdēdams savu
+vārdu, domāja, ka viņa biedrs to saucot, un atbildēja: "Es šepat esmu."</p>
+
+<p align="JUSTIFY">Ančam palika bail; viņš iespruka istabā un teica elsdams: "Vai
+Dieviņ, tēvs, mūsu Duksis runā!"</p>
+
+<p align="JUSTIFY">Tēvs vaicāja: "Ko tad viņš tev sacīja? Vai nesacīja, ka tu
+esi muļķis un no miega vēl apreibis?"</p>
+
+<p align="JUSTIFY">Ancis atbildēja: "Vai man ticat, vai neticat, Duksis atbildēja,
+ka viņš šepat esot. Eita paši ārā, un jūs to dzirdēsit!"</p>
+
+<p align="JUSTIFY">Tēvs arī uzcēlās un izgāja un, smiedamies par dēlu, sauca:
+"Duksi, Duksi!"</p>
+
+<p align="JUSTIFY">Zaglis, to dzirdēdams, atkal domāja, ka tas esot viņa palīgs, un
+atbildēja: "Tepat es vēl esmu, nekliedz jel tā, brēķi!"</p>
+
+<p align="JUSTIFY">Nu arī pats saimnieks satrūcies pateica Dievam, ka viņš vēl pa
+durvim varēja iemukt un bulti aizšaut. Tad viņš sacīja uz dēlu: "Ko nu
+iesāksim? Duksī ir vells ieskrējis, tas citādi nevar būt. Teci nu, dēliņ, žigli uz
+Puntules Juri, un lūdz viņu mīļi no manas puses, lai viņš tūlīt atnāk!"</p>
+
+<p align="JUSTIFY">Puntules Juris bija vecs grāmatnieks, ko zemnieki visapkārt veda
+savās mājās gan visādās slimībās, gan arī kad bijās, ka viņi esot apburti, vai
+ka vells viņiem esot piesities, lai viņš pār tiem skaitītu pātarus un aizdzītu
+vellu ar Dieva vārdiem. Viņš nedzīvoja ne pus versti no tā zemnieka, pie kuŗa zagļi
+bija atnākuši.</p>
+
+<p align="JUSTIFY">Ancis, neuzdrīkstēdamies iziet pa durvim, ka viņu arī vells
+nesagrābtu, izlīda otrā pusē caur logu un, pārkāpis aiz nama pār sētiņu,
+aizskrēja par tīrumu uz Puntuli. Juri viņš vēl atrada nomodā, kuŗš no lielām
+sāpēm, kas viņam bija kājās ieskrējušas, nebija varējis aizmigt. Kad nu Ancis
+gauži lūdzās. tad Juris atbildēja, ka viņš gan labprāt ietu, bet viņš no sāpēm
+nevarot ne kājās stāvēt. Ancis tomēr lūgdams neatļāvās un apsolījās viņu
+aiznest uz savas muguras, lai tik nākot viņus pestīt no vella.</p>
+
+<p align="JUSTIFY">Viņš norāva ātrumā no sienas baltu uzvalku, kas tur bija
+piekārts, palīdzēja to Juŗam uzvilkt, paņēma to sev uz muguras un sāka nest.
+Steigdamies ar savu nastu uz māju, viņš uzmeklēja īsāko ceļu caur dārzu. Piķis,
+kas pašu laiku nogrieztās kāpostu galviņas bāza maisā, ieraudzīdams tumsā Anci,
+domāja, ka viņa biedrs Duksis nes baltu avenu uz muguras, un vaicāja: "Vai tu
+dabūji?"</p>
+
+<p align="JUSTIFY">Ancis, domādams, ka viņa tēvs nācis pretī un prasa, vai viņš
+dabūjis Puntules Juri, atbild: "Dabūju gan, še viņš man ir uz muguras."</p>
+
+<p align="JUSTIFY">Piķis, domādams par avenu, saka: "Tas ir labi! Met viņu tik
+zemē, man ir nazis rokā, es viņam tūlīt kaklu nogriezīšu."</p>
+
+<p align="JUSTIFY">To dzirdot, arī Puntules Juŗam palika bail, ka vells viņam kaklu
+nogriezīšot, un nu viņš, atsvabinājies no Anča, ar savām klibajām kājām, kā
+varēdams, aizskrēja mājā. Ancis kliegdams, ka arī dārzā esot vells, bailēs pie
+loga nosita galvu.</p>
+
+<p align="JUSTIFY">Trokšņa iztraucētie zagļi steidzās, viens ar avenu, otrs ar
+kāpostu maisu, uz savu mežu, kur viņi viens otram stāstīdami, kas bija noticis, un
+pēc arī no citiem izklausījuši, ko tie paši vēl nezināja, dažu labu reizi savā
+starpā nosmējās par tiem muļķiem, kuŗus viņi bija apzaguši.</p>
+
+<p>Piezīme. Šī pasaka ir ņemta, pārlabojot tikai nedaudz valodas nepareizības, no
+šādas grāmatas: "Stāsti, pasakas, dziesmas un mīklas, par pamācīšanu un
+izlustēšanu latviešu valodā sarakstītas no C. R. Girgensona, nelaiķa Cēsu-tiesas
+prāvesta un Jaunpiebalgas mācītāja. Jelgavā 1823." Mācītājs Girgensons ir tur
+lokālizējis vācu dzejnieka Langbeina stāstiņu un liekas, ka no šā lokālizētā
+stāsta ir cēlušies mūsu varianti. P. Š<font size="4">.</font></p><font size="4">
+</font>
+
+
+</body></html>

@@ -1,0 +1,207 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ganu zēns apprecē ķēniņa meitu.</p>
+</b></font>
+
+<p>&nbsp;</p>
+
+<p>10. A. 516. R. Bērziņš Iecavā. LP, I, 132 (103).</p>
+
+<p align="JUSTIFY">Kādam tēvam trīs dēli: divi gudri, viens muļķis. Kādu dienu
+tēvs saka uz dēliem: "Bērni mīļie, mājiņa man maza, pārtika šaura - eita
+pasaulē pelnīties!"</p>
+
+<p align="JUSTIFY">Labi, otrā dienā visi trīs brāļi jau ceļā. Pie krusta ceļa tie
+izšķiras: abi gudrie iet apkārt, muļķītis tiešām. Iet, iet - saiet ielu mežu, kur
+tekas malā divi strīdās.</p>
+
+<p>"Kas nu brāļu starpā strīdēsies?"</p>
+
+<p align="JUSTIFY">"Jā, ciema puis', kā nestrīdēties? Tēvs iedeva cepuri, kuŗu
+galvā uzliekot paliek neredzams, iedeva tupeli, kuŗu uzaunot vējam līdzi izskrien un
+nu nav neviena, kas izšķirtu, kuram īsti tās mantas pieder."</p>
+
+<p align="JUSTIFY">"Kad tik vien tās nelaimes, tad jau ātri tiksim galā.
+Klausāties, es sviedīšu oliņu mežā un tas, kas oliņu pirmais atradīs, paturēs
+abas mantas."</p>
+
+<p align="JUSTIFY">Klaikš! oliņa mežā - visi trīs meklē. Meklē, meklē -muļķītis
+uzmeklē, muļķītim abas mantas. Muļķītis uzaun tupeli viens divi ķēniņa pilī
+klāt. Ieiet pilī - ķēniņš pie beigām noskumis: meita noburta par velna kalponi.
+Ķēniņš gan solījis meitu, gan pili, gan valsti, kas meitu atburtu, bet neviena.</p>
+
+<p align="JUSTIFY">"Nu, kad neviena negadās, tad raudzīšu es!" muļķītis
+apsolās.</p>
+
+<p align="JUSTIFY">Labi. No rīta ķēniņa meita skries uz jūru - muļķītis skrien
+līdz, tupelē iekāpdams, cepuri uzlikdams. Noskrien jūrmalā meita raud, meita lūdzas,
+lai jel jūŗas vecais apžēlojoties un iznākot kāpu malā, jo citādi velns būšot
+viņu vai vēl apēst. Jūŗa kŗāc, jūŗa šņāc, viņi veļas, bangas ceļas un re,
+jūŗas vecais, sudraba matiem, zelta bārdu, dimanta ūsām, iznāk kāpu malā.
+"Ko, meitiņ, vēlies?"</p>
+
+<p align="JUSTIFY">"Ak, mīļo jūŗas veci, dod malt vienu matiņu no tavas galvas,
+citādi velns mani apēdīs aiz dusmām."</p>
+
+<p align="JUSTIFY">Mani mati dārgi mati; tomēr ja vienu vien lūdzies, tad došu
+ar."</p>
+
+<p align="JUSTIFY">Meita izrauj vienu matu; neredzamais muļķītis labu kušķi. ,Jūŗas
+tēvs gan saīgst; bet neviena nav redzama, griežas jūŗā atpakaļ. Jūŗa kŗāc,
+bangas cēlas, viļņos vecais pazuda. Meita pārskrien kā vējš mājā un atdod sudraba
+matu velnam. Muļķītis skrien kā vējš paka[ un ieliek sudraba matu kušķi meitas
+pagalvī. Naktī meita jau guļ mierīgāka, jo jūŗas vecā matu kušķis velnam tik
+atvēl līdz durvim tuvoties.</p>
+
+<p align="JUSTIFY">No rīta meita atkal noskrien jūrmalā un raud un lūdzas, lai jel
+jūŗas vecais iznākot kāpu malā. Jūŗas vecais šoreiz negrib, negrib nākt; bet
+beigās tomēr jūŗa sāk kŗākt, jūŗa sāk šņākt, viļņi sāk velties. bangas
+sāk celties un vecais parādās sudraba matiem, zelta bārdu, dimanta ūsām kāpu malā.</p>
+
+<p>"Ko, meitiņ, nu atkal vēlies?"</p>
+
+<p align="JUSTIFY">"Ak, mīļo jūras veci, dod man vienu spalviņu no tavas bārdas,
+citādi velns mani dusmās apēdīs."</p>
+
+<p align="JUSTIFY">"Mana bārda cienījama bārda; tomēr ja vienu spalviņu vien
+lūdzies, lai notiek!"</p>
+
+<p align="JUSTIFY">Meita izrauj vienu spalviņu; neredzamais muļķītis labu kušķi.
+Jūŗas vecais nejauki saīgst; bet neviena nav redzama, griežas jūŗā atpakaļ. Jūŗa
+kŗāca, bangas cēlās, viņos vecais pazuda. Meita pārskrien, kā vējš mājā un
+atdod zelta bārdas spalviņu velnam. Muļķītis skrien kā vējš paka un ieliek zelta
+bārdas kušķi meitas pagalvī. Naktī meita jau guļ itin mierīga, jo jūŗas veča
+bārdas kušķis velnam tik atvēl līdz vārtiem tuvoties.</p>
+
+<p align="JUSTIFY">No rīta meita trešo reizi noskrien jūrmalā un raud un lūdzas, lai
+jel jūŗas tēvs iznākot kāpu malā. Tomēr šoreiz tas nemāk un nenāk. Meita raud
+vēl karstāki, lūdzas vēl žēlīgāki un re, beigās jūŗa sāk kŗākt, jūŗa
+šņākt, viļņi sāk celties un vecais parādās sudraba matiem, zelta bārdu, dimanta
+ūsām kāpu malā.</p>
+
+<p>"Ko, meitiņ, mani tā vienmēr traucē?"</p>
+
+<p align="JUSTIFY">"Ak, mīļo jūŗas veci, nedusmojies, dod man vienu spalviņu no
+tavām ūsām, citādi velns mani sakapās gabalos."</p>
+
+<p align="JUSTIFY">"Manas ūsas godājamas ūsas; tomēr ja vienu spalviņu vien
+lūdzies, lai notiek!"</p>
+
+<p align="JUSTIFY">Meita izrauj vienu spalviņu; neredzamais muļķītis labu kušķīti.
+Jūŗas vecais briesmīgi saīgst; bet, neviena nav redzama" ,griežas jūŗā
+atpakaļ. Jūŗa kŗāca, bangas cēlās, viļņos vecais pazuda. Meita pārskrien kā
+vējš mājā un atdod dimanta ūsu spalviņu velnam. Muļķītis skrien kā vējš pakal
+un ieliek dimanta ūsu kušķīti meitas pagalvī. Naktī meita gul pavisam mierīga kā
+vesela, jo jūras vecā matu kušķīts, bārdas kušķīts un ūsu kušķīts velnam tik
+atvēl pār deviņām jūrām tuvoties.</p>
+
+<p align="JUSTIFY">No rīta tai valstī bija lieli prieki: muļķītis apņēma ķēniņa
+meitu par sievu, muļķītis palika tai valstī par ķēniņu. Ir savu tēvu, savus
+brāļus, tas ataicināja un nu visi dzīvoja laimīgi.</p>
+
+
+</body></html>

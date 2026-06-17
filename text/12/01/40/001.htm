@@ -1,0 +1,171 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>40</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Dūšīgais skroderis.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>l. </b>A. 1640. H. Skujiņa, Andrs Ziemelis no 59 g. vecā Augusta
+Kārkliņa Mēŗu pag.</p>
+
+<p align="JUSTIFY">Pilsētā dzīvāš vienc tāds lielīgs skrodelis. Viņč dzīvāš
+augšas stāvā un vienu dienu pa ielu gāsi sievīna un piedāvāsi sviestu.</p>
+
+<p>Skrodelis nu to saucis, lei nākot šī augšā.</p>
+
+<p align="JUSTIFY">Sievīna ar uzkāpusi pie skrodeļa augšā un šis vēlēš iei
+nosverot šim vienu mārcīnu. Sievīna iedevusi skrodeļām sviestu un gāsi prom.
+Skrodelis uzsmērēš sviestu uz maizes un sācis ēst. Bet istabā bīš pulka mūsu un
+šās aplipušas ap sviestmaizi. Skrodelis pārskaities un kā cirtis ar drēbes gabalu,
+tā uz viena cirtiena nositis septiņas mūsas un tā pats priecājies: "Septiņi uz
+viena cirtiena!"</p>
+
+<p align="JUSTIFY">Bet nu skrodelis nospriedis, ka šim vais neesot vērts par skrodeli
+dzīvāt, labāki iešot pa pasauli. Viņč izšuvis sev tādu jostu, kur bīš uzšūts
+virsū :</p>
+
+<p>"Septiņi uz viena cirtiena!"</p>
+
+<p align="JUSTIFY">Skrodelis nu gāš gāš pa pasauli un pēdīgi uzkāpis vienā augstā
+kalnā, kur dzīvāš lielc milzis. Kā milzis pamanīš skrodeli, tā tūlī šo
+aicināš cīkstīties. Skrodeļam nu gan visas bikses raustīšās no bailēm, ka šis
+milzi pamanīš, bet darīt ar vais nekā nevarēš. Skrodelis pēdīgi saņēmis dūšu
+un sacīš, ka šis ar mieru. Nu milzis sacīš, ka pirmo reizi sviedīšot akminu gaisā
+un kuŗš varēšot augstāku uzsviest, tas būšot vinnēš. Milzis paķēris akminu un
+sviedis gaisā. Akminc uzgāš tik augstu, ka tik pēc laba laika nācis apakaļis. Bet nu
+skrodelis izsmēš milzi un sacīš, ka tā vaigot sviest, ka akminc nemaz vais nenākot
+apakaļis. Skrodelis noķēris putnēnu un sviedis gaisā un putnēnu, kā gāš. tā ar
+uz visim laikim aizgāš. Pirmo stiķi milzis pametis.</p>
+
+<p align="JUSTIFY">Bet nu bijis tāds otrs: jāsaspiežot akminc plāskanc. Milzis tūlī
+palķēris akminu un vienā rāvienā saberzis druskās. Nu skrodelis akal lielijies un
+sacīš, ka tas nekas, bet vaigot tā akminu saspiest, ka zupa nākot laukā. Un skrodelis
+izvilcis no azautes ābolu un spiedis, ka zupa vie šķīst. Tā otru stiķi akal
+skrodelis vinnēš.</p>
+
+<p align="JUSTIFY">Milzis nu uzdevis trešo stiķi: jānesot lielc baļķis. Labi. Abi
+tūlī klā pie varēn liela ozola un gāž šo zemē. Ka koks bīš nogāzts, tā milzis
+sacīš skrodeļam: "Nem tu tievgali, es ņemšu rezgali!"</p>
+
+<p align="JUSTIFY">Nu skrodelis akal sācis lielīties un sacīš milžam, ka šis jau tā
+kā tā nepanesušot rezgaļa, lei jau ņemot vie tievgali, Un nu abi norunāši tā.
+Milzis nesīs tievgali un skrodelis akal rezgali. Milžam jāiet ar tievgali pa priekšu
+un nav brīv skatīties apakaļis.</p>
+
+<p align="JUSTIFY">Labi, milzis bīš tā ar mieru, ķēris ozolu pie tievgala un rāvis
+prom. Skrodelis uzsēdies uz rezgaļa un svilpēš. Ka nu milzis aizrāvis koku noliktā
+vietā, tā skrodelis nokāpis no(st) un akal izsmēš milzi:</p>
+
+<p>"Ko tu elsā tā, kā ka būtu varēn nostrādājies?"</p>
+
+<p align="JUSTIFY">Nu, trešo stiķi ar milzis bīš pametis un pēc norunas skrodeļam
+pienākusies visa milža manta. Nu skrodelis bīš bagāts un dzīvāš laimīgi.</p>
+
+<p align="JUSTIFY">Piezīme. Tā ir ar «Skolas maizi" izplatīta (skat. Ievads 116.
+I. p.) Grimma pasaka, bet tomēr uzrakstīta no kāda stāstītāja. Mūs te interesē
+nevien pasakas sagrozījumi, bet arī savādā valoda. P. Š.</p>
+
+
+</body></html>

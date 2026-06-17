@@ -1,0 +1,196 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Mežonīgais vīrs.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 502. J. Vācers Liel-Aucē A. Bīlenšteina kr. LP, VII, II. 21.
+I, 4.</p>
+
+<p align="JUSTIFY">Vienam ķēniņam bija liels dārzs visvisādiem augļu kokiem. Bet
+piepēži sāka koki cits pēc cita kalst. Tad ķēniņa dēls sapņoja, ka dārzs ar
+lielarklu apaŗams, gan tad kokus glābšot. Tēvs iedeva dēlam pieci vīri un lielarklu,
+divpadsmit jūgu, lai aŗ. Ara, izara vienu koku, otru, kā nāca pie beidzamā - izveļas
+no sakņu apakšas starp lemešiem sprīdi gaŗš vīriņš ar olekti gaŗu bārzdiņu.</p>
+
+<p align="JUSTIFY">Ķēniņš Misiņbārzdiņu iespostoja dzelzs sprostā un aizbrauca
+citus ķēniņus paaicināt mazo sprīdīti aplūkot un apbrīnot. Bet kamēr ķēniņš
+ceļā, ķēniņa dēls svaidās tāpat pa lauku ar zelta ābolu. Svaidās - ābols ieripo
+mazā vīriņa sprostā un tas ābolu neatdod: lai izlaižot no sprosta, tad ja. Dēls
+izlaiž - vīriņš pa zūd, tikai to vien ieteikdamies: "Ja tev nelabi klājas,
+piemini mani!"</p>
+
+<p align="JUSTIFY">Pārbrauc ķēniņš, neatrod Misiņbārzdu vairs -- dusmīgs bez gala.
+Un dusmās viņš aizdzina dēlu pasaulē; tikai vienu kaŗavīru gan iedeva biedros līdz
+un labu tiesu mantas ceļa pārtikai.</p>
+
+<p align="JUSTIFY">Dēls ar kaŗa vīru gāja pa tuksnesi veselu nedēļu. Beidzot uzgāja
+vienu avotu. Avota ūdens bija dziļi. Ķēniņa dēls sacīja karavīram: "Ņem mani
+aiz kājām, es laidīšos ar galvu lejup nodzerties."</p>
+
+<p align="JUSTIFY">Labi. Bet kaŗavīrs tīšām iemērca dēlu labi padziļi avota
+ūdenī, biedinādams, ka ņemšot viņu vai gluži noslīcināt, ja neatdošot visu mantu
+un nepalikšot viņam par sulaini. Šis apsola arī, nabadziņš, visu. Nu abi iet
+tālāk, nonāk vienā pilī un paliek turpat. Bet kaŗavīrs iestāsta pils ķēniņam,
+ka viņa līdznācējs (viņa sulainis) varot vecus zirgus par jauniem pataisīt.</p>
+
+<p align="JUSTIFY">Ķēniņš tad lika lielā smilšu kalnā pulka vecu zirgu sadzīt un
+dēlam (kaŗavīra sulainim) tie bija jāpataisa par jauniem, trekniem, sudraba spalvā.
+Dēls noiet smilšu kalnā, sāk raudāt: "Ai Misiņbārzdiņa, kādu gŗūtumu tu
+man uzliki!"</p>
+
+<p align="JUSTIFY">Te Misiņbārzdiņa klāt: kas kaišot? Tā un tā! Misiņbārzda
+atbild: "Tas nekas - nāc tikai man līdz!"</p>
+
+<p align="JUSTIFY">Aiziet uz Misiņbārzdas māju, nu dēls apmana, ka mazais vīriņš,
+Misiņbārzda, ir pats vells. Trīs dienas dēls ēda, dzēra pie vella, ceturtā dienā
+vells saka: "Še, dēls, sudraba pātaga, kad tu ar to zirgiem uzsitīsi, tad tie
+radīsies trekni un sudraba spalvā."</p>
+
+<p align="JUSTIFY">Labi. Aizgāja atpakaļ uz smilšu kalnu, uzsita ar pātagu visi zirgi
+palika trekni un sudraba spalvā. Ķēniņš ļoti priecājās par tik lepniem zirgiem;
+bet kaŗavīrs iemuldēja melodams: dēls esot lielījies sudraba zirgus ir pat zelta
+spalvā pārvērst, ja viņam to liktu.</p>
+
+<p align="JUSTIFY">Ķēniņš sadzina zirgus smilšu kalnā un liek dēlam zelta spalvā
+pārtaisīt. Dēls notek pie Misiņbārzda, izstāsta lietu - Misiņbārzda iedod zelta
+pātagu. Pēra ar zelta pātagu zirgus, visi zirgi ietērpās zelta spalvā.</p>
+
+<p align="JUSTIFY">Ķēniņš priecīgs bez gala, bet karavīrs iemuld : dēls varot no
+nobalējušiem kauliem dzīvus lopus radīt.</p>
+
+<p align="JUSTIFY">Tūdaļ ķēniņš lika smilšu kalnā lielu čupu kaulu sadzīt, lai
+nu gādājot no tiem dzīvus lopus! Dēls aiziet pie Misiņbārzdas: taī un tā.
+Misiņbārzda iedeva viņam dimanta pātagu un dimanta zobinu, sacīdams: "Ar pātagu
+radīsi lopus, ar zobinu tūkstots galvu vienā cirtienā nocirtīsi."</p>
+
+<p align="JUSTIFY">Dēls aizgāja pie kaulu čupas un pēra un pēra kaulus ar dimanta
+pātagu no vietas. Čupa sāka kustēties, radās dzīvība; lopi un cilvēki, ka čum un
+kust. Bet pašā tai brīdī, kad dzīvība radās, dēls bija uzkāpis nezinādams taisni
+uz cūkas kauliem. Līdz nu cūkas kauli atdzīvojās, dēls gadījās cūkai jāteniski
+mugurā un jāja, seglos atspēries, tiešām uz ķēniņa pili. Aizjāja tur, ķēniņš
+lika jaunradītiem lopiem jaunas kūtis uzcirst un dēlu iecēla par lopkopēju.</p>
+
+<p align="JUSTIFY">Bet tam pašam ķēniņam bija trīs meitas vellam atdodamas. Šīs
+meitas izglābj no velna jaunais lopkopējs; bet karavīrs, kas meitas bija vellam vedis
+atdot, nozvērina meitas, lai sakot, ka viņš tas glābējs. Bet ar trešo vellu
+cīnoties, dēlam (lopkopējam) nācās grūti cīnīties. Vells viņa dimanta kumeļu
+iespēra zemē un viņu pašu arī līdz jostai sadzina zemē; ieskrambādams dēlam vēl
+īkšķi brangi padikti. Tad dēls piesauc savu Misiņbārzdu. Atskrien Misiņbārzda,
+pukodamies: "Es tev iedevu zobinu, ar to ir kaŗa spēkus varēji pārspēt vienā
+cirtienā un tu mani vēl aicini. Tagad man savam paša tēva brālim galva
+jānorauj!"</p>
+
+<p align="JUSTIFY">Misiņbārzda palīdz vellu pārvarēt un meitu izglābt. Dēls
+pāriet, kad bija kalnā atpūties, pie ķēniņa, bet ķēniņš kaŗavīram jau meitu
+(jaunāko) apsolījis. Tad jaunākā parāda ķēniņam (tēvam) dēla ieskrambāto
+īkšķi, izstāsta taisnību. Kaŗavīru nu notiesā, bet dēlu ar jaunāko meitu
+saprecina.</p>
+
+
+</body></html>

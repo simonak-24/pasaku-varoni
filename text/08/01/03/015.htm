@@ -1,0 +1,165 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>14</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Raganas šķiltavas.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">15. A. 562. A. Vaskis, Tukumā</font></p><font size="3">
+
+<p align="JUSTIFY">Kāds jauns cilvēks gājis pa pasauli ceļot. Vienā vakarā tas
+uzejot mežā mazu būdiņu. Būdiņa bijusi tukša, tikai viena liela kaste bijusi tanī.
+Jauneklis bijis izsalcis un tādēļ cerējis kaut ko kastē atrast. Attaisījis kasti
+vaļā, bet tanī atkal bijusi tikai kaste un nākošā arī. Beidzamā kaste bijusi
+pavisam maza, un tanī bijis mazs papīrītis. Raksts uz papīrīša bijis tā izdzisis,
+ka ceļotājs varējis izlasīt tikai vienu vārdu: kalps. Līdz ko šo vārdu izlasījis,
+te kāda balss prasījusi: "Ko vēlaties, kungs?"</p>
+
+<p align="JUSTIFY">Ceļotājs sacījis, ka šis vēloties galdu pilnu ar ēdieniem.
+Tūliņ arī tā noticis: galds pilns ar ēdieniem ieradies būdiņā. Pēc ēšanas
+ceļotājs domājis: ja jau noslēpumainais kalps varot dot galdu ar visādiem ēdieniem,
+tad tas varot dot arī gultu. Nu jauneklis atkal lasījis: "Kalps!"</p>
+
+<p align="JUSTIFY">Te uzreiz kalps jautājis: "Ko vēlaties, kungs?"</p>
+
+<p align="JUSTIFY">Šis vēloties mīkstu gultu. Vēlēšanās tūlīt piepildījusies.
+Otrā rītā ceļotājs lasījis atkal: "Kalps!"</p>
+
+<p align="JUSTIFY">"Ko vēlaties, kungs?" balss vaicājusi.</p>
+
+<p align="JUSTIFY">Ceļotājs atbildējis, ka šis vēloties pili pie tuvākā ķēniņa
+pils, bet daudz lepnāku un skaistāku nekā ķēniņam. Tā arī noticis. Ķēniņa pilij
+pretī radusies viena cita pils, vēl lepnāka un skaistāka. Ķēniņam nepaticis, ka
+viņa pilij pretī sveša pils un vēl lepnāka. Ķēniņš pieteicis jaunajam ķēniņam
+kaŗu. Vecajam ķēniņam sanācis liels pulks kaŗaspēka, bet jaunajam ķēniņam bijis
+kādas trīs reizes vairāk. To redzēdams, vecais ķēniņš teicis: ko nu šie
+kaŗošot, labāk izlīgšot ar labu. Abi atlaiduši kaŗa pulkus un noslēguši mieru.</p>
+
+<p align="JUSTIFY">Ķēniņam bijusi skaista meita, bet neviens neuzdrīkstējies to
+bildināt. Kādu dienu ceļotājs saucis kalpu. Kalps atsaucies. Ceļotājs tam licis
+atnest no ķēniņa pils ķēniņa meitu ar visu gultu, bet tikai tā, ka lai tā
+nepamostos. Otrā rītā kungs licis kalpam ķēniņa meitu nogādāt atpakaļ. Nu
+ceļotājs gājis pie ķēniņa meitu bildināt. Ķēniņš bijis ļoti laipns un meitu
+apsolījis. Sarīkotas lepnas kāzas. Pēc kāzām jaunais ķēniņš ar sievu dzīvojis
+tīri laimīgi, bet te kādā dienā kalps ieradies pie kunga un sacījis:
+"Cienījamais kungs, visu šo laiku esmu tikai tev kalpojis. Visas tavas
+vēlēšanās esmu tev izpildījis, bet tagad es gribu arī no tevis mazumiņu
+lūgt."</p>
+
+<p align="JUSTIFY">Kungs prasījis, ko tad šis vēloties? Kalps teicis, ka vēloties to
+papīriņu atpakaļ dabūt, kas bijis kastē. Ak, tā. Jā, jā, lai ņemot vien atpakaļ
+to papīrīti. Kalps paņēmis.</p>
+
+<p align="JUSTIFY">Naktī ceļotājs pamodies un jutis briesmīgu aukstumu. Brīnījies,
+kā pilī varot tā salt. Arī ķēniņiene pamodusies un brīnījusies, kā pilī tā
+varot salt. Kad aususi gaisma, abi ieraudzījuši, ka neguļ pilī, bet vecā meža
+būdiņā. Tad ceļotājs teicis ķēniņienei: "Ej tu pie saviem vecākiem, jo tu
+esi ieradusi lepni dzīvot, bet es palikšu pie sava - iešu ceļot."</p>
+
+<p align="JUSTIFY">Un tā tie abi aizgājuši katrs savā vecā dzīvē.</p>
+</font>
+
+
+</body></html>

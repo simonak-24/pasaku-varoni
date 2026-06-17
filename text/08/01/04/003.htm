@@ -1,0 +1,177 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Galdiņ, klājies.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">3. A. 563. E. Granovslsa no M. Parūķes,
+Bikstos. K. Corbika krājumā.</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz dzīvojuši trīs brāļi. Divi bijuši gudri, trešais muļķis.
+Pavisam dumjš jau gan viņš nebijis, brāļi to par tādu tik iesaukuši, negribēdami
+tam dot mirušā tēva mantojumu. Gudrie brāļi sējuši labību. Arī muļķis,
+domādams sekot gudro brāļu priekšzīmei, gribējis to darīt, bet gudrie brāļi uz
+saviem laukiem muļķim nav ļāvuši labību sēt. Tad muļķis paņēmis maisu labības
+uz pleciem un gājis uz mežu, tur viņš arī savu tiesu iesējis. Kā nu rudzi cik necik
+būtu paaugušies, tā irbes tos izkārpījušas. Nu muļķis gājis savus rudzus pa
+naktīm sargāt. Reiz tas noķēris kādu irbi un gribējis jau nest uz māju,
+priecādamies, ka nu būs gards kumoss. Bet irbīte gauži lūgusies, lai laiž viņu
+vaļā. Muļķim bijusi laba sirds, bet bijis arī žēl skaistā rudzu lauka. Tāpēc
+viņš sacījis: "Ko tu man dosi par to, ka palaidīšu?"</p>
+
+<p align="JUSTIFY">Irbīte iedevusi muļķim galdautiņu un sacījusi : "Ka tu gribi
+ēst, tad tik pasaki: Galdautiņ, klājies! Tad tev būs ēdienu un dzērienu pa pilnam.
+Kad būsi paēdis, pasaki: Galdautiņ, satinies!"</p>
+
+<p align="JUSTIFY">Ar to muļķis bijis mierā. Viņš palaidis irbi vaļā un gājis uz
+mājām. Ceļā viņš iegājis pie pirtnieces. Viņš iedevis galdautiņu pirtniecei
+paturēt, bet pats gājis pirtī pērties. Pirtī iedams, viņš pirtniecei pieteicis, lai
+tik nesaka: "Galdautiņ, klājies."</p>
+
+<p align="JUSTIFY">Bet pirtniece tādēļ tīšām iesaukusies: "Galdautiņ,
+klājies!" Tūlīt bijis ēdienu un dzērienu pa pilnam. Bet pirtniece bijusi liela
+gudriniece. Viņa muļķa galdautiņu samainījusi ar citu līdzīgu.</p>
+
+<p align="JUSTIFY">Mājā pārgājis, muļķis gribējis palielīties ar savu dāvanu un
+teicis: "Galdautiņ, klājies!"</p>
+
+<p align="JUSTIFY">Bet galdautiņš neklājies vis. Nu muļķis nopratis, ka īstais
+galdauts pirtniecei.</p>
+
+<p align="JUSTIFY">Otrā naktī muļķis atkal mežā noķēris irbīti. Tā viņam
+šoreiz iedevusi oglīti un teikusi: "Ja tev, puisīt, kur jāiet, tad tik pasaki:
+Atmin kājiņu, atmin kājiņu. Tūlīt pie tevis pieskries melns kumeliņš un aiznesīs
+tevi, kur vien vēlēsies."</p>
+
+<p align="JUSTIFY">Muļķis pateicies par dāvanu un pieteicis, lai irbīte vairs viņa
+daļā nenāk. Tad viņš svilpodams gājis uz mājam. Ceļā tas atkal iegriezies pie
+pirtnieces. Pērties iedams, tas iedevis pirtniecei oglīti paturēt un pieteicis, lai
+nesaka: atmin kājiņu. Bet pirtniece tīšām teikusi: "Atmin kājiņu!"</p>
+
+<p align="JUSTIFY">Te pie tās pieskrējis zviegdams melns kumeliņš. Nu pirtniece
+apmainījusi muļķīša oglīti ar citu. Mājās pārgājis, muļķītis gribējis
+palielīties ar savu dāvanu un teicis: "Atmin kājiņu." Bet kumeliņš kā
+nenācis, tā nenācis. Nu viņš nopratis, ka arī oglīti paņēmusi pirtniece.</p>
+
+<p align="JUSTIFY">Trešo nakti muļķītis noķēris irbīti trešo reizi. Šoreiz tā
+viņam iedevusi kulīti un teikusi: "Ja tev kāds pāri dara, tad tik saki: rundziņ,
+sities!"</p>
+
+<p align="JUSTIFY">Bet pirtniece arī šoreiz nav klausījusi teikumam, iesaukusies:
+"Rundziņ, sities!"</p>
+
+<p align="JUSTIFY">Tā rundziņa izlēkusi no kulītes un tā devusi, tā devusi
+pirtniecei pa muguru, ka šī kliegdama, brēkdama ieskrējusi pie muļķīša lūgties,
+lai savalda rundziņu. Bet muļķītis nebijis vis tāds muļkis. Viņš licis pirtniecei
+vispirms atdot galdautiņu un oglīti. Tad viņš svilpodams gāja ar atdabūtām mantām
+uz mājām un nu dzīvojis laimīgi.</p>
+</font><font size="1">
+
+<p>&nbsp;</p>
+</font>
+
+
+</body></html>

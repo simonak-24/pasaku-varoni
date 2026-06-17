@@ -1,0 +1,138 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dzelzs dēls. </p>
+</b></font>
+
+<p align="JUSTIFY">2. B. 30lA. Dzirciemā, LP, VI, 115, 19 piez.</p>
+
+<p align="JUSTIFY">[ Kalējs uzkalis no dzelzs dēlu, kas bijis ļoti stiprs. Viņš
+izgājis pasaulē, iedamas saticis vēl divus vīrus, un paņēmis tos sev līdz. Viņi
+nonākuši vienā mājā, kur bijis daudz vēršu, bet neviena cilvēka. Nospriež palikt
+tur par nakti. Viens nu paliek tur ēdienu vārīt, bet Dzelzsdēls ar otru aiziet
+medībās.]</p>
+
+<p align="JUSTIFY">[Kamēr šis vārījis,] ienācis tāds vīriņš kā biete, ar
+gaŗāku bārzdu par zirga asti. Tas vīriņš bijis velna tēvs. Viņš izrāvis vienu
+bārzdas spalvu kā pavedienu un sasējis vārītāju, pabāzdams to vēl apakš sola.</p>
+
+<p align="JUSTIFY">[Otram biedram izdevies tāpat, bet kad Dzelzsdēls palicis vārīt,
+tad viņš sagrābis bietes vīriņu un iedzinis viņa bārzdzu ar vadzi kokā. Vīriņš
+aizbēdzis ar visu koku un noslēpies vienā alā. Bēgli vajādami, abi biedri nolaiduši
+Dzelzsdēlu ar virvi tai alā. Dzelzsdēls tur nogalina velnu un atsvabina vienu ķēniņa
+meitu. Biedri uzvelk gan ķēniņa meitu augšā, bet Dzelzsdēlu atstāj alas dibenā.]</p>
+
+<p align="JUSTIFY">[Dzelzsdēls nu_ tikmēr staigājis pa apakšzemi,] kamēr atradis
+vienā vietā bietes vīriņu uz trijkāju kraķīša sēžam. Viņš gribējis vīriņu
+nogalināt, bet tas lūgdamies apsolījies viņu virszemē atgādāt, Labi, Tad vīriņš
+uzsēdinājis varoni uz sava trijkāja kraķīša, apgriezis kraķi trīs reiz riņķī un
+tā varonis atradies virszemē.</p>
+
+<p align="JUSTIFY">[Stiprinieks nu apprecē izglābto ķēniņa meitu, bet abi biedri, kas
+nepareizi izdevušies par glābējiem, dabūjuši savu sodu.]</p>
+
+
+</body></html>

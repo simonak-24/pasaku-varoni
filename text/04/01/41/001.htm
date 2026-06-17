@@ -1,0 +1,200 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>41</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Par putnu pārvērstā līgava.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">405? A,<b> </b>Lerchis-Puškaitis Džūkstē -Pienavā. LP, II, 4.</p>
+
+<p align="JUSTIFY">Kādam kungam bijis brīnum čakls puisis. Pa dienu strādājis, pa
+nakti gājis zvejot, jo kungs bijis ļoti kārs uz zivim. Tādam labam puisim kungs
+apsolījis arī labu sievu. Kādu dienu tas prasa: "Saki man taisnību, vai gribi
+precēties?"</p>
+
+<p align="JUSTIFY">"Gribu gan; bet pie manis neviena nenāk. Biju nodomājis tur
+kaimiņa saimnieka meitu, bet tēvs ne dzirdēt."</p>
+
+<p align="JUSTIFY">Kungs nu atsauc saimnieku uz muižu un noprasa itin īsi : "Vai
+dosi savu meitu manam puisim jeb ne?"</p>
+
+<p align="JUSTIFY">"Kad jau cienīgs lielskungs pavēli, tad jādod. Nu tad labi,
+nākošu svētdienu kāzas."</p>
+
+<p align="JUSTIFY">" Otrā gadā tai pašā dienā jaunais vīrs atkal iet zvejot,
+bet izvelk tik divas zivis: vienu sievai, otru sev. Sieva viņam prasa, kā tik vien esot
+laimējies, bet viņš atteic: "Nekas, sieviņ, katru dienu. māte raušus necep:
+iešu rītu; gan tad laimēsies citādi."</p>
+
+<p align="JUSTIFY">Aiziet otrā dienā, izvelk trīs zivis. Bet kā šis pēc trešās
+zivs sniedzas, tad gaisā sveša balss sauc: "Trešo zivi dod tam, ko neesi mājā
+pametis!" Acumirklī viņš nesaprot; bet pāriet mājā, un nāk pie jēgas: mājā
+jauns dēls piedzimis.</p>
+
+<p align="JUSTIFY">Pēc gadiem, kad dēls jau izaudzis, toreizējais zvejnieks atkal zvejo
+turpat un izvelk trīs zivis. Kā nu domā pēc trešās zivs sniegties, tā tāda pati
+sveša balss sauc : ,,Rītu ap šo laiku vajaga tavam dēlam te šinī vietā būt!"</p>
+
+<p align="JUSTIFY">Labi, dēls aiziet. Līdz ko labi aiziet, te atbrauc_ pa gaisu pelēka
+vārna spožā karītē, ieceļ dēlu iekšā un aizved dēlu pa gaisu vien lepnā, lepnā
+pilī. Pils priekšā vārna saka: .,Te tev trīs naktis grūti klāsies; bet pacieties
+tik, nesaki ne pušplēsta vārdiņa, tad ies labi!"</p>
+
+<p align="JUSTIFY">Tā arī bija ; naktī ienāk velns trijām galvām un moca šo tīri
+nost; bet viņš ciešas, zobus sakodis, un nesaka ne vārdiņa. No rīta vārnai jau
+galva balta. Otrā naktī ienāk velns sešām galvām un moca to vēl diktāki; bet
+viņš ciešas, zobus sakodis, un nesaka ne vārdiņa. No rīta vārnai jau mugura balta.
+Trešā nakti ienāk velns deviņām galvām un moca tik briesmīgi, ka tīri dzīvība
+sprāgst pa muti ārā; viņš nevarēdams vairs izturēt, iesaucas: "Vai Dieviņ,
+cik gŗūti!" '</p>
+
+<p align="JUSTIFY">To vārdu dzirdot, visi mocītāji pazūd, kā spoki. Vārna ieskrien
+iekšā, viscaur atkal pelēka, ka bijusi un saka: "Vai tu nevarēji vēl to mazo
+brītiņu izturēt? Viss būtu labi bijis. Tagad kāp man mugurā, es tevi aiznesīšu uz
+kādu pilsētu, tur tu salīgsi pie kāda kunga par puisi Tik sargies, dzīvo godi, jo tie
+tevi slepeni kārdinās uz visādiem nedarbiem, viņi itin labi zinās, ka tagad pilsētā
+mīti."</p>
+
+<p align="JUSTIFY">Kādu laiku dēls dzīvo itin godīgi pie kunga. Te uz reizi tas nevar
+nociesties, jānozog kungam zelta gredzens. Kungs liek bezgodi pie karātavām vest. Noved
+pie karātavām; te vārna klāt un sauc: "Kad jūs to cilvēku pakārsit, tad
+dzīvas ugunis jūs saēdīs!"</p>
+
+<p align="JUSTIFY">Visi, to dzirdēdami, sabīstas un skatās kur tad tāda balss
+atskanējusi. Bet kamēr šie domā skatīties, te vārna klāt, paņem noziedznieku uz
+muguru un aiznes to uz svešu, svešu jūras salu. Tur nav vairāk nekā ko ēst, kā
+zaļas sēnes, zaļas ogas, un nav neviena cilvēka, ar ko parunāt. Nabadziņš grauž
+tās pašas zaļās sēnes Un sērojas pēc tēva un pēc mīļām mājām ; tomēr kā
+tur tikt?</p>
+
+<p align="JUSTIFY">Te kādu dienu, jaukā laikā, kur jūŗa tik rāma kā spieģelis,
+viņš notālu izdzird runājam un strīdāmies. Vientuļnieks paceļ acis un noblenž,
+tālu tālu uz jūŗas laiviņu tuvojamies. Laiviņa nāk arvienu tuvāk arvienu tuvāk,
+kamēr jau tik tuvu, ka var sadzirdēt, ko tur laba runā. Ko nu runā? Strīdās uz
+postu. Beidzot laiviņa pienāk pie salas krasta un pietura. Trokšņotāji nu izkāpj
+ārā un, ieraudzīdami šo tur, paliek: itin priecīgi, sacīdami: "Ta ta brangi, ka
+tevi satikām! Še tev vienas kurpes, ar kuŗām vari aiztikt par ūdeņu rīdeņiem;
+viens kažoks, kuŗu apvilcis, vari pārredzēt visu plašo pasauli ; viena niedrīte, ar
+kuru vari tūkstoš velnus apsist. Šo treju lietu dēļ mēs jau blandāmies pār jūru
+septiņi gadi laiviņā. Tagad diezgan esam izplūkušies, ņem tu tās, lai dabūjam reiz
+mieru."</p>
+
+<p align="JUSTIFY">Viņš apvelk kažoku, un tūlīt reiz to pili, kur mocīts. Ko nu
+gaisīt? Grūž, kurpēs iekāpis, taisni projām un apsit ar niedrīti visus trijgalvjus,
+sešgalvjus uu deviņgalvjus. No rīta pelēkā vārna pārvērtusies par daiļu meitu.
+Viņa apķeras savam glābējam gar kaklu un saka tā: "Paldies, ka mani izglābi! Es
+esmu ķēniņa meita un citurīt, saulītei lecot, šī velnu pils nogrims; bet tai vietā
+izcelsies liela pilsēta ar divreiz tik skaistu pili. Tā mana tēva pils. Steigsimies
+tagad ārā uz viņu pakalniņu un noskatīsimies, kas te notiks."</p>
+
+<p align="JUSTIFY">Ja - no rīta saulītei lecot, velnu pils verdēdama noiet lejup un tai
+vietā izceļas varena pilsēta ar tūkstošiem ļaužu.</p>
+
+<p align="JUSTIFY">Dēls nu apprec ķēniņa meitu un paliek pilsētā par ķēniņu.</p>
+
+
+</body></html>

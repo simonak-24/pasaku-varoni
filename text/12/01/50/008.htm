@@ -1,0 +1,169 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Necer?ta laime</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Necerēta laime.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>8.</strong> A. 1654. Skolnieks A. Aļļis no 55 g. vecās M.
+5ēnvaldes Nīcā. K. Lielozola kr.</p>
+
+<p align="JUSTIFY">Reiz bijis viens nabaga kurpnieks. Viņš strādājis, strādājis un
+bijis pats slims un tā bērni arī slimi. Tā viņš vienu nakti sapņojis, lai viņš
+ejot uz to lielo tiltu tai pilsētā, tur atradīšot savu laimi. Nu kurpnieks no rīta
+piecēlies pārdomā iet - neiet, tā pilsēta bijusi sešas jūdzes no mājām. Ka viņš
+ies, viņam iziet kadas trīs dienas, līdz noies uz to pilsētu, un tad paliks vēl
+nabadzīgāks. Ab viņš sapņo otru un trešo nakti arī, lai viņš uz to tiltu ejot,
+tai pilsētā, ka tur viņš atradīšot savu laimi.</p>
+
+<p align="JUSTIFY">No rīta viņš saņem dūšu, atmet visu savu tupeļu lāpīšanu un
+iet prom uz to pilsētu. Kurpnieks noiet tai pilsētā un stāv uz to tiltu vienu dienu,
+otru dienu, kā knapi tik vairs uz kājām varējis nostāvēt. Viņš gan domājis :
+"lešu uz mājām," bet te viņš saņem atkal dūšu un stāv vēl trešo
+dienu, nemaz neēdis.</p>
+
+<p align="JUSTIFY">Trešo rītu viņam gaŗām iet viens&amp;127; bagāts kaupmanis, un
+tas viņu uzrunā: ko viņš te stāvot tik izbālējis, "tu jau nokritīsi tepat uz
+to tiltu."</p>
+
+<p align="JUSTIFY">Tas kurpnieks atstāstījis, ka viņš redzējis sapnī, lai šis
+nākot uz šo tiltu un te atradīšot savu laimi. Tad bagātais teicis: "Tu esi
+muļķis laucinieks, tu tici saviem sapņiem un māņiem."</p>
+
+<p align="JUSTIFY">Tā kaupmanis izrauj savu maku pilnu ar naudu un iedod kurpniekam, lai
+viņš paēd un iet uz mājām. Tas bagātais kaupmanis teicis: "Es ar sapņoju, lai
+es braucu uz laukiem, meža malā esot maza mājiņa, tur dzīvojot viens nabaga
+kurpnieks. Tur esot viens oša koks un liels akmens. Lai es to akmeni noveļu, tur
+apakšā būšot viens liels vara katls, pilns ar vaŗa naudu. Lai es atstājot savu
+veikalu, un lai braucot uz laukiem to naudu meklēt - tad es būtu tīrais muļķis, kad
+ticētu māņiem un sapņiem."</p>
+
+<p align="JUSTIFY">Tas bagātais taisni bija noteicis tā kurpnieka dzīves vietu.
+Kurpnieks nu pāriet mājā, paņem sievu un bērnus un iet to akmeni velt zemē. Kad
+viņi novēluši to akmeni, tur apakšā bijis liels vaŗa katls, pilns ar vaŗa naudu.
+Viņš naudu tik daudz dabūjis, nopircis vienu muižu un nu dzīvojis kā bagāts
+muižkungs: stādījis augļu kokus, audzējis daudz lopu, skolojis savus bērnus un
+dzīvojis labi. Kurpnieks liek uzmūrēt lielu pieminekli, uz to pieminekli liek uzlikt to
+kaŗa katlu, un to pieminekli apstādīja ar visskaistākām puķēm. Bet tos rakstus, kas
+uz to katlu bijuši, neviens nevarējis salasīt.</p>
+
+<p align="JUSTIFY">Pēc gadiem nācis viens pasaules ceļotājs. Senāk nebija ne kuģu:,
+ne dzelzceļa, nedz arī gaisa kuģu un tad izgājis vairāk gadu līdz apstaigājis visu
+pasauli. Cits dabūjis arī savu galu, staigājot ap pasauli. Tas pasaules ceļotājs ar
+atnācis tai apgabalā, kur tas kurpnieks dzīvojis. Pasaules ceļotājs iegājis ar pie
+tā kurpnieka, tas viņu pamielo, izvadā pa savis dārzis un gaņgis, noiet pie tās
+vietas, kur tas katls uzstādīts un kur zied visskaitākās puķes. Uz to katlu bijis
+tās zemes raksts, no kuŗas bijis tas pasaules ceļotājs. Tas ceļotājs nu izlasījis
+uz to katlu: "Apakš šī naudas katla ir vēl viens lielāks vaŗa naudas katls
+nekā šis ir."</p>
+
+<p>Tas pasaules ceļotājs izstāstījis visu, ko viņš izlasījis uz to katlu. Viņi
+arī izrakuši vēl lielāku vaŗa katlu, pilnu naudas. Tad ceļotājs nu vairs negājis
+nekur prom, un tā abi dzīvojuši kopā kā labākie draugi. Naudu nezinājuši kur likt,
+un devuši to naudu arī nabagiem, un tā visi palikuši bagāti. Tas kurpnieks vēl
+dzīvo ja nav nomiris.</p>
+
+
+</body></html>

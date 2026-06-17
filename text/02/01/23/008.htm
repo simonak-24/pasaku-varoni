@@ -1,0 +1,154 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Novaktētā ragana.</p>
+</b></font>
+
+<p>8. A. 306. Kārlis Bramanis Rīgas apg. LP, V, 93. </p>
+
+<p align="JUSTIFY">Vienam bagātam tēvam bijusi brīnum daiļa meita; tikai tāda
+neizprotama bijusi; </p>
+
+<p align="JUSTIFY">pārgalvības un stūrgalvības vien prātā. Tēvs gribējis, lai
+precētos; bet šī ne, un ne. Kurš brūtgāns gadījies, aiztriekusi pie kāķa.</p>
+
+<p align="JUSTIFY">Beidzot sataisījies nabaga tēva dēls daiļo pārgalvnieci precēt.
+Gājis turp. Bijis caur mežu jāiet. Tur saticis vilku. Vilks teicis: "Kāp man
+mugurā! Aiznesīšu pie kādas bedres meža vidū; iekāpsi bedrē iznest man to
+svecīti, kas tur dabūjama."</p>
+
+<p align="JUSTIFY">Labi. Aizjājis un iekāpis bedrē. Bet tur bijuši miroņu bez gala,
+un starp tiem tad atradis gan tādu svecīti. Uznesis vilkam. Vilks par to labumu iedevis
+dzijas kamoltiņu sacīdams: "Svied kamolu zemē un ej pakaļ, kur tas velas!"</p>
+
+<p align="JUSTIFY">Vilks tūdaļ pazudis un šis nu gājis kamoltiņam pakaļ. Un ko
+domāt - kamoltiņš taisni ietecējis pie daiļās meitas, ko bija iedomājies precēt.
+Sāk nu runāt - ja, šī tūlin nācēja; citi brūtgāni neesot patikuši, bet tāds
+gan. Ko nu? Tēvs itin priecīgs steidz kāzas. Nodzeŗ kāzas, sāks kopā dzīvot - vai
+akls! nu tik izrādās, kas daiļai pārgalvniecei par nelaimi. Ače, nelabi gari
+apstājuši un tie katru nakti noblandās pa istabu, ka nekur dēties. Sācis dzēnāt
+pagānus; bet kur tu Dieviņ - ņēmuši jauno vīru piekaut un aiznesuši vēl mežā
+nosviest pavisam svešā vietā. Laime, ka vēl kamoltiņš kabatā glabājies. Nedienā
+izvilcis to un sācis tam sekot. Kamoltiņš tek tek - beidzot apstājies pie tās bedres,
+kur tie miroņi. Un kamēr tur skatījies, redz: kamoltiņš jau bedrē. Kāpis pakaļ. Un
+kas par laimi! Atradis starp miroņiem vēl otru tādu svecīti. Tagad kamoltiņš
+izritējis no bedres un prom uz māju. Labi! Otrā naktī domājis mieru atrast; bet kas
+ir? Pusnaktī negudrie klāt atkal.</p>
+
+<blockquote>
+  <p>"Pag, kur mana svece! Jāredz taču, kas tie tādi!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Un tūlin aizdedzinājis svecīti. Bet brīnumi kādi nav redzēti!
+Līdz ko svecītes uguns paspīdējusi - šie dullie aizgājuši kā putenis un sieva
+nomirusi. Bailēs skrējis cilvēkus saukt. Sanākuši gan, bet kas pagalam - pagalam. Jau
+taisījušies iezārkot. Bet par to laiku bijis pienācis arī rīts. Pašu brīdi saule
+lēkusi un -- ko domāt - nu mirēja atdzīvojusies un tad vēl bijusi tāda, it kā no
+jauna būtu piedzimusi. Neatminējusies ne vecas regas. ne arī vairs āžerējusies kā
+senāk. Abi dzīvojuši ilgu mūžu labi jo labi.</p>
+
+
+</body></html>

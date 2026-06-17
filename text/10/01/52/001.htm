@@ -1,0 +1,257 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Dz?r?js par ??ni?u.</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Dzērājs par ķēniņu.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">A.<b> </b>935. A.<b> </b>Lerchis - Puškaitis
+Džūkstē - Pienavā. LP,<b> </b>I, 32,7 </font></p><font size="3">
+
+<p align="JUSTIFY">Vienam bagātam, bagātam vīram bija divi dēli: vecākais ar
+kuprīti, jaunākais turpretim ļoti slaiks, skaists jauneklis. Bet ko palīdz skaistums,
+ja nav tikuma? Tā arī šā tēva dēls, pie visa sava skaistuma, bija tik nekrietns
+dzērājs, ka nodzēra visu tēva mantu, noplēzdams tēvu pliku, nabagu. Vecais savā
+nabadzībā iztiek, kā nu varēdams, bet nedod vairs dēlam it nekā. Pārgalvnieks,
+strādāt nevīžodams, sāk blandīties pa pasauli. Nonāk kādā dienā svešā, svešā
+pilsētā. Pilsētā dzīvo ķēniņš, kam skaista princese. Jauneklis kāro skaisto
+princesi redzēt un sāk ik dieniņas pils priekšā pastaigāties, pie kam arvienu ilgi
+noskatās, acis gandrīz nenolaizdams, uz pils logiem. Princese to pamana un sūta sulaini
+prasīt, kādēļ šis tā uz pili noskatoties un ko īsti gribot.</p>
+
+<p align="JUSTIFY">"Ko gribu? Gribu tādu pašu pili celt!" jauneklis atcērt un<b>
+</b>skatās, skatījies. Princese sūta vēl otrreiz sulaini un liek svešo ievest.
+Jauneklis neliekas divas reizas teikties - ieiet un saka, ka esot ķēniņa dēls.
+Princesei šis patīk. Tā lūdz tēvu, viņu par znotu pieņemt. Tēvs neliedz savam
+bērnam pie šā iet un pasludina otrā, trešā dienā saviem uzticīgajiem
+pavalstniekiem, ka tai un tai dienā rādīšot visiem savu jauno znotu, nākošo
+valdinieku. Ķēniņš notur brašas kāzas un sāk ar znotu kopā valdīt.</p>
+
+<p align="JUSTIFY">Te pēc kāda laika izceļas ar kaimiņu valsti kaŗš. Ķēniņa znots
+pārvar ienaidnieku un manto no pavalstniekiem uzticību un<b> </b>slavu. Visi kopā lūdz
+veco ķēniņu iecelt znotu par valdinieku. jo vecam vīram labāki esot mierā
+atpūsties. Vecais paklausa pavalstnieku gribu un ieceļ znotu par valdnieku.</p>
+
+<p align="JUSTIFY">Senākais dzērājs, par ķēniņu ticis, izstāsta savai
+ķēniņienei, ka neesot ķēniņa dēls, kā iesākumā teicis, bet vienkārša vīra
+dēls. Pie tam vēl caur dzeršanu padarījis tēvu par nabagu. Ķēniņiene iesākumā
+dusmīga, bet neko. Abi tāpat to savā starpā pārrunā, kā jau laulātam pārim
+pieklājas.</p>
+
+<p align="JUSTIFY">Jaunais ķēniņš tagad pavēsta arī tēvam par savu laimi, un aicina
+ar kuprīti pie sevis dzīvot.</p>
+
+<p align="JUSTIFY">Tēvs, ziņu saņēmis, ļoti apskaistas un saka: "Tāds
+neģēlis! mantu apdzert un beidzot mani, vecu vīru, vēl piezobot! Laikam cūku stallī
+iestidzis, ne par ķēniņu ticis!"</p>
+
+<p align="JUSTIFY">Dēls, tēva dusmas dabūjis zināt, apņemas ar lielu kaŗaspēku
+tēvam parādīties, ka nav vis melojis.</p>
+
+<p align="JUSTIFY">Pusceļā jaunais ķēniņš apmetas uz naktsguļu kādā lielā,
+lielā mežā, kur tuvumā uziet lielu pili. Pilī nav neviena cilvēka. Ķēniņš pavēl
+kaŗaspēkam vakariņas uztaisīt un pats uziet augšā gulēt. Pēc brīža ieronas pilī
+svešs cilvēks un teicas par šīs ķēniņu. Pils bijusi slepkavu pils un svešais vīrs
+slepkavu virsnieks. Ienācējs izliekas pret kaŗaspēku ļoti laipns, bet iebeŗ,
+nevienam nemanot, ēdiena katlā nāves zāles. To izdarījis, atstāj kaŗaspēku un
+uziet pie ķēniņa augšā. Sāk ar viņu mīlīgi tērzēt un izliekas par tādu pašu
+ķēniņu. Kamēr svešais ar ķēniņu tērzē, viss kaŗaspēks, saēdies nāves zāles,
+apmirst. Uz reizi sanāk pilī slepkavas un uzsauc ķēniņam: "Sataisies, tev
+jāmirst!"</p>
+
+<p align="JUSTIFY">Ķēniņš redz, ka viens palicis, sāk lūgties, lai jau - ja ne
+vairāk -trīs, četras stundas atvēl viņam vēl uz nāvi sagatavoties. Slepkavas
+atvēl, bet ieslēdz vienu pašu istabā.</p>
+
+<p align="JUSTIFY">Ko nu taisnam padarīsi? Ķēniņš savā postā laimīgi pamana, ka
+līdz logiem divi koki līgojas. Viņš tumsā attaisa lēniņām logu, nolien zemē un
+nu, ko tik māk, uz sava tēva mājām. Tēvs pa to starpu aizgājis citā vietā dzīvot.
+Ķēniņš meklē tēvu trīs dienas, trīs naktis. Beidzot, noguris un izsalcis, uziet
+mazu būdiņu, kur apgulstas turpat cūku stallī mīkstajos salmos. No rīta būdiņas
+iedzīvotājs iet sivēnus kopt un dzird kādā stūrīti it kā zobus klabinām. Viņš
+iet raudzīt - ko domājiet - izvelk no aizgalda savu pašu dēlu senāko dzērāju.
+Nabadziņš puspliks tikai kreklā un bikses, jo slepkavas viņu bija aplaupījuši.
+Dēlam tas nemaz prātā nenāca, ka šis tēva cūku stallis un ka tēvs tagad mājo tik
+nabadzīgā būdiņā.</p>
+
+<p align="JUSTIFY">Dēls nu gan grib tēvam iestāstīt par savu ķēniņa godu, par
+slepkavām un kaŗaspēku. Vecais, savu dēlu un viņa senāko nekrietnību pazīdams, tik
+atbild: "Ko tu tikdaudz pļurkšķi un manā priekšā verdi? Ko es teicu, ,ka tu
+arvienu ātrāki cūku stallī ietiksi, nekā ķēniņa pilī. Nu, tu tēviņ, vairs
+apkārt neblandīsies. Nāc! iedošu paēsties un taisies cūkas ganīt!"</p>
+
+<p align="JUSTIFY">Nabadziņš nu sagana 3 nedēļas cūkas, jo tēvs netic un netic, ko
+dēls arvienu stāsta:</p>
+
+<p align="JUSTIFY">Pēc trim nedēļām ķēniņiene dabū zināt par sava vīra likteni.
+Viņa izmeklē visgudrāko un vecāko virsnieku savā kaŗapulkā un iet ar lielu
+kaŗaspēku vīru meklēt, slepkavām atriebties. Vecais virsnieks un ķēniņiene
+apmetās ar kaŗaspēku pie slepkavu pils un pavēl cieši visu nakti ne kumosa neēst.
+Naktī slepkavas pārnāk cits pēc cita no laupīšanas. Virsnieks sagūsta viņus visus.
+Slepkavu virsnieks, redzēdams, ka nevar jokot, izteic, ka ķēniņš aizmucis, un ka
+viņa kaŗaspēks trešā dienā atkal atmodies. Viņš nepiebēris vis nāves zāles pie
+ēdiena, bet tikai miega zāles. Virsnieks ar ķēniņieni atron ķēniņa kaŗaspēku,
+pagrabos ieslodzītu, gandrīz badā aizmirušu. Nu atsvabina sagūstītos un iesloga
+viņu .vietā pašus slepkavas.</p>
+
+<p align="JUSTIFY">Tagad ķēniņiene pamet virsnieku ar atsvabināto kaŗaspēku slepkavu
+pilī, bet pati iet ar otru kaŗaspēku ķēniņa meklēt. Kādā pilsētā viņa tikdaudz
+saklaušina, ka tanī un tanī būdiņā dzīvo gan kāds vīrs, kuŗa dēls bijis nejauks
+plītnieks. Tā jau ir, kad cilvēks vienreiz kritis neslavā, tad jau arī pēc gadiem
+viņu piemin. Tādu pa pēdām vien sadzen, kad arī pašā Pēterburgā dzīvotu.</p>
+
+<p align="JUSTIFY">Nelaimīgais ķēniņš gana savas cūkas, kā ganījis. Te vienā
+baltā dienā cūkganiņš izdzird jauku kaŗamūziku. Viņš pazīst sava paša
+kaŗaspēka mūziku un tek ar gana pātagu, gana drēbēs ķēniņienei pretim.
+Ķēniņiene grib no karītes lēkt un vīru apkampt. Šis klusu iečukst, lai ejot tik
+visā greznumā uz tēva būdiņu, un uzprašot, vai šim esot kāds dēls. Kā teikts,
+tā darīts tēvs izved kuprīti. Ķēniņiene prasa: "Kur tad ir otrs dēls?"</p>
+
+<p align="JUSTIFY">"Man gan vēl ir otrs dēls, bet beidzamais palaidnieks,"
+tēvs nobijies atbild. Viņam prātā, ka palaidnis apkārt vazājoties, būs kādu
+ķēniņieni aizkaitinājis. Vecais aizjož pie cūku gana uz lauku, dusmās tīri zils un
+melns.</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Tu sasodīts elles prauls! ko tad tu ķēniņienei esi nodarījis
+  ."</p>
+</blockquote>
+
+<p align="JUSTIFY">Vai neredzi, ka karaspēks tev pakaļ atnācis? Tu manu sūro dieniņu,
+kas man viss nav jāpanes tevis dēļ!"</p>
+
+<p align="JUSTIFY">Bet cūkgans par tēva dusmām, bažām tik pasmejas un iet, dejot,
+lecot, gana pātagu pār plecu uz mājām. Tēvs kukstēdams soļo dēlam pakaļ un
+piemāca, lai tūlīt ķēniņienei krītot pie ceļiem žēlastības lūgties.</p>
+
+<p align="JUSTIFY">"Ko nu tētiņ tik daudz locīsies, raudzīsim labāk ķēniņieni
+pacienāt. Izsalkusi un izslāpusi jau tā būs uz tik gaŗa ceļa." </p>
+
+<blockquote>
+  <p align="JUSTIFY">"Bet ko tad tādai lai zin dot?" tēvs gaudojās.</p>
+</blockquote>
+
+<p align="JUSTIFY">"Ko tādai dos? Vīna vietā bērzu sulas un cūkas snuķi par
+uzkožamo."</p>
+
+<p align="JUSTIFY">Cūkganiņš nu paņem ēdienu, dzērienu nu nes tāds, kāds cūkas
+ganījis, pie kēniņienes iekšā. Nesējs - vai nu tīši, vai netīši - krīt, pie kam
+trauki ripot aizripo.</p>
+
+<p align="JUSTIFY">Tēvs, to redzēdams, tikko vēl spēj izsaukt : "Vai Dieviņ! Vai
+Dieviņ! kur nu paliksim?"</p>
+
+<p align="JUSTIFY">Dēls sasistos traukus paspeŗ ar kāju, ieiet taisni pie ķēniņienes
+un aiztaisa durvis. Te tas apģērbj klusu līdzpaņemtās ķēniņa drēbes un sauc tēvu
+iekšā. Nu tik vecais atplēš acis un muti, nezinādams no prieka vai raudāt, vai
+smieties.</p>
+
+<p align="JUSTIFY">Visi tagad, ķēniņš, ķēniņiene, tēvs un kuprītis atstāj
+būdiņu un iet ar kaŗaspēku uz slepkavu pili, kur vecais virsnieks gaida. Iznīcina šo
+perekli līdz pamatam, tad pāriet mājās un dzīvo laimīgi.</p>
+</font>
+
+
+</body></html>

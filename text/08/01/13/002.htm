@@ -1,0 +1,204 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Zaķu gans.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">2. A. 570. Skolnieks J. Atteka no P. Silenieka
+Nīcas Banažu ciemā, Mielavu mājā, K. Lielozola kr.</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz tēvam bija trīs dēli: divi gudri, bet trešais muļķis. Tēvs
+sūtīja dēlus mežā malku cirst. Gudrie brāļi ienīda muļķīti, un kādu dienu
+viņi norunāja atstāt muļķīti vienu mežā, lai redzētu, vai viņš vakarā zinās
+pārnākt mājā. Bet muļķītis drīzi vien pārnāca mājā.</p>
+
+<p align="JUSTIFY">Otrā dienā pie tēva ieradās viens bagāts kungs un salīga
+muļķīti par lielu algu zaķus ganīt, kas vakarā visi mājā jāpārdzenot. Vakarā
+pārnāca mājā gudrie brāļi un sāka muļķīti izsmiet, teikdami, ka šis nemaz
+nevarēšot zaķus ar skaitu noganīt. Muļķīti viņi arī nemaz ganos nelaida, bet
+gāja jaunākais gudrais brālis.</p>
+
+<p align="JUSTIFY">Nākošās dienas rītā kungs izskaitīja zaķus, un gudrais dēls tos
+dzina uz birzi. Vakars pienāca ātri, bet no zaķiem nebija vairs ne vēsts. Gudrais nu
+nāca bez zaķiem mājā. Pa ceļu ejot, viņš satika vienu vecenīti, kas lūgusi:
+Palīdzi man šoreiz, man ļoti sāp viens zobs, izrauj man to!"</p>
+
+<p align="JUSTIFY">"Liec mani mierā, man nav vaļas kulties ar taviem zobiem,"
+viņš dusmīgi atcirta.</p>
+
+<p align="JUSTIFY">Pie kunga nogājis, viņš teica, ka visi zaķi ir nozuduši. Kungam nu
+pašam vajadzēja zaķus uzmeklēt.</p>
+
+<p align="JUSTIFY">Nu gāja otrs gudrais dēls par to pašu algu kungam zaķus ganīt.
+Kungs ar skaitu viņam nodeva zaķus. Gudrais dēls aizdzina tos birzē, bet nu zaķi
+aizskrējuši katrs uz savu pusi. Pienāca vakars, bet zaķi nerādījās. Mājā
+nākdams, viņš satika vecenīti, kas lūdza izraut slimo zobu, bet gudrais dēls
+dusmīgi atteica, ka viņam nav laika ar viņas zobiem kulties. Pārnācis mājā bez
+zaķiem, viņš teica kungam, ka zaķus noganīt esot pardaudz grūti, viņš nevarot
+tādu darbu izpildīt. Kungam atkal pašam vajadzēja savus zaķus meklēt.</p>
+
+<p align="JUSTIFY">Nākošā dienā nu muļķis grib iet zaķus ganīt, bet tēvs ar
+gudrajiem dēliem negrib to laist, teikdami: "Gudrie nevarēja zaķus noganīt, kā
+tad tu, muļķi, domā tik grūtu darbu izdarīt? Tu vēl apmaldīsies, dabūsim vēl
+pašu meklēt."</p>
+
+<p align="JUSTIFY">Bet muļķītis pastāv uz savu un grib tomēr iet zaķus ganīt.
+Beidzot tēvs arī atlaiž viņu, lai iet. Kungs izskaitīja zaķus un lika tos
+muļķītim dzīt uz birzi. Zaķus turp dzenot, viņš satika vecenīti, kas lūdzās:
+"Mīļo dēliņ, palīdz man šoreiz, man ļoti sāp viens zobs, izrauj man to!"</p>
+
+<p align="JUSTIFY">Muļķītis arī paņēma zobu un izrāva. Tad vecenīte teica:
+"Tā kā tu man paklausīji, es tev došu šo stabulīti ; ja tu uzpūtīsi rupjo
+galu, tad visi tavi zaķi skries katrs uz savu pusi, ja pūtīsi smalko galu, tad viņi
+visi atskries pie tevis atpakaļ. Ja tev šī stabulīte kādreiz pazūd, tad tik pasaki:
+"stabulīte, pacelies!" tad tā atkal būs tavā kabatā. Šo stabuli nevienam
+nerādi!" vecene vēl piekodināja.</p>
+
+<p align="JUSTIFY">Muļķītis papūta rupjo galu, un visi zaķi skrēja katrs uz savu
+pusi. Pienāca vakars, viņš paņēma stabulīti un papūta smalko galu, visi zaķi
+skrēja atpakaļ, ka čabēja vien. Muļķītis bija tik priecīgs, ka dziedādams dzina
+zaķus uz kunga pili. Visi brīnījās, ka muļķis varējis zaķus noganīt, lai gan
+viņa gudriem brāļiem tas neizdevās.</p>
+
+<p align="JUSTIFY">Otrā rītā kungs atkal izskaitīja zaķus un muļķītis tos aizdzina
+uz mežu. Pienāca pusdiena muļķītis papūta uz stabules smalkā gala, jo gribēja
+redzēt, vai nāks visi zaķi pie viņa kā vakar, vai ne. Zaķi nu nāca, ka brikšēja
+un brakšēja. Viņš uzpūta atkal rupjo galu, lai zaķi ietu mežā un ēstu. Vakarā
+muļķītis uzpūta stabules smalko galu un dzina visus zaķus mājā. Mājā pārnācis,
+viņš katru reizi stabulīti labi noglabāja, kā to vecenīte bija piekodinājusi.
+Gudrie brāļi gribēja noskatīties, kā viņš var zaķus noganīt. Kad muļķītis
+dzina zaķus uz mežu, viņa brāļi līduši viņam nopakaļus pa krūmiem. Muļķis tos
+pamanīja un sāka viņus izsmiet, ka viņi nevienu vakaru nav pārdzinuši zaķus mājā,
+bet viņam gan zaķi labi ēdot un nekur neskrienot prom. Gudrie brāļi lūdza, lai šiem
+pastāstot, kā viņš zaķus varot noganīt. Muļķītis nekā viņiem nestāstīja, un
+tie aizgāja tikpat gudri, kā bija atnākuši. Viņš tagad bija jau sakrājis daudz
+naudas, bet ar brāļiem nekādās darīšanās neielaidās un cītīgi glabāja savu
+stabulīti.</p>
+
+<p align="JUSTIFY">Vienu dienu kungs sūtīja savu meitu, lai viņa noskatās, kā
+muļķis var noganīt zaķus. Meita tēvam vakarā pastāstīja, ka muļķītim ir tāda
+savāda stabulīte, ar ko viņš ir sasaucis un aizdzinis zaķus. Kungs nu prasīja pašam
+ganam, kā tas varot zaķus noganīt, bet arī tam viņš neizstāstīja.</p>
+
+<p align="JUSTIFY">Kādu rītu viņš nevarēja atrast stabuli, jo vakarā nebij labi
+noglabājis. Viņš arī bija aizmirsis vecenītes vārdus, ar kuriem stabuli varēja
+dabūt. Muļķītis ilgi to meklējis un pēdīgi atradis to kunga kumodē. Nu viņš
+atkal gāja ganos un vakarā visus zaķus pārdzina mājā. Kungs gribēja, lai muļķis
+viņam stabuli pārdod, bet tas nav ar mieru. Kādā citā vakarā kungs viņam solīja
+dot savu meitu un daudz mantas. Kungs arvien prasīja, lai viņam pārdodot stabulīti.
+Beidzot muļķītis kungam pārdeva par pieciem sidraba rubļiem. Kungs tad teica:
+"Zaķus ganīt tev es vairs nelikšu, tu dabūsi manu meitu par sievu."</p>
+
+<p align="JUSTIFY">Tagad muļķītis bija bagāta kunga znots un lepnas pils jaunais
+saimnieks. Gudrie brāļi vēl vairāk neieredzēja savu brāli viņa lielās laimes
+dēļ.</p>
+
+<p align="JUSTIFY">Pēc kādiem gadiem vecais kungs nomira un muļķītis dzīvoja par
+kungu ar savu jauno saimnieci.</p>
+</font>
+
+
+</body></html>

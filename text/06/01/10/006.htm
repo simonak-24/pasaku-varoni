@@ -1,0 +1,175 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pieci savādie stiprinieki.</p>
+</b></font>
+
+<p>&nbsp;</p>
+
+<p>6. A. 513 A. M. Bumbuls Žibju mājās Nīcā.</p>
+
+<p align="JUSTIFY">Viens pasaules gājējs nodomājis visu pasauli apstaigāt. Gājis
+trīs dienas, iegājis mežā un tur ieraudzījis vīru, kas kokus ar visām saknēm rauj
+no zemes ārā. Pasaules staigātājs jautājis, ko šis te darot. Kokurāvējs
+atbildējis, ka laužot mātei žagarus. Sarunājuši abi apstaigāt pasauli.</p>
+
+<p align="JUSTIFY">Gājuši trīs dienas un ieraudzījuši vīru uz vienas kājas lecam.
+Šie prasa, vai klibs esot. Lēcējs atbild, ja viņš abām kājām ietu, kur tad
+neaizietu, uz vienas jau pa daudz ātri sokas. Sarunājuši iet visi trīs kopā.</p>
+
+<p align="JUSTIFY">Gājuši vēl trīs dienas un ieraudzījuši vīru, kam cepure uz
+vienas auss. Apjautājušies, kāpēc tā. Tas paskaidrojis, ka esot pats Ziemelis. Ja
+cepuri taisni turot, tad esot tāds sals, ka zaķim acis sprāgstot laukā. Aicināja šie
+Ziemeli līdzi nākt pa pasauli.</p>
+
+<p align="JUSTIFY">Gājuši atkal trīs dienas un sastapuši īsu resnu vīru, kam abas
+nāsis aizbāztas. Šie jautājuši, kāpēc nāsis aizbāzis. Tas sacījis, ka esot pats
+Vējš. Kad viena nāss vaļā, tad stiprs vējš pūš; kad abas, tad vētras, aukas,
+viesuļi.</p>
+
+<p align="JUSTIFY">Gājuši visi pieci un pēc trim dienām nonākuši pie liela ezera.
+Kāds vīrs tupējis uz kaudzes un mērķējis pāri septiņu jūdžu ezeram. Pasaules
+gājēji jautājuši, ko darot. Mērķētājs atteicis, ka ezera otrā galā esot liels
+ozols deviņiem žuburiem. Pa septīto žuburu staigājot muša. viņš gribot tai kreiso
+aci izšaut.</p>
+
+<p align="JUSTIFY">Gājuši nu visi seši. Pēc trim dienām uzgājuši pili, kur
+dzīvojis ķēniņš. Tas ķēniņš izlaidis tādu zinu. kas noskriešot viņa meitu, tas
+dabūšot to par savu sievu, jeb arī tik daudz naudas, cik viņš varot panest.</p>
+
+<p align="JUSTIFY">Otrā rītā ķēniņš iedevis savai meitai vienu krūzi un Lēcējam
+otru, un licis, lai nu skrien uz septiņas jūdzes attālo avotu un atnesot ūdeni, kuŗš
+ātrāki atskriešot. Lēcējs sprādzējis vaļā savu otru kāju, bet meita jau bijusi
+labi gabalā. Skrēja arī nu Lēcējs, bet pusceļā tam uznāca miegs. Lēcējs liekas
+gulēt un aizmieg ar pīpi zobos.</p>
+
+<p align="JUSTIFY">Pasaules gājējs ar biedriem uzkāpis jumtā un skatījies, vai ūdens
+nesēji jau nenāk, bet nu ierauga Lēcēju guļam. Tad Mērķētājs paņem plinti un
+izšauj Lēcējam pīpi no zobiem. Gulētājs atmodies redz, ka meita ar ūdeni jau
+atpakaļ, un šim gaŗām pagājusi. Bet tad arī šis salēcies un zibeņa ātrumā bijis
+pie avota un atpakaļ un meitai papriekšu mājā. Nu Lēcējs varēja dabūt ķēniņa
+meitu, bet viņš labāk vēlās naudu, cik Kokurāvējs panesīšot. Šie nu sapirka
+audeklu, cik varēja visā valstī dabūt, un pašuva lielu platu maisu. Maisā sabēra
+visu ķēniņa mantu, bet maiss nebija vēl pilns. Kokurāvējs vēl iesviedis maisā
+septiņas karītes ar zirgiem un kučēriem, tad paņēmis to viegli jo viegli uz pleciem
+un nesis projām.</p>
+
+<p align="JUSTIFY">Ķēniņš, gudrs būdams, aicina pasaules gājējus dzelzs istabā
+tējas sadzerties. Kad nu šie ieiet, ķēniņš liek istabu nodedzināt sarkanu. Bet
+šiem nekas nekait, Ziemelis sagrieza cepuri taisni un nu sala, ka sprakšēja vien.
+Ķēniņš galda šos nosalstam, bet nekā. Visi aiziet veseli uz māju. Ķēniņam palika
+mantas žēl, un nu sūta kaŗaspēku pakaļ. Pasaules gājēji uzkāpuši kalnā,
+ieraudzīja lielo karaspēku paka[ dzenoties. Šie nav vēl labi apskatījušies -
+kaŗaspēks jau pie kalna klāt. Bet nu Vējš nostājas pret kaŗaspēku, attaisa abas
+nāsis vaļā un vis kaŗaspēks aizgāja pa gaisu kā spalvu kušķis. Nu pasaules
+gājējiem bija miers. Pāriet mājā un nu izrādās, ka visi viņi bijuši brāļi. Nu
+visi dzīvo ar ķēniņa naudu priecīgi un laimīgi.</p>
+
+<p align="JUSTIFY">Piezīme. Līdzīgu pasaku ir uzrakstījis arī skolnieks M. Ķaupelis
+no 65 g. vecas M. Auziķes Nīcā. P. Š.</p>
+
+
+</body></html>

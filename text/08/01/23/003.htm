@@ -1,0 +1,245 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Divi ceļotāji.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">3. A. 613. B.Skujiņš, Andrs Ziemelis, no 55
+gadi vecas K.Cīrules Smiltenē.</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz bīš traki nabadzīgs kurpnieks un tam gāš varēn gŗūti.
+Bērnu bīš dau, sieva slima un kurpniekam vienam pašam bīš jāpelna maize visam
+baram. Bet ko nu šis vienc pats varēš krāmu nopelnīt tik lielam baram? Tā nu
+kurpnieks kāvies ar vienu pašu badu. Bet nu pēdīgi šim nebīš ne kau kā ar vais,
+bet visi prasa, bērni prasa ēst, sievai ar vaiga. Nu kurpnieks aizgāš pie viena
+bagāta vīra un prasīš, lei aizdodot šim drusku naudas. Labi! bagātais aizdevis ar'
+naudu un sacīš, lei līdz tam un tam laikam gādājot šim naudu rokā. Kurpnieks
+apsolīš ar un gāš priecīgs uz māju. Bet pienācis noliktais laiks, ka bagātam bīsi
+nauda jāatdo, bet kurpniekam pašam nebīš ne graša pie dvēseles. Bagātais dzinies
+virsū pēc savas naudas un kurpnieks vairs nezināš, kur dēties. Pagāš vē labs lugs
+un kurpnieks vē nekur nevarēš sagrābāt naudas, ko bagātam atdot.</p>
+
+<p align="JUSTIFY">Reiz kurpnieks aizgāš uz pilsētu un ka nācis uz māju, tā mežā
+saticis bagāto un bagātais kurpniekam akal virsū, lai dodot šā naudu rokā.
+Kurpniekam nebīš naudas ko atdot un šis lūdzies bagāto, lai vē kādu lugu
+paciešoties, ka jau šim būšot, tā tūlī atdošot. Bet nu bagātais pārskaities un
+klupis kurpniekam virsū un izdūris šim abas aces.</p>
+
+<p align="JUSTIFY">Bagātais aizgāš uz māju un kurpnieks palicis mežā. Viņč bīš
+pagalam akls un neredzēš vais uz māju aiziet. Pienācis vakars un kurpnieks tāpatās
+vē stāvēš mežā. Ka nu uznākusi nākts, tā kurpniekam palicies bailes zemē palikt,
+ka šo pa nākti nesaplosa zvēri. Kurpnieks grābājies tikmē ar rokām sev riņķī,
+kamē sagrābāš koku un nu rausies kokā augšā, lei varētu pa nākti droši
+pārgulēt, jo kokā nu kurpnieks bīš drošs, ka zvēri šim klā netiks. Kurpnieks
+tupēš kokā un domāš par savu bēdu dzīvi.</p>
+
+<p align="JUSTIFY">Tā ap pusnākti pie tā paša koka, kurā kurpnieks tupēš, daskrēš
+zaķis. Pēc tāda luga daskrēš lācis un pēc tam atkal vilks. Visi trīs nu sākuši
+runāties un spriest savā starpā. Tā nu zaķis sacīš: "Re' nu, kā ķēnīna
+meitu nevar nevienc pats ar izārstēt. Gan nāk šādi tādi, bet nevienc ar nevar
+palīdzēt."</p>
+
+<p align="JUSTIFY">"Uja, ačka," sacīš lācis, "kas tur ko neizārstēt!
+Lei izlauž vie ķēnīna meitas istabā grīdu, zem grīdas ir trīs āboli. Vienc ābols
+ir sidraba, vienc zelta un trešais dimanta. Lei pārgriež ābolus pušu un izņem
+sēklīnu. Kā princesei iedos sidraba sēkliņu, tā viņa sāks runāt, kā iedos zelta
+sēklīnu, tā viņa celsies augšā, kā iedos dimanta sēkliņu, tā ķēnīna meita
+būs vesala."</p>
+
+<p align="JUSTIFY">"Tā un tā," sacīš atkal zaķis, "bet, re', kā
+pilsētā nav un nav vais nevienā akā ūdenc. Cilvēkiem būs un būs jānobeidzas no
+slāpēm."</p>
+
+<p align="JUSTIFY">"Nekā nebūs," sacīš vilks. "Ja pārskaldīs to lielo
+akminu, kas pilsētā ir, četrās līdzīgās daļās, tā ūdenc vairs netrūks."</p>
+
+<p align="JUSTIFY">"Bet kā varētu atdot tam acu gaismu, kam viņas nav?"
+prasīš zaķis.</p>
+
+<p align="JUSTIFY">Nu lācis sacīš: "Lei izmazgā vie acis ar rasu, kamē saule vē
+nav lekusi, tā acu gaisma būs atpakaļ."</p>
+
+<p align="JUSTIFY">Kurpnieks tupēš kokā un visu dzirdēš, kā zvēri runā. Kā nu
+zvēri bīš beiguši spriest, tā atkal aizskrēši. Nu kurpnieks gudrēš un domāš,
+vai tas gan varot būt patiesība. Pēdīgi pats pie sevis nospriedis, ka laikam jau
+patiesība vie būšot, un nu kurpnieks gaidīš rīta gaismu un nodomāš, ka
+jāprovējot, jāču šis tikšot apakaļ pie acu gaismas. Nu kurpnieks bēdājies, ka tik
+nenokavējas, jo viņč jau nekā neredzēš. Kurpnieks nu klausījies no putnu dziesmām,
+vai drīz jau nebūšot rīta puse. Kā nu putni sākuši dziedāt, tā kurpnieks
+nospriedis, ka nu vaigot būt rīta pusei, un rausies no koka zemē. Kā nu viņč
+norausies zemē, tā sācis ar nagim grābāties pa zemi un smēlis rasu šaujā un
+mazgāš sev acis. Kurpnieks tikmē darbojies, kamē atdabūš ar acu gaismu. Nu kurpnieks
+palicis varēn priecīgs un nodomāš pie sevis: "Ir gan patiesība, ko tie zvēri
+sacīja!"</p>
+
+<p align="JUSTIFY">Nu kurpnieks tūlitās posies ceļā uz pilsētu un kā iegāš
+pilsētā, tā redzēš, ka visi ir tik bēdīgi. Viņč prasīš vienam otram, kāpē
+šie esot tik bēdīgi. Šie nu sacīši pretī, ka nekādu prieku jau neesot. Cilvēki
+visi slāpstot no un akā nevienā vais neesat ūdenc. Ķēniņa meita esot slima un
+nevienc šās vais nevarot izārstēt. Nu kurpnieks sacīš, lei vedot šo pie lielā
+akmina. Kurpnieku aizveduši ar. Nu kurpnieks sacīš, lei saskaldot akminu četrās
+līdzīgās daļās, ta akās ūdenc būšot vai sik [cik].</p>
+
+<p align="JUSTIFY">Labi! Tūlī bīš cilvēki klā un saskaldīš akminu četrās
+daļās. Ka akminc bīš saskaldīc, tā tūlī akās bīš ūdenc pa pillam. Ķēnīc
+dabūš zināt, ka pilsētā ienācis svešs cilvēks un attaisīš visās akās akal
+ūdeni. Ķēnīc licis, lei kurpnieku aicinot uz pili un kā kurpnieks atnācis, tā šo
+bagātīgi apdāvināši. Ķēnīc vē prasīš kurpniekam, kā šis pie tādas
+zināšanas ticis un vai nevarot arī šā meitai palīdzēt, tā jau labu lugu esot
+varēn slima un nevienc dakteris nevarot šās izārstēt. Kurpnieks sacīš, ka varbūt
+varēšot ar, un licis, lei šo vedot pie slimās princeses.</p>
+
+<p align="JUSTIFY">Kurpnieku ieveduši princeses istabā un kurpnieks apskatīš slimo
+princesi. Princese bīsi pagalam slima, gulēsi bez valodas un šai tik izdzist vie vē
+vaidzēš. Nu kurpnieks licis, lei izlaužot istabai grīdu, un sācis meklēt, kur tie
+trīs āboli esot, par kuŗiem zvēri stāstīši. Pēdīgi kurpnieks uzgāš visus trīs
+ābolus un tūlī pārgriezis sidraba ābolu pušu un izņēmis ābolam no serdes mazu
+sidraba sēklīnu un licis, lei princese to sēklīnu apēd. Kā princese apēdusi sidraba
+sēklīnu, tā tūlī akal atdabūsi valodu un sākusi runāt. Otrā dienā kurpnieks
+pārgriezis zelta ābolu un izņēmis mazu zelta sēklīnu un licis, lei princese apēd
+zelta sēklīnu. Kā princese apēdusi zelta sēklīnu, tā tūlī cēlusies no vietas
+[gultas] augšā un sākusi staigāt. Trešā dienā kurpnieks pārgriezis dimanta ābolu
+un izņēmis mazu dimanta sēklīnu un licis, lei princese to noēd. Kā princese noēdusi
+dimanta sēkliņu, tā palikusi pavisam vesala.</p>
+
+<p align="JUSTIFY">Ķēnīc bīš varēn priecīgs, ka kurpnieks izārstēš princesi, un
+sacīš šim, ka šis atdodot princesi šim par sievu. Bet kurpnieks nu sacīš pretī, ka
+šim jau mājā esot sieva un bērni, un ka šis nevarot vairs princeses ņemt par sievu.
+Nu ķēnīc sadevis kurpniekam lērumu naudas un atlaidis uz māju.</p>
+
+<p align="JUSTIFY">Kurpnieks gāš priecīgs uz māju. Kā nu šis iegāš mežā, tā
+akal šim nācis bagātais pretī un brīnējies pēc negudra, ka kurpnieks akal atdabūš
+acu gaismu. Nu kurpnieks rāvis naudas zuti no ķešas laukā un atdevis bagātajam savu
+parādu. Nu bagātais prasīš, kur ta šis tik dau naudas ņēmis un kā šis akal ticis
+pie acu gaismas. Nu kurpnieks bagātajam visu izstāstīš. Tā nu bagātais palicis tīri
+vai pusdulls no skaudības un nospriedis pats pie sevis, ka šim ar jāprovējot
+tāpatās, kā kurpniekam. Kā kurpnieks aizgāš, tā bagātais pats sev izdūris acis un
+uzrausies kokā, taisni tai pašā, kuŗā kurpnieks tupēš, un zem kuŗa zvēri
+runāšies.</p>
+
+<p align="JUSTIFY">Kā nu akal danākusi pusnaktc, tā akal zem koka atskrēš zaķis.
+Pēc tāda luga atskrēš lācis un tā vē vilks. Visi trīs nu sākuši spriest, kas gan
+esot izstāstīš to, ko šie vakarnakt' runāši, Jo nu pilsētā esot visās akās
+ūdenc, un princese ar jau esot vesala. Zvēri nu likuši vienc uz otra vainu un tā vie
+klieguši: "Tu esi vainīgs! Tu esi vainīgs!"</p>
+
+<p align="JUSTIFY">Pēdīgi nu lācis ar vilku likuši zaķīti vainīgu. Bet zaķis
+liedzies un dievojies. Lācis ar vilku neticēši un nosprieduši, ka zaķīts
+jāsaplēšot. Nu zaķis nobijies, salicis ķepīnas kopā un sacīš: "Es gan neešu
+vainīgs!"</p>
+
+<p align="JUSTIFY">Un zaķīts skatījies uz augšu. Viņč pamanīš, ka kokā tup vienc
+cilvēks, un priecīgi iekliedzies: "Tie, tas, kas tur kokā, tas būs
+vainīgs!"</p>
+
+<p align="JUSTIFY">Nu lācis ar vilku ar paskatīšies augšā un pamanīši, ka kokā tup
+bagātais vīrs. Nu šie ātri vie nosprieduši, ka tas pats vie būšot vainīgs, un
+sākuši tramdīt bagāto no koka zemē. Zvēri saplosīši bagāto lenckaru lenckaros.
+Bet kurpnieks dzīvāš laimīgi, jo nu šim mantas un naudas bīš pa pillam.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,220 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Kalējs ar Nāvi.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 330 A. J. Bankins "Šis un tas" I, 1872, 52.</p>
+
+<p align="JUSTIFY">Reiz dzīvoja viens neprecējies traktieŗa kungs, kas savā traktierī
+viens pats izticis, tikai viena vecīga sieviņa bijusi, kas tam istabas izslaucījusi un
+māju apkopusi. Viņš no ceļiniekiem itin maz paģērējis, no citiem pavisam nekautkā
+neņēmis, kā nu kuŗo reizu redzēdams.</p>
+
+<p align="JUSTIFY">Reizu tur viens ceļa gājējs ienāk un prasa, vai bur viņam vēl
+rūmes būšot?</p>
+
+<p align="JUSTIFY">"Kāpēc nē?" tas atbild.</p>
+
+<p align="JUSTIFY">"Bet man vēl ir divpadsmit ceļinieku," svešais atbild. Tas
+bijis mūsu Pestītājs ar saviem divpadsmit mācēkļiem. Un lai būtu vēl divreiz
+divpadsmit," viesnīcnieks atteic, "tad man arī būs jums visiem rūmes
+diezgan."</p>
+
+<p align="JUSTIFY">Svešais rītā aiziedams prasa, cik jāmaksā? Viesnīcnieks atteic,
+ka gluži nekas nav jāmaksā. Bet tas saka, lai viņš tak kautko izlūdzas no šā par
+piemiņu.</p>
+
+<p align="JUSTIFY">"Nu labi," viesnīcnieks teic, "pirmā lieta ir šī, ka
+es simtu gadu varētu vecs palikt! Otra tā: man ir labs nāburgs, ar kuŗu es vakaros,
+kad man viesu nav, arvien papļāpājos un laiku pakavēju. Tas ilgi pie manis nepaliek,
+bet drīz iet uz māju, man ir krēsls, un es gribētu, lai šis tāds tiek, kā kuŗš uz
+to atsēžas, ātrāki no tā netiek nost, kamēr es viņu palaižu. Trešā lieta tāda:
+man ir dārzā ābele, kuŗai aug brīnum lieli un skaisti āboli. Pie tās nu par naktīm
+nāk zagļi un tos nozog, kādēļ man pašam nekā nepaliek. Es gribētu, ka lai tas, kas
+pie šiem āboliem pirkstus piekaŗ, no tiem agrāki netiek vaļā, kamēr es pats viņu
+palaižu."</p>
+
+<p align="JUSTIFY">Svešnieks, kas gan bija cerējis, ka viesnīcnieks kādu augstāku
+vēlēšanos būtu teicis, tamēr šim atbild: "Lai tev notiek, ko tu gribi!" ,'</p>
+
+<p align="JUSTIFY">Traktieŗa kungs nu dzīvo un dzīvo, un nāburgs arī paliek pie viņa
+arvien tik ilgi, kā šim patīkas. Bet kad simtu gadu pagalam, tad atnāk pie tā Nāve
+un saka: "Nāc tik nu man līdz! Nu tu jau diezgan dzīvojis pasaulē."</p>
+
+<p align="JUSTIFY">Šis ar nekā nedrīkst sacīt, ka nu jāiet, tad jāiet; bet viņš
+vēl lūdzas, lai tam laižot vaļas citus svārkus apvilkt un apģērbties, un lai šī
+tamēr nosēžoties uz krēsla pie krāsns un sasildoties. Traktieŗa kungs pēc kāda
+laika ienāk istabā, bet Nāve netiek no krēsla augšā, tai gluži negribot jāsēž.
+Tad tai saka: "Daliec vēl piecdesmit gadu pie manas dzīvības, tad es tevi
+laidīšu vaļā, citādi ne."</p>
+
+<p align="JUSTIFY">Nāve saka: "Laid mani prom, man nav vaļas! Vai tu domā, ka man
+tik vien darba, kā pie tevis? Man vēl jāsteidzas uz citām malu malām."</p>
+
+<p align="JUSTIFY">Bet viņš to nedara, tā nu sēž cauru nakti līdz rītam. Kad tas
+viņu nezināt neatlaiž, tad šī uz to saka : "Manis dēļ tad dzīvo nu vēl
+piecdesmit gadu, bet laid tik mani vaļā!"</p>
+
+<p align="JUSTIFY">Viesnīcnieks nu viņu palaiž un tā aiziet:</p>
+
+<p align="JUSTIFY">Kad nu šie nodiņģētie piecdesmit gadi bija pagalam, tad Nāve atkal
+klāt un saka uz viņu: "Tavs nosacītais laiks nu ir pagalam, nāc tik nu man līdz
+bez kādas kavēšanās!"</p>
+
+<p align="JUSTIFY">Tas atteic: "Kad nu jāiet, tad jāiet, tur neviens nevar
+palīdzēt; bet klausi, man ir brīnum skaisti āboli dārzā; ej tur un paēdies, kamēr
+es sameklēju savas lietas un sasienu knupītī."</p>
+
+<p align="JUSTIFY">- Šī jau, dumja kā arvien, iet dārzā un sāk raut ābolus; bet ko
+pirkstus pie āboliem dalikusi, tā paliek stāvot, rokas izplētusi. Viņa nu gan
+lūdzas, lai šo palaižot bet viesnīcnieks citādi pasaulē. ne, ja tā viņam atkal
+piecdesmit gadu vēl ļaujot nodzīvot </p>
+
+<p align="JUSTIFY">Viņa gan negrib vairs ielaisties, bet kad cauru nakti pie ābeles
+stāvējusi un citādi nezina, kā tikt vaļā, tad vēl apsola tam piecdesmit gadu ko
+dzīvot. Protams, ka, pēc nosacītiem gadiem Nāve atkal ir klāt. Tā vairs neiet pie
+viņa istabā, bet nošauj viņu pa logu ar savām bultēm. Tas nu reizu miris; bet viņa
+dvēselei, pirms tā nākusi debesīs, gribas tikt ellē un redzēt, kā tur klājas.
+Nāve tam saka: "Nu tu vari iet kur gribēdams, man ar tevi vairs nav nekāda
+daļa."</p>
+
+<p align="JUSTIFY">Riktīgi, viesnīcnieks noiet ellē, kur ir pulka vellu un daudz
+grēcīgu dvēseļu, kam tur jācieš un jāvārgst. Vells tam jautā, vai negribot
+paspēlēties uz naudu?</p>
+
+<p align="JUSTIFY">Šis atbild: "Atrauj tevi piķis! Kamēr dzīvojis pasaulē,
+kārtis nemaz neesmu saņēmis rokās, ne uz naudu spēlējis."</p>
+
+<p align="JUSTIFY">Vells viņam uzstāj gandrīz ar varu un saka: lai metot ar kauliņiem.
+No tā citādi nevarēdams atgainīties, teic: "Nu tad labi, metīsimies ar
+kauliņiem, ne uz naudu, bet uz cilvēku dvēselēm, kas te ellē."</p>
+
+<p align="JUSTIFY">Vells ar to mierā. Šie nu met kauliņus, bet viesnīcnieks arvien
+vinnē, tam jau divpadsmit dvēseles rokā. Vells sviež kauliņus pie malas un saka, ka
+ar šo pavisam vairs nebūšot spēlēties, jo citādi šim visas dvēseles esot
+jāpazaudējot.</p>
+
+<p align="JUSTIFY">Viesnīcnieks nu ņem savas divpadsmit dvēseles un iet uz debesīm.
+Pēteris stāv pie debess vārtiem, un nelaiž to vis iekšā; bet iekšpusē ir pats
+Pestītājs. Viesnīcnieks tam prasa, vai viņam arī rūme būšot?</p>
+
+<p align="JUSTIFY">"Kāpēc ne?" tas atbild, "nāc tik vien iekšā!"</p>
+
+<p align="JUSTIFY">Bet es neesmu viens pats," viņš saka, "man vēl ir
+divpadsmit "</p>
+
+<p align="JUSTIFY">ceļinieku." "Un lai tev būtu divpadsmit, un vēl reiz
+divpadsmit tad jums visiem rūmes diezgan; jo kā tu toreiz mani ar visiem divpadsmitiem
+mīlīgi uzņēmi, tā es tevi tagad; nāc tik vien iekšā!"</p>
+
+<p align="JUSTIFY">Viņš nu iet ar savām divpadsmit dvēselēm debesīs un sēžas tai
+labākajā vietā, ko pats Pestītājs viņam ierāda un dāvina.</p>
+
+
+</body></html>

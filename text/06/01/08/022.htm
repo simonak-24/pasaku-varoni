@@ -1,0 +1,209 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>22</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vienacīte, Divacīte, Trijacīte.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">22. A. 325. 511 Skolnieks V. Barkovskis Latgalē. </p>
+
+<p align="JUSTIFY">Reiz dīnēja vacs saldots. Kod jau juo āodi beja daguojuši, jis īt
+uz muojam. Taii jis īt, īt - īdams redz, ka natuoļi muoja. Tai jis guojis, guojis vēl
+tuoļuok, koleidz pīguoja jam nakts. Nu tik jis īraudzēja, ka vēl tuoļi speid guns,
+un tur beja moza muojiņa. Viņš īguoja īškā, un palyudza saimneicai, lai īdūd jam
+ēst.</p>
+
+<p align="JUSTIFY">Saimineica, tierguotuoja sīva, īdeva jam ēst gaļi, maizi un vēl
+kluot svīsta. Nu soldots paāda un padzāra un prosuos, lai īlaiž ari gulēt.
+Saimineica lobpruot īlaiž un sataisa jam meikstu vītu.</p>
+
+<p align="JUSTIFY">Reitā, kod soldots guoja pa ceļu, saiminīks īdevja jam baranku
+vārtini. Nu soldots lika barankus uz placim un guoja, bet jūt otkyn jam palīk timss.
+Jis tit pi ūtra saiminīka, puorguļ un tyspats jam nūteik ari pi treša saiminīka. Pi
+catūrtuo saiminīka jau jam guoja sovaiži. Tam saiminīkam beja nalela muojiņa. Pījemt
+jū pījēma kai pirmū vīsu, bet vokorā saiminīka meita īdeva soldotam vīnu
+kristeņu, sacīdama, ka tys jū visur gluobs. Soldots, apmauc's kristeņu, mīrīgi guļ.
+Saiminīki, reitā cēlušīs, aizbrauca uz tiergu. Braucūt īguoduoja, ka aizmiersa
+soldotu pīcelt.</p>
+
+<p align="JUSTIFY">Nu saimineica grīžas atpakaļ. Atguojuse radz, ka soldots vēl guļ,
+nu jei grib jū celt. Ceļ, ceļ - navar pīcēlt, suoc rausteit pa greidu un beņkim.
+Raudama pamona, ka jam ir zalta kristeņš. Tū nūmauc jei zemē. Kai tik nūmauc
+kristeņu, uzreiz soldots pīzaceļas un vaicoj: "Par kū jyus manis
+napīcēlēt?"</p>
+
+<p align="JUSTIFY">Soldots vēļ likuos guļēt un guļ. Vokorā, kod atbrauca saiminīks
+nu tierga, soldots soka: "Nu, ka tu tik lobs esi, es tevi varu padareit boguotu. Es
+pazataisēšu par smuku zyrgu, a tu ved uz tiergu un puordūd tū zyrgu. Tikai napuordūd
+īmovu, lai dūd kaut cik naudas."</p>
+
+<p align="JUSTIFY">Nu atīt tierga dīna un saiminīks vad zyrgu uz tiergu. Te pīīt
+vīns boguots kungs un prosa, lai puordūd zyrgu ar visim īmovim! Bet saiminīks soka:
+"Ni par kū, ni par kaidu naudu napuordūšu īmovu."</p>
+
+<p align="JUSTIFY">Tai kungs nūpierka tū zvrgu, samoksuoja zemnīkam labu naudu un
+aizbrauca prūjom.</p>
+
+<p align="JUSTIFY">Par nagaru laiku tys smukais zyrgs atskrīn atpakaļ pi sova
+saiminīka. Tai saiminīks otkon vad zyrgu uz tiergu. Tai pat atsaroda vīns boguotuoks
+cylvāks un nūpierka zyrgu bez īmovu.</p>
+
+<p align="JUSTIFY">Nu par nacik garu laiku zyrgs otkon atskrīn uz sovu vacū saiminīku.
+Saiminīks, naudas gribādams, nūvad jū vēļ uz tiergu un puordūd ar visim īmovim.
+Kai tik suoka runuot, ka puordūd ar visim īmovim, uz reizes atskrīn daudzi kupči.
+Puordevis zyrgu, dūmoj : "Tagad gon vairs naatskrīs."</p>
+
+<p align="JUSTIFY">Par ilguoku laiku klausuos, ka zyrgs atskrīn zvīgdams, rākdams.
+Saiminīkam tikai baile, ka var atrast piercēju. Jis dūmoj: "Jau vairuokas reuzes
+ir skrējis, tagad jū var kert uotri."</p>
+
+<p align="JUSTIFY">Vīnā vokorā saiminīks soka: "Zyrgu vajadzēs kaut, citaiž
+nabyus iobi, var atīt vysi kupči un praseit naudas. Un cylvāks, kur tu tūlaik
+jemsi?"</p>
+
+<p align="JUSTIFY">Nu meitinei beja ļūti žāl kumeļa. Reitā, tikuo cēlēs, aizīt uz
+sovu zyrgu un stuosta: "Tevi kaus."</p>
+
+<p align="JUSTIFY">Zyrgs soka: "Nu nikas, tu nabādoj. Ka mani kaus, tad tu munu asni
+īlej sovā pierduknē. Un tū asni īsvīd puču duorzā, tī tev izaugs lela uobelneica
+ar skaistim zorim."</p>
+
+<p align="JUSTIFY">Tai jei padora. Kai tāvs nūīt kautu, meita pakaļ. Tāvs soka:
+"Nu, meit, kū tu tī dareisi?"</p>
+
+<p>Meita atbild: "Gribu aizīt apsavārtu."</p>
+
+<p align="JUSTIFY">Tāvs zyrgam kai dyura ar nazi, suoka skrīt asnis. Meita pierdukni
+kluot, lai ītak. Tāvs soka: "Kū tu te drēbu zīd ar asni?"</p>
+
+<p align="JUSTIFY">Jis atruove meitu nu zyrga, a meitina tū asni īlēja puču duorzā.</p>
+
+<p align="JUSTIFY">Reitā ceļas meitine un veras: tik skaista kupla uobelneica. Bet jai
+muote nabeja eistuo, jei beja palikuse buorinīte. Tai tei buorinīte izīt uorā un
+nūplēš skaistū uobelīti. Taipat cēlēs pamuote un pamona skaistū uobelnīcu, plika
+izskrīn uorā nu prīkim un ruovusa uobeli, bet uobelneica uz reizes paceļas gaisā un
+skrīn. Pamuotei par tū tika lelas dusmes, jei ar sovu veci dūmoj nūcierst uobelneicu.
+Buorenīte dūmuoja tagad, kū te byus darīt, jai brīsmeigi žāl uobelneicas.</p>
+
+<p align="JUSTIFY">Vokorā jei nūīt uz uolbelneicu un raud. Uobelneica soka:
+"Naraudi, ka ciers mani, tad tu pirmū skaidu pajam un otkom īsvīd duorzā. Nu tuos
+skaidas izaugs zalta peile. Un tu tū peili īlald prudā, lai mauduojas."</p>
+
+<p align="JUSTIFY">Tai meitine padarēja. Nūsvīda pirmū skaidu un par tū nu tuos
+skaidas izzataisēja zalta peile. Buorinīte peili īmat prlldā. Tāvs, maneidams zalta
+peili, grib tu nūšaut. Buorenīte jāīt un pastuosta peilei, ka jū šaus zemē.</p>
+
+<p align="JUSTIFY">Kai tikai juos tāvs īt šaut, peile īgrimst prudā dibinā. Nu peile
+meitinai daudzi kuo pastuosta par juos dzeivi. Tai peile meitinei iztaisa zalta pili un
+jei tymā dzeivoj. Izzinuojis kēneņš, ka ir taida skaista pils un tī dzeivoj ļūti
+skaista metiņa.</p>
+
+<p align="JUSTIFY">Kēniņš nūbrauc, īīt pilī, atrūn skaistū meitini. Tai jam
+meitina pateik, ka jis tyuleņ apsaprecej.</p>
+
+
+</body></html>

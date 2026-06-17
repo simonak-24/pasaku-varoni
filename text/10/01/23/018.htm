@@ -1,0 +1,203 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>1002318</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Cilvēku sodi.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p><font size="5"></font><font size="3">18. A 840. Jakubs Jakuškins Rēzeknē.</font></p><font size="3">
+
+<p align="JUSTIFY">Vīnu reizi dzeivuoja treis symti godu vecs vecis. Lai gon viņš beja
+jau vacs, tūmār miert nagribēja, bet gribēja vēļ laiku padzeivuot un pīlasīt pa
+pasauli gudrības. Reizi šis vecis laidjās braukt pa pasauli un meklēt gudrības.
+Braucja, braucja vīnu dīnu, laba nikuo napanuocja; braucja, braucja ūtru dīnu, ari
+nikuo, tik trešuos dīnas pušdīnuos viņš pībraucja pi kaidas muojiņas. Te viņš
+nūsprīdja par nakti puorgulēt. Pīsējis zyrgu pi stulpa, vecīts īguoja ustobā.
+Ustabiņā uz cepļa gulēja ari na jaunuoks vecis kai gudrības maklātuojs. Vecis,
+gudrības maklātuojs, sacīja uz ūtru veci: "Loba dīna! Vai navarātu maņ te
+puorgulēt?"</p>
+
+<p align="JUSTIFY">"Loba dīna, loba! Kuopēc nā, vītas pītiks!" atbildēja
+cepļa vecis.</p>
+
+<p align="JUSTIFY">Vokorā pyrmojam večam ustabiņas saiminīca pīgatavuoja vysaidu
+ēdīņu un dzērīņu. Bet kad jis gribēja dzert, tad īraudzēja, ka traukā staipuos
+tuorpi. Vecis vysus ēdīņus un dzērīņus atstuoja uz golda un aizguoja gulātu. Bet
+gulēt viņš ari navarēja, tuopēc ka ustobā pi cepļa nazkas klīdzja: "Apsedz
+mani! Apsedz mani!"</p>
+
+<p align="JUSTIFY">Vecis, dūmuoja sevī: "Kas gon te varātu klīgt, jo dīnā es te
+naredzēju nivīna bārna?"</p>
+
+<p align="JUSTIFY">Vecis tyuliņ pīsacēļa nu gultas un gribēja īt uz pogolma gulātu,
+bet te viņš īraudzēja, ka ustobā pa greidu staigoj tuorpi un viņam ari baist beja
+īt, jo dūmuoja, ka tuorpi kūss. Lai gon baidējuos, tūmār pa sīnas maliņu izguoja
+uorā. Uz pogolma viņš atsagula sovūs rotūs, bet te viņš ari navarēja atrast mīra,
+jo taipat, kai pyrmū reizi, nazkas klīdzja: "Īnes mani! Īnes mani!"</p>
+
+<p align="JUSTIFY">Tagad vecis guoja gulātu uz teirumu, tuopēc ka uz pogalma gulēt
+baidījuos.</p>
+
+<p align="JUSTIFY">Vecis atsagula rudzūs. Rūdzūs ari viņš navarēja gulēt, jo
+nazkaids bolss runuoja: "Apraus mani! Apraus mani!" un ūtrais bolss klīdzja:
+"Nūciert mani! Nūciert mani!"</p>
+
+<p align="JUSTIFY">Tagad vecis guoja gulāte pi kula. Pi kula viņš ari navarēja gulēt,
+jo taipat kai pyrmuos reizēs nazkas klīdzja: ,;Pakar mani! Pakar mani!"</p>
+
+<p align="JUSTIFY">Tai vecis pavadēja vysu nakti. Reitā viņš aizguoja uz ustabiņu un
+prasīja ūtram večam: "Kas te pi jyusu par breinumu? Vokorā, kad es gribēju
+dzērt tū dzērīni, kuru tova saiminīca maņ padevja, tad īraudzīju, ka traukā
+staipuos tuorpi."</p>
+
+<p align="JUSTIFY">"Redzi, te vysam tam ir vainīga saiminīca. Viņai pīnuokums ir
+vīnmār, kod vīn kas padzer vai paād, vysus traukus izmozguot, bet viņa tuo nadora un
+tai, lejūt nateirā traukā dzērīņu, pīaug vysaidas nateirības un tev tur izzalyka,
+ka staipuos tuorpi."</p>
+
+<blockquote>
+  <p>"Bet ustobā pa greidu ari staipējuos tuorpi."</p>
+</blockquote>
+
+<p align="JUSTIFY">"Tam ari beja vainīga saiminīca, viņai reitā un vokorā vysod
+ir pīnuokums izslaucīt ustobu, bet viņa naizslaucīja un māsli tev nakti pasaruodīja
+par tuorpim."</p>
+
+<p align="JUSTIFY">"Bet pi cepļa nazkas klīdzja: "Apsedz mami! Apsedz
+mani!" </p>
+
+<p align="JUSTIFY">"Jā, šū reizi ari saiminīca beja vainīga. Viņai vokorā
+vajadzēja ceplī guni apdzēst, bet viņa tuo naizdarīja, un guņs klīdzja: Apsedz
+mani! Apsedz mani! Tys nūzeimoj, ka viņu vajadzēja apdzēst."</p>
+
+<p align="JUSTIFY">"Nu, un uz pogolma, kad es izguoju gulātu, tad tur nazkas
+klīdzja: Īnes mani! Īnes mani!"</p>
+
+<p align="JUSTIFY">"Šū reizi klīdzja slūta. Slūtai vysod vajadzīgs byut
+īnastai sincēs, bet viņa beja uz pogolma un tuopēc klīdzja, lai viņu īnas
+sincēs."</p>
+
+<p align="JUSTIFY">"Un uz teiruma rudzūs ari nazkas klīdzja: Apraus mani! Nūciert
+mani!"</p>
+
+<p align="JUSTIFY">"Uz teiruma klīdzja rudzi. Tī rudzi, kas beja izbyruši nu
+vuorpiņom, klīdzja, lai viņas aprauš, tuopēc ka vajadzēja deigt. Un tī rudzi, kas
+beja jau nūsagatavuojuši, klīdzja, lai viņus nūcārt, nūpļaun!"</p>
+
+<p align="JUSTIFY">"Bet kad maņ tyka baist gulēt rudzūs, tad es aizguoju gulātu
+pi kula. Un tur ari navarēju aizmigt, jo nazkas klīdzja:: "Pakar mani! Pakar
+mani!"</p>
+
+<p align="JUSTIFY">"Pi kula klīdzja spriguls. Spniguļam vajadzīgs byut vysod
+pakuortam, bet šū reizi pēc kuļšonas viņš beja nūsvīsts zemē un tuopēc
+klīdzja, lai viņu pakar."</p>
+
+<p align="JUSTIFY">Tai šis izzynuoja, ka vysam vajadzīgs byut teiram un atsarast sovā
+vītā, kur jau ir vysod juostuov. Tagad jam gudrības pītyka un viņš otkon atsagrīzja
+uz sovu sātu un nūmyra.</p>
+</font>
+
+
+</body></html>

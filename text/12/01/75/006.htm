@@ -1,0 +1,187 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Izsalku?ais m?c?t?js</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Izsalkušais mācītājs.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>6. </strong>A. 1775. Krogzemju Mikus, Auseklis, Lielvārdē.
+LP, 365 (160, 1).</p>
+
+<p align="JUSTIFY">Reiz dzīvoja skops kungs; tas nekad neatstāja atslēgas mājā un
+savai sievai nodeva barību ar mēru vien. Reiz vagārs uzvedināja kungu medīt. Jā,
+šis ies arī. Bet vagārs paņem maizi līdz, kungs ne. Nu medīja, medīja - neķērās
+nekā. Kungs saka: "Nav vērts! Iiesim mājā - man gribas ēst!"</p>
+
+<p align="JUSTIFY">Bet vagārs bija liels gudrinieks, viņš gāja pa priekšu un ieveda
+kungu arvienu dziļāk mežā, kamēr apmaldījās. Nu gāja, gāja kungam tā gribas
+ēst, ka nekur šauties, bet vagārs tikai mierina: "Gan jau, gan jau!" Beidzot
+meža vidū bjia tik šļokans, visu dienu neēdis, ka bija jāapstājas. Bet vagārs
+uzlīda vienā kaudzē; tomēr kungs bija tik nokusis, ka nespēja kaudzē uzrāpties,
+bija jāpaliek apakšā. Vagārs augšā ēda savu maizi. Kungs vaicā : "Ko tu tur
+ēd? Dod man arī!"</p>
+
+<p align="JUSTIFY">"Ko nu došu? Es jau badā sienu ēdu!" </p>
+
+<p align="JUSTIFY">"Sienu tu ēdi! kā tad siens smeķē?"</p>
+
+<p align="JUSTIFY">"Kā nu smeķē? Jums, cienīgs lielskungs, kas cepešus vien
+raduši ēst, siens pie sirds neies, lai dara, ko zin." Vagārs, labi saēdies,
+nokāpa no kaudzes un gāja tālāk, kungs pakaļ. Gāja, gāja - ieraudzīja māju.
+Vagārs sacīja: "Varbūt šinī mājā aicinās mūs ēst, kas var zināt? Iesim
+iekšā. Bet tad tikai nu tūliņ, līdz aicina, neeita pie galda - tas nejauki izskatās
+un te nav tāds ieradums. Trešo reizi kad sauks, tad."</p>
+
+<p align="JUSTIFY">Labi, iegāja iekšā, tur patlaban saimnieks ar saimi bija paēduši
+vakariņas. Saimniece uzlika citus šķīvjus un aicināja arī ciemiņus: "Nāciet
+ēst!" Vagārs tūliņ sēdās pie galda; bet kungs domāja: "Lai, lai - nu jau
+tikai pirmo reizi aicināja," un negāja. Saimniece vēl reiz ieteicās:
+"Cienīgs lielskungs, nāciet nu, nekaunieties!" bet šis atbild: "Paldies!
+par saukšanu, man ēst negribas."</p>
+
+<p align="JUSTIFY">Saimniece domāja: "Daudz arī tādu nevar bikstīt, gandrīz
+aizkaitina vēl, diezin vai mūsu ēdienus maz ēd - labāk lai paliek." Un tā
+palika arī; tikai vagāru, to skubināt skubināja: "Ēd vien droši, nebīsties,
+nekaunies!" Vagārs paēda krietni un saimniece noņēma traukus: maizi, kaŗotes
+ielika skapī, bet biezputras podu, kas atlikās, uzlika skapja augšā. Naktī, kad visi
+gulēja, kungs modināja vagāru: "Man dikti gribas ēst!"</p>
+
+<p align="JUSTIFY">"Vai cienīgs lielskungs, skapja augšā vakar vakarā saimniece
+atstāja biezputru - ēdiet to!" "Jā, kur tad? Es jau tumsā nevaru
+atrast!" "Nekas, man ir dzijas kamols: piesiešu galu pie poda un atrisināšu
+līdz šejienei, tad tikai eita gar dziju grābstīdamies, gan podu atradīsit."</p>
+
+<p align="JUSTIFY">Labi, tā būšot brangi gan Bet kur nu vagārs, blēdis! Nesēja vis
+dzijas galu biezputras podam, piesēja abrai, kur patlaban iejava iejauta, un otru galu
+atkal piesēja gultas staklei, kur saimnieks ar saimnieci gulēja. Kungs nu līda pa dziju
+vien, bet vagārs iečukstēja: "Paēduši, atnesiet man arī labu biezputras
+piku."</p>
+
+<p align="JUSTIFY">Kungs aizlīda pie abras un saēdās iejavu; beidzot paņēma labu piku
+vagāram nest, bet pa dziju iedams, nenonāca vis pie vagāra - aizgāja pie saimnieka
+gultas un iesvieda iejavu gulētājiem acīs, sacīdams: "Ēd, nu ēd, vagār es jau
+paēdu!" </p>
+
+<p align="JUSTIFY">Vagārs, to dzirdēdams, ieteicās: ,,Kur jūs maisaties? Tur jau nav
+mana gulta - nāciet te!" Kungs atnāca pie vagāra izsamisis: "Vai, kā es
+apmulsu! Bet saki, vagār, man biezputrainas rokas - kur nomazgāšu?" Ače, tepat uz
+galda ir dzēriena krūze mazgājiet turpat." "Nē, nē, tā nevar, nāc, uzlej
+man slapjumu uz rokām, tad jā. "Ko nu niekus nakts laikā laistīties? Iebāziet
+abas rokas krūzē un raujiet uz reizi ārā, tad paliks baltas."</p>
+
+<p align="JUSTIFY">Labi, šis iebāzis arī, bet ārā vairs nevarējis dabūt,
+iesprūdušas. Nu vagārs mācījis: "Piedarbā ir bērza bluķis, izeita un sitiet
+krūzi pa bluķi, tad saplīsīs un rokas būs vaļā." "Kungs izgāja piedarbā
+un ieraudzīja baltumu; viņš domāja: "Tas jau bluķis būs," un krāva
+virsū. Bet nebija vis bluķis, bija saimniece, kas izgājusi baitu kreklu vilkt, jo tam
+kreklam kungs bija uzsviedrs iejavu. Saimniece, sitienu pa muguru dabūjusi, iebrēcās:
+"Vīriņ, vīriņ, ko tu mani dauzi!"</p>
+
+<p align="JUSTIFY">Kungs tagad briesmīgi nobijās un ieskrēja pie vagāra: "Muksim
+projām, te spogojas!" Un tā abi aizmuka arī un kungs no tā laika atstāja
+skopumu.</p>
+
+
+</body></html>

@@ -1,0 +1,150 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vīrs par elles katla kurinātāju.</p>
+</b></font>
+
+<p align="JUSTIFY"><b>&nbsp;</b></p>
+
+<p align="JUSTIFY">5. A. 475. Skolnieks B. Luocis Latgalē. Kultūras balss kr. </p>
+
+<p align="JUSTIFY">Vīns saldats nūdīnējis keizeram divdesmit pīci godi un laidēs īt
+uz sātu. Jis guoja, guoja - atsagrīzja atpakaļ prasītu nu keizera kaidu gūda vuordu
+par tik ilgim godim. Keizers jam izdūd taidu dokumentu, ka jis nadreikst nikur ilguok
+byut, kai vīnu dīnu. Jis puordzeivoj pi vīna dīnu, pī ūtra dīnu un suok īt
+tuoļuok. Īt, īt - daīt pi skaista meža, īīt mežā, redz skaistu muižu. Īīt
+tymā muižā, īt vīnā ustobā, ūtrā un puorstaigoj vysas ustobas, nivīnā nav
+ļaužu. Golā jis īīt vīnā ustobā un atrūn škierstu. Škierstarn nūkreit vuoks un
+izlīn cylvāks. Tys cylvāks prosa saldatam, lai nūdzeivoj vīnu godu pi juo. Jis arī
+dzeivoj un dorba jam nikaida nabeja, kai tik izslaucīt ustobu un izkurynuot kruosni. Jis
+nū dzeivoj vīnu godu. Tys cylvāks, kurs gul šķierstā, izkuop nu škiersta uorā un
+prosa saldatam, lai nūdzeivoj ūtru godu. Jis soka: nūdzeivuoškys. Jās nūdzeivoj
+ūtru godu, izkuopj nu škiersta tys cylvāks un prosa, lai vēl nūdzeivoj trešū godu.
+Tad jis nūdzeivoj ari trešū godu. Tys cyJvāks, kurs gul škierstā, izkuopj nu
+škiersta uorā un soka tam saldatam: "Tagan tu nūdzeivuoji treis godi, un vairs man
+navajag. Kū tev par tū samaksuot?"</p>
+
+<p align="JUSTIFY">Tys saldats soka: "Es pots nazynu, kas man lobuok byutu."
+Tys, kurs škierstā gul, soka: "Es tev dūšu taidu krystu, kū tu padūmuosi un
+puorskristīsi, tys i nūtiks."</p>
+
+<p align="JUSTIFY">Un vēl jis jam sacēja, ka navar peipīt, šnabi dzert un precētīs.
+Tad īdūd taidu zyrgu, kas var skrīt pa gaisu un pa yudeni, kur grib.</p>
+
+<p align="JUSTIFY">Jis juoj un dajuoj pi vīnas muižas duorza, kur pasakuoruse uz uobeles
+zora vīna meitine. Jis, juodams caur, atraun tū meitini nu uobeles. Tei meitine jam
+keras aiz kokla un žņaudz zemē. Jis padūmoj par tū cylvāku, kurs gul škierstā. Tys
+tyulin atskrin, un jū ratovoj. Tod jis juoj uz tū pilsātu, kur dzeivuoja keizers. Jis
+dajuoj pi keizera duorza. Tod jis padūmoj, kai izzataisīt duorzā taidu muoju, ka vairs
+skaistuokas pasaulē nav. Jis puorkrysta ar tū krystu un īzzataisa muoja. Jis kuop nu
+zyrga zemē un īīt muojā. Izīt reitā keizera sulaiņi un breinuos, jī dūmoj, ka tur
+svāta muoja. Tys saldats uz jīm soka: "Neejīt uz ceļim, te nav svāta
+vīta!"</p>
+
+<p>Piezīme. Šī pasaka, kā redzams, ir nepilnīga. P. Š.</p>
+
+
+</body></html>

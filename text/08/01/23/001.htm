@@ -1,0 +1,148 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Divi ceļotāji.</font><font size="4"></font></p><font size="4">
+</font></b><font size="3">
+
+<p align="JUSTIFY">1. A. 613. J. Henniņš no F. Treilība Sasmakā.</p>
+
+<p align="JUSTIFY">Vienam tēvam bija divi dēli, bet tas tēvs bija vecs, tāpēc viņš deva saviem dēliem to padomu doties pasaulē un dzīvot draudzīgi kopā. Viņi izceļoja un gāja tiešām vien par mežiem, purviem un kalniem, kamēr abiem sāka gauži ēst gribēties. Tur viņi sastapa vecu vīriņu, kas uz viņiem teica: "Lūdziet no manim, ko jūs gribat, to visu es jums varu dot."</p>
+
+<p align="JUSTIFY">Viens lūdza laimi un otrs tikai ēst. Tad tur tai vietā atradās mazs mazs galdiņš ar ēdieniem un dzērieniem, un tas brālis, kas ēst bija lūdzis, ēda, bet otrs arī lūdzās: "Mīļais brālīt, dod man ar ēst!"</p>
+
+<p align="JUSTIFY">Pirmais brālis atbildēja: "Ļauj man tev vienu aci izdurt, tad es tev došu vienreiz paēst."</p>
+
+<p align="JUSTIFY">Brālis arī ļāva to vienu aci izdurt un tad abi divi ēda. Kad bija paēduši, tie gāja atkal tālāk, kamēr abi gribēja ēst. Tad atkal atradās mazs galdiņš un tas brālis, kas ēšanu bija lūdzis, ēda, bet otram nekā nedeva. Otram lūdzot, šis atkal atbildēja: "Ļauj man to otru aci izdurt, tad es tev došu vienreiz paēst."</p>
+
+<p align="JUSTIFY">Viņš lūdzās; "Vēlē man papriekšu paēst, tad es tev ļaušu to aci izdurt."</p>
+
+<p align="JUSTIFY">Kad viņš paēda, tad brālis izdūra viņam arī otru aci un aizgāja pats projām, bet stulbais brālis palika zemē guļot. Labu laiku gulējis, viņš uzcēlās un grābstīdamies gāja uz priekšu, kamēr uzgāja tik resnu koku, kam nevarēja samērīt ne resnumu ne garumu. Pa tā koka zariem viņš nu kāpa augšā tikpat kā pa trepēm. Augšā uzlīdis, tas aizmiga, bet pa tam bija tur sanākuši visādi zvēri, no kuŗu trokšņa viņš atkal atmodās. Viņš nu dzirdēja zvērus sarunājamies. Viens no zvēriem izsauca: "Kādus sapņus var katrs pastāstīt?"</p>
+
+<p align="JUSTIFY">Viens sacīja: "Rītu būs tāda rasa, kas ar to rasu acis apsmērē, tas var tapt redzīgs, lai viņš vai septiņi gadi ir bijis stulbs." Kāds cits teica: "Še netālu ir muiža, kur nav ūdens." Cits zvērs tam uzsauca: "Viņi ir visi muļķi. Tur ir tikdaudz ūdens, ka ar laivu var braukt. Tur vienā akā ūdens āderei ir žurka galva priekšā, kad to izvelk, tad ir tikdaudz ūdens, ka pats vilcējs tikko var izmukt. Vēl uz lauka ir akmens, kad to ar zirgiem samin un tai vieta div pēdas dziļi rok, tad bus tikdaudz ūdens pa lauku, ka pili var nopludināt."</p>
+
+<p align="JUSTIFY">Kad zvēri katrs savu sapni izstāstīja, tie aizgāja projām. Stulbais brālis nu nokāpa no koka un grābstījās gar zemi, vai nav rasa. Līdz bija rasa manāma, tas tūliņ smērēja savas acis. Smērējot tas manīja, ka viņam acis, tikpat kā mazam kaķēnam plaukst, tā ka par mazu laiciņu varēja skaidri redzēt. Turpat tuvumā bija muiža redzama, kur tas nogāja. Tur nebija nekāda ūdens, par ko kungs solīja tam daudz naudas, kas varētu ūdeni uzrakt. Laimīgais brāli is atbildēja: "Te ir tik daudz ūdens, ka ar laivu var braukt."</p>
+
+<p align="JUSTIFY">Tad viņš aizgāja pie tās akas un izņēma žurka galvu no akas āderes. Tūlīt skrēja tik daudz ūdens, ka tikko pats varēja izmukt. Līdz aka bija pilna, tad ūdens vairs netecēja. Nu viņu saņēma un gribēja cietumā likt, tāpēc ka esot teicis: "Te ir tik daudz ūdens, ka ar laivu var braukt," un tomēr aka tik līdz malām pilna.</p>
+
+<p align="JUSTIFY">Tad tas teica: "Dodiet man zirgu un cilvēku spēku, tad būs ūdens diezgan."</p>
+
+<p align="JUSTIFY">Kungs deva tam zaldātus un zirgus, ar tiem viņš gāja uz lauku pie kāda akmeņa, sadauzīja to un divi pēdas ieraka zemē. Tūlīt nāca tik daudz ūdens, ka ar laivu varēja braukt. Par to kungs viņu bagāti apdāvināja, un deva daudz naudas un divi mājas.</p>
+
+<p align="JUSTIFY">Laimīgais brālis nu atdeva otram brāļam vienu māju, un pats paturēja otru, bet brālis neņēma vis māju, un gāja tikai laimi meklēt. Tai pāšā kokā mežā uzlīdis, kur bija brālis, viņš gaidīja nakti, kad sanāks zvēri ap to koku sarunāties. Viņš dzirdēja, ka viens zvērs teica: "Šai mežā ir spiegs. Tam kungam, nemaz nebija ūdens, un tagad ir tik daudz, ka ar laivu var braukt."</p>
+
+<p align="JUSTIFY">Cits zvērs teica: "Lauva, lec un skaties, vai te augšām nav tas spiegs!"</p>
+
+<p align="JUSTIFY">Lauva teica: "Es nevaru," un teica uz lāci: "Lec tu, lāci!" Lācis atteica: "Es nevaru," un teica zaķim: "Lec tu!"</p>
+
+<p align="JUSTIFY">Zaķis lecot ieraudzīja tik tā cilvēka kājas vien un tāpēc blāva: "Rau kur kājas, rau kur kājas!"</p>
+
+<p align="JUSTIFY">Tad visi zvēri uzlēca kokā un saplosīja to cilvēku drusku druskās. Bet otrs brālis dzīvoja izticis un it laimīgi savā mājā ar savu sievu, bērniem un saimi.</p>
+
+
+</font>
+
+
+</body></html>

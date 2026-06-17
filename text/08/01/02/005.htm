@@ -1,0 +1,258 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Brīnuma lampa.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">5. A. 561. J. Pločkalns, Skrundā. LP. V, 222 (101).</font></p><font size="3">
+
+<p align="JUSTIFY">Reiz bija divi ķēniņi: Taisnais un Viltīgais. Un tas gadījās, ka
+abi reizē sastapās cita ķēniņa pili, kur bija aizgājuši ķēniņa meitu bildināt.
+Meitai gan labāki patika Taisnais ; bet vecais ķēniņš nosacīja īsi: "Kuŗš
+jūs iespēsit ar dimanta āboliem meitu atpirkt, tam tikai viņu atdošu!"</p>
+
+<p align="JUSTIFY">Nekā darīt - abi brūtgāni griezās mājā nošļukuši. Taisnais
+gāja uz savu māju, te ,gadījās uz ceļa sirms vīriņš, vaicādams : "Dēls, kas
+nu par nelaimi? Kamdēļ pierē skumjas redzamas?"</p>
+
+<p>"Kā nenoskumt? Gāju sievu precēt, bet sievas tēvs prasa dimanta ābolus. Kur
+ņemšu šos dārgumus ?"</p>
+
+<p align="JUSTIFY">"Nekas, dēls! šoreiz tev izlīdzēšu. še šis zelta gredzens;
+ja viņu paburzīsi pirkstā, tūliņ saskries gaisa gari un līdzēs tev dimanta ābolus
+uzmeklēt. Bet var gadīties, ka viņi tomēr neatron, tādēļ še vēl šīs
+šķiltavas; ja pašķilsi, tūliņ saskries uguns gari un līdzēs tev ābolus uzmeklēt.
+Bet var gadīīties, ka viņi tomēr neatron, tādēļ še vēl šis mazais kausiņš.
+Pagrozi to kabatā, tūliņ saradīsies ūdens gari un palīdzēs dimanta ābolus
+uzmeklēt."</p>
+
+<p align="JUSTIFY">Taisnais sirsnīgi patencina par tik lielām dāvanām un tūliņ
+iesāk ar zelta gredzenu darboties. Saskrien gaisa gari : ko pavēlot? Tā un tā -
+Taisnais izsaka. Nu gaisa gari izklīst pa malu malām un meklē un meklē cauru dienu;
+bet vakarā pārskrien atpakaļ ar tādām ziņām: "Izmeklējām gaisu krustiem un
+šķērsām, bet dimantā āboli mūsu iecirknī nava."</p>
+
+<p align="JUSTIFY">Otrā rītā Taisnais pašķīla šķiltavas; saskrēja uguns gari: ko
+pavēlot? Tā un tā - šis izsaka. Nu uguns gani izklīst pa malu malām un meklē un
+meklē cauru dienu; bet vakarā pārronas bešā: "Izmeklējāmies krustiem un
+šķērsām, bet dimanta āboli mūsu iecirknī nava."</p>
+
+<p align="JUSTIFY">Trešā rītā Taisnais pagrozīja kabatā kausiņu; saskrēja ūdens
+gari: ko pavēlot? Tā un tā - šis izsaka. Nu ūdens gari izklīst pa ūdeņu ūdeņiem
+un meklē un meklē cauru dienu. Vakarā šie parronas ar labākām ziņām: "Aiz
+upes ir kalns un kalnā avots; tas avots mums vēstīja, ka kalna iekšienē zemes gari
+sargājot dimantā ābolus. Bet tev jātiecas zemes garu valdības zīmi rokā dabūt,
+citādi tie ābolus neatdos. šī valdības zīme, cik zinām, ir neliela mentnīte, kas
+kainā aiz vārtiem glabājas."</p>
+
+<p align="JUSTIFY">To dzirdēdams, Taisnais tūdaļ norāva svārkus un iesāka kalnā
+rakties pēc mentnītes. Raka, raka cauru dienu - vēl vārtus neuzraka. Nu rakās visu
+nakti un otra diena līdz pusdienai, tad uzraka vārtus, 1ielus platus vārtus, no vara
+kaldinātus, ar atslēgu durvīs. Vēl tikai atlikās gar slieksni atšķipelēt zemes,
+tad varēja slēgt atslēgu vaļām un atdabūt durvis; bet Taisnais domāja: "Esmu
+noguris pie beigām, nejaudu rokas vairs godīgi cilāt : mazliet atpūtīšos."</p>
+
+<p align="JUSTIFY">Viņš atsēdās pūsties; bet nogurušo acumirklī pārmāca miegs.</p>
+
+<p align="JUSTIFY">Arī Viltīgais par tām dienām bija meklējis un padomu atradis pie
+raganas. Tā mācījusi: "Ej aiz upes, tur kalna iekšienē āboli glabājas!"</p>
+
+<p align="JUSTIFY">Un tīri kā atburts : taisni tai brīdī, kur Taisnais atdusas,
+Viltīgais atlien pie kalna, ierauga vārtus atraktus un spožo gredzenu Taisnajam
+pirkstā. Viņš domā: "Tas varens gredzens! To slepeni nomaukšu līgavai
+dāvināt, tad iznāks pareizi: tēvam būs āboli, viņai būs gredzens."</p>
+
+<p align="JUSTIFY">Viltīgais lēni lēni, ka kaķis uz pirkstu galiem, pielīda Taisnajam
+un nomauca gredzenu, ko vīriņš bija dāvinājis. Bet velkot gredzens drusku
+paburzējas, tūliņ gaisa gari klāt: ko pavēlot?</p>
+
+<p align="JUSTIFY">"Ko lai pavēlu? Es jau tikai gribēju dimanta ābolus
+meklēt!" "Dimanta āboli ir tepat aiz vārtiem zemes garu apsardzībā. Ja
+atvērsi vārtus un paņemsi zemes garu valdības zīmi, mazu mentnīti, tad gari ābolus
+atdos."</p>
+
+<p align="JUSTIFY">Un tūliņ Viltīgais atkārpīja slieksni, atslēdza vārtus, atrada
+turpat aiz vārtiem mazo mentnīti un iesāka slaucīt mentnītei putekļus. Bet līdz
+tikai paberzēja mentnītes kātiņu, zemes gari klāt : ko pavēlot?</p>
+
+<p>Ko nu pavēlēšu? Gribēju dimanta ābolus!"</p>
+
+<p align="JUSTIFY">To teikušam, zemes gari ieklupa kalnā un iznesa veselu saini dimanta
+ābolu. Nu Viltīgais gaviles steidzas pie līgavas, atdeva tēvam dimanta ābolus un
+līgavai dāvināja zelta gredzenu. Bet līgava neņēma gredzenu, tā atbild: "Ko
+palīdz man gredzeni, ja nemīlu tevi; lai Taisnais sniedz gredzenu, tad ņemšu
+pretim!"</p>
+
+<p align="JUSTIFY">Tomēr Viltīgais par tādu atbildi maz bēdāja, iegāja pie tēva un
+sacīja tā: "Ābolus atnesu, dod nu meitu!"</p>
+
+<p align="JUSTIFY">Ņem! Kas tev liedz? Rītu dzersim kāzas!" "</p>
+
+<p align="JUSTIFY">No rīta meita gan lūdzās tēvu, lai kāzas vēl pakavējot, bet
+nelīdzēja: Viltīgais tiepās, ka nevarot kavēties. To dzirdēdama, meita nelūdzās
+vairs, bet klusītiņām izšmaucās pa mazajām durvim un noslēpās mežā. Tikai pēc
+laba brīža tēvs ar Viltīgo apmanīja, ka nava vairs labi, bet bija par vēlu. Nu
+Viltīgais nolaidies staigāja māja ar gaŗu degunu. Bet ceļā tas gudroja, gudroja, ka
+tomēr vēl līdzams? Te piepēži tam iesitās zelta gredzens prātā. Un tūliņ
+paburzēja gredzenu, gaisa gari klāt: ko pavēlot?</p>
+
+<p>"Meklējiet knaši, kur mana līgava nobēgusi!"</p>
+
+<p align="JUSTIFY">Gaisa gari izklīst un drīzi jo drīzi ar zinu: "Tava līgava
+mežā raud gaužas asaras!"</p>
+
+<p align="JUSTIFY">"Ai, kur tad labi! Pārnesiet tūdaļ to manā pilī, es steigšos
+mājā sagaidīt."</p>
+
+<p align="JUSTIFY">Un gaisa gari paņēma meitu viegli jo viegli uz rokam un pārnesa
+Viltīgā pilī. Viltīgais sagaidīja meitu smaidīdams, bet meita raud un raud un
+nerunā ne vārda.</p>
+
+<p align="JUSTIFY">Bet Taisnais, kad atmodās, knaibīja nagus un žēlojās ļoti, ka
+gredzens nozagts un mentnīte ar āboliem paņemti. Viņš pašķīla šķiltavas un
+vaicāja uguns gariem, kas mentnīti ar āboliem ņēmis.</p>
+
+<p align="JUSTIFY">"Viltīgais!" gari tam atbild. Nu pagrozīja kabata kausiņu
+un vaicāja ūdens gariem, kas gredzenu zadzis. "Viltīgais!" gari tam atbild.</p>
+
+<p align="JUSTIFY">"Eitat tad visi gari un meklējiet, kur Viltīgais ar gredzenu
+palicis ! "</p>
+
+<p align="JUSTIFY">Gari izklīst un drīzi pārnāk ar tādām ziņām: "Viltīgais
+ar gredzenu un ar mentnīti mīt pie līgavas savā pilī. Mentnīte glabājas pils
+pagrabā un gredzens viņam pašam pirkstā."</p>
+
+<p align="JUSTIFY">To dzirdot, Taisnajam iedegās sirds un tūdaļ steidzās līgavu
+pestīt. Noiet pie Viltīga pils un gudro, kā līgavu atņemt. Beidzot iedomājas: liks
+vispirms ūdens gariem mentnīti no pagraba atnest, lai Viltīgais nespētu zemes garus
+palīga saukt. Un ūdens gari, kamēr Viltīgais pie līgavas, izgrauza neredzot pagrabam
+pamatus un atnesa mentnīti. Nu Taisnais sūtīja visus trīs garus gredzenu atņemt,
+piesacīdams šita: "Jūs, uguns gari, dedziniet Viltīgo zilās ugunīs, vai sāpes
+tam ronas; jūs, ūdens gari, dzēšiet liesmas ar ūdeni, lai Viltīgais ugunis nesadegtu
+un jūs, zemes gari, atkal tamēr mauciet tam gredzenu no pirksta."</p>
+
+<p align="JUSTIFY">Labi, visi gari sāk strādāt. Bet Viltīgais, nedienas redzēdams,
+virpināja gredzenu un domāja Liesmas ar gaisa gariem aizbaidīt; tomēr iznāca otrādi;
+jo gaisa gari gaisu pūta, jo liesmas trakāki liesmoja - nelīdzēja nekā, nomauca
+gredzenu.</p>
+
+<p align="JUSTIFY">Nu Taisnajam atkal visi gari bija rokā. Un, zināms, ko nu vairs
+gaidīs? Tūliņ pavirpina gredzenu un pavēl gaisa gariem atnest līgavu ar visu
+Viltīgo. Līgava, Taisno ieraudzījusi, no priekiem apķērās ap kaklu; bet Viltīgais
+stāvēja nodurtu galvu un domāja: "Nu jau gan Taisnais mani ēdis!"</p>
+
+<p align="JUSTIFY">Bet Taisnais nedarīja nekā, tikai teica tos vārdus: "Viltīgs
+tu biji, nu tad nes arī viltnieka zīmi uz pieres!"</p>
+
+<p align="JUSTIFY">To sakot, ūdens gari tam ievilka zīmi pierē un uguns gari to
+iededzināja, lai neizdzistu ne mūžam.</p>
+
+<p align="JUSTIFY">Tad Taisnais paņ ēma līgavu, aizgāja pie tēva, nosvinēja kāzas
+un dzīvoja laimīgi.</p>
+</font>
+
+
+</body></html>

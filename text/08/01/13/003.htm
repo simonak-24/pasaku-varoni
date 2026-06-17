@@ -1,0 +1,179 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Zaķu gans.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">3. A. 570. Skolnieks A. Kurps Nīcā, K.
+Lielozola kr.</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam tēvam bija trīs dēli: divi gudri un viens muļķis. Tās
+valsts ķēniņam bija skaista meita. Ķēniņš izsludināja, ka dos meitu tam, kas
+pratīs noganīt viņa divpadsmit zaķus. Dēlu tēvs to izdzirdējis, sūta arī savus
+gudros dēlus laimi izmēģināt.</p>
+
+<p align="JUSTIFY">Pirmo dienu ganīt iet vecākais dēls. Tēvs tam iedod līdz labus
+ēdienus. Pienāca brokastu laiks un gudrais iesāka turpat ganos ēst. Pie viņa pienāca
+veca, veca vecenīte, un lūdza, lai arī viņai iedod ko uzkost, jo neesot vēl brokastis
+ēdusi. Gudrais dēls atbildēja, ka ēdiens tikko viņam vienam pietikšot, viņam neesot
+ko dot citiem, un tā vecenītei viņš nekā neiedeva. Kad ne, ne, vecenīte iet atpakaļ
+mežā, bet arī visi zaķi viņai pakaļ: Gudrais dēls aiziet pie ķēniņa un
+pastāsta, ka zaķi ir pazuduši. Par to ķēniņš liek gudro dēlu nopērt un tad
+atlaiž to mājās.</p>
+
+<p align="JUSTIFY">Otrā dienā iet ganīt otrs gudrais dēls, bet tam iziet tāpat kā
+pirmam: zaķus nenoganīja un dabūja pērienu.</p>
+
+<p align="JUSTIFY">Trešā dienā muļķītis saka tēvam, ka arī viņš grib iet zaķus
+ganīt. Tēvs un gudrie dēli smējās par muļķīti, teikdami: "Kur nu muļķis
+zaķus noganīs?" Tā nu viņam nekā nedeva līdz ēšanai. Bet muļķītis
+salasīja garoziņas un aizgāja pie ķēniņa.</p>
+
+<p align="JUSTIFY">Ķēniņš tam sacīja: "Kad tie gudrie brāļi nevarēja zaķus
+noganīt, kur tu, muļķis, noganīsi? Bet ja nu gribi pērienu dabūt, ej arī zaķus
+ganīt."</p>
+
+<p align="JUSTIFY">Muļķītis aizdzen zaķus mežā un grib ēst brokastis, te vecenīte
+klāt un lūdz arī viņai ko iedot. Muļķītis pasaka, lai viņa tik sēžas klāt, un
+iedod tai kādas garoziņas. Abi divi paēd. Vecenīte pieceļas un saka: "Par tavu
+labo sirdi es tev došu šo stabulīti. Kad es iešu mežā, zaķi nāks man līdz; bet
+kad tev zaķi vajadzīgi, uzpūt tik stabulīti, tad zaķi atkal atskries pie tevis."</p>
+
+<p align="JUSTIFY">Vecenīte ieiet mežā un zaķi aizskrien viņai līdz. Vakarā
+muļķītis grib zaķus dzīt mājās, papūš stabulīti un zaķi ir klāt. Ķēniņš
+redzēdams, ka muļķītis dzen zaķus mājā, ļoti brīnējās, ka tas zaķus
+noganījis. Bet kas viņam, ka tik zaķi veseli! Viņš saka muļķītim: "Tev, kā
+muļķītim, par vienas dienas ganījumu nevaru dot savu meitu par sievu, tev jāgana vēl
+divas dienas."</p>
+
+<p align="JUSTIFY">Mājās tēvs un gudrie dēli brīnējās, kā muļķis varējis zaķus
+noganīt, bet muļķītis nesaka ne vārda. Otrā dienā viņš atkal salasa garoziņas un
+iet zaķus ganīt. Ap brokasta laiku vecenīte klāt un lūdz brokastis. Muļķītis atkal
+viņu pacienāja ar savām garoziņām. Kad vecenīte gāja prom, viņa sacīja:
+"šodien nāks kāda sieva zaķus pirkt, bet lētāk neatdod, kā par simtu rubļu.
+Pēc brīža šī sieva būs atkal klāt un gribēs pirkt zaķi, bet tu lētāki neatdod,
+kā par divi simti rubļu. Tā sieva būs pati ķēniņene."</p>
+
+<p align="JUSTIFY">Vecenīte aizgāja. Pēc brīža viena sieva klāt un prasa zaķi.
+Muļķītis ar mieru zaķi pārdot, bet ne lētāki kā par simtu rubļu. Beidzot sieva
+arī dod simtu rubļu un aiziet ar zaķi. Bet ne cik ilgi - pārdotais zaķis atskrien
+atpakaļ. Pēc kāda laika sieva klāt un prasa vēl vienu zaķi, pirmais viņai esot
+pamucis. Muļķītis tagad zaķi nepārdod lētāk kā par divi simti. Sieva tik daudz
+negrib dot, bet beidzot tomēr samaksā divi simti un paņem zaķi. Uz vakara pusi
+muļķītis sāka bēdāties, ka zaķis nav vēl atskrējis. Uz pašu mājās dzīšanu
+pārdotais zaķis tomēr atskrēja atpakaļ.</p>
+
+<p align="JUSTIFY">Trešā dienā muļķītis nopirka labus ēdienus un baltmaizi par
+dabūto naudu, jo viņš gribēja labi pacienāt vecenīti. Brokastu laikā vecenīte
+atnāca un muļķītis viņu labi paēdināja. Vecenīte pateicās un sacīja, ka
+nākošā dienā viņam būšot kāzas, un lai arī viņu neaizmirstot ielūgt. To
+teikusi, vecenīte nozuda. Vakarā muļķītis pārdzen zaķus mājā, un ķēniņš tagad
+ir ar mieru dot viņam savu meitu. Nākošā dienā muļķītis apprecēja ķēniņa meitu
+un dzīvoja ar viņu laimīgs.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,227 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A 530. H. Skujiņa, Andrs Ziemelis, Aumeisteros. </p>
+
+<p align="JUSTIFY">Tēvam bijuši trīs dēli, divi gudri, trešais, jaunākais,
+muļķītis. Tēvs nomiris un mirstot novēlējis, lai katrs dēls savu nakti viņu
+vaktē. Vecākam dēlam bijis jāvaktē tēvs pirmo nakti, bet viņam bijis bailes, un tas
+pierunājis muļķīti, lai tas viņa vietā vaktē tēvu.</p>
+
+<p align="JUSTIFY">Muļķītis paņēmis bībeli un aizgājis tēvu vaktēt. Viņš
+apsēdies pie zārka un lasījis. Ap pusnakti nomirušais tēvs cēlies no zārka augšā
+un prasījis: "Nu, mans vecākais dēls, vai tu es?"</p>
+
+<p align="JUSTIFY">"Nē, es esmu tavs jaunākais, muļķītis." "Kādēļ
+tad vecākais nenāca?"</p>
+
+<p>"Viņam esot bailes," atbildējis muļķītis.</p>
+
+<p align="JUSTIFY">Tēvs iedevis muļķīšam sidraba svilpīti un izstāstījis, kur lai
+iet un ko lai dara, tad viņam būšot sidraba zirgs un sidraba drēbes. Tad nomirušais
+tēvs gājis atkal zārkā atpakaļ.</p>
+
+<p align="JUSTIFY">Otru nakti bijis tēvs jāvaktē vidējam dēlam, bet arī tam bijis
+bailes un viņš pierunājis muļķīti, lai ejot viņa vietā. Ap pusnakti atkal cēlies
+tēvs augšā un prasījis: "Nu, mans vidējais dēls, vai tu esi?"</p>
+
+<p>"Nē, es esmu, muļķītis."</p>
+
+<p align="JUSTIFY">"Vai vidējam ar no manis bailes?" "Jā!"
+atbildējis muļķītis.</p>
+
+<p align="JUSTIFY">Tēvs iedevis muļķīšam zelta svilpīti un pasacījis, ka ar viņu
+svilpēšot, tad dabūšot zelta zirgu un zelta drēbes.</p>
+
+<p align="JUSTIFY">Trešo nakti mirušais tēvs bijis jāvaktē muļķīšam pašam.
+Viņš aizgājis pie tēva zārka un lasījis bībeli. Ap pusnakti atkal nomirušais tēvs
+cēlies augšā un prasījis: "Nu, mans jaunākais, vai tu esi?"</p>
+
+<p>"Jā, es esmu tavs jaunākais, muļķītis," šis atbildējis.</p>
+
+<p align="JUSTIFY">Nu tēvs muļķīšam iedevis dimanta svilpīti un dimanta ābolu. Kad
+ar svilpīti svilpšot, tad šis dabūšot dimanta zirgu un dimanta drēbes.</p>
+
+<p align="JUSTIFY">Pēc kāda laika viens ķēniņš izlaidis ziņu, ka viņš savu meitu
+atdos tam par sievu, kas uzjās pēc viņas glāžu kalnā. Nu no</p>
+
+<p align="JUSTIFY">visām malām sajājuši ķēniņa dēli un augstmaņi. Bet neviens
+nevarējis uzjāt glāžu kalnā, Arī muļķītis dabūjis to ziņu dzirdēt. Viņš
+nodomājis izmēģināt roku, jo arī vidējais un vecākais brālis aizjājuši uz
+glāžu kalnu. Mātei viņš nedrīkstējis savu nodomu stāstīt, jo zinājis, ka viņu
+nelaidīs un melojis: "Māmiņ, laid mani sēņot."</p>
+
+<p align="JUSTIFY">Jā, māte laidusi un iedevusi groziņu. Muļķītis aizgājis uz
+mežu, uzmeklējis lazdu krūmu, kā tēvs tam teicis, un svilpis ar sidraba svilpīti.
+Tūlin arī bijis klāt sidraba zirgs un sidraba drēbes. Muļķītis saģērbies sidraba
+drēbēs un uzkāpis zirgam mugurā. Nu tas bijis pēc īsta prinča. Muļķītis
+piejājis pie glāžu kalna, uzjājis līdz trešdaļai un paklanījies pret princesi. Tad
+viņš aizjājis atpakaļ pie lazdu krūma un atkal svilpis. Tūlin zirgs un sidraba
+drēbes pazudušas. Muļķītis pielauzis uz ātru roku sēnes, kādas gadījušās, un
+gājis uz māju. Māte saņēmusi sēnes un sākusi ķīvēties: "Muļķis paliek
+muļķis, kur tad es tārpainas sēnes likšu?"</p>
+
+<p align="JUSTIFY">Muļķītis nesacīja nekā un gāja pie miera. Otrā dienā atkal
+prinči un augstmaņi jājuši glāžu kalnā. Arī vecākais ar vidējo brāli
+aizjājuši. Bet neviens nevarējis kalnā uzjāt. Muļķītis atkal aizgājis uz mežu
+sēņot. Viņš piegājis pie lazdu krūma un svilpis ar zelta svilpi. Tūlin arī bijis
+zelta zirgs un zelta drēbes klāt. Muļķītis uzjājis ar zelta zirgu līdz puskalnam,
+paklanījies pret princesi un jājis atpakaļ. Mežā muļķītis pielauzis sēnes, kādas
+vien gadījušās, un gājis uz māju. Mājā atkal māte ķīvējusies, ka viņš
+pielauzis tārpainas sēnes. Muļķītis nesacījis nekā un gājis tik pie miera.
+Atnākuši abi vecākie brāļi un stāstīši mātei: "Ka tu zinātu, cik skaists
+princis jāja! Viņam bija zelta zirgs un zelta drēbes, bet arī viņš līdz puskalnam
+vien tika."</p>
+
+<p align="JUSTIFY">Trešā dienā atkal prinči un augstmaņi jājuši glāžu kalnā.
+Arī vecākais un vidējais brālis aizjājuši. Muļķītis mātei atkal prasojies uz
+mežu sēņot, bet māte to negribējusi laist, jo muļķītis tārpainas sēnes vien
+mājā nesis. Beidzot muļķītis tomēr izmānījies no mājas un aizgājis uz mežu. Pie
+lazdu krūma muļķītis svilpis ar dimanta svilpīti un tūlin arī bijis dimanta zirgs
+un dimanta drēbes klāt. Muļķītis aizjājis pie kalna. Tur bijuši daudz jātnieki,
+bet neviens nevarējis kalnā uzjāt. Muļķītis jājis un uzjājis kalnā. Dimanta
+ābolu viņš iesviedis princesei klēpī. Princese noskūpstījusi muļķīti un
+iespiedusi tam pierē sudraba zvaigzni. Muļķītis nojājis no kalna un aizjājis uz
+mežu. Pie lazdu krūma viņš svilpis ar dimanta svilpīti un zirgs un drēbes uzreiz
+pazudušas. Muļķītis pielauzis pilnu groziņu sēņu un gājis uz māju. Viņš
+ielīdis tumšā kaktā un apsējis dvieli ap galvu. Nākusi māte un prasījusi:
+"Kas tad tev, ka tu esi galvu satinis?"</p>
+
+<p>"Galva sāp!" atbildējis muļķītis.</p>
+
+<p>"Nu tad ej pie miera."</p>
+
+<p align="JUSTIFY">Atnākuši arī abi brāļi un tie mātei stāstījuši par princi, kas
+uzjājis ar dimanta zirgu glāžu kalnā un pats pazudis.</p>
+
+<p align="JUSTIFY">Ķēniņš izsūtījis savus sulaiņus pa zemju zemēm un licis tiem
+meklēt rokā to jātnieku, kam pierē sudraba zvaigzne, jo tas esot princeses brūtgāns.
+Nekur tāda nevarējuši atrast. Kāds ķēniņa sulainis ienācis arī muļķīša mātes
+mājā un licis, lai rāda visus dēlus. Vecākais un vidējais brālis iznākuši no
+istabas un parādījušies. Tiem nebijusi pierē sidraba zvaigzne. Muļķītis gulējis
+tumšā kaktā un nevienam nerādījies. Tad ķēniņa sulainis mātei prasījis:
+"Kur tad tavs trešais dēls?"</p>
+
+<p align="JUSTIFY">"Ak, ko nu par to? Tas jau ir tāds muļķītis un guļ
+slims," atbildējusi māte.</p>
+
+<p>Nē, lai tik vedot šurp! tā ķēniņa sulainis.</p>
+
+<p align="JUSTIFY">Izveduši muļķīti. Kad sulainis tam norāvis ap galvu apsieto
+dvieli, tad sidraba zvaigzne bijusi redzama.</p>
+
+<p>"Tas ir princeses brūtgāns!" saucis sulainis.</p>
+
+<p align="JUSTIFY">Sulainis muļķīti aizvedis uz ķēniņa pili. Muļķītis nodzēris
+ar princesi kāzas un dzīvojot ar to laimīgi vēl šo baltu dienu.</p>
+
+
+</body></html>

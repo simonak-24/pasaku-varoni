@@ -1,0 +1,200 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pārdabīgais palīgs.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 504. 1536. A. Lerchis - Puškaitis Džūkstē - Pienavā. LP, I
+35 (10).</p>
+
+<p align="JUSTIFY">Diviem saimniekiem bij itin tuvu mājas vienam pie otra. Pirmais
+saimnieks bijis godīgs vīrs; otrs, turpretim, ar savu pesteļu -māti atņēmis pirmajam
+katru rudeni visu svētību un tā noplēsis beigās nabadziņu pavisam pliku. Šis vairs
+nespējis uz nākošu gadu ne audis salīgt, nedz algu nodot. Te pienākušas atkal
+mīkoņas. Nabadzīgais saimnieks gājis arī uz mīkoņām; bet ar ko lai līgst?
+Bagātais kaimiņš vēl viņu piezobo par plikdīdi, garožgrauzēju. Viss nabadziņam
+tā ķēries pie sirds, ka dusmās un bēdās tik spējis nospļauties un izsaukties:
+"Nu, ja arī pašu velnu salīgtu, tad tomēr puisi jau dabūšu!"</p>
+
+<p align="JUSTIFY">Tukšā mājās ejot, nabadzīgais saimnieks apsēdies ezera malā un
+pārdomājis savu likteni. Te - kur gadījies, kur nē - pienāk jauns zaļoksnis puisis
+un prasa: "Nu saimniek, vai jau salīgāt puišus?"</p>
+
+<p align="JUSTIFY">"Ko nu salīgt; neviens jau pie manis nenāk." "Nu tad
+līgstiet mani!"</p>
+
+<p align="JUSTIFY">"Labi, bet cik tad lones īsti prasi?" "Nieki, gan jau
+gada galā to dabūsim!"</p>
+
+<p align="JUSTIFY">"Bet vēl viena lieta," saimnieks piebild, "man
+acumirklī vairāk nav, kā viens klaips maizes. Vai varēsi ar to kādu mēnesi
+iztikt?"</p>
+
+<p>"Ja nevarēs citādi, pakāršu zobus vadzī."</p>
+
+<p align="JUSTIFY">No rīta puisis jau priekš saules lēkšanas aris, ka kūpējis vien.
+Līdz brokastam vesela rieža noarta. Saimnieks iznes brokastu un pa desmit lāgām
+atgādina: "Nāc jau, brālīt, nu ēst, nāc jau nu ēst!"</p>
+
+<p align="JUSTIFY">Bet puisis tik atbild: "Lai, lai saimniek'! vēl šo vagu, gan jau
+dabūšu!"</p>
+
+<p align="JUSTIFY">Te uz reizi ķēve ar arklu atdūrusies kā pret mietu. un pie tam
+savādi nodžinkstējis. Saimnieks gājis raudzīt un atradis arkla galā lielu katlu
+naudas pilnu.</p>
+
+<p align="JUSTIFY">"Tā saimniek'!" puisis uzsauc un smejas, "šo čupiņu,
+ko te pagrābu, paņemšu jauna zirga pirkšanai; bet citu naudu paturi."</p>
+
+<p align="JUSTIFY">No rīta puisis aizbraucis un pārvedis tādu bēro, kādu visā
+apgabalā ar uguni nevarētu atrast. Trešajā dienā puisis ar jauno zirgu aparis visus
+laukus, noecējis, apsējis; tikai mazs gabaliņš atlicies vēl ceturtajā dienā ko
+bluķēt. Labība to vasaru augusi, ka kŗāc vien. Otram kaimiņam, kas savus laukus sen
+gados iegodījies, arī augusi; bet tas tik tas iemesls. Rudenī kuļot no vienas pašas
+rijas visi apcirkņi pilni. Kaimiņš turpretim kūlis tik tukšus salmus.</p>
+
+<p align="JUSTIFY">Visi brīnījušies. Bet kaimiņa māte, burvene, tūdaļ nomanījusi,
+kas darāms. Viņa sākusi katru nakti rijā savu labības svētību sargāt. Puisis, to
+pamanot, arī nebijis sapelējis; jau nākošā naktī pamācījis veceni, cik iegājis.</p>
+
+<p>Tas noticis tā:</p>
+
+<p align="JUSTIFY">Vecene rijā sēdējusi un ēdusi ķiļķenus. Labi paēdusi,
+nolikusies uz kreiso ausi un domājusi tāpat nosnausties. Rijas siltums to drīzi
+iemidzinājis. Puisis, vecenei guļot, sakurinājis rijas krāsni tik stipri, ka
+noslāpējis veceni. Tad paņēmis ķiļķenus un sabāzis, cik jaudājis, vecenes mutē,
+lai mājinieki domātu, ka aizrījusies un tamdēļ nomirusi. Otrā dienā veceni iezārko
+un noliek klētī. Te naktī puisis atkal klāt; ienesis veceni altu kūtī, nokāvis
+visas aitas un ielicis vecās raganas rokās lielu dūci. Saimnieks, rītā to redzēdams,
+devis vecenei pa ļepu un stiepis atpakaļ uz klēti. Trešā naktī puisis atkal klāt un
+ienesis veceni govju kūtī, nokāvis visas govis un iespraudis atkal vēl lielāku dūci
+rokā. No rīta saimnieks, lielās bailēs būdams, nezinājis cita nekā darīt, ka jau
+ceturtajā dienā bēreniekus saaicināt, lai kļūtu jo drīzāk no vecās vaļā. Bet
+ceturtajā naktī puisis izzadzis veceni un salicis zārkā akmeņus. Bērinieki arī
+nevēlējušies nemaz tādu pesteļa-māti beidzamā stundā virs zemes redzēt. Viņi
+vēl labi aiznaglojuši un nostīpojuši zārku.</p>
+
+<p align="JUSTIFY">Ap pusdienu bērenieki braukuši, mācītājam pavadot, uz kapiem.
+Puisis atkal paņēmis veceni ar dūci rokā, uzcēlis zirgam mugurā un patriecis zirgu
+aulekšiem bēreniekiem pakaļ. Uz tilta zirgs sabijies un ielēcis ar visu veceni upē
+muru murumis! Zirgs izpeldējis malā, bet vecene palikusi upē ar visu dūci.</p>
+
+<p align="JUSTIFY">Mācītājs, to redzēdams, sacījis uz bēreniekiem: "Tā mūsu
+laime, ka vecene noslīka, citādi viņa mūs visus būtu apkāvusi!" Puisis, nabaga
+saimnieku bagātu padarīdams, kā arī no raganas, kas svētību atņēmusi, atpestīdams
+talsījies aiziet. Nav arī ņēmis no viņa it nekādas lones. Saimnieks gan ar varu
+gribējis uzspiest, lai jau mazākais pāris desmit rubļu ņemtu; bet šis, par viņa
+labo prātu tik pateikdamies atbildējis : "Neņemšu ne sarkana raša!"</p>
+
+<p>"Nu tad ej pie velna!" saimnieks jokodamies uzsaucis.</p>
+
+<p align="JUSTIFY">"Jā, redzi, nu pa visu gadu pirmo reizi uzminēji manu īsteno
+mājas vārdu," puisis atteicis un svilpodams aizgājis.</p>
+
+
+</body></html>

@@ -1,0 +1,180 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Lācis par precinieku.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">4. A. 425 C. R. Vulfs Ūziņos. LP, III, 5,5.</p>
+
+<p align="JUSTIFY">Viņos laikos kādam saimniekam, atraiknim, bijusi ļoti daiļa meita
+ar vārdu: Daiļa.</p>
+
+<p align="JUSTIFY">Reiz saimniekam gadījies uz attālu vietu jāt. Aizjādams tas teicis:
+"Daiļa, manu meitiņ, ko tu vēlies, lai tev pārvestu no svešuma?"</p>
+
+<p align="JUSTIFY">"Tēt, pārnes man baltu rozi, vairāk nekā negribu."</p>
+
+<p align="JUSTIFY">"Labi, meitiņ! Apkop tik čakli sētas soli, balta roze
+būs!" Tēvs aizjājis. Projām jājot, izjājis labi uz garā ceļa, bet atpakaļ
+jājot apmaldījies lielā mežā. Samaldījies trīs dienas, trīs naktis, ne ēdis, ne
+dzēris, ne gulējis. Trešā dienā ap vakara laiku uzgājis meža vidū staltu pili. Nu,
+zināms, tūlin ievietojis savu zirgu kādā nojumā, pametis ēst un pats iegājis pilī
+atpūsties. Bet brīnumi! pilī viss bijis pa pilnam ko ēst, ko dzert; tik nevienas
+dzīvas dvēselītes nekur nepamanījis.</p>
+
+<p align="JUSTIFY">"Lai, lai!" saimnieks domājis, "paēdīšu, nodzeršos,
+apkopšu savu zirgu un tad likšos mierīgi vislepnākajā pils istabā gulēt." Labi
+izgulējies itin žirgts. Bet pieceldamies tas pamanījis,</p>
+
+<p align="JUSTIFY">ka, pa nakti pie paša loga izaugusi balta roze ar košu ziedu galā.
+Saimnieks tūlin atminējies, ko Daiļai apsolījis, un tādēļ tecējis rozi noplūkt.
+Bet tai pašā acumirklī liels lācis ar kroni galvā iznācis no meža un uzsaucis:
+"Kā tu iedrošinājies manu rozi noplūkt? Tagad tev jāmirst!"</p>
+
+<p align="JUSTIFY">"Ai, lācīti, neesi tik dusmīgs; es jau plūcu šo rozi savai
+meitiņai Daiļai."</p>
+
+<p align="JUSTIFY">"Labi, labi; apsolies man rītu no laba prāta atvest Daiļu par
+līgavu, tad jauna nedarīšu."</p>
+
+<p align="JUSTIFY">Neko darīt, bijis jāapsolās.</p>
+
+<p align="JUSTIFY">Lācis nu izvedis saimnieku no meža un solījies līdz rītam turpat
+pagaidīt savu apsolīto līgavu.</p>
+
+<p align="JUSTIFY">Otrā dienā Daiļa nonākusi pie lāča. Lācis to pārvedis staltajā
+pilī. Tur Daiļai netrūcis nekā..</p>
+
+<p align="JUSTIFY">Bet vienu dienu lācis pārnesis Daiļai ziņu, ka viņas tēvs slims.
+Daiļa tūlin sākusi raudāt un vēlējusies tēvu redzēt. Lācis to apmierinājis
+sacīdams: "Neraudi, citurīt tu būsi pie tēva. Še tev šis mans gredzens, noliec
+to pagalvī un miedzies tik cieti, tad būs labi. Palieci arī kājgalā šo trauciņu,
+tur iekšā putnu piens. Iedod pienu slimajam, gan atveseļosies."</p>
+
+<p align="JUSTIFY">Daiļa, tā darījusi. Un re, no rīta atmožoties, tā vis nebijusi
+vairs staltajā pilī, bet pie slimā tēva. Pa nakti, ne manot, ne zinot, gultiņa bij
+aiznesusi Daiļu tēva istabā. Tēvs ļoti priecājies un tūlin iedzēris putnu pienu,
+caur ko uz ātru roku jau palicis drusku labāks. Daila sakopusi slimo trīs nedēļas.
+Trešās nedēļas beigās putnu piens izbeidzies un tēvs nu bijis pilnīgi vesels.</p>
+
+<p align="JUSTIFY">Daiļai gan vēl ticies palikt pie tēva kādas nedēļas, bet ilgāk
+nedabūjusi. Tai parādījies sapņos, ka viņas lācis nomiris un ka jāsteidzoties uz
+bērēm.</p>
+
+<p align="JUSTIFY">Nākošā naktī tā nolikusi atkal gredzenu pagalvī un aizmigusi. No
+rīta tā atradusies staltajā pili. Līdz ko nu uzcēlusies, te atvērušās durvis un
+slaiks princis ienācis istabā sacīdams: "Daiļa, mana līgaviņa, tas labi, ka
+atnāci. Tu redzi, kas no tava lāča nu iznācis. Es nebiju vis lācis, bet tik biju
+noburts uz kādu laiku par lāci. Aizvakar mans laiks beidzās un nu esmu cilvēks. Šī
+pils pieder man. Apraksim papriekšu manu veco lāča kažoku un tad iesim tavam tēvam
+paziņot, ka tam jānāk uz mūsu kāzām."</p>
+
+<p align="JUSTIFY">Piezīme. Daiļa gan neizklausās tautas tradiciju vārds. P. Š.</p>
+
+
+</body></html>

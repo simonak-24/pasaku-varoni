@@ -1,0 +1,204 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Dēls eža veidā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>&nbsp;</b></p>
+
+<p align="JUSTIFY">3. A. 441. A. Vaļminska Līksnā, J. Rupjā krājumā. </p>
+
+<p align="JUSTIFY">Dzeivuoja vīns kēneņš, jam pirmuo sīva beja nūmyruse un palyka
+vīns dāls. Kēneņš apsaženēja ar ūtru sīvu. Jei beja čaraunēca [kr. burve]; tuo
+dāla naļubēja kr. mīlēt] un prasēja nū kēneņa, vai jis pazvaļēs [kr. atļaut]
+dālu nūluadēt par ezēti uz dividesmit godim.</p>
+
+<p align="JUSTIFY">Kēneņš pazvaļēja un sīva dālu nūluodēja par ezēti uz
+divdesmit godim. Dāls tyuleņ palika par ezēti un guoja plašā pasaulē. Guoja, guoja,
+uz vīna kalna īraudzēja ļūti skaistu sātu. Jis daīt pī duravom un klaudzyna, izīt
+skaista meita. Jis prosa, lai meita jū īnas ustabā un dūd koč drusku maizes. Meita
+nūsabeida un pasoka tāvam. Juos tāvs beja kēneņš, jis pajēme ezēti, īnesa
+ustobā, deve maizes, yudiņa. Ezēts vaicoj nū kēneņa, par kū jis tik skumeigs?
+Kēneņš pasaka, ka jam ir izgaiss daudz cyuku. Ezēt's kēneņam soka, ka jis var cyukas
+atrast. Ezēt's soka kēneņam: "Ja tik tu man atdūsi sovu meitu, tad cyukas byus
+otkon tovā klāvā."</p>
+
+<p align="JUSTIFY">Kēneņš apsūlēja, bet ar taidu nūdūmu, ka atrass cyukas, uts
+vēļāk ezēti nūsyss. Bet ezēt's nabeja taids muļkis, ka kēneņš jū apmuoneitu.
+Jis zynuoja, ka tamā mežā ir nalela muojiņa un tamā dzeivoj cīši dīvbejīgs pops.
+Jis sacēja kēneņam : Ti tuodu nūrunu, ka atrassim cyukas un reizē
+sasalauluosim." </p>
+
+<p align="JUSTIFY">Kēneņš teica: ,,Tys ir labi, brauksim vīn meklēt. "</p>
+
+<p align="JUSTIFY">Pajēme zyrgus un brauce meklēt: kēneņš, kēneņa meita un kolpi.
+Jī juoja pa lelim mežim, kur daža [kr. pat] nadzierdēja nivīna putniņa dzīsmes.
+Juoja, juoja -- izjuoja uz lela laukuma, tur jīīraudzēja cyukas.</p>
+
+<p align="JUSTIFY">Kēneņš nīsaprīcovuos un grīzēs atpakaļ uz sovu pili ar vysuom
+cyukuom , bet meitas savas ezēšam nadeve un naļuove īt uz laulībuom. Kēneņš
+dūmuoja atstuot ezēti mežā. Tyk tuoli juoja kēneņš, cyk tuoli zynova ceļu pī
+krystcelēm, tuoluok naznova ceļa. Vysi gudrova, bet ni vīns nazynova. Vairs nav kū
+darīt, grīzēs atpakaļ ar taidu dūmu, ka nūsiss ezēti, kad zynuos ceļu.</p>
+
+<p align="JUSTIFY">Atsagrīzuši atpakaļ, jī ezēša jau tamā vītā naatroda. Pī tuos
+muojiņas beja lela egļe ar cauru vydu, ezēts beja tamā nūsaglabuojīs. Uz laimes
+ezēts atroda tamā eglē gūvis rogu</p>
+
+<p align="JUSTIFY">tū<b> </b>rogu, ezēts suoka Pajēmis pyust, nū roga beja dzieržamas
+vysaidas skaistas skaņes, leidzīgas vysu nutnu skaņēm. Kēneņš nūsabeiduos un suoka
+saukt, kas tamā caurumā, lai paruoda koč vīnu rūku. Ezēts izbuoze vīnu rūku,
+kēneņš tagad pazyna ka tur ir ezēts. Jis prasējā, lai izvad jū uz ceļa. Ezēts
+sacēja: "Atdūd man sovu meitu, izvesšu uz ceļa.</p>
+
+<p align="JUSTIFY">Bet kēneņš vys tik dūmova ezēti nūsist is soka uz ezēti :
+"Līn tyk uorinē un ej uz laulībuom!" </p>
+
+<p align="JUSTIFY">Kad kēneņnš itū pasacēja, tad ezēt's izleida nū egles un guoja
+kluot pī kēneņa meitas, bet meita rauduodama sacēja sovam tāvam: " Juo tu mani
+atdūsi ezēšam tad es lobuok gotova miert tepoš uz vītas." </p>
+
+<p align="JUSTIFY">Kēneņš palyka cīši skumeigs un dūmuoja; kai tik mudruok izgubēt
+ezēti. Cykuom jī runova, aizguoja nakts. Apsamete vysi uz mīra bet kēneņa meita
+nagulēja, un vys raudova. Ezēt's ar nagulēja. Leidzi pysi sagula, ezēt's nūmete sovu
+kažūceņu, palyka par cīši skaistu princi un stuojuos kēneņa meitai prīšlcā. Jī
+runova leidz dīnas bluozmai. Leidzi aizause dīna, ezēts otkon apvilka sovu kažūceņu
+un taurēja sovā rogā,</p>
+
+<p align="JUSTIFY">Pīsacēlēs kēneņš un kolpi. Kēneņš pošulaik gribēja ezēti
+gubēt, bet tagad jau meita ar naļove gubēt ezēša. Kēneņš sacēja: "Juo tu
+naļaun maņ juo gubēt, tad es tevi atdūmu jam par sīvu. Tyuleņ aizguoja uz tū
+ustobiņu pi popa un grīzēs uz sovu pili. Kēnenš ar sovu meitu un kolpim dzyna reizē
+ar cyukas. Cykuom i atjuoja uz sovu pili, jau beja tymss nū ceļa uotri aizmyga , bet
+kēneņa meita nagulēja un dūmovai kū byus izdarēt ar ezēti. Ezēt's nūmete sovu
+kažūceņu un stuojuos kēneņa meitai prīškā kai cīši skaists princis. Kēneņa
+meita pascēja sovuom kolpyunēm, lai sadadzynoj kažūceņu. Kai tik pascēja, kolpyunes
+pajēme kažūceņu un dadzynuoja, bet princ's sasatryuka un vaicoj: "Kas te taids
+par smuordu, voi nadag muns kažūks?"</p>
+
+<p align="JUSTIFY">Tyk beidzēs dagt, princis cīši aizsaraudova un saka kēneņa meitai:
+"Ka tu tai man padarēji, tad tu mani naradzēsi pīci godi," un padeve jai mozu
+ūzula klucīti, saceidams: "Tev itys klucēts byus juotur mutē, cykuom atbraukšu
+par princi, juo tys klucēts sadyls ogruok pīcu godu laika, tad es grīsšūs
+agruok."</p>
+
+<p align="JUSTIFY">Tymā ocumirklī jis pazuda nū juos acu. Kēneņa meika pastuostēja
+par tū kēneņam un cīši raudova, tai ka navarēja dzierdēt pat poša leluo trūkšņa
+aiz osoruom un sirdsuopēm..</p>
+
+<p align="JUSTIFY">Paguoja četri godi un treis dīnas. Pīktā godā klucēts jau beja
+mutē sadyl's. Caturtā dīnā pīktā goda laiks beja zam vokora. Kēneņa meita guoja
+apsavārtu sovas piles. Pīguojuse pi vuortu uz reizes jei nūsabeida nū trūkšna,
+podarējuse vuortus, jei īraudzēja cīši skaistu princi ar puori zyrgu skaistā
+karītē. IJz reizes je: pazyna, ka tys ir juos princs, pīguoja kluot nūbučova un
+īvede sovā pilē. Kēneņš ar princi nūbučova un vysi ciši prīcuojuos. Pēc nazcyk
+dīnām sataisēja kuozas un dzeivova vysā prīcīgi.</p>
+
+<p align="JUSTIFY">Es ar tī beju, dzēru, ēžu, par buorzdu tecēja, mutē ni lases
+natyka.</p>
+
+
+</body></html>

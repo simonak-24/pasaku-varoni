@@ -1,0 +1,303 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ceļotājs meklē laimi.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 460. B. Skolnieks Ed. Samuša Skaistkalnē.</p>
+
+<p align="JUSTIFY">Tas jau bija priekš daudz gadiem. Toreiz bija viens klosteris, tur
+dzīvoja mūki, gan jauni gan veci. Katru dienu pēc pātariem viņi izklīduši pa
+dārzu. Divi mūki katru vakaru gājuši uz avotu pēc ūdens. Vienā vakarā viņiem<b> </b>no
+avota atpakaļ nākot, celiņa malā sēdējusi veca sieviņa, kas bijusi aizklājusi seju
+ar melnu lakatu. Abi mūki noskatījušies, bet nekā neteikuši.</p>
+
+<p align="JUSTIFY">Otrā vakarā gājuši atkal pēc ūdens. Piesmēluši krūzes, viņi
+nākuši atpakaļ, un atkal uz akmeņa sēdējusi vecā sieva ar aizklāto seju.</p>
+
+<p align="JUSTIFY">Mūki drusku paskatījušies, bet nekā nedarījuši.</p>
+
+<p align="JUSTIFY">"Ko tu domā, draugs, ja mēs tai vecai sievai atklātu seju?
+" Varbūt viņa ir uz mums sūtīta ar spiegu jautājis pirmais otram.</p>
+
+<p align="JUSTIFY">"Man gan ir bailes, bet to jau var izdarīt", atbildējis
+otrs.</p>
+
+<p align="JUSTIFY">Trešā dienā pēc pātariem visi izklīduši pa dārzu, bet šie divi
+gājuši atkal pēc ūdens. piesmēluši krūzes, nākuši atpakaļ. Šoreiz sieviņa
+atkal tāpat sēdējusi uz akmeņa celiņa malā.</p>
+
+<p align="JUSTIFY">Es raušu viņai to lakatu nost", teicis pirmais un tuvojies vecai
+sieviņai. Saķēris lakata galus, tas to norāvis gan, bet par brīnumu sieva tūlin
+pazudusi. Abi divi ļoti nobijušies, aizgājuši savā dzīvoklī un ilgi nav varējuši
+dabūt mieru. Pēc vakara lūgšanas visi aizgājuši gulēt, tāpat arī abi divi
+sabijušies mūki. Ap pusnakti pie tā loga, kur gulēja lakata rāvējs, kautkas
+pieklauvējis.</p>
+
+<p align="JUSTIFY">Kas tur klauvē" viņš jautājis. "</p>
+
+<p align="JUSTIFY">"Atdod manu lakatu, tad es tev visur palīdzēšu, ko tu tik
+gribēsi", atbildējusi vecene.</p>
+
+<p align="JUSTIFY">"Bet saki, kas tu tāda esi?" jautājis mūks.</p>
+
+<p align="JUSTIFY">"Es esmu Ceļa māte, un ja tu gribi lielāku atlīdzību, tad es
+tevi aizvedīšu pār trīsdeviņām jūŗām, un trīsdeviņiem kalniem, bet tik atdod
+manu lakatu, jo bez tā es nevaru dzīvot. Ja man nav šā lakata, es nevaru nekur ceļot,
+ne arī kādam ko palīdzēt", sacījusi Ceļa māte.</p>
+
+<p align="JUSTIFY">"Nu labi, lakatu es tev rītā tanī pašā vietā atdošu",
+atbildējis mūks.</p>
+
+<p align="JUSTIFY">Otrā rītā mūks agri uzcēlies un gājis baznīcā pātarus
+skaitīt. Pēc pātariem viņš aizgājis apskatīties, ko dara Ceļa māte, bet viņas
+tur nav bijis. Tad viņš paņēmis lakatu un gājis atkal uz avotu pēc ūdens. Atpakaļ
+nākot, Ceļa māte jau viņu gaidījusi. Mūks atdevis lakatu, bet nav vēl tūlin
+projām gājis.</p>
+
+<p align="JUSTIFY">"Nu ko labu tad tu gribētu?" jautājusi Ceļa māte.</p>
+
+<p align="JUSTIFY">"Es gribētu, ka es varētu aizceļot aiz trīsdeviņām jūŗām
+un kalniem", atbildējis mūks.</p>
+
+<p align="JUSTIFY">"Labi, kad tu tikai gribēsi, tad tik pasaki šādus vārdus:
+"Melnais lakat, nes mani!" un viņš tevi nesīs, kur tu tik gribēsi", to
+teikusi, Ceļa māte tūlīt pazuda.</p>
+
+<p align="JUSTIFY">Pagāja kāds laiks un mūks arī sadomāja ceļot aiz trīsdeviņātn
+jūŗām. Vienu dienu pēc lūgšanas viņš, pa dārzu staigādams, domājis, ko darīt.
+Beigās nolēmis, ka jāceļo, un teicis: "Melnais lakat, nes mani aiz trīsdeviņām
+jūŗām!" Lakats arī tūlin bija klāt, mūks uzsēdās uz viņa un pacēlās
+augstu, augstu gaisā. Pirmo dienu lakats viņu pārnesa pāri vienai jūŗai. Jūŗā
+plosījās lieli viļņi un pa tiem viļņiem peldēja un dziedāja skaistas meitas, tā
+kā pat mūkam gribējās pie viņām nolaisties. Bet lakats sajuta, ka mūkam tāds
+prāts, tūlin to brīdināja: "Neklausies uz viņām, nebūs labi!"</p>
+
+<p align="JUSTIFY">Mūks arī apdomājies un nepadevies. Nakti viņi pavadījuši zem
+klajas debess. Tā ap pusnakti mūku uzmodinājis liels troksnis, kas cēlies netālu no
+viņa guļas vietas. Mūks piecēlies un gājis raudzīt, kas tur notiek. Ieraudzījis
+lielu nezvēru, kas cīnījies ar kādu jaunavu. Jaunavai jau pietrūcis spēka un viņa
+gandrīz jau bijusi uzvārēta. Mūks paķēris akmeni galvas lielumā un sviedis zvēram
+pa galvu, bet zvērs vēl palicis dzīvs. Tad viņš paņēmis otru akmeni, sviedis atkal
+zvēram pa galvu un nu tas nokritis gar zemi. Jaunava vēl bijusi pie dzīvības, mūks
+atnes s ūdeni un nomazgājis tai brūces. Pēc kāda laika jaunava jau bijusi tik tālu
+atspirgusi, ka varējusi piecelties no zemes.</p>
+
+<p align="JUSTIFY">"Kas tu tāds esi?" jautājusi jaunava mūkam.</p>
+
+<p align="JUSTIFY">Es esmu mūks, un ceļoju aiz trīsdeviņām jūŗām",
+atbildējis "</p>
+
+<p align="JUSTIFY">mūks. Tad es tev došu vienu gredzenu par piemiņu, ka tu mani
+iz"</p>
+
+<p align="JUSTIFY">glābi no nāves. Tev ceļā vēl gadīsies dažādas bēdas un kaujas
+ar milžiem; bet ja tev draud nāve, tad tu met ienaidniekam ar šo gredzenu pa
+galvu." Tad vēl jaunava ļoti pateicās un nozuda. bet mūks uzsēdās uz lakata un
+brauca tālāk. Pārbraucis pār piecām jūrām, viņš bija ļoti izsalcis, bet tuvumā
+nekas nebija dabūjams. Viņš nu nolēmis iet medīt kādu zvēru. Visu pusdienu, velti
+nostaigājušam, viņam gluži negaidot, skrien viens skaists briedis taisni virsū. Ko nu
+darīt? Te viņam it kā kas pie auss būtu saucis: "Met ar gredzenu!" Tikko
+viņš taisījies mest, briedis jau viņu bija nogāzis gar zemi. Tomēr viņam vēl
+izdevās trāpīt briedim pa galvu un tas tūlin nogāzās zemē. Kādu laiku briedis
+gulēja kā beigts, bet tad uzmodās un sāka runāt: "Labais jaunekli, paņem un
+iesit ar savu gredzenu man par galvu."</p>
+
+<p align="JUSTIFY">Mūks arī iesitis, bet nu no brieža ādas izlīdusi skaista jaunava,
+dzeltāniem matiem un skaistām zilām acim. Mūks nu gan bija priecīgs, bet nebija
+tomēr mierā, ka nu nebija nekā ko ēst.</p>
+
+<p align="JUSTIFY">"Nebēdā neko! Es tev iedošu vienu matu un tu dabūsi ēdienu un
+dzērienu, tikai tev būs jāsaka šie vārdi: "Ēst, dzert." Tad tu visu
+dabūsi, kas vien tev patiks." Tālāku jaunava sāka stāstīt:</p>
+
+<p align="JUSTIFY">Es reiz gāju mežā ogas lasīt, bija tā ap pusdienas laiku. Te uz
+reizi mani kāds aiztiek pie pleca, es atskatos atpakaļ un nobīstos: aiz muguras stāv
+ragana. Viņa man tūlin iesit pa galvu un es nokrītu pie zemes. Kad es atmodos, tad
+atrados lielā augstā istabā. Tā istaba izskatījās kā elle, visas lietas bija
+sasviesta krustām šķērsām, un gar sienām bija cilvēku un zvēru galvas. Pēc kāda
+laika ienāca ragana ar velnu, un sāka man prasīt, no kurienes es esmu. Tad viņi
+jautāja man tālāku, vai es gribot labāk velnam jeb raganai kalpot. Es nekā
+neatbildēju, jo negribēju nemaz pie viņiem palikt. Tad ragana kopā ar velnu mani
+nogāza zemē un trīs reizes ar tievu kociņu iesita pa galvu. Vēlāk kad atmodos, tad
+biju jau palikusi par brieža māti. Man vajadzēja katru dienu briežus mānīt pie
+raganas mājas; kur tad velns tos nosita ar vāli. No savas gŗūtās dzīves es nekad
+nebūtu tikusi vaļā, ja tev nebūtu bijis Meža mātes meitas gredzens un, ja tu man
+nebūtu palīdzējis. Par tavu labo darbu es tevi nekad neaizmirsīšu." To teikusi
+meita tūlin pazuda.</p>
+
+<p align="JUSTIFY">Nu tagad tik mūks dabūja labi paēst un padzert. Pārgulējis nakti
+zem klajas debess. viņš no rīta agri devās atkal ceļā, kur viņam bija vēl
+priekšā trīs jūŗas. 'Trešā dienā ap pusdienas laiku viņš jau atradās visām
+iūŗām pāri.</p>
+
+<p align="JUSTIFY">"Nu mēs esam gala mērķi sasnieguši. Tagad nolaidīsimies pie
+kādas pilsētas, kur tu varēsi dzīvot, kamēr tev apniks", teica melnais lakats.
+Viņi nolaidās pie kādas ķēniņa pils. Nokāpis no lakata, viņš apskatījās
+visapkārt, bet viss bija svešs. Tad teicis lakatam: "Ar Dievu!" viņš gāja
+tālāk. Pirmo viņš satika vienu ļoti noplīsušu vīru.</p>
+
+<p align="JUSTIFY">"Kas šī par tādu pili ir un kas viņā dzīvo?" viņš
+jautāja tam nabagam.</p>
+
+<p align="JUSTIFY">"Tā ir ķēniņa meitas pils. Viņai rītā būs kāzas. Vai tu
+arī uz kāzām brauksi?" sacīja svešais.</p>
+
+<p align="JUSTIFY">Nu mūks brīnījās, kādēļ nabags domā, ka šis būtu nācis uz
+ķēniņa meitas kāzām.</p>
+
+<p align="JUSTIFY">"Kādas tad tās kāzas būs?" jautāja mūks.</p>
+
+<p align="JUSTIFY">"Viņa ņems tādu vīru, kas varēs uzvārēt trīs
+milžus", svešais atbildēja.</p>
+
+<p align="JUSTIFY">"Paldies par to, ka man izstāstīji."</p>
+
+<p align="JUSTIFY">Mūks gājis uz kādu tuvāku māju un pārgulējis tur par nakti. No
+rīta viņu uzmodināja tauŗu skaņas. Visi mājas iedzīvotāji jau bija aizgājuši
+skatīties, kas tur būs, un kas dabūs ķēniņa meitas roku. Paēdis brokasti un labi
+apģērbies, viņš arī aizgāja uz pili. Ļaužu bija sanācis ļoti daudz. Sākuši
+spēlēt muzikanti un drīzumā iznākuši trīs milži, kas nostājušies vienā
+laukumā. Atnākuši arī ķēniņa meitas precinieki, pats ķēniņš un viņa meita. Tad
+mūks gaidīja, kā nu sāksies cīņa starp preciniekiem un milžiem. Pirmo precinieku
+tūlin nosita pirmais milzis, un tāpat viņš nosita arī otru. Trešais arī jau gulēja
+zemē un gaidīja pēdējo sitienu; bet te ķēniņa meita deva zīmi, lai atstāj viņu
+dzīvu. Mūks noskatījās, ka milži nežēlīgi nosit visus preciniekus, par ko viņš
+ļoti saskaitās uz milžiem. Viņš tuvojās pie galda, kur sēdēja ķēniņš, un
+prasīja, lai viņu laiž cīnīties ar milžiem. Ķēniņš jautāja: "Saki tu man,
+kas tu īsti esi, un no kurienes tu nāc?"</p>
+
+<p align="JUSTIFY">Es esmu cilvēks, kam ir dusmas par to, ka milži nosit nevainīgus
+vīrus. Tādēļ es gribu iet cīnīties ar šiem milžiem." Ķēniņš viņam
+atļāva, visi palika klusu un gaidīja to brīdi, kad sāksies cīņa starp milzi un
+mūku. Kad milzis uzbruka, mūks tūlin pakrita zemē, bet te viņš iedomājās, ka
+viņam ir brīnuma gredzens. Viņš nu ātri izvilka no kabatas savu gredzenu, un kad
+milzis jau liecās dot tam pēdējo sitienu, tad viņš iesvieda milzim ar gredzenu pa
+pieri. Milzis atkrita uz muguras un bija beigts. Tāpat viņš nosita arī otru un trešo
+milzi. Visi nu no prieka sāka kliegt un muzikanti spēlēt. Sulaiņi paņēma mūku un
+ienesa pilī, kur viņu ieguldīja gultā. Mūks bija aizmidzis, kad pie viņa ienāca
+ķēniņa meita un viņu nobučoja. Bet tanī pašā brīdī viņš atmodās.</p>
+
+<p align="JUSTIFY">"Es esmu ķēniņa meita un pateicos tev, ka tu uzvārēji aunos
+milžus, un tagad tu būsi mans vīrs. Vai esi ar mieru?" jautāja viņam ķēniņa
+meita.</p>
+
+<p align="JUSTIFY">Mūks bija par to bez gala priecīgs.</p>
+
+<p align="JUSTIFY">Pēc tam ienāca ķēniņš un novēlēja laimes. Tūlin nodzēra
+kāzas un pēc kāda laika ķēniņa meitai piedzima dēls.</p>
+
+<p align="JUSTIFY">Vienu vakaru mūks izstāstīja savai sievai visu savu dzīvi. Viņš
+pastāstīja ka esot atceļojis no tālas svešas zemes. Esot jābrauc pāri
+trīsdeviņām jūrām. Tad abi taisījās braukt arī turp. Mūks nu paņēma savu melno
+lakatu, sagatavoja visu ceļam un arī dēlu paņēma līdza Kad jau bija nobraukuši
+kādas deviņas dienas, tad viņi beidzot sasniedza savu krastu. Viņi apmetās dzīvot
+kādā pilī un dzīvoja laimīgi.</p>
+
+
+</body></html>

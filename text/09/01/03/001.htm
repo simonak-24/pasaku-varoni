@@ -1,0 +1,143 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="center"><font size="3"></font><font size="5"><strong>Četri brīnuma amatnieki.</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">1. A. 653. J. Henniņš no J. Andersona 1885.
+Sasmakā.</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam tēvam bija četri dēli. Kad tie bija izauguši un izskoloti,
+tad viņš visus četrus sūtīja amatu mācīties. Kad tie labu gabalu bija kopā
+gājuši, tad gadījās krustceļš priekšā, kur auga liels ozols. Visi četri brāļi
+iedūra savus nažus tai ozolā un norunāja katrs savu ceļu iet; kuŗa nazis, pēc gada
+laika atpakaļ nākot, būs norūsējis, to tie citi brāļi ies meklēt.</p>
+
+<p align="JUSTIFY">Pēc gada laika visi ir klāt, katrs ir izmācījies savu amatu. Viens
+par zagli, otrs par gaisaķīķerētāju, trešais par medinieku un ceturtais par
+skrodeli. Katrs paņēma savu nazi un gāja uz mājām.</p>
+
+<p align="JUSTIFY">Tēvs nu gribēja redzēt, ko viņa dēli ir iemācījušies Pie
+mājām vītolā bija putnu lizds ar trīs pautiem. Tēvs gaisaķīķerētājam to lika
+uzķīķerēt, zagļam nozagt un aiznest uz lauku, medniekam sašaut, skrodelim sašūt un
+aiznest tai pašā vietā. Brāļi arī visu tā izdarīja, kā tēvs bija licis.</p>
+
+<p align="JUSTIFY">Tad gadījās, ka vienam ķēniņam bija viena meita nozagta, ko bija
+aiznesis liels ērglis. Tas ķēniņš solīja to meitu tam par sievu dot, kas viņu
+uziet. Gaisa ķīķerētājs ķīķerēja ilgu laiku, kamēr uzķīķerēja, ka tas
+ērglis ir tālu aiz jūŗas, un tur guļ lielā kokā, un tā meita ir viņa mutē. Visi
+četri brāļi steidzas braukt ar kuģi pār jūŗu uz turieni. Kad viņi bija klāt
+piebraukuši, tad zaglis gāja un izzaga tam ērglim to meitu no mutes un aiznesa uz
+kuģi. Nu tie steidzās braukt, lai ērglis atmodies nepanāktu. Gaisaķīķerētājs
+redzēja, ka ērglis drīz panākšot. Necik ilgi ērglis bija klāt un, uzlaizdamies
+nospēra vienu kuģa stūri, bet skrodelis to sašuva un mednieks nošāva ērgli un tas
+iekrita jūŗā. Tie nu steidzās ar to kuģi braukt uz mājām. Kad viņi pārbrauca, tad
+tūlīt noveda ķēniņam to meitu, par ko viņš ļoti priecājās. Ķēniņš nu
+sacīja, ka vienam viņš dotu savu meitu par sievu, bet kad nu četri ir to atraduši,
+kam tad dot, un kam nedot. Tāpēc viņš katram deva zemes gabalu, kur tie labi dzīvoja.</p>
+</font>
+
+
+</body></html>

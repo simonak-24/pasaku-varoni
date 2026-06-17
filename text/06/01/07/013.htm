@@ -1,0 +1,226 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>13</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pelnrušķīte pie ķēniņa.</p>
+</b></font>
+
+<p>&nbsp;</p>
+
+<p>13. A. 510 B. W. Weryho "Podania lotewskie" 2 Varšavā 1892. g. No poļu
+valodas tulkota.</p>
+
+<p align="JUSTIFY">Vecos laikos dzīvoja viens vīrs ar savu sievu, kuriem bija viena
+meita. Kad sieva nomira, tad vecais vīrs gribēja precēt pats savu meitu.</p>
+
+<p align="JUSTIFY">Meitene aizskrēja uz mātes kapu, iesāka raudāt un sauca :
+"Māmiņ, māmiņ, ko es lai daru? Tēvs grib mani par sievu ņemt." Māte
+atbildēja: "Ja tev tēvs nopirktu četrus spieķus, tikai tādus, kuŗi var runāt,
+miglas kamoliņu un vēja kamanas, tad ej pie viņa!"</p>
+
+<p>Kad tēvs to visu bija nopircis, tad meitene atkal sacīja: "Vajag izkurināt
+pirti un nomazgāties, tad brauksim rītā laulāties!" Viņa izkurināja pirti,
+nostādīja četrus spieķus, kas runā, katrā pirts kaktā pa vienam, nomazgājās,
+iesēdās kamanās nosvieda priekšā miglas kamoliņu un aizskrēja projām.</p>
+
+<p align="JUSTIFY">Tēvs viņu ilgāku laiku gaida pārnākam, beidzot iet uz pirti un
+prasa: "Vai drīzi būsi nomazgājusies?" Bet spieķis atbild: "Pagaidi
+vēl, drīzi vien būšu gatava!"</p>
+
+<p align="JUSTIFY">Gaida, gaida, iet atkal uz pirti un jautā. Otrs spieķis atbild:
+"Pagaidi, vēl neesmu nomazgājusies." Atnāk trešo reizi, trešais spieķis
+atbild: "Jau ģērbjos". Atnāk ceturto reizi un nu atbild ceturtais spieķis:
+"Tikai vēl paņemšu slotu un tūliņ iešu."</p>
+
+<p align="JUSTIFY">Nu ienāk tēvs pirtī un neatrod vairs savas meitas. Viņš sūta
+viņai pakaļ savu suni: "Steidzies viņai pakaļ, izrauj viņai sirdi un atnes to
+man!"</p>
+
+<p align="JUSTIFY">Suns viņu panāk, bet šī sāk lūgties: "Labais sunīt,
+apžēlojies par manu dzīvību!" Suns apžēlojās par meiteni un, izrāvis zaķim
+sirdi, aiznesa to tēvam. Tēvs izcepa sirdi un apēda, domādams: "Ja viņas pašas
+nedabūju, tad vismaz sirdi apēdīšu."</p>
+
+<p align="JUSTIFY">Bet viņa pa to laiku pieskrēja savās kamanās pie liela koka. Koks
+atvērās un, viņai pienākot, no tā iznāca skaists jauneklis, kas ieveda viņu
+iekšā. Tad viņa to uzrunāja: "Es še nevaru palikt; labāk iešu pie
+ķēniņienes cūkas ganīt!"</p>
+
+<p align="JUSTIFY">Tā viņa aizgāja pie ķēniņienes, bet jauneklim atstāja miglas
+kamoliņu un vēja kamanas.</p>
+
+<p align="JUSTIFY">Tur nu viņa noganīja cūkas veselu nedēļu. Svētdien ķēniņa
+dēls, sadomājis braukt uz baznīcu, prasa mātei ūdeni ko nomazgāties. Pieskrien ganu
+meita un padod ūdeni, bet netīrā meitene viņam nepatika un padoto ūdeni viņš
+uzlēja tai pašai virsū. Tad pati māte viņam padeva ūdeni, un vis nomazgājies
+aizbrauca uz baznīcu.</p>
+
+<p align="JUSTIFY">Ganu meita pa to laiku aizskrēja līdz kokam, nomazgājās,
+apģērbās greznās drēbēs, izskatījās tagad ļoti skaista un aizbrauca savās
+kamanās uz to pašu baznīcu. Viņa ieiet baznīcā un ķēniņa dēls tūlin ievēro
+skaisto svešnieci. Viņš tūliņ. griežās pie šās un jautā: "No kura apgabala
+tu esi?"</p>
+
+<p align="JUSTIFY">"No ūdens aplietā," viņa atbild, bet ķēniņa dēls to
+nesaprot. Kad viņi iznāk no baznīcas, ķēniņa dēls aicina pie sevis: "Brauksim
+kopā!"</p>
+
+<p align="JUSTIFY">Bet viņa iesēdās savās miglas kamanās un gluži nepamanīta
+aizskrēja pie koka, pārģērbās agrākā uzvalkā un atnāca pie ķēniņienes.</p>
+
+<p align="JUSTIFY">Nākošā svētdienā ķēniņa dēls atkal taisās uz baznīcu un
+prasa mātei dvieli. To padod ganu meita, ķēniņa dēls dusmās paņem dvieli un iesit
+ar to ganu meitai. Tad noslaukās mātes padotā dvielī un aizbrauca uz baznīcu. Ganu
+meita, tāpat kā iepriekšējo svētdienu, pārģērbās lielajā kokā un drīzi vien
+nonāca baznīcā turpat, kur jau bija ķēniņa dēls. Skaistā svešiniece patīk
+ķēniņa dēlam šoreiz vēl vairāk un viņš tai jautā: "No kuŗa apgabala tu
+esi?"</p>
+
+<p>"No dvieļa sistā."</p>
+
+<p align="JUSTIFY">Ķēniņa dēls lūdz, lai viņa braucot ar vigu kopā. Viņa gan
+apsolās, bet tomēr, iesēstās savās kamanās, apsedzas ar miglu un aizbrauc. Ķēniņa
+dēls gan grib vēl viņu panākt, bet pazaudē to no acim. Skaistā princese kokā atkal
+pārģērbās un aizgāja pie ķēniņienes.</p>
+
+<p align="JUSTIFY">Trešā svētdienā ķēniņa dēls prasa mātei saviem zābakiem
+drusku salmu. Salmus padod ganu meita, bet ķēniņa dēls iesit viņai ar tiem salmiem.
+Beigās pati māte padod viņam salmus un tas aizbrauc uz baznīcu. Baznīcā ieejot. pie
+sliekšņa viņš pielej sveķus, lai pie tiem pieliptu skaistā princese.</p>
+
+<p align="JUSTIFY">Ganu meita, kokā pārģērbusies, arī aizbrauc uz baznīcu, ieiet tur
+iekšā, bet zābaki pie sveķiem tomēr nepielīp: "Ķēniņa dēls atkal jautā:
+"No kuŗa apgabala tu esi?"</p>
+
+<p>"No salmiem kulstītā apgabala." .</p>
+
+<p align="JUSTIFY">Izejot no baznīcas, viens zābaks nu pielīp pie sveķiem un paliek uz
+vietas. Ķēniņa dēls paņem zābaku, iebāž to kabatā un dzenas skaistai princesei
+pakal, bet tā nozūd miglā.</p>
+
+<p>Atskrējusi skaistā princese vairs nepārģērbjas, bet tikai uzmet sev ganu meitas
+apģērbu un atgriežas pie ķēniņienes. Ķēniņa dēls izbraukā visu valsti
+meklēdams, kādā kājā derētu</p>
+
+<p>atstātais zābaks. Meklē ilgu laiku, bet tomēr neatrod.</p>
+
+<p align="JUSTIFY">Te kādreiz ganu meita mazgā cūku baŗojamos traukus, kad pie viņas;
+pieliecas ķēniņa dēls un pamana, ka tai apakšā ir skaists apģērbs.</p>
+
+<p>"Pasukā man galvu!" lūdz viņu ķēniņa dēls.</p>
+
+<p>"Kā gan es tāda bīstama un netīra drīkstētu tev tuvoties?" Viņa tomēr
+paklausīja un iesāka tam galvu sukāt. Ķēniņa dēls nu skaidri redz, ka ganu meitai
+esot skaistās princeses apģērbs. Atnesa zābaciņu: "Palūko uzvilkt kājā!"
+Zābaciņš stāv kā pieaudzis pie kājas.</p>
+
+<p align="JUSTIFY">Kādēļ tu man agrāki neteici, no kurienes esi?" "Es jau
+tev teicu, bet tu tikai nevarēji apķerties."</p>
+
+<p align="JUSTIFY">Ķēniņa dēls atzinās, ka bijis nepateicīgs, tad lūdza viņas roku
+un apprecēja skaisto ganu meitu.</p>
+
+
+</body></html>

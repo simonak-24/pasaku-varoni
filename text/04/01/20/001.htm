@@ -1,0 +1,198 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>20</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Mirons kāzās.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. J. Sproģis Koknesē, Brīvzemnieka "Sborņik", 96 LP,
+VII, I, 150.</p>
+
+<p align="JUSTIFY">Reiz nokrēslā izgājis zaldāts no vienām mājām. Bija jau brangi
+vēlu un sāka aptumst. Gāja, gāja - apmaldījās un uzkūlās uz kapiem. Viņš
+apčamdīja ar roku, miroņa krusts gadījies priekšā. Un nu pamana: turpat vienā
+stūrī izlec tāds kā sesks, smiltis vien pašķīst; pēc tam atveŗas viens kaps, no
+kapa iznāk mironis un dodas projām. Ko lai nu zaldāts citu dara? Tiklīdz mironis
+aizskrējis, viņš liekas kapā iekšā un ieguļas zārkā. Nu guļ un gaida, vai
+pārnāks drīzumā mironis jeb ne? Un tas nebija divi minūtu laikā, mironis klāt,
+iesaukdamies: "Ače, kas tad te manā zārkā? Fi ārā!'`</p>
+
+<p align="JUSTIFY">Bet zaldāts atbild: "Neiešu; nē! Papriekšu izsaki man, kur tu
+laba biji "</p>
+
+<p align="JUSTIFY">Mironis nesaka. Kā nesaka, šis no zārka ārā neiet. Mironis redz:
+drīzi gaiļiem jādzied; neko darīt, sāks teikt: "Biju te netālu kāzās."</p>
+
+<p align="JUSTIFY">"Ko tu kāzās darīji?" zaldāts vaicā. </p>
+
+<p align="JUSTIFY">"Es - kā teikts - jaunajam pārim, brūtgānam un brūtei galvas
+apgriezu riņķī."</p>
+
+<p align="JUSTIFY">,,Nu, kā tad viņi atkal izdziedināmi?`'</p>
+
+<p align="JUSTIFY">"Jāņem tas palags, uz kuŗa jaunais pāris pirmo nakti gulējis,
+jāiznes laukā, jāsadedzina un pelni jādod brūtei un brūtgānam iedzert, būs veseli
+kā bijuši."</p>
+<b>
+
+</b><p align="JUSTIFY"><b>Nu </b>zaldāts izkāpa no kapa. Un kā bija izkāpis, mironis tūdaļ
+likās zārkā, nozibēja vien, it kā sesks būtu lēcis - kas nebūt smiltis tikai
+pašķīda un vairāk nekā. Kaps bijis, kaps palika ne manīt. Bet zaldāts bija
+gudrenieks diezgan, viņš izvilka no plintes lādējamo koku un iedūra pie kapa.
+Vēlāku - kas zin kaps vajadzīgs un tad var taču pateikt, kuŗš tas bijis.</p>
+
+<p align="JUSTIFY">Otrā rītā zaldāts poš uz tām mājām, kur kāzas svinētas.
+Aiziet - redz: visi kāzinieki gaužam skumīgi. Zaldāts vaicā: "Kā jūs pa
+kāzām tādi noskumuši?"</p>
+
+<p align="JUSTIFY">"Ja," viņi saka, "kā mums neskumt un nebēdāties?
+Mums liela nelaime notika. Pašā kāzu vakarā jaunajam pārim, brūtei ar brūtgānu,
+galvas apgriezās riņķī."</p>
+
+<p align="JUSTIFY">"Nu, nekas!" zaldāts saka, "ko dosit man, es tos
+izdziedināšu?"</p>
+
+<p align="JUSTIFY">"Ai!" šie atsaka, "mēs lieliski atmaksāsim, palīdzi
+tikai!" .,Labi, tad ņemiet to palagu, </p>
+
+<p align="JUSTIFY">uz kuŗa jaunie ļaudis pirmo nakti gulēja, iznesiet laukā,
+sadedziniet, pagatavojiet no palaga pelniem </p>
+
+<p align="JUSTIFY">dzērienu, dodiet brūtei un brūtgānam iedzert, būs veseli."</p>
+
+<p align="JUSTIFY">Labi! tā darīja, kā zaldāts pieteica, un jaunais pāris bija vesels
+kā bijis. Bet kā nu palika ar atmaksu zaldātam? Tur nekas neizjuka.. Viņam atteica:
+"Kad varēji jauno pāri izdziedināt, tik derīgas zāles sagudrot, tad laikam pats
+biji uzsūtījis slimību, pats galvas riņķī apgriezis."</p>
+
+<p align="JUSTIFY">Un pat cietumā zaldātu iemeta, tiesāja vēl. Tiesas priekšā tam
+vaicāja: "Kas tāds esi un par ko tu esi tiesājams?"</p>
+
+<p align="JUSTIFY">Zaldāts ņēmās izstāstīt galu no gala: "Tā un tā kapos
+notika -- tur vēl manas plintes lādējamais koks; es to iedūru uz <b>tā </b>kapa, kur
+tas mironis dus, kas apkārt staigāja."</p>
+
+<p align="JUSTIFY">Tad tiesa sacīja: "Ja taisnību būsi runājis, tad tur viss tā
+atradīsies, kā esi teicis."</p>
+
+<p align="JUSTIFY">Tiesa taisītiem soļiem aizgāja uz kapsētu - ja, patiesi: uz viena
+kapa ir gan iedurts lādējamais<b> </b>koks. Zaldāts parādīja tas esot! Bet tiesneši
+lika kapu atrakt. Atraka - redz: mironis gul kā dzīvs: ne trūdējis, nekā, it kā
+vakar aizvakar būtu glabāts. Nu tiesneši tūlin pavēlēja mironim galvu nocirst, kāju
+starpa ielikt, un sirdij mietu izdurt cauri. No tā laika mironis vairs neblandījies. Bet
+zaldātu palaida.</p>
+
+<p align="JUSTIFY">Piezīme 1. Gulbenē teikts, ka zārkā gulētājs nogriezis no miroņa
+palaga 4 stūrus sadedzinājis tos, sajaucis pelnus ar ūdeni un devis brūtei un
+brūtgānam dzert, tad tie atdzīvinājušies. L. P.</p>
+
+<p align="JUSTIFY">Piezīme 2. Anti Ārne ir šādu stāstu ievietojis starp teikām, kas
+tomēr nav gluži pareizi, jo arī pasakās bieži vien sastopam šādu motivu. Sal. III,
+18, 13 un IV, 4, 6, . P. Š.</p>
+
+
+</body></html>

@@ -1,0 +1,223 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Ansītis un Grietiņa.</p>
+</font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+</b><p align="JUSTIFY"><b></b>2. A. 327 A. J. Ozoliņš Lubānā, M. Celmiņa kr. AŠ, IIl, 7a.</p>
+
+<p align="JUSTIFY">Pagānu zemē dzīvoja brālis ar māsu nabadzīgā būdiņā. Tēvs
+bija jau priekš kādiem gadiem nomiris un tagad viņiem nomira māte. Kad abi bērni bija
+vecāku padomiņu iztērējuši, tad viņiem pietrūka i maizes ko ēst.</p>
+
+<p align="JUSTIFY">Viņi zināja, ka ne visai tālējos nāburgos raganai esot jumts no
+maizes garozām. Brālis atstāja māsu vienu pašu mājā un pats, kā vecāks būdams,
+gāja uz raganas mājiņu, lai varētu kādas garozas no raganas jumta nolavīt. Kad jau
+tumšs metās, tad kāpa viņš uz jumta un sāka garozas plēst, ka grabēja vien.</p>
+
+<p align="JUSTIFY">Ragana, jau gulēdama, troksni izdzirda un sūtīja savu dēlēnu, lai
+paskatoties, kas tur klaudzina. Raganas dēls, izgājis no istabiņas, arī jautā:
+"Kas tad tur klaudzina?"</p>
+
+<p align="JUSTIFY">Uz to garozu plēsējs atbild: "Vēja māte un Klaugas
+dēls!" Raganas dēls ar to pilnā mierā, iet istabā un pasaka īsi mātei, ka
+Vēja māte un Klaugas dēls klaudzinot. Ragana arī paliek mierā un domā, ka vējš
+vien to troksni taisot. Tā garozu plēsējs netraucēts pieplēsa garozu krietnu nastu un
+aiznesa savā mājā.</p>
+
+<p align="JUSTIFY">Nu viņiem ar māsiņu bija atkal kādu laiku ko ēst. Kad tās garozas
+bija izmērcēdami apēduši, tad gāja brālis atkal otru reizi un tādā pašā vīzē
+sūtīto raganas dēlu izmānīdams, atnesa otru nastu ar garozām.</p>
+
+<p align="JUSTIFY">Bet kad jau tās bija apēstas, tad trešā reizā māsa vairs ne par
+ko nepalika mājā, bet gāja brālim līdz, lai varētu divas nastas atnest. Ragana bija
+nomanījusi, ka vējš vien šās jumtu tā nevarējis noplēst. Kad brālis ar māsu uz
+jumta uzkāpa un sāka klaudzināt, tad viņa nesūtīja vis vairs dēliņu, bet gāja
+pati skatīties. Laukā izgājusi tā sauca: "Kas tad tur klaudzina?"</p>
+
+<p align="JUSTIFY">Un brālis atkal tāpat atbildēja: "Vēja māte un Klaugas
+dēls." Māsa, šādu jocīgu mānīšanu izdzirdusi, sāka skaļi smieties. Ragana,
+to dzirdēdama, sasauca mudīgi visus savus dēlus un brāli ar māsu abus saķēra.</p>
+
+<p align="JUSTIFY">Viņi būtu tos tūlin nokāvuši un pēc pagānu ieraduma apēduši,
+bet kad tie tā badu ciezdami, tikai garozas vien ēzdami, bija ļoti nokaltuši, tā
+sakot, tik kauli un āda palikuši, tad ielika tos cietumā un sāka baŗot. Viņiem nu
+deva labu vien barību un visu vairāk tos baŗoja ar riekstu kodoliem un saldu pienu.</p>
+
+<p align="JUSTIFY">Kad jau kādas nedēļas tā bija baŗoti, tad sestdienas vakarā
+piegāja ragana pie barības iesniedzamā lodziņa un pavēlēja puikam ar meiteni, lai
+izbāžot pirkstiņu. Brālis ar māsu nešāva vis pirkstiņu, bet paķēra savā
+cietumā apgrauztu kaulu un izšāva to. Ragana, to domādama par pirkstiņu, iekoda
+tajā. pakratīja galvu un teica, ka vēl par cietu esot.</p>
+
+<p align="JUSTIFY">Baroja vēl vienu nedēļu un sestdienas vakarā prasīja atkal, lai
+puika ar meiteni izšaujot pirkstiņu. Nu tie izšāva tuteniņa spalu. Ragana iekoda,
+pakratīja galvu un teica, ka vēl par cietu esot.</p>
+
+<p align="JUSTIFY">Baroja atkal vienu nedēļu un sestdienas vakarā prasīja, lai
+izšaujot pirkstiņu. Nu viņi izšāva liepas kaulu, applēstu liepas koku. Ragana
+iekodusi pateica: "O ja, diezgan mīksts jau ir!"</p>
+
+<p align="JUSTIFY">Viņa atslēdza cietuma durvis un veda māsiņu ārā, bet brāli
+ieslēdza vēl turpat.</p>
+
+<p align="JUSTIFY">Istabā bij krāsns jau visu dienu kurināta; bet ka nu raganai nebija
+maizes lāpstas, tad viņa sūtīja to pašu meiteni uz nāburgiem, lai atnesot, teikdama,
+ka maize esot jācep. Kad meitene nāburgos prasīja maizes lāpstas, tad nāburgi, goda
+cilvēki, nomanīja, kādēļ lāpsta vajadzīga.</p>
+
+<p align="JUSTIFY">Viņi pamācīja meiteni: Ja ragana liekot gulties uz lāpstas, tad lai
+gulstoties šķērsu, un kad ragana sakot, ka lai garām gulstoties, tad lai prasot
+raganu, lai pamācot, kā jāgulstas. Kad ragana mācīdama uzgulstoties, tad lai ķeŗot
+lāpstu un grūžot mudīgi pašu krāsnī.</p>
+
+<p align="JUSTIFY">Kā sacīts, tā darīts. Pēc ilgākas mēģināšanas meitenei
+uzgulties uz lāpstas, ragana grib meiteni pamācīt un gulstās pati uz lāpstas. Vēl
+ragana nebija par godu uz lāpstas uzgūlusies, kad jau meitene to bija krāsnī
+iegrūdusi, un biezu dzelzs plāti krāsnij priekšā aizspiedusi. Nu ragana sāka
+lūgties, lai laižot šo no krāsns ārā; šī pildīšot abus ar brāli vaļā un
+došot vēl līdz naudas podiņu, kas esot kambarī zem dzirnavām.</p>
+
+<p align="JUSTIFY">Bet meitene nelikās vis pielūgties. Tā tecēja uz cietumu, atmeta
+krampi, izlaida brāli laukā un, paņēmuši no raganas iestāstīto naudas podiņu,
+laidās abi bēgt, ko kājas jaudāja.</p>
+
+<p align="JUSTIFY">Labu gabalu skrējuši, tie satika cūku ganus, iedeva pa gabaliņam no
+zelta naudas un piekodināja, lai nesakot, ja kāds prasot, ka te esot puika ar meiteni
+aizskrējuši. Vēlāk satika zirgu ganus, pieguļniekus, iedeva arī tiem pa gabaliņam
+zelta un piekodināja, lai nesakot, ka šie te aizskrējuši. Beigās satika tie sirmu
+vecīti, iedeva arī tam gabaliņu zelta un piekodināja nesacīt, kur šie aizskrienot.</p>
+
+<p align="JUSTIFY">Par to laiku, kamēr viss tas notika, bija raganas dēli pirtī. No
+pirts atnākuši, tie skatījās, skatījās pēc mātes un domādami, ka laikam esot
+aiznesusi palikušajam cietumniekam ēst, tie vilka paši gatavo cepeti no krāsns ārā
+un sāka ēst. Tie ēda, ēda palielīdami, ka esot gan mīksta papiņa (gaļa), līdz
+kamēr viens brālis paņēma roku, uz kuŗas pirksta raganai bija zelta gredzens; tad
+tikai tie iesaucās brīnēdamies: "Un mūsu pašu māmiņa!"</p>
+
+<p align="JUSTIFY">Viņi aiztecēja uz cietumu, un kad i puiku tur vairs neatrada, tad
+tecēja viņi uz cūku ganiem un tiem bargi uzprasīja, vai neredzējuši puiku ar meiteni
+bēgam. Un muļķa bērni arī nobijušies pateica, ka tur un tur aizskrējuši. Tālāk
+skriedami satika tos pašus pieguļniekus; arī tie parādīja, kur puika ar meiteni
+aizskrējuši,</p>
+
+<p align="JUSTIFY">Bet kad tie vecīti satika un jautāja, vai redzējis puiku ar meiteni
+bēgam, tad tas, negribēdams tiem stāstīt, sāka tiem gluži citu muldēt un stāstīt,
+ka šim neesot ne siens appļauts, ne rudzi sēti, ne lini plūkti, nekas, nekas neesot
+padarīts.</p>
+
+<p align="JUSTIFY">Par šādu vecīša muldēšanu noskaitušies, tie laida skriet bez
+kādas ziņas, kur kuŗais padomājis, un no ātras skriešanas visi nositušies pie
+alkšņiem un apsēm, tādēļ vēl i šo baltu dienu alkšņiem mi apsēm aiz mizas ir
+asinis.</p>
+
+<p align="JUSTIFY">Bet brālis un māsa nopirka par raganas naudu brangu ciemu un dzīvoja
+laimīgi; nekas tiem netrūka.</p>
+
+
+</body></html>

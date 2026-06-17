@@ -1,0 +1,188 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Mirons izglābj savu labdari no slīkšanas.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 506. A. Lerchis -Puškaitis Džūkstē. LP IV, 37 (7, 1). </p>
+
+<p align="JUSTIFY">Viņos laikos kāds ļoti bagāts kuģinieks sūta savu dēlu ar
+precēm uz svešu zemi. Dēls pa jūru aizbrauc uz svešu pilsētu un itin ātri pārdod
+savu preci. Patlaban grib uz mājām braukt te pamana vienu līķi, pilsēta malā
+nosviestu. Brīnumi gan, kas tie par ļaudim - nevīžo ne mirušus paglabāt!" dēls
+iesaucas. "Nebrīnies nemaz," pilsētnieki atbild, "pie mums tas likums: ja
+kāds mirst, parādus nenomaksājis, tad tādu ātrāk nerok, kamēr parādi nav
+aizmaksāti." "Cik tad mirējam parādu bija?" "Sieks zelta, sieks
+sudraba!" "Labi! še būs sieks zelta, sieks sudraba, bet līķi nu atdosit es
+viņu godīgi paglabāšu." Dēls paglabā līķi un patlaban nāk no kapsētas
+atpakaļ. Te dzird: "Ļaudis, sanāciet, sanāciet uz tirgu - tūlin pārdos dārgu
+verdzeni!" "Cik tā verdzene maksā?" "Sieku zelta. sieku
+sudraba." "Labi! še jums zelts, še sudrabs, atdodiet pārdodamo man Tā
+notiek. Dēls aizved verdzeni uz savu kuģi un vedīs uz mājām. Bet uz ceļa viņam šī
+tā patīk tā patīk. Un ko gaidīt, pats pircis, pašam pieder - tūlin bildina sev par
+līgavu. Verdzene nezin kā ar mieru. Abi jaunie ļaudis visu ceļu nu par kāzām vien
+runā, bet Pārbrauc mājā - tēvs izjauc visas kāzas. Ak tā! naudu izbārstīt par
+sievišķiem un tad vēl beidzot tādu pasaules klejotāju precēt - to tik ne, kamēr
+manas acis atvērtas - ne par ko!" Dēls gan izlūdzas - nelīdz. Kad jau ne ne, bet
+citu tikpat neapņemšu!" dēls atbild vecajam. Bet vecais par to vārdu tik
+dusmīgs, tik dusmīgs, un tā paņem koku un izdzen abus pa durvim. Dēls paņem savu
+līgavu pie rokas un aiziet. Bet drīzi tam laimējās pašam savu kuģi uzbūvēt, vēl
+lielāku nekā tēva kuģis. Uz kuģa gala viņš uzbildē savas līgavas bildi un tad
+notura priecīgas kāzas. Pēc kāzām uzrunā vienu kapteini, kas zinot svešu svešu
+pilsētu, kur preces brīnum labi pērkot. Pielādē jauno kuģi un nu brauks kapteinim ar
+visur savu sievu līdz. Brauc, brauc - nemaz gala sabraukt. Uz vienu reizi jaunā sieva
+iesauksies : "Skat, vīriņ, tur viņus augstos torņus. Tie mana tēva pils torņi.
+Tagad zinu visu, līdz ko torņus ieraudzīju, tūlin atcerējos, ka esmu ķēniņa meita,
+priekš gadiem savam tēvam burvenes nozagta. Burvene man atņēma atmiņu, bet tagad
+atceros visu!" Kapteinis, to dzirdēdams, iziet uz viltu, viņš slepeni iegrūž
+jauno vīru jūŗā un uztiepj viņa sievai: "Tev būs teikt, ka esmu tavs
+brūtgāns, citādi tevi arī iegrūdīšu ūdenī!" Nekā darīt - nabaga sievai
+jāapsolās melot tēva priekšā. Beidzot nobrauc pie pilsētas. Kuģis apstājas
+iepretim ķēniņa pilij. Visi pilsētnieki nāk drūzmām jauno stalto kuģi skatīties.
+Pēc laiciņa iznāk arī pats ķēniņš, tas piepēži ierauga uz kuģa gala sava bērna
+bildi un tūlin sasit rokas: "Kas tik tādu bildi mālējis?" Kapteinis panāk
+ķēniņam pretim, melodams: "Es, es, ķēniņ, mālēju bildi tā manas brūtes
+bilde. "Kā mana meita tika tev par brūti?" "Izpestīju no verdzības -
+pārvedu!" Ķēniņš, ieraudzījis pēc tik ilgiem gadiem savu bērnu, no prieka
+tīri pārņemts un nezin kapteinim, kā pateikties, ko izdarīt. Un tas ,nebija ne
+apskatījies - otrā, trešā dienā - mans kapteinis ar ķēniņu jau norunājuši par
+kāzām, tā kā uz jaunnedēļu. Bet ķēniņa meita māk taču ķēniņam ierunāt:
+viņa esot nogurusi, gribot kādu pusgadu iedzīvoties, apradināties, gan jau gan kāzas
+vēl panākšot. "Labi, labi!" ķēniņš atteic, "esmu visādi ar
+mieru." Arī kapteinis apmierinās, domādams: "Tikpat pagalam tu esi, gan jau
+tavu sievu pēc pusgada dabūšu!" Bet ķēniņa īstais znots nebija vis pagalam,
+tai brīdī, kur kapteinis to jūrā iegrūda, gadījās tāds prauls, kā mazs
+plostiņš, viņam apakš muguras. Prauls peld, peld - beidzot iznes slīcēju uz mazu
+saliņu un tad nožūd acu priekšā Uz šīs saliņas slīcējs sadzīvo pusgadu, jēlas
+zivis ēzdams un vienmēru pēc savas sievas raudādams. Tai vakarā priekš pusgada.
+ķēniņa pilī sabrauc kāzinieki, rītu bija jālaulā kapteinis ar ķēniņa meitu. Bet
+uz jūŗas salas pie slīcēja to vakaru atnāca svešs vīrs, sacīdams:
+"Nesērojies pēc savas sievas! Dodi man pusi no savas mīlestības mantas, tad
+iznesīšu tevi pie sievas." "Labi! visu ko apsolu - nesi tik mani pie
+sievas!" Un tai pašā acumirklī slīcējam uznāk salds miegs, viņš aizmieg. Un.
+re. otrā rītā, kad atkal atmodās, tīri pārbrīnējās, nebija vis vairs uz jūŗas
+salas, bet<b> </b>ķēniņa pilī pie savas sievas. Kā tur aizticis, to ne sieva
+redzējusi. ne arī pats manījis. Ķēniņš, visu zināt dabūjis, piesauc kāziniekus
+ar viltīgo kapteini un tad saka tā: "Klausies, kaptein, man nozuda atslēga, liku
+jaunu uzkalt. Bet šorīt veco atslēgu laimīgi atradu, kur lai nu jauno lieku?"
+Jāpakar!" kapteinis atbild. Labi! tu esi tā jaunā atslēga - tūlin pakārsim
+tevi!" Viltīgo kapteini pakaŗ, bet īsto ķēniņš ieceļ par savu pēc nācēju.
+Tā paiet pāris gadu. Ķēniņa znots vienu dienu auklē savu mazo dēliņu. Piepēži
+atveŗas durvis un svešais vīrs, kas toreiz uz salas gadījies, ienāk istabā,
+sacīdams: "Dodi nu man pusi no savas mīlestības mantas, kā toreiz
+solījies!" "Ja, es jau nemaz nezinu, kas tas ir: mīlestības manta?"
+"Tas, kas tev rokā. tavs dēliņš." "Apžēlojies, kā lai pusi no dēla
+tev atdomu?" "Ja nevari dot, tad tev jāpaliek man parādā. Re, to jau tik
+gribēju. Es biju tev parādnieks, bet tagad esi arī man parādnieks - nu esam
+līdzīgi!" Ķēniņa znots nesaprata, viņš paskatījās acīs. "Neskaties
+vis, es esmu tas līķis, kam tu aizmaksāji parādus. Es esmu tas prauls, kas tevi
+izglāba, es esmu tas vīrs, kas tevi pie sievas aiznesa." To sacījis, svešais
+pazuda acumirklī.</p>
+
+
+</body></html>

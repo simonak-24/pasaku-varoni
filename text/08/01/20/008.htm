@@ -1,0 +1,159 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Žīds ērkšķu krūmā.</font><font size="4"></font></p><font size="4">
+</font></b><font size="3">
+
+<p align="JUSTIFY">8. A. 592. Skolnieks A.Aļļis no 61 g. veca G.Elzberga Nīcā.
+K.Lielozola kr.</p>
+
+<p align="JUSTIFY">Reiz vienam puišelītim nomiris tēvs un māte. To puišelīti
+paņēmis viens bagāts bargs saimnieks par audžu dēlu, kam nu bijis jāgana bargā
+saimnieka cūkas. Pirmo vakaru, kad viņš dzinis cūkas mājā, pazudis viens suiķītis.
+Mājā saimnieks viņu par to dikti peŗ un viņš raud.</p>
+
+<p align="JUSTIFY">Otrā dienā saimnieks teicis, lai dzenot cūkas ganos, bet lai
+nepazaudējot atkal kādu suiķīti. Tas puišelītis izdzinis ar' savas cūkas ganos.
+Dzenot mājā viņam atkal pazudis viens suiķītis. Mājā saimnieks viņu peŗ un solās
+no muguras ādu novilkt.</p>
+
+<p align="JUSTIFY">Trešā dienā viņš atkal izdzinis cūkas ganos un tad brēc un brēc
+visu dienu. Pa ceļu iet vecs vecītis un prasa viņam, kāpēc viņš brēcot.
+Puišelītis izteic visu, ka viņam pazuduši divi suiķīši, un par to saimnieks viņu
+dikti pēris un viņam solījis vēl ādu novilkt no muguras. Vecītis teicis: "Es
+tev palīdzēšu."</p>
+
+<p align="JUSTIFY">Vecītis nu iedevis viņam skaistu stabulīti un teicis, lai viņš ar
+šo stabulīti labi smuki uzpūš, tad tie pazudušie suiķīši atskriešot mājā. Kad
+nu viņš smuki uzpūtis, tad abi pazudušie suiķīši arī atskrējuši dancādami, un
+vakarā visas cūkas gājušas dancādamas mājā. Saimnieks par to priecīgs, dod
+puišelītim arī vakariņas paēst un teic: "Cits nekas tev nav jādara, kā tikai
+cūkas jāgana."</p>
+
+<p align="JUSTIFY">Vienu dienu puika atkal izdzinis cūkas un redzējis, ka viens žīds
+sēd pie viena ērkšķu krūma. Puika nu sācis pūst stabulīti, bet žīds sācis pa
+ērkšķu krūmu dancāt, un noplēsis sev visu pakaļu ar asinim. Žīds nu kliedzis
+puikam: "Ā, puišel! es tev parādīšu! Es apsūdzēšu tevi tiesā."</p>
+
+<p align="JUSTIFY">Žīds arī patiešām nogājis pie tiesas un apsūdzējis puišelīti
+tiesas kungam. Puikam bija jāiet pie tiesas, viņš gāja arī un paņēma līdz savu
+stabulīti. Tiesa nu nospriež viņam desmit pātagas. Puika lūdzās tiesas kungus, lai
+ļauj viņam vēl uzpūst. Tiesas kungi arī atļāvuši, lai pūš. Kad viņš sācis
+pūst, tad arī visi tiesas kungi sākuši dancāt.</p>
+
+<p align="JUSTIFY">Kā puišelītis paņēmis savu stabulīti, tā tas žīds kliedzis:
+"Ui! mīles tiesas kunges, nelaunat viņam to stabuli pūst!"</p>
+
+<p align="JUSTIFY">Puika nu tik pūtis, un tiesas kungi un žīds visi dancājuši. Žīds
+dancādams vēl saucis: "Ui, es jau teice, ka tā būs! Ui, es jau teice, ka tā
+būs!"</p>
+
+<p align="JUSTIFY">Puika nu gājis smiedamies laukā un viņu neviens neturējis cieti.
+Tā nu viņš aizgājis atkal savas cūkas ganīt.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,454 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>57</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Kustonis iemanto ķēniņa meitu.</p>
+
+<p align="CENTER">&nbsp;</p>
+</b></font>
+
+<p align="JUSTIFY">1. A. 441. J. Dīcmanis Lieģos, "Pasaku vācelīte" Nr. 13.
+LP, VII, II, 22, 3, 2.</p>
+
+<p align="JUSTIFY">Reiz vecs, vecs vīriņš nobrauca mežā pēc žagariem. Viņš bija
+paņēmis maizi līdzko ēst. Zirgam drusciņ pametis siena, sāka arī pats uzkost.
+Viņam ēdot, nokrita zemēdrusciņa maizes. To mazs tārpiņš paķēra un apēda.
+Vīriņš, uz zemi paskatījies, ieraudzīja mazo tārpiņu lienam. Viņš tūlin žigli
+uzsauca: "Mazais tārpiņ, lien manā cimdā!"</p>
+
+<p align="JUSTIFY">Mazais tārpiņš tūlin ielīda vecīša cimdā. Vecītis žagarus
+sakrāvis, paņēma cimdu ar tārpiņu un pārbrauca mājās. Mājās pārbraucis, viņš
+sacīja savai sievai: "Vai zini, mīļā sieviņ? Es pārvedu no meža mazu
+tārpiņu. Vai zini vēl ko? Viņš saprot mūsu valodu. Kopsim, audzināsim viņu
+labi!"</p>
+
+<p align="JUSTIFY">Tārpiņu vecīši paturēja un kopa, cik vien pienācās. Tārpiņš
+noņēma savu dzīves vietu vecīšu pagultē. Pēc kāda laika tārpiņš </p>
+
+<p align="JUSTIFY">sacīja vecajam vīriņam: ,,Mīļo tēt, es gribu precēties." </p>
+
+<p align="JUSTIFY">"Tā, vai manu dēliņ! Kuŗa tad pie tevis. tāda maziņa,
+nāks?" "Es gan zinu kādu, kas pie manis nāktu. Tā ir čūsku ķēniņa
+meita. Viņpus lielās upes, tur ir liels, liels kalns. Uz šā kalna ir liela, grezna
+pils. Tai pilī dzīvo čūsku ķēniņš un tam ir meita. Es zinu, tā nāks pie manis!
+Tēt, ej pāri pār lielo upi uz ķēniņa pili un saki ķēniņam, ka es gribu precēt
+viņa meitu."</p>
+
+<p align="JUSTIFY">Vecais tūlin uzposās un gāja uz ķēniņa pili. Pilī nonācis,
+vecītis teica., ķēniņam, ka viņa dēls gribot precēt ķēniņa meitu. Ķēniņš
+bija mierā un sacīja: "Es došu viņam darbu, ja viņš to varēs izdarīt, tad
+viņš dabūs manu meitu!"</p>
+
+<p align="JUSTIFY">Pēc kāda brītiņa ķēniņš teica vecītim: "Tavam dēlam
+vajaga vienā pašā naktī pār šo plato upi uztaisīt dimanta tiltu!" Vecītis,
+pārgājis mājā, pateica tārpiņam, ka ķēniņš gan apsolījis savu meitu; bet
+ātrāki viņam tās nedošot, līdz viņš nebūšot padarījis ķēniņa uzdotos darbus.
+"Pirmais darbs ir šis. Tev vienā pašā naktī vajaga pār lielo upi uztaisīt
+dimanta tiltu. Ko domā , vai to gan spēsi?" vecais domīgi jautāja tārpiņu.</p>
+
+<p align="JUSTIFY">"Ē! tas man nav nekas gŗūts!" tārpiņš itin priecīgs
+iesaucās. Tārpiņš tūlin uztaisījās un nogāja pie upes. Nostājies upes malā,
+viņš trīs reizas apgrieza savu asti un tad pilnā balsī sauca: ,, Ļaudis, brāļi!
+sanākat, palīdzat man uztaisīt dimanta tiltu pār šo plato upi!"</p>
+
+<p align="JUSTIFY">Tanī pašā acumirklī no visām pusēm sanāca cilvēki simtiem
+tūkstošiem. Visi nu ņēma stādāt. Nepagāja ne pāris stunda, kad dimanta tilts bija
+gatavs ar dimanta žodziņu. Tad tārpiņš pārgāja mājās, pasacīja tēvam, ka tilts
+ar dimanta žodziņu esot jau gatavs, lai viņš ejot pie ķēniņa tu prasot, lai nu
+dodot savu meitu, jo darbs esot labi padarīts.</p>
+
+<p align="JUSTIFY">Vecais nogājis pie ķēniņa un pateica, ka tilts ar dimanta
+trelliņiem gatavs, lai nu dodot viņa dēlam savu meitu."</p>
+
+<p align="JUSTIFY">"Es došu tavam dēlam vēl kādu darbu," ķēniņš teica
+vecajam. "Lai dēls uztaisa dimanta pili pie upes tilta galā, tad es došu viņam
+savu meitu."</p>
+
+<p align="JUSTIFY">Vecītis pārgājis mājās un pateica savam dēla m (tārpiņam), ka
+viņam tilta galā jāuztaisa dimanta pils, tad ķēniņš došot savu meitu.</p>
+
+<p align="JUSTIFY">,,Tas man nav nekas gŗūts," tārpiņš vecajam atteica. Viņš
+tūlin nogāja pie upes, apgrieza asti trīs reizes un tad sauca : "Ļautiņi
+mīļie, sanākat, līdzat man uztaisīt dimanta pili!"</p>
+
+<p align="JUSTIFY">Acumirklī sanāca simtiem cilvēku, katram bija. Zelta gabals.
+Nepagāja ne pāris stundu, kad pils bija jau gatava, stalta, grezna pils, ka zvirēja
+vien no spīdoša zelta un dimanta. Tārpiņš pārgāja mājās un teica, ka pils gatava,
+lai viņš ejot un pateicot to ķēniņam un lai prasot viņam, vai viņš nu došot savu
+meitu, vai ne. Vecais nu tūlin gāja pie čūsku ķēniņa un viņam pasacīja, ka dēls
+uztaisījis dimanta pili un vai viņš nu došot savu meitu.</p>
+
+<p align="JUSTIFY">"Es tavam dēlam došu vēl kādu darbu; ja viņš to izdarīs,
+tad es viņam došu savu meitu!" Ķēniņš atteica. "Lai tavs liels nocērt
+labu lielu meža gabalu, tad lai viņš to uzplēš un tur iesēj miežus. Lai viņš tos
+miežus izaudzina un tad lai no viņiem izcep baltu maizi un darina alu; bet tas viss
+viņam nākamā naktī jāpadara, lai man no rīta ir itin silta balta maize un alus uz
+galda!"</p>
+
+<p align="JUSTIFY">Vecais pārgāja mājās un pasacīja dēlam visu, ko ķēniņš viņam
+bija teicis.</p>
+
+<p align="JUSTIFY">"Tas nav man nekas gŗūts!" tārpiņš atteica vecajam.
+Tārpiņš tūlin nogāja mežā, apgrieza asti trīs reizas un tūlin acumirklī sanāca
+simtiem, tūkstošiem cilvēku. Nu ņēma nocirta lielu gabalu meža un kokus pārveda
+vecīša mājā. Tūlin arī nošķīra: kas baļķis - baļķis, kas malka - malka, kas
+žagars - žagars. Arī visus celmus izlauza, zemi uzplēsa. Tad tur iesēja miežus. Tie
+tūlin izauga un viņus nopļāva, izkūla, citus sabīdelēja un citus atkal izdiedzēja
+iesalā. No sabīdelētiem miltiem izcepa baltu maizi un no iesala darināja alu. No rīta
+sulainis uzlika siltu baltu maizi un jaunu alu uz ķēniņa galda. To visu tārpiņš
+izdarīja vienā pašā naktī.</p>
+
+<p align="JUSTIFY">Kad nu ķēniņš no rīta piecēlās, viņš redzēja uz galda siltu
+baltu maizi un putojošu alu. Ķēniņš tūlin sēdās pie galda, ēda, dzēra un
+slavēja maizīti un alu. Kad ķēniņš bija paēdis, tad<b> </b>arī vecītis ienāca
+pie ķēniņa un asi, drošsirdīgi ķēniņam uzprasīja: "Vai jūs nu dosit savu
+meitu manam dēlam par sievu, v ai ne, es gribu zināt. Ja jūs viņas nedosit, tad mans
+dēls jums un jūsu meitai nocirtīs kaklu!"</p>
+
+<p align="JUSTIFY">Nu, ķēniņš apsolīja gan savu meitu vecīša dēlam un lika, lai
+viņš tūlin atvedot savu dēlu uz pili. Vecītis pārgāja mājās, lika savai sievai
+labi tīri nomazgāt tējas skārdu. Vecītis nu uzlika savu dēlu uz tējas skārdu un
+nonesa pie ķēniņa. Kad ķēniņa meita savu brūtgānu ieraudzīja, tad viņa sāka
+raudāt, vaimanāt un sacīja skumīgā balsī: "Kaut jel daudz maz būtu pēc
+cilvēka izskata, tad es viņu varētu taču mīlēt!" Bet pats ķēniņš
+pastāvēja cieti pie sava vārda. Pēc tam viņš paņēma znotu, savu meitu un noveda
+tos jaunajā pilī. Tur un jaunajam pārīšam vajadzēja dzīvot. Vakarā gulēt ejot,
+tārpiņš izlīda no savas ādas un bija nu tāds pats, kā katrs cilvēks, un gulēja
+pie savas jaunās sievas.</p>
+
+<p align="JUSTIFY">No rīta princeses māte - tā bijusi liela ragana - prasīja savai
+meitai: "Nu, kā tad labi izgulējies ar savu jauno vīru? Man rādās ka esi diezgan
+jautra, neesi vairs tik skumīga kā vakar."</p>
+
+<p align="JUSTIFY">"Ja, ko es lai bēdājos, jo mans vīrs pa nakti paliek par
+cilvēku un izskatās tik stalts, skaists, itkā princis!" princese atteica.</p>
+
+<p align="JUSTIFY">Princeses mātei tas nepatika, ka meita ar tārpiņu bija mierā,
+tādēļ viņa dienā izurba jauno ]aužu guļamās istabas durvīs caurumu, blakus
+aizšaujamai bultai. Naktī, kad jaunie ļaudis aizmiguši gulēja, tad ragana iebāza
+pirkstu pa durvju caurumu, atšāva durvis, paņēma tārpiņa ādu no krēsla gultas
+malā, izgāja klusiņām no istabas, iegāja ķēķī, iemeta tārpiņa ādiņu ugunī.
+Tārpiņš no rīta piecēlies, ķēra pēc savas ādiņas, bet ādiņas neatrada vairs uz
+krēsla. Viņš par to nobijās un žēli iebrēcās Vai vai, kur manas miesas?" </p>
+
+<p align="JUSTIFY">Viņš tūlin paķēra zobenu un gribēja ķēniņa meitai (savai
+.ievai) nocirst galvu. Bet tiklīdz kā uzcirta uz vienu kamiesi, otru, tūlin viņai
+palika kā dzelzu bruņas uz abiem kamiešiem. Tad viņš iedeva viņai dzelzu nūjiņu un
+pats palika par balodi. Princese gan raudzīja bruņas no kamiešiem nokratīt, bet nekā
+nevarēja. Viņa nogāja pie kalēja, lai bruņas noņemtu, bet tas ar neko nevarēja
+darīt, bija jāpaliek bruņotai. Viņa tūlin aizgāja no dimanta pils, gāja arvienu
+tālāk uz priekšu un iegāja tumšā mežā. Tā pa mežu iedama, ieraudzīja uguni
+spīdam. Gāja uz to pusi, kur uguns spīdēja, nonāca pie kādas pils, lūdzās nakts
+māja. Šinī pilī dzīvoja tārpiņa vecākā māsa. Tārpiņa māsa, princesi
+ieraudzījusi, palika domīga un kādu laiciņu uzlūkoja princesi dusmīgi. Pēc tam
+viņa teica: "Mans mīļais brālis jau sen būtu cilvēku kārtā ticis, bet caur
+tavu māti, velna raganu, vien nē! Bet lai nu ir, kā būdams nakts mājas tev
+došu!" </p>
+
+<p align="JUSTIFY">Viņa tūlin uztaisīja princesei mīkstu guļas vietu, uzsita
+princesei uz vienu kamiesi, otru - bruņas nokrita un viņa apgulās. No rīta, kad
+princese uzcēlās, tārpiņa māsa uzsita viņai - un bruņas bija atkal uz kamiešiem.
+Tārpiņa vecākā māsa, viņu izvadīdama, iedeva viņai zelta ratiņu, kas naktī,
+tumsā, tik gaiši spīdēja, ka gaišumā varēja tikpat labi redzēt, kā pie visu
+gaišākās uguns.</p>
+
+<p align="JUSTIFY">Princese nu gāja atkal tālāk un iegāja atkal mežā. Pa mežu
+iedama, ieraudzīja uguni gaiši spīdam Gāja tiešām uz spīdumu , nonāca atkal pie
+kādas pils. Iegāja tūlin pilī, lūdzās nakts mājas, jo vakars jau bija klāt. Šinī
+pilī dzīvoja tārpiņa vidējai māsa. Šī, princesi ieraudzījusi, izlikās pret viņu
+vēl jo dusmīgāka, bargāka, nekā vecākā māsa, sacīdama: "Mans mīļais
+brālītis jau sen būtu par cilvēku palicis, bet caur tavu māti, raganu, vien nē. Bet
+lai nu - es tev došu naktsmājas!"</p>
+
+<p align="JUSTIFY">Viņa tā pat, kā vecākā māsa princesei uztaisīja mīkstu guļas
+vietu un šī piekususi apgulās; bet iepriekš guļas tārpiņa vidējā māsa bija
+uzsitusi viņai uz kamiešiem un bruņas bija nokritušas. No rīta, kad princese
+pacēlās, tārpiņa vidējā masa uzsita savai brāļa sievai un bruņas bija viņai
+atkal uz kamiešiem. Vidējā māsa, viņu izvadīdama, iedeva zelta ābolu. Šis ābols
+naktī spīdēja tikpat gaiši, kā visugaišākā uguns, un pie viņas gaismas varēja
+redzēt it visādus darbus strādāt.</p>
+
+<p align="JUSTIFY">Princese nu gāja atkal tālāk. Viņai ceļš iegriezās tumšā,
+biezā mežā. Pa mežu iedama, viņa ieraudzīja atkal netālu sev priekšā uguni
+spīdam. Nu gāja tiešām uz to pusi, kur uguns spīdēja, pienāca pie kādas pils.
+Šinī pilī dzīvoja tārpiņa jaunākā māsa. Pilī iegājusi, lūdzās naktsmājas.
+Bet jaunākā māsa, savu brāļa sievu ieraudzījusi, ugunis vien spļāva no dusmām.
+Viņa vēl jo bargākā balsī bļāva uz princesi: "Ak tu velna raganas meita! Mans
+brālis jau sen būtu par cilvēku tapis, bet tavas ļaunās velnišķīgās mātes labad
+vien nē!"</p>
+
+<p align="JUSTIFY">Viņa princesei ne par ko negribēja dot naktsmājas. Pēdīgi viņa
+arī ļāvās pielūgties un atvēlēja pa nakti palikt. Viņa tūlin uztaisīja princesei
+mīkstu guļu, uzsita pa kamiešiem, bruņas nokrita, princese saldi aizmiga. No rīta,
+kad princese uzcēlās, tārpiņa jaunākā māsa iedeva viņai zelta vistiņu ar
+cālīšiem un uzsita pa kamiešiem, bija atkal bruņas.</p>
+
+<p align="JUSTIFY">Jaunākā māsa, princesi izvadīdama, teica: "Tu iedama uziesi
+lielu, augstu stikla kalnu, bet nevarēsi viņā uziet, jo tas būs ļoti sklids. Tur
+netāļu būs dimanta kalējs. Noej pie tā, liec nokalt četrus dimanta pakavus. Piesien
+divi pakavus katra pie rokas, otrus divus pakavus pie katras kājas ceļa, tad varēsi
+pār kalnu pāriet. Aiz kalna būs liela muiža -- tur vajadzēs zosu meitas. Muižā
+prasi: "Vai nevajaga zosu meitas?" Kunga sieva atteiks, ka vajaga. Paliec tur,
+neej tālāk! Kad zosis izdzen ganos; tad apkūļā tās ar savu nūjiņu, tad no viņām
+citas palika par akmeņiem, citas par cinīšiem un tu varēsi labi noganīt. (Zosis visas
+bijušas velna pilnas un arī kunga sieva bijusi velna pilna un pie tariz vēl liela
+ragana.) Vakarā, kad tevi sauc mājās dzīt, tad atkal apkūļā akmeņus un cinīšus,
+tie paliks par zosim."</p>
+
+<p align="JUSTIFY">Princese nu aizgājusi no tārpiņa jaunākās māsas, nonāca pie
+minētā stikla kalna. Viņa mēģināja kāpt augšā, bet nevarēja:</p>
+
+<p align="JUSTIFY">kalns bija ļoti stāvs un sklidains. Tad nogāja pie dimanta kalēja,
+lika nokalt četrus dimanta pakavus, tos piesēja, kā tārpiņa jaunākā māsa bija
+mācījusi, un tad kāpa pār stikla kalnu pāri. Pārkāpusi nonāca pie minētās
+muižas. Muižā viņa prasīja: "Vai te tev vajaga zosu meitas?"</p>
+
+<p align="JUSTIFY">Muižas kundze atteica, ka vajagot. Princese nu palika muižā par zosu
+meitu. Otrā dienā viņai nu lika zosis dzīt ganos. Izdzinusi, citas ar savu nūjiņu
+apkūļāja un viņas palika, citas par akmeņiem, citas par cilvēkiem - visu dienu bija
+miers ganīt. Vakarā, kad mājās sauca, viņa apkūļāja akmeņus un cinīšus --- visi
+palika atkal par zosim. Kad princese bija zosis pārdzinusi, tad muižas kundze, nama
+durvīs stāvēdama, sacīja: "Nu ir reiz laba ganu meita radusies!"</p>
+
+<p align="JUSTIFY">Pēc tam viņa iedzina zosis kūtī. Nu muižas kundze lika princesei
+traukus mazgāt, bet uguns nedeva. Bez uguns nekā nevarēja redzēt, jo bija jau tumša
+nakts. Princese nolika savu zelta ratiņu, nu varēja skaidri redzēt nomazgāt traukus.
+Par to laiku ienāca ķēķī raganas meita, noskatījās, ka zosu meitai ir zelta
+ratiņš, kas visu ķēķi apgaismo. Viņa izteica visu savai mātei (raganai). Ragana
+iegāja ķēķī, prasīja princesei: "Mīļā meitiņ, vai tu šo ratiņu
+pārdod?"</p>
+
+<p align="JUSTIFY">"Kālab ne? Es viņu varu arī pārdot!" "Bet cik tad
+par viņu gribi?"</p>
+
+<p align="JUSTIFY">"Es vairāk cita nekā negribu, kā dabūt vienu nakti pie sava
+vīra izgulēties."</p>
+
+<p align="JUSTIFY">,,Ja, ja, to visu tu vari dabūt."</p>
+
+<p align="JUSTIFY">Kad nu princese bija traukus nomazgājusi, tad ragana viņu ielaida pie
+vīra (tārpiņa) gulēt. (Princeses vīru ragana bija iebūrusi savā muižā). Princese
+gulēdama, sāka vīru. modināt, lai kādu vārdiņu ar viņu parunātu, bet viņš
+nemodās. Gan to murzīja, visus kājas pirkstus bučoja lūgdama, lai jel mostas, bet
+nekā, neatmodās. Ragana bijusi viņu tā nobūrusi, viņš bija un palika kā nomiris.
+No rīta itin agri ragana durvis atvērusi, bargā balsī uzbļāva: "Nu,
+palaidniece, vai vēl neesi diezgan ar savu vīru izjaktējusies? Nāc zosis dzīt
+ganos!"</p>
+
+<p align="JUSTIFY">Princese tūlin cēlās un gāja uz kūti pie zosim. Izdzina zosis,
+apkūļāja, visas palika citas par akmeņiem, citas par cinīšiem. Vakarā, kad
+ķēniņa meita zosis pārdzina, ragana uzslavēdama teica: "Tā ir laba zosu meita,
+tā var labi noganīt!"</p>
+
+<p align="JUSTIFY">Pēc tam viņa lika princesei traukus mazgāt, bet uguns nedeva. Bija
+jau tumšs, sebs vakars, princese nolika savu zelta ābolu un nu varēja it labi redzēt
+nomazgāt traukus. Raganas meita, redzēdama zosu meitai spīdīgu zelta ābolu, ietecēja
+pie mātes un pasacīja, ka zosu meitai ir ļoti spožs zelta ābols. Ragana tūlin
+iegāja ķēķī un prasīja princesei: "Vai tu pārdod arī ābolu?"</p>
+
+<p align="JUSTIFY">,,Kālab nē? Es viņu varu pārdot!" "Cik tad tu gribi par
+viņu?"</p>
+
+<p align="JUSTIFY">Nekā vairāk negribu, kā tikai pie sava vīra izgulēties."
+viņa lūdzējas balsī atteica raganai.</p>
+
+<p align="JUSTIFY">Nu tu vari dabūt!" ragana sacīja. "</p>
+
+<p align="JUSTIFY">Pēc tam, kad viss bija jau padarīts, tad ragana ielaida viņu pie
+vīra gulēt. Piegulusi sāka to atkal modināt un murzīt, cik vien varēja un saprata,
+bet kā nemodās, tā nemodās. Viņa paņēma savu nūjiņu, taisījās ar to vīru sist,
+bet atkal nesita, jo bija žēl. Viņa sāka to vēl stiprāki murzīt, bet kā nē, ta
+nē. Neko darīt, taču vajadzēs ar nūjiņu sākt sist, jo bija jau pāri par pusnakti
+un vīru vēl nevarēja atmodināt. "Pienāks rīts un es ar viņu vēl nedabūšu
+runāt!"</p>
+
+<p align="JUSTIFY">Princese paņēma nūjiņu, sāka sist vīru, lai ceļas augšām, bet
+ir tas neko nelīdzēja. Viņa grūti nopūtās un sāka raudāt. Tā. raudot, pienāca
+rīts. Te viņa izdzirda soļus durvim tuvojamies, durvis atvērās un ragana uzbļāva :
+"Nu, vai nav jau laiks augšām celties, ko tik ilgi tur vārties un jārējies?
+Celies ātri vien un dzen zosis ganos!"</p>
+
+<p align="JUSTIFY">Princese tūlin arī cēlās augšām, nogāja uz kūti, paņēma
+zosis, izdzina ganos, apkūļāja, zosis palika par akmeņiem un cinīšiem.</p>
+
+<p align="JUSTIFY">Princeses vīrs, no rīta piecēlies, bija tāds domīgs, sajucis.
+Viņš sūdzējās savam sulainim un prasīja: "Es nemaz nezinu, kālab man visi
+kauli tā sāp, itkā tie būtu sasisti; no kam tas varētu būt?"</p>
+
+<p align="JUSTIFY">"Es gan zinu," sulainis teicis. "Naktī, kad jūs
+guļat, jūsu sieva jūs modina un sit, nevarēdama jūs no miega uzmodināt." Mana
+sieva? Man brīnumi, kur tad mana sieva te radās? </p>
+
+<p align="JUSTIFY">Kad viņa mani sita, kā tad es neuzmodos.</p>
+
+<p align="JUSTIFY">"Ja, kā jūs vaŗat uzmosties, kad mūsu muižas kunga sieva
+paliek jums zem madraces miroņa kaulus un tie jums neļauj uzmosties," sulainis
+droši un vientiesīgi sacīja. Viņš tūlin lika savam sulainim izņemt miroņa kaulus
+un aprakt zemē.</p>
+
+<p align="JUSTIFY">Vakarā, kad ķēniņa meita zosis pārdzina, ragana lika atkal traukus
+mazgāt, bet uguns nedeva. Viņa nolika savu zelta vistiņu ar cālīšiem, nu bija
+gaišuma diezgan. Raganas meita, to redzēdama, iegāja un pateica mātei, ka zosu meitai
+zelta vistiņa ar cālīšiem. Ragana prasīja princesei: "Vai tu pārdod to vistiņu
+ar cālīšiem?"</p>
+
+<p align="JUSTIFY">"Kālab nē? Es pārdodu arī!" . "Cik tad tu gribi par
+viņiem?"</p>
+
+<p align="JUSTIFY">"Vairāk negribu, kā tikai pie sava vīra izgulēties." To
+tu vari dabūt!"</p>
+
+<p align="JUSTIFY">" Kad nu viss bija padarīts, tad ragana viņu ielaida pie vīra
+izgulēties,; bet ragana nezināja, ka miroņu kauli bija no gultas izņemti. Ķēniņa
+meita, iegājusi pie sava vīra gulēt, sāka to modināt un lūgt, lai ceļas augšām,
+bet nevarēja uzmodināt. Tad viņa paņēma nūjiņu un pacēla to vīram sist. Te vīrs
+uz reizi bija augšām, apķērās viņai ap kaklu un to mutēja. Princese nu ņēmās
+izteica visu savam vīram, kā viņai līdz šim bija gājis, un arī to, kā ragana
+viņai visas dārgās lietas ar viltu atvīlusi, pie vīra gulēt raidīdama. Princeses
+vīrs apņēmās to raganai atriebt, ka viņa šā sievu tā mocījusi un tai pāri
+darījusi. Viņš tūlin paņēma zobenu, iegāja raganas guļamā istabā un nokava
+raganu un viņas meitu. Tad viņš sacīja savai sievai: "Mīļā sieviņ, ja tu man
+palīdzētu tos trīs gadus nokalpot, tad tie man būtu tik īsi, kā trīs dienas, un tad
+es arī reiz būtu pavisam svabads no šās palādētās nelaimes!"</p>
+
+<p align="JUSTIFY">"Ja, ja, mīļo vīriņ! es tev visā spēkā labprāt gribu
+līdzēt!" Tad princeses vīrs teica: "Rītu es būšu uz ganībām. vēršu
+pulkā. Noej pie gana un prasi viņam trīs reizes: "Vai te nav mans
+vērsītis?" Trešo reizi gans atteiks: "Ej pulkā un meklē!" Tad vēršu
+pulkā iegājusi, labi noklausies. Es ēdīšu un stipri šņākšu. Tad pienāc man
+klāt, uzsit ar roku man uz krusta un teic: "Šis ir mans!" Gans tad tūlin
+teiks: "Ņem, ja tas tavs!" Izved mani no pulka un pārved mājās.</p>
+
+<p align="JUSTIFY">No rīta princese nu nogāja uz ganībām pie gana, kas ganīja lielu
+baru vēršu. Viņa tūlin ganam prasīja: "Vai te nav mans vērsis?"</p>
+
+<p align="JUSTIFY">Gans nekā neatbildēja. Prasīja vēl otru, trešu reizi - nu gans
+teica: "Ej pulkā, meklē!"</p>
+
+<p align="JUSTIFY">Viņa iegāja vēršu pulkā, klausījās, kuŗš no viņiem šņāks.
+Viņa uzsita tam vērsim, kas šņāca, ar roku uz krusta un teica: "Šis ir
+mans."</p>
+
+<p align="JUSTIFY">Gans atteica: "Ja tas tavs, tad ņem viņu!"</p>
+
+<p align="JUSTIFY">Viņa paņēma to un izveda no pulka. Otrā dienā princeses vīrs bija
+stirnu buku pulkā. Ķēniņa meita nogāja un tāpat izdarīja. Trešo dienu viņš
+palika par zirni un līdz ar citiem zirņiem ellē grāpī vārījās. Viņa piegāja pie
+pavāra un prasīja: "Vai te nav mans zirnis?"</p>
+
+<p align="JUSTIFY">Pirmās reizes pavārs nekā neatbildēja, bet trešo reizi viņš
+teica: "Ej, ņem savu zirni!"</p>
+
+<p align="JUSTIFY">Viņa iebāza savu roku grāpī un trīs reizes zirņus apmaisīja, kā
+jau vīrs viņai bija ieteicis darīt. Roku ārā velkot, viens zirnis bija palicis
+pirkstu starpā iespiedies. Kad nu princese izgāja ārā, tad zirnis palika par cilvēku.
+Šis bija princeses vīrs, nolādētais ķēniņa dēls. Viņi nu bija ļoti priecīgi, jo
+sievai arī bruņas bija nokritušas no kamiešiem. Ķēniņa meita nu iegāja elles
+ķēķī, apmaisīja zirņu grāpi, vēl trīs reizes, tad no grāpja iznāca simtiem,
+tūkstošiem cilvēku, gan jauni, gan veci. Šie cilvēki, princesei pateikušies,
+aizgāja katrs uz savu pusi un ķēniņa dēls ar savu sievu uz tēva pili.</p>
+
+
+</body></html>

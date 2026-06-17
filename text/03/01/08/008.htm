@@ -1,0 +1,357 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Maģiskā bēgšana ar meitenes palīdzību.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">8. A. 313 A. R. Vulfs, Ūziņos. LP, IV, 31, 2. AŠ, III, 4b. </p>
+
+<p align="JUSTIFY">Viens saimnieks brauc pa ceļu un iekrīt ar visu vezumu un zirgu
+grāvī. Izmocās ilgu laiku - nevar izķeparāties. Uz reizi nāk viens pretim (tas bijis
+velns). Saimnieks žēli lūdz, lai palīdzot ārā tikt; bet velns atbild: "Soli to,
+kas tev nezināms mājā, tad palīdzēšu!"</p>
+
+<p align="JUSTIFY">Saimnieks apsola. Velns drusku pieķeŗas klāt - viens paņēmiens --
+no grāvja ārā. Pārbrauc nu mājā, tad tik atjēdzas, ko apsolījis. Saimniecei mazs
+dēls šūpulī. Tā kādreiz iet neapdomībā, ko var darīt. Saimnieks gan bēdājas
+dēla dēļ, bet nekā darīt - trešā dienā velns pakaļ, lai dodot šurp, ko
+grāvmalā pats apsolījis.</p>
+
+<p align="JUSTIFY">"Ūja, ūja! ļauji mazākais dēlam izaugt, gan jau panāksi vēl
+diezgan!"</p>
+
+<p align="JUSTIFY">Labi!" velns atbild, "bet pēc divdesmit gadiem, tad sūti
+šurp!" Paiet divdesmit gadi - tēvs vienu dienu ļoti nobēdājies. Dēls prasa:
+"Tēt, kas jums kaiš?"</p>
+
+<p align="JUSTIFY">"Tā un tā - tev jāiet pie velna, neapdomībā apsolīju tevi
+kopš divdesmit gadiem." </p>
+
+<p align="JUSTIFY">"Nebēdājies! Ja esat apsolījuši, tad iešu labprāt. "</p>
+
+<p align="JUSTIFY">Un tā nu dēls aiziet taisni caur mežu. Iet, iet - nemaz mežam galu
+saiet. Beidzot gadās upīte. Viņš apsēžas uz krasta un sāk bēdāties. Te - nezin
+kā paceļ acis - redz: trīs pelēkas zosis peld pa upi uz augšu. Piepeld tuvāk:
+"Ko tu, knauķi, te sēdi?" šīs rupji nolamā un aizpeld tālāk.</p>
+
+<p align="JUSTIFY">Bet pēc tāda laiciņa piepeld no tās pašas puses balta zostiņa;
+tā saka: "Ko tu, puisīt, te sēdi? Mans tēvs jau sen tevi izgaidījies."</p>
+
+<p align="JUSTIFY">"Ja, es jau nezinu tavu tēvu atrast!"</p>
+
+<p align="JUSTIFY">"Ej tik gar upmalu uz leju; drīzi ieraudzīsi gaŗu ēku, kuŗai
+abi gali melni, vidus balts. Melnajos galos dzīvo velni, vidū, baltajā daļā, tur es
+piemītu."</p>
+
+<p align="JUSTIFY">"Labi, labi!" dēls patencina un aiziet<b> </b>gar upmalu
+vien. Necik ilgi - ja, ierauga gaŗo ēku ar melniem galiem un baitu vidu. Ieiet iekšā -
+velns pretim: "Vai atnāci gan?"</p>
+
+<p align="JUSTIFY">Atnācu!" "</p>
+
+<p align="JUSTIFY">"Tad ej tur pie tā vecā pavāra un pagaidi, kamēr darbu došu.
+Viņš arī tāpat ieķerts kā tu. Bet no šīs dienas saukšu viņu par veco pavāru,
+tevi par jauno."</p>
+
+<p align="JUSTIFY">Dēls ieiet, apgrozās, bet nemaz šim tai melnajā galā nepatīk.
+Pienāk vakars. Velns ienāk sacīdams: "Veco pavār! šonakt ej manā dārzā zelta
+ābeli sargāt, man tur viens ņerms katru nakti zelta ābolu nozog. Ķer to rokā! Jauno
+pavār! tu vēl šonakt vari izgulēties!"</p>
+
+<p align="JUSTIFY">Vecais pavārs ieiet dārzā ābolus sargāt, bet no rīta ielien
+istabā itin bēdīgs, nav varējis nosargāt. Pienāk vakars. Velns atkal ienāk:
+"Jauno pavār! šonakt ej tu ābolus sargāt, šis nav nosargājis!"</p>
+
+<p align="JUSTIFY">Jaunais pavārs domā: "Nagos tik esmu. Vecais nenosargāja, kur
+tad es?"</p>
+
+<p align="JUSTIFY">Bet dārzā iedams, viņš tāpat bez visa nodoma iegriežas baltajā
+ēkas daļā un satiek par laimi balto zostiņu. Tā prasa: "Vai tev, puisīt, kas uz
+sirds, kādēļ tāds nolaidies?"</p>
+
+<p align="JUSTIFY">"Tā un tā - jāiet dārzā zelta āboli sargāt, kuŗus vecais
+pavārs izgājušu nakti nenosargāja."</p>
+
+<p align="JUSTIFY">"Nekas, klausi mani, būs labi! Izkāp ābelē pašā galotnē un
+gaidi. Drīzi jo drīzi atskries zelta putns ābolus knābt. Noķer putnu, izrauj divas
+zelta spalvas un aiztrieci viņu projām. Ja velns no rīta prasa, vai pie āboliem nav
+bijis kāds zaglis - atsaki: nē!"</p>
+
+<p align="JUSTIFY">Dēls patencina par tik labu padomu un uzkāpj zelta ābelē itin
+priecīgs. Nu gaida, nu gaida; te reizi taču zelta putns klāt. Dēls satveŗ putnu,
+izrauj divas spalvas un aiztriec projām.</p>
+
+<p align="JUSTIFY">No rīta velns prasa: "Vai redzēji kādu ābolu zagli?"
+Nē!"</p>
+
+<p align="JUSTIFY">"Nu, tad nākat, abi pavāri, man līdz uz mežu!"</p>
+
+<p align="JUSTIFY">Šiem jāiet, vai grib, vai negrib. Nu iet, nu iet dziļi mežā
+iekšā. Ne velns runā ar viņiem, ne viņi ar velnu. Uz vienu reizi velns, kā zibins
+apgriežas iesaukdamies: "Tata aizmirsu, ka aizmirsu. Savu cepuri aizmirsu mājā!
+Skrejot, abi pavāri, ko tik mākat, pēc cepures! Kuŗš vēlāku atskries, tam mizenes,
+kuŗš ātrāki atskries, tam mizenes nebūs!"</p>
+
+<p align="JUSTIFY">Vecais pavārs grib bez mizenēm vaļā tikt, tas skrien elsdams,
+jādomā, ka kājas izgriezīs, cik ātri. Bet jaunais, tas izrauj no kabatas abas zelta
+putna spalvas, ieduŗ katros plecos par spārniem un aizlaižas, kā tauriņš tik viegli
+pa meža galiem vien līdz velna ēkai. Velns nebija ne apskatījies - jaunais pavārs ar
+cepuri klāt.</p>
+
+<p align="JUSTIFY">Veco turpretim izgaidās, muļķis palikdams. Pēc liela liela laika
+atskrēja vecais elsdams, pūzdams, bez jēgas un bez cepures. Nu vajadzētu atpūsties
+cilvēkam kaut cik, bet velns tev gaidīs. Mizo vēl nabadziņu, lai āda atlūp. Tīri
+žēl paliek jaunajam pavāram. Ja, bet ko darīt? Nagi, vairāk nekas. Pēc kāviena
+velns saka: "Iesim tagad mājā, bet rītu jūs man katrs uzcirtīsit tādu kuģi,
+kas pa sausu zemi skrien!"</p>
+
+<p align="JUSTIFY">Vakarā ļaunais pavārs klusītiņām atkal ielien pie baltās
+zostiņas. Tā prasa: "Kā tad tev, puisīt, šodien labi klājās?" "Labi!
+Tā un tā. Bet rītu gan diezin, kā ies. Man jāuzcērt tāds kuģis, kas pa sausu zemi
+skrien. Kurš to var?"</p>
+
+<p align="JUSTIFY">"Var gan! Ieej viņā istabā, tur būs vairāk cirvju: Ņem
+cirvjus pa vienam un svied pār kamiesi, tik neskaties atpakaļ! Ja būsi paņēmis īsto
+cirvi, tad atskanēs balss: "Gan!" To nemeti vairs pār kamiesi, bet steidzies
+pa durvim ārā pie darba."</p>
+
+<p align="JUSTIFY">Labi, jaunais pavārs ieiet tanī istabā un ierauga lielu kaudzi
+cirvju. Nu sviež vienu pār kamiesi, otru, trešu; beidzot kā pacels devīto, stipra
+baiss kaut kur iesaucās. "Gan!" Tā jaunais pavārs mudīgi mudīgi pa durvim
+ārā un sāk kuģim baķus cirst, Izstrādājas pirmo nedēļu - baļķi jau aptēsti;
+izstrādājas otru nedēļu - baļķi jau sakaķēti, izstrādājas trešo nedēļu -
+kuģis gatavs. Ko nu? - Jārauga tik, vai skries arī pa sausu zemi? Sāk uzvilkt buŗas -
+pareizi! Līdz buŗas uzvilktas - kuģis lepns kā gulbis ievizinās velna pagalmā. Velns
+prieka pilns izskrien pretim: "Kur tas otrs cirvinieks, vai tam arī kuģis
+izdevās?"</p>
+
+<p align="JUSTIFY">"Nezinu par otru; man pašam darba pilnas rokas!"</p>
+
+<p align="JUSTIFY">Velns noskrien pie vecā pavāra: vai esot gatavs? Ne esot, ne arī
+mākot!</p>
+
+<p align="JUSTIFY">"Nu, tad tevi pati nelaime jādelētu!" velns norūc un mizo
+atkal šo.</p>
+
+<p align="JUSTIFY">Pēc kaviena velns iedod abiem ceļa maizi ar pavalga tiesu un saka:</p>
+
+<p align="JUSTIFY">"Citrīt celdamies iesit man pārvest zelta zirgu no
+citurienes!" Vakarā jaunais pavārs atkal ieiet pie baltās zostiņas pēc padoma.
+Zostiņa saka: "Nebēdā nekā, ej tik uz priekšu un viņpus meža apsēdies uz
+cinīša! Tad atskries izsalcis lācis. To tu pie ēdini un tad kāp viņam mugurā, lai
+nestu tevi pie zelta zirga."</p>
+
+<p align="JUSTIFY">Labi. Jaunais pavārs paņem savu maizes saini, iziet mežam cauri,
+apsēžas uz cinīša un gaida, kas nu būs. Necik ilgi - lācis ar itin šļokanu vēderu
+klāt.</p>
+
+<p align="JUSTIFY">"Vai negribi ēst, lācīt?"</p>
+
+<p align="JUSTIFY">..Kā nu nē, kas tad man dos?"</p>
+
+<p align="JUSTIFY">"Še ēd manu maizi, manu pavalgu un tad aiznes mani tur, kur
+zelta zirgs!"</p>
+
+<p align="JUSTIFY">"Ja, ja - dod tik šurp!"</p>
+
+<p align="JUSTIFY">Drīzi lācis noēdies itin resns: lai nu kāpjot viņam mugurā.
+Jaunais pavārs uzkāpj mugurā un tā lācis tūdaļ kā vējš aizcērtas gar meža malu
+vien uz to pusi, kur saule lec. Nu skrej, nu skrej, beidzot, kas tas? Jau pie zelta pils
+noskrējis. Lai kāpjot zemē, viņš būšot ieiet pēc zelta zirga. Labi, lai notiek! Un
+tas nebija ne apskatījies, jau zelta zirgs izvests, tik spožs kā saule. Tas esot par to
+maizi un pavalgu, lai tik nu kāpjot mugurā un laižot uz māju! Šis uzkāpj mugurā -
+es saku - nu mirdz un laistās, tīri jādomā: diezin kas tur jāj? Un zirgam viens
+stiepiens - pie velna pils klāt. Iznāk velns, tas rausta plecus par tādu izmaņu. Kur
+tik ātri esot sadabūjis, kur ne? Tai vietā, kur zirgs esot mitis, vēl nekad neesot
+bijusi ne cilvēka ēna. Un par to labumu jaunais pavārs nu varot atpūsties labu laiku,
+bet vecais pavārs, ja pārnākšot bešā dabūšot nevien šodien mizenes, bet rītu
+triekšot vēl pie cita darba. Pret vakaru pārlien arī vecais, bet noskumis tukšām
+rokām. Kā arī nenoskums cilvēks. Labi zin, kas gaidāms. Un velns, tas jau tevi
+ņirgāt ņirgā. Kad kāds piekaujams - jāsaka - to vien tik gaida.</p>
+
+<p align="JUSTIFY">Tas nu tas. Bet nezin no kuŗa laika tās pelēkās zosis (tās
+bijušas velna īstās meitas) pamanījušas, ka jaunais pavārs lienot pie baltās
+zostiņas un kopā vien sazinoties. Šīs pateikušas velnam, un velns no tās dienas
+zobus vien griež, gudrodams, ko ar jauno pavāru izdarīt. Beidzot sagudro tā: liek
+vecajam pavāram namā lielu, lielu katlu pieliet un jaunajam pavāram jānes žagari,
+jākuŗ uguns tā kā līdz vakaram katls būtu uzvārījies Bet jaunais pavārs bija
+manīgs, cauru dienu zaļos žagarus vien nes. Pienāk vakars - katls maz maz silts. Velns
+traks: par veselu dienu nevarot ne nieka katlu uzsildīt.</p>
+
+<p align="JUSTIFY">"Nieka katlu!" jaunais pavārs atcērt, "ko es varu
+darīt, ka tev tādi žagari!"</p>
+
+<p align="JUSTIFY">Bet velns par tiem vārdiem paliek vēl dusmīgāks. Viņš nebūšot
+viņa slinkuma dēļ palikt negulējis. Tādēļ darīšot īsi: ieslēgšot jauno ar
+balto zostiņu namā un pieteikšot: līdz ūdens karsts, ka tad abi tūlin būtu
+ielēkuši katlā noplucināties. Gan jau viņš pa miegam plunkšķi dzirdēšot. Labi.
+Gulēt ejamā laikā velns ieved balto zostiņu namā pie jaunā pavāra un nosaka:
+"Palīdzi uguni kurt! Ja ūdens karsts, tad leciet abi iekšā!"</p>
+
+<p align="JUSTIFY">To sacīdams, tas aizslēdz durvis un pamet šos tur iekšā. Bet ap
+pusnakti jaunais pavārs ar balto zostiņu sarunā tā: "Paņemsim speltes akmeni un
+sviedīsim labi dikti katlā, lai plunkšķis iznāktu liels, un velns pa miegam domātu,
+ka mēs esam ielēkuši. Tad izrakņāsim sliekšņa apakšai caurumu, izlīdīsim laukā,
+paņemsim stallī zelta zirgu un pūtīsim projām!"</p>
+
+<p align="JUSTIFY">Runāts - darīts. Pļunkt! akmens noiet katlā un pelēkās zosis ar
+velnu pa miegam gardi jo gardi pasmejas. Bet kamēr šie tur tik jauki sapņo, jaunais
+pavārs ar balto zostiņu aizjājuši uz zelta zirga gabalā.</p>
+
+<p align="JUSTIFY">No rīta velns, tikko pamodies, ies raudzīt, kā šie noplukuši. Bet
+ko nu atron? Katlā akmens, slieksnis izrausts, zelta zirgs projām. Lai tūlin visi kalpi
+dzenoties bēgļiem pakaļ! Šie arī. viens divi, pie rokas - aiziet kā dūmi.</p>
+
+<p align="JUSTIFY">Bet zostiņa to mana, viņa saka: "Klau, mums dzenas pakaļ! Lai
+zelta zirgs paliek par baznīcu, tu par kanceli, es par vecu mācītāju!"</p>
+
+<p align="JUSTIFY">Acumirklī tā notiek. Atskrien velna kalpi - prasa mācītājam, vai
+neesot manīti divi bēgļi uz zelta zirga?</p>
+
+<p align="JUSTIFY">,,Nē, nemaz! Sen esmu par mācītāju šinī baznīcā, bet tādus
+neredzēju nekad!"</p>
+
+<p align="JUSTIFY">Šie atpakaļ. Velns prasa: "Kas bija?" Tā un tā. "Ak<b>,
+</b>jūs lopi, tie jau bij tie paši!'`</p>
+
+<p align="JUSTIFY">Nu sūta citus kalpus. Zostiņa to mana; viņa saka: "Klau, mums
+dzenas pakaļ! Palieciet jūs abi par kazām es par vecu ganu meitu!"</p>
+
+<p align="JUSTIFY">Acumirklī tā notiek. Atskrien velna kalpi - prasa ganu meitai, vai
+neesot manīti divi bēgļi uz zelta zirga?</p>
+
+<p align="JUSTIFY">"Nē, nemaz! Sen te ganu, bet tādus neredzēju nekad!" Šie
+atpakaļ. Velns prasa: "Kas bija?" Tā un tā.</p>
+
+<p align="JUSTIFY">"Jūs lopi, tie jau bij tie paši!"</p>
+
+<p align="JUSTIFY">Nu skries pats pakaļ. Zostiņa to mana; viņa saka: "Lai zelta
+zirgs paliek par ezeru, tu pats par asari, es par ūdensjaucēju."</p>
+
+<p align="JUSTIFY">Acumirklī tā notiek. Te velns klāt un meklē asari noķert,</p>
+
+<p align="JUSTIFY">bet ūdensjaucēja jauc ūdeni vienā ņēmienā. Velns izmocās nevar
+nekā darīt. Projām iedams tas saka: "Nu, ūdens jaucēj, tu paliksi septiņi gadi
+te jaukdama, es tev rādīšu!" Briesmīgi dusmīgs velns aizjož atpakaļ. Bet
+ūdens jaucēja tagad pasauc asari, lai nu nākot ārā. Šis iznāk par cilvēku no ezera
+un gaida, kas tāļāk notiks. Pēc brīža ūdens jaucēja nomauc savu gredzenu un
+pasniedz to puisim, sacīdama:</p>
+
+<p align="JUSTIFY">"Še, valkā manu gredzenu septiņi gadi; pēc septiņiem gadiem
+pārjāšu pie tevis gredzenam pakaļ."</p>
+
+<p align="JUSTIFY">Paiet tie septiņi gadi. Puisis, senākais jaunais pavārs, gudro ar
+savu tēvu, vai tik ūdens jaucēja nebūšot piemirsusi sava gredzena valkātāju. Tēvs
+saka, ka būšot; bet dēls turās, ka nebūšot.</p>
+
+<p align="JUSTIFY">Te vienu dienu tēva sēta atspīd zelta spožumā. Šie paskatās -
+daiļa meita iejājusi uz zelta zirga un prasa pēc sava gredzena valkātāja. To prieku,
+kas nu bij tēvam ar dēlu! Un nu bija drīzi jo drīzi jaunajiem ļaudim kāzas.</p>
+
+
+</body></html>

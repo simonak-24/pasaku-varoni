@@ -1,0 +1,196 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>20</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Ansītis un Grietiņa.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">l. A. 327. A. H Skujiņa, Andrs Ziemelis, no A.<b> </b>Strazdiņa
+Aumeisteŗos.</p>
+
+<p align="JUSTIFY">Vienarn vīram nomirusi sieva un palikuši divi bēni: puika un
+meitene. Puikam bīš Ancītis vārdā, meitenei Grietīna. Vīrs apprecēš otru sievu,
+un pamātei bēni nepatikuši. Šī nu vienmēr vīram dindināsi, lai ved bēnus uz
+mežu, jo no tiem nekāda labuma neesot. Vīrs gan negribēš, gan negribēš, bet ka
+sieva šim nelikusi ne dienu, ne nakti miera, tā pēdīgi ar nospriedis, ka jāvedot vie
+būšot. Nu tēvs sacīš Ancīšam un Grietīņai, ka lai sataisas, iešot rītīnā agri
+uz mežu. Šis cirtīšot malku, šie (bērni) varēšot tikmēr ogas palasīt.</p>
+
+<p align="JUSTIFY">Rītīnā tēvs bīš jau agri augšā un taisījies uz mežu. Viņč
+aicināš Ancīti un Grietīņu līdz. Visi nu gāši uz mežu. Pa ceļam Ancītis lasīš
+akmintīnus un bāzis ķešā. Ka nu šie visi iegāši mežā, ta Ancīc tik pa vienam
+vie akmentīnam sviedis zemē un visi trīs tik gāši dziļāk mežā iekšā. Ka nu
+bīši jau labi dziļi iegāši mežā iekšā, tā tēvs sacīš uz bēniem, lai šie
+tepatēm paiiekot un psot ogas, šis paiešoties tālāk un tur cirtīšot maiku. Ancītis
+ar Grietīņu paiikuši tepatēm un lasīši ogas, bet tēvs pagāš gabalīnu tālāk un
+cirtis, ka skanēš vie. Bēni lasīši, lasīši ogas, kamēr pienācis vakars, bet
+tēvs, kā nenācis, tā nenācis. Nu bēni gāši uz to pusi, kur tēvs cirtis. Ka nu
+piegāši klā, tā tik redzēši, ka tēva nemaz nav, bet tik vējā klabinās vāle, kas
+bīsi pie egles piesieta. (Tēvs jau tūlītās aizgāš uz māju un piesēš vāli pie
+egles, lai tā vējā klabinās un bēni domā, ka šis cērt malku). Kot' nu darīt?
+Bēni gudroši, gudroši un pēdīgi Ancītis atminējies, ka pa ceļu mētājis
+akmintīnus. Nu šie tik gāši un meklēši akmentīnus rokā. Tā gāši, gāši kamēr
+iznākuši uz ceļa un bīši aka mājā iekšā.</p>
+
+<p align="JUSTIFY">Pamāte tos saņēmusi mīļi un labi. (Šī bīsi traki viltīga, tik
+aiz muguras aunu par visiem runāsi, bet priekšā ne čiku, ne grabu). Tēvs ar bīš
+traki priecīgs, kā bēni aka mājā. Tā nu aka visi dzīvāši. Bet pamāte nelikusi
+vīram miera un vienmēr didināsi, lai ved bēnus prom uz mežu. Gan vīrs negribēš,
+gan negribēš, bet nekā ar pēdīgi nedabūš miera. Nu viņš aka vienā rītīnā
+aizvedis bēnus uz mežu un atstāš mežā. Bet Ancītis aka pa ceļu lasīš akmintīnus
+un ka iegāši mežā, tā tas aka izmētāš un vakarā aka <b>pa </b>izmētātiem
+akmintīniem abi bēni atnākuši atpakaļ.</p>
+
+<p align="JUSTIFY">Pamāte aka bīsi ļoti laimīga, ka bēni mājā, bet bēniem aiz
+muguras kritusi vīram virsū, ka šis tāds muļļa vie esot, ka nevarot bēnus ievest
+labi dziļi mežā iekšā. Neko darīt un vīrs drīz vie aka vedis bēnus uz mežu un nu
+vedis tālu tālu mežā iekšā Gan Ancītis metis akmentīnus zemē, bet pēdīgi to
+aptrūcis, tā viņš sācis drupināt no maizes rika, ko tam pamāte iedevusi, un
+kaisīš druscīnas zemē. Ka nu iegāš aka dziļi meža iekšā, tā tēvs sacīš uz
+bēniem, lai šie tepatēm lasoties ogas, šis iešot tālāk un cirtīšot malku.
+Ancītis un Grietīna palikuši un tēvs aizgāš tālāk, aka piesēš pie egles vāli un
+to vēš klaudzināš. Ka pienācis vakars un bērni nevarēši tēva sagaidīt, tā tie
+gāši uz to pusi, kur vāle vējā klabēsi, bet ko nu, ne tēva, ne kā! Nu bēni
+sākuši meklēt ceļa uz māju. Izmeklēšies, izmeklēšies, bet nekā nevarēši atrast
+Putni pa dienu bīši ssīši druscīnas, kuras Ancīc no maizes rika drupināš un
+kaisīs zemē. Tā ar abi bēni netikuši vais no meža ārā. Nu Ancītis un Grietīna
+ilgi maldīšies pa mežu un ārā netikuši. Nakts nākusi virsū un pietrūcies arī
+ēst Tikmē abi maldišies, kamē pienākuši pie mazas mājīnas un tai jumts bīš no
+pīrēgiem un sienas no sukura.</p>
+
+<p align="JUSTIFY">Nu Ancītis ar Grietīnu sākuši tik skrubināt no jumta un sienām,
+bāzuši tik mutē un ēduši. Drīz vien no mājīnas iznākusi veca, saiīkusi vecene un
+prasīsi, kas tur grabinoties? Bēni atbildēši, ka tie esot šie Ancītis un Grietīna.
+Nu vecene aka prasīsi, kā tā "sie te esot tikuši? Nu Ancīc ar Grietīnu visn
+izstāstīši. Ka tā, ta vecene sacīsi, lai nākot mājīnā iekšā. Ancītis ar
+Grietīnu gāši mājīnā iekšā. Vecene Grietīnu pieņēmusi par mājīnas apkopēju
+un Ancīti tūlītan ielikusi aizgaldā un sākusi barot. Aizgaldā bīš tāds caurums un
+pa to katru nedēļu bīš Ancīšam jāizbāš mazais pirkstīc un vecene tā bīsi
+ragana aplūkāsi, vai tas jau esot dau[dz] resnāks.</p>
+
+<p align="JUSTIFY">Pirmo nedēļu Ancītis pa caurumu izbāsis mazo pirkstīnu un otru
+nedēļu ar darīš tāpatēm. Bet tā viņč apķēries, sak', uz labu tāda barošana
+nau, jo ragana bīsi traki priecīga, ka šis pa to laicīnu esot dau brengāks paiīcies.
+Bet nu Ancīts nozndis mazo pirkstīnu, kamē tas pavisam kaulains paiicis un tā bāzis
+to raganai. Vecene bīsi traki errīga, ka šo nobarot vie nevarot.</p>
+
+<p align="JUSTIFY">Tā nu tas gāš labu laicīnu, Ancītis arvienu vē nozīdis savu mazo
+pirkstīnu un to vienmēr grūdis caurumā, ka vecene prasīsi, lai parāda. Pēdīgi
+vecene noskaitusies un likusi Grietīnai nokurināt makten karstu krāsni. Ka krāsns
+bīsi nokurēsies, tā vecene likusi Grietīnai, lai bāžot galvu līdz pleciem krāsnī
+iekšā un paprovējot, vai krāsns esot īsten nokurināta. Bet Grietīna vis nebīsi
+duma. Šī vis nebāzusi galvu krāsnī, bet sacīsi, ka nemākot un nemākot. Nu vecene
+noskaitusies un pieskrēsi pie krāsns un grūdusi galvu iekšā. Tiklīdz vecene
+iegrūdusi galvu krāsnī, ka Grietīna tūlitam saķērusi veceni aiz kājām un
+iegrūdusi krāsnī iekšā un vecene izcepusi, ka nočaukstēsies vie. Tagadīt nu
+Grietīna skrēsi pie Ancīša un izlaidusi to no aizgaldas.</p>
+
+<p align="JUSTIFY">Nu ragana bīsi pagm. Ancītis ar Grietīnu palikuši turpatēm sukura
+un pīrēgu mājīnā un dzīvoši laimīgi.</p>
+
+
+</body></html>

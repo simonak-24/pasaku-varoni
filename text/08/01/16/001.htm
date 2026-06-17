@@ -1,0 +1,168 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Ķēniņa dēls ar spārniem.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">l. A. 575. K. Vieglais no A Andrejeviča, Krapē.</font></p><font size="3">
+
+<p align="JUSTIFY">Priekš daudz tūkstošu gadiem dzīvoja viens mācītājs. Šim
+mācītājam bija viens dēls. Tai laikā vēl nepazina kuģus un pa jūŗu braukāja
+vienīgi ar laivām. Tā kā ar laivām nekur tālu nevarēja aizbraukt, bet mācītāja
+dēla prāts nesās uz ceļošanu, tad viņš sameklēja spalvas un no tām iztaisīja
+spārnus. Šie spārni bija ļoti lieli, noskrūvējami un salokāmi, tā kā viņus
+varēja pabāzt zem mēteļa.</p>
+
+<p align="JUSTIFY">Kad spārni bija gatavi, tad viņš tos pieskrūvēja un aizlaidās pa
+jūŗu. Lai gan laisties bija grūti, tomēr viņš sasniedza otru krastu. Tur viņš
+noskrūvēja spārnus un gāja uz priekšu, jo sev apkārt viņš nekā vairāk neredzēja
+kā kadiķus un elkšņus.</p>
+
+<p align="JUSTIFY">Tā viņš gāja ilgu laiku un beidzot ieraudzīja nepļautas pļavas
+un drīz pēc tam viņš atrada arī māju. Mācītāja dēls iegāja iekšā un prasīja
+saimniekam kādu darbu. Saimnieks viņam teica, ka cita nekāda darba nevar dot kā tikai
+lopus ganīt. Mācītāja dēls bija ar mieru un tā gāja ganos. Vakarā, kad viņš
+pārnāca no ganiem, viņš prasīja saimniekam, vai tālu no šejienes kāda pilsēta.
+Tad saimnieks viņam atbildēja, ka netālu no šejienes esot galvas pilsēta un tur
+dzīvojot ķēniņš un viņam esot ļoti skaista meita, un ķēniņš šo meitu glabājot
+pils augstākā tornī, lai pie tās neviens netiktu un viņu neredzētu.</p>
+
+<p align="JUSTIFY">Kad nākošā vakarā mācītāja dēls pārdzina lopus mājā, tad
+viņš pieskrūvēja spārnus un aizlaidās uz pilsētu. Tur viņš uzlaidās uz pils
+torņa loga. Kalpones viņu ieraudzīja un parādīja princesei. Princese domāja, ka tas
+ir putns, un pavēlēja laist to iekšā, bet kad ielaida, tad ieraudzīja, ka tas ir
+jauneklis. Princese nu bija ļoti priecīga: mieloja to ar gardiem ēdieniem, bučojās ar
+viņu un dažādi līksmojās. Princese gribēja to arī pa nakti paturēt, bet viņš
+atbildēja, ka to viņš nevarot darīt, jo rītā jāejot ganos. Tā mācītāja dēls
+aizlaidās atkal projām. No rīta kalpi stāstīja ķēniņam, ka šonakt pie princeses
+esot bijis briesmīgs troksnis. Ķēniņš par to lietu aprunājās ar princeses
+kalponēm. Bet tās atbild, ka neesot bijis nekas. Tad viņš lika izmeklēt visas malas,
+bet ka nekā neatrada, tad apmierinājās.</p>
+
+<p align="JUSTIFY">Otrā dienā notika tas pats. Bet trešā dienā princesei izdevās
+mācītāja dēlu pierunāt, un viņš palika pa nakti. Viņi nozvērējās ka, ja
+miršot, tad miršot abi divi kopā. No rīta atkal ķēniņš izmeklēja visas malas, un
+šoreiz viņš arī atrada mācītāja dēlu. Viņš nu ļoti saskaitās un ielika
+princesi vienā - mācītāja dēlu otrā cietumā.</p>
+
+<p align="JUSTIFY">Soda dienā uz pilsētas laukuma tika uzceltas karātavas un tur
+salasījās ļoti daudz ļaužu. Tad mācītāja dēls lūdzās ķēniņam, tai viņš
+beidzamo reizi ļauj nobučot princesi. Ķēniņš bija ar mieru. Bet mācītāja dēls
+jau cietumā bija pieskrūvējis sev spārnus. Kad nu viņu laida beidzamo reizi
+nobučoties ar princesi, viņš paņēma to padusē un aizlaidās. Kad ķēniņš un
+ļaudis to redzēja, tad tie rokas vien noplātīja.</p>
+
+<p align="JUSTIFY">Mācītāja dēls ar princesi laidās pār jūŗu, bet viņam sāka
+zust spēki. Mācītāja dēls ieraudzīja malu un saņēma pēdējos spēkus; bet tomēr
+spēka pietrūka un viņi abi iekrita ūdeni, bet tā kā tur bij sekls, tad viņi
+laimīgi izbrida malā. Mācītāja dēls gāja uz savām tēva mājām, bet princesi
+atstāja ārpusē, krūmos. Dēls, iegājis mājā, prasa tēvam atļauju precēties.
+Tēvs bija ar mieru. Un tā mācītāja dēls apprecējās ar skaisto princesi un no
+viņiem ir cēlušies visi skaistie cilvēki.</p>
+</font>
+
+
+</body></html>

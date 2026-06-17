@@ -1,0 +1,188 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Dažādi spēka vīri.</p>
+</font><font size="3">
+
+</font></b><font size="3"><p align="JUSTIFY"><b></b>5.<b> </b>A. 650 C. D. Ozoliņš Jaun - Rozē, Brīvz. kr. LP, VI,
+421 (112, 27).</p>
+
+<p align="JUSTIFY">Viens puisis bija ļoti stiprs. Viņš saderēja pie viena saimnieka
+par puisi. Tas saimnieks sacīja: "Vai tu man visu padarīsi, ko es tev likšu?"</p>
+
+<p align="JUSTIFY">"Jā, kādēļ ne?"</p>
+
+<p align="JUSTIFY">"Labi, tad raugi šo resno baļķi aiznest pie citiem
+baļķiem!"</p>
+
+<p align="JUSTIFY">Puisis saņem baļķi un aiznes, bet saimnieks plecus vien parausta.</p>
+
+<p align="JUSTIFY">Otrā rītā liek atkal lielo akmeni aiznest pie akmeņu čupas. Puisis
+aiznes. Nu saimnieks vēl vairāk brīnās.</p>
+
+<p align="JUSTIFY">Trešā rītā liek puisim bez cirvja mežu nocirst. Puisis aiziet,
+liek rokas klāt un raušus izrauj vienā cēlienā visus kokus, visu mežu. Bijis tāds
+līdums, ka saimnieks pārbijies lūdzies, lai šis ejot projām, neesot vairāk darba ko
+darīt. Bet puisis atbild: "Aizmaksā izpelnīto, tad iešu!"</p>
+
+<p align="JUSTIFY">"Jā, jā, cik tad esi izpelnījis?"</p>
+
+<p align="JUSTIFY">"Tik, cik spēju panest."</p>
+
+<p align="JUSTIFY">"Vai trakais, tas ir pulka!" saimnieks sabijās, "tad
+nekā cita nevaru darīt, iešu velnam naudu nozagt tur mežā."</p>
+
+<p align="JUSTIFY">Mežā velnam bija dzirnavas un saimnieks dzirnavās nozaga lielu kuli
+naudas. Bet velns apmanījis, dzinās pakaļ, piekāva saimnieku, atņēma naudu. Noskumis
+un iepērts, saimnieks pārnāca un raidīja labāk puisi dzirnavās naudai pakaļ. Puisis
+atsacīja: "lešu gan, bet ko maksāsi man par to?"</p>
+
+<p align="JUSTIFY">"Ko lai maksāju, nemaz nezinu. Klausies, došu tev labu padomu:
+tur un tur dzīvo ķēniņš un tas apsolījis visžiglākam skrējējam savu jaunāko
+meitu par sievu atdot. Nu, ko tu pazaudēsi? Izzodz dzirnavās naudu un ej tur sievu
+izpelnīties."</p>
+
+<p align="JUSTIFY">Labi, tas stiprajam puisim vareni patika, tūliņ aizsteidzās pie
+ķēniņa; velna naudu dzirnavās būšot citā reizē dabūt, tā neesot tik steidzama.</p>
+
+<p align="JUSTIFY">Noiet - ķēniņš pavēl lielā lielā klajumā krūzi nolikt un tad
+pasauc tādu klibu, lai tas ar stipro puisi ejot skrieties. Puisis domā: "Kas tad ar
+tādu būs ko skriet?" Bet, kur tu Dieviņ! Klibais, kā laida vaļām - noskrēja
+puisi, ka nebija ko apskatīties. Nu, ko nu? Jaunāko meitu nevar vairs dabūt. Bet puisis
+pārdomā citādi, viņš vaicā ķēniņam, cik gribot par savu jaunāko meitu?</p>
+
+<p align="JUSTIFY">"Cik gribu? Nu mazāk jau ne - pilnu istabu zelta."</p>
+
+<p align="JUSTIFY">"Labi!" puisis atteica un aizgāja uz velna dzirnavām pēc
+naudas. Aiziet - velns negrib dot, lai pušu plēš; bet stiprais puisis daudz nemācēja
+lūgties, nosita velnu, paņēma naudu un ar vienu pašu nesienu piebēra ķēniņam
+istabu. Bet ķēniņš, naudu dabūjis, sāks žēloties; ka jaunāko meitu tik lēti
+atdevis.</p>
+
+<p align="JUSTIFY">"Ak tā!" stiprais puisis nejauki sadusmojās un iesāk ar
+ķēniņu spēkoties. Cīnījās, cīnījās - ķēniņš nevarēja atturēties; bija
+jāatdod meita.</p>
+
+<p align="JUSTIFY">Stiprais puisis paņēma meitu un aizgāja velna dzirnavās dzīvot. Un
+naudas tam nu, zināms, bija, cik tikai vajadzēja.</p>
+
+<p align="JUSTIFY">Tas nu viss labi. Bet kas ir? Pēc tāda laika atkuļas dzirnavās
+klibais, lai viņam arī par to labo skrējienu jel atmetot kādu tiesu naudas! Stiprais
+nečinkst arī, iedod no labas sirds veselu pūru.</p>
+
+<p align="JUSTIFY">Bet vēlāk klibajam iežēlojas, ka vienu pūru vien dabūjis. Un, ko
+viņš dara? Salasa vīrus, iezogas nakts laikā, kad stiprais guļ aizmidzis, dzirnavās,
+nocērt slepeni stiprajam vienu kāju un nolaupa visu naudu. Stiprais gan uzlēca kājup,
+bet, kur tu ar vienu kāju vien klibo vairs panāksi?</p>
+
+<p align="JUSTIFY">Vēlāk gan, kad kāja stiprajam sadzija - tad pielika koka kāju,
+aizgāja pie klibā, nosita ar pirkstu un paņēma savu naudu atpakaļ.</p>
+
+<p align="JUSTIFY">No tā laika stiprais dzīvo ar savu sievu laimīgi, jo laimīgi.</p>
+</font>
+
+
+</body></html>

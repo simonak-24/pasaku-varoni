@@ -1,0 +1,166 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>20</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Labie brāļi.</p>
+</font>
+
+</b><p><b>20. A. </b>303. Baumanis Nīcā. LP, VI, 125, 25, AŠ, II, 95r.</p>
+
+<p>Vienreiz viens vīriņš brauca Liepājā un, gar jūru braukdams, ieraudzīja pašā
+jūrmalas malā zelta līdaku. Viņš domāja, vedīšot Liepājā un pārdošot. Labi. Un
+kad aizbrauca Liepājas gatuves galā, tad līdaka sāka teikt: "Vīrs, vīrs, kur tu
+mani vedīsi? Vedi mani mājās, nokauj mani! Trīs asiņu piles ielāsi11i savā dārzā,
+trīs asakas ieduŗ klēts sienā, trīs kumosus iedod savai sievai, trīs savam zirgam,
+trīs savam sunim!"</p>
+
+<p align="JUSTIFY">Labi. Viņš darīja tā: ielāsināja asinis, iedūra asakas, iedeva
+kumosus sievai, zirgam un sunim.</p>
+
+<p align="JUSTIFY">Tad vīriņš gāja dārzā un skatījās, kas tur 1abs būs? Un
+dārzā bija tai vietā, kur asinis ielasinājis, trīs rozes; klēts sienā bija trīs
+zobeni; sievai bija trīs dēli, zirgam trīs kumeļi, sunim trīs kuceni.</p>
+
+<p align="JUSTIFY">Tad tas viens dēls apjoza to vienu zobenu, pasauca vienu kucenu
+biedros, uzkāpa vienam kumeļam mugurā un sacīja uz saviem brāļiem, kā arī
+vecākiem: "Es jāšu pasaulē! Ja tā rozīte vītīs, tad negaidat mani; bet ja
+rozīte zaļos, tad gaidat pārjājam mani."</p>
+
+<p align="JUSTIFY">Viņš aizjāja. Jāja, jāja dienām, naktim - uzjāja vienu mežu;
+tur bija uguns, aiz uguns sēdēja veca sieviņa. Tad tēva dēla suns sāka ņurdēt,
+zirgs saslieties kājās; bet sieviņa teica: "Dēliņ mīļu! apsauc savu
+sunīti!"</p>
+
+<p align="JUSTIFY">Viņš apsauca sunīti; un tad tā sieviņa aprija tēva dēlu ar
+zobenu, zirgu un suni.</p>
+
+<p align="JUSTIFY">Bet mājā tēvs iegāja dārzā rozīti skatīties - atrada rozīti
+novītušu. Nu otrs dēls apjoza otru zobenu, paaicināja otru sunīti</p>
+
+<p align="JUSTIFY">biedros, uzlēca otram kumeļam mugurā un aizjāja pasaulē brāļa
+nedienas meklēt. Jāja, jāja, dienas, naktis - uzjāja vienu mežu: tur bija uguns, aiz
+uguns sēdēja veca sieviņa. Tad tēva dēla suns sāka ņurdēt, zirgs slieties kājās,
+bet sieviņa teica: "Dēliņ mīļu! apsauc savu sunīti!"</p>
+
+<p align="JUSTIFY">Viņš apsauca; un tad tā sieviņa aprija tēva dēlu ar zobenu. zirgu
+un suni.</p>
+
+<p align="JUSTIFY">Bet mājā tēvs iegāja dārzā rozīti skatīties - atrada rozīti
+vītušu.</p>
+
+<p align="JUSTIFY">Nu trešais dēls apjoza trešo zobenu, paaicināja trešo sunīti
+biedros, uzlēca trešam kumeļam mugurā un aizjāja pasaulē brāļu nedienas meklēt.</p>
+
+<p align="JUSTIFY">Jāja, jāja, dienas, naktis - uzjāja vienu mežu; tur bija uguns, aiz
+uguns sēdēja veca sieviņa. Tad tēva dēla suns sāka ņurdēt, zirgs saslieties
+kājās, bet sieviņa teica: "Dēliņ mīļu! apsauc savu sunīti!"</p>
+
+<p align="JUSTIFY">Bet trešais dēls domāja : "Kad tikai tu man neesi nogalinājusi
+brāļus?" un neapsauca vis sunīti, vēl sacuidīja labi un suns tūdaļ saplosīja
+sievu. Bet apakš sievas atradās purvs un nu no purva pa to vietu, kur šī sēdējusi,
+iznāca kā pa alas caurumu abi brāļi ar zobeniem, zirgiem, sunīšiem - visi dzīvi.</p>
+
+
+</body></html>

@@ -1,0 +1,178 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Meitene, kas savus brāļus meklē.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">10. A. 451. V. Zacharska no V. Drazdovskas Rozentovā. </p>
+
+<p align="JUSTIFY">Vīnam zemnīkam beja sīva un divi bārni, meita un dāls. Meita beja
+leluoka un gudruoka por bruoļi. Vīnu reiz tāvs ar muoti brauca uz pilsātu un soka
+meitai: "Meitiņ, tu labi sorguoj sovu bruoļi! Mes atbrauksim vokorā un atvedīsim
+tev jaunus zuobokus un barankus."</p>
+
+<p align="JUSTIFY">Meitiņa beja ar mīru un vysu dīnu sorguoja bruoļi. Bet ap vokoru
+viņa īraudzēja citas meitenes, kas guoja uz upi, jei ar' nūdūmuoja aizīt pazavērt,
+kū jī grib dareit upī. Atstuoja bruoli muojuos, bet poša aizgnoja; dīrmuodama, ka
+drīz atnuaks muojuos. Bet puorguoja lobs laiks. Bruoļs izguoja nu muojas un tikkū
+gribēja īt duorzā, ka atskrēja boltais gulbis un nūnesja jū. Atnuoca meitene nu
+upes, suoka meklēt bruoli - nav nakur. Jei suoka rauduoj un dūmoj : "Tagad atbrauks
+tāvs ar muoti, nikū man nadūs."</p>
+
+<p align="JUSTIFY">Dūmuoja, dūmuoja un nūdūmuoja īt meklēt bruoli. Īt jei, īt -
+veras: aug ziernis. Jei vaicoj: "Pasok, ziernis, voi naredzēji muna bruoļa?"</p>
+
+<p align="JUSTIFY">"Redzēju," atbiļdēja ziernis. "Boltais gulbis jū
+aiznesja." "Uz kureni?" vaicuoja meitiņa.</p>
+
+<p align="JUSTIFY">"Paruodīšu ceļu tev tikai tod, kod apēdīsi desmit ziernīšus
+ar tuorpim."</p>
+
+<p align="JUSTIFY">Meitiņa sadusmuojas un aizguoja tuoļuok. Īt, īt - veras: tek upīte
+ar keiseļa molam. Meitiņa vaicuoja upītei: "Upīte, pasok, kur aizskrēja boltais
+gulbis, nesdams munu brolīti?"</p>
+
+<p align="JUSTIFY">Upīte atbiļdēja: "Paēd muna keiseļa, tureiz teikšu."</p>
+
+<p align="JUSTIFY">"Vui!" soka meitiņa, "es pi sovas māmiņas laba
+keiseļa naēdu, a tovu nateiru es negrybu," un aizguoja tuoļuok.</p>
+
+<p align="JUSTIFY">Īt, īt - veras: guļ uz ceļa mozs tuorpiņš. Jei gribēja nūsist
+tuorpiņu, bet padūmuoja un vaicuoja: "Tuorpiņš, maņ žēl tevi sist, paruod tu
+man ceļu, kur gulbis aiznesja munu bruoļīti."</p>
+
+<p align="JUSTIFY">Tuorpiņš soka: "Ej taišņi šitā ceļā, tur byus lela pils.
+Ej īškā, un tur redzeisi zam golda sovu bruoļīti. Boltais gulbis jū aiznesja pi
+rogonas. Jo vareisi izgluobt, byus tovs; jo na, byus rogonai."</p>
+
+<p align="JUSTIFY">Meitiņa dreiz aizskrēja pa ceļu, īt un veras: stuov pils, lelā un
+smuka: Īguoja īškā, redz: nivīna nav, tikai bruols sēd zam golda un spēlēj ar
+naudu. Meitiņa dreiz pajēmja bruoļi un naudu, izskrēja uorā - veras: uz ceļa guļ
+tys pats tuorpiņš. Jis soka: "Meitiņ, nūskūpsti mani!"</p>
+
+<p align="JUSTIFY">Meitiņa nu prīka nūskūpstīja tuorpiņu un vaicuoja: "Kuraī
+ceļā uotruok tikt uz muoju?"</p>
+
+<p align="JUSTIFY">Tuorpiņš atbiļdēja: "Ej taišņi! Kas byus uz ceļa, vysu
+dari, jo tev pakaļ skrīn boltais gulbis."</p>
+
+<p align="JUSTIFY">Meitiņa uotri suoka skrīt. Skrīn, skrīn - veras: ta poša upīte
+tek. Meitiņa, daudz nadūmuodama, paēda keiseļa, upīte jū puornesja ūtrā pusē un
+jei skrēja tuoļuok. Skrīn, skrīn veras: uz ceļa aug tys pašs ziernis. Meitiņa
+apēda desmit ziernīšus ar visim tuoripm un aizskrēja tuoļuok. Veras: stuov
+uostobiņa, a tur i tāvs ar muoti atbrauca. Meitiņa īnesja bruoļi un naudu ustobā.
+Tāvs ar muoti jai atvedja jaunus zuobokus un svaigus barankus. Jī vysi paēda un suoka
+laimīgi un baguoti dzeivuot pasaulī. Laikam vēl i šūdīn dzeivoj, jo vokorā tikai
+nanūmyra.</p>
+<font size="2">
+
+<p>&nbsp;</p>
+</font>
+
+
+</body></html>

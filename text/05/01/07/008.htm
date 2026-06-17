@@ -1,0 +1,182 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Velna dotā sieva.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">8. A. 465 D. Isidors Sylāns no 58 g. vecas Apollonias Škeisteres
+Ludzā. Kultūras balss kr.</p>
+
+<p align="JUSTIFY">Vīnam boguotam saiminīkam beja pajemts struodnīks. Struodnīka dorbs
+beja kurinuot reju. Saiminīks īraudzēja, ka juo struodnīks nagul ustobā, bet vys
+stagoj uz reju gulātu. Svātdīnas dīnā rejas nakurinoj, bet struodnīks vys īt tī
+gulātu. Vīnu reizi saiminīks guoja naktī pasavērt, kū tī struodnīks dora.
+Saiminīks pa klusiņam daguoja un veras: struodnīks gul, bet pi juo gultas stuov jauna
+un smuka meita un ar struodnīku runoj. Kū jī runuoja, saiminīks nadzierdēja.</p>
+
+<p align="JUSTIFY">Reitā saiminīks vaicoj struodnīkam : "Kuodēļ tu naguli
+ustobā?"</p>
+
+<p align="JUSTIFY">Struodnīks nikuo saiminīkam naatbildēja un nagribēja pīsazeit.
+Tūlaik saiminīks vaicoj struodnīkam : ,,Kaida jauna meita staigoj pi tevis
+naktī?"</p>
+
+<p align="JUSTIFY">Struodnīks napīsazyna. Tūlaik saiminīks runoj: "Es pats
+redzēju, kai tu gulēji, bet pi tovas gultas stuovēja jauna meita un ar tevi
+runuoja!"</p>
+
+<p align="JUSTIFY">Tūlaik stntodnīks pīsazyna un pasacīja, ka pi juo uz reju staigoj
+kaida puorluodāta jauna meita un runoj ar jū leidz pusnaktim, bet Pēc gaiļim pazyud.
+Saiminīks izklausīja struodnīku un tyuleņ guoja pi baznīckunga un izstuostīja jam,
+kas nūtyka ar juo struodnīku. Baznīckungs atbraucja pi ituo saiminīka un izvaicuoja
+struodnīku. Struodnīks baznīckungam vysu izstuostīja. Baznīckungs īdevja jam
+rozoncas un pasacīja: "Kad pi tevis otkon atis tei meita, tu tyulen izmet jai uz
+kokla rozoncas un stypri turi rūkuos ! "</p>
+
+<p align="JUSTIFY">Struodnīks pajēmja nu baznīckunga rozoncas un vokorā aizguoja uz
+reju gulātu. Gu struodnīks un gaida, koleidz atīs meita. Atīt meita, bet naīt pi juo
+tyvuok. Struodnīks sauc juo: "Ej pi manis tyvuok!"</p>
+
+<p align="JUSTIFY">"Navaru," atbild meita, "nūsvīd itūs zeiles,"
+ruoda meita uz rozoncom, "tūlaik es pi tevis pīīšu!"</p>
+
+<p align="JUSTIFY">Nasabeist, es tev nikuo napadarīšu!" soka meitai struodnīks.
+Ilgi dūmuoja meita un pīšuoja tvvuok. Struodnīks tyuleņ</p>
+
+<p align="JUSTIFY">izsvīdja meitai rozoncas uz kokla un tur. Meita suoka klīgt, bet te
+tyulen atskrēia saiminīks ar baznīckungu un apturēja meitu. Na par ilgu Iaiku
+struodnīku salauluoja ar itū meitu. Pēc kuozu meita soka struodnīkam: "lzgluobi
+tu mani un mes jau asam salauluoti, tagad īsim dabuosim munu pyuru!" Aizguoja
+struodnīks ar sovu sīvu pa ceļu, sīva jam soka: "Kad mes aizīsim, myusus tī
+sādynuos pi golda un dūs ēst, bet tu naēd leidz tam laikam, koleidz es tev
+napasocīšu pa klusiņam. Un kad tev dūs pyuru, tu nikuo najem, kai vīnu kyuli cysu,
+kurs tī stuovēs!"</p>
+
+<p align="JUSTIFY">Guoja jī, guoja un daguoja pi vīnas pils. Tymā pilī pi durovom
+stuov zyrga golva, tymā zyrga golvā ir pīlīts yudens un tymā yudenī vysi kad īt,
+mozgoj rūkas. Taipat myusu struodnīks ari idams nūmozguoja rūkas un īguoja smukā
+kambarī. Tī veras: stuov vysaida zalta gubas, bet struodnīks vys staigoj un nikuo
+najem. Jūs pats kēniņš sādynoj pi golda. Struodnīks nagrib un runoj: "Paldīs,
+es nīkuo nagribu!"</p>
+
+<p align="JUSTIFY">Īt jī tuoļuok un redz, ka stuov kyuļs cysu. Struodnīks soka
+kēninam: "Vairuok man nikuo navajag, atdūdīt man ituos cysas!" Kēniņš gon
+nagribēja. bet atdevja ari. Struodnīks ar sovu sīvu izguoja nu pils un īt uz sovu
+sātu. Ceļā veirs lomoj sovu sīvu, ka zalta napajēmja, bet kyuli cysu.</p>
+
+<p align="JUSTIFY">"Kū mes tagan ar itom cvsom darīsim?" prosa struodnīks.
+Sīva jam atbild: "Īstatīsim duorzā, lai aug!"</p>
+
+<p align="JUSTIFY">Tai jī atguoja uz sovu sātu un cysas īstatīja duorzā. Reitā cysas
+izauga un puorsataisīja par ļaudim, kuri aizguoja uz dabasim. Cysas beja grēcinīki
+ļaudis, kuri beja elnē, bet jūs nu elnes izjēmja itys struodnīks. Par itū Dīvs
+struodnīku ar juo sīvu pījēmja dzeivuot dabasu valstībā, varbyut, jī tagan tī
+dzeivuos.</p>
+
+
+</body></html>

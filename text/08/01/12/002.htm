@@ -1,0 +1,181 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Ar brīnuma lietām iegūtā ķēniņa meita.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">2. A. 569a. G o t h a r t s, K r. V i r c a v ā. L. P. III, 39
+(21. v a r.).</font></p><font size="3">
+
+<p align="JUSTIFY">Viens ķēniņš atradis uz lauka daiļu meitu, un pārvedis meitu pie
+sevis. Bet ķēniņam bijuši trīs dēli: divi gudri, viens muļķis. Un tie nu visi
+trīs par varu plijušies tēvam virsū, lai ļaujot meitu precēt. Tēvs nezinājis,
+kuram dot, kuram nedot. Beidzot tas nospriedis tā: kurš no dēliem labāko dāvanu
+meitai pārnesīšot, tam tad atdošot to par sievu. Dēli aizgājuši. Pie kāda
+krustceļa visi trīs norunājuši šķirties: viens aizjājis uz ziemeļiem, otrs uz
+vakariem; bet muļķītis uz dienasvidiem.</p>
+
+<p align="JUSTIFY">Pēc gada laika visi trīs atkal satikušies pie tā paša krustceļa;
+katram bijusi sava dāvana kulē. Vienam bijis tāds stiebriņš, caur kuru skatīdamies,
+var visu pasauli redzēt. Otram bijis tāds lakatiņš, uz kura uzkāpdams, var aizkļūt,
+kur vien tikas. Bet muļķītim bijis tāds ābols, ar kura palīdzību, tiklīdz to gar
+lūpām aizvelk, var katru mirēju atdzīvināt, atveseļot. Uz krustceļa katrs vēl
+domājis savu dāvanu labi aplūkot un tad steigties uz māju. Bet tas viens, caur
+stiebriņu skatīdamies, ieraudzījis, ka daiļā meita tik slima, ka jādomā, katru
+acumirkli izdzisīs. To dzirdēdams, otrs iesaucies: "Kāpsim uz manu lakatiņu un
+steigsimies mājā!"</p>
+
+<p align="JUSTIFY">Turpretim muļķītis teicis: "Tiklīdz būsim mājā, tad
+redzēsit brīnumus. Es ar savu ābolu mirēju atdzīvināšu."</p>
+
+<p align="JUSTIFY">Tā noticis. Viens divi bijuši mājā; muļķītis pārvilcis ar savu
+ābolu meitai pār lūpām, tā uzcēlusies spirgta, vesela. Bet nu izcēlusies brāļu
+starpā nevienprātība. Viens gribējis meitu dabūt, otrs gribējis. Pirmais teicis:
+"Man stiebriņš pateica, ka meita slima."</p>
+
+<p align="JUSTIFY">Otrs teicis: "Nekā, man labākā dāvana! Ko līdzēja zināt, ja
+nevarēja laikā pārtikt mājā, mirēju atdzīvināt? Cik tur trūka, būtu nomirusi,
+tad jau ir ābols vairs neatdzīvinātu."</p>
+
+<p align="JUSTIFY">Bet muļķītis sacījis: "Nu, ko tad līdzēja zināt, ko
+līdzēja pārskriet, ja nebūtu bijis mans ābols, kas atdzīvina?"</p>
+
+<p align="JUSTIFY">To dzirdot tēvs iebildis: "Mani dēli! jums visiem trijiem labas
+dāvanas. Patiesi nezinu, kuram meitu dot, kuram ne, tādēļ darīšu tā: paņemiet
+katrs savu stopu un eita bultis šaut. Kurš savu izšauto bulti atradīs, tam atdošu
+meitu. Brāļi izgāja šaut. Pirmais aizšāva tālu, tas neatrada savu bulti. Otrs
+aizšāva vēl tālāk, kas arī neatrada savu bulti. Muļķītis aizšāva ļoti tālu,
+tas sameklēja trīs dienas, trīs naktis, bet tomēr neatrada savu bulti. Bet muļķītis
+negriezās atpakaļ, viņš teicis: "Un kaut es visu mūžu meklētu, man to vajaga
+atrast!"</p>
+
+<p align="JUSTIFY">Viņš meklējis, meklējis ilgu laiku. Daiļā meita, tādu cietu
+gribu redzēdama, ļoti ilgojusies pēc muļķīša. Viņa gaidījusi viņu pārnākam.
+Bet kad tas tik ātri nepārnācis, tad tā no bēdām, lieliem sirdēstiem nomirusi.
+Muļķītis vēl arvienu meklējis. Te kādu dienu, meklējot tas iekūlies vienā aizā.
+Tur dzīvojusi Mūžības māte. Muļķītis sūdzējis savas bēdas Mūžības mātei.
+Mūžības māte apžēlojusies. Tā palīdzējusi nabadziņam bulti atrast. Nu
+muļķītis priecīgs steidzies uz māju. Bet to nelaimi, daiļā meita jau gulējusi
+kapā. Muļķītis raudājis un gājis palīdzību meklēt. Uz ceļa tas saticis
+Mūžības mātes tēvu. Tas bijis sarucis no liela<b> </b>vecuma sprīža garumā un
+sirmā bārda bijusi sešdesmit olekšu gaŗa. Muļķītis sūdzējis tam savas bēdas.
+Tas teicis: "Vēl, dēliņ, viss nav zudis. Ej pie manas meitas, Mūžības mātes;
+tai ir pilna aka ar dzīvības ūdeni. Palūdzi viņai no dzīvības ūdens, tad tu savu
+meitu atdzīvināsi!"</p>
+
+<p align="JUSTIFY">Muļķītis steidzies pēc dzīvības ūdens un lūdzis Mūžības
+māti tik mīļi, tik mīļi, ka tā iedevusi no dzīvības ūdens pilnu kausu. Tagad
+muļķītis steidzies pie daiļās meitas kapa, apslacinājis nelaiķei ar ūdeni lūpas,
+iedevis vēl nodzerties un to atdzīvinājis. Abu jauno ļaužu prieki bijuši neizsakāmi
+lieli. Arī tēvs priecājies un darinājis tādas kāzas abiem, kādas nebija bijušas,
+nedz arī vairs būs.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Mūžības māte gan laikam būs cēlusies no jaunāku
+laiku fantazijas, jeb arī no grāmatām. P. Š.</p>
+</font>
+
+
+</body></html>

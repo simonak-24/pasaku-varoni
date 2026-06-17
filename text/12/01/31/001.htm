@@ -1,0 +1,161 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>31</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="center">Es ar' tāpat domāju.</p>
+</b></font>
+
+<p><strong>1. </strong>A. 1574. L. Ozole Sērpilī, A. Bērzkalnes krājumā.</p>
+<font size="4">
+
+</font><p><font size="4"></font>Vienam lielkungam bijis vagārs, kas vienmēr gribējis kungam iztapt un katra.
+kunga priekšlikuma galā teicis: "Es ar tāpat domāju, kungs."</p>
+
+<p align="JUSTIFY">Kungs nodomājis, ka tas vagārs ir liels muļķis. Lai par to
+pārliecinātos, viņš kādu rītu teica uz vagāru: "Zini ko? Iesēsim labākā
+laukā tepat aiz muižas putraimus, lai mums rudeni nebūtu putraimi jātaisa."</p>
+
+<p align="JUSTIFY">"Es ar tāpat domāju, kungs," atteica padevīgais sulainis,
+bet patiesībā vis tā nedomāja. Viņš paņēma miežus un iesēja tos tai laukā.
+Kungs nodomāja: "Nu nekas, lai viņš sēj putraimus, rudenī es viņu par aplamu
+darbu aizdzīšu."</p>
+
+<p align="JUSTIFY">Otrā rītā viņš pasauca atkal vagāru un teica: "Nu, ko domā?
+Izvārīsim kartupeļus un iestādīsim, lai mums rudenī nebūtu jākavējas ar
+vārīšanu."</p>
+
+<p align="JUSTIFY">"Es ar tāpat domāju, kungs," sacīja vagārs. Viņš vis
+tā neizdarīja, bet paņēma kartupeļus un iestādīja tos. Kādu citu dienu kungs,
+iedams ar vagāru gar zivju dīķi, sacīja uz to: "Kā būtu, ja tu to ūdeni
+sasildītu, lai tās zivis izvārās, tad mēs varētu paņemt vienumēr, kad
+vajaga."</p>
+
+<p align="JUSTIFY">"Es ar tāpat domāju, kungs," viņš atbildēja pa vecam,
+tomēr tā nedarīja.</p>
+
+<p align="JUSTIFY">Rudenī, kad mieži bija nopļauti, vagārs aizveda uz sudmalām, lika
+iztaisīt putraimus un nolika klētī; bet kartupeļus lika aizvest spirta dedzināšanai.</p>
+
+<p align="JUSTIFY">Nu kādu dienu kungs iesauc to pie sevis un domā, ka nu varēs to
+atlaist, jo nekas jau nebūs paaudzis. Kad kungs prasa, kur nu ir putraimi, vagārs
+atbild: "Klētī kungs ir maisi ar putraimiem."</p>
+
+<p>"Kur ir kartupeļi?"</p>
+
+<p align="JUSTIFY">"Klētī ir, kungs, mucas ar spirtu, par tām jau būs diezgan
+laba nauda."</p>
+
+<p>Kungs nu redzēja, ka viņa vagārs nav vis tik dumjš, kā bija</p>
+
+<p align="JUSTIFY">to domājis, un tādēļ ar neatlaida. Tā tad izrādījās, ka viņi
+abi bija vienlīdz gudri.</p>
+
+<p align="JUSTIFY">Piezīme. Šis pasakas variants gan lai kam ir pilnīgākais un arī
+pareizākais. Agrākos laikos vagāram bija nevien jārūpējas par muižas saimniecību,
+bet arī jāizdabā kungam pa prātam Vēlāku, kā ilekas, pasaka būs pārprasta un
+padevīgais vagārs iztēlots par muļķi. P. Š.</p>
+
+
+</body></html>

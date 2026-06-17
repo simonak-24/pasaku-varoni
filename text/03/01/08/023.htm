@@ -1,0 +1,178 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>23</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Maģiskā bēgšana ar meitenes palīdzību.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">23. A. 313 A.<b> </b>P. Grebezis Preiļos, B. Spūļa kr. </p>
+
+<p align="JUSTIFY">Senos laikos, kad vēl raganas dzīvoja pasaulē, dzīvoja vīrs ar
+sievu, un viņiem bija viena maza meitiņa. Kad pēc neilga laika nomira māte, tad tēvs
+apprecēja citu sievu, bet tā bija ragana. Drīz nomira arī tēvs un meitiņa palika
+nabaga bārenīte. Viņai nebija ne radu, ne draugu, un tikai viena krustmāte bija vēl
+palikusi.</p>
+
+<p align="JUSTIFY">Pamāte spieda viņu pie visiem grūtiem darbiem un nelaida nekad uz
+krustmāti, bet meitiņa padarīja visus darbus. Pamātei tas pavisam nepatika un viņa
+par to vien prātoja, kā no meitiņas tikt vaļā.</p>
+
+<p align="JUSTIFY">Reiz pamāte sadomāja sūtīt meiteni uz savu otru māsu, kas arī
+bija ragana. Tā nu viņa to arī aizsūta uz māsu pēc adatas, cerēdama, ka viņa no
+turienes vairs neatnāks. Iedama uz svešo raganu, meitene iegriezās pa ceļam arī pie
+savas krustmātes. Krustmāte iedāvināja savai krustmeitai zīda bantīti, eļlu un
+galu, pamācīdama: "Kad tu ej pa birzi un bērza zari tev sitas acīs, tad apsien tu
+bērzam zīda bantīti un bērzs tevi laidīs gaŗām. Tālāku būs dzelzs vārti
+priekšā, kas tevi negribēs cauri laist. Tad iesmērē tos ar eļļu un viņi tevis
+vairs nekavēs. Pie pašām mājas durvim būs viens nikns kaķis, nosvied tam to gaļu,
+tad viņš laidīs tevi iekšā!"</p>
+
+<p align="JUSTIFY">Meitene arī visu tā izdarīja, kā krustmāte bija mācījusi, un
+nonāca laimīgi pie savas pamātes māsas. Iegājusi pie tās iekšā, viņa lūdza no
+tās adatu, kā pamāte bija vēlējusi. Svešā ragana iedeva meitenei adīkli un lika
+tai tikmēr adīt, kamēr viņa pati pārnākšot mājā. Viņai adot, pienāca kaķis un
+sacīja: "Dod man, meitiņ, savu adīkli, bet pati tu bēdz projām uz savu māju.
+Še tev vēl no manis viens suseklis un viens lakatiņš! Ja ragana tev dzenas pakaļ, tad
+nosvied papriekšu susekli zemē! Ja ragana vēl skrien tālāku pakaļ, tad nosvied
+lakatiņu zemē!"</p>
+
+<p align="JUSTIFY">Meitiņa kaķim paklausīja un aizbēga. Atskrien ragana, redz, ka
+meitenes vairs nav, tūlin uzbrēc kaķim: "Kam tu neizplēsi meitenei acis, kad
+viņa gribēja projām bēgt?"</p>
+
+<p align="JUSTIFY">Kaķis atbild: "Tu mani vienādi sit, bet meitene mani paēdināja
+ar gaļu."</p>
+
+<p align="JUSTIFY">Ragana pieskrien pie vārtiem un prasa: "Kam jūs meiteni
+izlaidāt un nesaspiedāt?"</p>
+
+<p align="JUSTIFY">Vārti atbild: "Tu mūs neaplej ne ar ūdeni, bet meitene mūs
+apsmērēja ar eļļu."</p>
+
+<p align="JUSTIFY">Ragana skrien uz birzi un saka bērzam: "Kādēļ neizsiti bēglei
+acu?"</p>
+
+<p align="JUSTIFY">Bērzs atbild: "Tu manu zariņu ne ar lūku neapsēji, bet meitene
+apsēja ar zīda bantīti."</p>
+
+<p align="JUSTIFY">Ragana nu dzenas bēglei paka un drīz vien jau meiteni panākusi. To
+redzēdama, meitene nometa susekli zemē, kas tūlin pārvērtās pie lielu biezu mežu.
+Ragana grauž, grauž krūmus, kamēr izgraužas cauri un skrien atkal tālāku.</p>
+
+<p align="JUSTIFY">Manot atkal raganu tuvumā, meitene nosviež lakatiņu zemē, kas
+pārvēršas par lielu platu upi. Ragana nu grib upi izdzert, bet tikmēr dzeŗ, kamēr
+pārplīst pušu un nobeidzas.</p>
+
+<p align="JUSTIFY">Tā nu nabaga bārenīte beidzot izglābās no jaunās raganas. Viņa
+nu vairs neiet atpakaļ uz pamāti, bet paliek pie mīļās krustmātes un dzīvo tur
+mierīgi un laimīgi.</p>
+
+<p align="JUSTIFY">Piezīme. Pasaka ir uzrakstīta ar dažiem trūkumiem; kādēļ tika
+tulkota rakstu valodā. P. Š.</p>
+
+
+</body></html>

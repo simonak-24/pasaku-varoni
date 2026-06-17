@@ -1,0 +1,168 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Gar? diena</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Garā diena.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY"><strong>12.</strong> A. 1541. 1384. 1210. 1540.&nbsp; H. Skujiņa,
+Andrs Ziemelis, no 72 g. vecā Jēkaba Baltiņa, Bilskas pagastā.</p>
+</font><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font>Vīrs aizgāš darbā, atstāš sievai naudas maku un
+piesacīš, lei pietaupot garai ziema, šis jau tik ātri apakaļ nebūšot. Vīrs
+aiz&amp;127; gāš un sieva palikusi viena pati. Bet visu to, kā vīrs atstāš naudas
+maku, ko lei šī pietaupot garai ziemai, noklausījies vienc vecis un kā vie vīrs
+aizgāš, tā šis pie sievas klāt un saka šai, lei atdodot šim naudas maku, jo šis
+esot garā ziema. Sieva noticēsi ar', ka šis ir tā garā ziema, un atdevusi večam
+naudas maku.</p>
+
+<p align="JUSTIFY">Ka nu vīrs atnācis no darba mājā, ta prasīš sievai, kur šī
+naudas maku likusi. Nu sieva pastāstīsi, ka pie šās atnākusi garā ziema un tai šī
+atdevusi naudu. Nu vīrs noskaities un kliedzis: "Es gan nedomāju, ka tu tik duma
+esi, ka atdo svešam savu naudu. Bet labi, jā es vē trīs tikpat dumas sievas
+atradīšu, kā tu esi, ta tu iziesi sveikā; bet ja ne, ta tev klāsies plāni."</p>
+
+<p align="JUSTIFY">Nu vīrs gāš meklēt tikpat dumas trīs sievietes kā šā sieva:
+Vīrs gāš, gāš un dagāš pie vienas mājas. Saimnīca stāvēsi pie rījas jumta un
+vaimanāsi. Jumts bīš apaudzis ar zāli un saimnīca bēdāsies, kā lei dabūjot govis
+uz jumta, kas zālīti noēstu, jo šiem esot slikta ganība un govis esot mellu
+nokrimtušas. Nu vīrs gāš klā un pamācīš: "Nocērt govim galvas, uznes uz
+jumta, gan jau ta viņas zālīti noēdīs."</p>
+
+<p align="JUSTIFY">Nu saimnīca tūlī vīram pateikties: "Ak; paldies, paldies, par
+labu padomīnu, kā es, lūk, pati nemaz neapķēros."</p>
+
+<p align="JUSTIFY">Un saimnīca tūlī nocirtusi govim galvas un sanesusi uz rijas jumta.</p>
+
+<p align="JUSTIFY">"Nu jau man viena duma rokā," nodomāš vīrs pats pie sevis
+un gāš tālāku.</p>
+
+<p align="JUSTIFY">Nu nākūsi muiža. Vīrs gāš caur muižu un skatījies debesīs. No
+muižas iznākusi lielmāte un prasīsi vīram, kas šis tāds esot un no kurienes nākot.
+Vīrs atbildēš, ka šis esot eņģelis un nākot no debesim. Vai, nu lielmāte palikusi
+priecīga un prasīsi, vai eņģeliš šās lielkungu ar pazīstot un kā šim debesīs
+klājoties. Vīrs ātsacīš, ka šis pazīstot gan šās lielkungu un lielkungam ejot
+pavisam plāni: ne ko ēst, ne ar naudas kapeika ķešā. Nu lielmāte sātaisīsi ritīgu
+ceļa kuli un sadevusi naudu, lei aiznesot šās lielkungām uz debesim.</p>
+
+<p align="JUSTIFY">Vīrs pieņēmis ceļa kuli un naudu, sacīš, lei nu vairs
+nebēdājaš par lielkungu, un gāš savu ceļu.</p>
+
+<p align="JUSTIFY">"Nu jau man otra duma rokā," sacīš vīrs un gāš tālāk.
+Pretī nākusi sievīna un vedusi trīs govis uz tirgu. Vīrs prasīš, kur šī govis
+vedīšot. Sievīna sacīsi: "Uz tirgu."</p>
+
+<p align="JUSTIFY">Nu, lei pārdodot šim. Labi, salīguši un norunāši tā: Vīrs
+nopirks visas trīs govis. Naudas viņam nav klāt pašreiz, bet viņš div govis paņems
+līdza un trešo atstās sievīnai par ķīlu, kamē nāks ar naudu. Labi, sievīna ar
+mieru un lieta darītā.</p>
+
+<p align="JUSTIFY">Ka nu vīrs gāš mājā, ta sacīš uz sievas: "Pasaulē ir vē
+dau dumākas sievas kā tu, un tāpē tu šoreiz izej sveikā. Bet uz priekšu vais tā
+nedari."</p>
+
+
+</body></html>

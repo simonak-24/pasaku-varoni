@@ -1,0 +1,156 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Suns m?c?s run?t</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Muļķis brauc pēc malkas.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>2. </strong>A. 1681. Teicēja 86 g. veca J. Poriete Lubānas
+Lielpurvos. Folkloras krātuvē.</p>
+
+<p align="JUSTIFY">Vienam tēvam un mātei bijuši dēls un meita. Meita izgājusi pie
+vīra un vēlāk ar brālim nākušas kāzas. Tā reiz meitas vīrs aizgājis pie sievas
+tēva un sievas mātes. Sievas māte darījusi alu, aizsūtījusi znotu uz mežu, iedevusi
+cirvi, zirgu un ratus, lai atved malku. Aizbraucis uz mežu, pietaisījis ratus pie koka,
+lai ka koku laidīs - tas krīt ratos. Kā nu koks kritis ratos, nositis zirgu. Ko darīs
+- zirgs nosists. Paņēmis cirvi - ies uz māju. Iedams uz māju, redz: pīles peld
+ezerā. Nodomājis: nav malkas, nav zirga - būs kad pīles kāzām. Sviež ar cirvi
+pīlēm. Cirvis noslīcis, pīles aizskrējušas. Ko nu darīs? Viņš novilks drēbes,
+bridīs ezerā cirvi meklēt. Cirvi neatradis - ies malā. Bet kamēr pats ezerā cirvi
+meklē, tamēr malā citi nozog drēbes. Ko darīt? Palicis pliks. Viņš gan zinot, ka
+sievas māte darot namā alu. Ielavījies klusām namā un iekāpis alus kubulā. Ienāk
+sievas māte, ierauga šo kubulā, iekliedzas: "Uja, znotiņ, ko nu darīsim? Ne
+vairs dzert, ne zemē liet,."</p>
+
+<p align="JUSTIFY">Nāk kāzas - sieva sūta vīru uz tirgu, 1ai nopērk zābaku, ar ko uz
+kāzām braukt. Vīrs staigā, staigā, bet viena zābaka nekur nevar atrast. Kur ir
+zābaki, tur visi pa pāram, bet sieva jau teikusi, lai nopērk zābaku. Pēdīgi tomēr
+dabūjis tādas dūdas, kur abas kājas salīstu' vienā zābakā. Tā nu abi aizbraukuši
+uz kāzām. Nobraukušiem sievas māte sakot: "Kāp, znotiņ, laukā!"</p>
+
+<p align="JUSTIFY">Sieva sakot: "Kur viņš kāps? Abas kājas vienā zābakā."
+Bet viņš izmaucis kājas no zābaka un izkāpis.</p>
+
+<p align="JUSTIFY">Pa kāzām sieva par viesu mielotāju, viņa saka vīram, kuŗš
+mēdzis ilgi pie galda ēst, kad viņa ar savu kāju piesitīs apakš galda pie viņa
+kājas, tad lai viņš saprotot, lai lie.kot mieru ēst. Tā nu visi viesi sasēstas pie
+galda ēst. Bet mājas kuce, vai vilka rauta, piesitusi ar asti viņam pie kājas. Vīrs
+nu vairs neēd. Sievas māte nezinādama, kas noticis, mudina: "Ēd nu, znotiņ,
+ēd!"</p>
+
+<p>Bet viņš domā, ka jau dabūjis mājienu, vairs neēd.</p>
+
+<p align="JUSTIFY">Pienāk vakars, vīram dikti gribas ēst. Viņš noskatījies, ka
+sievas māte iejaukusi raušu baļļiņu un uzlikusi uz krāsns. Viņš uzkāpj uz krāsns
+un sāk ēst mīklu. Ēzdams viņš domā, ka arī citiem kāzniekiem gribas ēst, kas
+turpat guļ. Kuŗš kāznieks izlaiž troksni, viņš saka: "Neprasi, došu jau tev
+ar."</p>
+
+<p align="JUSTIFY">Kuŗš laidis švīkstienu, tam teicis : "Nepūt, nav jau
+karsts." Tā nu viņš ikkatram iezvēlis pa saujai mīklas. Rītā kāznieki
+pamodušies, gluži nezinot, ar mīklu&amp;127; aptraipīti .</p>
+
+
+</body></html>

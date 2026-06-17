@@ -1,0 +1,210 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Zaķu gans.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p><font size="4"></font><font size="3">7. A. 570. Štrauss Ērberģē. L. P. IV, 222 (57, 2).</font></p><font size="3">
+
+<p align="JUSTIFY">Viņos laikos bija puika ar ļoti lētu galvu. Vienreiz puika bija
+izmaucis, ganos iedams, tādu stabuli uz divpadsmit balsim. Brīnum jauki skanējusi šī
+stabule, tā ka pašam nākuši brīnumi, kur tāda izdevusies. Nu pūtis, nu pūtis -
+beidzot iedomājies : "Kuš, kuš! Vai nevarētu savas aitas mācīt pēc stabules
+dancot?"</p>
+
+<p align="JUSTIFY">Un - ko domāt - tā puika sācis tik iet aitu baram apkārt un
+stabulēt. Aitas klausījušās, klausījušās - uz vienu reizi jandāliņš gājis
+vaļām: visas lēkājušas vienā mukā. Vakarā pārdzinis mājā: tēvs, māte puikam
+čuprā: kādēļ šodien aitas nemaz neesot pieganītas? Šis neko. Tai dienā pusgodam
+pārgājis bez pēriena.</p>
+
+<p align="JUSTIFY">Bet otrā dienā, vadzi, puika nevar nociesties: stabulē, lai plīst,
+un aitas danco kā trakas. Pārdzen mājā, tēvs, māte kājās: kas tā par bezkaunību
+- nevarēs aitas pieganīt! Lai tik nu nākot šurp - bez mācības vairs nevarot
+pārlaist.</p>
+
+<p align="JUSTIFY">Neko darīt - kas pelnīts, jādabū. Bet trešā dienā tas<b> </b>pats
+Dievs ganībās: puika stabulē un aitas lec. Tomēr nu izgāja zēnam nelabi: tēvs bija
+atnācis klusu apskatīties, kas ganībās īsti notiekas; un līdz pamanījis, ka šis
+tur tīšām aitas dancina, tā stiba rokā un nu labi iebrīdinās. Bet zēns bija
+manīgāks, nelaidās vis stibai tik tuvu: labāk laida ļekas vaļām un aizbēga no
+tēva.</p>
+
+<p align="JUSTIFY">Bēga, bēga - beidzot atdūrās pret dziļu upi. Bet - laime ar tādam
+- bija ieraudzījis necik tālu no tās vietas mazu laiviņu. Ko nu gaidīt? - Tūliņ
+laiviņā iekšā un laiž pa straumi uz leju. Tomēr cik tālu taču brauksi? Bail, ka
+jūŗā neiebrauc, tādēļ vienā vietā kāps labāk pie laika ārā. Izkāp, izskatās:
+tukša vieta. Neko citu, ies uz priekšu. Iet tādu gabalu, satiek vilkaci, kam suns
+skrien pakaļ.</p>
+
+<p align="JUSTIFY">Tas suns bijis cilvēks, bet vilkacis viņu par suni nobūris. Ātrumā
+zēns nemaz nezinājis: vai vilkacim ceļu griezt, vai ko darīt. Bet drīzi apķēries un
+sācis stabulēt. Un tos priekus tagad! Vilkacim tūliņ bijis jālec tīri kā trakam.
+Bet cik ilgi leksi? Pēc laba laika vilkacis atkritis augšpēdu, elsis un pūtis. Tagad
+suns pametis ar acim, lai nelaiž vis tā vaļām; zēns sapratis to un tūliņ ņēmis
+vilkaci labi nomizot, ka nevarējis ne lēti uzcelties.</p>
+
+<p align="JUSTIFY">To redzēdams, suns no priekiem iesaucies: "Tad tā labi! Kāp tik
+nu man mugurā, aiznesīšu tevi pie ķēniņa. Ķēniņš tad tev prasīs kādu amatu
+vēlies: vai zaķus ganīt, vai par suni būt? Tu atbildi: zaķus ganīt! par tik un tik
+lielu samaksu!"</p>
+
+<p align="JUSTIFY">Labi - zēns kāpis sunim mugurā un aizjājis pie ķēniņa.
+Ķēniņš prasījis: kā labāki gribot, vai zaķus ganīt, vai par suni būt?</p>
+
+<p align="JUSTIFY">"Gribu zaķus ganīt!"</p>
+
+<p align="JUSTIFY">"Nu, cik tad algas prasīsi?"</p>
+
+<p align="JUSTIFY">"Kas nu par algu? Dod man savu meitu par sievu, tad jau diezgan
+būs."</p>
+
+<p align="JUSTIFY">Ķēniņš domājis: "Var jau arī solīt meitu, tikpat tu
+nenoganīsi."</p>
+
+<p align="JUSTIFY">Tā salīguši. Suns vēlāk prasījis: "Nu, kā palika?"</p>
+
+<p align="JUSTIFY">"Tā un tā!"</p>
+
+<p align="JUSTIFY">"Tas labi! Tagad nogriez man kaklu, tad atradīsi svilpīti; ar to
+uzpūti, ja kāds tiektos tev zaķus atņemt, jo šis ķēniņš ir tas pats vilkacis, ko
+mežā mizoji."</p>
+
+<p align="JUSTIFY">Zēns paklausījis, nogriezis sunim galvu. Un tos brīnumus! Apakš
+suņa galvas bijusi cilvēka galva un aiz cilvēka galvas gadījies cilvēka rumpis.
+Turpat arī izkritusi maza svilpīte.</p>
+
+<p align="JUSTIFY">Otrā dienā ķēniņš izdzinis no krūmiem simtu zaķu, lai nu ganot!
+Bet zaķi nemaz mierā nostāvēt.</p>
+
+<p align="JUSTIFY">"Pag!" zēns iesaucies un sācis pūst savu stabuli. Tūliņ
+zaķi sākuši lēkt un lēkt, salēkuši cauru dienu un nedabūjuši nekur aiztikt. Pret
+vakaru iznākusi ķēniņa meita, par nabadzi pārģērbusies, un kaulējusi vienu zaķi
+sev. Zēns izmeklējis labu zaķa veceni un atdevis nabadzei. Šī stiepusi uz mājām;
+bet līdz pie vārtiem - zēns uzpūtis svilpīti: tā zaķis, kūliņus mezdams,
+atpakaļ.</p>
+
+<p align="JUSTIFY">Otrā dienā ķēniņš izdzinis no krūmiem divisimti zaķu; tie
+tāpat klīduši. Bet zēns stabulējis un zaķiem bijis jāsalec cauru dienu -
+nedabūjuši nekur aiztikt.</p>
+
+<p align="JUSTIFY">Pret vakaru ķēniņš pats iznācis vienu zaķi kaulēt. Zēns ātrāk
+nedevis, kamēr ķēniņš izdarījis tādu darbu, kas vīram ne pagalam neticis.</p>
+
+<p align="JUSTIFY">Ķēniņš par to sadusmojies un pakampis pats zaķi; bet zēns ar
+svilpīti iesvilpies - tūliņ zaķis atpakaļ! Nu ķēniņš gudrojis zēnam atriebties:
+licis trešā dienā pilnu maisu ar valodu pierunāt. Bet zēns nemaz nesabijies,
+paņēmis maisu un sācis savu dzīves gājumu stāstīt. Stāstījis, stāstījis - līdz
+nācis pret to vietu, kur bijis jāstāsta, kā ķēniņu (vilkaci) mežā mizojis,
+ķēniņš apturējis: viņš atdošot savu meitu par sievu, bet lai tik tālāk vairs
+nestāstot, esot jau maiss pilns.</p>
+
+<p align="JUSTIFY">Labi! Kas zēnam liela vajadzība? Nestāstījis arī un tā dabūjis
+ķēniņa meitu par sievu un dzīvojis laimīgi.</p>
+</font>
+
+
+</body></html>

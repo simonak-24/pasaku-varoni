@@ -1,0 +1,189 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Ar vienu burvju lietu iekaŗo otru.</font></p><font size="5">
+</font><font size="4">
+
+</font></b><p align="JUSTIFY"><b><font size="4"></font></b><font size="3">2.<b> </b>A. 569. A. Lerchis - Puškaitis,
+Džūkstē - Pienavā, LP. 1, 98 (64).</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam tēvam trīs dēli. Jaunāko - Jānīti - tēvs vairāk mīl,
+nekā tos divus. Citi brāļi tamdēļ Jānīti ienīst un apmelo pie kunga, ka Jānītis
+zinot tādu galdiņu, uz kā nekad ēdieni netrūkstot. Kungs Jānīti aizsauc uz muižu
+un pavēl tādu galdiņu gādāt. Jānītis jāj uz mājām un raud; bet kumeļš saka:
+"Ko tu raudi? Kāp rītu man mugurā, gan es aiznesīšu, kur tāds galdiņš
+dabūjams."</p>
+
+<p align="JUSTIFY">Tā arī notiekas. Kungs ļoti priecīgs par galdiņu un apdāvina
+Jānīti bagātīgi. Tas nu brāļiem nejauki skauž. Tie atkal apmelo Jānīti pie kunga,
+ka zinot tādu muciņu, kur nekad dzērieni netrūkst. Kungs aizsauc viņu uz muižu un
+pavēl, tādu muciņu gādāt. Jānītis atkal jāj raudādams, bet kumeļš saka:
+"Ko tu raudi? Kāp rītu man mugurā, gan es tevi aiznesīšu, kur tāda muciņa
+dabūjama."</p>
+
+<p align="JUSTIFY">No rīta muciņa klāt. Kungs ļoti priecīgs un apdāvina Jānīti
+vēl bagātāki. Tas brāļiem vēl trakāki skauž. Tie apmelo Jānīti trešo reizi pie
+kunga, ka zinot tādas spēles, kas dienu un nakti bez mitēšanās spēlē. Jānītim
+jāgādā spēles. Nabadziņš jāj mājā un raud bet kumeļš saka: "Ko raudi? Kāp
+rītu man mugurā, gan tevi aiznesīšu, kur tādas spēles dabūjamas. Tik šoreiz
+aizjājot palaid mani vaļā un, no Dieva puses, nesieni."</p>
+
+<p align="JUSTIFY">Jānītis aizjāj pēc spēlēm, bet aizmirst kumeliņu vaļā palaist.
+Līdz ko domā spēles ņemt, te gadās cilvēki, kas saņem Jānīti cieti un iesviež
+cietumā. Nu tam grūtas dienas. Bet kādu nakti kumeliņš atnāk pie Jānīša cietuma
+loga un saka: "Nebēdājies! Lupini tu cietuma mūri ar pirkstiem, es lupināšu
+sperdams."</p>
+
+<p align="JUSTIFY">Nu lupina un sper, kamēr tik liels caurums, ka Jānītis var izlīst.
+Abi iet priecīgi savu ceļu, kamēr gadās upe priekšā. Kumeļš gan ar Jānīti
+mugurā lielām mokām pār upi pārpeld, bet tūliņ arī nosprāgst. Nu Jānītim tās
+lielākās bēdas. Nekā darīt - iet mierīgs tālāk. Otrā dienā Jānītis satiek
+vīru, kam runga uz pleciem.</p>
+
+<p>"Ko ar to rungu dari?" Jānītis prasa.</p>
+
+<p align="JUSTIFY">"Ko daru? Kad kādu satieku, tad saku: "Runga, siti!" un
+tūdaļ runga apsit, ja gribu, pus pasauli."</p>
+
+<p align="JUSTIFY">Jānītim paliek bail, ka svešais viņu nenosit. Viņš tādēļ ātri
+iesaucas: "Runga siti!" Runga tūdaļ nosit svešo. Jānītis ievelk svešo
+mežā, paņem rungu un aiziet. Netālu satiek atkal vīru ar cirvi.</p>
+
+<p align="JUSTIFY">Ko ar cirvi dari?" "</p>
+
+<p align="JUSTIFY">"Ko daru? Kad kautkur cērtu, tad tūdaļ ir liela pils tai
+vietā."</p>
+
+<p align="JUSTIFY">Jānītis, to dzirdot, saka: "Runga, siti!" Runga tūdaļ
+nosit vīru. Jānītis nu paņem cirvi un steidzas tālāk. Beidzot satiek vēl vīru, kam
+pātaga uz pleca.</p>
+
+<p>"Ko ar pātagu dari?" ,</p>
+
+<p align="JUSTIFY">"Ko daru? Kad kādam mirušam uzcērtu trīs reizes, tad tas
+tūdaļ paliek dzīvs."</p>
+
+<p align="JUSTIFY">Jānītis, to dzirdēdams, saka: "Runga, siti!" Runga tūdaļ
+nosit vīru. Jānītis nu paņem pātagu, aizsteidzas atpakaļ pie sava kumeļa un cērt
+ar pātagu trīs reizes. Kumeļš atdzīvojas un pārnes Jānīti mājās.</p>
+
+<p align="JUSTIFY">No rīta Jānītis aizjāj pie kunga un pasaka, ka spēles nevarējis
+atrast. Kungs dzen Jānīti pie velna. Bet Jānītis neiet vis pie velna; viņš aiziet uz
+kunga lauku un iecērt kādā klucītī. Klucīša vietā izceļas grezna, liela pils.
+Kungs, to redzēdams, sūta karaspēku pili noārdīt un Jānīti saņemt. Bet Jānītis
+uzsauc: "Runga, siti!" Acumirklī viss karaspēks šļuks! gar zemi. Kungs nu
+noiet pie Jānīša un runā ar labu. Viņš apsolās pili Jānītim atstāt, ja tik
+karaspēku atdabūtu. Jānītis pilnā mierā; paņem pātagu un sāk tik velēt
+karavīrus, kamēr visi dzīvi. Nu bija Jānītim pils. Bet trīs vīrus tas arī negrib
+apkrāpt. Viņš uzlec kumeliņam mugurā, nojāj pie pirmā vīra mežā un per ar
+pātagu, kamēr dzīvs. Jānītis tam pateikdamies atdod rungu. Nu jāj pie otrā vīra un
+per ar pātagu, kamēr dzīvs. Šim Jānītis pateikdamies atdod cirvi. Nu jāj pie
+trešā vīra un per ar pātagu, kamēr dzīvs. Tam Jānītis pateikdamies atdod pātagu.
+Tā nu ar visiem izlīdzinājies, Jānītis un kumeliņš dzīvo pilī vēl šodien.</p>
+</font>
+
+
+</body></html>

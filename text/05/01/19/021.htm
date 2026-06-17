@@ -1,0 +1,170 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>21</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vīrs ceļo uz elli.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">21. A. 477. Lapas Mārtiņš no Rūjienas, Ērģemes un Ēveles
+draudzes. "Gudrais Ansis un velns" (II, 1902, 53 (7).</p>
+
+<p align="JUSTIFY">Kungs liek zemniekam braukt uz pilsētu. Viņš jau laikā izbrauc no
+mājas, lai vakarā nonāktu pilsētā. Atpūtinājis zirgu par nakti, viņš tad rītā
+varētu saņemt kungam vedamās preces un nākošā vakarā tās atkal aizvest uz muižu.
+Tā nu vakara krēslā braucot, viņam piesitas kāds svešs vīrs, ,kas lūdz, lai to
+kādu gabalu pavedot.</p>
+
+<p align="JUSTIFY">Zemnieks no iesākuma negribējis klausīt, domādams: "Kas tumsā
+var zināt, kas viņš tāds par ceļa gājēju, vai labs vai auns?" Bet kad svešais
+solījis labi aizmaksāt, tad zemnieks arī atļāvis tam uzsēsties uz savām ragavām.
+Tā nu viņi braukuši abi kopā uz pilsētas pusi. Laiks bijis ļoti auksts. Zemnieka
+zirgs nemaz vairs neskrējis rikšiem, bet gājis tikai soļiem, it kā vilktu smagu
+vezumu. Gan zirgu taupīdams, gan arī kājas sildīdams, zemnieks bieži izkāpis no
+ragavām un gājis kājām. Svešais tikai mierīgi sēdējis ragavās, it kā lielo
+aukstumu nemaz nemanītu. Zirgs turpretim svīzdams vilcis ragavas uz priekšu.</p>
+
+<p align="JUSTIFY">Zemnieks jau sācis baidīties un domājis: "Vai tas tikai nebūs
+pats nelabais, ko es vedu?"</p>
+
+<p align="JUSTIFY">Te viņam iešāvies prātā vecu ļaužu padoms, ka velnu varot
+redzēt caur zirga sakām. Viņš teicis savam ceļa biedram: "Zirgam laikam sakas
+spiež, ka tik smagi velk. Jāiet jāpaskatās.</p>
+
+<p align="JUSTIFY">Zemnieks izkāpis atkal no ragavām, pacēlis zirga sakas un
+ieraudzījis caur tām, ka uz viņa ragavām sēd pats velns kā siena guba. Zemnieks
+aizmetis no bailēm krustu priekšā.</p>
+
+<p align="JUSTIFY">"Ko tu tur krustojies?" velns tam uzsaucis. "Nāc sēdi
+ragavās un brauc! Man līdz gaiļu laikam jātiek mājā, citādi tev nevarēšu
+aizmaksāt par pavešanu."</p>
+
+<p align="JUSTIFY">Neko darīt. Vīrs trīcēdams nosēdies atkal uz ragavām velnam
+blakus un paskubinājis nosvīdušo zirgu. Zirgs nu sācis ātrāki skriet it kā ragavas
+būtu vieglākas palikušas. Ceļš gājis gar vecas pils drupām, no kurienes pilsēta
+vairs nebijusi tālu.</p>
+
+<p align="JUSTIFY">Pieturi!" velns uzsaucis savam vedējam. "Te ir mana māja.
+"</p>
+
+<p align="JUSTIFY">Pagaidi mazu brītiņu, es tev iznesīšu maksu par pavešanu."</p>
+
+<p align="JUSTIFY">Pēc šiem vārdiem velns iegājis pilsdrupās un tur pazudis. Zemnieks
+izbijies domājis: "Lai nu maksa, kur maksa, kad tikai tieku no šejienes projām.
+Tas nav nekāds joks ar velnu kopā braukt un viņa mājas priekšā gaidīt."</p>
+
+<p align="JUSTIFY">Gan nu viņš skubinājis zirgu, gan sitis tam ar pātagu, bet tas
+nekustējies ne no vietas, bijis kā piesiets. Drīz iznācis arī velns no pilsdrupām un
+kaut ko nesis savā mēteļa stūrī. Viņš uzsaucis zemniekam: "Atraisi savu maizes
+kulīti! Še tev maksa par pavešanu!"</p>
+
+<p align="JUSTIFY">Piebēris zemnieka maizes kulīti pilnu ar naudu, viņš sacījis:
+"Tagad vari braukt uz pilsētu. Velns nav katrreiz tik auns kā izdaudzināts."</p>
+
+<p align="JUSTIFY">Zemnieka zirgs nu atkal skrējis itin čakli.</p>
+
+
+</body></html>

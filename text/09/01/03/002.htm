@@ -1,0 +1,221 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+<p align="center"><font size="5"><strong>Četri brīnuma amatnieki.</strong></font></p><font size="5">
+</font>
+
+<p align="JUSTIFY">2. A 653. Mārtiņš Starķis Lielvārdē (Ausekļa atl. raksti). LP,
+303 (134).</p>
+
+<p align="JUSTIFY">Viens tēvs sūta savus piecus dēlus pasaulē, sacīdams : "Eita
+katrs savādā amatā iemācīties!"</p>
+
+<p align="JUSTIFY">Labi. Pirmā dienā aiziet vecākais dēls un ceļā satiek vectēvu.
+Vectēvs jautā: "Kur iesi?"</p>
+
+<p align="JUSTIFY">"Amatā mācīšos!"</p>
+
+<p align="JUSTIFY">"Kādā amatā?"</p>
+
+<p align="JUSTIFY">"Pareģoņa amatā!"</p>
+
+<p align="JUSTIFY">"Labi, dēls! ej tad taisni pa šo ceļu; ceļa galā būs mana
+māja - tur tu par pareģoni iemācīsies."</p>
+
+<p align="JUSTIFY">Otrā dienā aiziet otrs dēls un satiek vectēvu. Vectēvs jautā:
+"Kur iesi?"</p>
+
+<p align="JUSTIFY">"Amatā mācīties!"</p>
+
+<p align="JUSTIFY">"Kādā amatā?"</p>
+
+<p align="JUSTIFY">"Šuvēja amatā!"</p>
+
+<p align="JUSTIFY">"Labi, dēls! ej tad taisni pa šo ceļu; ceļa galā būs mana
+māja - tur tu par šuvēju iemācīsies."</p>
+
+<p align="JUSTIFY">Trešā dienā aiziet trešais dēls un satiek vectēvu. Vectēvs
+jautā: "Kur iesi?"</p>
+
+<p align="JUSTIFY">"Amatā mācīties!"</p>
+
+<p align="JUSTIFY">"Kādā amatā?"</p>
+
+<p align="JUSTIFY">"Šāvēja amatā!"</p>
+
+<p align="JUSTIFY">"Labi, dēls! ej tad taisni pa šo ceļu; ceļa galā būs mana
+māja -- tur tu par šāvēju tiksi."</p>
+
+<p align="JUSTIFY">Ceturtā dienā aiziet ceturtais dēls un satiek vectēvu. Vectēvs
+jautā: "Kur iesi?"</p>
+
+<p align="JUSTIFY">"Amatā!"</p>
+
+<p align="JUSTIFY">"Kādā amatā?"</p>
+
+<p align="JUSTIFY">"Zadzēju amatā!"</p>
+
+<p align="JUSTIFY">Labi dēls! ej tad taisni pa šo ceļu; ceļa galā būs mana māja,-
+tur tu par zadzēju iemācīsies."</p>
+
+<p align="JUSTIFY">Piektā dienā aiziet piektais dēls un satiek vectēvu. Vectēvs
+jautā: "Kur iesi?"</p>
+
+<p align="JUSTIFY">"Amatā!"</p>
+
+<p align="JUSTIFY">"Kādā amatā"</p>
+
+<p align="JUSTIFY">"Koklētāju amatā!" </p>
+
+<p align="JUSTIFY">" Labi. dēls! ej tad taisni pa. šo ceļu; ceļa galā būs mana
+māja,- tur tu par koklētāju iemācīsies."</p>
+
+<p align="JUSTIFY">Otrā gadā visi dēli pārronas pie tēva un nu rādīs, ko katrs
+māk. Tēvs saka zadzējam: "Ozolā perina svēteļu [starku] mātīte - izzodz
+viņai nemanot visas piecas olas, ka ne padēklis nepaliek!"</p>
+
+<p align="JUSTIFY">Labi, zadzējs sāk strādāt un patiesi izzog olas; svētelienei ne
+jausmas, ka tukšu perekli perina. Nu tēvs paņem galdiņu, noliek zagtās olas katrā
+stūrī, piekto olu galdiņam vidū un saka: "Nāču, šāvējs! vai sašausi vienā
+šāvienā visas piecas."</p>
+
+<p align="JUSTIFY">Šāvējs vēro, vēro - te uz reizi knaukt: visas piecas pušu.</p>
+
+<p align="JUSTIFY">"Tas labi!" tēvs nopriecājas, "bet vai tu, šuvēj',
+varēsi sašūt?"</p>
+
+<p align="JUSTIFY">Šuvējs sāk strādāt: un lasa un knibinās un šuj un šuj - necik
+ilgi: olas veselas</p>
+
+<p align="JUSTIFY">"Tas labi!" tēvs nopriecājas, "bet tu, pareģoni, saki
+man, ko tu labu iespēj?"</p>
+
+<p align="JUSTIFY">"Spēju daudz; bet tagadin redzu, ka tur jūŗas salā ērglis
+aiznesis ķēniņa meitu; ja citi brāļi brauktu līdz, tad meitu pārvestum."</p>
+
+<p align="JUSTIFY">Labi šie braukšot Un otrā, trešā dienā meita mājā. (Ceļā
+ērglis gan bija uzmācies, bet šāvējs nošāvis; krītot ērglis gan pārlauzis kuģim
+mastu; bet šuvējs sašuvis mastu.)</p>
+
+<p align="JUSTIFY">Bet mājā brāļu starpā izcēlās ķilda: viens gribēja daiļo
+ķēniņa meitu, otrs. Beidzot tēvs izsprieda: "Tā galā netiksit; bet es teikšu:
+kas iespēs veselu nakti izgulēties tur dziļajā alā, lāču būs cienīgs tik daiļu
+meitu apņemt."</p>
+
+<p align="JUSTIFY">Labi, papriekšu izgājās pirmie četri brāļi lāču migā ietikt;
+bet nekā: lācis rūkdams, plosīdamies tik tik neapslānīja šos. Beidzot raudzīs
+koklētājs. Aiziet alas tuvumā, sāk koklēt - lācis jau priecājas: pieies alai itin
+tuvu - lācis dej un lec; ieies koklēdams pašā alā, nosēdīsies migā - lācis kā
+jērs noguļas koklētājam blakus un klausās un klausās cauru nakti jaukajās skaņās.
+No rīta koklētājs pārnāk sveiks un vesels. Tēvs priecājas: "Jums, dēli,
+visiem vareni amati - tas tiesa! bet, lūk, koklētājs iespēj vairāk; tādēļ
+ķēniņa meita pieder viņam."</p>
+
+<p align="JUSTIFY">Un otrā dienā koklētājs nosvinēja kāzas.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,170 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>23</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Novaktētā ragana.</p>
+</b></font>
+
+<p align="JUSTIFY">1. A. 306. Salacas apkaimē. LP, V, 1, 39.</p>
+
+<p align="JUSTIFY">Kādam saimniekam divas meitas ; bet abas nekrietnas : viņas daudzreiz
+uz tēva bišu koka kopā jājušas spīganās. Māju puisis apmanījis jau agrāk, kas
+šīm par nelaimi, bet neko citiem nesacījis. Te vienu sestdienu - tas bijis tā agrā
+pavasarī - puisis nodzirdējis, ka šīs atkal nākamu nakti ar tēva bišu koku
+izbraukšoties mazu lietu uz tālo Vāczemi.</p>
+
+<p align="JUSTIFY">Puisis nodomājis: "I! tad man arī tiktu vienreiz Vaczemē
+nokļūt! Pag! ielīdīšu bišu kokā jau laikāki, saliekšos, kā varēdams, kas,
+jupis, tumšā naktī mani tur uzodīs.</p>
+
+<p align="JUSTIFY">Labi. Kamēr meitas pirtī peŗas, šis jau bišu kokā. Te naktī, kad
+mājinieki noguluši, abas spīganas klāt, apgāž bišu koku plaudeniski, uzsēžas
+jātniski virsū, nomurmina dažus vārdus un re, bišu koks aiziet pa gaisu kā putns.
+Jāj, jāj - puisis apklausās, vai tā jūŗa vai, kas tur šņāc? Pabāž drusku galvu
+-- ir jūŗa liela plaša jūŗa.</p>
+
+<p align="JUSTIFY">Beidzot viņpus jūŗas bišu strops apstājas un nu bija Vāczeme
+klāt. Spīganas nokāpj zemē, ieveļ bišu koku ziedu krūmā apslēpt un pašas aiziet
+roku rokā ar Vāczemes kungiem. Kungi brīnum smalki ģērbušies, bet šīm arī tagad
+labākas drēbes gadījušās, spīd vien. Bet tur Vāczemē bijusi pavisam citāda
+pasaule : visi koki balti ziedējuši, kamēr mājā vēl ne labi lapas neplaukušas.
+Puisis ziedu krūmā nolauzis dažus ziedus un tūlin atkal līdis stropā atpakaļ. Ne
+visai ilgi vairs - spīganas arī klāt, izved no krūma bišu koku, uzsēžas jātniski,
+nomurmina dažus vārdus un brauc mājā.</p>
+
+<p align="JUSTIFY">Bet uz jūŗas vecākā māsa ieteikusies: "Nevar saprast,
+kādēļ šoreiz mūsu zirgs tik gausi skrien? Vai zini ko? Sviedīsim viņu labāk
+jūŗā! Man bail, ka nepārbraucam par vēlu un tad to kaunu, mājinieki apmanīs, ka
+esam spīganas."</p>
+
+<p align="JUSTIFY">"Ne, māsiņ," otra atteikusi, "nesviedīsim vis. Tas
+mūsu tēva vecais zirdziņš; cik reizu neesam jājušas ar viņu."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Nu manis pēc! Bet ja pārskriesim par vēlu, tad zini gan!"
+  "</p>
+</blockquote>
+
+<p align="JUSTIFY">"Nebūs vēlu, nebūs!" jaunākā māsa apmierinājusi un tā
+tad nesviedušas bišu koku jūŗā; citādi puisis pagalam būtu bijis, kā ja. Īsi
+priekš gaismas pārkļuvušas tā līdz ar nagiem mājā un tūlin līdušas gulēt.</p>
+
+<p align="JUSTIFY">No rīta puisis pirmais modinājis spīganas prasīdams: "Kur jūs
+izgājušo nakti bijāt?"</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Nekur nebijām!"</p>
+</blockquote>
+
+<p align="JUSTIFY">"Ak tā! vēl liegties. Jūs esat spīganas, ače, kur ziedi
+Vāczemē rauti, vai vēl taisnosities?"</p>
+
+<p align="JUSTIFY">Meitas neatteikušas vairs ne ja, ne nē; bet kad puisis aizgājis,
+vecākā māsa rājusi jaunāko: "Ko teicu? Es jau gribēju bišu koku jūŗā mest.
+Tu ne un ne: re nu tev aplam gods - visi mājinieki rādīs ar pirkstu un saukās par
+spīganām."</p>
+
+
+</body></html>

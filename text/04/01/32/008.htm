@@ -1,0 +1,261 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Varde par līgavu.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">8. A. 402. St. Uļanovka Vilānos. Zbior wiadomos'ci do antropo1ogii
+krajowej, T. XVIII, 1895, 40'7--412, (46).</p>
+
+<p align="JUSTIFY">Bjeja tāvam treis dāli, jī bjeja izauguši lili i laiks jau
+ženeitīs [precēties] jīm. Tāvs pajēmja, īdevja sjev-kuram pa blisjai i soka tai:
+,,Saunīt! .A kurs iz kuru pusi izsaus lūdi, tys nu tuos pusis i sīvu sjev pajims."</p>
+
+<p align="JUSTIFY">Paiēmja jī blisis nūguoia.. Vacuokijs kai suovja, tyka taišņi iz
+mīstu. Suovja vidišiy.s. tyka dzjerauņā (ciemā], a jaunuokijs tyka iz pīnra.</p>
+
+<p align="JUSTIFY">Nu, vot vacuokam vajag sīvys mjekIēt mīstā, jis nūguoja,
+sasvuotuoja kupča mjeitu, pataisjēja kuozys i atvjedja iz sāiu. Vidiškys nūguoja iz
+dzjerauni i dabuoja tāva-mjeitu, a trešyjs, jaunuokijs, nūguoja iz pūru i mjeklēja
+tī sīvys. Staiguoja, staiguoja - īleida lslūs dnbļūs, aizīt jam vokors, tymss - nu.</p>
+
+<p align="JUSTIFY">kur tagad byus puorgulāt nakti? Vieras: dag guņteya tuoli, tuoli.
+Vot, jis pazastjeidzjas mudruok i daīt pi ustabjeņis. Ustabjeņa mozjeņa, stuov iz
+vystys kuojis, iz vucyna rogu i grīžas. Jis soka: "Nūstuoj!"</p>
+
+<p align="JUSTIFY">Jei nūstuoia i izīt brīsmjeigi vaca buoba. Jai pīŗa izskruta, gari
+dzjelža zūbi, leikys kūka kuojis --- i soka jei sirdjeigi: "Kas tja kristjeits
+gors smird?"</p>
+
+<p align="JUSTIFY">Jis atsoka: "Fs nu kristjeitys zjamis, djēl tuo tai smird."
+"A kū tu gribi?"</p>
+
+<p align="JUSTIFY">"Suobjeņ, mīluo, nazasirdi tu iz mani! Es asmu atguojis briutis
+sovys mjeklēt. Ka tu zini, kur jei iraida, pasok tu maņ!" Jis prosa cīši, cīši
+mīleigi, cīši gūdjeigi.</p>
+
+<p align="JUSTIFY">Vot tjei buoba palyka loba i soka: "Zynu gon i pascjēšu tjev.
+Jei cik dīnys staigoj iz manim i jei tiuleņ byuškūtja tja. Pagaidi drusku, cikom iei
+atskrīs doncuot ar sovim briuguonim, ar valnānim."</p>
+
+<p align="JUSTIFY">Jis prosa otkon : "Buobjeņ mīluo, pīvuicjēj [pamāci] tu mani,
+kū maņ daŗēt, kab juos dabuot."</p>
+
+<p align="JUSTIFY">Vot jei pīscjēja jam nūīt vvdā i soka tai iz jū: "Labi,
+djēleņ, es tjevi pīvuicjeišu. Tu nazini, ka jei ira puorluodāta kjēniņeitja, valnim
+atdūta. <b>A </b>ka tu gribi juos dabuot, kai padaīēškys, hū ēs pascjeišu, tai
+dabuoškys. Kai jei atīškūtja, kai doncuoškūtia, byus jai moti izlaisti. Tu sagiun
+jū aiz motu i aptiņ stipri, stipri ap lobū rūku! Jei tūlaik pazataisjēškūtja par
+vardjevi i par čyusku ir par škierzlotu ir par vysaidim zvjērim. A tu nazavjerīs iz
+tuo, tur jū stipri i nalaid! Pjēc tuo jei palikškūtja par cīši baileigu buobu, tu
+nazavjērīs i prosi, kab jei nīunauktu gradzynu nu piersta i tjev dūtu. Tūlaik
+varēškys pajemt ju sjev!"</p>
+
+<p align="JUSTIFY">Cikom jī tī parunuoja, aizguoja jau pušnakts, jis dzi.erd, ka zjemja
+aizdudzjāja [sāka dunēt] - vieras: dūrs atsataisīja plotys, īskŗāja tjei -
+puorluodāta ķēninjeitja, a pjēc juos sješi valnāni i suoka doncuot. Jei doncuoja ar
+sjev kuram. Dancoj jī. dancoj, a juos mots gars pleivynoj tuoli. vjēju. Jis izstīpja
+rūku vīgleņom, giva aiz motu, aptyna ap rūku i tur nu vysa spāka, ka jei navar i
+pazakustynuot. Valnāni sazatriuka, a jei suoka taisjētīs par vysaidim zvjērim, par
+vysaidu bīdaklu. Jis tur, nalaid juos, pjēc tuo jei palyka par baileigu buobu, a jis
+vyss nalaid i soka: "Dūd maņ gradzynu!"</p>
+
+<p align="JUSTIFY">Jei padevja jau gradaynu i palyka par cīši šmuku jumpravu.
+Aizdzduoja [sāka dziedāt] gails, valnāni nūbāga, a jei palyka pi juo. Nu, jis ladas
+(taisās] jau vjast jū iz sātu i mjerkavuoj [domāja] tai: "Ka jei taida šmuka
+ira, to byus bruoļim žāl, ka jūs sīvys nava vys taidys šmukys."</p>
+
+<p align="JUSTIFY">Jis atdevja jai gradzynu i je; pazataisjēja par taidu mjeitu
+pušleidza, ka ni šmuka bjaja, ni našmuka. Nūvjadja jū iz sātu. Tāvs prīcuojas, ka
+jam byus tagad treis vadaklys, soka: "Vajag paraudzjēt, kura nu jūs byus poša
+lobuoka saiminīca?"</p>
+
+<p align="JUSTIFY">Pajēmja, idevja juom myltu, lai iz ūtris dīnys, iz brūkastim.
+pīcap kukuļu. Tjei puorluodātuo pajēmja myltu, rozjaucja [sajauca] ar jiudini, īlēja
+soltā cjepļā i izauga jai cīši šmuki kukuļi. Tuos divi īraudzjēja, i juos
+taisjēs jau taipat, kai tjei, a juom naizauga nikuo. Iz reita nas tāvam. Tjai jaunuokai
+cīši lobi kukuļi. Tāvs paraudzjēja i pazalilēja, ka i kjēniņč naād lobuokys. A
+tiīs divjēju bjeja taidi, nikur godni [derīgi], ka pīscjēja, kab cyukom izsvīstu.
+Pjēc tuo pajem jis, dūd juom pa gobulu šolka [zīda] dŗābis, lai sjev kura pataisa
+jam biņdzjukjeņu [svārkus]. Tjei jaunuokuo pajēmja sovu gobulu, sagraizjeja smolkom
+gabaleņom, attaisiēja lūgu i palaidja pa vjējam, pascēja tai: "Vjējs, vjjs,
+nūnas tū iz muna tāva sātu, lai jis maņ sašyun smukys dŗābis."</p>
+
+<p align="JUSTIFY">Tuo divi taipat sagraizjēja, iz juos pazavāruši [paskatījušās],
+pjēčuok šyva, syva, i nikuo loba nasašyva. Iz reita nas jī vysi sašyutys dŗābis.
+Tuos jaunuokuos cīši šmukys, tāvs rods [priecīgs], lilej, a ka īraudzjēja dorbu
+tūs divēju, tai lyka atdūt vīnys kolpam, a ūtrajai [? ūtras] ubadzjai.</p>
+
+<p align="JUSTIFY">Nu, byus au tagad atkuozys, taisa 1ylu gūdu, aizprosa [salūdz] daudz
+gostu, lai jau vysi pazavjer juo vadaklys, kaidys ir. Atsasāda aiz golda maltjeiti āst.
+Tjei jaunuokuo ād gaļi, suleņu jej vīnā pierduokņā, a ūtrā 1īk kaulys. Tuas divi
+ŗadz, kai jei dora, i juos daŗēškjeits taipat. Pjēc maltjeiti jei kai svīškūtja ar
+vīnu pierduokni, kur bjeja suleņa, tai pazataisjēja šmuku azari pjet sātu. Kai
+svīškūtja ar ūtru pierduokni, kur bjeja kauli, pataisjēja pretim pjet azari šmuku
+duorzu ar uobjeļnijcom i pučom (puķēm] i ūgom vysaidim. Tuos gribjēja padaŗēt
+taipat, kai suoka mātuot ar pierdtokņim, gostim aizlēja acs, a tāvam pīri puorsyta ar
+kaulim.</p>
+
+<p align="JUSTIFY">Par cik laika pjēc kuozom, prosas tjei puorluodātuo iz vjeiru; lai
+palaid jū gostūs iz tāvv. Jis palaidja, a jei kai nūguoja, tai tik ilgi tī
+cīmuojās, ka navaŗēja sagaidjēt juos, kad jei atīs atpakaļ. Jam ciši gars laiks
+bjez juos.</p>
+
+<p align="JUSTIFY">Jis sazajēmjās i nūguoja jū mjeklēt. Īguoja otkon tūs dubļūs,
+kur bjeja sjeņuok, daīt ji tuos buobys ar dzjelža zūbim, vaicoj: "Buobjeņ
+mīluo, može [varbūt] tu zini, kur muna sīva palyka?"</p>
+
+<p align="JUSTIFY">Jei atcoka: "Nazynu es, djēleņ, jei tagad nastaigoj iz mapa. Ej
+iz munu mjeitu, može jei zyna, lai pascjeis tjev."</p>
+
+<p align="JUSTIFY">Jis nūguoja, ecjēja, ecjēja ar kuojam tū pūru, daguoja pi
+ustabjeņis iz vystys kuojeņis, iz vucyna rogu. Tjei ustabjeņa grīžās, jis soka:
+"Nūstuoj!"</p>
+
+<p align="JUSTIFY">Jei nūstuoja i izīt brīsmjeigi baileiga buoba, vaca, ar dzelža
+zūbim, ar leikom kūka kuojom, ar izskititu pīri, i soka: "Kas tja kristjeits gors
+smird?"</p>
+
+<p align="JUSTIFY">Jis atsoka: "Es esmu nu kristjeitys zjamis; djēļ tuo i
+smird." "A kū tu gribi?"</p>
+
+<p align="JUSTIFY">"Buobjeņ mīluo, maņa atsyutjēja iz tjevim muotja tova, kah tu
+maņ pascjētu, kur iraida sīva muna, može tu zini?"</p>
+
+<p align="JUSTIFY">Jei atsoka: "Zynu gon!"</p>
+
+<p align="JUSTIFY">Pajēmja kači, apladjēja [sataisīja] par cylvāku, kai vajaga, i
+soka tai iz jū: "Ša tjev itū kači, ej azara molā i sjēdi tī. <b>A </b>ka
+vaicuos kas pi tjeva, kas jis ira, pasok, ka tāvs."</p>
+
+<p align="JUSTIFY">Jis pajēmja tū kači, nūguoja azara molā, atsasāda i sjād.
+Vieras: izlāc nu azara valnānc ar div rogu i vaicoj: "Kas tī iraida pi tjeva?'`</p>
+
+<p align="JUSTIFY">"Tys muns tāvs ira."</p>
+
+<p align="JUSTIFY">Soka valnānc: "Šys kauškys ar jū. labi, kaunīs!"</p>
+
+<p align="JUSTIFY">Suokā kautīs, kačš saplāsja jii, sakūdjāja brismjeigi, jis
+nūbāga azarā. Pjēc tuo izlācja valnānc ar četri rogi, suoka kautīs ar kači,
+kačš pīvjeicja i jū. Izlācja trešyjs ar sješim rogim, catūrtyjs ar ostoņi rogi,
+pīkts ar djesmit, vysi kuovās ar kači i vysim juobāg azarā. Pjēc tuo izlācja jau
+pats vacuokijs valns ar divjpadsmit rogu i vaicoj: "Kas tī iraida pi tjeva?"</p>
+
+<p align="JUSTIFY">"Tys ira muns tāvs." Šys kauškys ar jū. "Djēļ kam?
+Kaunīs!"</p>
+
+<p align="JUSTIFY">Kačš saplāsja, sakūdjāja, salauzjēja jam vysi rogi, jis cik
+dzeivs nūbāga azarā, i bāgdams aizzaklīdzja [iekliedzās] : "Es nagribu jau
+tovys sīvys, pajem tu jū sjīvu!"</p>
+
+<p align="JUSTIFY">Izdzyna jū nu jiudiņa, a jis pajēmja jū, juo vjeirs jau, i
+nūvjadja iz sātu. Jī nu tuo laika dzjeivuoja mīreigi, može i šūdīn vjāl
+dzjeivoj."</p>
+
+
+</body></html>

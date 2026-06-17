@@ -1,0 +1,194 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Burvis un viņa māceklis.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 325. P. Razs, "Skolas - maize". II, 8.</p>
+
+<p align="JUSTIFY">Tēvam bija dēls, ko tas ļoti mīlēja, un tādēļ viņu arī
+skoloja pēc savas iespējas. Dēlam, lielākam paaugušam, vajadzēja atstāt tēva namu
+un doties platā pasaulē sev dienestu meklēt. Kad nu tuvēja muižā bija tirgus, tad,
+zināms, šā dēla arī tur netrūka, jo viņš bija nodomājis izvēlēties tur sev
+kungu pēc patikšanas.</p>
+
+<p align="JUSTIFY">Kažoku apvilcis, tas staigāja pa tirgu un gaidīja kādu precinieku,
+kas arī viņu bildinātu. Lepni ģērbies kungs, puisi saticis,</p>
+
+<p align="JUSTIFY">prasa: "Vai negribi pie manis par kalpu derēties?" Puisis
+atbild: Kāpēc ne?"</p>
+
+<p align="JUSTIFY">Kungs prasa: "Vai rakstīt un rēķināt arī proti?" Puisis
+atbild, ka protot.</p>
+
+<p align="JUSTIFY">Kungs saka: "Man tāda nevajaga, kas rakstīt un rēķināt
+prot." Otrreiz satikušies, viņi atkal tāpat izšķiŗas.</p>
+
+<p align="JUSTIFY">Nu puišam iekrīt savādas domas galvā. Viņš cerē pie šā kunga
+labu peļņu dabūt. Kažokam kreiso pusi apgriezis, lai viņa nepazīst, dodas no cita
+stūŗa kungam pretī. Kungs viņu tura par citu puisi, to atkal tāpat uzrunā un
+izprasa. Bet puisis nu atbild, ka ne rakstīt, ne rēķināt nemākot. Kungs prasa, cik
+lona gribot? Puisis paģēr sieku naudas. Tā viņi arī salīgst.</p>
+
+<p align="JUSTIFY">Kungs nu ved puisi uz savu māju. Bet kas tas par kungu, un kas tā par
+māju? Tas kungs bija pats velns, un tā māja viņa pils. Velns nu ierādīja puišam
+darbu, kas par dienu jādara. Velns pats katrā rītā devās pasaulē, lai varētu kādu
+dvēselīti ievest samaitāšanā. No lielas skriešanas velnam esot nogriezušies
+zābaki. Puisis, savu nodoto dienas darbu padarījis, gāja velna rakstāmā kambarī un
+lasīja velna grāmatas.</p>
+
+<p align="JUSTIFY">Kādā dienā velns, savā rakstāmā kambarī iegājis, atrod savas
+grāmatas izjauktas. Viņš prasa puišam, vai šis pie tā neesot vainīgs? Puisis
+liedzas un saka, kas šis neesot jaucis. Tāpat velns otrā reizē atrod grāmatas
+izjauktas, un atkal puišam prasa. Bet puisis atkal noliedzas. Trešā reizē velns atrod
+savas grāmatas atkal izjauktas, un nu pienāk, ka puisis ir tur vainīgs. Viņš izmaksā
+puišam lonu un to aizdzen.</p>
+
+<p align="JUSTIFY">Puisis pārnāk mājā pie sava tēva. Bet velna grāmatas lasīdams,
+tas bija iemācījies daudz un dažādas mākslas. Par vērsi palicis, viņš saka tēvam,
+lai šo vedot uz tirgu pārdot, bet lai valga līdz nepārdodot. Vērsis uz tirgus
+izskatījās par visiem citiem lopiem brangākais.</p>
+
+<p align="JUSTIFY">Pienāk tad pats velns par pircēju un prasa, cik par to vērsi gribot?</p>
+
+<p align="JUSTIFY">Tēvs atbild: "Sieku naudas; bet vaigs paliek man pašam."
+Kungs sola par vaigu tikpat naudas, cik par pašu vērsi; bet tēvs valgu nepārdod. Kungs
+vērsi nopircis, aizved. Vērsis paliek atkal par cilvēku un atnāk pie tēva.</p>
+
+<p align="JUSTIFY">Otrā reizē dēls paliek par ļoti skaistu ērzeli. Viņš tēvam, uz
+tirgu vedot, piekodina, lai iemauktu nepārdodot. Velns ir atkal pie pirkšanas. Nu viņš
+sola par ērzeli divus siekus naudas un par iemauktiem arī tikpat. Tēvam uznāk naudas
+kārums, un tas pārdod arī iemauktus. Velns aizjāj ar ērzeli.</p>
+
+<p align="JUSTIFY">Mājā nonācis, tas ērzeli aizved uz kalēju, lai to apkaļ. Nu bija
+dēlam, par ērzeli palikušam, pie velna par daudz grūti. Velns, to pie smēdes
+piesējis, pats ieiet pie kalēja, sava laba drauga, un sāk tēju dzert. Kalēja mazā
+meitiņa iznāk no smēdes un ērzelis tai lūdz, lai iemauktus nomaucot. Viņš paliecas
+uz zemi un meitiņa tam nomauc iemauktus.</p>
+
+<p align="JUSTIFY">Nu viņš paliek par vārnu un laižas projām. Velns, to dabūjis
+zināt, paliek par vanagu un dodas vārnai pakaļ. Jau vanags vairs nav tālu, te vārna
+ieskrien cāļu pulciņā, ko saimniece pie klēts baŗo, un paliek par cāli. Viņš
+saimniecei pielūdz, lai visu cāļu nepārdodot. Vanags paliek par kungu un grib cāļus
+nopirkt. Bet saimniece tikai vienu cāli pārdod. Velns to nopircis, atgriež vaļā un
+atrod, ka tas nav tas, pēc kā meklējis.</p>
+
+<p align="JUSTIFY">Nu cālis paliek par miezi. Velns atkal pārvēršas par gaili un
+knābj miežus, tik ātri, cik spēdams, lai meklēto miezi varētu ieknābt. Bet velnam
+viss pūliņš par velti. Viņš aiziet ar savilktu pieri uz māju nodusmojies un
+noskaities par puiša gudrību.</p>
+
+<p align="JUSTIFY">No velna nagiem vaļā ticis, miezis palika par cilvēku, un aizgāja
+uz savu tēva māju.</p>
+
+<p align="JUSTIFY">Tēvam tas stāstīja cik grūti tam pie pakalna gājis tādēļ, ka ar
+iemauktiem bijis pārdots. Bet savu tēvu viņš kopa līdz sirmam vecumam, jo naudas nu
+bij diezgan sapelnīts.</p>
+
+
+</body></html>

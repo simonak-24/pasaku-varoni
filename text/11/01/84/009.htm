@@ -1,0 +1,157 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>84</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Laiskā vērpēja.</strong></font></p><font size="5">
+
+</font><p align="CENTER"><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p>9. A. 1405. J. S p r o ģ i s K o k n e s ē. B r ī v z. "S b o r ņ i k",
+272, 133. LP, VII, II, 30, 2, 12a.</p>
+
+<p align="JUSTIFY">Reiz bija vīrs, tam bija slinka sieva: nevīžoja nekā strādāt.
+Visu, ko māte agrāk bija savērpusi, saaudusi šai, tas viss jau bija noplīsis un
+apnēsāts. 'Te vienreiz ieteiksies vīrs : "Kaut jel pakulas tu vērptu!" Sieva
+atbild: "Kā tad, vērpju gan." "Nu ja vērp, kā tad nemaz neredzu?"
+"Vērpju tad, kad neesi mājā." Labi. Bet sievai aplam tiktos piekrāpt vīru
+un parādīt, ka vērpj gan.</p>
+
+<p align="JUSTIFY">Reiz vīrs aizbraucis uz lauku. Sieva paņem pakulas, ieliek tīnē un
+uzlej sārmu. Pārbrauc vīrs, sieva pretim: "Vīriņ, vīriņ, savērpu jau pakulas,
+vērpjamo ieliku tīnē un uzlēju sārmu; būtu arī jau izvelējusi, bet man jāaptek
+sētas solis, tādēļ apskaties tīni, ka nedabū suns pārlēkt, citādi vērpjamais
+paliks atkal par pakulām." Nu labi, vīrs sargā tīni. Pienāk sieva pie tīnes,
+paskatās - sāks brēkt: "Mans Dievs, mans Dievs, ko nu izdarīji? Nu tev suns
+dabūjis pārlēkt par tīni - viss vērpjamais palicis par pakulām! Ko nu?" Lai gan
+vīrs noprata, kas tā par lietu neteica nekā.</p>
+
+<p align="JUSTIFY">Pēc kāda laika ieaicināja vīru un sievu kāzās. Kāzas svinēja
+tanī mājā, no kuŗas sieva bija atprecēta un kur sievas māte dzīvoja. Aplam nu
+tikās sievai uz kāzām braukt, bet nebija jauna krekla. Beidzot teiks vīram:
+"Vīriņ, man nav jauna krekla, aizej uz tirgu, nopirc kreklu!" Vīrs aiziet.
+Viņš staigā, staigā pa tirgu - nav krekls dabūjams. Beidzot nopirk baltu zosi un nes
+padusē uz māju. Sieva, ieraudzīdama notālēm vīru, domā: Luk, kur nes padusē jaunu
+kreklu," un tā tūliņ vecais, netīrais krekls no muguras nost, krāsnī iekšā un
+pati plika, kaila iesprūk aizkrāsnī, gaida gaidīdama jauno kreklu. Ienāk vīrs -
+baltu zosi pārnesis. Ko nu? Sieva gluži bez krekla. Vīrs nu iziet laukā, ienes salmu
+kūli, ietin pliko sievu salmos, pārsien, ieliek ratos, iejūdz zirgu un aizlaiž uz
+kāzām. Aizbrauc kāzu namā, pieslien kūli ēkas stūrī, ieiet istabā, sacīdams:
+"Pieslēju labības kūli pie ēkas stūŗa, kas nu grib tas var virsū mīzt, lopi
+labāki ēdīs." Sievai kauns vai cik, nesaka ne vārda. Pēc pāris stundām, kad
+kūlis slapjuma slapjš, ieteiksies vīrs sievas mātei: "Ej, tava meita salst
+kūlī." Māte iztin meitu no kūļa, aizved uz pirti, nomazgā, apģērbj un tad
+piemāca: "Tā, meitiņ, nevajaga darīt! Katrs pakulu pluksnītis pieglabājams,
+savērpjams; ja tu ikdienas savērpsi pakulas cāļa galvas lielumā, ir tad būs vīram,
+būs tev pa kreklam." Meita pieņēma mātes mācību un nosvinēja priecīgi jo
+priecīgi kāzas. Mājā braucot bija jābrauc pa mežu; te sieva jau dziedās par
+pakulām: "Ai, vīriņ, kas te pakulu - būtu jāsavāc." Vīrs atteic: "Ir
+jau diezgan pakulu mājā, bet vērpjamas tikai." Pārbrauca mājā - sieva patiesi
+sāka vērpt. Vērpj, vērpj un tikai arvienu pamērī satīto kamoliņu pie cāļa
+galvas, vai ir tikdaudz savērpusi, cik māte teikusi. Tā sieva pamazām pierada
+strādāt.</p>
+</font>
+
+
+</body></html>

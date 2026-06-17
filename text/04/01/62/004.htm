@@ -1,0 +1,183 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Meitene, kas savus brāļus meklē.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">4.<b> </b>A. 401 P. Š. no A. Bindes Raunā.</p>
+
+<p align="JUSTIFY">Vienam ķēniņam ar ķēniņieni bija seši dēli, bet nevienas
+meitas. Kad nu ķēniņiene atkal bija cerībās, tad viņš tik vien vēlējās, lai
+viņam nu būtu meita. Kad nu tiešām bija piedzimusi meitenīte un dēli tai laikā bija
+izdarījuši kādu bērnišķīgu palaidnību, tad viņš dusmās iesaucās : "Ka
+jūs visi uz mežu aizlaistos!"</p>
+
+<p align="JUSTIFY">Tai pašā brīdī dēli pārvērtās par baltiem gulbjiem un
+aizlaidās uz mežu.</p>
+
+<p align="JUSTIFY">Kad ķēniņa meita jau ir paaugusies, viņa dabū dzirdēt, ka viņas
+dēļ brāļi ir pārvērsti par gulbjiem. Viņai ir nelaimīgo brāļu ļoti žēl, un
+viņa apņemas tos uzmeklēt. Tā nu ķēniņa meita aiziet tai pašā mežā, kur
+aizlaidušies viņas brāļi. Viņa tikmēr tur staigā, kamēr atrod starp kokiem vienu
+mazu mājiņu. Iekšā iegājusi, viņa tur redz sešas gultas un pie galda sešus
+krēslus. Viņa izslauka istabiņu, sataisa gultas, nomazgā traukus un. pati paslēpjas.</p>
+
+<p align="JUSTIFY">Vakarā tur atlaižas seši gulbji, nomet gulbju spalvas un
+pārvēršas par cilvēkiem. Viņi apskata istabiņu un brīnās, kas tur būtu
+strādājis. Nu iznāk arī māsa no slēptuves. Visi ir priecīgi, ka tik laimīgi
+satikušies, bet prieki nebija ilgi, jo brāļi nu izstāstīja, ka viņiem tomēr
+jāpaliek par gulbjiem.</p>
+
+<p align="JUSTIFY">Māsa prasa: "Vai jūs nemaz vairs nevarat tapt par cilvēkiem
+?"</p>
+
+<p align="JUSTIFY">"Varētu gan, bet nav jau tāda glābēja." Es jau esmu
+nākusi jūs glābt."</p>
+
+<p align="JUSTIFY">"Bet tev, māsiņ, tāds darbs par grūtu. Kas mūs grib glābt,
+tam trīs gadu laikā jāpataisa mums katram viens nātŗu krekls. Par visu to laiku nav
+brīv ne runāt, ne smieties, ne raudāt. Māsa apņemas visu to izdarīt uzmeklē mežā
+vienu lielu cauru</p>
+
+<p align="JUSTIFY">ozolu un apmetas tur uz dzīvi. Brāli viņai gādā pārtiku un viņa
+tik krāj nātres kreklu taisīšanai. Nātres raujot un šķiedru taisot, viņai
+sasprēgā rokas līdz asinim. Bet visu viņa mierīgi pacieš un divi gadi jau ir
+laimīgi izturējusi.</p>
+
+<p align="JUSTIFY">Te vienu dienu jaunais ķēniņš nāk tai mežā zvēru medīt, un
+viņa suņi atrod nelaimīgo māsu ozolā. Suņi sāk stipri riet un pats ķēniņš nāk
+skatīties, kas tur ir. Ieraudzījis kokā meiteni, viņš prasa, kas viņa ir un ko viņa
+te dara. Jaunava neatbild neviena vārda. Tad ķēniņš sauc, lai jaunava kāpj zemē,
+bet viņa tik sēd nekustēdamies ozola zarā. Nu ķēniņš pats noved meiteni zemē, kas
+tagad jau izaugusi par skaistu jaunavu. Lai gan ķēniņš notura jaunavu par mēmu,
+tomēr viņam tā ļoti patīk, un viņš grib to ņemt sev līdz uz pili. Jaunava paņem
+savas nātŗu šķiedras un brauc arī kapā ar ķēniņu uz pili. Pilī jaunava atkal ne
+runā, ne smejas, ne raud, un tikai vērpj savas nātŗu šķiedras. Ķēniņš beidzot
+apprecē kluso jaunavu, lai gan viņa pamāte, vecā ķēniņiene, jaunavas pavisam nevar
+ieraudzīt. Pēc zināma laika jaunai ķēniņienei piedzimst dēls, bet vecā
+ķēniņiene par nakti to nozog un liek aiznest uz mežu, bet jaunai ķēniņienei
+apsmērē lūpas ar asinim. Nu mēmā ķēniņiene tiek apvainota par cilvēku ēdēju.
+Gribot negribot, arī ķēniņam tāda noziedzniece ir jānotiesā uz nāvi. Gan
+ķēniņš vēl vilcinās ar sodu, bet pamāte to vien runā, ka vajaga steigties.</p>
+
+<p align="JUSTIFY">Beidzot ir arī jau nolikta diena, kad jaunā ķēniņiene tiks
+pakārta. Tai laikā ķēniņienei beidzas arī trīs ciešanu gadi un viņa ir arī jau
+pabeigusi šūt savus sešus nātŗu kreklus. Ar visiem šiem krekliem viņu tagad ved uz
+karātavām. Tai brīdī atlaižas seši gulbji un ķēniņiene uzsviež tiem savus
+apgādātos nātŗu kreklus. Gulbji tagad pārvēršas par cilvēkiem. Viņi ir atnesuši
+arī mazu puisēnu līdz, kas ir jaunās ķēniņienes dēls. ko pamāte bija likusi
+aiznest uz mežu. Nu arī aizlieguma laiks ir pārgājis un ķēniņiene pati var
+izstāstīt, kas ar viņu noticis.</p>
+
+<p align="JUSTIFY">Ļaunā pamāte nu pati dabū to sodu, kādu gribēja uzlikt jaunai
+ķēniņienei, bet ķēniņš ar jauno ķēniņieni nu dzīvo laimīgi.</p>
+
+<p align="JUSTIFY">Piezīme. Līdzīgu pasaku uzrakstījis H. Skujiņa Smiltenē. P. Š.</p>
+
+
+</body></html>

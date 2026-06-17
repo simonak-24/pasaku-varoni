@@ -1,0 +1,156 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>18</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Vīrs ceļo uz elli.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">18. A. 477. Teicēja 90 g. veca Vitkovska Kārsavā. Kultūras balss
+kr.</p>
+
+<p align="JUSTIFY">Dzeivuoja dīzgon boguots zemnīks. Jam napatyka dzeivuot vacā muojā,
+jis puordevja jū un sataisīja sev natuoļi mežā jaunu muoju. Kaimiņūs nivīns
+nadzeivuoja tyvu un<b> </b>tys zemnīkam patyka. Jis struoduoja vysaidus dorbus, ari
+gūvis jis pats slaucja.</p>
+
+<p align="JUSTIFY">Gūvis jis ļūti mīļuoja un sataisīja juom jaunu klāvu. Vīnu
+reizi atskrēja vīns vacs cylvāks un soka: "Vai, mīlajs kaimiņ, aiznes sovu
+klāvu tuoļuok, jo jis stuov taisni uz muna golda!"</p>
+
+<p align="JUSTIFY">Zemnīks atbiļdēja: "Kur tys ir? Maņ tak te nav nivīņa
+kaimiņa šeit!"</p>
+
+<p align="JUSTIFY">Vacais cylvāks soka: "Es tak dzeivuoju taisni zam tova gūvu
+klāva un man tik gryuti tur: kod es ādu, maa kreit viersū gūvu syudi, paleidz maņ,
+duorgais!"</p>
+
+<p align="JUSTIFY">Tūlaik zemnīks natycādams vaicuoja: "Es gribu pats redzēt, vai
+tys ir taisnība. Jo tu mani aizvessi sovā muojā pasavērt, tūlaik es tev paleidzēšu
+un dreiži puorcelšu gūvu klāvu citā vītā, bet jo na, tad, lai vēl stuov, jo es tam
+navaru nikai ticēt."</p>
+
+<p align="JUSTIFY">Vacais cylvāks suoka lyugt un apsūlēja cytā reizē aizvest jū uz
+sovu muoju, bet zemnīks nabeja ar mīru. Tūreiz vacais cylvāks teicja: "Labi, reit
+es atnuokšu pēc tevis, tu stuovi vīns pats gūvu klāvā."</p>
+
+<p align="JUSTIFY">Tad jis aizguoja. Nuokūšā dīnā zemnīks aizguoja tur, kur teicja
+vacais cylvāks un suoka gaidīt, koleidz jis atnuoks pēc juo. Gaidīja jis nailgi, jo
+ikrita nazkaidā dziļā dūbē un redz durovas, un tur stuov tys pats vacais cylvāks.
+Jis īvedja zemnīku ustobā, kur vysur beja tik smuki un atsādynuoja zam nazkaidas
+biļdes, kaut kū pasacīja tai bildei un veras zemnīks: bildes vītā stuov golds, un uz
+aolda ir vysaidi Iobi ēdīni, bet zemnīks sēd meikstā krāslā. Jis tikkū pajēmja
+lelu gobolu boltmaizes, kai izkrita viersā uz maizes syuda gobols. Zemnīks nūsvīdja
+jū zemē un pajēmja ūtru, tresu gobolu, un vys tys pats. Tūlaik zemnīks nūticēja,
+ka vacais cylvāks runuoja taisnibu. Jis, kad aizguoja uz sātu, tyuIeņ puornesja gūvu
+klāvu cytā vītā un kotru dīn suoka staiguot pi sova kaimiņa cīmā. Un tal jī
+dzeivuoja labi. Kas tys beja par vacū cylvāku, pa šai dīnai ni vīns navar pareizi
+pateikt, jo vīns dūmoj, ka tys beja Dīvs, ūtrs soka, ka valns, vai vēļ kaut kaids
+laupītājs. Es ari nazynu, ka beja tys cylvāks, kurs dzeivuoja senējūs laikūs zam
+zemes.</p>
+
+
+</body></html>

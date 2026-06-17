@@ -1,0 +1,240 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Galdiņ, klājies.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">4. A. 563. L. Jansone no 70 g. vecā J.
+Brūveŗa, Embūtē. K. Corbika krājumā.</font></p><font size="3">
+
+<p align="JUSTIFY">Dzīvo viens nabadzīgs tēvs ar trim dēliem. Vienreiz tēvs teic
+vecākam dēlam: "Dēls, es palieku vecs, un jūs visus uzturēt nevaru, tev būs
+jāiet pasaulē sev maizi pelnīt."</p>
+
+<p align="JUSTIFY">Dēls iet, iet - satiek vienu vecu vīriņu ar baltu bārzdu, divas
+nūjas rokā. Vīriņš vaicā: "Dēls, uz kurieni iedams?"</p>
+
+<p align="JUSTIFY">"Eimu darbu meklēt. "</p>
+
+<p align="JUSTIFY">"Nāc pie manis, es tev došu darbu, saka vecais. "</p>
+
+<p>"Kā tu man darbu vari dot? Tu jau pats esi nabags."</p>
+
+<p align="JUSTIFY">Dēls iet tālāk - iet, iet kādu gabalu - satiek lepnu braucēju:
+karietē iejūgtas četras mellas cūkas, karietē sēž melli ģērbies kungs, kučeris
+tāds pats mells sēž uz buka. Dēlam ienāk prātā: diez vai tik tas mellais kungs nav
+pats vells. Ja būtu labs cilvēks, tad jau nebrauktu ar cūkām, un vēl tik ātri - viss
+ceļš kā putekļu mākonī. Lai nu būtu kas būdams, dēls iet tik savu ceļu. Te
+uzreiz kariete apstājas, mellais kungs uzkliedz: "Puiš, uz kurieni tu?"</p>
+
+<p>"Eimu darbu meklēt," šis atbild.</p>
+
+<p align="JUSTIFY">"Nāc pie man', es tev doš' rubli pa dienu!"</p>
+
+<p align="JUSTIFY">Dēls ir ar mieru.</p>
+
+<p align="JUSTIFY">"Man vēl jābrauc darīšanās kādas simts jūdzes tālu,"
+mellais kungs nosaka. "Ej tik pa šo ceļu, tad mēs atkal satiksimies."</p>
+
+<p align="JUSTIFY">Un mellais kungs aiziet kā viesulis ar savām cūkām. Dēls iet
+tālāk - kādu gabaliņu gājis, redz savu kungu braucam, visa tā puse aizkūpējusi.
+Kā ir nu dēlam klāt, tā mellais kungs noķeŗ šim pie čegnas un iesviež ratos. Šis
+nu bļau' un spārdās, bet ko tu darīsi? Vella nagos jau ir. Brauc, brauc - te uz vienu
+rāvienu cūkas no ceļa zemē, purvā iekšā, ka novārās vien. Dūņas pašķiŗas,
+kariete ar visām cūkām pazūd kā ūdenī. Dēls atsajēdzas un redz, ka ir ellē. Ko
+darīs? Ārā tikt nevar, prasa vellam darbu. Vells ieved šo tādā šaurā istabelē:
+gar sienām karājas cilvēku gaļa, vienā stūrī sirdis, otrā galvas, plūči, aknas.
+Vells saka: "Nu tev būs darbs ar cilvēku dīrāšanu. Tās ādeles uznes uz
+bēniņģi, pažaun uz kārts. Tie citi liekumi lai paliek tepat."</p>
+
+<p align="JUSTIFY">Mokas rokā ir. Dēls nu tikko vakaru sagaida, teic vellam, lai šo
+atlaiž, ka tāds darbs nav pa prātam. Vells nosviež savu cepuri pie zemes un liek šim
+jemt augšā. Kā šis liecas jemt, tā vells šim ar nagiem uz kumbri un izraun ādas
+lāpu, pakabina uz naglu. Tad vells izvelk no kabatas rubuli un iedod dēlam pašam savu
+kučeri un liek šo uzvest virszemē. Dēls nu ir tā nomurināts, tā nomocīts, ka tikko
+var pārvilkties pie tēva. Visi ir 1aimīgi par to pašu rubuli - ir ko maizi nopirkt un
+kādu siļķīti.</p>
+
+<p align="JUSTIFY">Rītā jāiet vidējam dēlam. Iet, iet - satiekas atkal veco vīriņu.
+Tas vaicā: "Uz kurieni iedams, dēls?"</p>
+
+<p align="JUSTIFY">"Eimu darbu meklēt."</p>
+
+<p align="JUSTIFY">"Nāc pie manis, es tev došu darbu," vīriņš dēlu
+uzrunā. "Kā tu man darbu vari dot, tu jau pats esi nabags?"</p>
+
+<p align="JUSTIFY">Dēls iet tālāk - satiek mello kungu. Tas uzaicina šo par puisi un
+iestāsta šim, lai iet tik pa ceļu prom. Drīz viņš pats braukšot apakaļ, tad
+satikšoties. Labi! Dēls iet, iet - pēc maza brīža brauc mellais kungs, ka visa zeme
+dimd, palķer savu puisi kā tabaka maku aiz čegnas, iesviež karietē. Kā nāk pie
+purva, tā cūkas no ceļa zemē un nogrimst visa kariete purvā, ka novārās vien. Dēls
+tik atjēdzas no rīta, ka ir vella nagos. Jāstrādā ir, ārā tikt nevar. Strādā,
+strādā kādas divas dienas un naktis, bet ilgāki vairs nevar izturēt. Prasa mellajam
+kungam; vellam, lai šo atlaiž. Vells nosviež pie zemes savu cepuri un liek jemt puisim
+augšā. Kā šis nu jem to cepuri, tā vells uz kumbri virsū un izplēš īsti labu
+lāpu un pakabina uz naglas pie vecākā brāļa lāpa. šim nu sāp, ka nezin vairs ko
+darīt. Kučeris uzved šo zemes virsū, šis nu velkas mājās pie tēva. Tēvs laimīgs
+pa tiem diviem rubuļiem. Nu jau maza bēda, ēšana kādu laiciņu ir.</p>
+
+<p align="JUSTIFY">Rītā iet jaunākais dēls pasaulē, atvadās no tēva un brāļiem;
+tēvs novēl labas laimes. Iet, iet - redz: nāk pretim vecs vīriņš. Dēls pasveicina
+vīriņu, vīriņš vaicā: "Uz kurieni iedams, dēls?"</p>
+
+<p align="JUSTIFY">Šis atbild, ka ejot darbu meklēt, tēvs vecs, ko darīs?</p>
+
+<p align="JUSTIFY">"Nāc pie manis, dēls, es tev došu darbu."</p>
+
+<p align="JUSTIFY">Dēls ir ar mieru. Vīriņš liek dēlam sev sēsties mugurā. Šis
+nesēž - turas pretī, kā mācēdams: "Vai, mīļo vectētiņ, es jau tev muguru
+varu salauzt. Ta jau es tevi 1abāk nesīšu, es esmu stiprāks."</p>
+
+<p align="JUSTIFY">Neko nevar darīt: vīriņš neatlaižas, dēls uzsēžas ar'. Vecītis
+paceļas gaisā un uzbrauc debesīs. Es tev teicu tos jaukumus: eņģeļi skraidelē,
+spēlē, dzied tur daž' un dažādi. Dēlam nu ir tīrās svētdienas - paspēlē,
+padzied, nekas nav jādara. Tā nu šis tur kādu laiku dzīvo. Vecītis vairs nestaigā
+par nabadziņu, bet ir viscauri baltās drēbēs, kā jau pats Dievs. Tas visādi palīdz
+dēlam un ir vēl labāks kā īstais tēvs.</p>
+
+<p align="JUSTIFY">Kādu dienu Dievs saka dēlam: "Nu, mans dēls, tu esi labu
+laiciņu pie manis dzīvojis, ej tagad pie sava tēva. Viņš ir nobēdājies par tevi:
+gaida tevi katru stundiņu pārnākam. Tur uz zemes plosās bads, nevienam nav ko
+ēst."</p>
+
+<p align="JUSTIFY">Dēls ir ar mieru. Dievs saka: "Tu man esi bijis 1abs dēls;
+tāpēc, ka tu tik labi mani paklausīji, es tevi bez algas projām nelaidīšu. Te tev
+būs galdiņš, auniņš un sprigulis. Ja tev gribas ēst, tad sit pie galdiņa un saki:
+"Galdiņ, klājies!" Ja tev vajaga naudas, tad saki auniņam: "Auniņ, sper
+naudiņu!" Un ja tev kāds dara pāri, tad saki sprigulim: "Spriguli sit!"</p>
+
+<p align="JUSTIFY">Tā nu Dievs dēlu pamāca, pārvēršas atkal par vecu vīriņu un
+nones šo atpakaļ uz zemes. Dēls nu iet, iet - pienāk vakars. Tēva mājas vēl tālu,
+ieiet šis vienā krogā pārgulēt nakti. šis nu ir piekusis, ēst arī gribas, uzsauc
+galdiņam: "Galdiņ, klājies!"</p>
+
+<p align="JUSTIFY">Galdiņš apklājas ar tādiem gardiem ēdieniem, ka tik kūp un garo
+vien. Dēls paēd labi, liekas gulēt. No rīta pamožas, redz: galdiņa nav. Ko nu
+darīs? Teic sprigulim, lai sit. Te sprigulis uzreizu pie krodzenieka iekšā un tik
+velē. Krodzenieks cieš, cieš - redz, ka nieki nebūs. Lecas pliks no gultas ārā,
+skrej un bļauj visā kaklā. Ieskrej sieva un iet glābt šo, Ku' tu, Dieviņ! Sprigulis
+dod pa nagiem, ka zili paliek. Krodzeniekam nu tā sāp, tā sāp; ka vairs nekur
+glābties, bet sprigulis tik zolē.</p>
+
+<p align="JUSTIFY">Dēls ieiet pie krodzenieka un uzsauc: "Spriguli, stājies!"
+Sprigulis apstājies, bet krodzenieks nu ir sasists mīksts kā ābols. Dēls nu
+izstāsta, kāpēc sprigulis viņu sitis. Krodzeniekam nu ir tāds kauns, ka gribētu
+zemē ielīst, ja tik varētu. Pieiet šis pie skapja, izvelk galdiņu un atdod dēlam.
+Dēls patencina par nakts mājām un aiziet. Pāriet mājā, redz, kāda liela nabadzība:
+tēvs ar brāļiem ēd putru, siļķi un sakaltušas maizes garoziņas, šis nu apsēžas,
+noliek savu galdiņu un uzsauc: "Galdiņ, klājies!"</p>
+
+<p align="JUSTIFY">Galdiņš apklājas ar daž' un dažādiem ēdieniem, kūp un garo.
+Dēls saaicina visus pie galdiņa. Nu ir visi tik priecīgi, tik laimīgi, ka nezin nemaz,
+kā patencināt jaunākam brālim. Un tā viņi visi ir paēdušies, naudas ar netrūkst,
+dzīvo laimīgi un saticīgi.</p>
+</font>
+
+
+</body></html>

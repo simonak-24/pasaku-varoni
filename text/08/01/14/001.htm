@@ -1,0 +1,167 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>l4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Impampis.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">1. A. 571. Jānis Āboliņš Rūjienā. L. P. V,
+369 (162, 1).</font></p><font size="3">
+
+<p align="JUSTIFY">Vienam lielkungam bija tāda meita, kas nekad nesmējās. Lielskungs
+apsolīja daudz naudas tam, kas viņa meitu iesmīdinātu. Kāds puisis, to padzirdējis,
+ielika zirni kabatā un gāja meitu smīdināt. Gāja, gāja - pienāca vakars; bija
+jāiegriežas svešā mājā pārgulēt. Iegājis istabā, prasīja sev un zirnim
+naktsmāju. Saimnieks neliedza, tikai zirni gribēja likt pie citiem zirņiem. Bet puisis
+tiepās: "Zirnim jāpaliek uz galda!"</p>
+
+<p align="JUSTIFY">Labi, nolika uz galda. Te rīta agrumā ienāca gailis un aprija zirni.
+Nu puisis zirņa vietā paņēma gaili un staigāja tālāk. Gāja, gāja - pienāca
+vakars; bija jāiegriežas svešā mājā sev un gailim nākts māju parunāt. Saimnieks
+neliedza, tikai gaili gribēja likt pie vistām. Bet puisis tiepās: "Mans gailis
+zelta gailis, tas liekams pie zosim!"</p>
+
+<p align="JUSTIFY">Labi, ielaida pie zosim. Te rīta agrumā lielais zosu tēviņš
+ieraudzīja gaili un noknāba to. Nu puisis gaiļa vietā paņēma zosu tēviņu un
+staigāja tālāk. Gāja, gāja - pienāca vakars, bij jāiegriežas svešā mājā sev un
+zosu tēviņam nākts māju parunāt. Saimnieks neliedza, tikai zosu tēviņu gribēja
+laist pie zosim. Bet puisis tiepās: "Mans zosu tēviņš ir zelta tēviņš, tas
+laižams pie aveniem."</p>
+
+<p align="JUSTIFY">Labi, ielaida pie aveniem. Te rīta agrumā lielais tekulis ieraudzīja
+zosu tēviņu un nobadīja to. Nu puisis zosu tēviņa vietā paņēma tekuli un staigāja
+tālāk. Gāja, gāja - pienāca vakars, bij jāiegriežas lielā muižā sev un tekulim
+nakts māju parunāt. Kungs neliedza, tikai tekuli gribēja laist pie aitām. Bet puisis
+tiepās: "Mans tekulis citu smakas negrib, tādēļ dod divas istabas: vienu man,
+otru tekulim!"</p>
+
+<p align="JUSTIFY">Kungs brīnījās: "Kādēļ tā? Tekulim īpašu istabu?"</p>
+
+<p align="JUSTIFY">"Jā, manam tekulim zelta vilna, tāds jāglabā istabā."</p>
+
+<p align="JUSTIFY">Labi, ielika īpašā istabā. Bet nakti kunga meita slepeni līda
+tekuļa zelta vilnu skatīties. Un patiesi tekulim bija gan zelta vilna. Kunga meita
+domāja: "Kas tad to zinās? Nocirpšu mazu sprodziņu zelta vilnas sev par
+rotu!"</p>
+
+<p align="JUSTIFY">Bet līdz pirkstus pielika, tie ieķērās zelta vilnā un netika vairs
+nost. Rītā puisis ņēma zelta tekuli un staigāja tālāk, bet kunga meitai bij jāiet
+līdz, jo nevarēja pirkstus no zelta vilnas izdabūt. Gāja, gāja - bija jāiet gar
+svešu māju. Tanī mājā saimniece cepa maizi un ieraudzīja gaŗāmgājējus. Viņa
+pasmējās: "Kas tie staigā!" un iesita ar lizi meitai, lai tak ejot nost no
+tekuļa! Bet lize palika pie kunga meitas un saimniece palika pie savas lizes.</p>
+
+<p align="JUSTIFY">Tā viņi gāja, kamēr sasniedza to muižu, kur lielkunga meita bija
+smīdināma. Muižā lielkunga meita, tādus nācējus ieraudzīdama, saņēma rokas un
+iesmējās dikti jo dikti. Pats lielskungs, to dzirdēdams, atdeva puisim solīto naudu.
+Nu puisis bija bagāts vīrs. Viņš atlaida saimnieci no lizes, lizi no kunga meitas,
+kunga meitu no tekuļa un tad steidzās mājā dziedādams.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Tādu pašu pasaku uzrakstījusi Rīgā E. Žubeckaja
+un nodevusi <b>A. </b>Bērzkalnes krājumam. P. Š.</p>
+</font>
+
+
+</body></html>

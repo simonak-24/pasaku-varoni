@@ -1,0 +1,174 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Stiprais Ansis.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">9. A. 650 A. A. Lerchis - Puškaitis Džūkstē Pienavā LP, I, 58
+(23).</p>
+
+<p align="JUSTIFY">Ojara tēvs bija prātīgs vīrs. Jau pirmajā dienā viņš ēdina
+mazo Ojaru riekstu kodoliem, dzirdina ar kazas pienu un guldina pie krāsns. Mēneša vecu
+tēvs aizved jau mežā līdz un priecājas, ka viņa Ojars mazajiem kociņiem vairs
+negriež ceļa. Otrā mēnesī tēvs atkal paņem Ojaru mežā līdz un redz, ka viņa
+dēls nevienam kokam vairs ceļa negriež. Trešā mēnesī Ojars jau bez tēva iet mežā
+un nebaidās ne no vilka, ne lāča. Viņš nosēžas ceļa malā un mētā smiltis
+gaisā. Te brauc kāds saimnieks pa ceļu un uzprasa Ojaram: "Kā nu liels cilvēks
+tā stāv bez darba?"</p>
+
+<p align="JUSTIFY">"Vai tu mans saimnieks, kad tā runā?" Ojars dusmīgi
+atcērt.</p>
+
+<p align="JUSTIFY">"Vēl nu gan neesmu, bet var jau viss notikt. Cik tad lones īsti
+gribētu?"</p>
+
+<p align="JUSTIFY">"Vairāk negribu, kā tik gada galā vienu knipi tev, otru
+saimniecei."</p>
+
+<p align="JUSTIFY">Saimnieks, priecīgs bez gala, ka tik lētu puisi salīdzis, sēdina
+Ojaru ratos un brauc, ko nagi nes. Pirmā dienā Ojars tāpat pa mājām nolocās; otrā
+dienā saimnieks viņu sūta uz Velna sudmalām; kur melderis pats un visi zeļļi -
+velni. Ojars nobrauc sudmalās un neredz neviena malēja. Zellis viens pats nosēdies uz
+dzirnavu akmeņa un tīrī zābakus. Tiklīdz šis Ojaru redz, tas uzbļauj: "Ārā
+no šejienes."</p>
+
+<p>"Ko tad ārā darīšu, saimnieks sūtīja malt?"</p>
+
+<p align="JUSTIFY">Zellis sadusmojas un taisās Ojaru nožņaugt. Ojars, to redzot, nav
+slinks; viņš paņem zelli aiz kājas īkšķa un samaļ miltos. Divi zeļļi gan
+ieskrien biedram palīdzēt, bet šiem tāds pats liktenis. Beigās ieronas pats melderis
+palīgā, bet šo Ojars iebāž maisā, pārved mājā un ieliek aizgaldā par baŗokli.
+No tā laika bija sudmalas no velniem tīras</p>
+
+<p align="JUSTIFY">Trešā dienā saimnieks liek savam puisim pēc stīpām iet, ko mucas
+stīpot. Ojars paņem mucas un aiziet turpat mežā stīpot. Tas tik bija stīpotājs:
+troksnis atskan pa puspasauli un izbiedē visus meža zvēūsrus. Tik lācis, liels
+drošinieks, nebaidās, bet nāk rūkdams stīpotājam virsū. Ojars sagrābj lāci,
+iebāž mucā, pārnes mājā un ieliek velna melderim blakus aizgaldā. Lācis nokož
+velna melderi un nobaŗojas divās dienās tā, ka nevar ne paiet.</p>
+
+<p align="JUSTIFY">Ceturtajā dienā Ojaram jākuļ labība, bet ar ko kult: spriguļi tik
+maziņi, ka ne ieraudzīt. Ojars uztaisa pa priekšu spriguli pēc sava prāta. Tas arī
+bija sprigulis, kā laba spāre. Tad izkuļ līdz azaidam vienu stirpu, līdz pusdienai
+otru, līdz palaunadzim trešo un līdz vakaram ceturto. Vēl atliek tikai viena stirpa,
+kurā visas pelītes aiz bailēm bija salīdušas. Pelītes nomana, ka arī šis mājoklis
+ilgi nepastāvēs, un tādēļ lūdz Ojaru: "Palīdzēsim tev izvētīt, palīdzēsim
+arī pelus pavākt, bet atstāj mūs rītu, stirpu kuļot, dzīvas!"</p>
+
+<p align="JUSTIFY">Ojars to apsola un nu pelītes knaši, knaši izlasa pa nakti visus
+graudus no pelūm un savāc pelus uz rijas augšu. No rīta Ojars izkuļ beidzamo stirpu
+un piecās reizēs atnes graudus no piedarba uz klēti. Otrā nedēļā saimniekam nav
+vairs darba Ojaram,. Viņš grib no puiša vaļā tikt un to uzaicina loni saņemt, tas
+ir: vienu knipi saimniekam dot, otru saimniecei. Ojars pilnā mierā. Kā dod saimniekam
+knipi tas nost, kā saimniecei, tā nost.</p>
+
+<p align="JUSTIFY">"Te nu bija: ko gribēja, to dabūja!" Ojars nožēlo abus
+nejēgas. Pēc paliek pats par saimnieku un dzīvo vēl tagad laimīgi, ja nav pa to
+starpu miris.</p>
+</font>
+
+
+</body></html>

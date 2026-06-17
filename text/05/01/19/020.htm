@@ -1,0 +1,263 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>20</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Vīrs ceļo uz elli.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">20. A. 477. Lapas Mārtiņš no Rūjienas, Ērģemes un Ēveles
+draudzes. "Gudrais Ansis un velns" I, 1901, 43.</p>
+
+<p align="JUSTIFY">Reiz ziemas naktī viens vīrs apmaldījies lielā mežā. Meklējis.
+meklējis ceļu, bet neatradis. Pēdīgi viņš tomēr ieraudzījis mežā kādu māju, pa
+kuŗas logiem spīdējusi uguns gaisma. Viņš braucis turpu un piegājis pie mājas
+durvim, bet tās bijušas aizslēgtas. Viņš piedauzījis vienu reizi, otru reizi, trešu
+reizi, bet neviens nenācis viņu ielaist. Iekšā nekas nebijis dzirdams, viss bijis
+kluss kā kapā.</p>
+
+<p align="JUSTIFY">Vīrs nu apgājis mājai apkārt un pēdīgi atradis vienas mazākas
+durvis. Tās nebijušas aizslēgtas un pa tām viņš iegājis iekšā. Istabā sēdējis
+viens pats sirmgalvis, nemaz nekustēdamies, un līdzinājies celmam. Ienācējs
+izstāstījis sirmgalvim, ka esot mežā apmaldījies, un lūdzis naktsmāju. Sirmgalvis
+viņam arī labprāt atvēlējis naktsmāju.</p>
+
+<p align="JUSTIFY">Vīrs gājis atjūgt savu zirgu, ievedis to stallī un iebēris tām
+silē auzas. Tad viņš gājis atkal atpakaļ uz istabu un, ļoti izsalcis būdams,
+gaidījis, ka sirmgalvis viņam kaut ko piedāvās vakariņās, bet neko nesagaidījis.</p>
+
+<p align="JUSTIFY">Sirmgalvis, laikam noprazdams ceļavīra domas, sacījis pēc kāda
+laika: "Klausies, brāli! še tuvumā ciemā ir šodien kāzas, man jāiet uz tām.
+Nāc man līdza, jo kāzas jau nav katru dienu."</p>
+
+<p align="JUSTIFY">"Tas nebūtu pareizi!" vīrs atbildējis. "Kā gan lai
+es, gluži svešs cilvēks, ietu uz jūsu ciema kāzām?"</p>
+
+<p align="JUSTIFY">Nāc tikai līdza!" sirmgalvis sacījis. "Par to nekas, ka tu
+"</p>
+
+<p align="JUSTIFY">esi svešs, gan viņi mūs abus uzņems. Dabūsim tik daudz ēst un
+dzert, cik sirds vēlās. Iesim!"</p>
+
+<p align="JUSTIFY">Tā mi arī abi aizgājuši, bet ejot sirmgalvis paskaidrojis biedram:
+"Es tev pasaku jau iepriekš; ka tur kāzās manis neviens cits nesaredzēs, kā
+tikai tu. Tu vienīgi arī redzēsi, ko es tur darīšu, bet tev nav brīvu to stāstīt
+citiem kāzeniekiem. Kad mums būs laiks projām iet, tad es tev pasacīšu, un tad nāc
+man arī tūlin līdza!"</p>
+
+<p align="JUSTIFY">Ceļavīrs par to ļoti brīnījies, bet tomēr apsolījies , visu tā
+darīt, kā sirmgalvis vēlās.</p>
+
+<p align="JUSTIFY">Jau Pēc maza brītiņa viņi nonākuši pie viena ciema meža malā.
+Kāzu troksnis jau no tālienes bijis dzirdams. Kad sirmgalvis to dzirdējis, viņš
+iesācis priecīgi lēkāt kā jauneklis un izsaucies: "Klausies, kā viņi
+priecājas un trokšņo! Iesim ātrāki, iesim ātrāki!"</p>
+
+<p align="JUSTIFY">Viņi gājuši gar ciema sētu uz vārtiem, pūtis skarbs un auksts
+ziemas vējš. Uzreiz bijusi dzirdama savāda plirkšķēšana un sirmgalvis iesācis
+trīcēt.</p>
+
+<p align="JUSTIFY">"Na, kas tad tev noticis, ka uzreiz trīci, it kā būtu
+nosalis?" vīrs jautājis.</p>
+
+<p align="JUSTIFY">"Vai dzirdi, kas tur plirkšķ?" sirmgalvis atbildējis.
+"Man no tā ir bailes, jo tas var mani nogalināt."</p>
+
+<p align="JUSTIFY">"Tā jau ir tikai kāda skabarga, kas no sētas koka
+atšķēlusies, un tagad, vējam pūšot, plirkšķ. Nesaprotu, kā tu, vecs vīrs, no
+tāda nieka vari baidīties."</p>
+
+<p align="JUSTIFY">"Ai, ai, ciemiņ, man no tādas skabargas ir jābīstās, jo ja
+tā mani aizkartu, tad es būtu pagalam!'`</p>
+
+<p align="JUSTIFY">"Nebīsties par velti! Tāda sētas koka skabarga nevar nevienam
+kaitēt."</p>
+
+<p align="JUSTIFY">Viņi drīz vien iegājuši ciemā un arī kāzu namā, kur svešais
+ceļavīrs tapis tik pat laipni uzņemts, kā aicinātie viesi. Bet neviens kāzenieks
+neredzējis meža mājas sirmgalvi. Tikai viņa biedrs to redzējis un vērīgi
+noskatījies, ko šis tur dara.</p>
+
+<p align="JUSTIFY">Kad ēdienu nesuši uz kāzu galda, sirmgalvis pagrūdis vienam
+nesējam savu kāju Priekšā, un tas ar visu ēdienu-trauku nogāzies zemē un
+uzceldamies iesaucies: "Lai velns mani parauj !"</p>
+
+<p align="JUSTIFY">Sirmgalvis par to lēkādams priecājies. Svešais ceļavīrs jau
+sācis noprast, ka sirmgalvis nav vis cilvēks, bet pats nelabais cilvēka veidā.</p>
+
+<p align="JUSTIFY">Pie kāzu mielasta sirmgalvis brandvīna mīļotājiem vienmēr slepeni
+pielējis glāzes, vēlēdamies, lai tie vairāk dzertu. Pēc mielasta viņš piegājis
+pie tiem. kas ar brandvīna buteli apsēdušies pie sava galda un dzerdami iesākuši
+ķildoties. Viņš nu bikstījis te vienu, te otru, arvien skubinādams, lai dzeŗ un
+ķildojas.</p>
+
+<p align="JUSTIFY">Drīz iesākusies diešana, bet arī sirmgalvis lēkādams jaucies
+dancotāju pulkā. Vienam un otram viņš pagrūdis savu kāju priekšā un tie tūlin
+pakrituši, par ko viņam bijis liels prieks: viņš palēcies vai līdz pašiem
+griestiem.</p>
+
+<p align="JUSTIFY">Pēdīgi arī jaunais pāris sācis diet. Sirmgalvis arī tam
+piesteidzies un pagrūdis kāju priekšā. Jaunais vīrs tik smagi pakritis, ka vairs
+nespējis uzcelties. Sirmgalvis piepēži izņēmis no savas kabatas mazu vācelīti,
+attaisījis vāku, pielicis vāceli pie jaunā vīra deguna un tad ciešo vāku atkal
+ātri aiztaisījis cieti. Jaunais vīrs tūlin pēc tam gulējis pilnīgi nedzīvs uz
+istabas klona, Iebāzis vāceli atkal kabatā, sirmgalvis piegājis pie sava biedra un
+sacījis: "Tagad mums laiks iet."</p>
+
+<p align="JUSTIFY">Redzēdami, ka jaunais vīrs jau izlaidis garu, kāzu viesi
+sasteigušies kopā, ņēmuši to uz rokām un iznesuši no kāzu istabas laukā. Visi
+bijuši ļoti uztraukti par šo notikumu. Jaunā sieva vaimanājusi, rokas žņaudzīdama,
+un citas sievas viņai līdza. Visa kāzu līksmība bijusi uzreiz beigta.</p>
+
+<p align="JUSTIFY">Visu to redzot, arī ceļa vīrs ļoti izbijies, bet sirmgalvis tikai
+rāvis to sev līdza pa durvim laukā.</p>
+
+<p align="JUSTIFY">Ko tas viss nozīmē, ko es kāzās redzēju?" jautājis
+ceļavīrs "</p>
+
+<p align="JUSTIFY">sirmgalvim. "Tas nozīmē, ka es dabūju vienu dvēseli," tas
+atbildējis. Ceļavīrs nu pārdomājis: "Tagad skaidri zinu, ka šis vecis ir</p>
+
+<p align="JUSTIFY">velns cilvēka veidā. Viņš laikam ir nodomājis arī ar mani ko
+jaunu izdarīt, jo citādi viņš mani nebūtu aicinājis līdza uz kāzām. Tādēļ man
+jārauga no viņa tikt vaļā."</p>
+
+<p align="JUSTIFY">Ejot atkal gar to vietu, kur pirmīt vējš bija plirkšķinājis no
+sētas koka atplīsušo šķērbeli, ceļavīrs uzreiz atcerējies, ko vecis viņam par
+šo šķērbeli bija sacījis. Viņš tādēļ slepeni norāvis šķērbeli un tad gājis
+vecim blakus. Sarunājoties, viņš uzreiz aizskāris sirmgalvi ar to šķērbeli, un tas
+tūlin nogāzies gar zemi un bijis pagalam.</p>
+
+<p align="JUSTIFY">Vīrs tūlin izņēmis vāceli no viņa kabatas un gājis ar to
+atpakaļ uz kāzu namu. Kāzu namā līksmības vietā bijušas tikai skumjas un vaimanas.
+Bet svešais viņus apmierinājis sacīdams. ka viņš lūkošot, vai nevar jauno vīru
+atdzīvināt.</p>
+
+<p align="JUSTIFY">Mirons tapis ienests vienā atsevišķā istabā. Svešais tad
+izraidījis visus audis !aukā, paņēmis vāceli, kuŗā velns bija ieslodzījis jaunā
+vīra dvēseli, attaisījis vāku un tad pielicis vāceli pie miroņa deguna. Mirons
+tūlin atvēris acis, uzcēlies kājup un bijis pilnīgi vesels.</p>
+
+<p align="JUSTIFY">Tagad kāzu viesu prieks bijis vēl lielāks nekā pirmīt. Katrs
+sirsnīgi pateicies svešajam vīram par tik lielu labdarību. Viņam doti vislabākie
+ēdieni un dzērieni un visi to lūguši, lai paliekot līdz kāzu beigām. Bet viņš
+nevarējis palikt, jo baidījies par savu zirgu, ko bija atstājis pie velna stallī.
+Viņš nu palicis tur tikai par nakti un nākošā rītā atkal aizgājis meklēt savu
+zirgu.</p>
+
+<p align="JUSTIFY">Tai vietā, kur viņš pagājušā naktī ar sētas koka šķērbeli
+bija nogalinājis velnu, viņš atradis tikai sodrēju kaudzi. Nonācis mežā tai vietā,
+kur vakar vakarā bija stāvējusi velna māja, viņš atradis tikai klaju sniega laukumu
+un savu zirgu piesietu pie kāda koka.</p>
+
+<p align="JUSTIFY">Tagad vīrs bez maldīšanās nokļuvis mājā.</p>
+<b>
+
+</b><p align="JUSTIFY"><b>P</b>iezīme. Šī<b> </b>pasaka, sevišķi viņas otra puse, ir
+līdzīga Ceturtā sējuma 20. numuram. P. Š.</p>
+
+
+</body></html>

@@ -1,0 +1,179 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Par zirgu pārvērstais jauneklis.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 314. A. Lerchis-Puškaitis Džūkstē -Pienavā. LP, I, 36. </p>
+
+<p align="JUSTIFY">Kādam kungam piedzimst dēls un tai pašā stundā arī stallī
+kumeļš. Dēlam ir zelta mati un kumeļam ir dimanta spalva. Tēvs dāvina kumeļu savam
+dēlam jau uz kristībām.</p>
+
+<p align="JUSTIFY">Pēc trijiem gadiem kungam nomirst sieva un viņš apprec otru sievu.
+Bet jaunā pamāte nemīl savu padēli. Kad nu arī viņai vēl piedzimst dēls, tad tā
+grib padēlim kumeļu atņemt un savam dēlam atdot. Tēvs to nelauj, pamāte par to ļoti
+dusmīga. Beidzot tā nodomā nonāvēt padēli ar nāves zālēm. Kumeļš to zin un saka
+savam kungam: "Rītu pamāte dos tev dzert, bet nedzer, jo biķerī būs nāves
+zāles."</p>
+
+<p align="JUSTIFY">Kā kumeļš teic, tā arī notiek. Nu pamāte domā nāves zāles
+ēdienā ielikt, bet kumeļš to zin un saka: "Rītu pamāte dos tev ēst; bet neēd,
+jo tur nāves zāles klāt."</p>
+
+<p align="JUSTIFY">Kumeļam bij atkal taisnība. Nu pamāte izrok kumeļa steliņa
+priekšā slepenu bedri un piepilda ar karstu piķi, lai padēlis noplucinātos. Bet
+kumeļš redz un saka: "Šodien pamāte man izraka steliņa priekšā piķa bedri;
+nenāc taisni, ej ar riņķi, citādi noslīksi."</p>
+
+<p align="JUSTIFY">Beidzot pamāte nospriež kumeļam kaklu pārgriezt. Bet kumeļš ir to
+zin un saka: "Rītu, kad mani vedīs kaut, tad lūdz tēvam, lai atvēl tev beidzamo
+reizi mani pajāt. Līdzko esi man mugurā, tad laid trīs reizes ap muižu, pacel cepuri
+un sauc: urā! urā! Pēc urā saukšanas tu dabūsi dimanta apģērbu un tad es tevi
+aiznesīšu, kur pamāte mūs ne mūžam vairs nedabūs."</p>
+
+<p align="JUSTIFY">Kā kumeļš māca, tā notiekas. Abi aizdodas uz tālu, svešu zemi un
+apmetas kādā liela ozola dobumā. Šinī dobumā jājēji atron vecas drēbes. Kumeļš
+viņam pavēl tās apvilkt un salīgt pie ķēniņa par malkas cirtēju. Malkas cirtējam
+tur nebija vieglas dienas: bij jāguļ ķēķī uz maišeļa, jāgrauž cieta maizes
+garozīte un jāstrādā gŗūti darbi.</p>
+
+<p align="JUSTIFY">Pa kādām nedēļām ķēniņš taisa dzīŗas. Uz dzīŗām atbrauc
+trīs prinči, ķēniņa trīs princeses lūkoties. Jaunākā princese ir ļoti daiļa un
+šo visi trīs prinči grib precēt. Ķēniņam netrūkst padoma. Viņš iedod jaunākajai
+princesei kamoli, nostādina prinčus rindā un liek princesei kamoli sviest: kuŗam
+princim trāpīšot, tas dabūšot viņu par sievu. Bet istabas durvis palikušas vaļā.
+Kā nu princese met kamoli, tā aizmet gaŗām un iemet caur istabas durvim taisni malkas
+cirtējam krūtīs. Princesei gan jaunais malkas cirtējs labāki patīk nekā prinči;
+bet tēvs tādas blēņas negrib ne dzirdēt. Tā nu tai dienā no precībām nekas
+neiznāk.</p>
+
+<p align="JUSTIFY">Dažas nedēļas vēlāk uzbrūk ķēniņam vareni stiprs ienaidnieks.
+Ķēniņš gan aicina visus trīs prinčus sev palīgā, bet neuzvār. Te vienā dienā
+ieronas kaŗa vietā dimanta jātnieks ar zelta matiem un dimanta zirgu. Šis sakauj viens
+pats ienaidnieka pulku un tad pazūd kā bezdibinā. Otrā dienā ienaidnieks atkal brūk
+virsū, bet jātnieks tāpat sakauj. Trešā dienā ienaidnieks nāk ar tādu pulku kā
+melna debess. Ķēniņš, to redzot, skaidri aiz bēdām sajucis. Bet dimanta jātnieks,
+lai gan šodien kājā ievainots, tomēr izputina visus kā spaļus, un tad pazūd.</p>
+
+<p align="JUSTIFY">Ķēniņš bija mierā jātniekam ar nezin ko atmaksāt, bet nezina,
+kur tas palicis. Viņš gan izsūta meklētājus pa visu valsti, bet nekā neatrada. Te
+kādu dienu jaunākā princese nevilšus pamana malkas cirtējam ievainotu kāju. Šis gan
+saka, ka kāju pārcirtis, bet princesei cirtums tāds neizskatās. Viņa to pastāsta
+tēvam. Tēvs iesaucas: "Vai viņam ir zelta mati?"</p>
+
+<p align="JUSTIFY">"Ja, ir, tētiņ, zelta mati! Es jau toreiz pamanīju, kad kamoli
+sviedu, bet tik nedrīkstēju teikt."</p>
+
+<p align="JUSTIFY">"Labi, tad apskatīsim, vai viņa pušums nav no zobina
+asmeņa." Apskatot malkas cirtējs vairs neslēpj, bet izstāsta visu. Nu vecais
+ķēniņš dod malkas cirtējam jaunāko princesi un taisa lielas kāzas. Tie dzīvo
+laimīgi līdz ar dimanta zirgu.</p>
+
+
+</body></html>

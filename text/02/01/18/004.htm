@@ -1,0 +1,338 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dvēsele olā.</p>
+</b></font>
+
+<p align="JUSTIFY">4. A.302. A. Bīlenšteins 1863. g. no Jāņa Pelca Kalnadzirkantos
+Jaun-Aucē. LP, VI, 77, I. A5, II, 100v.</p>
+
+<p align="JUSTIFY">Vienam ķēniņam bijis zvejnieks un tas bijis pārlieku gudrs: viņš
+varējis visādas līdekas dabūt tīklā, kādus tik gribējis.</p>
+
+<p align="JUSTIFY">Un tad vienreiz salīcis tas ķēniņš ar citu ķēniņu uz visu
+valsti, ka viņam esot tāds zvejnieks, kas varot visādas līdekas dabūt, kādas tik
+gribot. Tas neticējis. Un ta(d) salīkuši: ka(d) tas zvejnieks nedabūs, kādas
+(līcējs) gribēs. tad tam paliks tā valsts.</p>
+
+<p align="JUSTIFY">Ķēniņš pārbraucis, teicis zvejniekam - zvejnieks palicis itin
+bēdīgs; viņš teicis: "Tas nestāv cilvēka rokās, bet tas stāv Dieva
+rokās!" un prasījis laika, lai viņam atlaiž trīs dienas zvejot. Ķēniņš
+atlaidis, lai zvejo; devis vīrus lai palīgā.</p>
+
+<p align="JUSTIFY">Un tad, kā laidis tīklu jūrā, tā saplīsis un bijis tukšs. Laidis
+līdz trīs reizas tīklu iekšā un ikreiz saplīsis. Gribējis slīcināties to beidzamo
+reizu; jo ķēniņš teicis, kad nedabūs tās un tās zivis, ta(d) kakls taps viņam
+nocirsts.</p>
+
+<p align="JUSTIFY">Bet ta(d) iznācis viens vīrs no ūdeņa un teicis, lai
+neslīcinājas, lai apsolās to, kas viņam mājās nezināms; kad būs trīspadsmit gadu
+pagalam, ta(d) viņš ies pakaļ. Labi.</p>
+
+<p align="JUSTIFY">Un ta(d) gājis atpakaļ un zvejojis un dabūjis visādas zivis,
+visādām zurtēm, kādas tik ūdenī ir un kādas tie kungi prasīj(u)ši.</p>
+
+<p align="JUSTIFY">Sazvejojis -- sūtījis ziņas ķēniņam, lai nu sūta pulku orēm
+pakaļ, lai var visas pā(r)vest mājā.</p>
+
+<p align="JUSTIFY">Nu, un tā pā(r)gājis pats, (kad) līdekas pā(r)vestas - atradis
+dēlu mājās; tas nule bij piedzimis. Un nu palicis gluži noskumis, ka bij solījis.</p>
+
+<p align="JUSTIFY">Un tas puišelis audzis un bij(u)si brīnum lēta galva grāmatu
+mācīties un bijis ļoti smuks. Tad ķēniņš viņu mīlējis un licis visās skolās
+izmācīt.</p>
+
+<p align="JUSTIFY">Bet (puisēna) tēvs ir raudājis un bēdājies, &amp;127;kur tik dēlu
+ieraudzījis. 'Ta(d) dēls prasījis tēvam, - kālab viņš raud, ka(d) viņu ierauga?</p>
+
+<p align="JUSTIFY">Viņš neteicis puišelim. Ta(d) puišelis tīši palicis slims, lai
+tēvs viņam saka. Nesacījis. Ta(d) gribējis pavisam mirt nost un tad ķēniņš lai
+atbraucis raudzīt, ka(d) viņš tik ļoti slims esot - ir dakteri atvedis; bet šis
+nevarējis nekādas vainas uziet, kas viņam kaitējis. Ta(d) ķēniņš prasījis, kas
+viņam kaitot, ka(d) nav nekādas slimības. Puisēns teicis: "Mans tēvs man nesaka,
+kālab viņš raud, ka(d) manis ierauga."</p>
+
+<p align="JUSTIFY">Ķēniņš teicis, kālab viņš nesakot? Ta(d) tēvs sācis teikt, ka
+esot apsolījis vel(n)am, ka(d) tās zivis zvejojis. Ta(d) viņš (puisēns) teicis:
+"Nu, tēvs! pa(r) to jūs it neko nebēdājat, es raudzīšu no šās vietas aiziet
+uz tālu vietu, ku(r) tas velns nebūs."</p>
+
+<p align="JUSTIFY">Ta(d) viņš paņēmis naudas līdz un gājis pa mežiem, projām vien.
+Piegājis pie viena liela kalna - tur bijis kalna galā lauva, suns, ērglis un skudra. Un
+lauva sūtījis to suni, lai iet saplēst to cilvēku, kas tur atnācis un atnest šurp,
+ka var apēst. Suns skrējis notīgi vien pie puišeļa; bet puišelis uzsaucis sunim:
+Ujā! ujā! neskrien tik aši - jel biški lēnāki!"</p>
+
+<p align="JUSTIFY">Ta(d) suns sācis luncināties viņam apkārt un palicis draugs.
+Puisēns un uzgājis uz to kalnu un tie pa trim viņam vēlējuši katrs savu laimi. Lauva
+teikusi, ka(d) viņš tik viņas vārdu pieminētu. tad būs septiņreiz stiprāks par to
+lauvu; ērglis vēlējis, ka būs septiņreiz čaklāks pa gaisu skriet nekā pats
+ērglis; skudra vēlēj(u)si, ka(d) viņu pieminēs, ta(d) būs septiņu reiz mazāks par
+viņu un suns vēlējis, ka(d) viņu pieminēs, ta(d) būs septiņu reiz čaklāks par
+suni pa zemi skriet.</p>
+
+<p align="JUSTIFY">Un tā tie putni viņu pavadij(u)ši un viņš gājis projām atkal.
+Gājis, gājis - nogājis uz vienu lielu ķēniņa galvas pilsētu un tur staigājis pa
+ķēniņa dārzu un ieraudzījis vienu smuku sievišķi logā sēdim. Nu piegājis pie
+dārza puiša prasījis: "Kas tā tāda?"</p>
+
+<blockquote>
+  <p align="JUSTIFY">Tas teicis: "Tā ir ķēniņa meita, princese!"</p>
+</blockquote>
+
+<p align="JUSTIFY">Ta(d) viņš vakarā nogājis atkal uz dārzu, palicis par skudru,
+rāpies uz augšu, ielīdis (ķēniņa meitas) kambarī, gājis klāt uņ palicis par
+čilvēku. Tā šī sākusi brēkt: "Vai papiņ, papiņ! viens vīrs nāk man
+klāt!"</p>
+
+<p align="JUSTIFY">Kēniņš ieskrējis. Tā šis palicis turpat gultā atkal par skudru.
+Ta(d) ķēniņš meitu izrājis, ka b]aujas un it neviena nav tai karr&amp;127;barī. Bet
+kā ķēniņš izgājis, atkal apgūlies, tā (šis) palicis atkal par cilvēku un gājis
+atkal pie meitas klāt. Sākusi atkal otru reiz bļauties. Tēvs ienācis, izskatījies,
+atkal nav nekā; jo palicis par skudru. Ta(d) ķēniņš teicis, ka(d) vēl trešo reiz
+tā bļausies, neļaus rāmi gulēt, ta(d) nocirtīs kaklu,.</p>
+
+<p align="JUSTIFY">Bet šis palicis ir trešo reizu par&amp;127; cilvēku un gājis viņai
+klāt. Viņa sākusi atkal bļaut. Un ta(d) tēvs ienācis, izprasījis, kā bijis? Šī
+sacījusi, ka gruntīgs cilvēks nākot klāt un atkal pazūdot. Ta(d) ķēniņš teicis:
+"Rādies placī! Ja esi cilvēks, tad taču gudrs būsi, ka(d) &amp;127;tā varēji
+paslēpties."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Ta(d) (puišelis) rādījies placī - izgājis.</p>
+  <p align="JUSTIFY">No rīta turējuši kāzas. Un ķēniņš viņu turējis par znotu.</p>
+</blockquote>
+
+<p align="JUSTIFY">L1n vienreiz sācis ķēniņš teikt, ka viņam te daudz mantas nav, jo
+netāļu no šīs vietas bijis pilsāts - tas apgrimis apakš zemes -tur citreiz i(r)
+dzīvojusi tā ķēniņa mātes māte, tā bijusi liela ragana un tā pilsātu
+apgremdējusi apakš zemes ar visu mantu.</p>
+
+<p align="JUSTIFY">Un vienu dienu viņi sarunāj(u)ši - viņš (znots) grib arī redzēt
+to vietu. 'Ta(d) viņi visi tur braukuši, - gan ķēniņš, gan visi tie citi. Un
+braukuši gar tādu jūrmalu un viņš (znots) i(r) aizmirsis, ka viņam no ūdeņa
+jāsargājas. Un tā nu iznācis tas velns un teicis: "Nu tu man atnāci klāt?"
+un tā sakampis (znotu) un nesis ūdenī iekšā.</p>
+
+<p align="JUSTIFY">Bet znots iesaucies: ,,Ak, kaut es būtu tik stiprs kā tā
+1auva!" Tā viņš palicis un </p>
+
+<p align="JUSTIFY">paņēmis savu zobinu, sācis kauties un uz vinnējis velnu. Ta(d)
+viņš sakapājis to gabalos,</p>
+
+<p align="JUSTIFY">sakūrds uguni, sadedzinājis un braucis atkal uz to vietu projām.
+Braucis, braucis - </p>
+
+<p align="JUSTIFY">nobraucis pie viena liela kalna. Un tad i(r) tāds vējš sācis pūst
+. . . un (viņa) sieva </p>
+
+<p align="JUSTIFY">vējam pūšo&amp;127;t pazudusi: no ratiem izrauta.</p>
+
+<p align="JUSTIFY">Un tas tēvs (ķēniņš) viņu vedis rādīt uz tā kalna: tur
+(kalnā) bijis tāds liels akmins un tam akminim mazs caurumiņš; pa to caurumiņu
+kūpēj(u)ši dūmi laukā. Tā varēj(u)ši zināt, ka viņi (apakšā) dzīvi vēl.</p>
+
+<p align="JUSTIFY">Ta(d) viņš teicis: "Ak, kad es paliktu kā tā skudra!" un
+līdis iekšā pa to caurumtiņu; bet sievas tēvs braucis uz mājām. Un tā ielīdis
+iekšā - ielīdis taī namā - tur bij(u)šas abas tās sievas i tā ķēniņa mātes
+māte, i pati gaspaža (šā sieva), no vecās raganas tur ierauta. Un viņa sieva un
+ragana sēdējušas pie galda katrā pusē. Nu viņš sācis (par skudru) tecēt savai
+sievai pa drānām uz augšu un uzlīdis uz kakla. Un tā viņa tūlin sapratusi, kas būs
+un lūgusies; ka grib bišķi iziet 1aukā. Izlaidusi gan šo laukā. Izgājusi laukā -
+sākusi runāt ar šo. Viņš teicis, lai rauga ar viltu izprasīt (raganai), kā varētu
+to pilsātu izcelt.</p>
+
+<p align="JUSTIFY">Tā iegājusi atpakaļ un sākusi prasīt: "Vai varētu kādreiz
+kāds arī izcelt to pilsātu no zemes?"</p>
+
+<p align="JUSTIFY">Šī teikusi : "Var gan, bet tas dikti gŗūti nākas&amp;127; kad
+viņu grib izcelt. Cits neviens to nevar izdarīt, ka tik(ai) tā lauva, tas suns, tas
+ērglis un tā skudra, kas uz to kalnu, jo no šīs vietas vēl ir divisimt jūdžu
+ķēņiņa pilsāts un tanī pilsātā viena čūska - liela - un tai čūskai septiņas
+galvas uņ cits neviens nevar to čūsku nokaut kā šis lauva; bet viduvējā čūskas
+galvā ir pauts iekšā un cits neviens to pautu nevar pāŗlēst, kā tas suns un cits
+neviens viņu nevar atrast, kā tas ērglis. Un tad, kad šo pautu pārplēstu, tad pautā
+būtu mazs mazs akmentiņš un, kad tā skudra šo akmentiņu še pa caurumu ienestu
+zemē, tad zeme pārsprāgtu un tas pilsāts izceltos."</p>
+
+<p align="JUSTIFY">Un viņš nu izlīda laukā no zemes (apakšas) tas puišelis, palicis
+par ērgli un tik(ai) sācis skriet. Noskrējis uz to pilsātu - tur tai čūskai
+katrudien septiņas aitas bijis jādod. Čūska bijusi labu gabaliņu nost no pilsāta -
+tādā pagrabā.</p>
+
+<p align="JUSTIFY">Un viņš salīcis pie tā pavāra - tas i(r) dzinis tās aitas, visiem
+citiem ir(r) bijis bail - par aitu dzinēju - projām. Labi.</p>
+
+<p align="JUSTIFY">Pirmo rītu ņēmis tās aitas, dzinis projām un pavārs parādījis
+ceļu, ku(r) viņa (čūska) ir. Viņš dzinis un atstājis aitas 1abu gabalu nost no tā
+pagraba; tad nogājis bez aitām un saucis: "Čūska, nāc(i)! Nu es tev atdzinu
+aitas."</p>
+
+<blockquote>
+  <p align="JUSTIFY">Čūska iznākusi un prasījusi: "Kur i(r) tās aitas?"
+  Viņš teicis: "Ā, &amp;127;rakali! vai es tev došu aitas?"</p>
+</blockquote>
+
+<p align="JUSTIFY">Ta(d) tā čūska gāj(u)si atpakaļ pagrabā. Viņš ņēmis aitas
+pā(r)dzinis pavāram atpakaļ. Un pavārs baidījies, ka čūska tik(ai) nesamaitā to
+pilsātu un rājies, ka aitas nav devis viņai ēst.</p>
+
+<p align="JUSTIFY">Viņš teicis: "Es izsaucos - viņa nenāca laukā - ka negribīte
+ēst -- lai dzenot aitas atpakaļ."</p>
+
+<p align="JUSTIFY">Un ta(d) pavārs otru rītu devis četrapadsmit aitas, lai dzenot
+projām. Bet viņš atstājis pusceļā, nogājis atkal - saucis čūsku, lai nāk.
+Čūska izgāj(u)si - atkal nekā nebijis. Prasījusi: "Ku(r) ta(d) i(r) tās
+aitas?"</p>
+
+<p align="JUSTIFY">Viņš teicis: "Es bew gan došu aitas! Es tevi ņemšu,
+nositīšu!"</p>
+
+<p align="JUSTIFY">Ta(d) gāj(u)si čūska atkal atpakaļ iekšā. Viņš nu nogājis un
+atdzinis to četrapadsmit aitu atpakaļ pavāram. Un pavārs teicis: kāpēc viņš nav
+devis? Atteicis: "Es viņu izsaucos - nenāca laukā."</p>
+
+<p align="JUSTIFY">Trešo rītu devis vēl septiņu klāt: divdesmit un vienu aitu.
+Nodzinis, atstājis atkal pusceļā tās aitas un nogājis viens pats saucis čūsku, lai
+nāk ēst. Čūska iznākusi un prasīj(u)si: "Kur tās aitas ir?"</p>
+
+<p align="JUSTIFY">Ta(d) viņš teicis: "Es tev došu aitas!" un - sakampis
+(čūsku) pie vienas galvas - izrāvis no pagraba un kāvušies lielu laiku abi .divi.</p>
+
+<p align="JUSTIFY">Ta(d) tas pavārs gājis raudzīt, kālab viņš tik ilgi paliek.
+Nogājis - tas vīrs kas kavies teicis: "Kad es tik(ai) dabūtu vienas glāzes
+brandavīna. tad tu redzētu, kā tev ietu!"</p>
+
+<p align="JUSTIFY">Čūska teikusi: "Kad es dabūtu vienu. aitu apēst, tad es tevi
+saplēstu!"</p>
+
+<p align="JUSTIFY">To pavārs dzirdējis, ka viņš gribējis vienas glāzes brandavīna;
+ta(d) pārskrējis uz pilsētu, pā(r)nesis veselu buteli brandavīna, iedevis vīram. Tas
+izdzēris un sakapājis to čūsku. Ta(d) pavārs pārgājis, pasacījis ķēniņam, ka
+viens vīrs ņēmis čūsku un nokavis. Un kamēr ķēniņš savācis savus draugus,
+gribējis iet to vīru meklēt un pa(r) ķēniņu celt, tamēr vīrs palicis pa(r) ērgli
+un noskrējis projām: viņš bij noskrējis pie tā kalna, ka(d) bij izņēmis no
+čūskas sirds to akminteli. Un tur&amp;127; ar akminteli palīdis pa(r) skudru iekšā -
+kalnā - kalns plīsis pušu un tas pilsāts cēlies uz augšu.</p>
+
+<p align="JUSTIFY">Dzirdēj(u)si tā ragana, ka kalns sācis plīst un pilsāts cēlies uz
+augšu - sākusi plēst tai jaunai acis laukā, ka viņa kādam cilvēkam būs pateikusi.
+Ta(d) viņš dzirdējis, ka jaunā sākusies bļauties un tā skrējis klāt; un jo viņš
+ātri skrējis, jo ātri pilsāts cēlies. - Viņš skrējis sievu glābt. - Un
+ieskrējis, palicis par cilvēku, nocirtis vecenei kaklu un tad pilsāts arī izcēlies.</p>
+
+<p align="JUSTIFY">Nu gājis atpakaļ pie (sievas) tēva teikt, ka pilsāts izcēlies
+-bijis liels pilsāts un smuks.</p>
+
+<p align="JUSTIFY">Un ta(d) viņi dzinuši mantas no turienes mājās - zelts tur bijis un
+sudrabs pulku iekšā (pilsātā).</p>
+
+<blockquote>
+  <p align="JUSTIFY">No tās dienas tad jaunais valdījis, tā vecā znots.</p>
+</blockquote>
+
+
+</body></html>

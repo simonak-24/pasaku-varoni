@@ -1,0 +1,255 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>25</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vienacīte, Divacīte, Trijacīte.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">25. A. 511. 510. Latvju kultūras kr. Teicēja 45 g. veca V. Kromane
+Latgalē.</p>
+
+<p align="JUSTIFY">Vīnai muotei beja treis eistuos meitas: vīnace, divace un trejace, un
+vīna pameita. Buorinīte guoja gonūs un vakorūs; kad sadzyna lūpus muojuos, otlkon
+guoja pi cytim dorbim. Pamuate buorinītes cīši nairedzēja.</p>
+
+<p align="JUSTIFY">Vīnā reitā pamuote sajaucja kaņepes ar palnim un lyka buorinītei
+gonūt izteirēt. Buorinīte izdzyna lūpus gonuos un raud. Piguoja pi buorinītes
+gūtiņa un prosa: "Kuo tu raudi, buorinīt?"</p>
+
+<p align="JUSTIFY">Kai man narauduot?" atbildēja buorinīte, "pamuote sajaucja
+kaņepes ar palnim un lyka man izteirēt."</p>
+
+<p align="JUSTIFY">Gūtiņa pajēmja un izpyutja palnus, tai ka teiruos kaņepes tik
+palyka rūkā. Atguoja vokors. Buorinīte sadzyna lūpus sātā. Pamuote vaicoj: "Vai
+izteirēji kaņepes?"</p>
+
+<p>"Ja, izteirēju," atbildēja buorinīte.</p>
+
+<p align="JUSTIFY">Ūtrā reitā otkon pamuote sajaucja kaņepes ar palnim un lyka, lai
+buorinīte izteirej. Uz gonim jei nūsyutīja reizē sovu meitu, vīnaci, un lyka jai
+nūsavērt, ka buorinīte teirēs kaņepes. Buorinīte ar vīnaci izdzyna lūpus gonūs un
+gona. Suoka buorinīte rauduot. Pīguoja kluot gūtiņa un prosa: "Kuo tu raudi,
+buorinīt?"</p>
+
+<p align="JUSTIFY">Kai man narauduot? Pamuote man īdevja atteirīt kaņepes "</p>
+
+<p>nu palnim!"</p>
+
+<p align="JUSTIFY">Tad gūtiņa soka: "Vīnacīt, aizmīdz vīnacīti!"
+Vīnacīte ari aizmyga. Gūtiņa pajēmja un izpyutja palnu!s nu kaņepem. Atguoja vokors.
+Buorinīte sadzyna lūpus sātā. Pamuote vaicoj: "Vai izteirēji kaņepes?"</p>
+
+<p>"Ja," atbildēia buorinīte, "izteirēju!"</p>
+
+<p align="JUSTIFY">Buorinīte aizguoja gūvu slauktu. Pamuote prosa vīnacei: "Vai
+redzēji, kai buorinīte teirēja kaņepes?"</p>
+
+<p align="JUSTIFY">"Na, naredzēju. Man apguoja mīgs un es aizmygu; kad pasamūdu,
+jau kaņepes beja izteirētas!" atbildēja vīnace.</p>
+
+<p align="JUSTIFY">Pamuote suoka buort vīnaci. Buorinīte izslaucja gūvis, atguoja uz
+ustobu un atsagula. Ūtrā reitā pamuote otkon sajaucja kaņepes ar palnim un reizē ar
+buorinīti nūsyutīja gonūs divaci. Buorinīte gona gūvis un raud. Piguoja kluot
+gūtiņa un vaicoj: "Kuo tu, buorinīt, raudi?"</p>
+
+<p align="JUSTIFY">Kai man narauduot? Pamuote atkon lyka atteirēt kaņepes "</p>
+
+<p>nu palnim," atbildēja buorinīte gūtiņai.</p>
+
+<p align="JUSTIFY">Tad gūtiņa soka: "Divacīt, aizmīdz divactiņas!" Divacīt
+tyuleņ aizmyga. Gūtiņa pajēmja un izpyutja palnus nu kaņepem. Atguoja vokors.
+Buorinīte sadzyna lūpus sātā. Pamuote vaicoj: "Vai izteirēji kaņepes?"</p>
+
+<p align="JUSTIFY">"Ja, izteirēju," atbildēja buorinīte un aizguoja gūvu
+slauktu. Tad pamuote pīskrēja pi divaces un prosa: "Vai redzēji, kai buorinīte
+teirēja kaņepes?"</p>
+
+<p align="JUSTIFY">"Na, naredzēju. Man apguoja mīgs un es aizmygu; kad pasamūdu,
+jau kaņepes beja izteirētas!" atbildēja divace.</p>
+
+<p align="JUSTIFY">Pamuote sabuora divaci. Buorinīte izslaucja gūvis, atguoja. uz ustobu
+un atsagula. Reitā buorinīte otkon agri cēļās: un nūguoja gūvu slauktu. Pa tū
+laiku pamuote pījaucja daudzi kaņepu ar palnim un, kad buorinīte atguoja nu gūvu
+slaukšonas, pīsacīja jai ituos kaņepes gonūs izteirēt.</p>
+
+<p align="JUSTIFY">Trešā reizē pamuote syutīja trejaci un pīklīdzja nūsorguot, kai
+buorinīte teirēs. Tai buorinīte ar trejaci izdzyna lūpus gonūs. Buorinīte gona
+lūpus un raud. Pilt kluot gūtiņa un soka: "Kuo tu raudi, buorinīt?"</p>
+
+<p align="JUSTIFY">"Kai man narauduot? Pamuote otkon pīdevja dorba kaņepes
+teirēt!" atbildēja buorinīte.</p>
+
+<p>Tad gūtiņa soka: "Trejacīt, aizmīdz divacītes!"</p>
+
+<p align="JUSTIFY">Trejace aizmīdzja divi actiņas, bet trešuo palyka vaļā. Gūtiņa
+pajēmja un izpyutja palnus nu kaņepem. Trejaces trešuo actiņa tū vysu redzēja.
+Atguoja vokors. Buorinīte sadzyna lūpus sātā. Pamuote vaicoj: "Vai izteirēji
+kaņepes!"</p>
+
+<p align="JUSTIFY">"Ja, izteirēju," atbildēja buorinīte un aizguoja gūvu
+slauktu. Tad pamuote pīskrēja pi trejaces un vaicoj: "Vai redzēji, kai buorinīte
+teirēja dsaņepes?"</p>
+
+<p align="JUSTIFY">"Ja, redzēju," atbiildēja trejace. "Pastuosti, kai jei
+teirēja?" prosa pamuote.</p>
+
+<p align="JUSTIFY">"Kad mes ganījam, pīguoja pi mums gūtiņa un soka:
+"Trejacīt, aizmīdz divacītes!" Divi munas acis aizmyga, bet trešuo palyka
+vaļā, un ar tū es redzēju, ka palnus izpyutja gūtiņa," izstuostīja trejace.</p>
+
+<p>"Vajadzēs gūtiņu nīkaut," soska pamuote.</p>
+
+<p align="JUSTIFY">Pa tū laiku buorinīte izslaucja gūvis, atguoja uz ustobu un
+atsagula. Reitā agri buorinīte cēļās un aizguoja gūvu slauktu. Pīguoja pi
+buorinītes gūtiņa un soka: "Šūdīn mani kaus zemē! Kad mani nūkaus, tu
+paprosi, .lai pamuote tev atdūd munu pyusli izteirēt. Teirēdama pyusli, tu atrassi
+smuku kauliņu. Tū kauliņu tu nūnes un zam lozdas aprūc, bet pēc trejom dīnom nūej
+apsavārtu!"</p>
+
+<p align="JUSTIFY">Tymā pašā dīnā nūkova gūtiņu. Buorinīte prosa pamuotei dūt
+jai izteirēt pyusli. Pamuote ari īdevja un buorinīte aizguoja pyušļa teirētu. Pvusli
+teirēdama, buorinīte atroda tū kauliņu, par kuru jai runuoja gūtiņa, nūnesja zam
+lozdas un aproka. Paguoja treis dīnas un buorinīte nuguoja apsavārtu. Tymā vītā, kur
+buorinīte aproka kauliņu, stuovēja moza ustabiņa. Buorinīte īguoja tymā ustabiņā
+um redzēja, ka tur ir daudz vysaidu duorgu kleitu, kūrpu un cytu drēbu. Buorinīte
+palyka cīši prīcīga.</p>
+
+<p align="JUSTIFY">Atguoja svātdīna. Buorinīte īsarūšja skaistuos drēbēs un
+aizguoja uz baznīcu. Baznīcā buorinīti īraudzēja kēniņa dāls un buorinīte jam
+cīši patyka.</p>
+
+<p align="JUSTIFY">Ūtrā svātdīnā kēniņa dāls sadūmuoja pīsmērēt ar leimi stygu
+un, kad buorinīte īs uz baznīcu, jai pīlips kūrpe un nūkriss. Pēc ituos kūrpes jis
+dūmuoja atrast skaistū meitiņu un apprecēt jū. Kai jis sadūmuoja, tai izdarīja.</p>
+
+<p align="JUSTIFY">Ūtrā svātdīnā kēniņa dāls pīsmērēja ar leimi tū stygu, pa
+kuru guoja buorinīte. Buorinīte kai guoja, tai jai kūrpe pīlypa un paivka tai vītā.
+Kēniņa dāls pajēmja kūrpi un aizguoja uz sowu pili.</p>
+
+<p align="JUSTIFY">Ūtrā dīnā kēniņa dāls braucja pa kēnesti un meklēja tū meitu,
+,kurai pīdar kūrpe. Meklēja, meklēja jis, bet atrast navar. Galīgi kēniņa dāls
+ībraucja ari pi pamuotes un prosa: "Vai tev ir meitas?"</p>
+
+<p align="JUSTIFY">Pamuote pasaucja sovas treis meitas, bet kūrpe juom nivīnai
+naatsatyka. Tad kēniņa dāls soka: "Vai vēļ ir kaida meita?" "Ja, ir
+gon, bet jei pašlai!k slauc gūvis un dreiži atnuoks, bet</p>
+
+<p align="JUSTIFY">es jau zynu, ka jai kūrpe naleiss kuojā," soka pamuote.
+"Varbyut, leiss," atbildēja kēniņa dāls.</p>
+
+<p align="JUSTIFY">Buorinīte atguoja uz ustobu un apāva kūrpi. Kūrpe jai atsatyka. Tad
+buorinīte īguoja ūtrā ustobā, apuova ūtru kūrpi, atguoja p:i kēniņa dāla un
+aizbraucja.</p>
+
+<p align="JUSTIFY">Pamuotei beja žāl, ka kēniņa dāls napajēmja juos meitu.
+Buorinīte alzbraucja ar kēniņa dālu, apsaprecēja un šudīņ dzeivoj laimīgi.</p>
+
+<p align="JUSTIFY">Pamuotes meita, vīnace, dreiži nūmyra un jai palyka divi meitas:
+divace un trejace, kurom pēc buorinītes vajadzēja vysus gryutūs dorbus struoduot.</p>
+
+
+</body></html>

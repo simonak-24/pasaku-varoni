@@ -1,0 +1,269 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>18</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vienacīte, Divacīte, Trijacīte.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">18. A. 511. Uzrakstīta Līksnas pag. Latvju kultūras kr. </p>
+
+<p align="JUSTIFY">Seņ senejūs laikūs dzeivuoja veirs ar sovu sīvu, jīm beja
+vīnameitiņa. Vīnu reiz muote saslyma un pēc eisa laika nūmyra. Tāvs nailgi
+padzeivuoja un apsaprecēja. Ūtra juo sīva beja ari atraitne ar trejom meitom. Vīna
+juos meita beja ar vīnu, ūtra ar divi un trešuo ar trejom acim, tuodēļ juos ari
+saucja: pyrmū par vīnaci, ūtrū par divaci un trešū par trejaci. Meitu muote beja
+rogona. Sovas meitas jei jūti žāluoja, bet buorinīti naīredzēja: syutīja jū pi
+gryutim dorbim un slykti baruoja. Vosorā buorinīte guoja gonūs. Rogona sadūmuoja
+taisīt pyurus sovom meitom, bet pi dorba jūs likt nagribēja.</p>
+
+<p align="JUSTIFY">Vīnā reitā kad buorinīte dzyna lūpus gonūs, rogona padevja
+buorinītei kaidu pus pūdu lynu un soka: "Itūs lynus tu šūdiņ gonūs saspŗēd,
+bet jo nesasprēssi, tad es tevis dzeivas naatstuošu!"</p>
+
+<p align="JUSTIFY">Buorinīte izdzyna lūpus gonūs un raud. Pīīt pi buorinītes tei
+gūtiņa, kuru muote mierdama jai atstuoja, un prosa: "Kuo tu, meitiņ, raudi?"</p>
+
+<p align="JUSTIFY">"Kai man narauduot? Pamuote pīdevja trk daudz dorba, un lyka
+vēļ šūdiņ vysu padarīt," atbildēja meitiņa.</p>
+
+<p align="JUSTIFY">"Naraudi, meitin!" runoj gūtiņa. "Vyss byus lobi, jem
+un buoz lynus munā lobajā austiņā!"</p>
+
+<p align="JUSTIFY">Buorenīte suoka buozt lynus gūtiņas lobajā austiņā un pa kreisū
+austiņu jau šketerējās dīdziņi un tik smolki saspŗāsti un skaisti! Buorinīte
+palyka prīcīga un vokorā sadzyna lūpus sātā. Pamuote izskrēja buorinītei prīškā
+un prosa: "Vai saspŗēdi lynus?"</p>
+
+<p align="JUSTIFY">"Jā, saspŗēžu," un padevja pamuotei. Pamuote pasavēŗa
+uz dīdziņim un prosa: "Kas tev paleidzēja sprēst?"</p>
+
+<p align="JUSTIFY">Buorinīte atbildēja: "Nikas napaleidzēja, es paša
+saaprēžu!" Ūtrā reitā rogona pīdevja buorinītei vēļ vairuok lynu un nū
+syutīja uz gonim sovu meitu vīnaci nūsavērt, kiai buorinīte sprēž. Buorinīte
+izdzyna lūpus gonūs, gona un raud. Tad buorinīte soka vīnacei: "Ej šur, muosiņ,
+es tev paīskuošu golvu!"</p>
+
+<p>Vīnace atsasāda pi buorinītes un buorinīte suoka īskuot jai golvu. Buorinīte
+īskuodama soka: "Mīgū, mīgū, vīna actiņa!" Vīnacīte tyuleņ aizmyga.
+Gūtiņa atguoja un otkon saspŗēdja buorinītei lynus. Jau atguoja vokors un sadzyna
+lūpus sātā. Rogona izskrēja prīškā un prosa buorinītei: "Vai saspŗēdi
+iynus?"</p>
+
+<p align="JUSTIFY">"Jā, saspŗēžu!" atbildēja buorinīte un padevja pamuotei
+dīdziņus.</p>
+
+<p align="JUSTIFY">Pamuote īsaucja vīnaci ustobā un soka : "Pastuosti, meitiņ,
+kai uorinīte spŗēdja!" '</p>
+
+<p align="JUSTIFY">"Es naredzēju," atbildēja vīnace, "man gribējās
+cīši gulēt un es aizmvgu; kad pasamūdu, jau buorinīte beja saspŗāduse!"</p>
+
+<p align="JUSTIFY">Rogona pabuora, pabuora vīnaci un lyka mīru. Ūtrā reitī pamuote
+buorinītei vēl vairuok dorba pīdevja um nūsyutīja uz gonim sovu meitu divaci.
+Buorinīte izdzyna lūpus gonūs un raud. Tad buorinīte soka divacei: "Ej šur,
+muosiņ, es tev paīskuošu golvu!"</p>
+
+<p align="JUSTIFY">Divace atsasāda pi buoninītes un buorinite suoka īskuot jai golvu,
+saceidama: "Mīgū, mīgū, vīna actiņa, mīgū, mīgū, ītra actiņa!"</p>
+
+<p align="JUSTIFY">Divacīte ari aizmyga. Gūtiņa atguoja un otkon saspŗēdja
+buorinītei lynus. Jau atguoja vokors un sadzyna lūpus sātā. Rogona izskrēja prīškā
+un prosa buorinītei: "Vai saspŗēdi lynus?"</p>
+
+<p align="JUSTIFY">"Jā, sasprēžu!" atbildēja buorinīte un padevja pamuotei
+dīdziņus.</p>
+
+<p align="JUSTIFY">Pamuote īsaucja divacīti ustobā un soka: "Pastuosti, meitiņ,
+kai buorinīte sprēdja!"</p>
+
+<p>"Es naredzēju," atbildēja divace, "man gribējās cīši gulēt un es
+aizmygu, kad pasamūdu, jau buorinīte beja sasprāduse!" Rogona pabuoŗa, pabuora
+divaci un lyka mīru. Trešā reitā</p>
+
+<p align="JUSTIFY">pamuote buorinītei vēj valruok dorba pīdevja un nūsyutīja uz gonim
+sovu meitu trejaci, styngri pīrunuodama jai, ka jei nūsavārtu, kai buorinīte sprēž.
+Buorinīte izdzyna iūpus gonūs un raud. Tad buorinīte soka trejacei: "Ej šur,
+muosiņ! Es tev paīskuošu golvu!"</p>
+
+<p align="JUSTIFY">Trejace atsasāda pi buorinītes un buorinīte suoka jai īskuot golvu.
+Buorinīte īskuodama soka: "Mīgū, mīgū, vīna actiņa, mīgū, mīgū, ūtra
+actiņa!"</p>
+
+<p align="JUSTIFY">Trejaces divi acis aizmyga, bet trešuo palyka vaļā. Gūtiņa atguoja
+un otkon sasprēdja. Trejace ar trešū aci vysu redzēja. Jau atguoja vokors. Barorinīte
+sadzyna lūpus sātā. Rogona izskrēja prīškā un vaicoj: "Vai sasprēdi
+lynus?"</p>
+
+<p align="JUSTIFY">"Jā, saspŗēžu," atbildēja buorinīte un padevja pamuotci
+dīdziņus. Rogona īsaucja trejaci ustobā un soka: "Pastuosti, meitiņ, kai
+buorinīte sprēdja!"</p>
+
+<p align="JUSTIFY">Trejace vysu izstuostīja, kai beja. Tad rogona soka: "Reitā
+kausim gūtiņu zemē!"</p>
+
+<p align="JUSTIFY">Buorinīte, īīdama ustabā, dzierdēja, kū pamuote sacīja, un pēc
+nagara laiciņa aizskrēja uz dīnduorzi un rauduodama soka gūtiņāi: "Pamuote
+sacīja, ka reit tevi kaus zemē!"</p>
+
+<p align="JUSTIFY">"Nikas, naraudi, meitiņ. Mani nūkaus, un, kad ciers, tad atdēks
+vīna kaula skomba. Tu tū skombu pajem un paprosi pamuotei, lai jei dūd tev zornas
+teirīt. Zornas teirīdama, tu atrassi zalta gradzynu. Tad tū kaula skombu un gradzynu
+aprūc zemē, ceļa molā," pamuocīja gūtiņa.</p>
+
+<p align="JUSTIFY">Buoninīte aizguoja uz ustabu un atsagula. Reitā pamuote nūkova
+gūtiņu un, kad cierta, pyrmū reizi ar ciervi, atlēcja kaula skomba. Buorinīte
+pajēmja tū skombu, ībuozja kārmanā un prosa pamuotei, lai dūd jai zornas izteirēt.
+Pamuote atdevja buorinītei teirēt zornas. Buorinīte, zornas teirēdama, atroda tū
+zalta gradzynu un kūpā ar skombu aproka zemē, ceļa molā. Tys beja jau vokorā. Reitā
+buorinīte agri cēļās un mūskrēja uz tū vītu, kur aproka kaula skombu un zalta
+gradzynu un redz, ka tymā vītā izauguse sudobra uobeļnīca ar zalta uobulim, un oka
+pylna ar vyssoldonuokū veinu. Ceļa guojēji un braucēji redzēj;a šū skaistū
+uobeļnīcu, bet kad raudzēja uobuli nūraut, uobeļnīcas zori pasacēļa tik augši, ka
+nivīns navarēja dabuot. Runas par skaistū uobeļnīcu izguoja pa vysu pasauli un
+aizguoja leidz kēniņa ausim. Kēniņš sadūmuoja braukt pasavērt skaistuos
+uobeļnīcas un okas ar vyssoldonuokū veinu. Pībraucja kēniņš pi uobeļnīcas un
+gribēja nūraut uobuli, bet zori pasacēļa tik augši, ka jis dabuot navarēja.
+Sadūmuoja kēninš atrast uobeļnīcas audzētuoju un pajemt jū sev par sīvu. Ībrauc
+kēniņš pi rogonas. Rogonas meitas īsarūšušas izskrēja kēniņamz prīškā.
+Kēniņš soka: "Kas audzēja ītū skaistū uobeļnīcu?"</p>
+
+<p align="JUSTIFY">Munas, munas meitas!" prīcīga atbildēja rogona. "</p>
+
+<p align="JUSTIFY">Tad kēniņš soka: "Kura nūraus nu uobe]nīcas vīnu uobuli tū
+es pajemšu sev par sīvu."</p>
+
+<p align="JUSTIFY">Pyrmuok rogona syutija vīnaci. Vīnace pīguoja pi uobeļnīcas un
+gribēja nūraut uobuli, bet te zori pasacēļa tik augši, ka jei navarēja dabuot.
+Vīnace gribēja īsmeļt vyssoldanuokuo veina, bet veins īkrita okā tik dziļi, ka
+nabeja pavysam saradzams. Tai vīnace, nadabuojuse ni uobuļu, ni veina atguoja uz ustobu.</p>
+
+<p align="JUSTIFY">Tad rogona syutīja divaci. Taipat uobeļnīcas zori pasacēļa, veins
+īkrita un divace nikuo nadabuoja.</p>
+
+<p align="JUSTIFY">Tad rogona syuta trejaci, dūmuodama : "Jo jau jei nūsorguoja
+buorinīti lynus sprēža un, tad dabuos ari uobuļu un veina!" Aizguoja trejace pi
+uobeļnīcas un gribēja raut uobuli. Te uobeļnīcas plyki zori nūsalaidja un suoka sist
+trejacei par acim. Syta, syta un trejace palyka pavysam okla. Tad kēniņš prosa rogonai:
+"Vai nav tev vēļ vīnas meitas?"</p>
+
+<p align="JUSTIFY">Rogona smīdamuos soka: "Ir taida ganīte, bet jo jau munas meitas
+nadabuoja, tad jei ari nadabuos!"</p>
+
+<p>"Lai aizīt, varbyut dabuos," soka kēniņš.</p>
+
+<p align="JUSTIFY">Buorinīte aizguoja uz uobeļnīcu, bet pēc juos pakaļ kēniņš un
+rogona ar sovom meitom. Vēļ napaspēda buorinīte izstīpt rūku, kai jau vysi zori ar
+uobulim leida jai rūkuos. Buorinīte nūruovja vīnu uobuli un padevja kēniņam. Tad
+buorinīte pīguoja pi okas ar, grilbēja īsmeļt vyssoldonuokuo veina. Veins okā
+pasacēļa tik augši, ka pat lējās puori. Buorinīte pīsmēļa vīnu gluozi veina un
+padevja kēniņam. Tagad kēniņš redzēja, ka buorinīte ir uobeļnīcas audzētuoja,
+pajēmja jū, īsādynuoja sovā karetā un nūbraucja. Pakaļ jīm pasacēļa gaisā
+uobeļnīca un oka un aizguoja pa gaisu. Kēniņš apsaprecēja ar buorinīti un
+šūboltdīn dzeivoj laimīgi, āzdami zalta uobuļus un dzerdami vyssoldonuokū veinu.</p>
+
+
+</body></html>

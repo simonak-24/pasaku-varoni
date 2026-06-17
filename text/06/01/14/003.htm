@@ -1,0 +1,288 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Uzticamais Jānītis.</p>
+</b></font>
+
+<p>&nbsp;</p>
+
+<p>3. A. 516. O. Ķiršteinis Kr. Misā. LP, III, 76 (42).</p>
+
+<p align="JUSTIFY">Vienam valdniekam bija ļoti gudrs un uzticams sulainis. Valdnieks
+tādēļ ļoti mīlēja viņu un izturēja to kā savu bērnu. Bet reiz valdniekam uzbruka
+nikna slimība, kas ilgi to vārdzināja; nevarēja ne nomirt, ne izveseļoties,</p>
+
+<p align="JUSTIFY">Kādu dienu slimība palika vēl niknāka. Valdnieks, pie beigām
+juzdamies, lika iesaukt savu uzticamo sulaini un sacīja: "Še tev pils atslēgas,
+pasauc manu dēlu un izrādi tam visas pils istabas. visus pils kaktus, tik neved to tai
+istabā. kas gaŗajā gaņģa galā."</p>
+
+<p>To sacījis, valdnieks nolika savu galvu uz pagalvja un no</p>
+
+<p align="JUSTIFY">mira. Pēc bērēm sulainis paņēma atslēgas un izrādīja jaunajam
+valdniekam visas pakaktes; tik tai istabiņā neveda, kas gaŗajā gaņģa galā. Bet
+jaunais valdnieks sacīja: "Tu biji manam tēvam uzticams. Esi arī man un rādi ir
+šo istabu, kas garajā gaņģa galā."</p>
+
+<p align="JUSTIFY">"Nevaru, tavam tēvam apsolījos, ka nerādīšu, man jātura
+vārds."</p>
+
+<p align="JUSTIFY">Bet jaunais valdnieks sadusmojies, paņēma atslēgas un pats atslēdza
+durvis. Gan sulainis iespiedās durvīs, gan cēlās uz pirkstu galiem, lai aizstātos
+ziņkārīgajam priekšā, bet tikpat nelīdzēja. Jaunais valdnieks pabāza galvu caur
+sulaiņa padusēm un ieraudzīja istabiņas dibinā daiļu, daiļu princeses bildi. Tas
+tīri paģība aiz lieliem priekiem. Viņš apķēra sulaini, sacīdams: "Man
+nepietiek ar redzēšanu vien. Brauksim pasaulē daiļo princesi meklēt; gribu viņu par
+savu līgavu dabūt."</p>
+
+<p align="JUSTIFY">Nu rīkoja kuģi, nu taisījās lieliskām. Kad viss bija kārtībā,
+tad jaunais valdnieks uzvilka savām valdnieka drēbēm pāri vienkāršu mēteli, lai to
+nepazītu, un devās ceļā. Bet gabalu braukušiem, gudrais sulainis iesaucās: "Tā
+neiet! Mums jāgriežas atpakaļ un jāizkaldina no zelta un sudraba dārgas lietas, ar ko
+daiļo princesi atpirkt."</p>
+
+<p align="JUSTIFY">Atbrauca atpakaļ. Trīs nedēļas čakli strādāja, kamēr
+izkaldināja no zelta un sudraba retas, retas lietas: gan visādus putnus, gan zvērus,
+gan šādus daiktus, gan tādus. Puskuģi gandrīz ar dārgumiem vien piekŗāva. Tagad
+devās no jauna jūrā. Nu brauca, nu brauca, paši nezinādami uz kurieni. Izmeklējās
+vienā jūŗas malā, izmeklējās otrā, nekur daiļās princeses. Beidzot kādā spožā
+saules rītā jaunais valdnieks uz jūŗas pamanīja kaut ko lielā attālumā
+laistāmies. Sulainis tūliņ lika kuģi uz to pusi griezt. Pabrauca labu gabalu uz
+priekšu, vēl nekas izšķirams tik redz, ka laistās. Pabrauca atkal labu gabalu, vēl
+nekā - tik redz mirdzam. Pabrauca jo lielāku gabalu, nu sāk izšķirt jūŗas malā
+spoža, spoža zelta pils.</p>
+
+<p align="JUSTIFY">"Te būs daiļā princese!" sulainis iesaucās un rīkojās
+knaši, lai jo drīzi sasniegtu malu. Kuģis viegli apstājās pils tuvumā, pilī, kā
+likās, gan gulēja dienas vidu. Sulainis paņēma pilnu klēpi dārgo mantu un devās uz
+pili, pieteikdams jaunajam valdniekam, lai no kuģa neatkustētos.</p>
+
+<p align="JUSTIFY">Pie pils vārtiem sulainis apstājās; viņš nezināja, vai
+pieklauvēt, jeb nogaidīt. Beidzot pils vārti atdarījās; kāda sieviete ar zelta
+nēšiem, sudraba spaiņiem izsteidzās caur vārtiem un gāja pie avota ūdeni smelt.
+Sulainis tīši sagrozīja saulē savas zelta lietas, lai spožums atspīguļotos avotā.
+Sieviete, spožas ēnas avotā redzēdama, atgriezās un prasīja: "Vai, tautiet, kas
+tev par spožām lietām!"</p>
+
+<p align="JUSTIFY">"Tas vēl nekas; bet kad tu redzētu, kādas lietas vēl manam
+kungam!"</p>
+
+<p align="JUSTIFY">"Var gan būt; bet ja tev laba sirds, tad atdod kādas lietas
+mūsu princesei. Cik viņa par tām priecātos!"</p>
+
+<p align="JUSTIFY">"Dosim, dosim. Labprāt dosim; tik pasaki, lai princese <b>pati </b>iznāktu
+pēc lietām."</p>
+
+<p align="JUSTIFY">Princese iznāca tik daiļa, tik daiļa. Sulainis aizveda to uz kuģi;
+bet princese noturēja jauno valdnieku par kuģa puisi; tādēļ ka tam bija vienkāršs
+mētelis mugurā. Nu sadeva dārgas lietas daiļajai princesei. Šī priecājās par
+dārgumiem un palīdzēja tos jūŗas malā čupā kŗaut. Bet sulainis bija citu ko
+nodomājis. Līdz ko princese beidzamo reizi domāja zemē kāpt, te sulainis ātri
+palaida kuģi vaļām un aizbrauca ar daiļo princesi jūrā, pamezdams dārgumus
+princeses tēvam uz jūŗas krasta.</p>
+
+<p align="JUSTIFY">Princese, to redzēdama, sāka baiļoties, bet tagad jaunais valdnieks
+novilka mēteli un parādījās valdnieka spožumā, laipni sacīdams: "Ko
+baiļojies, meitiņ, esmu jauns valdnieks bez līgavas, braucu tev pakaļ. Mums lemts
+mūžu kopā nodzīvot."</p>
+
+<p align="JUSTIFY">Pēc dienasvidus princeses tēvs pamanīja, kas noticis. Ātri tas
+apķērās un pasauca visus pasaules palīgus sev palīgā. Bet jūra plata un dziļa;
+palīgi tādēļ ar spēku nevarēja līdzēt, tiem bij jāķeŗas pie gudrības.</p>
+
+<p align="JUSTIFY">Jaunais valdnieks ar savu līgavu drīzi nāca pret mājām; sulainis
+jau skatījās, vai nevarēs malu saredzēt. Te kur gadījušies, kur ne - atlaidās divi
+kraukļi un, nosēzdamies uz kuģa</p>
+
+<p align="JUSTIFY">mastu, sāka šitā sarunāties. Tas pirmais sacīja: "Redz, kur
+ved daiļo princesi!"</p>
+
+<p align="JUSTIFY">"Lai ved, lai, viņa sieva tā tomēr nebūs," otrs
+atbildēja. "Kādēļ tā lai nebūtu?"</p>
+
+<p align="JUSTIFY">"Jā, redzi, līdz ko tie malā izkāps, tad atskries slaiks zirgs
+jaunajam pārim pretim. Valdnieks tūlin gribēs zirgam mugurā kāpt, bet līdz ko
+uzkāps - zirgs viesuļa ātrumā aiznesīs jātnieku diezin kur. Tomēr, ja tas tik
+zinātu, tad gan varētu izlīdzēties. Apakš sedliem ir bults, ja valdnieks ar bulti
+zirgu nodurtu, tad ļaunums nenotiktu."</p>
+
+<p>"Kad tevi izčibētu! Būtu jāpateic viņam."</p>
+
+<p align="JUSTIFY">To nedari; jo kas to dzird un valdniekam pateic, tam jāpaliek no
+pirkstu galiem līdz ceļiem par akmeni."</p>
+
+<p>"Rauj tad viņu koks! Neteikšu."</p>
+
+<p align="JUSTIFY">Kraukļi domāja, ka viņu valodu neviens nesapratīs, bet sulainis,
+gudrs vīrs būdams, visu noklausījās, visu saprata. Viņš nodomāja savā prātā:
+"Kam man savam valdniekam jāteic, ko esmu dzirdējis? Labāk darīšu tā: līdz ko
+zirgs atskries, izraušu bulti un noduršu zirgu."</p>
+
+<p align="JUSTIFY">Pēc kāda brīža kraukļi atkal sāka sarunāties. Tas viens teica:
+"Ko var zināt, varbūt, ka jaunais valdnieks pats bulti atron un zirgu noduŗ."</p>
+
+<p align="JUSTIFY">"Vai domā gan ka tad tas jau glābts? Tam vēl cita liga
+priekšā. Līdz ko ieies pilī, tad tas ieraudzīs sudraba bļodā zīda kreklu. Šo
+kreklu viņš tūliņ vēlēsies mugurā vilkt, bet to darot tas sadegs zilās liesmās.
+Tomēr ja valdnieks sajēgtos kreklu ugunī iesviest, tad viss labi. Bet ja kāds to
+valodu būtu dzirdējis, un valdniekam pateiktu, tam jāpaliek līdz sirdij par
+akmeni."</p>
+
+<p align="JUSTIFY">"Bet ja valdniekam pašam iesistos prātā kreklu sadedzināt, kā
+tad?"</p>
+
+<p align="JUSTIFY">Ir tad tas līgavas nedabūtu. Tam gadītos vēl cits kas ceļā,
+proti: kāzas svinēdams, tas ietu ar līgavu diet, bet līdz ko pirmo soli spers, tā
+līgava kritīs un būs pagalam. Bet ja tūliņ iedurtu ar zobinu tai trīs brūces un
+izsūktu no brūcēm nelāgās asinis, tad līgava atdzīvinātos. Tomēr, kas šo valodu
+būtu dzirdējis un valdniekam pateiktu, tādam tad jāpaliek viscaur par akmeni."</p>
+
+<p align="JUSTIFY">Kraukļi domāja, ka viņu valodu neviens nesapratīs; bet sulainis,
+gudrs vīrs būdams, visu noklausījās, visu saprata. Viņš nodomāja: "Kam man
+savam valdniekam jāteic, ko esmu dzirdējis? Labāk darīšu tā: kreklu tūliņ
+iesviedīšu ugunī un līgavai pasteigšos asinis izsūkt."</p>
+
+<p align="JUSTIFY">Pa to starpu bija sasniegta jūras mala. Kraukļi nozuda. Nu visi kāpa
+no kuģa zemē. Bet tai pašā acumirklī ataulekšoja slaiks zirgs. Valdniekam tūlīt
+tikās mugurā kāpt, bet sulainis izrāva no sedlu apakšas bulti un nodūra zirgu.</p>
+
+<p align="JUSTIFY">Pārgāja pilī. Priekšistabā bija nolikts sudraba trauks un traukā
+stāvēja jauks zīda krekls. Valdnieks tūliņ gribēja kreklu mugurā vilkt, bet
+sulainis pakampa kreklu un iesvieda to ugunī.</p>
+
+<p align="JUSTIFY">Pienāca kāzu diena. Valdnieks gāja ar savu līgavu diet. Bet
+piepēši līgava pakrita un bija pagalam. To redzēdams, sulainis paķēra zobinu,
+iedūra trīs brūces līgavas delnā un izsūca nelāgās asinis. Bet sulainis vēl
+nebija beidzis labi sūkt, te valdniekam uznāca dusmas. Viņš atrāva sulaini nost un
+uzbļāva: "Slaiko zirgu tu man nodūri, zīda kreklu tu man sadedzināji un nu vēl
+beidzot gribi manu līgavu nodurt vai nobendēt. Nost no manis pie karātavām!"</p>
+
+<p align="JUSTIFY">Pie karātavām sulainis lūdzās, lai atvēlot beidzamo reizi ar
+valdnieku kautko parunāt. Valdnieks bija mierā. Nu sulainis ņēmās visu izstāstīt,
+ko no kraukļiem noklausījies un kādēļ ar līgavu tā bijis jāapietas. Patlaban
+sulainis gribēja beidzamo vārdu teikt, te atvērās pils durvis un līgava, sveika,
+vesela laukā iznākusi, sauca: "Nekariet to cilvēku!"</p>
+
+<p align="JUSTIFY">Bet bija jau par vēlu: sulainis bija izteicis beidzamo vārdu un
+tūdaļ palika viscaur par akmeni.</p>
+
+<p align="JUSTIFY">Valdnieks žņaudzīja rokas aiz žēluma, bet neko darīt. Asaras
+liedams, tas ienesa savu uzticamo sulaini, par akmeni pārvērstu, pie savas gultas un
+nolika tur, lai tas tam būtu vienmēr priekš acim.</p>
+
+<p align="JUSTIFY">Otrā gadā valdnieka sievai piedzima dēls. Viņš paņēma jauno
+dēlu uz rokām un nesa pie tā akmeņa sacīdams: "Ai, uzticamais sulainis, cik es
+šodien esmu priecīgs; kaut tu būtu dzīvs un spētu man līdz priecāties!"</p>
+
+<p align="JUSTIFY">Bet tai pašā acumirklī akmeņa tēls atbildēja: "Iegriezi
+savam dēlam ar zobinu sirds bedrītē brūci, iztecini trīs asins plītes un ietecini
+tās manās nāsīs, tad būs labi."</p>
+
+<p align="JUSTIFY">Valdnieks tā darīja, un re, akmeņa tēls pārvērtās par senāko
+sulaini.</p>
+
+
+</body></html>

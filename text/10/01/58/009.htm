@@ -1,0 +1,177 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Laup?t?js par precinieku.</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Laupītājs par precinieku.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">9. A.<b> </b>955. A.<b> </b>V. Zacharska no V.
+Dembovska Zvirgzdienē. Latvju kultūras kr.</font></p><font size="3">
+
+<p align="JUSTIFY">Dzeivuoja vīns boguots muižinīks; nūmira juo sīva, bet palyka
+vīna meita, kuŗa beja cīši šmuka. Muižinīks, kai tāvs, cīši jū mīļuoja un
+žāļuoja. Vīnu reizi uz muižinīka meitu atbrauc svuotūs vīns jauničs, kurs izdevja
+sevi par ielu un boguotu grafu. Itys grafs beja jauns un cīši šmuks; muižinīka meita
+jū mīļuoja. Tai itys grafs braukuoja uz muižinīka meitu, cytu reiz atbrauc vēl ar
+sovu draugu, kuru īpazeistynuoja kai nazkaidu kunga dālu. Vīnu reiz vosoras laikā itys
+grafs naatbrauc kaidu nedēļu un vairuok uz muižinīka meitu. Meita jau navar nikai
+sagaidīt sovu grafu un palyka pavysam skumīga, bet tāvam nikuo narunoj, ka jei mīļoj
+grafu. Vīnu reizi sasalasīja meita īt uz mežu pastaiguot. Nūīt meita uz mežu,
+staigoj, dzīd vīna paša un losa ūgas. Staigoj jei, staigoj - verās: maziņš
+kalniņš. Pīīt jei pi ituo kalniņa, verās, ka tī ir zam zemes ustabiņa. Meita
+dūmoj: "Īīšu es tymā ustabiņā pasavārtu, kas tī ir."</p>
+
+<p align="JUSTIFY">Īguoja jei - verās: daudz pīsystu ļaužu! Īt jej tuoļuok pa tū
+ustobu un verās - tī smukā un boguotā ustobā stuov gulta nu vīna zalta un vysaidi
+duorgi deči. Meita dūmoj : "Es naīšu nikur, nūsaglobuošu zam gultas un
+gaidīšu, kas tī atīs, un zynuošu, kas te dzeivoj: vai zvēri, vai ļauds?"</p>
+
+<p align="JUSTIFY">Tai meita padarīja, paleida zam gultas, sēd un gaida, kas atīs. Jau
+taisījuos tymss, jau vokors, bet meita vys sēd zam gultas un gaida. Atīt treis jauni
+puiši un atvad vīnu cīši smuku meitu, vysa jei izpuškuota ar duorgim akmeņim un
+duorgim zalta gradzynim. Meita sēd zam gultas un verās, kaidi itī puiši. Jei pazyna
+sovu grafu un ūtrū, kuru grafs īpazeistynuoja kai kunga dālu. Meita klausuos, kas byus
+tuoļuok. Grafs pajēmja nūsyta itū meitu, nūjēmja nu juos kokla duorgūs akmeņus un
+nū rūku zalta gradzynus. Vīns gradzyns beja cīši duorgs un juo nikai navarēja
+nūjemt nu piersta. Kungs pajēmja ciervi un atcierta ar vysu pierstu, bet piersts ar vysu
+gradzynu nūkrita zemē. Gribēja trešais laupītuojs ļeist zam gultas un meklēt
+gradzynu, bet grafs runoj jam : "Lai byus, reit atrassim."</p>
+
+<p align="JUSTIFY">Suoka jī dzert un ēst. Dzardams grafs runoj sovim draugim :
+"Reit ap itū laiku es atvesšu boguota muižinīka meitu, pi juos ari ir daudz
+vysaida zalta."</p>
+
+<p align="JUSTIFY">Meita zam gultas vysu dzierdēja. Laupītuoji paēdja, padzēŗa un
+nūguoja gulātu. Kad laupītuoji aizmyga, meita pajēmja tū pierstu ar gradzynu un pa
+klusiņom izguoja uorā. Mežā vēl beja tymss un meita vys staiguoja. Kad izlēcja
+saule, meita tyka sovā sātā un vysu izstuostīja sovam tāvam un paruodīja jam pierstu
+ar gradzynu. Vacais muižinīks cīši sasabeida un nazynuoja kū darīt; bet meita runoj
+tāvam: "Ka šudin atīs tī laupītuoji, es ar jīm runuošu, bet tu īsi salasīsi
+nu vysas muižas stuodnīkus, tūlaik mes jūs ar pulku ļaužu satversim."</p>
+
+<blockquote>
+  <blockquote>
+    <p align="JUSTIFY">"Labi sadūmuoji, meit!" pasacīja tāvs.</p>
+  </blockquote>
+</blockquote>
+
+<p align="JUSTIFY">Jau nūrītēja saule, atīt vokors. Atbrauc puora zyrgu smukūs rotūs
+grafs ar sovu draugu, un muižinīka meita pījem jūs. Leli vīsi ād un dzer, bet nikuo
+nazyna, kas jūs gaida. Vacais muižinīks jau losa sovus struodnīkus, kab itūs lelūs
+vīsus sasītu. Jī vysi dzer un runoj. Meita-suoka runuot, ka jej šū nakt redzēja
+sapynā, ka zam jūs gultas guļūt atciersts vīnas smukas meitas piersts ar vysu duorgū
+zalta gradzynu. Laupītuoji verās vīns uz ūtra, bet nikuo narunoj.</p>
+
+<p align="JUSTIFY">"Jā," suoka runuot grafs, "jau sapynam navar
+ticēt!" Napabeidzja grafs sovas runas, kai jau atskrējuši vysas muižas kolpi un
+struodniki sasēja itūs vīsus ar viervem, nūgruoja uz mežu. kur jūs ustoba, un tur
+sagyva vēļ trešū laupītuoju. Atroda tymā zemes ustobā daudz vysaida monta, un daudz
+nūsystu laužu. Itūs laupītuojus vysus pakuoŗa aiz mēles un ībuoza pūrā. Pēc tuo
+laika vairuok tymā mežā nasavad taidi leli vīsi, kuri braukoj uz muižinīku meitom,
+nūsaukdami sevi par grafim un kungim. Tai vysi tī tagad dzeivoj mīrīgi.</p>
+</font>
+
+
+</body></html>

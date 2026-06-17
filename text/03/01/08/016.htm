@@ -1,0 +1,338 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Maģiskā bēgšana ar meitenes palīdzību.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">16. A. 313 A. Lapas Mārtiņš Rūjienā, Ērģemē un Ēvelē.
+"Gudrais Ansis un Velns" II, 101. Nr. 20.</p>
+
+<p align="JUSTIFY">Reiz kāda jauna meita bez pēdām pazudusi. Visa meklēšana bijusi
+par velti. Pēdīgi gājuši pie zīlētājas, lai uzzīlē, kur pazudusī meita atrodas.</p>
+
+<p align="JUSTIFY">Zīlētāja, visādi izzīlējusies, pēdīgi paziņojusi: "Jūs
+pazudušo nekad vairs neredzēsit: viņu pats velns ir nozadzis un aizvedis uz elli."</p>
+
+<p align="JUSTIFY">Pazudušās meitas brālis ļoti mīļojis savu māsu; tas nu
+apņēmies visādā ziņā to uzmeklēt un izglābt no elles un velna varas.</p>
+
+<p align="JUSTIFY">Viņš iebēris kulītē zirņus, izdūris kulītei dibenā tik lielu
+caurumu, ka pa to pamazām viens zirnis pēc otra var izkrist, Lai pēc izkritušiem
+zirņiem varētu vērot ceļu, kā atpakaļ nākot neapmaldītos. Viņš iegājis lielā
+mežā, kuŗam otru malu nezinājis.</p>
+
+<p align="JUSTIFY">Mežā viņam pienācis kāds sirms vecītis un jautājis: "Ko tu
+šai mežā meklē?"</p>
+
+<p align="JUSTIFY">Meklēju savu māsu, kuŗa priekš ilgāka laika pazudusi un laikam
+būs šai mežā apmaldījusies," jauneklis atbildējis. "Vai tu varbūt nezini,
+kur tagad mana māsa atrodas?"</p>
+
+<p align="JUSTIFY">"To gan tev varu pasacīt, ka tava māsa ir manā mājā, bet pie
+viņas tevi nevaru aizvest, tādēļ ka mana māte ir ļoti nikna," vecītis
+atbildējis. "Kad viņa ierauga kādu svešu cilvēku, tad tam tūlin dara ļaunu.
+Tomēr, ja tev netrūkst dūšas man līdz nākt, tad varu tevi paslēpt no savas mātes
+acim."</p>
+
+<p align="JUSTIFY">Jauneklis bez stomīšanās apņēmies iet vecītim līdz, jo
+mīlestība pret māsu viņam devusi dūšu.</p>
+
+<p align="JUSTIFY">Vecītis viņu ievedis vienmēr tālāk mežā. Pēdīgi viņi
+nonākuši pie milzīga akmeņa, kuŗam vecītis trīs reizes piesitis ar spieķi
+sacīdams: "Dod ceļu ceļotājiem!" Akmens tūlin novēlies no savas vietas.
+Apakš akmeņa bijusi liela ala, kuŗā vecītis tūlin iegājis un uzsaucis jauneklim:
+"Nāc man līdz!<b> </b>Tagad tev jāklausa manām pavēlēm un jādara viss, ko tev
+uzdodu!"</p>
+
+<p align="JUSTIFY">Pēc laba brīža viņi izgājuši no alas uz liela klajuma, kur
+atradusies viena krāšņa muiža. Pie muižas vārtiem pieejot, vecītis atkal teicis
+jauneklim: "Tagad tev jāpaslēpjas suņu būdā, kur es tev slepeni, bez mātes
+ziņas, likšu atnest ēdienu!"</p>
+
+<p align="JUSTIFY">Vakarā māsa atnesusi brālim ēst. Viņa prieks nu bijis ļoti liels,
+pēc ilgāka laika atkal pirmo reiz satiekoties. Bet tad brālis skumīgi sacījis:
+"Kā man rādās, mums še laikam būs mūžīgi jāpaliek par cietumniekiem!"</p>
+
+<p align="JUSTIFY">"Var arī gadīties, ka mums izdodas izbēgt!" māsa
+atbildējusi. "Vienai man tas gan būtu bijis par grūtu, bet abi varēsim izdevīgā
+brīdī mēģināt."</p>
+
+<p align="JUSTIFY">Pēc kādām dienām vecis atnācis pie jaunekļa un sacījis :
+"Tagad tu diezgan esi ēdis žēlastības maizi, nu tev jāsāk arī strādāt.
+Rītā es tev uzdošu ēdināt vienu vecu ķēvi. Ja tu viņai nedosi tik daudz barības,
+cik viņa var apēst, tad tu būsi pagalam."</p>
+
+<p align="JUSTIFY">Vakarā māsa atkal nesusi uz suņu būdu brālim ēdienu un tas viņai
+stāstījis : "Tagad man jāsākot strādāt. Rītā man jābaŗojot viena veca
+ķēve. Baŗot zirgu jau gan nav nekāds grūtais darbs."</p>
+
+<p align="JUSTIFY">"Nē, brāli," māsa sacījusi, "tas nav vis tik viegli,
+kā tu domā. Sirmais vecītis ir pats velns un vecā melnā ķēve nav nekas cits, kā
+velna māte. Es zinu, ka tu vis nespēsi dot ķēvei tik daudz barības, cik viņa ēd.
+Tiklīdz tu viņai noliksi siena nastu priekšā, tā acumirklī būs apēsta. Un ja
+viņai siena pietrūks, tad viņa apēdīs tevi pašu, kā tas jau ar daudziem
+nelaimīgajiem ir noticis, kuŗus velns ir še ievedis. Bet man šejienes lietas ir jau
+puslīdz zināmas un tādēļ tev došu padomu, kā vari izsargāties no briesmām. Katru
+reizi, kad tev uzdod kādu darbu, vienmēr pasaki to man, un es tev došu derīgu padomu.
+Tagad aizej caur dārzu uz mežu un nogriez tur trīs pīlādžu rīkstes, kuŗas savij
+kopā un savijumu ņem līdz, kad iesi ēdināt melno ķēvi. Ja ķēve ēd tik daudz
+barības, ka tu nejaudāsi pienest, tad iesit viņai kādas reizes ar pīlādžu
+rīkstēm, tas līdzēs."</p>
+
+<p align="JUSTIFY">Brālis darījis pēc māsas padoma un gājis nākošā dienā baŗot
+veco melno ķēvi.</p>
+
+<p align="JUSTIFY">"Ko tu ar šīm rīkstēm darīsi?" ķēve viņam jautājusi,
+ieraudzīdama pīlādžu rīkšķu savijumu viņam rokā.</p>
+
+<p align="JUSTIFY">"Ja tu par daudz siena ēdīsi, tad ar šām rīkstēm tevi tā sa
+pēršu, ka piecas dienas vairs negribēsi ēst," jauneklis atbildējis. Ķēve par
+to tā sabijusies, ka neiedrošinājusies ne aizkārt priekšā likto sienu. Viņa tik
+trīcēdama skatījusies uz pīlādžu stibu.</p>
+
+<p align="JUSTIFY">Saimnieks nākošā dienā atnācis pārlūkot jaunā kalpa darbu un
+brīnīdamies redzējis, ka kalps vēl sveiks un vesels un ka ķēve neēd no siena ne
+druskas, bet tik trīc aiz bailēm. Tad viņš puisi uzrunājis: "Par ķēves
+ēdinātāju tu nederi, tādēļ došu tev citu darbu. Rītā ej uz kūti, tur saimniece
+tev iedos vienu teļu ganīšanai. Bet ja tu teļu pazaudēsi, tad zaudēsi arī savu
+dzīvību."</p>
+
+<p align="JUSTIFY">Kad vakarā māsa atnesusi brālim ēdienu, viņš tai pastāstījis,
+kādu darbu saimnieks viņam uz rītdienu uzdevis. Bet teļa ganīšana viņam tomēr
+neizliekoties par grūtu.</p>
+
+<p align="JUSTIFY">"Tu nesaproti!" māsa izsaukusies. "Tu šo teļu
+nevarēsi savaldīt. Tiklīdz to izlaidīsi no kūts, tas iemuks mežā un pazudīs. Bet
+es tev atnesīšu vienu aukliņu, kuŗu rītā, kad iesi teļu ganīt, uzmet teļam kaklā
+un aizved viņu uz ganību. Tad viņš tev nevarēs aizmukt."</p>
+
+<p align="JUSTIFY">Brālis visu tā izdarījis, kā māsa bija mācījusi, un vakarā
+pārvedis teļu mājā.</p>
+
+<p align="JUSTIFY">Saimnieks par to ļoti brīnījies, ka jaunais kalps arī teļu nav
+pazaudējis, un pārdomājis pie sevis: "Vēl tam uzdošu vienu darbu, un kad viņš
+arī to padarīs, tad atdošu viņu savai mātei par mielastu." Uz rītu viņš
+puišam uzdevis šādu darbu: "Rītā tev jāuzaŗ lauks un jāizsēj pūrs miežu.
+Līdz nākošam rītam miežiem vajaga būt uzaugušiem, gataviem, nopļautiem, iekultiem
+un izdarinātiem alū. Šis alus tev man jādod parīt pie brokasta dzert."</p>
+
+<p align="JUSTIFY">Vakarā, kad māsa atkal atnesusi ēdienu, brālis viņai
+pastāstījis, kādu darbu saimnieks viņam uzdevis; bet to taču neviens cilvēks nevarot
+padarīt.</p>
+
+<p align="JUSTIFY">Māsa tam atbildējusi: "Esi bez raizēm un liecies mierīgi
+gulēt, gan es visu padarīšu!"</p>
+
+<p align="JUSTIFY">Vakarā tumsā viņa paņēmusi miežu maisu, izbērusi tos aiz
+vārtiem uz lauka un sacījusi: "Zeme, uzaries, mieži, izkaisaties un uzaudziet! un
+alus lai parīt līdz rītam top gatavs!"</p>
+
+<p align="JUSTIFY">Tā arī viss izpildījies. Noteiktā rītā puisis pasniedzis
+saimniekam siltu alu, nupat kā darinātu. Velnam par to bijis jo lielāks brīnums.</p>
+
+<p align="JUSTIFY">"Kas tev mācījis visu to padarīt?" viņš jautājis.
+"Neviens cits, kā mana paša galva!" puisis atbildējis. "Labi!"
+saimnieks sacījis. "Redzu, ka tu proti visus darbus!</p>
+
+<p align="JUSTIFY">Šodien tev vairs nekādu darbu neuzdošu, vari atpūsties līdz
+rītam. Rītā mana māte izrīkos dzīres un tad tev ar māsu būs jāstājas viņai
+priekšā."</p>
+
+<p align="JUSTIFY">Vakarā māsa atnesusi brālim ēdienu un jautājusi : "Kādu
+darbu vecis tev uzdeva nākošai dienai?"</p>
+
+<p align="JUSTIFY">"Vairs nekādu," brālis atbildējis, "bet sacīja, lai
+atpūšoties līdz rītam, jo rītā viņa māte izrīkošot dzīres un tad mums abiem
+būšot jāstājās viņai priekšā."</p>
+
+<p align="JUSTIFY">"Tad velna māte nodomājusi rītā mūs abus apēst!" māsa
+izsaukusies. "Tādēļ mums šonakt jāaizbēg. Tu paņem cirvi un ej uz kūti, kur
+nokauj to teļu, kuŗš tev bija jāgana, jo tas ir briesmīgs skrējējs, kuŗam mēs
+nekā nevarētum izbēgt. Es pa tam raudzīšu nozagt velna mātes diegu kamoliņu, kuŗš
+mums bēgot<b> </b>būs ļoti noderīgs."</p>
+
+<p align="JUSTIFY">Brālis ar cirvi pāršķēlis teļam galvu un māsai izdevies nezagt
+velna mātes diegu kamoliņu un tad abi aizbēguši.</p>
+
+<p align="JUSTIFY">Rīta krēslā māsa sacījusi brālim : "Kamoliņš manā azotē
+kustas un tas nozīmē, ka gūstītāji ir mums tuvu! Es pārvērtīšos par egli un tu
+būsi putniņš viņas zaros." Tas acumirklī noticis.</p>
+
+<p align="JUSTIFY">Velna izsūtītie gūstītāji aizskrējuši viņiem gaŗām un pēc
+kāda brīža atgriezušies atpakaļ, meklējamos neatraduši, un pārgājuši mājā, kur
+velnam ziņojuši, ka bēgļus nesastapuši.</p>
+
+<p align="JUSTIFY">"Ko jūs ceļā redzējāt?" velns jautājis.</p>
+
+<p align="JUSTIFY">"Neko citu, kā lielu egli un mazu putniņu viņas zaros,"
+gūstītāji atbildējuši.</p>
+
+<p align="JUSTIFY">"Jūs esat muļķi!" velns viņus izbāris. "Ja jūs
+egli būtu noēduši, tad jūs bēgļus būtu atraduši!" Velns nu izsūtījis citus
+čaklākus gūstītājus.</p>
+
+<p align="JUSTIFY">Brālis un māsa pa tam atkal labu gabalu bija aizbēguši tālāk un
+diegu kamoliņš māsas azotī atkal iesācis kustēties un viņa sacījusi:
+"Gūstītāji mums ir tuvu. Es pārvērtīšos par ezeru un tu par zivi." Tas
+acumirklī noticis.</p>
+
+<p align="JUSTIFY">Gūstītāji noskrējuši ezera malā un no turienes griezušies
+atpakaļ, bēgļus nepanākuši.</p>
+
+<p align="JUSTIFY">"Vai jūs ceļā neko neredzējāt?" velns tiem jautājis..</p>
+
+<p align="JUSTIFY">"Neko citu, kā ezeru, un ezerā zivi peldot," gūstītāji
+atbildējuši.</p>
+
+<p align="JUSTIFY">"Jūs esat muļķi!" velns izbāris. "Ja jūs būtu
+izdzēruši ezeru, jūs bēgļus būtu atraduši!" Velns tagad izsūtījis
+visčaklākos gūstītājus.</p>
+
+<p align="JUSTIFY">Brālis un māsa pa tam atkal bija aizbēguši labu gabalu uz priekšu.
+Tad māsa sacījusi : "Kamoliņš manā azotī kustas. Gūstītāji mums ir tuvu! Es
+pārvērtīšos par puķi un tu par tauriņu, kas uz puķes uzmeties." Un tā
+acumirklī noticis.</p>
+
+<p align="JUSTIFY">Gūstītāji viņiem aizskrējuši gaŗām un pēc brītiņa
+atgriezušies atpakaļ, bēgļus nesagūstījuši.</p>
+
+<p align="JUSTIFY">"Vai jūs ceļā neko neredzējāt?" velns jautājis.
+"Neko citu, kā kādu puķi un tauriņu uz viņas zieda."</p>
+
+<p align="JUSTIFY">"Jūs esat muļķi!" velns tos izbāris. "Ja jūs būtu
+noplūkuši puķi, tad jūs būtu sagūstījuši bēgļus!"</p>
+
+<p align="JUSTIFY">Velns tos pašus gūstītājus izsūtījis no jauna gūstīt bēgļus
+un tiem pavēlējis, lai visu pārnes, ko vien ceļā ierauga.</p>
+
+<p align="JUSTIFY">Pa tam brālis un māsa iegājuši tai alā, pa kuŗu no elles iet
+ceļš uz pasauli , un nonākuši pie lielā akmeņa, kuŗš alas izejai bijis priekšā.
+"Gūstītāji ir atkal mums tuvu!" māsa sacījusi.</p>
+
+<p align="JUSTIFY">"Dod ceļu ceļotājiem!" brālis uzsaucis akmeņiem, trīs
+reizes piesizdams.</p>
+
+<p align="JUSTIFY">Akmens tavai pavēlei nepaklausa," māsa sacījusi; "bet es
+"</p>
+
+<p align="JUSTIFY">gādāšu svabadu izeju." Viņa izņēmusi no azots velna mātes
+diegu kamoliņu un sacījusi: "Kamoliņ, novel akmeni no ceļa!" Akmens
+acumirklī novēlies no alas izejas un viņi iznākuši no elles pasaulē.</p>
+
+<p align="JUSTIFY">"Kamoliņ, aizvel akmeni atkal vecā vietā!" māsa sacījusi
+un akmens tūlin atkal aizvēlies alas izejai priekšā.</p>
+
+<p align="JUSTIFY">Brālis un māsa tagad mierīgi gājuši uz māju. Brāļa
+izbārstītie zirņi bijuši uzdīguši un rādījuši viņiem, uz kuŗu pusi jāiet, lai
+lielā mežā neapmaldītos.</p>
+
+<p align="JUSTIFY">Vecāku prieks bijis liels, redzot pazudušo meitu pārnākam brāļa
+pavadībā.</p>
+
+
+</body></html>

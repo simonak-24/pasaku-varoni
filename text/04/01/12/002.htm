@@ -1,0 +1,167 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Velns par labdari</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2.(A. 3f2). E. Ābels Gar1enē. .Jkr. V, 88 (53). LP, VII, I, 772-4. </p>
+
+<p align="JUSTIFY">Senlaikos dzīvoja ļoti nabags saimnieks; tādēļ nācās viņam
+gŗūti dienasta ļaudis dabūt. Pienāca pavasaris un viņam nebija vēl neviena puiša
+saderēta. Pienāca .Jurģu diena. Citi vadājās uz jaunām vietām, viņa kaimiņi arī
+saveda sev jaunus puišus un meitas, bet mūsu saimnieks nezināja; ko iesākt, un
+staigāja noskumis. Ar savām bēdām kaudamies, viņš sacīja: "Ja Dievs man nenāk
+par palīgu, lai tad nāk velns!"</p>
+
+<p align="JUSTIFY">Otrā rītā atnāk kāds puisis pie saimnieka un lūdzas, lai viņu
+pieņemot par k alpu. Saimnieks priecīgi viņu pieņēma. Drīz atnāca sējas laiks.
+Kādu vakaru, saimnieks pie galda sēdēdams, saka: "Bet vajadzētu sēt, bet. ko
+sēt, ka nav sēklas un maize ar jau pie beigām?"</p>
+
+<p align="JUSTIFY">Puisis, to noklausījies un ne vārdiņa nesacījis, aiziet gulēt. No
+rīta saimnieks uzcēlies, ierauga pilnu lauku ar labības maisiem, ar auzām un miežiem.
+Viņš no prieka un brīnumiem pārņemts, nezina, ko iesākt, ko darīt.</p>
+
+<p align="JUSTIFY">Saimniece, no rīta klētī iegājusi, atrod stīņas pilnas ar miltiem
+un putraimiem. Viņa nezina, kur tie cēlušies, kur gadījušies. Nu saimniekam bija
+sēklas un maizes diezgan visam gadam.</p>
+
+<p align="JUSTIFY">Saimnieks nevarēja vien izbrīnīties, kas tas par puisi. Kur viņam
+bija strādājuši pieci puiši, to šis viens pats padarīja. Vēl jo lielāks brīnums
+bija tas, ka, ko saimnieks vakarā pavēl, kas no rīta jādara, tas jau par nakti ir
+padarīts. Bet velns pie saimnieka ar strādāja, ka tiešām bija ko redzēt. Viens pats
+viņš laukus apara, apsēja, labību nopļāva, sagrāba, kaudzēs sameta un šķūņos
+saveda, pēdīgi arī labību ar spriguli izkūla, izvētīja un sanesa klētī, salmus
+sameta kaudzē.</p>
+
+<p align="JUSTIFY">Pienāca ziema. Visi lauka darbi bija jau apstrādāti un nekādu darbu
+vairs neatlikās. Saimnieks raidīja savu puisi braukt mežā pēc malkas un baidīdamies,
+ka nepietrūktu darba, iedeva tam knapāko zirgu. Velns, redzēdams, ka ar tādu zirgu
+nekā nevarēs pārvest, atstāja zirgu mājās un gāja bez zirga uz mežu. Mežā
+nonācis, viņš sāka kokus lauzt un raut, ka viss mežs brīkšķēja vien. Labu tiesu
+koku salauzis, viņš sāka tos uz mājām stiept.</p>
+
+<p align="JUSTIFY">Saimnieks no rīta uzcēlies, ierauga, ka visapkārt gar mājām ir
+apkrauti milzīgi strēķi veselu koku. Velns bija saimniekam sanesis tik daudz malkas, ka
+šis nevarēja par desmit gadiem tās patērēt. Saimniekam visi darbi bija apstrādāti,
+viņš nezināja, ko nu likt velnam darīt. Iedomājās likt velnam sakalt pakava naglas
+un noteica, ka par dienu lai nokaļot tūkstoš naglu. Velns naigi ķērās pie darba, bet
+šoreiz tam nelaimējās vis tā, kā citās reizēs. Velns kala, ka dimdēja vien, bet
+nekas negāja uz priekšu. Atnāca pusdiena un vēl nebija nekas nokalts. No dusmām
+viņš nu ņēma āmuru un sita tik stipri, ka dzelzs izšķīda uz visām pusēm.</p>
+
+<p align="JUSTIFY">Velns, sadusmojies un no liela kauna pārņemts, laidās 1apās un vēl
+šo baltu dienu viņš blandās apkārt, bet saimnieks bija palicis par turīgu vīru un
+dzīvoja laimīgi.</p>
+<font size="2">
+
+<p>&nbsp;</p>
+</font>
+
+
+</body></html>

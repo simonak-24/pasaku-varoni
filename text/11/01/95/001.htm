@@ -1,0 +1,133 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>95</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Kuŗa ir čaklāka?</strong></font></p><font size="5">
+
+</font><p align="CENTER"><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p>1. A. 1452. G. S t a n k e v i č a n o 67. g. v e c ā s A. O l l e s L u b ā n ā.</p>
+
+<p align="JUSTIFY">Reiz dzīvojis viens bagāts vīrs, jau labi gados, bet vēl nebijis
+precējies. Te nu reiz tas sadomā izvēlēties sievu. Tanī apgalabā smuku meitu bijis
+daudz, bet par tām gājušas sliktas valodas. Tad nu arī bagātais grib izvēlēties sev
+to čaklāko. Viņš izdomā mazu viltību. Salūdz visas apkārtnes meitas uz balli, bet
+balles durvim priekšā nogāž slotu. Kuŗa meita nu slotu pacels, tā būs īstā. Pats
+bagātais uzkāpj pagalma liepā un gaida. Nāk viena meita un kā kaza pārlec slotai
+pāri. Nāk otra meita un pukojas, ka tādā svinīgā brīdī nekārtības vēl notiekot.
+Tā nu aiziet visas meitas. Bagātais nu domā, ka nav gan šinī pagastā nevienas
+čaklas meitas, un grib rausties no liepas zemē, kad uzreiz nāk vēl viena meita,
+noliecas, paceļ nogāzto slotu un pieslien to kaktā pie durvim. Bagātais nu kāpj no
+liepas zemē, ņem meitu pie rokas un ved to ballē un saka visiem, ka !tā ir viņa
+līgava. Jaunā līgava gaužam sarkst, jo domā, ka viņa, rupjo drēbju dēļ, tiek
+izsmieta. Bet kad bagātais izstāsta par nogāzto slotu, tad nu sarkst slinkās mātes
+meitas. Bet bagātais apprecē čaklo meitu un dzīvo laimīgs.</p>
+
+<p align="JUSTIFY">Ja slota aizkrīt durvim priekšā, tad steidzies to pacelt, tad tev
+būs liela laime!</p>
+</font>
+
+
+</body></html>

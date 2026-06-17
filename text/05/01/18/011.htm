@@ -1,0 +1,174 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>11</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Spēlētājs ellē.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">11. A. 476. Skolnieks V. Juoņins no J. Kaļedas Pustiņas pagastā,
+Zaķeļu ciemā.</p>
+
+<p align="JUSTIFY">Ceuciņu solā dzeivuoja ļūti lels muzykants, vijolnīks. Jis ļūti
+smuki spēlēja un jū vysur aicinuoja uz vokorim un kuorom par spēlmani. Vīnu svātdīn
+īt jis uz vīnu solu, kur jū aicynuoja par muzykantu. Jis kai guoja pa ceļu, tai i
+prokrita caur zemi un tyka elnē. Veras jis, ka tur ir ūti daudz valnu. Radz jis ctri nu
+sova cīma vīnu cylvāku, kurs paguojušu godu nūmyra.</p>
+
+<p align="JUSTIFY">"Kai tu šeit tyki?" prosa jis muzykantam.</p>
+
+<p align="JUSTIFY">"Tai un tai, prokrytu caur zemi un redz, tyku elnē,"
+pastuosta tam muzykants.</p>
+
+<p align="JUSTIFY">"Bet kuopēc tu esi šeit?" prosa jam muzykants.</p>
+
+<p align="JUSTIFY">Stuosta tys cylvāks jam: "Beja man daudz naudas un es jū aproku
+rejā. Tuopēc mani tai mūka. Juo tu tiksi vēl viers zemes, tad pasoki munim dālim, lai
+jī izrūk tū naudu un izdala nabogim."</p>
+
+<p align="JUSTIFY">Un tikkū jis itū muzykantam pastuostēja, kai atskrēja valns un
+aiznesja jū ar sokumiem mūceit.</p>
+
+<p align="JUSTIFY">"Kū tu šeit dori?" prosa jam vainy. Muzykants pastuostēja
+valnym, kai jis tyka elnē.</p>
+
+<p align="JUSTIFY">"Spēlej murns," soka jam valny, "mes tagad tevi
+naizlaissim nu elnes, tev byus vīnmār mums juospēlej."</p>
+
+<p align="JUSTIFY">Nikuo navar darīt - kū tu vainam padarēsi? Jis tai spēlēja, ka
+visi valny saskrēja klauseitīs un dejoja. Bet jis tikai spēlēja. Jau jam vīna steiga
+puortryuka, un ūtra, un jau vysas satryuka. Klīdz valny, lai spēlej, bet tys soka, ka
+steigas puortryuka, ravar spēlēt. Suoka nest jam valny steigas. Nesja, nesja, bet
+muzykants kai sastīp, tai ir pušu.</p>
+
+<p align="JUSTIFY">"Nā," soka jis valnym, "jyusu steigas nava lobas.
+Palaidīt mani jyus viers zemes, tur es dabuošu lobas steigas."</p>
+
+<p align="JUSTIFY">Bet valny nagryb jū laist.</p>
+
+<p align="JUSTIFY">"Nu tod," soka v iņim muzykants, "jo nagribīt maņi
+vīnu pošu syuteit, tod laidīt man leidza kuru nu jums."</p>
+
+<p align="JUSTIFY">Labi! tai valny ar mīru. Syuta jī vīnu vainu leidza. Muzykants
+sāstas tam mugarā un valns nas jū viers zemes. Cik ilgi i tai skrēja, tū muzykants
+navarēja nūteikt. Atguoja jī viers zentes un taišņi tymā pošā cīmā, uz kuŗu
+muzykants guoja spēlēt vokorā. Muzykants īt muojā un redz, kai ļaudis dejoj. Visi
+īrauga un muzykantu un prosa jam: "Kur tu tik ilgi esi bejis?"</p>
+
+<p align="JUSTIFY">Muzykantam pasaruodēja, ka jis tur ira bejis tik kaidu stundu, bet jis
+tur ira vasalu godu nūbejis. Jis pastuosta visim, kas ar jū nūtyka. Jis suok dancuot un
+spēlēt, bet par steigom i nabādoj, lai ilguok tikai nūvilcynuotu laiku. "</p>
+
+<p align="JUSTIFY">Valns -- tys pīīt kluotu un raun aiz rūkas: "Īsim, soka,
+"dreižuok," bet tys i nadūmoj īt. Un jis nūvilcynoj leidz tam laikam, ka
+dzīd gailis, un valns vīns aizbāg. Tūreiz pastuosta muzykants tuo cylvāka dālim,
+kuru jis redzēja elnē, 1ai jī izrūk naudu un izdala nabogim. Tī ari tai padora. Naudu
+jī atrūn tymā pošā vītā, kur jis teic jai. Nu tys cylvāks izīt nu elnes uorā.
+Muzykants nu tuo laika nikod vairs naguoja uz vokorim, un dzeivuoja muojuos laimeigi, lai
+Dīvs dūd kotram tai dzeivuot.</p>
+
+
+</body></html>

@@ -1,0 +1,463 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ganu zēns apprecē ķēniņa meitu.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">9. A. 300. 515.560. A. Lerchis - Puškaitis Džūkstē - Pienavā LP,
+I, 15 (2).</p>
+
+<p align="JUSTIFY">Viņos laikos dzīvoja kāds mežsargs, ko ļaudis bija iesaukuši par
+Sargu. Šis sargs kādu dienu izsūta savu dēlu mežā avis ganīt. Tomēr vakarā puika
+aizmirst vienu avi mežā, par ko vecais nejauki baŗas. Viņam esot jānosargā tikdaudz
+koku un šis nevarot ne pāris desmit avis nosargāt, vajagot tik plītenes jaunam lempim.
+Nu dzīs otrā dienā ganīt, bet nelīdz - pagalam atkal un pie tam vēl - tīri kā par
+spīti - pats treknākais līkragu aunelis. Tēvam līkraģeļa ļoti žēl, ka skaidri
+puiku lupatās sist. Tomēr gana puika naģīgs diezgan, izšmaucas caur kūtenes lodziņu
+un glūn, zobus sakodis, aiz pakšķa, kamēr vecajam dusmas noslāpst. Pie vakariņām
+tēvs atkal atminas auneļa un nu ņems puiku tāpat vārdiem uz liesta: "Tu vairāk
+neesi, kā gatavs gaŗkaulis, kas katru darbu gorīdamies iesāk un lingu lengu pabeidz.
+Tādu auneli mežā atstāt! Ēd ar zobiem un taisies, ka tiec gulēt! Tik to piesaku
+vēl, ja rītu visas nepārdzīsi, tad sukāšu kā pelu maišeli, lai uz vietas
+paliec!"</p>
+
+<p align="JUSTIFY">Trešo dienu nabadziņš gana un skaita, gana un skaita. Atnāk vakars,
+vēl pārskaita - jā, visas.</p>
+
+<p align="JUSTIFY">"Tā tad brangi!" puika iesaucās, "nu varu no priekiem
+uz augšu lēkt!"</p>
+
+<p align="JUSTIFY">To sacīdams, tas viens, divi, uzlec vītolā, nogriež zaru, izlobj
+stabulīti un sāk pūst. Bet tavu sasodītu nelaimi, kamēr ar stabuli darbojas, viena
+avs atkal pagalam. Nu gans, no sukām baidīdamies, pārtriec avis līdz vārtiem, un tad
+aizbēg atpakaļ mežā. Še tas uzlien resnā ozolā, sapin no lapām, skujām, guļas
+vietu un guļ līdz rītam. Jā, guli nu guli mežā, cik ilgi gulēsi? Ēst jau gribas.
+Otrpus meža gan ķēniņam pils, kur pilnīgi pārtiku katrs zaļoksnis jauneklis diezin
+kā nopelnītu, bet taisnību sakot, tam gandrīz kauns tik noskrandājušās gana
+drēbēs svešām acim rādīties. Nu domā, domā, kamēr sadomā tā: viņš izpušķo
+savu cepuri, savus svārkus ozola lapām, lai skrandas neredzētu, un tad iet, stabuli
+pūzdams, pie ķēniņa. Pils vārtos stabulnieks satiek ķēniņu, kas, tādu joku gaili
+pirmo reizi redzēdams, prasa: "Puiš, kas tad tev uzgājis, kad tā
+izpušķojies?"</p>
+
+<p align="JUSTIFY">"Tā jau pie mums avju gani staigā!" "Kam tad avis
+ganīji?"</p>
+
+<p>"Tam, kam katru dienu viena avs zuda."</p>
+
+<p align="JUSTIFY">"Vai dzirdi, man arī katru dienu viena avs nozūd. Ja tu varētu
+trīs dienas tā noganīt, ka nevienas nezustu, tad tiec pie manis par laimīgu
+cilvēku."</p>
+
+<p align="JUSTIFY">"Labi, labi, raudzīšu. "</p>
+
+<p align="JUSTIFY">No rīta Sarga dēls paņem pie aitām mežā līdzi cirvi, maizi,
+gaļu, dzērienu un nu tik gana un baŗojas, gana un baŗojas. Līdz pavakarim aitas
+visas. Pats gans, uzkāpis deviņžuburu ozolā, pašā lankas vidū un nu tik skatās un
+skaita, skatās un skaita. Te uz reiz tas ierauga caur devīto ozola žuburu, ka no kāda
+pakalna liels vīrs izlien un taisni pie viņa aitām soļo.</p>
+
+<p>"Aitas neņem!" gans uzsauc.</p>
+
+<p align="JUSTIFY">"Vienu ņemšu atkal ganu. Ja nedosi ar labu, tad dabūšu ar
+ļaunu."</p>
+
+<p align="JUSTIFY">"Ekur tev, lielo vīr, nelāgs ieradums: nieka vārda dēļ sirds
+tūlīt aptekas. Kāpēc mums ar ļaunumu jāšķiŗas? Nāc, draugs, labāk šurp, te man
+kožamais, dzeŗamais, pakodīsim, iztrieksimies un tad ir avi vēl panāksim!"</p>
+
+<p align="JUSTIFY">Vīrs paliek ar mieru - nāks gan. Bet tikko šis, kaklu atstiepdams
+dzeŗ, tā gans krauks! ar cirvi nocērt jēru zaglim kaklu, pie kam vēl krītot savāda
+atslēga izšļūk no rokām. Gans paņem atslēgu, paglabā vīru žagaros un tad dzen
+avis mājā. Ķēniņš izskaita avis - visas.</p>
+
+<p align="JUSTIFY">Otrā dienā ganam atgadās tāpat. Trešā dienā nāk vēl lielāks
+vīrs avi prasīt. Gans nobeidz ir šo un dabū trešo atslēgu. Tā nu trijās dienās
+trīs jēru zagļi nobendēti un trīs atslēgas dabūtas. Bet nu Sarga dēlam arī gribas
+ar varu redzēt, kas tai pakalnā īsteni labs atronams. Aiziet - nekas, tik tāds
+caurums. Ielien caurumā - durvis trijām atslēgām priekšā. Atslēdz vienas durvis -
+jau spīd, atslēdz otras - jau laistās; atslēdz trešās durvis - ak brīnumi! liela
+istaba vienos zeltos, sudrabos, dimantos. Pašā istabas vidū galds un uz gaida biķeris.
+Gans paņem biķeri, aizslēdz durvis un tad dzen avis pie ķēniņa. Ķēniņš izskaita
+- visas. Vakarā nu tīk bija Sarga dēls godā: jāiet vakariņās ķēniņam pa labu
+roku sēdēt. Ēdot ķēniņš saka: "Tu esi pirmais, kas man :avis labi noganījis.
+Tagad tev vieglas dienas, ēd pie mana galda, staigā pa manu pili un nepacel ne
+čubiņas!"</p>
+
+<p align="JUSTIFY">Sarga dēls nu šķietas priecīgāks, laimīgāks par pašu ķēniņu;
+bet jaunā princese, kas tam pie galda blakus sēdēja, vēl priecīgāka. Kādu indevi
+abi jaunie ļaudis tai vakarā pie galda ieēda, to īsti tūlīt neviens nemanīja; bet
+kad nedēļu vēlāk Sarga dēls ar princesi dārzā satikās, tad bija dzirdami šādi
+pātari: "Man tagad jābēg uz citurieni, jo ķēniņš, tavas pašas tēvs, jau
+nomaitājis, ka es, plukata zēns, tevi esmu bildinājis. Še ņem šo sudraba biķeri par
+pieminu no manis, bet glabā viņu cieši un nerādi nevienam!"</p>
+
+<p align="JUSTIFY">Tas paņem savu cirvi, sakaltušo stabuli, trīs kalna atslēgas un
+aiziet. Pēc kāda gada laika bēglis sasniedz svešu, svešu ķēniņa valsti, kur
+ķēniņa pils tuvumā augsts tornis uzcelts. Jaunais ķēniņš esot precējis otra
+ķēniņa jauno princesi, bet kad princese pie viņa nenākusi, tad ķēniņš,
+precinieks, dusmās viņu nozadzis un ieslēdzis uz mūžību augstajā tornī.</p>
+
+<p align="JUSTIFY">No rīta Sarga dēls aiziet pie torņa un ierauga tur savu līgavu.
+Šī viņu nepazīst, viņš gan. Knaši tas izmērcē savu sakaltušo stabulīti un sāk
+pūst. Bet tavas brīnuma skaņas, kādas nu bija stabulītei, tik sēri, tik žēli, ka
+visiem jāraud. Jaunais ķēniņš, tādas skaņas sadzirdējis, liek stabulniekam pilī
+nākt un pavēl, lai vēl pūstu. Bet stabulnieks slauka asaras un saka, ka nespējot
+vairāk papūst. Tomēr ķēniņš grib par varu dzirdēt, lai prasot, ko vien vēloties,
+bet lai tik pūšot. Līdz ko nu izstabulējies un ķēniņš pie beigām izraudājies, te
+stabulnieks iebāž savu stabuli</p>
+
+<p align="JUSTIFY">kabatā un prasa, lai atdotu to meitu, kas tornī. Ķēniņš atplēš
+muti līdz ausim un nokrīt kā no plaukta, bet kas solīts, tas solīts - jāizpilda. Nu
+atdod gan ieslodzīto, bet arī nosaka, ka abi triju dienu laikā būtu pāri viņa
+robežām, citādi tas saķeršot un abus tornī iebāzīšot.</p>
+
+<p align="JUSTIFY">Sarga dēls ņemas smalki izklaušināt, pa kuŗu ceļu visātrāki
+aiztikt un beidzot izdibina, ka tikai pa jūŗu triju dienu laikā iespējams robežām
+pāri tiki. Trešajā dienā ķēniņš nostāda sargus uz visiem valsts stūŗiem, bet
+kad tomēr bēgļus vairs nesaķeŗ, tad viltīgi paziņo saviem kaimiņu valdniekiem, lai
+tie abus saķertu.</p>
+
+<p align="JUSTIFY">Ūdens braucēji sabrauc sešas dienas un sešas naktis pa jūŗu.
+Septītā dienā nejauka vētra piedzen kuģi svešā, svešā krasta malā. Šie abi
+nolec no kuģa un domā tālāku bēgt, bet kas to dos? Ziņa klāt, lai ejot pie paša
+ķēniņa. Noiet tur - spriedums īsu īsais: Sarga dēlam jāiet cietumā un meitai
+jāpaliek ķēniņam par sievu.</p>
+
+<p align="JUSTIFY">No rīta cietumnieks prasa ēst. Bet ko ķēniņš dara? Tas iesūta
+ēdiena vietā virvi, lai labāk pakaroties, nekā vēl ēdot. To redzot, Sarga dēlam
+noskrien zils gar acim. Viņš paķer virvi. izdrāž pa logu un tad liek ķēniņam
+strupi atteikt: neesot nekad kāries un tādēļ to arī tagad nedarīšot. Ķēniņam
+tāda atbilde nejauki iet pie sirds. Viņš grib cietumnieku uz pēdām nogalināt.
+Tomēr, kad jaunā princese žēli lūdz, lai tā nedarot, tad šim dūša tā kā
+noslāpst. No rīta cietumnieks atkal prasa ēst. Ķēniņš liek cietumniekam atnākt un
+tad saka tā: "Izjāj bez apaušiem manu ērzeli, tad dabūsi ēst!"</p>
+
+<p align="JUSTIFY">Sāk jāt - ērzelis aiziet kā vējš tālu, tālu, kamēr ieskrien
+tādā purvā, tādā muklājā, kur ne zirgs, ne jājējs ārā tikt. Nu Sarga dēls
+vislielākajās bēdās, viņš raud. Te niedres sāk čabēt un vecs, vecs vīriņš, uz
+nūjas atspiedies, čāpo muklājā, ne viņam stieg, ne mūk.</p>
+
+<p>"Kas tad tev, dēliņ, noticis?"</p>
+
+<p align="JUSTIFY">Raudātājs nu izstāsta visu, kas vien tam ceļā gadījies galu no
+gala un neslēpj ne pa naga melnumu, it nekā, pat tēva sukas nē.</p>
+
+<p align="JUSTIFY">"Tas labi mans dēls! Tev taisna un līdzcietīga sirds. Un tā
+kā tu to meitu izglābi tad es atkal tevi izglābšu, pie kam vēl par piemiņu atdošu
+savu veco nūju, ar ko varēsi visus darbus izdarīt, ko vien tik vēlies."</p>
+
+<p align="JUSTIFY">Vecais piesit ar nūju un saka: "Muklajs veries, zirdziņ
+velies!"</p>
+
+<p align="JUSTIFY">Muklajs tūlīt paliek cieta zeme un ērzelis ar visu jājēju izlec uz
+sausumu; vecais iedod nūju un tad pazūd kā ūdenī.</p>
+
+<p align="JUSTIFY">Tagad Sarga dēls arī piesitīs ar nūju sacīdams: "Lai mans</p>
+
+<p align="JUSTIFY">ērzelis būtu rāms kā avs, un lai es izskatītos tāds, ka mani
+neviens pie ķēniņa nepazītu!"</p>
+
+<p align="JUSTIFY">Tā notiek. Nu tas pārjāj pie ķēniņa un sakās slavens mālderis
+esam. Ķēniņam tāds amats brīnum pa prātam, jo jaunnedēļ nodomājis kāzas svinēt
+un tādēļ arī uz tām dienām pils jādabū glītāka. Labi, no rīta iet darbs vaļā.
+Viņš ieiet vienā istabā, piesit ar nūju un saka: "Kaut šai istabā redzētu
+tās lankas, kur pie tēva avis ganīju!"</p>
+
+<p align="JUSTIFY">Acumirklī uz visām četrām sienām Sarga dēls gana tēva avis. Nu
+ieiet otrā istabā, piesit ar nūju un saka: "Kaut šai istabā redzētu to vītolu,
+kuŗā stabulīti lobu!"</p>
+
+<p align="JUSTIFY">Acumirklī uz visām četrām sienām Sarga dēls sēž vītolā un
+lobj stabulīti. Nu ieiet trešā istabā, piesit ar nūju un saka: "Kaut šai
+istabā redzētu to, kā stipros vīrus ēdinu un dzirdinu!"</p>
+
+<p align="JUSTIFY">Acumirklī uz visām četrām sienām Sarga dēls vicojas ar trijiem
+vīriem, kas ķēniņa avis zog. Nu ieiet ceturtajā istabā, piesit ar nūju un saka:
+"Kaut šai istabā redzētu to torni, kur mana līgava ieslodzīta!"</p>
+
+<p align="JUSTIFY">Acumirklī tornis ar skaistu meitu uz visām četrām sienām. Nu ieiet
+piektajā istabā, piesit ar nūju un saka: "Kaut še redzētu to, kā es ar līgavu
+pār jūŗu bēgu!"</p>
+
+<p align="JUSTIFY">Acumirklī uz visām četrām sienām ūdens, jūŗa, bangas, viļņi
+un kuģis, kur šie abi sēž. Nu ieiet sestajā istabā, piesit ar nūju un saka:
+"Kaut še redzētu to, kā es ar trako ērzeli laižos!" Acumirklī viss tas
+redzams.</p>
+
+<p align="JUSTIFY">No rīta varenais mālderis saka ķēniņam, ka istabas jau gatavas.
+Ķēniņš brīnās, ka tik ātri varēja gatavs tikt, un ved savu nākošo sievu istabas
+rādīt. Ieiet pirmajā istabā - brīnum jauki, ieiet otrā - varens darbs, ieiet trešā
+- ķēniņš no prieka uz augšu lec, ieiet ceturtā - šī pazīst savu torni, pazīst
+arī pašu mālderi, ieiet piektā istabā - šī grib vai ģībt, tomēr noturās, ne
+vārdiņa nesacījusi, ieiet sestā istabā - ķēniņš sasit rokas un prasa: "Kur
+tu tādu jājēju redzēji?"</p>
+
+<p>"Kur redzēju? Ceļmalā, teitan šurp nākdams!"</p>
+
+<p align="JUSTIFY">"Labi. Tagad paliec pie manis un svini manas kāzas līdz , jo esi
+vareni strādājis."</p>
+
+<p align="JUSTIFY">Tā kā rītu nu kāzas. Šis gan gribētu priekš kāzām ar līgavu
+satikties, bet nav nekā iespējams. Tomēr līgavai pašai padoms pie rokas, kāzu dienā
+tā izliekas pie beigām slima. Sanāk visādi dakteŗi - nelīdz: esot jāmirst. Nu kad
+tā, tad raudzīs mālderis ārstēt. Ķēniņš apsola visu ko maksāt. ja izārstēšot.
+Pēc īsa brīža slimniece vesela un ķēniņš nu tik devīgs, ka gatavs mālderi ar
+naudu apbērt. Bet šis atgrūž naudu pie malas un sāk uzvilkt šādu meldiju:
+"Nauda tādā reizē tīri nekas. Bet klausies, ķēniņ, otrā ķēniņa valstī ir
+kalns un apakš kalna sudraba biķeris, atnes to biķeri, tad būsi aizmaksājis."</p>
+
+<p>Ķēniņš tādas lietas neuzņemas apgādāt.</p>
+
+<p align="JUSTIFY">"Nu, kad nevari godīgi samaksāt. tad slimnieci pie sevis
+ieķīlāšu, viņa pieder man!"</p>
+
+<p align="JUSTIFY">"Viss labi, puisīt, ja tik tu nebūtu tādām lietām par
+vieglu." "Ak tā, par vieglu! Nu tad ar nūju knauks! palieciet visi kā stabi
+pin grīdas, kamēr es ar savu līgavu būšu pār kalnu kalniem!"</p>
+
+<p align="JUSTIFY">Tā notiek. Sarga dēls ar sava līgavu nu iet, iet, kamēr nonāk
+tēva būdiņā. Tēvs atver durvis, bet dēla vairs nepazīst. Šis gan nodievojas, ka
+esot viņa dēls, kas toreiz ar stabulīti kabatā aizbēdzis; tomēr vecais netic, kamēr
+stabulīti parādīšot, jo viņš toreiz, pa mežiem dēlu meklēdams, esot atradis
+nolobītu vītola zaru, un ja nu stabulīte uz zaru tikšot, tad tik viņš ticēšot, ka
+viņa dēls pārnācis.</p>
+
+<p align="JUSTIFY">Neko darīt, jārāda stabulīte. Tomēr kā nu vairs stabulīti
+dabūt, tā toreiz aizmirsusies cietumā ar visām atslēgām un cirvi. No rīta Sarga
+dēls ved savu līgavu pie nākamā sievas tēva, ķēniņa, un saka tā: "Re,
+pārvedu. kā pārvedu tavu meitu, izglābdams no briesmoņu nagiem. Bet, zināms, par to
+atkal atdosi viņu manās rokās par sievu."</p>
+
+<p align="JUSTIFY">Meita nu izstāsta tēvam visu, ko piedzīvojusi, un vecais atdod to
+Sarga dēlam par sievu.</p>
+
+<p align="JUSTIFY">Tomēr pēc kāzām jaunajam ķēniņam rūp stabulīte, lai ir savu
+tēvu apmierinātu. Viņš pamet sievu pie sievas tēva, un iet viens pats pēc
+stabulītes uz to pili, kur senāk cietumā sēdējis un ķēniņa istabas krāsojis.
+Pilī tas piesit ar nūju un saka: "Kaut mani ne ķēniņš, ne cietuma sargs
+nepazītu!" Tā notiek. Nu iznāk ķēniņš un prasa, ko gribot?</p>
+
+<p align="JUSTIFY">"Esmu dzirdējis, ka kāds knauķis tevim kāzu dienā līgavu
+nozadzis. Tas pats arī esot prasījis, lai tu viņam savādu biķeri apgādājot. Es, par
+pasauli maisīdamies, izošņāju, kur tāds biķeris dabūjams un kur pats līgavas
+zaglis uzturās. Ja tev būtu pie rokas labs cirvis, kādas trijas atslēgas un kaut kāda
+veca stabule, tad apņemos biķeri un zagli rokā dabūt."</p>
+
+<p align="JUSTIFY">,,Tas nekas. ja tik vien pieprasi. Tur cietumā sen dienām veca
+stabule, trīs atslēgas un cirvis mētājas. Ņem viņus un raugi meklēt!"</p>
+
+<p align="JUSTIFY">Sarga dēls paņem stabuli, atslēgas, cirvi un aiziet. Līdz ko šis
+labi aizgājis, te ienāk cietuma sargs un jautā, kas stabuli, atslēgas, cirvi
+paņēmis. Ķēniņš izstāsta, kam devis: Bet cietuma sargs krata galvu sacīdams:
+"Man liekas, ka svešnieks būs bijis savāds viltinieks, jo šīs trīs lietas
+piederēja tam, kas toreiz ar tavu nozagto līgavu pār jūŗu atbrauca. Tā esmu
+dzirdējis. Sūti tūlīt izlūkus tam Pakaļ, lai izzinātum, kur svešais aizgājis, kur
+pateicis, ko darījis"</p>
+
+<p align="JUSTIFY">Labi. Izlūki nu noskatās slēpšus it visu un tad griežas ar labām
+ziņām uz mājām. Ceļš tiem iet caur tā ķēniņa robežām, kas toreiz ķēniņa
+meitu tornī ieslēdzis. Šis ķēniņš satiek izlūkus un tāpat apjautājas, kurp
+ceļojot. Šie, nekā ļauna nedomādami, izstāsta visu skaidri, ka viņu ķēniņš
+tādu līgavu ielūkojies, kas ar kādu jaunekli par jūŗu atbēgusi un, ka ķēniņam ar
+līgavu beidzot šķībi izgājis. Viņi arī pateic, ka nule pat izošņājuši, kur
+šimbrīžam līgava dzīvo - esot pie tēva.</p>
+
+<p align="JUSTIFY">To dzirdot, torņa ķēniņam atveŗas acis: tā nudien tā pati, ko
+viņš zagšus zadzis un tornī auklējis Nekā vairāk nesacīdams, viņš pāriet pilī,
+salasa karaspēku un iet otrreiz ķēniņa meita pakaļ.</p>
+
+<p align="JUSTIFY">Izlūki pāriet pie sava ķēniņa un izstāsta, ko atraduši. Šis
+neatsaka izlūkiem nekā, salasa arī kaŗaspēku un iet ķēniņa meitai pakaļ.</p>
+
+<p align="JUSTIFY">Bet kamēr abi precinieki ar kaŗaspēkiem nodarbojas, tikmēr Sarga
+dēls, ķēniņš, ar atrasto stabuli apmierinājis savu veco tēvu un atgriezies pie
+savas sievas, sievas tēva pilī.</p>
+
+<p align="JUSTIFY">Pēc deviņām dienām abu ķēniņu kaŗaspēki jau klāt. Viens
+prasa, lai atdodot meitu tornī atpakaļ, otrs, lai gādājot biķeri rokā, ko mālderim
+- ārstam samaksāt. Ķēniņa znots pasludina ienaidniekiem, ka nedabūšot ne šo, nedz
+to - lai raugot karot, ja tik sveloti gribot. Ienaidnieki pasmejas par tik drošu atbildi
+un gāžas pilij no visām pusēm virsū. Bet ķēniņa znots paķeŗ savu nūju, iziet
+kaŗotājiern pretim un atdzen visus atpakaļ. Otrā dienā tas atņem karodams tam vienam
+ķēniņam to pili, kuru pats tik jauki izkrāsojis un trešā dienā tas kaŗodams atņem
+tam otram ķēniņam ir to pili, kur viņa sieva tornī sēdējusi. Tā nu tam tagad
+pieder trīs valstis un trīs pilis. Sievas tēvs atdod znotam valdību un dzīvo savā
+vecajā pilī, bet znots ar savu sievu noiet izkrāsotā pilī dzīvot.</p>
+
+<p align="JUSTIFY">Padzītie ķēniņi nu blan dās pa pasauli, zobus griezdami un dienu
+mūžu gudrodami, kā jele pilis atdabūt, kā atriebties. Beidzot tie piemāca vienu no
+saviem veciem sulaiņiem, lai tas salīgtu pie trijvalstu ķēniņa kalpot un tad
+izdevīgā brīdī nūju un biķeri nospertu. Tā notiek: Vecais blēdis glūn, glūn,
+kamēr izdabū, ka nūja pagrīdē, biķeris pagultē. Un kādu dienu, kamēr ķēniņš
+ar sievu pie sievas tēva sērš, šis paņem nūju, paņem biķeri, lai aiznestu
+padzītajiem blandoņiem. Ķēniņš pārbrauc no sērsībām, pamana, kas noticis, un
+paliek tīri sajucis, nezinādams ko darīt, ko iesākt; bet sieva to mierina: "Lai,
+lai, vīriņ! kad rītu no mūsu ienaidniekiem ziņa pienāks, lai tu mani atdod, tad
+steigšos ar lielāko prieku turpu, jo - tici droši - vakarā būšu atpakaļ. Esi tik
+mierīgs, gan zināšu!"</p>
+
+<p align="JUSTIFY">No rīta divas ziņas klāt. Viena: lai atdodot sievu tam, kam
+biķeris; otra: lai atdodot sievu tam, kam nūja. Trijvalstu ķēniņš atbild abiem ziņu
+nesējiem vienādi: būšot tūlīt klāt, lai tik gaidot pie torņa pils. .</p>
+
+<p align="JUSTIFY">Pusdienas laikā pie torņa pils bija savādas precības: divi
+grēcinieki, viena paša precamā, ko tomēr īstais vīrs sen jau noprecējis. Jaunā
+ķēniņiene noiet pie torņa, šie abi stāv, kā brieži -- vienam biķeris rokā, otram
+nūja. Tas viens sniedz biķeri un sauc: "Nāc pie manis!" Tas otrs sniedz nūju
+un sauc: "Nāc pie manis!" Bet ķēniņiene atbild: "Tas, kas man pirmais
+nūju pasniegs, pie tā iešu!"</p>
+
+<p align="JUSTIFY">To dzirdot, biķernieks nosviež biķeri un liecas pie nūjas, bet kā
+nūjenieks pagrūdis šo mazliet ar nūju, tā šis no nūjas spēka augšpēdu un
+pagalam. Nūjenieks, to redzot, tā sabīstas, kā izšļūk nūja no rokām, jo domājis
+tik tāpat pagrūzt, bet ne nosist. Kamēr nu viens precinieks gar zemi guļ un otrs ar
+atplēstu muti brīnās, tamēr jaunā ķēniņiene paņem nūju, paņem biķeri un
+projām.</p>
+
+<p align="JUSTIFY">Bet nu trijvalstu ķēniņš tā vairs nūju neglabā. Viņš ieslēdz
+abus divus ar biķeri kalnā, kur toreiz lielie vīri līda avis zagt. Spēka lietām nu
+bij droša vieta; tomēr kalnam caur nūju no tā laika gadījās savāds spēks: kuŗš
+pār kalni pārgāja, tas pārvērtās vai nu par akmeni, vai par putnu.</p>
+
+<p align="JUSTIFY">Tagad trijvalstu ķēniņam sāka miera dienas aust - viens ienaidnieks
+pagalam, otrs diezin kur aizkūlies.</p>
+
+<p align="JUSTIFY">Pēc kāda gada jaunajam ķēniņu pārim piedzimst dvīņi. Puikas aug
+kā rutki. Tā aiztek divpadsmit gadu. Te vienu dienu abi bērni prasās uz mežu medīt.
+Tēvs nu labiem bērniem ko lies - lai iet. Zēni medī, medī cauru dienu, un vakarā, uz
+mājām nākdami, ierauga uz nepazīstama kalniņa lielu vanagu. Viens no dvīņiem šaus
+vanagu. Vanags krīt, bet mirdams tā saka: "Es esmu senākais torņa - pils
+ķēniņš, kas nāca par šo kalnu, lai trijvalstu ķēniņam atriebtos; tomēr
+atriebties nedabūju, jo šinī pašā vietā pārvērtos par vanagu. Tur kalnā esot
+nūja; ja nebūtu mani šāvuši, tad ar šīs nūjas spēku būtu varējis reiz tikt
+vīri par cilvēku, bet tagad man jāmirst."</p>
+
+<p align="JUSTIFY">Ne zēni ko par torņa - ķēniņu zin, ne par nūju, tie iet tik savu
+nošauto vanagu ņemt; bet tikko abiem kājas pie kalna piesitas, tie paliek par
+akmeņiem. Tēvs gaida mediniekus mājā - nekā. Beidzot tas saka uz sievu : "Es
+iešu ar savu brīnumu nūju puikas meklēt; tik paliec tu, sieviņ, mājā, jo tas, kam
+kalna atslēgas nav rokā, nedrīkst pie kalna rādīties. Tā jau mūžam iet, kad
+bērniem vaļu atļauj - diezin, kur un kad tos atradīšu."</p>
+
+<p align="JUSTIFY">Viņš paņem kalna atslēgas, aiziet turp, atslēdz kalna durvis,
+taisās nūju ņemt, te kā gadās, kā ne - nūja piesitas pie kalna zemes. Kalns
+acumirklī sabrūk, nūja nogrimst un tai vietā tas ierauga savus dēlus ar nošauto
+torņa-ķēniņu. Nūja viņu par cilvēku gan pārvērta, bet atdzīvināt
+neatdzīvināja, tādēļ ka nošauts. Ķēniņš, to redzot, no brīnumiem paliek kā
+stabs, bet dēli to apkampj sacīdami: "Tēt, nebrīnies, mēs bijām par akmeņiem
+pārvērsti, bet tu mūs tagad izglābi."</p>
+
+<p align="JUSTIFY">Puikas nu izstāsta visu, kā viņiem gadījies un ko torņa -
+ķēniņš mirdams pastāstījis. Trijvalstu ķēniņš, senākais Sarga dēls, paglabā
+savu veco ienaidnieku, kā pieklājas, atdod vienu valsti vienam dēlam, otru valsti otram
+dēlam un pats patura to valsti, kur izkrāsotā pils. Sievas tēvs un paša tēvs dzīvo
+drīzi pie dēla. drīzi vienā pilī, drīzi otrā pilī pie dēla dēliem .</p>
+
+
+</body></html>

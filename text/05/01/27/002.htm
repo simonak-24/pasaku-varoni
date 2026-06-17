@@ -1,0 +1,172 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Bārenīte un mātes - meita pie Laimesmātes.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 480. J. Ezers no Kļavu Annas Kalētos. Jkr. V, 140 (9). LP, VII,
+II, 28 1.</p>
+
+<p align="JUSTIFY">Bija svētvakars. No bajāra mājām ir visi aizgājuši uz pirti,
+tikai bārenīte, dubļu kruķētāja, atronas mājās. Ienāk sirms vecītis, teikdams:
+"Dievs dod labu vakaru!"</p>
+
+<p align="JUSTIFY">"Paldies, tēv!" bārenīte atņem.</p>
+
+<p align="JUSTIFY">"Nebīsties, meitiņ, pirtī iet, šovakar tiksi laimīga,"
+vecītis pamāca un aiziet.</p>
+
+<p align="JUSTIFY">Bija jau labi pret pusnakti, kad visi pamāca. "Tagad ej
+pirtī!" bajāra meita bargi pavēl.</p>
+
+<p align="JUSTIFY">Bārenīte aiziet. Viņa sēd uz lāvas un sildās. Pienāk pusnakts
+stunda. Pirts durvis atveŗas, ienāk vecīte un labvakaru padevusi, nosēžas uz lāvu.</p>
+
+<p align="JUSTIFY">Nebīsties, meitiņ," viņa laipni uzsāk," esmu pati Māŗa.
+Saki man, kālab tu tik vēlu pirti?"</p>
+
+<p align="JUSTIFY">"Vai, mīļā Māŗa," bārene, drošāka palikusi, sāk
+stāstīt, "man iet pārlieku gŗūti, kamēr tēvs un māmiņa miruši. Saimnieki,
+bajāri, mani nemaz neieredz, dzen caurām dienām un naktim un man atmet tikai suņa
+tiesu, ja ne mazāk vēl. Tā kā šovakar, man iet katru svētvakaru - dzīšus mani
+vienu uz pirti dzen, lai gan man bail, ka vai mati ceļas stāvus. Un kā lai mazgājos -
+nei man dod ūdens, nei slotas," viņa nobeidz, asaras ar roku slaucīdama.</p>
+
+<p align="JUSTIFY">"Noper, meitiņ, nomazgā mani!" Māŗa lūdz, bāreni pie
+rokas ņemdama.</p>
+
+<p align="JUSTIFY">Kad viss padarīts, Māŗa dod bārenei slotu, ar kuŗu nopērta, un
+saka: "Ņem meitiņ un glabā šo slotu savā šķirsta dibenā, tad tev labi
+klāsies." To teikusi viņa aiziet.</p>
+
+<p align="JUSTIFY">Bārene dara, kā Māŗa likusi: ieliek slotu šķirstā. No rīta iet
+raudzīt un atrod čupu zelta naudas. Nu viņa skrej līksma pie bajāra meitas un
+stāsta: "Ai, mīļā, kādu laimi man Māŗa piešķīrusi! Nāc, paskaties
+vien!"</p>
+
+<p align="JUSTIFY">Bajāra meita. kārodama bārenes laimi, iet pirtī viena un sēd
+noskumusi uz lāvas. Ienāk Māŗa.</p>
+
+<p align="JUSTIFY">"Labvakar, meitiņ!" "Paldies, mīļā Māŗa;"
+bajāra meita atņem.</p>
+
+<p align="JUSTIFY">"Kas, meitiņ, tevi dzen tik sebu pirtī?" Māra jautā
+nosēzdamās.</p>
+
+<p align="JUSTIFY">"Tēvs, māte," bajāra meita atbild. "Nomazgā
+mani!" Māŗa saka.</p>
+
+<p align="JUSTIFY">Cerēdama tikt pie bagātības bajāra meita to padara, bet Māŗa, tai
+slotu atņēmusi saka: "No ārienes gan tu skaidra. bet sirds tev melna, ej!"</p>
+
+<p align="JUSTIFY">Uz majām iedama, klūp bajāra meita un vairs nepaceļas. Bajārs,
+redzēdams kādu galu ņēmusi viņa meita caur savu bezgodību, apietas ar bārenīti,
+kā ar cilvēku un pieņem viņu vēlāk par savu meitu.</p>
+
+
+</body></html>

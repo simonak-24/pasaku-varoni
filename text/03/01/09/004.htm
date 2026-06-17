@@ -1,0 +1,157 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Maģiskā bēgšana ar aizliegto kastīti.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">4. A. 313 B un C. A. Briedis Ērgļos. Zin. Kom. kr. LP, VI. 119, l.
+piez. AŠ, III, 4r.</p>
+
+<p align="JUSTIFY">[Viens mednieks šāvis trīs reiz lielam ērglim, bet nenošāvis. Par
+to viņam] ērglis bijis jābaŗo trīs gadi, jo citādi viņš šāvēju būtu noknābis.
+Pēc trim gadiem ērglis nesis medinieku pār jūru un laidis to trīsreiz no gaisa krist
+ūdenī, bet arvien laikā saķēris. Tad viņš to aiznesis pie savām māsām un licis
+prasīt kontraktu. Vecākās māsas nedevušas kontraktu; bet jaunākā teikusi:
+"Kontrakts gan ir mīļš, bet brālis vēl mīļāks!"</p>
+
+<p align="JUSTIFY">Un iedevusi viņam kontraktu. [Ērglis teicis, lai tikai mājā taisot
+to kontraktu vaļā. Tad ērglis nesis medinieku atkal projām uz viņa māju. Mājās
+tuvumā mednieks tomēr apmaldījies un atplēsis kontraktu vaļā.] Kontraktu attaisot,
+gadījusies lepna pils. Bet nu šis bēdājies, ka pils ir svešā zemē. Tad viņam
+piestājies velns un teicis, lai atdodot pēc septiņiem gadiem to, kas mājā jauns, tad
+kontraktu sasiešot.</p>
+
+<p align="JUSTIFY">Labi. [Šis arī apsola. Bet nu izrādās, ka viņam mājā ir
+piedzimis jauns dēls, kas nu ir jāatdod velnam.]</p>
+
+<p align="JUSTIFY">Pēc septiņiem gadiem medinieka dēls, uz velnu iedams, ezera malā
+saticis trīs meitas ezerā mazgājamies; bet spārni tām bijuši uz krasta. Viņš tai
+vienai spārnus paņēmis. Tā, kam spārnus paņēmis, izlīdzējusi dēlam ar padomiem,
+kad velnam kalpojis.</p>
+
+<p align="JUSTIFY">Dēls sakalpojis velnam septiņi gadi un tad dabūjis no velna par labu
+kalpošanu lielu pulku zelta, lai nesot mājā. Bet mājā ejot, jaunākā meita - tā,
+kas ar padomiem izlīdzējusi - teikusi: "Kad ieej tēva pilī - tai pilī, kas no
+kontrakta gadījusies - nedod jaunākam brāļam rokas, citādi aizmirsīsi mani!"</p>
+
+<p align="JUSTIFY">Šis pārgājis, devis visiem roku, jaunākam brāļam arī. Bet
+tiklīdz roku sniedzis, tūliņ aizmirsis visu, ko jaunākā meita šim laba darījusi.
+Pēc tam dēls izmeklējis brūti un sācis precēties. Bet divi dieni priekš kāzām
+jaunākā meita atnākusi uz medinieka pili un uzlīdusi pie akas kokā. Meitas nākušas
+ūdeni smelt un redzējušas akā tik skaistas meitenes seju. Domājušas, ka skaistule
+akā, un izsmēlušas visu akas ūdeni, bet skaistules neatradušas. Pēdīgi viena
+paskatījusies uz augšu un ieraudzījusi skaistuli kokā. Skaistule neteikusi nekā,
+iegājusi arī par kalponi pilī un sākusi kalpot.</p>
+
+<p align="JUSTIFY">Otrā dienā cepuši plāceņus kāzām un skaistule uz viena plāceņa
+sarakstījusi visas labdarības, ko medinieka dēlam darījusi. Brūtgānam šis plācenis
+nācis rokās, un kad nu izlasījis rakstu, tad atkal visu atminējies. Tūliņ atstājis
+saderēto un apņēmis skaistuli.</p>
+
+
+</body></html>

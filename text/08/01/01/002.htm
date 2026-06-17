@@ -1,0 +1,216 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="center"><font size="3"></font><font size="5"><strong>Čūskas gredzens.</strong></font></p><font size="5">
+
+</font><p><font size="5"></font><font size="3">2. A. 560. R. Vulfs, Ūziņos. LP. IV, 86 (18, 2).</font></p><font size="3">
+
+<p align="JUSTIFY">Pilsētas malā dzīvo nabaga atraitne ar savu dēlu. Vienu dienu dēls
+aiziet pilsētā papelnīties. Bet vakarā mājā nākdams, satiek uz ceļa sieviņu ar
+suni; sieviņa piedāvā suni, lai taču pērkat! Dēls pērk arī: atdod visu tās dienas
+pelņu un vēl priecājas, ka tik lētu suni dabūjis. Tik mājā mātei nebija īsti pa
+prātam: pašam neesot ko ēst, vēl paunāties ar suņiem!</p>
+
+<p align="JUSTIFY">Otrā dienā dēls atkal aiziet pelnīties. Bet vakarā mājā
+nākdams, satiek to pašu sieviņu ar kaķi. Vai nepirkšot kaķi? Kālab nē? Ja ar tās
+dienas pelņu pietiekot, lai dodot šurp! Atdod. Bet mājā māte saņem itin bargi šo:
+esot untumains cilvēks, kas, tikpat kā viņai spītēdams, atdodot visu peļņu tik par
+suņiem un kaķiem.</p>
+
+<p align="JUSTIFY">Trešā dienā dēls atkal aiziet pelnīties. Bet vakarā mājā
+nākdams ierauga pilsētas malā lielu ļaužu pūli, kas bļauj : "Sit nost sit
+nost!"</p>
+
+<p align="JUSTIFY">Dēls pieskrien elzdams, pūzdams pūlim klāt un sauc: "Nesit,
+nesit! es atpirkšu ar šīs dienas peļņu, lai tas būtu, kas būdams!" "Klau!
+viens te sola maksu, nevajaga vairs sist, lai samaksā un ņem," sitēji iesaucas.
+Dēls samaksā un nu ies skatīties, ko tad īsti nopircis. Apskatās: - čūsku.
+Pārdevēji gardi pasmejas domādami, ka dēls tūliņ nospļausies, čūsku ieraudzījis.
+Bet nekā dēls paņem čūsku un aiziedams nosaka: "Nemaz nesaprotu, kā tās
+lietiņas tik lēti varējāt pārdot!"</p>
+
+<p>Tie notura dēlu par pusmuļķi un aiziet, rokas atmezdami. Bet čūska pēc kāda
+brītiņa sāk runāt, sacīdama: "Paldies, ka izglābi mani no sitējiem. Esmu
+ķēniņa meita. Nes mani pie tēva uz pili; ja tēvs tev par nesumu taisās kaut ko
+maksāt, tad dari gudri: neņem ne šā ne tā. Prasi tikai to gredzenu, kas tēvam uz
+vidus pirkstā. Viņš gan tev piesālīs citus gredzenus, bet neielaidies - lai dod to!
+Redz, tu nemaz nezini, tas gredzens savāds: Līdz ka uz pirksta paburzīsi - tūliņ viss
+gadās, ko vien vēlies."</p>
+
+<p align="JUSTIFY">Labi! Dēls aiznes čūsku un lielām mokām izdabū gan no ķēniņa
+īsto gredzenu. Nu pāriet mājā pie mātes un saka: "Redz, māmiņa, jūs arvienu
+rājāties, ka peļņu izniekoju, bet tagad parādīšu, ko par savu peļņu
+nopirku!"</p>
+
+<p align="JUSTIFY">Dēls paburzē gredzenu un vēlās: "Kaut būdiņas vietā
+gadītos zelta pils!"</p>
+
+<p align="JUSTIFY">Tūliņ gadās spoža spoža pils un māte nu dēlu glaudīt glauda.
+Bet otrā trešā dienā </p>
+
+<p align="JUSTIFY">ķēniņš apmanījis, ka dēlam zelta pils. Tas viņam skauž. Tūliņ
+sūta savu sulaini </p>
+
+<p align="JUSTIFY">pie dēla un pavēl gre dzenu nozagt. Sulainis iztīkojās ilgu laiku -
+nekā netapt dēlam. </p>
+
+<p align="JUSTIFY">Te vienu dienu dēls zelta pils priekšā apgulās dienas vidū.
+Sulainis aši nomauc gredzenu un pārnes ķēniņam. Ķēniņš paburzē un vēlās:
+"Kaut dēls atrastos </p>
+
+<p align="JUSTIFY">jūŗā uz akmeņa staba!" </p>
+
+<p align="JUSTIFY">Acumirklī dēls iegadās jūŗā akmeņa staba galā. Neviens to
+nezin; bij sunītis un kaķītis, ko todien no sieviņas pircis, apmana, kur viņu kungs
+aizrauts. Tie piepeld pie staba un grib dēlam kaut kā palīdzēt; bet dēls saka:
+"Labo sunīti, labo kaķīti! bez gredzena nevaram nekā iesākt. Teciet uz ķēniņa
+pili, raugiet gredzenu atdabūt - būs atkal viss labi!"</p>
+
+<p align="JUSTIFY">Sunītis ar kaķīti mudīgi vien aiztek pie ķēniņa pils un norunā
+tā: sunītis palikšot dārzā nomodā, kaķītis iešot pilī izlūkot, kur gredzens
+noglabāts. Labi, Kaķītis ietop pilī un paslēpjas apakš! Ķēniņa gultas. Nu glūn,
+nu glūn visu laiku. Uz vienu reizi ķēniņš, gulēt iedams, atslēgs sudraba
+šķirstiņu un apskatīsies, vai vēl dibinā gredzens glabājas. Atslēdz, paskatās:
+jā, ir gan; aizslēdz atkal un tad dodas pie miera. Kaķītis visu to redz, bet kā pie
+gredzena tikt? Nu domā, un domā; ķēniņš sen jau aizmidzis, vēl kaķītis domā -
+nekā sadomāt, nekā klāt tikt. Uz vienu reizi sāk kas apakš ķēniņa gultas
+grabināties. Kaķītis paskatās: žurkas.</p>
+
+<p align="JUSTIFY">"Nu tu nelaime! ņermi tādi; uzcels vēl man ķēniņu un izjauks
+visu manu nodomu!" tā kaķītis pats pie sevis nedusmojas. Bet žurkas nebēdā
+nekā, arvienu paliek drošākas - beidzot sāk gandrīz ķēniņam tīri pa degunu;
+lēkāt.</p>
+
+<p align="JUSTIFY">"Tā nē!" kaķītis iesaucās un nu sāk tik žurkas
+slānīt: viens divi žurku līķi guļ, kā līdums, pa rindu vien salikti. Te uz reizi
+āzlien sirma sirma žurka, vaimanādama: "Kaķīti, pincīti, kam apkāvi manu lielo
+kaŗa spēku?"</p>
+
+<p align="JUSTIFY">"Kas tu tāds esi?" kaķītis uzprasa. Esmu žurku
+ķēniņš!"</p>
+
+<p align="JUSTIFY">"Tad jau brīnum labi - es atkal esmu kaķu ķēniņš. Vadzi,
+derēsim mieru!"</p>
+
+<p align="JUSTIFY">Kā lai mieru deru? Kam tu apkodi manu brango kara ,</p>
+
+<p>spēku?" "Nekas - ja apsolīs ar savām žurkām šim sudraba šķirstiņam
+izgrauzt tik lielu caurumu, ka es ar savu augumu spēju tur ielīst, tad apsolos saviem
+kaķim pieteikt, ka neviens vairs nekostu tavu kaŗa spēku."</p>
+
+<p align="JUSTIFY">Labi! Abi sader mieru. Un žurku ķēniņš tūliņ aiziet žurkas
+pasaukt. Ak tu manu dieniņu, kas tagad sanāca žurku: visa istaba čum un kust. Necik
+ilgi - sudraba šķirstiņš lupatās. Kaķītis paņem gredzenu un iztek pie sunīša.
+Drīzi abi divi ar gredzenu pie akmeņa staba. Dēls uzmauc gredzenu pirkstā, un vēlās
+: "Kaut būtum visi četri: es, ķēniņa meita, sunītis, kaķītis zelta
+pilī!"</p>
+
+<p align="JUSTIFY">Tūliņ visi gadās pilī. Dēls nu nosvin kāzas ar ķēniņa meita un
+dzīvo laimīga ar saviem lopiņiem.</p>
+</font>
+
+
+</body></html>

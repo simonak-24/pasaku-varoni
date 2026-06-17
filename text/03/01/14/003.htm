@@ -1,0 +1,194 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Neuzticamā māte.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 15, 590. L. P. Džūkstē - Pienavā. LP, I, 50. AŠ, II, 98c. </p>
+
+<p align="JUSTIFY">Kāds skroderis, nevarēdams mājās nekā pelnīt, atstājis sievu ar
+desmit gadu vecu puisēnu, un iet uz svešām zemēm pelnīties. Pēc kādiem mēnešiem
+puisēns saka uz māti: "Mūsu tēvam tagad neiet labi; iesim viņu meklēt!"</p>
+
+<p align="JUSTIFY">Abi aiziet. Mežā tiem piestājas pelēks šunelis un tek trīs dienas
+nopakaļus līdz. Trešā dienā, lielu milzi satiekot, šunelis atkal pazūd. Milzis
+stājas ceļā un zobo skrodeŗa dēlu, vai tāds ķevēns arī spējot svilpt, ŗūkt un
+ceļa nūju panest?</p>
+
+<p align="JUSTIFY">"Neskaties vīru no cepures!" puisēns atbild, "bet
+rādi labāk, ko tad tu īsti vari!"</p>
+
+<p align="JUSTIFY">Milzis arī rāda un izrauj ozolu ar visām saknēm; bet puisēns
+izrauj vēl lielāku ozolu un uzsviež tik augstu gaisā, ka bija trīs dienas ko gaidīt,
+kamēr zemē nonāk. Nu milzis saka: "Esi gan stiprāks, iešu jums līdz."</p>
+
+<p align="JUSTIFY">Bet nu ceļā milzis pierunā puisēna māti viņu precēt, jo viņa
+savu viru nebūšot nekad atrast un atraiknei taču gŗūti diezgan. Ar to vien nepietika,
+vēlāk milzis tai ierunā pat puisēnu nomaitāt, jo patēvim neesot par godu, ka padēls
+stiprāks. Abi norunā puiku lāču dārzā pēc ābeles ziediem sūtīt, lai lāči viņu
+saplosītu, jo milzis citādi nevarēja un neuzdrošinājās puiku aiztikt. Puika aiziet
+pēc ābeļu ziediem, bet lāči viņam luncinās apkārt ne pa naga melnuma auna
+nedarīdami.</p>
+
+<p align="JUSTIFY">Milzis, to redzēdams, vēl vairāk apbrīno nadzīgo puiku un ienīst
+to vēl stiprāk. Arī puika sāk nomanīt un noklausās naktī, ko milzis ar māti
+spriež. Abi spriež, ka neģēlis nomaitājams; bet kādā vīzē, to puika nevarēja
+sadzirdēt. No rīta milzis atkal sūta puika pēc ābeļu ziediem lāču dārzā. Viņš
+norauj ziedus, paglauda lāčus, un sāk ar tiem brītiņu rotaļoties. Bet kamēr šis
+tā rotaļojas, tamēr milža tēva māsa, liela burvene, norunā ar milzi nabadziņu
+noburt. Tēva māsa gan šaubās, vai iespēšot puiku noburt. Bet milzis atteic: "Tu
+varēji puikas tēvu par suni noburt un tad gan šo nevarēsi!"</p>
+
+<p align="JUSTIFY">Burvene iet dārzā, kur puika ar lāčiem. Lāči grib puiku
+aizstāvēt, bet šī iesviež lāčus piecas pēdas zemē iekšā un puikam uzbuŗ dziļu
+miegu. Nu nāk raganas bariem un grib aizmigušo nomaitāt, bet tai pašā acumirklī
+pieskrien melns suns pie aizmigušā, pārvelk ar ķetnu pār ģīmi un atmodina. Raganas
+tas tūlīt izšķaida uz visām pusēm un tad aiziet no milža mājas projām uz kuģiem.
+Melnais suns bijis noburtais puikas tēvs.</p>
+
+<p align="JUSTIFY">Kādu dienu puikam kuģa istabiņā laimējās, auklām pārsietu
+šķirstiņu atrast. Viņš mēģina auklas ar zobinu pārcirst, bet nevar un nevar. Nu
+kad tā nevar, tad rauga ar cirvi šķirstiņa stūri izkapāt. Caur izkapāto caurumu tas
+iebāž roku un dabū mazu zāļu pudelīti. Viens piliens no zālēm neviļot uzpil uz
+šķirstiņa auklām : auklas tūlin atdarās.</p>
+
+<p align="JUSTIFY">Tādas zāles dabūjis, puika nepaliek vairs uz kuģa, bet iet pa
+pasauli nelaimīgus pestīt. Tam iešaujas ir prātā, vai gan ar tām zālēm nevarētu
+savu māti no milža atpestīt. Vispirms puika uziet kādu princesi, kuŗa visu mūžu pie
+ķēdēm noburta. Zāles mazuliet uzpilinot, ķēdes atdarās un princese no prieka uzmauc
+atpestītājam savu gredzenu. Pēc septiņiem mēnešiem norunā kāzas dzert.</p>
+
+<p align="JUSTIFY">Viņš vēl atpestī vienu princi, pie krēsla pieburtu, un tad
+steidzas pie mātes. Māte sagaida dēliņu it priecīga, bet milzis tai piebiksta, lai
+raugot izdabūt, iekš kā īsti puikam tāds spēks pastāv. Tā tik tālu labina dēlu
+un tam pieglaužas, kamēr šis arī atvēl galvu paieskāt un muguru pakasīt. Viņa
+atrod, ka dēlam ap vidu zvēru ķēniņa josta. Māte nu ieskā tik ilgi galvu, kamēr
+puika iemieg un tad nemanot nozog zvēru ķēniņa jostu. Puika tūlin uzmožas, bet
+spēki tam nav vairs. Milzis tam izduŗ acis un to aizdzen. Ne nu stipruma ne gaismas. Ko
+nu? Grāvmalā nu nabadziņš raud par savām acim, raud par mātes cietsirdību, raud, ka</p>
+
+<p align="JUSTIFY">tūlīt nepasteidzies mātei zāles uzpilināt. Te pieklīst atkal
+melnais suns un aizved neredzīgo pie viņa līgavas, izpestītās princeses. Princese
+nožēlo, ka šis tagad akls, bet tomēr tura kāzas un apprec ir aklu.</p>
+
+<p align="JUSTIFY">Labu laiku pēc kāzām princese kādu dienu staigā pa dārzu un
+ierauga aklu pelīti. Viņa noķeŗ pelīti un raud, ka tā akla, jo iedomājās par sava
+paša vīra aklumu. Te it nejauši iebirst viena asara pelītei acīs un pelīte uz reizi
+redzīga. Nu viņa iet pie vīra un ieraud arī tam acīs savas asaras. Vīra acis paliek
+uz reizi veselas. Nu bija prieki, nu bija laime ; bet prieki vēl pavairojās, kad kādu
+dienu viņa suns, toreizējais vadons, trakumā jānošauj: līdz ko suni nošauj, tas
+paliek par cilvēku, jaunā ķēniņa tēvu. Tēvs nu pateic, ka milža tēva māsa to par
+suni nobūrusi.</p>
+
+<p align="JUSTIFY">Piezīme. Pēc cita atstāstītāja puika dabū savu lielo spēku no
+čūskām. Viņš ierauga mežā lielu čūsku pūli. Čūskas vijas un tinas gar zelta
+jostu vai kroni. Šo kroni puika atņem čūskām un apjož ap vidu. No tā laika tam
+neapzināmi liels spēks.</p>
+
+
+</body></html>

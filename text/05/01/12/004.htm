@@ -1,0 +1,178 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+
+<p align="center"><font size="5"><b>Ellē un debesīs.</b></font></p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">4. E. A. Simsons no V. Razgaļa Makašānu pag. Kultūras balss kr.</p>
+
+<p align="JUSTIFY">Dzeivuoja pasaulī vīns zemnīks, kam vuords beja Edgars. Jam beja
+pīre kai vucynam, ūsas kai kačam un acis opolas lai putnam. Jis muocēja runuot kai
+zvēri un putni. Laikim izīt jis nu muojom, nūstoj uz klaja teiruma vai dryumā mežā,
+sastota spūstus, nūskaita puotorus, pasaklona uz vysim pusem, pēc pamurd un zvēri un
+putni tai i skrīn palākdami, vīns ūtru dzeidami uz jū. Skrīn zači, lopsas, vylki,
+iuoči, brīži; skrīn vuornas, žogotas, rubuļi [rubeņi], raudives, meža zūsis,
+gulbi, skrīn vysj zvēri, vysi putni, skrīn ar sovim tāvim, bruoļim, ar sovom muotem,
+skrīn ar vysim sovim radinīkim. Te verīs: ja pylni spūsti pīsapyn zvēru un putnu.
+Kas ar golvu, kas ar kuoju, asti, kas ar spuornu īsapyna. Ka jū dundurs nūnastu, kai
+Edgaram labi beja dzeivuot, kai jū vysi cīnēja. Cīnēja jū arī dziļuo upīte un
+zemes olūtiņi, kolpuoja jam, kai vacuokam bruoļam. Te suoka Edgars dūmuot, kai
+dabasūs tikt un pasavērt dabasu radību, skaistuos saulītes, spudruo mēneša un mozus,
+bīži speidūšū zvaigznīšu. Pīsacēļa Edgars reizē ar Ausekli, nūstuoja uz reitu
+pusi un nūskaitīja puotorus, nūstuoja uz vokorim un nūskaitīja puotorus; nūskaitīja
+puotorus klusajai reita bluozmiņai un sorkonajai vokora bluozmiņai, atguoja uz mežu,
+nūcierta kūku un suoka plēst skaidas. Plēsja, plēsja skaidas, pīplēsja lelu gubu,
+apsedzja juos ar slapnu maisu un aizdedzja. Dag skaidas ar līsmi. Edgars nūstuoja uz
+maisa, ka dyumi jū uz augšu caltu. Te jau jū suoka ceļt uz augšu, ceļ vys augšuok
+un augšuok, vys dreižuok urt dreižuok un skrīn uz augšu Edgars jau tik dreiži, kai
+putns, kai zibsnis, kad sper pārkyuņs. Skrīn jis jau bez capuris - vējs nūruovja jū
+nu golvys - skrīn tikai ar vīnu zuoboku - ūtru ceļā pazaudēja. Skrīn un skrīn, bet
+kad nūstuoja un pazavēŗa uz zemīni: zeme na teluoka kai vabalīte, Dīva gūtiņa. O,
+kai augši tyka jis!</p>
+
+<p align="JUSTIFY">Suoka Edgars staiguot pa dabasim, īt uz vīnu pusi, paīt uz ūtru,
+bet nikaida cylvāka nasateik, un zvaigznītes, tikai tuos skaidri speid un dag, dzīd un
+gūdvnoj Dīvu. Nūdzeivuoja Edgars tur nedieļu, gars laiks pasaruodīja, Naredz jis
+vairs zemes un bez zemes tak cylvākam vysod gryuti iztikt. Staiguoja, staiguoja, atroda
+viervi redz ka vierve gara, gara un ka nikas juo nasorgoj. Dūmoj Edgars: ,,Pīsīšu te
+aiz kuo šitū viervi un nūkuoršu uz zemīni, laikam leidz zemei tvers!"</p>
+
+<p align="JUSTIFY">Pīsēja viervi aiz kūka, kurs tepat auga bez saknem, bez lopom,
+nūkuoŗa viervē un suoka pats laistīs uz zemīni. Laidjās, laidjās Edgars uz zemīni,
+bet izguoja pavysam nagaidama līta: vierve beidzjās, leidz zemei palvka vairuok kai pus
+verstes. Un vējs svilpoj, leigoj, nosoj jū viers kolnim, viers leičim, vysom pilsātom
+vysus cīmus var redzēt. Klīdz Edgars, bet kas jū var dzierdēt? Bet juo dzierdētu un
+redzētu - padūmuotu, ka lela vuorna! Vējs leigoj Edgaru un redz jis gludu vītu.</p>
+
+<p align="JUSTIFY">Palaisšu nu rūkom viervi!" dūmoj Edgars, "leiguotīs jau
+"</p>
+
+<p align="JUSTIFY">pavysam apnyka."</p>
+
+<p align="JUSTIFY">Palaidja Edgars nu rukom viervi. Uja! - Vējs ausī vīn svilp, kai
+Edgars kreit uz zemīni. Kai krita, tai taišņi pūrā un vyss saleida zemē, golva vīn
+uorā. Sēd Edgars pūrā un izleist nikai navar. Pavasars, laiks sylts un jauks.
+Atskrēja vysaidi putni, atskrēja ari gulbis. Redz gulbis, ka pūrā guļ moza gubiņa
+sīna, un gulbi, kai vysi zyna, kur sīna sauja, tur jis sovu perekli taisa. Atnezja
+gulbis nu teiruma druscīt sausas zemes, pabēŗa un ar sovom Plotom depem pīplikšinuoja
+jū pi kryusninas - napazyna Edgara golvas, par kryusniņu jīt nūturēja. Gulbis
+nūdēja vīnu ūlu, ūtru, trešu, un jau suoka perēt. Bet te vylks saūdja gulbja
+perekli. Saūdja un tik nazyna, kai tikt pi juo. Nūsorguoja jis, kad gulba nabeja
+pereklī, atskrēja, apēdja ūlas. izjaucja perekli un atsasāda, taundars, atsapyust.
+Edgars - ham! - un īsakūdja vylkam astē. Vylks kai tryuksīs, kai leks - un Edgars
+laukā, kai nabejis pūrā. Tai Edgars tyka nu pūra uorā.</p>
+
+<p align="JUSTIFY">"Nu, bruolīši!" runuoja jis pēc vysim, "naskraidīt
+uz dabasim!"</p>
+
+<p align="JUSTIFY">Bet kas tū devja? Kai tik atīt pavasars - verīs: jau kaids breinumu
+mīļotojs cārt kūku, plēš skaidus, kurinoj gunkuri verīs: jau tu-tu-tu - aizskrēja.
+Saprūtama līta, cylvākam bez zemes ir gars laiks, bet griba ir eistuo navaļa; gribīs
+tak cylvākam pasavērt dabasu radībās: uz saules, uz mēneša, uz mozorn skaistom
+zvaigznītem.</p>
+
+
+</body></html>

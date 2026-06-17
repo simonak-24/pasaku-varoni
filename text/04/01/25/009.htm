@@ -1,0 +1,152 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Vīrs meklē zudušo sievu.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">9. A. 400. V. Zacharska, Ludzā.</p>
+
+<p align="JUSTIFY">Dzeivuoja vīnā mežā vīns zemnīks ar sovu sīvu un vīnu meitu,
+kuru tāvs ar muoti cīši mīļuoja un žāluoja. Meitai beja vuords Agatiņa, un jei
+beja cīši smuka. Natuoli nu zemnīka ustobiņas uz augsta kolna beja lela pils. Tī
+dzeivuoja kaids boguots kungs. Juo pils beja sataisīta nu lada. Kungs namīļuoja saules,
+puču, dzīšmu, putnu un aužu, bet par vysu vairuok jis namīluoja ituo zemnīka, kurs
+natuoli nu juo dzaivuoja, cierta molku un dadzynuoja dagutu. </p>
+
+<p align="JUSTIFY">Vīnā dīnā sasadusmuoja kungs uz zemnīka, pajēmja lelu gubu snīga
+un aizgryudja zemnīka ustabiņu, tai ka zemnīks ar sovu saimi navarēja nikai izīt
+uorā. Izzynuoja natuolēji cīmi, ka ar zemnīku nūtyka taida nalaime, aizskrēja
+ļauds, devja sovu paleigu un atroka zemnīka saimi, un zemnīks otkon izguoja uorā. Juo
+meita beja cīši prīcīga, īraudzējuse gaismu un saulīti. Agatiņa nu lelas prīcas
+sasita rūku pi rūkas. Pēc ituo zemnīka sīva, Agatiņas muote, saslymuoja un nūmyra.
+Pēc sīvas nuaves zemnīks suoka dzeivuot sovā ustabiņā ar sovu meitu, Agatiņu, kura
+ar kotru dīnu palyka smukuoka. Agatiņa struoduoja vysaidus sātas dorbus, bet kad
+pabeidzja dorbu, jei guoja upes molā un pyna nu puču vaiņagus un laidja upē pa yudeni.
+Vīnu reizi kungam paziņuoja, ka zemnīkam ir cīši smuka meita, un jū vajag kungam
+nūzagt. Kungs padūmuoja un lyka sovim kolpim nūzagt meitiņu un atvest jam uz pili.
+Kolpi aizjyudzja sudobra zyrgu zalta karētā, aizbraucia pi zemnīka, nūzoga juo
+Agatiņu un atvedja uz kunga pili! Agatiņa kungam cīši patyka un jis pajēmja jū sev
+par sīvu, bet Agatiņa cīši nagribēja byut par juo sīvu. Kungs sasadusmuoia un
+puortaisīja Agatiņu par snīga koponu. Tai tei snīga kopona stuovēja ilgu laiku un
+nikas ituos snīga koponas navarēja nu vītas nūgryust.</p>
+
+<p align="JUSTIFY">Vīnu reiz kungs pajēmja sovu sudobra zūbynu un grybēja puorcirst
+itū koponu, bet kad pīlyka sovu zūbynu pi koponas, aiztreisēja zeme un nu ituos
+koponas izguoja rauduodama smukuo Agatiņa. Nu osorom, kuras jai lija nu acim, tyulen
+suoka augt smukas pučes un kungs itū redzēja. Suoka kungs prasīt Agatiņu, kab jei
+byutu jam par sīvu. Agatiņa ari devja jam vuordu un jī abi divi aizgvoja uz juos tāva
+ustabiņu. Kungs prasīja juos tāva, kab jis jam pīdūtu par tū, ka jis nazkod juo
+saimi aizgryudja ar snīgu. Agatiņas tāvs svētēja sovu meitu un kungu uz 1aimīgu
+dzeivi. Kungs ar Agatiņu tymā pat dīnā aizbraucja uz cytu kēnesti un tī sataisīja
+lelas kuozas. Kuozuos vysu kū dzēa un ēdja un pēc kuozu suoka dzeivuot un tagad dzivoj
+laimīgi.</p>
+
+<p align="JUSTIFY">Muni vacī tāvu tāvi tī beja un vysu redzēja.</p>
+
+
+</body></html>

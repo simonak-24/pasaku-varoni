@@ -1,0 +1,231 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>21</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Stiprais Ansis.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">21. A. 650 A. Lapas Mārtiņš Rūjienā. "Dievs un velns"
+1904, 75 (13).</p>
+
+<p align="JUSTIFY">Reiz dzīvojis viens ļoti bagāts un nežēlīgs kungs, kas
+pārliecīgi mocījis savus ļaudis ar gŗūtiem darbiem. Reiz kungs gājis savus laukus
+aplūkot un ceļa malā redzējis vienu sirmu sirmu vecīti sēdam.</p>
+
+<p>"Ko tu te bez darba sēdi?" kungs jautājis.</p>
+
+<p align="JUSTIFY">"Tā jau nav tava daļa, ko es daru," vecītis atbildējis.</p>
+
+<p align="JUSTIFY">"Vai tu nezini, ka es esmu kungs? Kā tu iedrošinājies man tā
+atbildēt?" kungs sadusmojies uzsaucis vecītim.</p>
+
+<p align="JUSTIFY">"Es jau nepiederu pie taviem dzimtsļaudim," vecītis
+atbildējis.</p>
+
+<p align="JUSTIFY">Kungs nu gribējis vecītim sist ar savu kūju, bet nekā nevarējis
+iesist. Viņš noturējis vecīti par burvi un domājis, ka tāds viņam derētu taisni
+par vagāru.</p>
+
+<p align="JUSTIFY">"Vai tu negribi nākt pie manis par vagāru?" kungs
+apmierinājies prasījis.</p>
+
+<p align="JUSTIFY">Es varu ar iet par vagāru, bet ar vienu norunu. Es galvoju, ka visi
+darbi tiks labi pastrādāti, bet jūs atļaujiet man rīkot ļaudis, kā man pašam
+patīk."</p>
+
+<p align="JUSTIFY">Kungs brīdi padomājis, bijis ar to mierā un jautājis: "Bet cik
+algas tu prasi par gadu?"</p>
+
+<p align="JUSTIFY">"Es kalpošu bez algas, bet ar to nolīgumu, ka gada beigās man
+ir brīvu trīs reizes sist kungam ar mazo pirkstiņu pa pieri."</p>
+
+<p align="JUSTIFY">"Ermots vecis," kungs domājis. "Viņš man kalpos bez
+maksas un vagāra alga man paliks kabatā. Trīs sitieni ar pirkstu jau arī nesadragās
+manu pieri." Tad viņš atbildējis vecītim: "Ar tādu līgumu esmu
+mierā."</p>
+
+<p align="JUSTIFY">Jaunais vagārs sūtījis ļaudis pie darba tikai pulksten sešos no
+rīta un ļāvis tiem izgulēties un atpūsties. Kad kāds darbinieks apgrēkojies, tad to
+pamācījis tikai ar vārdiem, nekad nelicis pērt ar žagariem.</p>
+
+<p align="JUSTIFY">Kungs, to redzēdams, ļoti dusmojies un izbāris jauno vagāru:
+"Tā tu man nokavēsi darbus un padarīsi mani par nabagu."</p>
+
+<p align="JUSTIFY">Vagārs atbildējis: "Tā jau mēs esam līguši un līgumu es
+izpildīšu."</p>
+
+<p align="JUSTIFY">Vagārs arī turējis vārdu, gādājis par visiem darbiem un rudenī
+bijuši bagāti augļi.</p>
+
+<p align="JUSTIFY">"Tas tikai ir vagārs, kas māk savu amatu," muižaskungs
+sacījis savam kungam.</p>
+
+<p align="JUSTIFY">Kungs nu arī bijis priecīgs par bagātiem lauku augļiem un
+nodomājis sarīkot ļaudim lielas appļāvības. Viņš licis atsaukt vagāru pie sevis
+un sacījis tam: "Tu jau laikam arī pratīsi nokaut manu lielo vērsi, lai būtu
+gaļa, ko ļaudis labi paēdināt. Vari ņemt arī kādus vīrus palīgā."</p>
+
+<p align="JUSTIFY">"To vērsi es viens pats varu nokaut," vagārs atbildējis,
+"palīga man nemaz nevajadzēs."</p>
+
+<p align="JUSTIFY">Kungs neticējis, ka vagārs viens pats iespēs nokaut tādu lielu un
+niknu vērsi, kādēļ gājis pats skatīties, ko vagārs darīs. Vagārs iesitis vērsim
+trīs reiz ar mazo pirkstu pa pieri un vērsis tūliņ nokritis gar zemi. To redzēdams,
+kungs ļoti izbijies un nodomājis pie sevis: "Tā viņš arī mani nositīs, ja
+nevarēšu kaut kā no līguma atkratīties."</p>
+
+<p align="JUSTIFY">Tā nu viņš kādā izdevīgā brīdī lūkojis vagāru pierunāt, lai
+ņemot labāk lielu algu, nekā pēc līguma sitot viņam pa pieri.</p>
+
+<p align="JUSTIFY">Vagārs tikai atbildējis: "Līgumu es negribu grozīt."</p>
+
+<p align="JUSTIFY">Kungs par to bijis lielās raizēs un reiz, pa mežu staigādams,
+izsaucies: "Kaut jel pats velns man palīdzētu šai klizmā!"</p>
+
+<p align="JUSTIFY">Velns tūliņ bijis klāt un prasījis: "Tu mani sauci. Ko
+vēlies?" "Nogalini manu vagāru," kungs atbildējis.</p>
+
+<p>Velns sacījis: "Labi! Tad parādi man savu vagāru!"</p>
+
+<p align="JUSTIFY">Kad kungs parādījis velnam vagāru, tad tas iztrūcies un aizmucis.
+Kungs nu vēl vairāk sabijies un nezinājis, ko darīt. Pēdīgi viņš sadomājis ar
+viltu tikt vaļā no vagāra. Viņš aizsūtīja vagāru ar muižas labību uz Rīgu.
+Kamēr vagārs bija Rīga, tikmēr viņš lika uztaisīt kapsētā jaunu kapu, ieslēdzās
+pats savā istabā un lika ļaudim stāstīt, ka viņš esot nomiris.</p>
+
+<p align="JUSTIFY">Kad vagārs ar ļaudim pārbrauca no Rīgas, tad kundze jau bija
+apģērbusies sēru drēbēs un raudādama stāstīja, ka vīrs nomiris. Vagārs atbild:
+"Kapsētā kunga nav. Viņš guļ tepat savā guļamā istabā."</p>
+
+<p align="JUSTIFY">To teicis, viņš piegājis pie kunga guļamās istabas un iesitis
+trīs reizes ar mazo pirkstu pa sienu. Siena tūliņ sagāzusies un kungs tikko paspējis
+izlekt no gultas.</p>
+
+<p align="JUSTIFY">"Tas ir liels grēks, ka dzīvs cilvēks izdaudzinās par
+mirušu," vagārs sacījis, kungu pamācīdams.</p>
+
+<p align="JUSTIFY">"Man bija bailes no taviem trim sitieniem, tādēļ es izdomāju
+šo viltību."</p>
+
+<p align="JUSTIFY">"Ar blēdību, tu vaļā netiksi." "</p>
+
+<p align="JUSTIFY">"Ko tad lai es daru?" "</p>
+
+<p align="JUSTIFY">"Apsolies turēt savus ļaudis godīgi un neaicināt vairs velnu
+palīgā."</p>
+
+<p align="JUSTIFY">"To apsolos un lai Dievs man palīdz!"</p>
+
+<p align="JUSTIFY">"Tad Dievs jums arī palīdzēs."</p>
+
+<p align="JUSTIFY">Pēc šiem vārdiem vagārs pazudis, Nu arī kungs sapratis, ka vagārs
+nav vis bijis kāds cilvēks, bet laikam pats Dievs.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Šī pasaka ir saīsināta, jo Lapas Mārtiņš pēc
+sava paraduma ir to tīšām gaŗumā vilcis un laikam arī drusku sagrozījis. P. Š.</p>
+</font>
+
+
+</body></html>

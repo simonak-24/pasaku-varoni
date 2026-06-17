@@ -1,0 +1,235 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title></title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="center"><font size="3"></font><font size="5"><strong>Vīrs, kas pārvēršas par putnu un zivi.</strong></font></p><font size="5">
+</font>
+
+<p>3. A. 665. E. Birznieks no Fr. Pabērža Dzirciemā. Jkr. III, 75, 35. L. P. VII, II,
+20, 11, 2.<br>
+</p>
+
+<p>Mežsargam bija viens vienīgs dēls. Vienu dienu šis paņem plinti, uzkāpj zirgam
+mugurā un izjāj pa mežu. Pa zaķa pēdām dzīdamies, viņš apmaldās un iestieg
+tādā purvā, ka nevar vairs tikt ne uz priekšu, ne atpakaļ. Zirgs iegrimis līdz
+vēderam, vairs nevar ne pakustēt. Mežsarga dēls nomauc zirgam apaušus un laipo pats,
+kā varēdams, uz priekšu. Bet jo tālāku viņš iet, jo purvs izskatās lielāks un ir
+staignāks, viņš jau sāk zaudēt cerību, ka maz vairs varēs iztikt ārā. Te viņam
+pār galvu nošvīkst spārni, viņš paskatās un redz, ka trīs balti baloži lidinās.<br>
+"Ak, ka es arī varētu tā lidināties," viņš domā, "tad gan man
+acimredzot nebūtu jānobeidzas purvā."<br>
+Tikko viņš beidzis tā domāt, kad ir jau arī palicis par balodi, tādu pašu baltu,
+kā tie trīs, un laižas tiem pakaļ.<br>
+Visi trīs baloži izlaižas uz kādu pakalniņu un tur, pašā pakalna galā pazūd.
+Mūsu balodis laižas pakaļ, ierauga tur caurumu zemē un laižas iekšā. Viņš redz,
+ka visi trīs baloži nolaižas jaukā dārzā zemē un paliek par trim skaistām
+jaunavām. Mūsu balodis laižas klāt un paliek atkal par mežsarga dēlu. Trīs
+skaistās sievietes teic: "Kur tu, jaunekli, te gadījies? Kad mūsu valdnieks
+pārnāks, viņš tevi saplosīs. Taisies, ka tiec projām!"<br>
+Mežsarga dēls iet arī projām, izstaigā visas malas, bet nekur nevar tikt ārā.
+Viņš redz augšam ir gan caurums, tur varētu tikt ārā, bet citādi ne, kā ar
+spārniem. "Ak kaut jel man būtu spārni kā balodim," viņš nopūšas,
+"tad es gan taptu ārā." Te viņš mana, ka paliek par balodi un laižas un
+laižas kamēr iztiek ārā. Te viņš nolaižas zemē un paliek atkal par cilvēku.
+Viņš staigā visgaŗām gar kalnu, bet visur mūžīgs purvs, mūžīgs purvs. Viņam
+nāk pretī vecs sirms vīriņš un prasa, ko viņš te tā staigājot.<br>
+Mežsarga dēls izstāsta viņam visas savas bēdas, kā apmaldījies purvā, zirgs tur
+iestidzis un palicis, bet pats kā balodis izlaidies te. Vecītis prasa: "Vai apauši
+palika zirgam galvā?<br>
+"Nē, apauši man rokā."<br>
+"Tad pažvadzini apaušus, gan zirgs būs klāt," vecais vīriņš pamāca.<br>
+Mežsarga dēls pažvadzina un zirgs atskrien zviegdams. Vecais vīriņš paiet viņam
+kādu gabaliņu līdzi, ceļu rādīdams. Mežsarga dēls nu sāk atkal pazīt apkārtni,
+tas jau viņa paša sargājamais mežs.<br>
+Viņš pateicas vecajam vīriņam un jāj pa ceļu uz mājām. Gabaliņu pajājis, viņš
+dzird, ka mežā kāds kunkst un vaid. Viņš atstāj zirgu uz ceļa un iet skatīties,
+kas tur īsteni ir. Viņš iet arvienu vien pa balsij, kamēr ierauga sev priekšā uguni
+degam, lielai, lielai čūskai aizdegusies aste, čūska pati sāpēs kunkst un vaid.
+Mežsarga dēls nezin, ko darīt vai mukt, vai dzēst. Čūska viņu ierauga un lūdz, lai
+viņš padabūjot ūdens spaini, kas turpat kokā pakārts, un uzlejot viņai uz degošo
+asti. Mežsarga dēls lej un uguns nodziest.<br>
+Čūska pateicīgi saka: "Piesmel atkal spaini un pakar uz tā paša zara; kad tad tu
+kādu reizi būsi pagalam, tad ūdens paliks ar asinim un es steigšos tevi
+atdzīvināt."<br>
+Viņš iet atpakaļ pie sava zirga, bet to vairs neatrod. Gan viņš izmeklējas, gan
+izciginās bet zirgs kā pazudis, tā pazudis. It noskumis mežsarga dēls iet kajām uz
+mājas pusi. Ceļā viņš satiek braucam karīti ar astoņiem zirgiem. Karītē sēž
+pats ķēniņš un skatās pa logu ārā. Mežsarga dēlu ieraudzījis, ķēniņš viņu
+sauc klāt un aicina, lai tam braucot līdz par sulaini. Šis arī ilgi nemaz
+neapdomājas.<br>
+"Ko es bez zirga vairs mājā maz rādīšos? Braukšu labāki līdz," viņš
+domā un kāpj kučierim blakam uz buku.<br>
+Ķēniņam ir mājā ļoti skaista princese. Šai tā patīk jaunais sulainis, ka viņa to
+iemīl. Bet tēvam par to nedrīkst ne bildēt. Viņš nu ļaus savai meitai iet pie nieka
+sulaiņa? Tā nu viņi abi mīlās labu laiku tomēr nekur talāk netikdami.<br>
+Kādu reizi ķēniņš aizbraucis pie otra ķēniņa medībās. Sulainis viņam ir līdzi.
+Pie galda sēdēdami, ķēniņi sāk viens otram uzdot mīklas minēt. Viens saka šādu
+mīklu, otrs tādu, bet sāk ar laiku jau arī tās mantas aptrūkt.<br>
+"Kad man būtu maņa sapņu grāmata līdzi, tad gan es jums uzdotu mīklas, kuŗas
+jūs visi varētu minēt līdz pat gaismai, bet tomēr jūs neatminētu," mūsu
+ķēniņš saka, "man viņa palika mājā uz loga. Es tam patiesi dotu savu meitu par
+sievu, kas man viņu tagad atnestu."<br>
+Mežsarga dēls, to izdzirdis, tūliņ pa durvim ārā un posīs pakaļ. Viņš iet, iet
+vienā iešanā, kamēr sāks skriet. Bet cik ilgi cilvēks skriesi? Piekūst jau arī.<br>
+"Ak, ka es tagad atkal varētu palaisties, kā balodis, tad tikai būtu labi!"<br>
+Tikko viņš tā izteicis, kad arī jau spārnos. Nu nepaiet ilgi, kad viņš jau pilī
+klāt. Princese patlaban it sēri sēd pie loga un domā; pielaižas balodītis un sāk
+ārpusē knābāt. Viņa atveŗ logu un špurks! putniņš ir iekšā un palicis par
+cilvēku, viņas mīļāko. Ak, kādi nu prieki! Bet sulainis, drīzi atjaušas: "Dod
+šurp tēva sapņu grāmatu! Ja to viņam laikā aiznesīšu, tad dabūšu tevi par
+līgaviņu."<br>
+Princese steigšus dabū sapņu grāmatu, iedod vēl savam mīļākam pusi no pārplēsta
+nēzdoga un pārmij gredzenus. Sulainis nu iegribas atkal palikt par balodi, paliek un
+aizlaižas atpakaļ pie ķēniņa.<br>
+Otra ķēniņa pavārs arī dzirdējis, ka tā runāts, un arī manījis, ka svešais
+sulainis pazudis.<br>
+"Tur bez kručkiem nav," viņš domā un gaida un skatās, kur sulainis
+ieradīsies. Pēc brīža viņš patiesi redz, ka atlaižas balts balodis, paliek par
+cilvēku un nāk iekšā. Pavārs iet pretim un prasa, kur viņš bijis. Sulainis it
+nevainīgs parāda sapņu grāmatu un teic, ka to nesīs ķēniņam. Pavārs neteic nekā,
+tik veļ sulainim par galvu. Šis uz reizi pagalam. Pavārs pavelk viņu patrepē un nes
+sapņu grāmatu pats iekšā ķēniņam.<br>
+Ķēniņš gan brīnās, kur viņš tik ātrā laikā dabūjis viņa sapņu grāmatu, bet
+tik daudz kungu priekšā izteikto vārdu viņš nevar ņemt atpakaļ. Viņš nu arī
+sola, tik drīz kā pārbraukšot mājās, dot pavāram savu meitu. Par sulaini: viņš
+domā, ka tas aizskrējis pa pasauli. Princese, dabūjusi zināt, ka tēvs viņu došot
+pavāram par sievu, pavisam beidzas no bēdām. Viņa gan grib ieteikt tēvam, ka sulainis
+bijis pēc sapņu grāmatas un to aiznesis, un ka viņa tam arī iedevusi pusi no sava
+nēzdoga un pārmijuši gredzenus. Bet ķēniņš negrib par to ne dzirdēt.<br>
+"Meklē kur tāds pasaules vazanka jau tagad acis neuzmet. Ļoti pārskatījos, ka
+maz tādu klaidoni pieņēmu par sulaini!" Princese, nabadzīte, lūdzas, ja ne
+vairāk, tad tak vienu gadiņu lai tēvs paciešoties ar kāzām un laulāšanu. Viņa
+domāja, ka mazākais par to laiku viņš tak pārradīsies. Bet paiet viena diena, paiet
+otra, sulainis kā nenāk, tā nenāk. Paiet viss gads un vēl viņš nav ieradies.
+Pavārs ar ķēniņu nāk atkal princesei ar kāzām virsū. Šī, nabadzīte, lūdzas,
+lai jel vēl paciešas kādas sešas nedēliņas, kamēr viņa arī sagatavojas ar visu,
+kas uz kāzām vajadzīgs. Bet paiet arī šis laiciņš un sulainis vēl kā nav, tā
+nav. Ir jau pats kāzu rīts un brūte pošas patlaban ar pavāru uz baznīcu, bet vēl
+sulaiņa nav.<br>
+Čūska ložņā pa mežu un ir jau gandrīz aizmirsusi, ka reizi tai degusi aste. Kādu
+reizi viņai gadās būt tai pašā vietā, kur mežsarga dēls viņu izglāba un pakāra
+ūdens spaini kokā; viņa paskatās uz koku un spaini un ierauga, ka tas visgarām
+notecējis, notorējis (noķepis) tumši brūnām asimim. Čūska pavisam sabīstas. Ilgs
+laiks jau pagājis, kamēr viņas glābējs kritis nelaimē. Žigli viņa paķeŗ spaini
+uz deguna un skrej projām uz ķēniņa pili. kur sulainis guļ apakš trepēm pagalam.
+Viņa uzlej asinsspaini sulainim virsū un šis, kā no dziļa miega uzmodināts, staipās
+un brīnīdamies skatās visapkārt.<br>
+"Tagad steidzies, cik vari!" čūska viņam uzsauc un izstāsta visu, kas ar
+viņu noticis, "tavu brūti patlaban ģērbj kāzu uzvalkā, lai to ar citu
+salaulātu."<br>
+Tikko sulainis to izdzird, viņš tūliņ atmin visu skaidri un iedomājas: "Ak, kad
+es atkal varētu aizlaisties kā balodis."<br>
+Tūliņ viņš arī laižas un nonāk pašā tai acumirklī ķēniņa pilī, kad
+brūtgāns, pavārs, iet vest princesi no kambara ārā, lai brauktu uz baznīcu. Princese
+dzird, ka kaut kas pieknikstinās pie loga. Viņa paskatās un paģībst: tas jau viņas
+pašas baltais balodītis, viņas mīļākais.<br>
+Ieskrej brūtes tēvs, ķēniņš, princese atžilbst. Ielaiž balodīti un šis tūliņ
+paliek par cilvēku, sulaini. Šis rāda gredzenu un pusi no saplēstās drāniņas un
+izstāsta, kā tas viss viņa un pavāra starpā noticis. Pavārs arī redz, ka liegties
+vairs nelīdzēs, un sāk lūgties. Bet ķēniņš nepiedod vis, pavārs tiek nosodīts.
+Princese ar sulaini svinēja tai pašā dienā kāzas.</p>
+
+
+</body></html>

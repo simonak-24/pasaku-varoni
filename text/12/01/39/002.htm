@@ -1,0 +1,136 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Divi precinieki</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Divi precinieki.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>2. </b>A. 1631. Paegļu Mārtiņš Lielvārdē. Rīg. Zin. Kom. kr. L.
+P. VI, 351, 86. M. Bohm, Lettische Schwānke, 7, 7.</p>
+
+<p align="JUSTIFY">Kalējs un skroderis, abi divi uzskatījuši (ielūkojuši) vienu
+līgavu: viens gribējis precēt, otrs gribējis.</p>
+
+<p align="JUSTIFY">Reiz skroderis nogājis pie izredzētās: "Neej pie kalēja,
+kalējs ir akls; ja netici, paskaties: viņš sit, sit uz dzelzs, kamēr beidzot, akls
+būdams, uzsit pa lakti."</p>
+
+<p align="JUSTIFY">Labi, līgava tā neticējusi, gājusi smēdē apskatīties. Jā, ir
+gan taisnība: sitis, sitis, pa dzelzi, bet pa laktu lai gājis. Kalējam tāda paraša. -
+Nu, neko darīt - kur aklu vīru liksi - gājusi pie skrodeŗa.</p>
+
+<p align="JUSTIFY">Bet īsi priekš kāzām kalējs iestāstījis ļaudaviņai: skroderis
+esot traks, un laulājot viņš trakošot visādā ziņā. Šī neticējusi to. Bet kad nu
+skroderi laulājuši, kalējs paslepen aizbāzis viņam nodedzinātu dzelzs gabalu gar
+zābaku stilbu. Skroderis papriekšu kratījis, kratījis kāju, beidzot kliegdams
+skrējis no baznīcas laukā:</p>
+
+<p>"Deg, deg!"</p>
+
+<p align="JUSTIFY">Nu brūte un citi ticējuši; ka ir gan skroderis traks, nelaulājuši
+vairs. Vēlāk kalējs apprecējis kāroto līgavu.</p>
+
+
+</body></html>

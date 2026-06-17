@@ -1,0 +1,195 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Zaķu gans.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">8. A. 570. V. Barkovskis no P. Češļas
+Sakstagala pag. Līpuru ciemā.</font></p><font size="3">
+
+<p align="JUSTIFY">Vīram ar sievu bija tikai viens dēls, kas, mātei mirstot, palika
+bārenītis. Tēvs apprecēja atkal jaunu sievu un piedzīvoja vairāk bērnu. Pamāte
+nevarēja padēlu ieraudzīt un apmeloja to vīram, ka tas mazos bērnus sitot. Pēdīgi
+viņa piespieda aizvest bāreni uz mežu. Vecais saka dēlam: "Nu, dēls, iesim uz
+mežu ogu lasītu!"</p>
+
+<p align="JUSTIFY">Tēvs paņem cirvi, dēls groziņu un abi aiziet uz mežu. Kad ieiet
+dziļā mežā, tēvs saka: "Tu nu lasi ogas, es cirtīšu žagarus. Kad būsi
+pielasījis pilnu groziņu, tad paklausies, kur es cērtu, nāc pie manis un iesim kopā
+uz māju!"</p>
+
+<p align="JUSTIFY">Dēls arī paklausa un sāk lasīt ogas. Kad pielasa pilnu grozu, tad
+sāk klausīties, kur tēvs cērt žagarus. Aiziet uz to vietu, kur dzird troksni, bet
+izrādās, ka tikai vējš dauza piesietu zaru pie koka. Ir jau vakars un puika nezina
+ceļu uz māju. Labu laiku viņš maldās, tad noliekas mīkstās sūnās un aizmieg. Kad
+viņš rītā pamostas, viņam dikti gribis ēst. Viņš atrod putniņus perēklī un grib
+ēst tos, bet vecais putniņš ļoti lūdzās: "Neaiztiec vis manu bērnu, es tev
+būšu palīdzīgs."</p>
+
+<p align="JUSTIFY">Puisēns arī neaiztika putniņu un gāja tālāku. Iedams viņš
+atrada skaistu beku un teica: "Es tevi apēdīšu."</p>
+
+<p align="JUSTIFY">Beka lūdzās un sacīja: "Neēd vis manis, es tev būšu
+palīdzīga."</p>
+
+<p align="JUSTIFY">Tālāk ejot viņš saķēra upē vēzi un gribēja to apēst. Bet
+vēzis atkal lūdzās: "Neēd vis manis, es tev bušu palīdzīgs."</p>
+
+<p align="JUSTIFY">Tā ejat no vienas vietas uz otru, bija jau atkal vakars pienācis.
+Pēdīgi puisēns ierauga uguni, iet uz uguns pusi, atrod mazu mājiņu un iet tur
+iekšā. Mājiņā dzīvo veca vecenīte, kas to labi paēdina un noliek gulēt. Rītā
+vecene prasa puisēnam: "Vai tu negribi pie manis palikt un manas ķēvītes
+paganīt?"</p>
+
+<p>"Kā nu ne? Labprāt!" puisēns atbild.</p>
+
+<p align="JUSTIFY">Tad vecene iedod puisēnam sešas ķēves un saka: "Še nu aizdzen
+šās ķēves uz to lauku, bet sargā labi, jo viņas var viegli aizbēgt un pazust."</p>
+
+<p align="JUSTIFY">Puisēns nu paliek laukā, ķēves ganīdams, bet vecene aiziet uz
+māju. Šis gana, gana, kamēr uznāk miegs un aizmieg. Kamēr puisēns guļ, tikmēr
+ķēves sabēg biezā mežā un pazūd. Puisēns izmeklējas pa visām malām, nevar
+atrast un sāk raudāt. To raudāšanu bija putniņš sadzirdējis. Tas tūliņ atlaižas
+šurpu un prasa: "Ko tu raudi, kas tev noticis?"</p>
+
+<p align="JUSTIFY">Puisēns atbild: "Man bij ķēves jāgana, bet kamēr es gulēju,
+ķēves ir pazudušas."</p>
+
+<p align="JUSTIFY">"Neraudi vis, gan es ķēves dabūšu," putniņš to mierina
+un sāk meklēt ķēves. Drīz vien viņš tās dabū un izdzen no meža, bet puisēns
+tās pārdzen mājā un ielaiž stallī. Vecene nāk pretī un prasa: "Vai noganīji
+ķēvītes?"</p>
+
+<p align="JUSTIFY">"Noganīju."</p>
+
+<p align="JUSTIFY">"Lūk, kur man labs gans!"</p>
+
+<p align="JUSTIFY">Pēc vakariņām vecene dzen puisēnu otrā istabā gulēt, bet pati
+iziet ārā. Tur nu viņa baŗ un kaunē ķēves, ka tās nevarējušas noslēpties. Tās
+atkal stāsta, ka puisēnam esot putniņš palīdzējis. Puisēns to visu noklausās un nu
+saprot, ka vecene ir ragana un ķēves viņas meitas.</p>
+
+<p align="JUSTIFY">Otrā rītā notiek tāpat. Puisēns aizdzen ķēves uz ganību, drīz
+vien aizmieg un ķēves saskrien mežā. Puisēns pamostas, nevar ķēvju atrast un sāk
+raudāt. Sadzird beka mežā, sāk lieliski augt un izspiež ķēves laukā. Puisēns
+pārdzen atkal visas ķēves mājā, bet nu ragana lamā tās bez gala. Ķēves nu
+apsolās izskriet mežam cauri un paslēpties ūdenī.</p>
+
+<p align="JUSTIFY">Trešā rītā puisēns atkal aizdzen ķēves uz ganību, tad aizmieg
+pēc kāda brīža un ķēves par to laiku pazūd. Nu puika atkal meklē raudādams pa
+visām malām, bet nekur nevar atrast. Šoreiz vēzis bija sadzirdējies puikas
+raudāšanu, sāka kniebt ķēves pa ūdeni, kamēr tās visas izskrēja no upes ārā.
+Puisēns pārdzen atkal ķēves mājā.</p>
+
+<p align="JUSTIFY">Ragana nu nostāda visas savas meitas rindā un liek, lai puisēns
+izvēlas to meitu, kas viņam labāk patīk. Puisēns izvēlējās pašu pēdīgo, kas
+bija bārenīte. Tā nu viņš apprecēja bārenīti un dzīvoja ar to laimīgi.</p>
+
+<p>P i e z ī m e. Šī pasaka ir pārrakstīta rakstu valodā. P. Š.</p>
+</font>
+
+
+</body></html>

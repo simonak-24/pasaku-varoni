@@ -1,0 +1,147 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Nabags un bag?tnieks</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Nabags un bagātnieks.</p>
+</b></font>
+
+<p>5.<b> </b>A. 1535 B. V. Filšs Kapiņu pag.</p>
+
+<p align="JUSTIFY">Vīnā cīmā dzeivuoja divi kaimiņi. Vīns beja dīzgon boguots,
+ūtrs vacs un nabogs. Vecs, kaut beja jau vacs, vēļ daudz struoduoja un lasīja naudu
+dēļ malnuos dīnas. Večam beja salasītas divi sudabriņas, kuŗas jis sadūmuoja
+nūglobuot kur nabejs. Vecs pajēmja itūs divi sudabriņas, aizsēja lupatiņā, aiznesja
+duorzā un nūglobuoja zam kūka zemē. Kad jis globuoja itū naudu, juo boguotajs
+kaimiņs itū vysu redzēja. Kaimiņam tyka žāl, ka nabogs jau palyka par baguotu. Vīnu
+reizi itys boguotais kaimiņs izroka ituos divi sudabriņas un tymā vītā, kur beja
+nauda, īlyka divi akmiņi. Cik tī laika puorguoja, nabogs vēj salasīja treis
+sudabriņas un aiznesja tīpat nūglobuot. Izroka vecs tū lupatiņu un redz, ka tī divi
+akmiņi. Vecs nicik nanūsabeida. Jis tūs akmeņus pajēmja un izsvīdja uorā un tymā
+vītā otkon īlyka tūs treis sudabriņas. Otkon boguotuois kaimiņs itū vysu redzēja.
+Kad vecs guoja nu duorza, boguotuois kaimiņs pīguoja pi veča un vaicoj: "Nu, kai
+dzeivoj, sabris?"</p>
+
+<p align="JUSTIFY">Vecs jam atbildēja: "Nikas, paldīs Dīvam, aiznešu vēl treis
+sudabriņas un tymā pat vītā nūglobuoju, kur gulēja tī divi sudabriņas, kuras tai
+grvuši nūpelnītas. Bet varbyut tam cylvākam, kas pajēmja un īlyka divi akmeņi, vēl
+slyktuok dzeivuot, kai man, par tū es vel īlyku treis, lai jem tys bēdīgs
+cylvāks!"</p>
+
+<p align="JUSTIFY">Kaimiņam beja cīši lels kauns un jis, nikuo napasacīdams, aizguoja
+uz sovu sātu, pajēmja nu sovas naudas, aiznesja uz tū vītu, izroka tuos treis
+sudabriņas un tīpat pīlyka daudz sovu. Tad aizroka un aizguoja. Kad vīnu reizi vēl
+vecs atguoja uz tū vītu un gribēja pasavārtūs, vai dzeivas juo treis sudabriņas,
+atroda cīši daudz. Vecs pajēmja itū naudu, aiznesja uz baznīcu un izdevja jū vysim
+ubogim. Kaids beja vecs prīcīgs, kad īraudzēja tī sovu boguotū kaimiņi, kurs vysu
+sovu bagātību izdalīja ubogim. Vecs pīguoja pi sova boguotuo kaimiņa un runoj jam:
+"Svētēju tevi, dāls muns."</p>
+
+<p align="JUSTIFY">Kaimiņs krita večam ceļūs un suoka rauduodams prasīt, kab jis jam
+pīdūtu, par tū ka jis izjēmja nu juo divi sudabriņas. Tai vecs ar kaimiņi ilgi
+lyudzja Dīvu un kad jī guoja uz sātu, tad kaimiņs redzēja, kai vecs pazuda nazyn kur
+pa šai dinai. Vysi runuoja, ka vecs itys beja pats Dīvs.</p>
+
+
+</body></html>

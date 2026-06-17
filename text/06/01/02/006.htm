@@ -1,0 +1,319 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pārdabīgais palīgs.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">6. A. 504. A. Lerchis - Puškaitis Džūkstē - Pienavā. LP, II, 35. </p>
+
+<p align="JUSTIFY">Vecos laikos kāds ķēniņš aizgājis uz deviņiem gadiem kaŗā.
+Mājā tas atstājis jaunu sievu un gada vecu dēliņu. Šo dēliņu ķēniņš ļoti
+mīlējis, tādēļ tad arī aiziedams sievai cieši noteicis, lai viņa mīlulīti
+rūpīgi kopjot, audzinot. Māte to apņēmās, būšot pati ēdināt, pati guldināt ;
+citam neļaušot ne rokās paņemt.</p>
+
+<p align="JUSTIFY">Tā nu puisēns aug kā rutks. Piektajā gadā tas tik liels un
+sapratīgs, kā citiem ļaudim desmit gadu veci bērni; turpretim astotā gadā jaunais
+ķēniņa dēls pilnīgi izaudzis par stipru, staltu jaunekli, kam prāts tik zobinu
+cilāt. Viņš saka: "Māmiņa, mīļā! mājā man nav nekā ko darīt, iešu
+tētiņu meklēt."</p>
+
+<p align="JUSTIFY">"Labi. labi, dēliņ, posies vien un ej, es jau arī pēc tētiņa
+ilgojos."</p>
+
+<p align="JUSTIFY">No rīta ķēniņa dēls aiziet. Pret vakaru tas sasniedz lielu mežu,
+kur, pašā mežmalā, ierauga tik lielu galvu, kā siena kaudzi, un apakš galvas lielu
+zobinu. Viņš grib zobinu ņemt, bet galva saka: "Ja tu, dēliņ, apņemies ar šo
+zobinu to burvi nokaut, kas man galvu nocirta, tad vari ņemt; citādi nē."</p>
+
+<p align="JUSTIFY">"Labi, labi, mīļā galviņa, gribu tev palīdzēt, bet vai
+nezini pateikt, kur mans tēvs?"</p>
+
+<p align="JUSTIFY">"Dēliņ, ja nokausi burvi un atnāksi atpakaļ pie manis, tad
+pateikšu, kur tavs tēv. Bet klausies, burvis dzīvo tur viņā klints kalnā. Tomēr tā
+neej, apvelc manas bruņas, uzsēdies manam zirgam mugurā. un tad. Šinī koka dobumā
+būs bruņas, būs ir zirgs. Un vēl kaut ko: cērt burvim tikai 'vienu vienīgu reizi;
+otrreiz nē, citādi nebēdnieks atdzīvosies."</p>
+
+<p align="JUSTIFY">Ķēniņa dēls aizjāj pie klints kalna un cērt burvim tik spēcīgi,
+ka galva nokrīt uz plecu: viena mala tik drusku turās pie rumpja. Burvis saka:
+"Cērt vēl reizi labāk pavisam galvu nost, lai neciešu sāpes."</p>
+
+<p align="JUSTIFY">Bet ķēniņa dēts atbild: "Labs kaŗa vīrs tik vienu reizi
+cērt, necirtīšu vis!"</p>
+
+<p align="JUSTIFY">"Nu, tad man taču reiz jāmirst gan; tu esi par mani
+stiprāks," burvis atsaka un tūlīt arī izdziest.</p>
+
+<p align="JUSTIFY">Atpakaļ atjājot, galva saka: "Paldies, ka mani atpestīji,
+palīdzēšu tev visur tāpat, kā man palīdzēji. Ņem manu zirgu, bruņas, zobinu un
+jāj uz māju, jo tavs tēvs arī ceļa jūtīs, gan viņu satiksi."</p>
+
+<p align="JUSTIFY">Jā, itin pareizi - pret vakaru ķēniņa dēls satiek svešu kara
+vīru. Tas prasa: "Nu, dēls, ko gribi?"</p>
+
+<p align="JUSTIFY">"Gribu spēkoties, gribu cīnīties, tāpat kā tu." </p>
+
+<p align="JUSTIFY">"Kā redzu, tev laba griba, dēliņ, bet kamēr manos kaulos
+nāksi tad vēl nepiemirsti dažus gadus cūkas paganīt." "Nedomāju vis, ka
+māte mani par velti lolojusi. Kā būtu, ja liktum zobinus pie malas un saķertumies
+sprandā? Diezin, vai neatlaistu man cūkas ganīt?"</p>
+
+<p align="JUSTIFY">"Nu, raudzīsim!" vecais smiedamies iesaucās. Abi saķeŗas
+- vecais paliek apakšā. To redzēdams, vecais prasa: "Dēls, to nebūtu domājis.
+Saki tūlīt, uz kurieni jāsi, kas tāds esi?" '</p>
+
+<p align="JUSTIFY">"Jāju uz tēva māju, ķēniņa pilī, jo esmu viņa vienīgais
+dēls. Tēvs esot aizgājis, kā man māte stāstījusi, priekš deviņiem gadiem uz
+kaŗu. Jāju viņu meklēt. Tomēr uz ceļa mani pamācīja, lai jājot atpakaļ: tēvs
+nākot uz māju."</p>
+
+<p align="JUSTIFY">To dzirdēdams, vecais atveŗ acis, viņš pazīst savu bērnu, savu
+stipro dēlu.</p>
+
+<p align="JUSTIFY">Saulītei rietot, tēvs ar dēlu pārjāj pilī. Māte priecīga bez
+gala, viņa apkampj vīru, apkampj dēlu un nezin, kā izpriecāties par to, ka ņiprais
+jauneklis tik ātri tēvu atradis. Bet tēvs saka: "Man nevien par dēlu prieks, es
+visvairāk priecājos par tevi. kas mācējusi tik brašu dēlu izaudzināt."</p>
+
+<p align="JUSTIFY">Tā tas nu paliek. Pēc laba laika dēls saka: "Tēt, laidi mani
+pasaulē spēkus izmēģināt."</p>
+
+<p align="JUSTIFY">Labi, tas tēvam patīk, viņš izvada dēlu, lai iet mēģināties.
+Ķēniņa dēls nu jāj, jāj, kamēr aizjāj svešā ķēniņa pilī, kur daiļa
+ķēniņa meita. Viņš bildina daiļo ķēniņa meitu par lī gaviņu. Šī iet, bet
+kaimiņa ķēniņam tas nav pa prātam. Viņam arī tiktos tik daiļa līgava. Kā nu
+atņemt? Beidzot tas sagudro šādus niķus: viņš laiž savam pretiniekam, ķēniņa
+meitas līgavainim, ziņu, lai ejot uz tēva māju tēvu raudzīt, tas esot pie miršanas.
+Tie, zināms, bija karsti meli; bet kā to zināt? Ķēniņa dēls, tādas bēdas
+sadzirdējis, tūlīt sedlo savu zirgu un jāj pie tēva. Un līdz ko šis aizjājis, tā
+kaimiņa ķēniņš klāt un nolaupa ķēniņa dēla līgavu. Uz ceļa ķēniņa dēls
+satiek vecu nabagu. Tas saka: "Nejāj, apturi! Tu palīdzēji galvai, galva
+palīdzēs tev. Klausies, tas nav tiesa, ka tavs tēvs pie miršanas. Tavs pretinieks tevi
+piekrāpis, un pa to laiku, kamēr jāj, tas no laupījis tavu līgaviņu. Steidzies
+atpakaļ, jo parītu būs kāzas. Tad še vēl trijas zāles. Ja iedzersi pirmās, tad
+gulēsi deviņas dienas un deviņas naktis. Ja iedzersi otras, tad paliksi tik vecs,
+nespēcīgs, ka neviens nepazīs. Bet ja trešajās nomazgāsies, tad paliksi, kāds
+bijis. jauns, stiprs, zaļoksnis."</p>
+
+<p align="JUSTIFY">Ķēniņa dēls tūlīt griež zirgu atpakaļ un steidzas līgaviņu
+pestīt. Nojāj pie kaimiņa ķēniņa vārtiem, visas malas appušķotas, viesi
+sabraukuši, kāzas patlaban sākušās. Ķēniņa dēls tūlīt iedzeŗ no otrām zālēm
+un paliek par vecu, vecu nabagu. Nabags ieiet pilī, kāzu namā, un lūdz kādu
+dāvaniņu. Visi dod dāvanas, tik pati līgava nedod, tā redzami noskumusi, saīgusi.
+Beidzot nabags saka: "Ja līgava mani apveltītu, pacienātu, tad gan pamācītu
+jauno namamāti, kā svētība savācama, kā laime pielabināma."</p>
+
+<p align="JUSTIFY">To dzirdēdama, līgava pasniedz ir savu tiesu nabagam. Nabags saņem
+dāvanas abām rokām, sacīdams: "Paiesim divāti un uzmeklēsim klusu istabiņu,
+lai pamācu, kas jauniem ļaudim mācāms, lai mājās labi klātos."</p>
+
+<p align="JUSTIFY">Abi aiziet savrūp. Tagad nabags vispirms izstāsta, kas tāds esot,
+tad ko uz ceļa saticis, kā zāles dabūjis, kā tīšu par nabagu palicis un, beidzot,
+pirmās zāles līgavai iedevis, pamāca tā: "Raugi viņam, savam laupītājam,
+iedod. šīs zāles. Kamēr viņš deviņas dienas domās izgulēties, mēs būsim pār
+kalnu kalniem."</p>
+
+<p align="JUSTIFY">Līgava priecīga saņem miega zāles, ieiet pie sava laupītāja un
+saka tā: "Vadzi, priekš laulībām iedzersim no šī kausa derības malku!"</p>
+
+<p align="JUSTIFY">Šis ar mieru: bet kā iedzer, tā aizmieg uz deviņām dienām.
+Kāzinieki gan grib atmodināt, bet nekā. Beidzot nabags saka: .,Ja līgava pati man
+līdz nāktu, tad iedotu zāles, kā ķēniņu atmodināt; bet ja ne, tad tik lēti
+neatmodināsit."</p>
+
+<p align="JUSTIFY">Visi tūlīt vienā balsī, lai ejot līdz, lai ejot līdz, jo citādi
+kāzām beigas, citādi prieku vietā bēdas.</p>
+
+<p align="JUSTIFY">Labi, šie divi aiziet. Kāzinieki gaida vienu brīdi, otru brīdi ;
+vienu dienu, otru dienu. ne vairs līgavas ne zāles. Gaidi, gaidi, tie tev vairs nāks
+atpakaļ !</p>
+
+<p align="JUSTIFY">Abi zirgam mugurā un nu tik jāj. Un kas vēl vislabākais: nabags,
+upītē nomazgājies, paliek par slaiku ķēniņa dēlu. Kāziniekiem no tādām lietām,
+zināms ne jausmas; bet pēc deviņām dienām ķēniņš atmozdamies tūlīt apķeŗ
+citādi to lietu. Tas saka: "Tā jau domāju! Lai, lai, tūlīt likšu raganai pēdas
+jaukt, lai abi bēg]i mājas neatrastu un tad pavēlēšu kaŗa spēkam pakaļ dzīties.
+Tā notiek. Kaŗa spēks panāk gan bēgļus, bet ķēniņa dēls ar savu zobinu apkauj
+visu kaŗa spēku, tāpat kā toreiz burvi klintīs. Tik viens atliekas un izbēg. Tas
+aiznes savam ķēniņam ziņu par kara spīŗka likteni. Ķēniņš tūlīt liek vēl
+otrai raganai bēgļiem pēdas jaukt un tad nolielās: "Pag, pag! man stāv
+ieslodzīts tāds stiprinieks, kas ozolu ar visām saknēm izceļ un deviņdesmit asu
+vienā lēcienā aizlēc, laidīšu to vaļām. Lai tik nu jaunie ļaudis sataisās-"</p>
+
+<p align="JUSTIFY">Ķēniņš palaiž savu stiprinieku vaļām. Tas izrauj lielu ozolu ar
+visām saknēm un tad dzenas. ko tik māk, ar lielo rungu bēgļiem pakaļ. Bet
+stiprinieks vēl nebijis ne trīs lēcis, te vecais nabags jaunajiem palīgā. sacīdams:
+"Dēls, sataisies! Drīzi būs jācīnās, jo notāļumā zeme sāk dimdēt. Te
+atskries tāds milzis; pusē cilvēks, pusē zirgs. Bet nu ievēro, necērt ar savu zobinu
+divreiz. Redzi, tu vienu cirtienu cērtot, notrieksi viņu gar zemi un tad pietiks:
+puszirgs sāks mieru līgt. Tomēr citādu mieru nelīgsti, kā tik tādu: viņam
+vienkārt jāapsolās tev līdz iet; otrkārt jāpalīdz tavs pretinieks, viņa paša
+ķēniņš, apkaŗot, un, treškārt, jāapņemas mazākais divas raganas nonāvēt."</p>
+
+<p align="JUSTIFY">Līdz ko vecais nabags bija aizgājis, te puszirgs ar lielo ozolu ik pa
+deviņdesmit asim, ik pa deviņdesmit asim, klāt.</p>
+
+<p align="JUSTIFY">Ķēniņa dēls izrauj zobinu un gāž zvēram pa ribām. Puszirgs
+noveļas gar zemi, sacīdams: "Liela vajadzība man par citiem dzīvību pazaudēt.
+Līgsim mieru!"</p>
+
+<p align="JUSTIFY">"Labi, līgsim!"</p>
+
+<p align="JUSTIFY">Nu salīgst tādu mieru: puszirgam jāiet līdz, jāpalīdz ķēniņš
+apkaŗot, un jānonāvē mazākais divas raganas. Labi, visi trīs aiziet, kā draugi.</p>
+
+<p align="JUSTIFY">Te abas raganas, pēdu jaucējas, pie ķēniņa klāt.</p>
+
+<p align="JUSTIFY">"Ko domā? Puszirgs pārvarēts, puszirgs mieru salīdzis! Ko nu
+darīsi?"</p>
+
+<p align="JUSTIFY">"Ko nu darīt? Jāiet pašam. Jauciet jūs divas viņiem pēdas,
+es steigšos ar kaŗa spēku pakaļ."</p>
+
+<p align="JUSTIFY">Tā notiek. Raganas jauc un ķēniņš steidzas, steidzas, kamēr
+panāk. Nu izceļas briesmīgs kaŗš: zeme dimdēja, kauli krakšķēja. Kur ķēniņa
+dēls ar zobinu deva, tur šķīda, kur puszirgs ar ozolu kŗāva, tur lēveņiem bira.
+Tik izglābās, kā ķēniņš ar raganām.</p>
+
+<p align="JUSTIFY">Ķēniņa dēls, viņa līgava un puszirgs, pēc tik varenas kaujas
+domā vispirms labi atpūsties. Viņi ieiet dziļāki mežā un atron mazu būdiņu. Te
+visi trīs apņemas kādu nedēļu padzīvot. Ķēniņa dēls būšot katru dienu
+medījumus pagādāt un puszirgs atkal palikšot pie viņa līgavas mājā, lai ragana
+neuzbruktu. Šiem tā izlikās itin droši un derīgi esam; bet ķēniņš ar raganām
+nepuva vis aizkrāsnē. Tas sadabū vēl trešo raganu un tad izrīko darbus šitā;
+divām raganām jāpārvēršas par lāčiem, lai uzbruktu puszirgam un līgavai, bet
+trešajai raganai jātiek galā ar ķēniņa dēlu.</p>
+
+<p align="JUSTIFY">Trešā dienā pēc kaujas ķēniņa dēls aiziet medīt un puszirgs ar
+līgavu paliek mājā, būdiņā. Te ap pusdienas laiku divi lāči klāt. Viens lācis
+uzbrūk puszirgam, bet otrs paslēpjas. Kamēr nu puszirgs to vienu lāci žņaudz, tamēr
+otrs lācis slepus, no muguras puses, puszirgam klāt un izrauj sirdi. Puszirgs, ar nāvi
+cīnoties, pārplēš vienu lāci, pārplēš otru, bet tad arī pats atkrīt augšpēdu
+un izdziest. Līgava, to redzēdama, atstāj būdiņu un skrien ķēniņa dēlu meklēt,
+bet tam tāds pats liktenis gaidāms. Trešā ragana, par vilkaci pārvērtusies, jauc
+ķēniņa dēlam pēdas un grib tādā bezdibenī ieviļināt, ko cilvēks, ja to nezin,
+nemaz nevar par bezdibeni iedomāties. Vispāri mīksta lāču sūna; un tā jau neaug uz
+bezdibeņiem. Jau ķēniņa dēls bezdibena malā, jau domā kāju uz nevainīgo lāču
+sūnu spert, te tas izdzird meža biezumos līgavas balsi, līgavas ūkšķināšanu.
+Viņš atūkšķina pretim un paskatās atpakaļ. Ak, tavus brīnumus! vilkacis turpat uz
+papēžiem. Ko nu gaidīt: liek vienreiz ar zobinu - gatavs. Līdz ko nu vilkacis
+atstiepjas, te ķēniņa dēlam atveŗas acis: mīkstā lāču sūna pārvērtusies par
+briesmīgu bezdibeni. Nebūtu līgava saukusi, tad raganai būtu izdevies.</p>
+
+<p align="JUSTIFY">Līgava nu izstāsta savas briesmas un šis atkal savas. Abi bija
+priecīgi bez gala, ka tik laimīgi izdevies, bet tie lielākie prieki vēl bija tie :
+raganām mirstot, gadījās pazīstams taks, pa kuru jaunais pāris iziet uz tēva pili.</p>
+
+<p align="JUSTIFY">Otrā nedēļā tēvs darina savam dēlam tādas kāzas, kādas vēl
+nebija redzētas. Tur, jāsaka, puspasaule bija saaicināta. Kam bija zirgs, tas nāca
+jāšus, kam zirga nebija, tas nāca kājām, bet kas nevarēja ne jāšus, ne kājām
+nākt, tas līda četrrāpus. Kāzās būt vajadzēja, lai būtu, kā būdams.</p>
+
+
+</body></html>

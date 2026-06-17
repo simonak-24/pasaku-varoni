@@ -1,0 +1,154 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>34</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Zīmju valoda.</p>
+</font>
+
+</b><p><b>1. </b>A. 1588. P. Šmits Raunā.</p>
+
+<p align="JUSTIFY">Viens mācīts vīrs izdomājis zīmju valodu, ar kuŗu varētu savā
+starpā saprasties, nemaz nerunājot. Reiz šis mācītais vīrs aizbraucis uz Tērbatu
+apklaušināties, vai arī turienes augstskolā viņa zīmju valoda esot pazīstama.
+Tērbatas profesori gan par to valodu nekā nezinājuši, bet negribējuši atzīties un
+stāstījuši, ka arī viņiem esot viens zīmju valodas pratējs. Tad viņi
+sarunājušies ar studentiem, vai no tiem kāds nebūtu mācījies šo jauno valodu, bet
+arī tie par to nekā nezinājuši. Ko nu darīt? Tad studenti stāstījuši, ka šiem
+esot pazīstams viens miesnieka zellis, kam nekad vārdu netrūkstot. Vai nevarētu to
+sūtīt par zīmju valodas pratēju? Šis miesnieka zellis bijis ar vienu aci. Nu
+apģērbuši miesnieka zelli glītās drēbēs un atveduši uz augstskolu.</p>
+
+<p align="JUSTIFY">Tad atnācis arī mācītais vīrs un iesācis sarunu zīmju valodā.
+Zinātnieks pacēlis vienu pirkstu un zellis rādījis viņam divi pirkstus. Nu
+zinātnieks pacēlis trīs pirkstus un zellis rādījis dūri. Beidzot zinātnieks
+rādījis skaistu gludu ābolu, bet zellis tam pretī maizes garozu. Ar to saruna
+beigusies un mācītais vīrs aizgājis.</p>
+
+<p align="JUSTIFY">Pēc tās sarunas profesori prasījuši savam viesam, kā viņa saruna
+izdevusies. Mācītais vīrs atbildējis: "Mēs ļoti labi sapratāmies. Es pacēlu
+vienu pirkstu, aizrādīdams, ka mums ir viens Dievs. Jūsu valodas pratējs rādīja divi
+pirkstus, sacīdams, ka ir vairāk nekā viens. Es nu jautāju, vai tad mums nav trīs
+dievi, paceldams trīs pirkstus. Tad viņš parādīja dūri, apgalvodams, ka šie trīs
+ir viens. Tad es izņēmu no kabatas ābolu, pielīdzinādams to mūsu apaļai semei.
+Viņš izņēma maizes garozu, stāstīdams, ka zeme nemaz nav tik gluda."</p>
+
+<p align="JUSTIFY">Vēlāk profesori atsaukuši arī miesnieka zelli pie sevis un
+prasījuši, sā viņam klājies ar runāšanu. Miesnieka zellis atbildējis: "Kā
+tas svešais kungs ienāca, tā tūliņ rādīja man vienu pirkstu, teikdams, ka man ir
+tikai viena acs. Es viņam atbildēju, ka es tikpat labi redzu ar vienu aci, kā viņš ar
+abām, un pacēlu divi pirkstus. Tad viņš man rādīja trīs pirkstus, teikdams, ka par
+mums abiem ir tikai trīs acis. Es nu saskaitos, ka viņš grib zoboties par manu vienu
+aci, un parādīju viņam dūri. Pēdīgi viņš, kā lielīdamies, rādīja man skaistu
+ābolu. Es atkal atbildēju, ka rupja maize man ir svarīgāka nekā viņa ābols, un
+izņēmu no kabatas vienu maizes garozu."</p>
+
+<p align="JUSTIFY">Tā bija gan notikusi saruna zīmju valodā, bet katrs bija to sapratis
+savādi.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Tas ir gan bez šaubām grāmatu joks, bet droši vien
+jau labi vecs, kā liecina stipri sagrozītais variants. P. Š.</p>
+
+
+</body></html>

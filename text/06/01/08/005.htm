@@ -1,0 +1,164 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vienacīte, Divacīte, Trijacīte.</p>
+</b></font>
+
+<p>&nbsp;</p>
+
+<p>5. A. 511. Rkr. II, 114. LP, VII, II, 27, 1, 3.</p>
+
+<p align="JUSTIFY">Māte mirdama teica uz savu meitiņu: "Man nu, meitiņa mīļā,
+būs jāmirst, un tev maz mantas varu atstāt, bet kopi šo raibo gotiņu, tā tad
+dažreiz palīdzēs grūtumā un bēdās."</p>
+
+<p align="JUSTIFY">Drīz arī māte nomira, bārene nu palika apakš bargas negantnieces
+valdīšanas; tā dzina bāreni katru dienu ganos un deva līdz daudz vērpjamā.
+Bārenīte ganos ļoti raudāja un vaimanāja, jo zināja gan, ka svešā māte pliķus
+netaupīs un bārenītes matus plūkās, ja viņa nolikto darbu nebūs padarījusi.
+Tādās bēdās pienāk raibaliņa un vaicā, kādēļ tā bēdājoties. Meitene izteic
+savas bēdas. Raibaliņa saka: "Tai likstā es tev varu palīdzēt. Bāz tik savu
+vērpjamo pa manu kreiso ausi iekšā, tad pa labo nāks ļoti smalks pavediens
+ārā."</p>
+
+<p align="JUSTIFY">Meitene, tā darīdama, darbu ātri nobeidza. Kad bārenīte pārnāca
+mājā, pamāte no brīnumiem un dusmām nezināja, kur dēties.</p>
+
+<p align="JUSTIFY">Otrā dienā pamāte deva vēl vairāk vērpjamā līdz, bet meitene
+atkal ar visu tapa ātri galā. Trešā dienā deva vēl vairāk un sūtīja savu meitu
+līdz, lai lūkojot, kā gremža to varot izdarīt, ko neviens cilvēks virs zemes
+nespējot. Bārenīte lutekli aizmidzināja un atkal gaitīgi pabeidza savu darbu. Kad nu
+pamāte citādi nevarēja iztaujāt, tad apņemās pati nolūkot, kā tas notiek. Kādā
+dienā, kad bārenīte savu darbu pēc ieraduma steidzināja, pamāte, mežā ielīdusi,
+visu nolūkoja. Mājā pārnākusi, viņa teic uz savu lutekli: "Ak tu izčubējis!
+Raibaļa ir viņas izpalīdzētāja tā jānokaun!"</p>
+
+<p align="JUSTIFY">Kad vakarā bārenīte slauca savu mīļo raibaliņu, tad raibaliņa
+saka: "Mani rītā nokaus, bet tevi nelaimē negribu atstāt bez cerības. Kad mani
+nokaus, tad tu uzgriez manu lielo zarnu, tur pašā galā atrodas divi akmentiņi dimanta
+spožumā, tos tu paņem un iestādi pie māju vārtiem, tur izaugs tava laime."</p>
+
+<p align="JUSTIFY">Bārenīte izdarīja, kā raibaliņa mācīja un - ak tavu prieku!
+---trešā dienā pie vārtiem. ieraudzīja ļoti daiļu koku ar neredzēti skaistiem
+augļiem, un arī aku ar neizsakāmi garšīgu vīnu.</p>
+
+<p align="JUSTIFY">Tai pašā dienā ļoti skaista kariete brauca ar zirgiem, kuriem
+saules gaisma galvu ēnoja. Braucēji bija, kā manāms, no augstas kārtas, jo bija
+pilnīgi izrotājušies ar zeltu un dimantiem. Ieraudzījuši skaisto koku ar neredzētiem
+augļiem, viņa prasīja, lai šiem arī kādus pārdodot. Pamāte nu sūtīja savu meitu,
+lai pasniedz kungiem skaistos augļus, bet tiklīdz kā šī pie ābeles piegāja ābele
+pacēlās gaisā; gāja pie akas vīnu smelt - aka ielīda zemē.</p>
+
+<p align="JUSTIFY">Nu bija jālaiž arī bārenīte no krāsns ārā, kur tā bija
+iebāzta. Bārenīte piegāja pie ābeles, kā pie savas māmuliņas, norāva skaistos
+augļus, piesmēla krūzi ar vīnu un pasniedza kungiem. Kungi ieņēma skaisto bārenīti
+pie sevis karietē un brauca projām uz savu zelta pili. Ābele un vīna aka tecēja paka[
+un pie skaistās pilsētas: vārtiem palika uz vietas. Zelta pilsētnieki ēda ābeles
+augus un dzēra no akas vīnu. Zelta pilsētas valdnieka dēls paņēma bārenīti sev par
+līgaviņu.</p>
+
+
+</body></html>

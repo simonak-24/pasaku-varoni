@@ -1,0 +1,354 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>32</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Labie brāļi.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>&nbsp;</b></p>
+
+<p align="JUSTIFY"><b>32. </b>A. 567. 303. J. Dicmanis Lieģos "Pasaku
+vācelīte". 1891, 19. LP, VII, II, 20, 1, 3.</p>
+
+<p align="JUSTIFY">Reiz dzīvoja divi brāļi, vecākais bija bagāts sudraba kalējs,
+jaunākais nabaga mežsargs. Kādu dienu mežsargs nošāva tādu<b> </b>putnu, kam uz
+spārniem bija zelta vārdi uzrakstīti. Viņš lasīja tos vārdus, bet nevarēja
+izlasīt. Tad viņš nonesa putnu pie sava brāļa, sudraba kalēja, un lūdza, lai izlasa
+zelta vārdus. Sudraba kalējs, tos vārdus izlasījis, teica uz mežsargu: "Mīļo
+brāli! pārdod man to putnu. Es tev došu simtu rubļu par viņu!"</p>
+
+<p align="JUSTIFY">Uz spārniem bija rakstīts: "Kas šo putnu apēd, tam ikrīta uz
+pagalvja atronas zelta ola, no mutes izkritusi."</p>
+
+<p align="JUSTIFY">Bet mežsargam sudraba kalējs to neteica. Mežsargs bija ar simtu
+rubļiem mierā un sudraba kalējs nopirka putnu. Sudraba. kalējs lika tūlin savai
+sievai izvārīt putnu. Sieva uzlika putnu grāpī uz uguns un tad izgāja uz stalli lopus
+apkopt. Par to laiku, kamēr kalējiene vēl bija kūtī pie lopiem, gadījās, ka
+mežsarga trīs dēli, no medīšanas mājā nākdami, ienāca sasildīties kalēja
+ķēķī. Ļoti izsalkuši būdami, viņi izrāva putnu no grāpja, izņēma tam sirdi,
+sagrieza trīs daļās un katrs apēda vienu gabaliņu. Pēc tam labi sasildījušies, tie
+aizgāja uz māju.</p>
+
+<p align="JUSTIFY">Sudraba kalējiene, no staļļa atnākusi, izņēma putna gaļu no
+grāpja un ienesa istabā. Ienāca sudraba kalējs, apēda putnu un likās tūliņ gulēt,
+gribēdams par zelta raksta patiesību pārliecināties. No rīta piecēlies, viņš
+tūlin raudzīja pagalvī Pēc olas, bet nekā neatrada. Vēlāk viņš dabūja zināt, ka
+viņa brāļa dēli to dienu bijuši viņa ķēķī, apēduši putna sirdi un tādā
+ziņā izpostījuši viņa laimi. Viņš tūlin aizgāja pie mežsarga un dusmās sacīja:
+"Vadzi, brāl, ko es tev teikšu. Ja tu savus dēlus nenogalināsi, tad es viņus
+nonāvēšu. Tavi dēli ir man padarījuši lielu skādi, man nozagdami zelta olas."</p>
+
+<p align="JUSTIFY">Mežsargs par zelta olām nekā nezināja. No rīta, kad dēli
+uzcēlās, mežsargs redzēja, ka katram uz pagalvja bija zelta ola. Nu viņš tūlin
+noprata, kādēļ brālis bija par viņa dēliem dusmojies. Neko darīt - labi zin, ka
+brālis viņa dēlus dzīvus nepametīs, tādēļ viņš tūliņ taī pašā dienā iedeva
+katram dēlam bisi, sacīdams:</p>
+
+<p align="JUSTIFY">Mani dēli, iesim šodien uz mežu medīt!" "</p>
+
+<p align="JUSTIFY">Viņam bija žēl nomaitāt savus dēlus, tāpēc ievedis dziļi meži,
+sacīja: "Pagaidiet mazu brītiņu šepat, es iešu palūkot, vai nebūs kur kāds
+zvērs, vai putniņš manāms - es būšu atkal drīzi atpakaļ!"</p>
+
+<p align="JUSTIFY">Vecais mežsargs, šos vārdus runādams, tikai mokām savaldījās,
+lai tie nemanītu viņa bēdīgu vaigu. Viņi gaidīja vairāk stundas, bet nevarēdami
+sagaidīt tēvu, pēdīgi noprata, ka tēvs arī vairs atpakaļ nenāks.</p>
+
+<p align="JUSTIFY">Viņi norunāja, negriezties vairs atpakaļ uz māju, un gāja pa mežu
+tālāk uz priekšu. . Gabaliņu gājuši, satika vilku un gribēja to šaut, bet vilks
+ļoti lūdzās un apsolīja katram vienu no saviem bērniem.</p>
+
+<p align="JUSTIFY">Dabūjuš? katrs pa vilcēnam, viņi gāja pa mežu tālāk, satika
+tīģeri. Gribēja šaut, bet tīģeris lūdzās un apsolīja katram vienu no saviem
+bērniem.</p>
+
+<p align="JUSTIFY">Tā viņi satikās ar visādiem meža zvēriem un no ikkatra dabūja pa
+bērnam. Vispēdīgi viņi satika zaķi un gribēja šaut, bet zaķis gauži lūdzās, lai
+nešaujot, viņš došot katram vienu no saviem bērniem. Katrs arī dabūja mazu
+zaķēnu.</p>
+
+<p align="JUSTIFY">Nu viņi gāja atkal arvienu tāļāk uz priekšu, kamēr beidzot
+iznāca no meža uz klajuma. Meža malā bija resns koka stumburs; tanī stumburā viņi
+iedūra katrs savu nazi un norunāja tā: "Ja vienam vai otram, vai trešam no
+viņiem gadās te gaŗām iet un tas redz, ka no nažiem kāds norūsējis, tad tam tūlin
+jāiet uzmeklēt naža īpašnieks, jo tad skaidri saprotams, ka tam vāji klājas."</p>
+
+<p align="JUSTIFY">Pēc tam viņi izšķīrās un katrs aizgāja uz savu pusi. Jaunākais
+brālis, ko vecākie brāļi vairāk par muļķi turēja, uzgāja krogu. Pie kroga durvim
+bija sēru karogs pielikts. Muļķis, krogā iegājis, prasīja krodzeniekam:
+"Kāpēc jūs visi esat tā noskumuši, un ko nozīmē sēru karogs ārā pie
+durvim?"</p>
+
+<p align="JUSTIFY">Krodzenieks atteica: "Kā nebūsim noskumuši, kad mūsu zemē ir
+tāds nožēlojams likums, ka ikmēneša viena meita jādod velnam. Nu šodien ir reize
+pienākusi, kur mana mīļā meitiņa jāved projām niknam velnam atdot."</p>
+
+<p align="JUSTIFY">"Kur tad tas negodīgais velns iedzīvo, kas jūsu mīļās
+meitiņas tā laupa?" mežsarga dēls līdzcietīgi jautāja.</p>
+
+<p align="JUSTIFY">"Tur viņā kalnā! Pašā kalna virsotnē ir liels, kupls ozols;
+gar ozolu iet ceļš un aiz ceļa, kādas divas asis atstatu, ir liela ala - tanī alā
+mājo velni. Ja tu gribi velnu redzēt, tad noej uz kalnu, apsēdies pie ozola, tad tu
+redzēsi, kas tur notiksies!"</p>
+
+<p align="JUSTIFY">Tad krodzenieks vēl tālāk teica: "Tur no lejas puses uzbrauks
+ormanis, kas uzvedīs manu meitu velnam atdot. Bet mīļais draugs! saņemies spēkos ar
+visiem saviem zvēriem, jo citādi tev var prasti klāties."</p>
+
+<p align="JUSTIFY">Nu mežsarga dēls tūlin no krodzenieka atvadījās un nogāja uz
+minēto kalnu. Tur viņš arī atrada lielu ozolu un alas caurumu, tā kā jau krodzenieks
+viņam bija sacījis. Uz reizi iznāca velns ar divpadsmit galvām pa alas caurumu un
+apvēma visu to kalnu ar uguni un dūmiem. Mežsarga dēls nu noprata, ka ormanis drīz
+brauks. Viņš tūlin ar visiem saviem zvēriem piesteidzās pie alas cauruma. Pēc kāda
+laiciņa viņš izdzirda zvana skaņu un pēc maz minūtēm uzbrauca no lejas pa kalna
+ceļu kāds pavecīgs virs ar lieliem ratiem. (Šis vīrs bijis jau tādēļ tur nolikts).
+Lielajos ratos sēdēja krodzenieka meita gaužām bēdīgi un raudāja.</p>
+
+<p align="JUSTIFY">Te iznāca no alas velns ar divpadsmit galvām un tuvojās ratiem.
+Mežsarga dēls manīja, ka nu velns tūlin raus krodzenieka meitu ārā. Ātri vien
+viņš uzsauca saviem zvēriem, lai steigšus norauj velnam viņa divpadsmit galvas.
+Zvēri nu tūlin bija visi velnam virsū un noplēsa viņam galvas. Tad mežsarga dēls
+piegāja krodzenieka meitai klāt un itin laipni un mīlīgi sacīja: "Mīļā
+meitiņ, nebēdājies, neraudi vairs! Redz, tavs slepkavs, velns, ir pagalam, jo mani
+zvēri viņu saplēsa."</p>
+
+<p align="JUSTIFY">Krodzenieka meita no liela prieka krita muļķim ap kaklu, raudādama
+prieka asaras, nomutēja to. Tad viņa sacīja uz muļķi : "Tu esi izglābis mani no
+nikna velna rīkles, par to tev būs tapt manam vīram!"</p>
+
+<p align="JUSTIFY">To sacīdama, viņa pārkoda savu gredzenu pušu un iedeva vienu pusi
+muļķim. Vakars bija pienācis, viņiem turpat vēl uz kalna esot, un viņi nolikās
+gulēt. Muļķis nolika lauvu par sargu un pieteica, lai neaizmiegas. Pēc tam lauva
+sacīja uz tīģeri, lai viņš paliek par sargu. Un tā viņi cits uz citu sacīja, līdz
+pēdīgi visi iemiga; tikai zaķis vēl palika kājās. Zaķis tūlin sakūra uguni un
+sildījās. Bet tavu nelaimi! Zaķim sildoties nosvila vilna; arī āda stipri sadega un
+arī viņš iemiga.</p>
+
+<p align="JUSTIFY">Kad nu vecais ormanis redzēja, ka visi aizmiguši, viņš nokava
+muļķīti, paņēma krodzenieka meitu un aizsteidzās no kalna projām. Kad zvēri no
+rīta piecēlās un ieraudzīja muļķi, savu kungu, nokautu zemē guļam, tad tie sāka
+visi bļaut un gauži vaimanāt. Bet zaķis sacīja: "Kuš! Ko nu bļaujat kā bez
+jēgas? Manai mātei ir tādas zāles, ar kuŗām var atkal atdzīvināt."</p>
+
+<p align="JUSTIFY">To teicis, viņš tūlin steidzās pie mātes un atnesa zāles.
+"Bet kuŗš lai nu pielipina galvu?" zvērs viens otram vaicāja.</p>
+
+<p align="JUSTIFY">"Es protu labi pielipināt!" lācis jautri iesaucās. Tad
+paņēmis muļķa galvu, to uzlīmēja uz rumpja.</p>
+
+<p align="JUSTIFY">"Ē, brālīt, vaidzi, ka tu izputētu! Tu jau neesi pareizi
+uzlīmējis - mute uz pakausi?" lapsa iesaucās, piezobodama lāci. Lapsa tūlin
+piegāja, norāva galvu un sūtīja zaķi vēl citām zālēm pakaļ. Zaķis atnesa
+zāles, lapsa pareizi uzlīmēja galvu un muļķis tapa atkal dzīvs.</p>
+
+<p align="JUSTIFY">Tad visi atkal gāja tālāk. Viņi gāja pa mežu mežiem un pēdīgi
+nonāca taī vietā, kur muļķis ar saviem brāļiem šķiroties bija savus nažus
+stumburā iedūruši. Muļķa nazis bija itin spožs, it kā vakar iedurts, bet brāļu
+naži abi divi bija pavisam norūsējuši. Muļķis rādīja saviem zvēriem un sacīja:
+"Redziet, kā manu brāļu naži pavisam sarūsējuši! Es zinu, viņiem tagad iet
+pavisam plāni, viņi ir dabūjuši galu!"</p>
+
+<p align="JUSTIFY">Visi nu norunāja iet viņus uzmeklēt. Viņi atkal gāja pa mežu
+mežiem un beidzot nonāca lielā birzē, kur daudz pelēku akmeņu atradās. Šī bija
+birze, kur muļķa divi brāli bija dabūjuši galu.</p>
+
+<p align="JUSTIFY">Tagad drusciņ atstāsim muļķi ar viņa zvēriem un pastāstīsim,
+kā muļķa divi brāļi bija šinī birzē nonākuši.</p>
+
+<p align="JUSTIFY">Tad, kad viņi bija meža malā nažus minētā stumburā sadūruši un
+katrs uz savu pusi izšķīrušies, vecākais brālis bija gājis ar saviem&amp;127;
+zvēriem pa mežu mežiem, šaudams, putnus. Tā arvienu tālāk iedams, bija nonācis
+šinī birzē. Tad birzē nometies apakš liela koka, uzkūris uguni un sildījies. Tā
+paša koka kuplajos zaros, kur viņš ar saviem zvēriem apakšā pie uguns sildījies,
+tupējusi kāda vecene, veca ragana. Šī kokā tupēdama, vienmēr trīcēja, drebēja,
+un skaņi kunkstēdama, arvienu ievaidējās: "Ai, cik man auksti!"</p>
+
+<p align="JUSTIFY">Viņš paskatījies uz augšu un redzēdams veceni kokā, sacījis:
+"Vecene, ja tev ir auksti, tad nāc zemē pie uguns un sasildies!"</p>
+
+<p align="JUSTIFY">Vecā ragana itin laipni atteica: "Labais, jaunais cilvēks! Ja tu
+man atļauj savus zvērus un tevi pašu ar mazu kociņu apkūļāt, tad es iešu, jo
+citādi es nedrīkstu."</p>
+
+<p align="JUSTIFY">Mežsarga vecākais dēls (vecākais brālis) viņai arī atvēlējis
+apkūļāt. Ragana tos apkūļājusi un visi tūliņ palikuši par pelēkiem akmeņiem.
+Vidējam brālim un viņa zvēriem tāpat gājis kā vecākajam brālim.</p>
+
+<p align="JUSTIFY">Muļķim (jaunākam brālim) arī gadījās ar saviem zvēriem
+nomesties zem tā paša koka. Viņš uzkūra uguni un ar saviem zvēriem sildījās. Te
+tā pati vecā ragana sāka stenēt un vaidēt, ka par daudz auksti esot. Muļķis uzsauca
+: "Ko tu tur ņaudi, vecā ragana? Kad tev ir auksti, tad nāc zemē, sasildies pie
+uguns!"</p>
+
+<p align="JUSTIFY">"Mīļais, labais cilvēks! Man tā ir bail! Atļauj man mazu
+lietiņu apkūļāt tavus zvērus un tevi pašu ar kādu mazu, maza kociņu, tad es
+drīkstēšu iet zemē pie uguns."</p>
+
+<p align="JUSTIFY">"Es ātrāki neļaušos apkūļāt, līdz tu man nepateiksi, kas
+šie par akmeņiem."</p>
+
+<p align="JUSTIFY">"Nevaru to teikt. "</p>
+
+<p align="JUSTIFY">"Ne par ko tev neļaušu, ja man nepateiksi."</p>
+
+<p align="JUSTIFY">Vispēdīgi vecene arī pateica, ka visi šie pelēkie akmeni esot
+cilvēki un zvēri. Muļķis nu tūlin domāja, ka te arī vajaga būt viņa diviem
+brāļiem ar visiem viņu zvēriem. Viņš labi nu saprata ragana blēdību un tūlin
+dusmīgs viņai uzbļāva: "Tu, nekaunīgā ragana, bezdievīgā velna māte! Tu
+ātrāki no šejienes projām netiksi, līdz tu šos akmeņus nebūsi dzīvus
+pataisījusi."</p>
+
+<p align="JUSTIFY">Vecene, nevarēdama nekādā ziņā izvairīties, uz reizi pacēlās
+gaisā, tā kā visa birze nokūpēja vien, un arī tūliņ visi zvēri un cilvēki tapa
+dzīvi. Tur nu bija cilvēku un zvēru līdz simtiem tūkstošiem, jo itin visus cilvēkus
+un zvērus, kas tikai šai birzē nonākuši, vecā ragana bija par pelēkiem akmeņiem
+apbūrusi. Gudrie brāļi nu sniedza muļķim roku un no visas sirds pateicās, ka viņš
+tos izglābis. Nu bija visi trīs brāļi un arī viņu zvēri ļoti priecīgi. Pēc tam
+visi citi cilvēki un zvēri izklīda uz visām pusēm.</p>
+
+<p align="JUSTIFY">Nu muļķis atgādājās krodzenieka meitas, ka to bija nesen izglābis
+no velna nagiem. Muļķis uzrunāja savus divus brāļus noiet ar visiem zvēriem uz
+minēto krogu. Krogā nonākuši viņi atrada visu krogu ļoti jauki izpušķotu un
+krodzenieka meitu brūtes drēbēs ģērbtu. Rati jau bija pie durvim piebraukti un
+gaidīja brūti ar brūtgānu iznākam, lai tos aizvestu uz baznīcu laulāt.</p>
+
+<p align="JUSTIFY">Bet kas tad bija tas brūtgāns, kas krodzenieka meitu precēja? Tas
+bija vecais ormanis, kas velna kalnā nokāva muļķi un nozaga muļķim krodzenieka
+meitu. Vecais bija krodzenieka meitu cieti nozvērinājis, ar nāvi biedinādams, lai
+viņa saka savam tēvam, ka viņš to no velna nagiem izglābis. Krodzenieks, to
+ticēdams, no liela prieka deva viņam savu meitu par sievu.</p>
+
+<p align="JUSTIFY">Muļķis to dabūjis zināt, atstāja savus brāļus un zvērus aiz
+kroga durvim un pats steidzās kroga istabā. Lauvu viņš ņēma sev līdz. Iegājis
+viņš atrada istabu pilnu ar kāzeniekiem. Viņš nostājās plāna vidū un tad izvilka
+no kabatas savu mutes autiņu, izcēla to uz augšu un rokā turēdams uz kāzu viesiem
+pagriezies, sacīja: "Uzminat, kas man te ir lakatā?"</p>
+
+<p align="JUSTIFY">Neviens nevarēja uzminēt. Pēdīgi brūte iesaucās: "Tur ir
+mana gredzena otra puse!"</p>
+
+<p align="JUSTIFY">Kāzenieki, to dzirdēdami, palika visi kā uz mutes sisti, jo neviens
+nevarēja iedomāties, ko šāda mīkla nozīmē. Viens, otrs no kāzeniekiem gan
+paklusām sāka mētāt šādus, tādus vārdus, sacīdams: "Vai tikai šis cilvēks
+nebūs krodzenieka meitu izglābis?"</p>
+
+<p align="JUSTIFY">Citi piemetināja : "Tas nevar būt."</p>
+
+<p align="JUSTIFY">Tad muļķis sacīja uz lauvu: "Ej, atnes tās divpadsmit velna
+galvas!"</p>
+
+<p align="JUSTIFY">Kad lauva atnesa divpadsmit velna galvas un muļķis tās visiem
+rādīja, tad visi viņu tūlin atzina par krodzenieka meitas izglābēju un otrā dienā
+muļķi salaulāja ar krodzenieka meitu.</p>
+
+<p align="JUSTIFY">Vecajam ormanim muļķis lika iekalt riņķi degunā un paturēja to
+sev suņa vietā. Viņam citu neko nedeva ēst, kā sarkanas ogles un pavēlēja: "Ja
+viņš tās neēd, tad sist viņu nost!"</p>
+
+<p align="JUSTIFY">Vēlāk krodzenieks atdeva savam znotam un meitai krogu un nu muļķis
+palika par turīgu vīru, dzīvoja ar sieviņu laimīgi.</p>
+
+
+</body></html>

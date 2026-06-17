@@ -1,0 +1,188 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Bezbailis meklē bailes.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 650. 326. Rudzītis, Gulbenē. LP, VI, 112, 26.</p>
+
+<p align="JUSTIFY">Vienam tēvam bij ļoti stiprs dēls, Ansis vārdā.</p>
+
+<p align="JUSTIFY">Jau no mazām dienām Ansis strādāja tādus varoņa darbus, par ko
+visi pabrīnījās.</p>
+
+<p align="JUSTIFY">Bet kad Ansis bij pieaudzis, tad tas sacīja tēvam: "Tēt,
+ilgāki negribu te mājās baroties, iešu pie paša ķēniņa darbu meklēt."</p>
+
+<p align="JUSTIFY">Ansis aizgāja pie ķēniņa, satika to tīrumā pie strādniekiem un
+sacīja tā: "Esmu tavs stiprākais pavalstnieks, dod man pieklājīgu darbu!"</p>
+
+<p align="JUSTIFY">"Labi. Ja tu tiešām esi mans stiprākais pavalstnieks, tad ej
+šonakt manā jaunā pilī velnus izdzīt. Ja izdzīsi, tad došu tev veco pili un savu
+meitu par algu.</p>
+
+<p align="JUSTIFY">Ansis tūlin mierā; tikai desmit kūļu salmu, skrūvbeņķa, stangu
+un knīpstangu vajagot viņam, lai tās dodot.</p>
+
+<p align="JUSTIFY">Ja, ja, ķēniņš iedeva, un Ansis ar šiem ieročiem aizgāja velnus
+šķaidīt.</p>
+
+<p align="JUSTIFY">Vakarā viņš iekūra krāsni, palaida salmus, ielika stangu un
+knīpstangas kvēlošās oglēs un apgulās uz salmiem.</p>
+
+<p align="JUSTIFY">Gulēja, gulēja - te ap pusnakti sanāca pilna pils velnu. Ansis
+uztrūkās, sagrāba vienu velnu aiz pakauša, ielika skrūvbeņķī un nu tikai ar karsto
+stangu un ar knīpstangām knaibīja šo no vienas vietas. Citi velni, to redzēdami.
+aizbēga. Ieskrūvētais velns labprāt arī būtu bēdzis, bet nevarēja no skrūvbeņķa
+izpestīties. Nu, kad nu vaļā nevar tikt, sāks šis Ansim piesolīt lielu pulku naudas,
+lai atlaižot. Ja, ja.</p>
+
+<p align="JUSTIFY">Ansis paņēma naudu, iededzināja velnam krustu pierē, ka var citā
+reizē šo pazīt, un palaida. Tas nu tai naktī.</p>
+
+<p align="JUSTIFY">Otrā naktī sanāca pilī tik daudz āžu, ka visas pils istabas ar
+āžiem vien bija pilnas. Ansis mudīgi piecēlās no salmiem, saķēra knīpstangās
+vienu sirmu sirmu āzi, ielika skrūvēs un sāka knaibīt. Citi āži, to redzēdami,
+danciski aizbēga. Ieskrūvētais āzis nu iedeva Ansim tādu zobinu, ar kuŗu varot
+apkaut, ko vien tikai gribot, un lūdzās, lai palaižot vaļā. Bet Ansis nemaz
+neklausījās, nolika zobinu pie malas, paņēma salmus, nosvilināja sirmo āzi sarkanu
+un knaibīja to ar knīpstangām no vienas vietas. Knaibīja, knaibīja - kas ir?
+Izknaidīja no āža lielu lielu velnu ar divdesmit četrām galvām. Nu paķēra āža
+zobinu un nokapāja velnam tās divdesmit trīs galvas vaicādams, ko došot, tad to
+beidzamo galvu atstāšot necirstu.</p>
+
+<p align="JUSTIFY">Velns sprukās iedeva stabuli. Ja to pastabulēja resnajā galā, tad
+radās liels pulks kaŗa vīru; ja pastabulēja tievā galā, tad gadījās visādas
+skaistas jo skaistas meitas. Tagad Ansis atlaida velnu ar vienu galvu.</p>
+
+<p align="JUSTIFY">Trešā naktī sanāca pilī visi velni, kas tikai vien ellē bija, un
+gribēja Ansi izdeldēt no pasaules. Bet Ansis paķēra āža zobinu nu apkapāja velnus
+līdz pēdīgajam. No tā laika tad neviena velna zemes virsū arī neredzot. Ceturtā
+rītā Ansis iegāja vecajā pilī pie ķēniņa un sacīja, ka nu velnus esot izdzinis.</p>
+
+<p align="JUSTIFY">Bet tai pašā dienā ķēniņam bij uzmācies otrs stiprāks
+ķēniņš. Ansis smējās: "Ko tu man dosi, tad aizdzīšu svešo pa kaklu, pa
+galvu?" "Ai, ja tu to izdari, tad atdodu tev visu valsti, manu meitu jau tā kā
+tā esi izpelnījies."</p>
+
+<p align="JUSTIFY">Labi. Ansis pastabulēja resnā galā, saradās milzums kaŗa vīru. Nu
+atjoza āža zobinu un uzbruka ar vīriem tik dikti ienaidniekam, ka neviens pats neatlika
+dzīvotājs.</p>
+
+<p align="JUSTIFY">Tūliņ ķēniņš iecēla Ansi savā vietā par ķēniņu un atdeva
+meitu.</p>
+
+<p align="JUSTIFY">Bet pēc kāzām Anša sieva nogrieza stabulei tievo galu un nezin, kur
+nometa, kur ne. Ansis gan taujāja: "Sieva, kam tu nogriezi stabulei tievo
+galu?"</p>
+
+<p align="JUSTIFY">Bet sieva atteica: "Ansi, kam tev tādas blēņas vajaga?" un
+vairāk neko.</p>
+
+
+</body></html>

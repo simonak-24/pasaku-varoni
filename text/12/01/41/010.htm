@@ -1,0 +1,173 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Viszi?a dakteris</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Visziņa dakteris.</p>
+</font></b>
+
+<p align="JUSTIFY"><strong>10.</strong> A. 1641. E. A. Simsons no A. Taločko Sakstagala
+pag. Latvju kult. kr.</p>
+
+<p align="JUSTIFY">Dzeivuoja zemnīks. Sīva jam jau seņ nūmyra un jis nagribādams
+struoduot īdūmuoja teikt vysim, ka jis ir paragūns un ka zemes struduot jis vairuok
+naspēj. Bet tai kai īdzeivuotuoji mīstiņā beja vysi lobi ļaudis un jīm nikaidas
+nalaimes nabeja, tad jī naguoja pī paragūņa prasīt kaida nabejis padūma. Tai šis
+paragūņs dzeivuoja, cikom daudz naudas beja, bet kad naudu puordzeivuoja, nazynuodams,
+kū darīt, jis aizguoja vīnā duorzā un nūzoga audaklu, kurs kolta saulītī. Jis tū
+izdarīja tuopēc, ka gribēja, lai pi juo nuok prasīt padūmu. Tū audekļu jis aiznesja
+ūtrā pusē mīstiņa un nūgluobuoja pi vīna lela kūka.</p>
+
+<p align="JUSTIFY">Buoba, kad guoja gulātu, īdūmuoja, va vajag audakļu īnest ustobā.
+Aizguoja buoba uz duorzu un redz, ka nav audekla. Viņa suoka klīgt, ka ir nazkur zaglis
+viņu mīstiņā. Atskrēja ļaudis, suoka vysur meklēt - nav nikur. Tūlaik buoba
+sadūmuoja aizīt pi paragūņa, lai jis pasoka, kur ir juos audakls. Kai sadūmuoja, tai
+izdarēja. Atguoja buoba pi paragūņa un vysu jam izstuostēja.</p>
+
+<p align="JUSTIFY">"Labi, es tev teikšu, kur ir tovs audakls, bet par tū dūd maņ
+gaļas un putraimu!"</p>
+
+<p align="JUSTIFY">Buobai beja žāļ audakla un viņa beja ar mīru, atnest jam gaļas un
+putraimu. Tad jis teicja: "Sēd te pi cepļa, un kad es tev īdūšu stūpu yudeņa,
+tu izlej treis lases uz greidas un runoj sevī: "Kur esi, muns audaklis?"</p>
+
+<p align="JUSTIFY">Buoba tai izdarīja. Paragūņs staiguoja pa ustobu tur un atpakaļ
+nazcik reižu, kautkū tur runuoja un vāluok teicja: "Ej ūtrā pusē mīstiņa, tur
+taišņi uz lela ceļa stuov kūks, tur zaglis ir nūglobuojis tovu audaklu."</p>
+
+<p align="JUSTIFY">Buoba aizskrēja un tyuleņ dabuoja audaklu. Pēc kaida laika, kad
+paragūns apēdja vysu gaļu un putraimus, jis sadūmuoja nūzagt nu vīna boguota
+zenunīka zyrgu. Kai sadūmuoja, tai tyuleņ izdarīja. Zemnīks suoka meklēt zyrgu, bet
+paragūņs aizvedja zyrgu mežā un pīsēja jū pi vīnas eglītes un pats aizguoja uz
+sātu. Zemnīks ilgi namaklādams, atskrēja pi paragūņa prasīt juo izzynuot, kur ir
+juo zvrgs. Jis otkon pasadynuoja zemnīku pi cepļa, kaut kū tur runuoja, izvuvorēja
+nazkaidas zuoļas un pīsacēlis runuoja: "Ej tyuleņ mežā, tur pi eglītes zaglis
+tovu zvrgu pīsēja, bet par dorbu atnes maņ gaļas, maizes un putraimu!"</p>
+
+<p align="JUSTIFY">Zemnīks aizskrēja uz mežu un tur dabuoja sovu zyrgu. Paragūnam par
+taidu lobu izzynuošonu jis labi samoksuoja. Tai otkon paragūņs suoka dzeivuot labi, bet
+par jū aizguoja slava pi paša ķēniņa. Ķēniņam pazūda meita un nazkas nūzaga
+gradzynu. Jis pateicja sulaiņam atvest paragūņi pi juo. Kad sulaiņi pateicja jam,
+paragūņs nūsabeida, kad izdzierda kēniņa vuordus : "Ja dabuosi gradzynu un munu
+meitu, daudz kū nu manis dabuosi, bet jo na, tūlaik golvu tovu nūjēmšu!"</p>
+
+<p align="JUSTIFY">Paragūņs aizguoja ķēniņa ustobā un jau suoka skaitīt puotorus,
+dūmuodams, ka jau tagad beigts. Gradzynu bija nūzadzis vīns sulainis. Kod sulainis
+izdzierdēja paragūņa puotorus, dūmuoja, ka vysleidza pagagūns izzynuos, ka jis
+pajēmja šū gradzynu un atnuocis pi paragūņa lyugdams soka: "Nasoki tu, ka es jū
+pajēmu, še gradzyns!"</p>
+
+<p align="JUSTIFY">Paragūņs prīcīgs jam soka: "Nu labi, es nateikšu, ka tu, bet
+vai nazyni, kur kēniņa meita palyka."</p>
+
+<p align="JUSTIFY">Sulainis jam atbildēja: "Zynu ari tū, m&amp;127;eita juo
+aizbāga ar vīnu princi cytā kēnestī!"</p>
+
+<p align="JUSTIFY">Tai ūtrā dīnā paragūņs atdevja gradzynu kēneņam un pasacīja,
+kur juo meita. Kad kēniņš izzynuoja, ka tys ir taisnība, ka juo meita dzeivoj ar
+princu cytā kēnestī, tūlaik kēniņš īdevja paragūņam tik daudz naudas, ka
+jam&amp;127; pītyka vysu myužu nūdzeivuot, nikuo nastruoduojūt.</p>
+
+
+</body></html>

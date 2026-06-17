@@ -1,0 +1,237 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dieva dotā sieva.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 465. C. Baltausis ar Gothardu Kr. Vircavā. LP, III, 26. </p>
+
+<p align="JUSTIFY">Kāds kungs bija atdevis kādam vīram meža stūrīti. Vīrs tūlin
+uzcēla mazu būdiņu, ietaisīja mazajā stūrītī lauciņus un apsēja labību. Bet
+mazie lauciņi neienesa tikdaudz, cik pārtikai vajadzīgs; vīram tādēļ bija jāiet
+pie kunga pelnīties. Kungs pavēlēja viņam celmus lauzt. Tomēr celmu laušana gŗūts,
+nešķirīgs darbs, tādēļ ir te nevarējis tik daudz nopelnīt, cik vajadzējis.</p>
+
+<p align="JUSTIFY">"Cik gŗūti!" vīrs vienu dienu dziļi nopūtās.</p>
+
+<p align="JUSTIFY">Un līdz ko šos vārdus izteica, te - kur gadījusies, kur ne
+-pienāca daiļa sieviete sacīdama: "Nu, nu, no šīs dienas nebūs vairs tik
+gŗūti!" (Sieviete bijusi Laima.)</p>
+
+<p align="JUSTIFY">Tā arī bija, otrā dienā darbs šķīrās pavisam citādi, celmi
+vēlās kā burkāni no zemes ārā - īsā laikā bija salauzta liela gŗava.</p>
+
+<p align="JUSTIFY">Trešā dienā Laima atkal atnāca pie celmu lauzēja un uzprasīja:
+"Kā ir, vai vedas labāki?"</p>
+
+<p align="JUSTIFY">"Paldies, paldies man prieks!" Laima atteica un iegāja celmu
+lauzēja būdiņā atpūsties.</p>
+
+<p align="JUSTIFY">Bet tai pašā acumirklī muižkungs izlīda no biezumiem un
+uzprasīja: "Celmulauzēj, kas tā par sievieti, kuŗa nule pat iegāja
+istabā?"</p>
+
+<p align="JUSTIFY">"Dievs to zin? Tā viņa atnāk, tā aiziet!"</p>
+
+<p align="JUSTIFY">"Ak tā! kungs mani sūtīja, lai apskatos, ko te laba dari, un tu
+nāc ar blēņu izrunām, neteiksi man taisnību."</p>
+
+<p align="JUSTIFY">"Tās nav nekādas blēņas, patiesi nezinu, kas tā tāda. Tik
+daudz tik zinu, ka viņai spēcīgi vārdi. Līdz ko vienu vārdu man par labu sacījusi,
+tūlin darbs šķiras pavisam citādi: celmi iet laukā kā pekas."</p>
+
+<p align="JUSTIFY">To dzirdēdams, muižaskungs steidzās uz māju pie kunga un
+sastāstīja tam pilnu galvu, ko redzējis, ko atradis. Kungs iesākumā neticēja, bet
+muižaskungs nodievojās: "Tici droši, tā nav kaut kāda sieviete; viņas vārdiem
+esot brīnišķīgs spēks. Tu nezini, kā celmu lauzējs ar celmiem dzīvo, tīri kā ar
+sapuvušām pekām. Mums vajaga sievieti te muižā dabūt, lai būtu kā būdams. Tik
+viena nelaime, viņa ar labu nešķirsies no celmu lauzēja. Bet pag, kas man prātā.
+Sūtīsim celmu lauzēju no pasaules ārā, raidīsim viņu pie mēneša tādu un tādu
+ziņu atnest, un pieteiksim. lai triju dienu laikā no mēneša atpakaļ. Saprotama lieta,
+ka turp nokļuvis, tas mūžam vairs nespēs atpakaļ atgriezties."</p>
+
+<p align="JUSTIFY">Tāda runa kungam patika. Viņš tūlin uzdeva celmu lauzējam pie
+mēneša steigties un tādu un tādu ziņu pārnest. Celmu lauzējs raudāja gaužas
+asaras. Te Laima klāt.</p>
+
+<p align="JUSTIFY">"Ko raudi?" </p>
+
+<p align="JUSTIFY">Tā un tā, vīrs atbildēja.</p>
+
+<p align="JUSTIFY">"Nekas, es aizsviedīšu šo kamoltiņu līdz mēnesim. Sviežot
+kamoltiņš izrisināsies no šīs vietas līdz pat mēnesim. Ej tik pa izrisināto
+dzijiņu vien, tad notiksi itin drīz turp un atpakaļ.</p>
+
+<p align="JUSTIFY">Labi! Pēc trim dienām celmu lauzējs bija no mēneša ar ziņu
+atpakaļ. Kungs brīnījās, muižas kungs raustīja plecus. Bet otrā dienā muižas
+kungam Jau cits atkal kas prātā.</p>
+
+<p align="JUSTIFY">"Sūtīsim viņu pie saules ziņu atnest - tas daudz
+tālāku!" Labi, aizsūtīja pie saules. Bet Laima izmeta atkal citu kamoliņu un
+celmu lauzējs bija trijās dienās kā tauriņš ar ziņu at pakaļ. Kungs brīnījās;
+muižas kungs raustīja plecus. Bet otrā dienā muižas kungam jau cits atkal kas
+prātā.</p>
+
+<p align="JUSTIFY">"Sūtīsim viņu uz elli pēc ziņas, no turienes viņš gan
+neatgriezīsies."</p>
+
+<p align="JUSTIFY">Labi. Bet Laima atkal izmeta citu kamoltiņu. Kamoltiņš risinājās,
+risinājās, kamēr apstājās pašā elles dibinā. Celmu lauzējs- gāja pa izrisināto
+diedziņu vien un nonāca pie elles vārtiem. Tur tas atskatījās atpakaļ un ieraudzīja
+savu muižas krogu aiz muguras. Muižas kungs šoreiz bija jājis vīram pakaļ, lai
+redzētu. vai tik viņš patiesi līdz ellei noiet. Izrisināto dziju muižas kungam nebij
+lemts redzēt; to tik celmu lauzējs spēja saredzēt.</p>
+
+<p align="JUSTIFY">Celmu lauzējs muižas kunga nemaz neievēroja; viņš atvēra elles
+vārtus un gāja droši iekšā. Bet līdz ko pirmo soli paspēra, te celmu lauzējs
+pašās krūtīs saskrējās ar sava kunga nelaiķa tēvu. Velns bija sūtījis kunga
+tēvu smagas mucas pār žogu velt. Tomēr kas celmu lauzējam ar mucām par daļu? Viņš
+tik gāja ellē iekšā un kunga tēvs atkal aizgāja, kur tam jāiet. Pēc kāda brīža
+celmu lauzējs bija gatavs ar savām darīšanām; viņš gāja laukā no elles. Velns
+līdz vārtiem to pavadīja, pie kam nevilšus uzmeta acis uz vātim un mucām. Kunga
+tēvs vēla mucas stenēdams. Muižas kungs, turpat stāvēdams, domāja: "Pag, pag,
+mazu lietu palīdzēšu savam senākajam maizes tēvam."</p>
+
+<p align="JUSTIFY">Viņš nolēca no zirga un pielika ir savas rokas; bet mucas necēlās
+un necēlās.</p>
+
+<p align="JUSTIFY">Velns, to redzēdams, pagrāba metamo un iesaucās: "Ak tā, divi
+tādi resni tēviņi nevarēs man nieka mucas pacelt!"</p>
+
+<p align="JUSTIFY">To sacīdams, velns deva, ko jaudāja, vienu muižas kungam, otru kunga
+tēvam. Un kamēr celmu lauzējs tur skatījās, muižas kungam jau bija atsistas plikas
+ribas. Celmu lauzējam vairs netika redzēt, viņš nospļāvās un labāk gāja uz māju.
+</p>
+
+<p align="JUSTIFY">Otrā, trešā dienā muižas kungs pusdzīvs pārradās. Viņš
+rādīja kungam savas ribas un izstāstīja visas briesmas, gan par tēvu, gan par velnu.</p>
+
+<p align="JUSTIFY">To dzirdēdams, kungs nejauki sadusmojās uz vīru. "Pagaidi tu,
+celmu lauzēj!" viņš dudināja, "tagad likšu izrakt gaŗu, tumšu alu, abos
+galos ar izeju un triekšu tevi tur cauri. Alas vidū nolikšu slepenu katlu ar vārošu
+ūdeni - gan tad tu nopluksi!"</p>
+
+<p align="JUSTIFY">Bet Laima jau pateica priekšlaiku celmu lauzējam, kas, tam nāksies
+darīt, piekodinādama, lai tik ejot droši vien caur alu, tam nekaitēšot itin nekas.</p>
+
+<p align="JUSTIFY">Noteiktā diena pienāca. Celmu lauzējam bija jāiet caur alu. Viņš
+gāja. Pēc tāda brītiņa alā nogāja pļunkt! Kungs ar muižas kungu gardi iesmējās.
+Pagāja atkal brītiņš. Te, kas tas? Celmu lauzējs izlien no alas sveiks, vesels un pie
+tam vēl viscaur ģērbies vienā zeltā.</p>
+
+<p align="JUSTIFY">Kur tu zelta drēbēs tiki?" tie tūliņ uzprasīja. "</p>
+
+<p align="JUSTIFY">"Kur tad tiku? Līdz ko gāju, tā iekritu tādā katlā un, kā
+no katla izlīdu. tā atrados vienā zeltā."</p>
+
+<p align="JUSTIFY">To dzirdēdams, kungs un muižas kungs steidzās alā, lai tīšā
+prātā lēktu katlā. Ielēca gan, bet neizlēca vairs: abi nopluka. Gāzi taisno
+deviņas reizes; deviņas reizes tas tomēr uzcelsies! </p>
+
+
+</body></html>

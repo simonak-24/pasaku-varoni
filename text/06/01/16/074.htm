@@ -1,0 +1,184 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">74. A. 530. V. Zacharska no J. Gudramoviča Makašānu pagasta
+Alkovskas ciemā. Latvju kultūras kr.</p>
+
+<p align="JUSTIFY">Vīnam tāvam beja treis dāli. Vīnu dālu, pašu jaunuokū, saucja
+par palnuruški, jis tik palnus vīn rušinuoja. Tāvs pasaucja sovus dālus pi sevis un
+pasacīja: "Kad es nūmieršu, tad ejīt treis naktis uz munu kopu sorguotu, kotrs pa
+naktei!"</p>
+
+<p align="JUSTIFY">Kad tāvs nūmyra un jū paglobuoja, vacuokī bruoli nūsyutīja pyrmū
+sorguot uz kopu jaunuokū bruoli, palnuruški. Aizguoja palnuruška sorguot tāva kopu.
+Beja pusnakts. Tāvs nu kopa vaicoj: "Kurs dāls atguoja manis sorguot?"</p>
+
+<p>Dāls atsasaucja: "Es asmu, palnuruška!"</p>
+
+<p align="JUSTIFY">Tāvs jam atbildēja: "Paldīs tev, dēliņ; ej uz sātu. Ceļā
+tev aizīs prīškā skaists zyrgs ar zvaigzni pīrē un vara pokovim." Dāls
+aizguoja un celā satyka skaistu zyrgu ar zvaigzni pīrē.</p>
+
+<p align="JUSTIFY">Palnuruška pajēmja itū zyrgu un īvedja stallī. Ūtrā dīnā gudri
+bruoli pasacīja otkon īt palnuruškai sorguot tāvu..</p>
+
+<p align="JUSTIFY">Palnuruška aizguoja ūtru nakti. Pusnaktīs otkon vaicoj tāvs nu
+kopa: "Kurs dāls šūdīm sorgoj?"</p>
+
+<p align="JUSTIFY">"Es pats, palnuruška!" atbildēja jaunuokais dāls. Tāvs
+jam otkon runoj: "Ej uz sātu. Ceļā tu satiksi skaistu zyrgu ar mēnesi pīrē un
+ar sudobra pokovim!" Aizguoja dāls un satyka skaistu zyrgu, kuram pīrē beja
+mēness un sudobra pokovi. Zyrgu palnuruška pajēmja un īvedja sovā stallī.</p>
+
+<p align="JUSTIFY">Trešā naktī bruoļi otkon syuta palnurušku īt sorguot tāva kopu.
+Īt vēl palnuruška uz kopim. Pusnaktī voicoj tāvs nu kopa: Kurs dāls šūdīn
+sorgoj?"</p>
+
+<p align="JUSTIFY">" "Es, palnuruška!" atbildēja dāls.</p>
+
+<p align="JUSTIFY">Tāvs jam otkon runoj : "Ej uz sātu. Ceļā tu satiksi skaistu
+zyrgu ar sauslīti pīrē un ar zalta pokovym!"</p>
+
+<p align="JUSTIFY">Aizguoja palnuruška un ceļā satyka skaistu zyrgu ar saulīti pīrē
+un ar zalta pokovim. Jis pajēmja itū zyrgu un īvedja stallī. Tagad palnuruškai beja
+treis labi un skaisti zyrgi.</p>
+
+<p align="JUSTIFY">Tuos zemes kēniņš, kurā dzeivuoja treis bruoļi, izdevja pa vysu
+sovu kēnesti pavēli, jo kas atrass gradzynu ar duorgim akmenim, kuru kēniņš
+pazaudēja un pats nazyna kur, tam jis atdūs pusi sovas kēnests un sovu meitu.</p>
+
+<p align="JUSTIFY">Bruoļi izzynuojuši tū, apsawilka lobuos drēbēa, sāduos uz zyrgim
+un juoja meklēt tū duorgū gradzynu. Ari jaunuokais bruols, palnuruška, sāduos uz sova
+zyrga ar zvaigzni pīrē un vara pokovim un taipat aizjuoja meklēt tā gradzvnu. Cik tī
+bruoli nameklēja, bet nikuo naatroda un bez vysa kuo atsagrīzja atpakaļ uz sātu.</p>
+
+<p align="JUSTIFY">Ūtrā dīnā otkon bruoļi juoja meklēt gradzyna. Ari palnuruška
+izbraucja ar ūtru zyrgu, kuram beJa mēness pīrē uxi sudotira pokovi. Bruoļi meklēja,
+meklēja, otkon nikuo naatroda un bez vysa kuo vysi pa vīnam atbraucja uz sātu. Sātā
+bruoļi runoj, kai jīm atrost tū gradzynu. Palnuruška jīm atbild: "Nikas nu
+jyusim tuo gradzyna naatrass, kad atrasšu, tad es, bet jvus nadabuosit!" Bruoļi
+nūsasmēja un runoj: Kū tu, palnuruška, ziini, tev pa palnim rušinuotīs, bet na
+duorgā grazyna meklēt!"</p>
+
+<p align="JUSTIFY">Trešā dīnā bruoļi otkon sāduos uz zvrgim un juoja meklēt
+gradzynu. Ari palnuruška uz sova skaistuo zyrga ar saulīti pīrē un ar zalta pokovim
+aizjuoja. Par nagaru laiku palnuruška izskrēja ar sovu zyrgu uz vīna ceļa stykla kolna
+un tī īraudzēja tū duorgū akmeni, kuru palnuruška pajēmja un izmaucja sev uz
+piersta un dreiži atsagrīzja atpakaļ uz sātu. Sātā jis nikuo nikam narunuoja un
+rūkā izmaucja vacu cimdu, kab naīraudzītu bruoļi. Bruoļi cik nameklēja, nikuo
+naatroda un atjuoja uz sātu cīši dusmīgi. Par treis dīnas kēniņš izdevja pavēli
+jo kas atroda gradzynu, lai atīt pi juo. Palnuruška apvylka skaistuos drēbes, aizguoja
+pi paša kēniņa un padevja tū atrostū duorgū gradzynu. Kēniņš beja eīši
+prīcīgs, atdevja palnuruškai pusi sova kēnests, sovu meitu jam par sīvu un sataisa
+baguotas kuozas.</p>
+
+
+</body></html>

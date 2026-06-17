@@ -1,0 +1,180 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2, r1</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="center"><font size="3"></font><font size="5"><strong>Trīs brīnuma dakteŗi.</strong></font><font size="3"></font></p><font size="3">
+
+<p align="JUSTIFY">2. A. 660. L. P. Džūkstē - Pienavā. LP, I, 85, 54.</p>
+
+<p align="JUSTIFY">Trīs amata zeļļi iet lierēt un grib kādā krogā pārgulēt; bet
+šis krogs bijis slepkavu krogs. Krodzeniece ieved zeļļus kādā sānu kambarī un saka,
+ka krodzinieks gan neesot mājā, bet drīzi pārnākšot. Krodzeniecei ir viena vienīga
+meita. Šai zeļļi iežēlojas, jo viņa labi zin, ka naktī tēvs ar citiem slepkavām
+pārnāks un zeļļus nokaus. Meitene slepeni izlaiž zeļļus pa logu un piesaka, lai tik
+ejot pa nakti tālāk, jo slepkavas mēdzot kādu reiz ir suņus pakaļ laist. Bēgļi
+bēg čakli, bet tumsā ieklūp tai bedrē, kur slepkavas nokautos iegrūž. Bedre ļoti
+dziļa. Kamēr šie domā ārā rāpties, slepkavas jau nāk. Zeļļi nokrīt
+gaŗšļaukus un paslēpjas, cik nu prazdami. Slepkavas iegrūž trīs nokautos bedrē un
+iet atpakaļ. Bet viens gabaliņu gājis, iesaucas: "Man likās, ka bedrē spožs
+gredzens paspīdēja. Jāiet atpakaļ raudzīt."</p>
+
+<p align="JUSTIFY">šis, kam gredzens pirkstā, trīc no bailēm. Viņš ātri novelk
+gredzenu uz pirksta galu, lai slepkava ātrāki nomauktu un tad guļ, kā miris. Slepkava
+nomauc gredzenu un saka uz citiem biedriem: "Tam pirksts jau nopuvis; gredzens pats
+nonāca?"</p>
+
+<p align="JUSTIFY">Pēc laiciņa zeļļi izkāpj no bedres un aiziet uz citu krogu gulēt.
+Krodzeniece labprāt šiem dotu arī nakts mājas, bet saka: "Mans vīrs nav nemaz
+tādas labas sievas pelnījis, kā es jo viņš ļoti pikts cilvēks; nedrīkstu jums ne
+drānas lupatiņa dot, kur uzgulties."</p>
+
+<p align="JUSTIFY">Zeļļi arī negrib drānas, bet pārtiek, pārguļ tāpat uz
+gaŗkūļu salmiem. Otrā rītā zeļļi noiet uz kādu muižu, kur satiek pašu kungu;
+viņi lūdzas kungam brokastu. Kungs saka: "Labprāt jums dotu, ja man mīlīgāka
+sieva būtu - nedrīkstu."</p>
+
+<p align="JUSTIFY">"Kāda tad jūsu cienīgā īsti ir?" zeļļi jautā.</p>
+
+<p align="JUSTIFY">"Kāda ir? Katru dienu ģērbjas citādākās drānās un katru
+dienu izbrauc vizināties, bet mani nekad līdzi neņem. Pat pie galda neēdam
+reizā!"</p>
+
+<p align="JUSTIFY">"Nu, gan redzēsit - rītu tā būs citādāka." Zeļļi
+aiziet un norunā naktī pārmainīt labās krodzinieces dvēseli ar niknās cienīgas
+mātes dvēseli, lai tādā vīzē niknais ar nikno un lēnais ar lēno savienotos. Tā
+notiek. No rīta istabas meita ieiet prasīt, kādas drānas cienīgā šodien vēloties.</p>
+
+<p align="JUSTIFY">"Tās pašas vakarējās!" cienīgā atbild.</p>
+
+<p align="JUSTIFY">Meita brīnās: "Kas tas?" Sulainis ienes brokastu
+cienīgajai vienai pašai, kā arvienu; bet cienīgā prasa: "Kādēļ nenesat arī
+kungam?"</p>
+
+<p align="JUSTIFY">Sulainis brīnās: "Kas tas?" Ap pusdienu ienāk kučieris
+prasīt, kādus zirgus šodien jūgšot.</p>
+
+<p align="JUSTIFY">"Tos pašus vakarējos, bet jūdz tā, ka kungs arī var līdz
+braukt!"</p>
+
+<p align="JUSTIFY">Kučieris iziet un brīnās: "Kas tas?" Drīzi zirgi iejūgti
+un kungs ar cienīgo māti laiž, ka derkšķ vien gar to krogu, kur cienīgās mātes
+dvēsele atmainīta. Līdz ko krogam klāt, te krodzeniece ārā, zirgiem priekšā un
+sauc: "Mans kungs, mani zirgi! mans kungs, mani zirgi!"</p>
+
+<p align="JUSTIFY">Krodzenieks izskrien ar rungu pakaļ un dzen atpakaļ, sacīdams:
+"Nu tu skriesi cilvēkus riet un drāti vērpt nemāki!" Viņš iedzen to ar
+rungu istabā. Trešā rītā zeļļi aiziet uz muižu un apprasās kungam, kāda
+cienīgā.</p>
+
+<p align="JUSTIFY">"Mana cienīgā tik laba un mīļa, ka es nemaz nezinu."</p>
+
+<p align="JUSTIFY">Kungs apdāvina zeļļus par to labumu bagātīgi.</p>
+
+<p align="JUSTIFY">Piezīme. šī gan ir cita pasaka, bet trīs zeļļi tomēr atgādina
+trīs dakterus, tāpat cilvēku pārmainīšana ir abās pasakās līdzīga. P. Š.</p>
+</font>
+
+
+</body></html>

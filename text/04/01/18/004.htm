@@ -1,0 +1,157 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Velna līgava.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">4. J. Kalniņš, Druvienā. Zin. Kom. kr. LP, VI, 184, 4. </p>
+
+<p align="JUSTIFY">Viena māte reiz gāja zālēs un viņas meitenīte lūdzās līdz.
+Viņa gan raidīja meitenīti atpakaļ, bet tā nepaklausīja - gāja un gāja līdz.
+Nonākušas pie straujas upītes ar šauru, šauru laipu, māte vēl reiz sabāra
+meitenīti, sacīdama: "Lai tevi piķis parautu! tu man neiesi atpakaļ."</p>
+
+<p align="JUSTIFY">Bet meitenīte kā negāja, tā negāja. Līdz ko māte bija viņpus
+laipas, ka nevarēja vairs redzēt, šī taču līda pār laipu mātei pakaļ. Bet tai
+pašā brīdī no upes izšāvās viens tēviņš un ierāva meitenīti atvarā. Vēlāk
+māte pārnāca no meža un nevarēja saprast, kur meitenīte palikusi? Viņa bijusi tais
+domās, ka meitenīte pārgājusi atpakaļ, bet nav vis. Nu meklēja, meklēja, visi
+ļaudis pa malu malām meklēja, tomēr kā neatrada, tā neatrada.</p>
+
+<p align="JUSTIFY">Tā pagāja labs laiks. Te kādreiz māte atkal gāja zālēs un nu
+ieraudzīja upes malā, pie atvara vienu meitenīti sēžam un matus ķemmējam. Māte
+steidzās klāt, bet neattapa, meitene žigli jo žigli ielēca upē. Pārgāja mājā un
+stāstīja atgadījumu citiem ļaudim. Otrā reizē arī citi gāja skatīties, bet tie
+arī neattapa meiteni notvert, žigli jo žigli atkal ielēca atvarā.</p>
+
+<p align="JUSTIFY">Trešo reizi par laimi gadījās vecs zaldāts palīgā. Tam bija tāds
+savāds krustiņš, kas no burvības katru atbuŗ. Un zaldāts nu no muguras puses klusi
+pielīda meitenei upes malā un uzsvieda krustiņu šij taisni virsū. Tūdaļ meitene
+bija atburta un nevarēja vairs atvarā ielēkt. Un nu viņa izstāstīja :</p>
+
+<p align="JUSTIFY">"Kad es todien pa laipu gāju, tad viens jaunskungs mani ierāva
+upē un aizveda pa jauku, puķainu ceļu uz vienu māju. Tā māja bija pilna ar sudrabu,
+un tas sudrabs man bija jāsargā. Pēc kāda laika nāca cits vēl smalkāks kungs; tas
+mani veda pa glāžu ceļu uz vienu zelta māju, un tas zelts man bija jāsargā. Pēcāk
+nāca viens briesmīgs vīrs; viņa rokā bija zizlis, kas locījās kā čūska; viņa
+vaigs bija ugunīgs un viņa kājas bija apaļas kā stampiņas. Šis vīrs mani veda pa
+sliktu ceļu uz tumšu vietu, kur liels troksnis atskanēja. Tai vietā bija dikti gŗūti
+izturēt, io vienumēr atskanēja siseņu spārnu troksnis un bļaustīšanās. Es tad
+lūkoju bēgt; bet man bija jāiet pa glāžu ceļu, kur kājas vienmēr slīdēja
+atpakaļ. Pēdīgi aizmocījos līdz zelta mājai un iegāju iekšā. Bet tūlin izcēlās
+briesmīgs viesulis un aizrāva mani ar visu ēku atpakaļ peklē. Un tagād man peklē
+klājās vēl gŗūtāki, nekā pa</p>
+
+<p align="JUSTIFY">priekšu. Pēdīgi es atkal bēgu. Bet tagad ceļš ar visādiem
+gruvežiem bija aizbiris - grūši bija iet; tomēr ir tad notiku līdz vienai glāžu
+istabai, un no tās iznākusi ārā zaļumos, ķemmēju savus matus. Divreiz teitan mani
+gan traucēja; bet trešo reizi viens vīrs man uzsvieda krustu un nu es tiku no velna
+vaļā."</p>
+
+
+</body></html>

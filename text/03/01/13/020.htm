@@ -1,0 +1,209 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>20</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Neuzticamā māsa.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">20. A. 315. 314. Lestenē, LP, IV, 10, 3. AŠ, II, 97i.</p>
+
+<p align="JUSTIFY">Ķēniņa dēls izšķērdībā nodzīvojis visu tēva doto mantu un
+tad gājis pie savas māsas govis ganīt. Māsa noteikusi: "Visur tu laid govis, tik
+viņā mežā ne!"</p>
+
+<p align="JUSTIFY">Bet brālis laidis taču govis mežā. Tūlin iznācis pirmajā dienā
+viens vecis ar lielu suni, paņēmis dažas govis un atstājis suni vietā. Brālis
+prasījis, kā to suni saucot?</p>
+
+<p align="JUSTIFY">Dzelzs-tēraudu!" vecis atteicis, "jo viņš saēd
+vajadzībā dzelzi un tēraudu!"</p>
+
+<p align="JUSTIFY">Otrā dienā brālis atkal laidis govis tanī mežā. Iznācis tas pats
+vecis ar citu suni, paņēmis dažas govis un atstājis suni vietā. Brālis prasījis,
+kā to suni sauc?</p>
+
+<p align="JUSTIFY">"Turi-viņu!" vecis atbildējis, "jo viņš notura pat
+velnu savos nagos."</p>
+
+<p align="JUSTIFY">Trešā dienā laidis atkal govis mežā. Vecītis iznācis ar trešo
+suni un paņēmis šoreiz visas govis, atstādams suni vietā. "Kā to suni
+sauc?" brālis prasa.</p>
+
+<p align="JUSTIFY">"Ķer-viņu!" vecis atbildējis, "jo viņš noķer, ja
+vajadzīgs, pat putnu gaisā."</p>
+
+<p align="JUSTIFY">Bet kur lai suņus lieku?" brālis ieteicies. "</p>
+
+<p align="JUSTIFY">"Ja tev viņi netīk līdzi vadāt, tad še tāds radziņš,
+papūt to tūlin suņi būs klāt."</p>
+
+<p align="JUSTIFY">Brālis pāriet bez govim - māsa vaimanā, ko nu iesākšot'? Kas tur
+ko iesākt?" brālis atteicis, "iesim pasaulē laimi meklēt." Un tā arī
+aizgājuši. Gājuši, gājuši - beidzot sasnieguši slepkavu pili. Brālis papūtis
+radziņu - trīs suņi tūlin klāt un apkoduši visus slepkavas. Tanī slepkavu pilī
+bijuši četri pagrabi, viens bijis pilns ar sudrabu, otrs ar zeltu, trešais ar dimantiem
+un ceturtais tukšs. Bet brālis nemaz neapracis slepkavas - sasviedis tāpat tanī
+tukšajā pagrabā. Kamēr ar slepkavām naģi vicojies, māsa par to laiku gulējusi.</p>
+
+<p align="JUSTIFY">No rīta brālis taisījies medīt. Aiziedams noteicis māsai, lai
+neejot tanī ceturtajā pagrabā. Bet māsa gribējusi zināt, kas tur ir, un iegājusi.
+Tūlin viens burvis izskrējis no pagraba un teicis:</p>
+
+<p align="JUSTIFY">Ja manim apsolies par brūti, tad nekas; bet ja ne - uz pēdām "</p>
+
+<p align="JUSTIFY">esi pagalam!"</p>
+
+<p align="JUSTIFY">Māsa bailēs apsolījusies. Bet burvis apbūris māsu, tā kā šī no
+brāļa vairs negribējusi nekā zināt; to vien ticējusi un klausījusi, ko burvis
+mācījis. Kādas dienas vēlāk burvis teicis māsai, lai paliekot slima un solot
+brālim, ka lāču piens gādājams, citādi vesela netikšot. Burvis pilnīgi domājis,
+ka lāči brāli saplēsīšot, ja piena prasīšot, bet nekā. Lāču māte izcēlusies
+stāvus un ļāvusies viegli jo viegli izslaukties. Beidzot vēl lāču māte
+apsolījusies brālim visur palīdzēt. Tā nu pārnesis lāču pienu.</p>
+
+<p align="JUSTIFY">Bet otrā dienā bijis jāiet pēc vilku piena, tomēr ar vilku tāpat
+laimējies. Trešā dienā bijis jāiet pēc lūšu piena, arī ar to laimējies. Burvis
+redzēdams, ka zvēri neplēš brāli - pierunājis māsu paprasīt, kur viņam tas
+spēks, ka nebaidījies ne no vilka, ne no lāča. Māsa piedāvājusies brālim galvu
+ieskāt un tad tik ilgi aplinkus runājusi, kamēr izvilkusi noslēpumu.</p>
+
+<p align="JUSTIFY">"Mans spēks trijos dzeltēnos matiņos uz pakauša; ja tos
+izvelk, tad spēks pagalam."</p>
+
+<p align="JUSTIFY">Māsa tūlin izrāvusi trīs dzeltēnos matiņus un padevusi ziņu
+burvim, lai nu nāk. Burvis taisījies brāli grābt; bet brālis lūdzies aut viņam
+beidzamo reizi pātarus noskaitīt. Atļāvis gan. Bet pātarus skaitot, atskrējis mazs
+putniņš, atnesdams brālim citus trīs spēka matiņus. Brālis, manīdams spēkus
+atpakaļ, ātri izrāvis radziņu un papūtis. Tūlin atskrējuši viņa trīs lielie
+suņi, tad lācis, vilks, lūsis un nu viens divi pa visiem nonāvējuši burvi. Bet māsu
+brālis ieslēdzis istabā pie vienas mucas ogļu un vienas mucas ūdens. Ja varēšot ar
+ūdeni ogles baltas nomazgāt, tad būšot nevainīga, ja ne -- tad negodā esot un
+palikšot.</p>
+
+<p align="JUSTIFY">Brālis pats tomēr aiziet uz citu pusi un izpestī ķēniņa princesi
+no milzu čūskas Tai čūskai bijusi jāatdod princese, citādi čūska aprītu visu
+ķēniņa valsti. Brālis pasaucis savus zvērus un gājis uz to kalnu, kur čūska
+mitusi. Nogājis un ieraudzījis kalnam septiņus caurumus, pa kuŗiem nākuši dūmi un
+dzirksteles. Bet kad princese vesta, tad vēl no katra dūmu cauruma izšāvusies pa
+čūskas galvai. Brālis uzsaucis saviem zvēriem: tie sagrābuši katrs savu galvu un
+brālis sagrābis ar savu zobinu septīto galvu. Necik ilgi katrs vienu galvu
+pievārējuši un čūska bijusi pagalam. Princese apsolās par to labumu brāli precēt;
+bet brālis tūlin līdz neiet. Viņš atnākšot pēc gada un tad dzeršot ar princesi
+kāzas. Labi. Brālis nu izņem no čūsku galvām mēles un aiziet pie savas māsas,
+princese pāriet pie tēva. Tomēr uz ceļa gadās viens viltīgs kara vīrs, kas saka uz
+princesi: "Ja neteiksi, ka es tevi izglābu, tad dzīva nepāriesi!"</p>
+
+<p align="JUSTIFY">Princese apsolās melot.</p>
+
+<p align="JUSTIFY">Brālis, pie māsas noiedams, atron, ka ogles melnas. Nu pār ved māsu
+pie tēva un izstāsta, kādā negodā māsa izdzīvojusies. Pēc gada brālis iet savas
+kāzas svinēt un atron, ka princesei cits brūtgāns. Tomēr viltnieks, nevarēdams
+mēles uzrādīt, pats sapinās, un brāļa zvēri saplosa to. Tagad brālis apņem
+princesi un dzīvo laimīgi.</p>
+
+
+</body></html>

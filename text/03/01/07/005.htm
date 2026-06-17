@@ -1,0 +1,206 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Trīs māsas velnam par sievām.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 311. J. Āboliņš Rūjienā. LP, V, 161.</p>
+
+<p align="JUSTIFY">Vienai mātei bija trīs meitas. Neviens viņu neprecēja. Māte
+dažreiz pukojās: "Kaut vai pats velns nāktu manas meitas precēt!"</p>
+
+<p align="JUSTIFY">Te ienāca arī velns ar salmu kājām, kā čākstēja vien, un
+prasīja, lai dodot vienu meitu. Labi. Iedeva. Velns pārveda meitu un iedeva cilvēka
+galvu, acis un ausis, lai ēdot; pats aizgāja uz lauku. Bet meita neēda galvu, palika
+paslieksnī. Velns pārnākdams tūdaļ vaicāja: "Kur galva, acis un ausis?"</p>
+
+<p align="JUSTIFY">"Paslieksnī!" </p>
+
+<p align="JUSTIFY">Par to velns, nejauki saskaities, nogrieza meitai galvu, iesvieda
+pagrabā un aizgāja pēc otras māsas, stāstīdams, ka vienai gaŗš laiks. Māte neko,
+iedeva otru meitu. Velns pārveda meitu un iedeva cilvēka galvu, acis un ausis, lai
+ēdot; pats aizgāja uz lauku. Bet meita neēda galvu, ielika ēdamo kuldā pelnos. Velns
+pārnākdams tūdaļ vaicāja: "Kur galva, acis un ausis?"</p>
+
+<p align="JUSTIFY">"Kuldā pelnos!"</p>
+
+<p align="JUSTIFY">Par to velns nejauki saskaities, nogrieza otrai meitai galvu, iesvieda
+pagrabā un aizgāja pie trešās māsas teikdams: "Otra palika slima un pirmai
+gaŗš laiks!"</p>
+
+<p align="JUSTIFY">Māte neko, iedeva trešo meitu. Velns pārveda meitu un iedeva
+cilvēka galvu, acis un ausis, lai ēdot; pats aizgāja uz lauku. Bet trešā meita neēda
+galvu, ielika ēdamo azotē. Pārnāca velns: "Kur galva, acis un ausis?"</p>
+
+<p align="JUSTIFY">"Siltā, mīkstā vēderiņā!"</p>
+
+<p align="JUSTIFY">Par to velns brīnum priecājās, viņš atdeva trešai meitai visas.
+atslēgas un atvēlēja visās istabās iet, tikai tanī ne, kas aizsieta ar netīru
+lūciņu. Pats atkal aizgāja. Meita izstaigāja visas istabas un tīšām iegāja arī
+tanī, kas ar netīto lūciņu aizsieta. Tur viņa atrada māsu nedzīvās miesas un
+tādas zāles, ar kuŗām nedzīvus spēj atdzīvināt. Viņa tūdaļ atdzīvināja māsas
+un piemācīja, tai vēl pastāvot pagrabā, kamēr būs laiks.</p>
+
+<p align="JUSTIFY">Pārnāca velns, tas sāka ar trešo meitu maltīti ēst, bet meita
+gaudoja: "Mēs ēdam, mēs dzēŗam - kas dos mūsu māmiņai?" Velns atteica:
+,:Sataisi, sataisi, nes savai māmei!"</p>
+
+<p align="JUSTIFY">Labi. Otrā dienā, kad velna nebija mājā, meita lika māmei zārku
+pagatavot, ielika dzīvo māsu iekšā, sabēra daudz zelta klāt un piemācīja:
+"Nekusties zārkā; velns tevi nesīs pie māmiņas: bet ja viņš nevīžotu nest,
+liktu zārku zemē, tad iesaucies vājākā balsī: "Redzu, redzu, vīriņ, ko tu
+gribi darīt!"</p>
+
+<p align="JUSTIFY">Pārnāca velns, trešā meita sacīja: "Manam tēvam vajaga
+zārka, aiznes viņam!"</p>
+
+<p align="JUSTIFY">Velns ņēma zārku pa muguru un nesa; bet zārks bija smags; pusceļā
+nolika zārku zemē un gribēja vāku atvērt, lai redzētu, kas tur tik smags. Te māsa
+ieteicas vājākā balsī: "Redzu, redzu, vīriņ, ko tu gribi darīt!"</p>
+
+<p align="JUSTIFY">Velns sabijās. Tūlin saņēma zārku pa otru lāgu, aiznesa pie
+mātes un iesvieda pa logu, sacīdams: "Še, māte, tavs tuntulis!" Māte atrada
+zārkā savu vecāko meitu un daudz zelta. Bet</p>
+
+<p align="JUSTIFY">velns pārskrēja mājā un atkal ēda ar trešo meitu maltīti. Meita
+gaudoja: "Mēs ēdam, mēs dzēŗam - kas dos mūsu māmiņai!" Velns atteica:
+"Sataisi, sataisi - nes savai māmei!"</p>
+
+<p align="JUSTIFY">Labi. Otrā dienā, kamēr velns nebij mājā, meita lika zārku
+pagatavot, ielika otru dzīvo māsu tur iekšā, sabēra daudz zelta klāt un pamācīja,
+kas ceļā sakāms, ja velns vairs nenestu. Labi. Pārnāca velns, trešā meita sacīja:
+"Manai mātei vajaga zārka, aiznes viņai!"</p>
+
+<p align="JUSTIFY">Velns saņēma zārku pa muguru un nesa; bet zārks bija smags;
+pusceļā nolika zārku zemē un gribēja skatīties, kas tur iekšā. Te otra māsa
+ieteicās: "Redzu, redzu, vīriņ, ko gribi darīt!"</p>
+
+<p align="JUSTIFY">Velns sabijās. Tūlin saņēma zārku pa otru lāgu, aiznesa pie
+mātes un iesvieda pa logu, sacīdams: "Še, māte, tavs tuntulis!"</p>
+
+<p align="JUSTIFY">Māte atrada zārkā savu otru meitu un vēl daudz zelta. Trešā māsa
+vēl dzīvoja tādu laiku pie velna; bet drīzi tai sāka bailes mesties, ka velns neieiet
+pagrabā un neatron māsas atdzīvinātas, ka pazudušas. Un kamēr velns nebij mājā,
+viņa lika velna dimanta kalējiem izkait dimanta zārku un aiznest Daugavas malā. Tur
+tad pati iegulās iekšā un aizrāva vāku.</p>
+
+<p align="JUSTIFY">Zārks šūpodamies, žvangādamies ieslīdēja Daugavā. Daugavas
+ūdens aiznesa viņu labi tālu, kamēr kāds bagāts kungs, gar Daugavas malu
+staigādams, ieraudzīja dimanta zārku un atrada tanī daiļu meitu. Tūlin bagātais
+kungs pārveda meitu savā pili un apprecēja. Viņai piedzima bērns. Bet reiz kunga
+sieva auklēja bērnu un pamanīja velnu nākam. Nu muka pa trepēm zemē ar visu bērnu;
+velns skrēja pakaļ. Sieva redzēja, ka nevarēs izbēgt, tādēļ lēca zemē sacīdama:
+"Dievs, pieņem mani ar visu bērniņu!"</p>
+
+<p align="JUSTIFY">Bet krītot iekrita vecīšam klēpī. Velns arī lēca domādams, ka
+kritīšot vecīšam klēpī, bet neiekrita vis vecīšam klēpī, uzkrita akmeņiem un
+sašķīda. Nu sievai vairs nebija jābīstas no velna; tā dzīvoja laimīgi ar savu
+vīru - bagāto kungu.</p>
+
+
+</body></html>

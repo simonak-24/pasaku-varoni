@@ -1,0 +1,168 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Netīrais velna kalps.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">7. A. 361. R. Bērziņš, Smārdē. LP, IV, 22, 3.</p>
+
+<p align="JUSTIFY">Reiz dzīvoja dikti slinks skroderis. Strādāt nevīžodams, labāk
+gājis pasaulē laimi meklēt. Iedams satiek velnu ; velns prasa, ko šis meklējot?</p>
+
+<p align="JUSTIFY">"Darbu meklēju; bet tik tādu: gulēt un ēst!"</p>
+
+<p align="JUSTIFY">"Vai negribi pie manis līgt: es atkal tādu ilgi meklēju,
+nevarēju nekur sadzīt - nu pienāca pats klāt."</p>
+
+<p align="JUSTIFY">Labi - viņš līgstot. Salīgst tā: ja skroderis gadu neizdzīvos,
+tad velns dabū viņa dvēseli; ja izdzīvos, tad velnam jādod vesels maiss naudas. Bet
+viena lieta: skroderis pa to gada laiku nedrīkst no istabas nemaz ārā iet un nedrīkst
+nekā strādāt, pat muti mazgāt ne. Kā salīgst, tā velns iedod skroderim tādu
+maciņu, no kuŗa var naudu izbērt, cik gribas. Skroderis noiet pilsētā, izīrē istabu
+un piebeŗ to ar naudu gandrīz pilnu. Pēc laika velns klāt: lai ar naudu tik .spoži
+nedzīvojot, jo neesot vairāk ko dot! Skroderis atteic: "Ja tev trūkst naudas, tad
+līgums beigts!"</p>
+
+<p align="JUSTIFY">"Ne, ne, ne, vēl nav beigts! Manam tēvam arī vēl ir nauda.`'
+Velns projām. Te gadās pilsētā viens tirgotājs, kam naudas pietrūcies. Paziņas to
+sūta pie skrodera: tam esot naudas bez gala. Tirgotājs ienāk pie skrodeŗa: vai varot
+dot? Kādēļ ne? Cik tik gribas! Iedod tādu maišeli. Tirgotājs grib skaitīt, bet
+skroderis atteic: lai neskaitot, kur to varot izskaitīt! "Labi, labi!"
+tirgotājs patencina un grib aiziet, bet skroderis vēl pasauc atpakaļ un iedod
+tirgotājam tādu milnu drāniņu pārnest savām meitām.</p>
+
+<p align="JUSTIFY">Tirgotājs pārnes drāniņu., dāvā vecākai meitai -- tā neņem
+tādu skrandas gabalu; dāvā vidējai - tā neņem tādu skrandas gabalu; dāvā
+jaunākai - tai Dieva dots: paņem drāniņu un paglabā.</p>
+
+<p align="JUSTIFY">Pa to laiku velns atkal klāt : Mi nebārstot vairāk naudu, esot
+pagalam paša nauda, tēva nauda un vēl tēva-tēva nauda.</p>
+
+<p align="JUSTIFY">"Nu, kad tev naudas nav, tad līgums beigts.!" To teicis,
+skroderis sagrābj naudu, no istabas ārā un projām. Vispirms skroderis noiet pie
+bārdas dzinēja nodzīt bārdu. Bārdas dzinējs tīri sabaidās no tāda putnu
+baidekļa, kāds skroderis izskatās, un izsviež pa durvim laukā. Bet priekšnamā
+skroderis lūdz bārdas dzinēja puiku, vai tas nevarot viņam bārdu nodzīt? Puika
+tūlin. Labi. Līdz ko bārda nodzīta, skroderis liek puikam cepuri turēt: būšot
+aizmaksāt. Puika norauj cepuri un skroderis piekrata pilnu ar zelta naudu. Bārdas
+dzinējs, to redzēdams, kas puikam par laimi, paliek aiz žēluma ārprātā un nositas.
+Tā velnam viena dvēsele nagos.</p>
+
+<p align="JUSTIFY">Nu skroderis apģērbjas labās drānās un tad aiziet kā princis pie
+tirgotāja meitām uz precībām. Noiet tur: lai iznāk tā, kas viņa drāniņu
+pieņēmusi! Iznāk jaunākā meita. Skroderis paņem drāniņu un pieber pilnu ar zelta
+naudu: lai nopērkot par to brūtes apģērbu! Jaunākā meita izpērk pusdrāniņu: ir
+jau ko redzēt, kas par apģērbu; izpērk visu drāniņu: nu laistās, kā kura katra
+princese. Skroderis apprec jaunāko meitu un dzīvo laimīgi. Bet vecākās māsas aiz
+sirdsēstiem, ka aizlaidušas tādu laimi gaŗām, ņemas noslīcināties. Tā velnam
+trīs dvēseles nagos, kauču skroderi nedabūjis, nedabūjis.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

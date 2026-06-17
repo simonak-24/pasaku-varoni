@@ -1,2 +1,4 @@
-# pasaku-varoni
-Eksāmena darbs kursā "Valodu tehnoloģiju pamati".
+## Eksāmena darbs kursā "Valodu tehnoloģiju pamati".
+
+### Saturs
+<!--[Darba kods]()-->

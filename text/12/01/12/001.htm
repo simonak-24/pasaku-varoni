@@ -1,0 +1,244 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>12</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Gudrais zeltkalis.</p>
+</font>
+
+</b><p><b>1. </b>A. 1532. J. Bankins, "Šis un tas" II, 1875, 15.</p>
+
+<p align="JUSTIFY">Vecos pagānu laikos dzīvoja brīnum gudrs un manīgs zelta kalējs,
+kam, kā pagānam, bija divas sievas, no kurām tomēr viena viņu vairāk mīlēja nekā
+otra. Reizu tam ķēniņš pavēlēja, iztaisīt tādu zelta krēslu, kāds esot bijis
+Jeruzālemē. Kalējs Jeruzālemes krēslu nebija redzējis, tādēļ arī nezināja,
+kāds tas izskatījies. Tomēr zeltkalējs atteica ķēniņam, ka varot gan pataisīt
+tādu krēslu, bet ka tik lielu krēslu taisot, esot daudz zelta jākausē. Kausējot
+zelta paliekot mazāk, kādēļ kausējamā zelta svaram vajagot būt daudz lielākam
+nekā krēsla svaram. Ķēniņš bija ar to mierā, un deva kalējam tik daudz zelta, cik
+vien tas paģērēja.</p>
+
+<p align="JUSTIFY">Kad nu krēsls bija gatavs, tad ķēniņš salūdza daudz svešus
+ķēniņus un firstus no zemju zemēm un malu malām uz lielām dzīrēm, kur viņa lielo
+un grezno valstības krēslu varētu apskatīt un apbrīnot. Ķēniņa vietnieks līdz
+šim bija cerējis, ka pats ķēniņš, gribēs skatīties un šim tad pirmajam liks uz
+tā sēdēt. Ķēniņš pats gan pirmais nekāpa uz krēsla, bet pavēlēja meistaram
+pirmajam kāpt virsū.</p>
+
+<p align="JUSTIFY">Krēslam bija trīs pakāpšļi. Kad nu meistars uzkāpa uz pirmo
+kāpsli, tad krēslam atvērās mazas durtiņas, pa kuŗām zelta lakstīgala, izbāzusi
+galvu, sāka tik skaņi dziedāt, ka visi viesi un pats ķēniņš no priekiem plaukstās
+vien sitās. Nu meistars kāpa uz otru kāpsli, tur arī tādas pašas duris atvērās,
+bet pa tām izskrēja liels ērglis, kam zelta kronis bija galvā. Tas sasita spārnus,
+ņēma kroni no galvas un saņēma to knābī, par ko arī viesi priecājās. Kad kalējs
+kāju spēra uz trešo kāpsli, tad tas pats ērglis iznāca ar kroni mutē, un to uzlika
+meistaram galvā, šis kroni atdeva ērgļam, kas ar to pa savām durīm iegāja atpakaļ.</p>
+
+<p align="JUSTIFY">Nu meistars kāpa no krēsla zemē, kur to uz ikkatra kāpšla
+lakstīgala skaņi pavadīja. Tagad pats ķēniņš tāpat darīja kā meistars, uz
+krēsla sēdēdams, uzteica kalēju par vislielāko meistaru un pieņēma to par savu
+zeltakalēju.</p>
+
+<p align="JUSTIFY">Ķēniņa vietniekam nu bija lielas dusmas uz šo meistaru, viņš
+tādēļ izdomāja un meloja ķēniņam, ka tas, šo lielo krēslu taisīdams, daudz zelta
+nozadzis, jo krēsls ne mūžam nevarot tik daudz svērt, cik zelta izbrūķēts, bet šo
+lielo paizumu nekā nevarēja nosvērt. Senāts izdomāja līdzekli, sauca kalēja sievu,
+kas viņu lāgā nemīlēja, solīja tai trīs tūkstoši rubuļu maksāt, kad tā no sava
+vīra izdabūtu, kā šo krēslu varētu nosvērt, un tad šiem pasacītu. Tā arī
+paņēmās to izdarīt, viņa raudādama krita vīram virsū un lūgtin lūdzās, lai tak
+viņai arī pasakot, kā gan šo lielo krēslu varētu nosvērt. Vīrs gan to negribēja
+darīt, bet kad šī apsolījās sirsnīgi mīlēt, tad viņš tai arī izstāstīja.</p>
+
+<p align="JUSTIFY">"Vajaga likt taisīt lielu laivu," tā viņš sievai sāka
+stāstīt, "kuŗā šo krēslu var ielikt, tad šī tukšā laiva jāieliek
+stāvošā ūdenī un jānozīmē, cik dziļi tā stāv ūdenī, nu uz šo laivu var likt
+krēslu virsū, un nozīmēt to vietu, cik laiva dziļāki iegrimusi ūdenī. Tad var
+ņemt krēslu no laivas nost, un kraut tik daudz akmeņu laivā, kamēr tā tik pat dziļi
+iegrimst ūdenī, cik tad, kad krēsls tur bija virsū. Nu akmeņus var nosvērt pa
+vienam, un tā izdabūt, cik lielais krēsls smags."</p>
+
+<p align="JUSTIFY">Līga blēdniece to bija dabūjusi zināt, tad viņa arī steidzās uz
+pili un izstāstīja senātam, kā krēslu varot nosvērt. Senāts, priecīgs par tādu
+laimi, lika pataisīt laivu un nosvēra krēslu. Tiku atrasts, ka trūkst divi birkavi
+zelta, bet ķēniņam stāstīja, ka zelta trūkums ir četri birkavi. Ķēniņš gan šo
+lietu gribēja atstāt mierā, jo viņam arvien bija liels prieks par skunstīgo krēslu,
+bet senāts sauca kalēju savā priekšā, un nosprieda tam ief tornī pie ūdens un
+maizes.</p>
+
+<p align="JUSTIFY">Tur bija tāds tornis, ka pie tā cilvēka, ko apcietināja, neviens
+nevarēja tikt klāt un tam pienest ēst vai dzert. Īpaši zagļus bāza tai tornī, kur
+nu arī zelta kalējam bija jāiztiek vesels mēnesis ar četri mārciņi maizes un stopu
+ūdens.</p>
+
+<p align="JUSTIFY">Viņa mīļākā sieva gāja to ikkatru dienu apraudzīt. Lai gan tā
+lielā augstuma dēļ maz vien ar to varēja sarunāties, tad tomēr, galvu pa lodziņu
+izbāzis, viņš tai sacīja: "Klausies, mīļā sirsniņ! Ej bodē un nopirc zīžu
+diegus un virvi, tad noķer kādu zirnekli, dasien tam garāniski pie vēdera mazu
+kociņu, kam abi gali garāki nekā pats zirneklis. Priekšgalā kociņam uzsmērē
+sviesta kumosiņu, pakaļgalā dasien zīdes pavedienu, kam otrā galā virve piekārta.
+Zirneklis, pēc sviesta dzīdamies, rāpsies pa sienu uz augšu un nonāks pie
+manis."</p>
+
+<p align="JUSTIFY">Sieva darīja, kā vīrs to bija mācījis. Kad nu viņam ar zirnekli
+bija izdevies tā visas lietas laimīgi dabūt augšā, tad viņš pataisīja valgu
+trepes, dasēja vienu galu pie loga stenderes, otru galu izmeta pa logu un pa tām
+laimīgi nokāpa zemē, bet apdomājies, uzkāpa atkal augšā un ielīda savā cietumā.
+Kad nu viņa mīļākā sieva atkal tur nonāca, tad viņš tai sacīja: "Ej tu uz
+māju un pasaki manai otrai sievai, lai viņa tūliņ pie manis atnāk, bet tu pati
+steidzies uz jūrmalu un pagaidi, kamēr es arī tur aiziešu!."</p>
+<b>
+
+</b><p align="JUSTIFY"><b>Šī </b>nu steidzās uz māju un pastāstīja otrai sievai, ka vīrs
+viņu uz vienu acumirkli gauži lūdzis pie sevis. Kalējs jau bija nokāpis un gaidīja
+uz to zemē. Kad šī atnāca, tad viņš .tai lūdza, lai kāpot paskatīties, kāda
+vieta tur esot, kur tas šo laiku vārdzis. Sieva, gribēdama apliecināt savu
+mīlestību, uzkāpa un ielīda pa logu istabā, tad vīrs tai sacīja: "Vai dzi,
+sieviņ! nomet trepes zemē. Es pataisīšu kāpšļus labāki, kā tu drošāki vari
+nokāpt zemē."</p>
+
+<p align="JUSTIFY">Šī, neko sliktu nedomādama, arī paklausa. Kalējs nu viņai pārmet
+un izstāsta, ka šis tikai viņas viltības dēļ šai tornī nācis, tādēļ nu šī
+varot palikt viņa vietā mēģināt iztikt ar to maizi tikai to pārējo laiku, ar ko tam
+viss mēness bijis jāpārtiek. To sacījis, steidzās prom uz jūrmalu, kur tas savu otru
+sievu atrada gaidām.</p>
+
+<p align="JUSTIFY">No senāta bīdamies, tas sēdās ar savu sievu kuģē un aizceļoja uz
+svešu zemi. Viņš tur kādā pilsētā apmetās! dzīvot, strādāja uzcītīgi savu
+amatu, palika par izslavētu zeltakalēju un iekrājās arī daudz mantas un bagātības.
+Lai gan tur pie visiem bija cienīts un godāts, tad tomēr viņš ilgojās tikt atpakaļ
+uz savu tēvišķu.</p>
+
+<p align="JUSTIFY">Kad nu mēness laika bija apkārt, tad senāts gāja priecādamies uz
+torni, cerēdams atrast kalēju nomirušu, bet par brīnumu tas vis neatrada kalēju, bet
+viņa vietā šā viltīgo sievu, gluži stīvu un izdzisušu. Senāta kungiem nu gan bija
+lielas dusmas, bet neko nevarēja darīt, jo tie nemaz nezināja, kur kalējs bija.
+palicis, kur ne. Bet ķēniņš turpretī gauži priecājās par to, viņš izlaida
+grāmatas uz malu malām un aicināja kalēju atpakaļ, noteikdams, ka tam ne no kāda
+soda nav jābīstas.</p>
+
+<p align="JUSTIFY">Kad nu kalējs tādu ziņu no ķēniņa dabūja, tad viņš ļoti
+priecājās un ceļoja atpakaļ uz mājām, kur tas pie visiem augsti tika uzņemts.
+Ķēniņš, to ieraudzījis, no liela prieka nezināja, ko darīt; viņš ņēma to pie
+sevis pilī un iecēla par savu mantas saņēmēju, viņš tā arvien kāpa soli pēc
+soļa augstākā godā.</p>
+
+<p align="JUSTIFY">Kad nu ķēniņa vietnieks lielas zādzības dēļ tai pašā tornī,
+kur kalējs bija tupējis, dabūja savu galu, tad viņš šo iecēla par savu vietnieku un
+padomdevēju. Zeltakalējs nodzīvoja tur līdz savai miršanai, ne vis kā lepns un
+izlutināts augstmanis, bet kā zems un prasts vīrs. Vaļas brīžos viņš vē1 arī
+strādāja savu</p>
+
+<p align="JUSTIFY">amatu. Pēc savas nāves viņa sieva, abi dēli un abas meitas līdz ar
+citiem pavalstniekiem to ļoti apraudāja un gauži nožēloja.</p>
+
+<p align="JUSTIFY">Piezīme. Lai arī šī pasaka izklausās pēc grāmatu pasakas, tomēr
+viņa būs arī tautas mutē bijusi pazīstama. Savos bērnības gados es tiku tādu
+stāstu dzirdējis arī no sava tēva-tēva. Prof. V. Andersons Tērbatā man ziņo, ka
+arī pie igauņiem esot tāda pasaka pazīstama. Viņa esot cēlusies no kāda
+nepazīstama persiešu avota un jau 1557. g. parādījusies italiešu valodā. Vācu
+valodā šis stāstiņš ir tulkots 1583. gadā, tā tad jau sen varēja tikt pārnests
+arī uz Baltiju. P. Š.</p>
+
+
+</body></html>

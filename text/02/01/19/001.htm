@@ -1,0 +1,176 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>19</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Labie brāļi.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>1. A. </b>303. J. Bankins "Šis un tas". II, 1875, 6.</p>
+
+<p align="JUSTIFY">Vienam tēvam bija divi dēli, kas abi bija vienādā sejā. Tēvs
+nebija nekāds bagātais vīrs, tādēļ stellēja savus abus dēlus pasaulē, tiem
+iedodams katram mazu, švaku zirdziņu. Tie nu pa ceļu jājot, satiekas ar kādu veci,
+kas tiem prasa: "Kur tad jūs jādami ?"</p>
+
+<p align="JUSTIFY">Vecākais brālis atbild: "Jājam darba meklētu."</p>
+
+<p align="JUSTIFY">Tad vecis uz tiem saka: "Jūs jau kaut kuŗš lēti var nosist,
+jeb iesākt kautkādu citu ķibeli ar jums, jo jums nav nekāds ierocis pie rokas."</p>
+
+<p align="JUSTIFY">Abi labi apdomājušies, teic, ka tā gan esot tiesa. Vecis tiem katram
+iedodams zobinu, pudelīti un labākus zirgus, saka : "Še ņemat šās lietas, par
+visām labāki glabājiet pudelītes; pie tām jūs manīsiet, kā kuŗam no jums klājas,
+slikti vai labi. Ja vienam no</p>
+
+<p align="JUSTIFY">jums slikti ies, tad pudelītes taps sarkanas, bet ja labi, tad viņas
+paliks tādas pašas baltas." Tie nu pateicas par dāvanām un dodas tālāk.</p>
+
+<p align="JUSTIFY">Kādas dienas jājušiem, tiem gribās ēst, bet nekur nevar dabūt,
+tāpēc ka abi dūšīgi tēviņi. Viņi norunā šķirties domādami, ka tad labāki
+veikšoties; šķirdamies vēl piemin, kad ja viens redz, ka otram slikti iet, tad tam
+jāsteidzas palīgā. Viņi tā nu izšķīrušies, viens devās uz ziemeļiem, otrs uz
+dienvidiem.</p>
+
+<p align="JUSTIFY">Vecākais brālis jājot nonāk pie kāda kalna; kur viņš redz brangu
+karīti braucam, kam četri zirgi priekšā, un kur sēdēja iekšā daiļa meitiņa, kas
+ļoti raudāja. Viņš iet tai klāt, dod labu dienu un vaicā: "Jumpraviņ, kādēļ
+tā raudi?"</p>
+
+<p align="JUSTIFY">Šī tam atbild: "Mani ved čūskai atdot." "Kādai
+čūskai?" viņš prasa.</p>
+
+<p align="JUSTIFY">Daiļā jumprava šim nu tā sāk stāstīt: "Tur aiz kalna ir
+dziļa jūŗa, kur dzīvo liela čūska, kam ir divpadsmit galvu. Tai ikgadus no šās
+pilsētas ir jāatdod viens cilvēks. Lai nu varētu zināt, kuŗam šis posts ir
+gaidāms, tad velk lozes, kam pirmais numurs krīt, tam jāiet. Par nelaimi man šoreiz
+pirmai numurs krita, un tādēļ man ar tāpat jāiet, lai gan esmu ķēniņa meita."</p>
+
+<p align="JUSTIFY">Viņš nu griež zirgu apkārt un jāj tai līdza. Tur nonākot, viņš
+ierauga jau vienu galvu izbāztu no ūdens, tas ar zobinu to aši nocērt. Čūska nu
+pabāž otru balvu no ūdens, ar kuŗu tāpat notiek. Viņš tāpat nu nocērt trešo,
+ceturto, piekto u. t. pr. galvu, kamēr tās visas pagalam. Nu princene liek griezt zirgus
+apkārt un brauc uz māju; viņa gan lūdz svešo līdz, bet viņš neiet. Kad princene
+bija aizbraukusi, tad viņš izgrieza ikkatrai čūskas galvai mēli, un tad devās uz
+pilsētu.</p>
+
+<p align="JUSTIFY">Kučērs redzēdams, ka var pelnīt lielu godu, saka uz princenes:
+"Ja tu gribi dzīva palikt, tad saki, ka es esmu čūsku nokāvis; ja ne, tad es tevi
+nogalināšu."</p>
+
+<p align="JUSTIFY">Viņa, protams, baiļu pārņemta, apņemas to darīt. Mājās
+nobraukušiem, ķēniņš no liela prieka liek taisīt kāzas; pa tam atnāk arī kāds
+vanderzellis, kas ar' cerēdams ko dabūt, iet uz pili. Jau pašu laiku jaunais pāris iet
+pie altāra uz laulāšanu. Vanderzellis sāk taujāt, kādēļ kučērs pašu princeni
+par sievu dabūjot? Ļaudis tam atbild, ka tādēļ, ka kučērs princeni izglābis no
+briesmīgas čūskas.</p>
+
+<p align="JUSTIFY">Tas nu viņiem izstāsta, ka ne vis kučērs, bet šis princeni
+izglābis no nāves un par zīmi parāda divpadsmit mēles, ko no čūskas galvām bija
+izgriezis. Ķēniņš nu dod savu meitu īstajam glābējam par sievu, dzeŗ kāzas, un
+visi iaudis gauži ir priecīgi par to; bet blēdīgo kučēru liek nosodīt ar nāvi, kā
+jau ikkatru varmāku.</p>
+
+
+</body></html>

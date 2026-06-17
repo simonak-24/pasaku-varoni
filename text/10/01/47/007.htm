@@ -1,0 +1,145 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>?eizars un m?c?t?js.</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Ķeizars un mācītājs.</font><font size="4"></font></p><font size="4">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">7. A.<b> </b>922. Z.<b> </b>Lancmanis pie Rīgas
+no skolnieka J. Krījera. </font></p><font size="3">
+
+<p align="JUSTIFY">Reiz bijis viens zēns, Ansis vārdā, kas bijis ļoti godbijīgs un
+paklausīgs saviem vecākiem. Kad viņš uzaudzis liels, tad lūdzis no tiem, vai viņš
+varot iet pasaulē savu laimi meklēt. Tā nu viņš aizgājis un nonācis kādā
+pilsētā, kur dzirdējis, ka ķēniņš savu meitu nosolīja izprecināt tam, kas viņam
+pratīšot pateikt trīs uzdevumus. Ansis domājis arī savu laimi provēt, un nogājis
+pie ķēniņa. Ķēniņš prasījis Ansim: "Vai tu pratīsi tos uzdevumus, kuŗus es
+tev vaicāšu? Vai tu zini cik ūdens pilieni ir jūŗā?"</p>
+
+<p align="JUSTIFY">Ansis viņam atbildējis : "Liec izsmelt visu ūdeni no jūŗas,
+tad es tev pateikšu, cik ūdens pilienu jūŗā."</p>
+
+<p align="JUSTIFY">Ķēniņš nu atkal teicis: "Vienu uzdevumu tu man pateici; bet
+saki man vēl, cik mākoņu ir pie debesim."</p>
+
+<p align="JUSTIFY">Paskatījies uz debesim Ansis teicis: "Tik mākoņu, cik smilšu
+graudiņu."</p>
+
+<p align="JUSTIFY">Ķēniņš runāja tālāk: "Pareizi, kā tu atbildi; bet saki man
+vēl, cik zvaigžņu ir pie debesim?"</p>
+
+<p align="JUSTIFY">Ansis atbildēja: "Dod man spalvu un papīru, tad es tev
+parādīšu, cik zvaigšņu pie debesim,"</p>
+
+<p align="JUSTIFY">Tā viņš paņēmis papīru un spalvu, uztaisījis tik daudz
+punktiņu, ka ķēniņš nevarējis saskaitīt. Ķēniņš bijis mierā ar Anša atbildēm
+un atdevis tam savu meitu par sievu.</p>
+
+<p align="JUSTIFY">Ansis pārbraucis mājā, paņēmis savus vecākus un aizvedis arī tos
+uz ķēniņa pili. Kad ķēniņš nomiris, tad Ansis palicis viņa vietā par valdnieku.</p>
+</font>
+
+
+</body></html>

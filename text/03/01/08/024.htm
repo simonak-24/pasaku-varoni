@@ -1,0 +1,179 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>24</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Maģiskā bēgšana ar meitenes palīdzību.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">24. A. 313 A. V. Jonius Pustiņas pag., J. Miglinieka kr. </p>
+
+<p align="JUSTIFY">Vienam tēvam bijis dēls un meita, abi skaisti, ka maz tādu bija
+pasaulē. Kā dēls tā arī meita ļoti mīlēja savu tēvu un bija viņam ļoti
+uzticīgi. Tēvs arī ļoti mīlēja savus bērnus un pats strādāja viņu darbu. Viņi
+bija ļoti dievbijīgi, un Dievs arī palīdzēja viņiem viņu darbos.</p>
+
+<p align="JUSTIFY">Netālu no viņu mājas dzīvoja mežā jauna ragana. Viņa sadomāja
+izjaukt godīgo ļaužu laimi. Vienu vakaru, kad meita --viņai vārds bija Līvija - bija
+izgājusi uz maltuvi un tur dziedādama strādāja savu darbu, piepēži atskanēja liels
+troksnis un maltuvē apdzisa uguns. Ragana bija atskrējusi nozagt skaisto Līviju,
+paķēra to un kā vējš aiznesa viņu uz savu apburto pili. Brālis, kuŗu sauca par
+Jāni, redzēja, ka vecā ragana aiznesa mīļo māsiņu, nu tūlin dzinās viņai pakaļ;
+bet viņam bija ļoti gŗūts ceļš. Viņš gāja dienu, gāja nakti, bet nezināja, kur
+viņam jāiet, un vai viņa ceļam būs kāds gals.</p>
+
+<p align="JUSTIFY">Te pēdīgi viņš piegāja pie liela meža. Meža malā bija neliela
+mājiņa. Pie pašas mājiņas sēdēja veca, veca sieviete, viņai pierē bija tikai
+viena pati acs. Jānis piegāja pie viņas un deva tai labu dienu. Viņa Laipni pieņēma
+Jāni, ieveda to savā istabā, pacienāja un prasīja, kur viņš iedams? Jānis visu
+izstāstīja un prasīja, vai viņa nezinot ceļu uz to veco raganu? Vecīte pateica, ka
+viņa gan zinot ceļu, un ka tā ragana esot viņas pašas vecākā māsa, bet viņš
+nekā nevarēšot atņemt no raganas Līviju. Raganai esot tāds kalis, kas viņu
+sargājot. Kali tomēr varētu pielabināt, ja to labi pabaŗotu, jo ragana viņu lāgā
+neēdinot. Tad viņam vecīte iedeva puspodu gaļas un parādīja, pa kādu ceļu viņam
+jāiet.</p>
+
+<p align="JUSTIFY">Gāja viņš, gāja pa lielu mežu, pa zaļu pļavu, un beidzot
+pienāca pie liela žoga, kur uz katra mieta bija cilvēka galvas kauss. Viņš iegāja pa
+lieliem vārtiem un nonāca dārziņā. Dārziņa vidū stāvēja mājiņa uz vistas
+kājiņas. Pie pašām mājiņas durvim auga liela kupla bērza. Viņš iegāja mājiņā,
+kur vidū stāvēja liels katls, zem kuŗa bija liels ugunskurs. Katlā vārījās darva.
+Raganas mājiņā nebija, bet pie krāsns sēdēja viņa māsiņa, visa trīcēdama no
+bailēm. Blakus viņai sēdēja liels melns kaķis, kas tūlin uzrunāja Jāni ar cilvēka
+balsi un prasīja: "Kā tev vajaga? Taisies labāk tūlin prom, kamēr vecā ragana
+vēl nav atnākusi."</p>
+
+<p align="JUSTIFY">Jānis tūlin atdeva kaķim pusi no gaļas, par ko šis palika
+mierīgāks un jau vairs neskatījās ar ugunīgām acim. Tad Jānis atdeva visu gaļu un
+nu kalis jau pateica, ka viņi abi varētu aiziet prom, un iedeva viņiem skaistu
+lakatiņu, melnu susekli un baltu dvielīti. Dodams viņš pamācīja, lai ar lakatiņu
+apsien bērzu, kas aug pie mājiņas durvim. Kad ragana dzīšoties pakaļ, tad lai
+nosviežot susekli, un tur izaugšot liels mežs. Tad atkal lai nosviežot dvielīti
+zemē.</p>
+
+<p align="JUSTIFY">Nu Jānis ar Līviju apsien ar lakatiņu bērzu, aizskrien prom uz
+mājas pusi. Kad ragana atskrien mājā, tūlin metas kaķim virsū, kam viņš palaidis
+meiteni no mājas. Kaķis atbild: "Es kalpoju tev jau divdesmit gadu un neesmu
+dabūjis no tevis neviena gaļas gabaliņa, bet meitenes brālis man iedeva veselu puspodu
+gaļas."</p>
+
+<p align="JUSTIFY">Tad ragana metas bērzam virsū, kam viņa tos palaidusi gaŗām.
+Bērza pateica, ka viņa kalpojot šai jau daudz gadu, bet nedabūjot nekādas algas.
+Meitene esot apsējusi viņai skaistu lakatiņu.</p>
+
+<p align="JUSTIFY">Tad ragana sāk dzīties bēgļiem pakaļ. Kad viņa jau bija tuvu pie
+Jāņa un Līvijas, tad šie nosvieda suseklīti raganai priekšā, un tur izauga liels
+mežs. Ragana sāka grauzt kokus ar saviem asiem zobiem un pēc kāda laika jau arī bija
+tiem klāt.</p>
+
+<p align="JUSTIFY">Tad Jānis nosvieda baltu dvielīti, un raganai priekšā izplūda
+liela upe. Ragana nu sāka dzert upes ūdeni, bet tikmēr dzēra, kamēr pārplīsa.</p>
+
+<p align="JUSTIFY">Jānis ar Līviju nu laimīgi tika mājā un dzīvoja tagad vēl
+laimīgāki nekā agrāk, un varbūt vēl tagad dzīvo, ja nav miruši.</p>
+
+
+</body></html>

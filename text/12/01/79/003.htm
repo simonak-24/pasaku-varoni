@@ -1,0 +1,157 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Duksis un Piksis</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Duksis un Piksis.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY"><strong>3. </strong>A. 1791. Z. Dumbrovskis Zaļeniekos. A.
+Bīlenšteina kr. LP, VI, 104. M. Bohm, Lettische Schwānke, 64, 39.</p>
+</font>
+
+<p align="JUSTIFY">Vienreiz bija divi zagļi: Pēteris ar Miku. Kādu nakti viņi gāja
+atkal zagt un norunāja tā: "Zagdami nesauksimies vārdā mūs var drīzāk noķert
+- sauksimies labāk viens par Duksi, otrs par Piksi!"</p>
+
+<p align="JUSTIFY">Labi. Un tā nu, iegājuši mājās, Duksis tūliņ ielauzās kūtī
+pie jēriem, Piksis atkal ņēmās pa dārzu kartupeļus sarakt</p>
+
+<p align="JUSTIFY">Kamēr šie darbā, vecais saimnieks iznācis laukā un durvju
+priekšā sauc savu suni: "Duksi, Duksi!"</p>
+
+<p align="JUSTIFY">Zaglis kūtī atkal domā, biedrs Piksis viņu saucis. tas atbild:
+"Nerunā tik dikti, ka nedzird!"</p>
+
+<p align="JUSTIFY">Vecais saimnieks, tikko to padzirdējis, aizcirtis durvis un mudīgi
+vien iekšā pie dēla: "Dēliņ, zini ko? Mūsu Duksim ir velns! es viņu tāpat
+labinu, viņš man atbild: nerunā tik dikti, ka nedzird!"</p>
+
+<p align="JUSTIFY">Dēls domājis: "Kas tie par jokiem?" un arī izgājis Duksi
+labināt: "Duksi, Duksi!"</p>
+
+<p>Kas ir? Tā atbild atkal: "Nesauci tik ditki, ka nedzird!"</p>
+
+<p align="JUSTIFY">Nu dēls teicis: "Jā, Duksim ir gan velns, es iešu pie Punturu
+Juŗa, tas māk burt."</p>
+
+<p align="JUSTIFY">Labi, nogāja nakts vidū pie Punturu Juŗa; bet tavu nelaimi! Punturu
+Juris bija bijis mežā un pārcirtis kāju, nevarēja nākt Duksim velnu atburt. Bet
+vilcināt tādu 1ietu arī nevar - neko darīt - ņēmis Punturu Juri pa pleciem un nešus
+stiepis pie Dukša.</p>
+
+<p align="JUSTIFY">Nesis, nesis - nācis pie dārza, Piksis pa tumsu noredzējis: ā! mans
+biedrs stiepj jau jēru, un vaicājis: "Vai dabūji jau?" Saimnieks atbildējis:
+"Jā!" jo domājis, ka tas viņa tēvs. Piksis teicis: "Tad ir labi, svied
+tikai zemē, man ir nazis, kausim tūliņ nost!"</p>
+
+<p align="JUSTIFY">Punturu Juris, to padzirdējis, ka viņu, klibu cilvēku nes kaut,
+tūliņ no pleciem zemē un četrrāpus vien uz mājām atpakaļ.</p>
+<font size="4">
+
+</font><p><font size="4"></font><font size="3">Bet Duksis ar Piksi mierīgi sazaga ir kartupe]us, ir jērus.</font></p><font size="3">
+</font>
+
+
+</body></html>

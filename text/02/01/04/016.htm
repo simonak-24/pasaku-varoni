@@ -1,0 +1,159 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Varonis izglābj trīs nolaupītas princeses.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">16. <b>A. 301 A. </b>Paegļu Mārtiņš Lielvārdē, Zin. Kom. kr. LP,
+VI, 115, 28. <b>AŠ, </b>II, 86 0.</p>
+
+<p align="JUSTIFY">Reiz bijuši trīs brāļi : divi gudri, trešais muļķis. Un viņiem
+vienmēr zagtas no lauka auzu gubas. Abi gudrie brāļi gan izsargājušies gubas katrs
+savu nakti, bet nenosargājuši. Uznācis stiprs miegs, aizmiguši un nekā neredzējuši.
+Trešo nakti sargājis muļķis. Tam arī ap pusnakti nācis miegs, bet viņš nocieties,
+kā varēdams, un sagaidījis baltu lāci. Lācis salicis trīs gubas citu uz citas,
+pacēlis lielu plakanu akmeni lauka vidū un tur palīdis ar visām auzām.</p>
+
+<p align="JUSTIFY">Rītā muļķis ar lielām mokām novēlis akmeni un atradis dziļu
+caurumu. Nu uztaisījis grozāmās tītavas, apmetis gaŗus, gaŗus valgus un nolaidies
+lejup. Apakšā atradis tādu pašu pasauli kā augšā un vienā mājiņā skaistu
+princesi pie loga šujam. Uz galda gulējusi čūska. Nu muļķis jautājis princesi
+visādi; bet kad tā noatbildējusi, tad saskaities un nocirtis ar zobinu čūskai galvu.
+Tagad princese runājusi: viņa esot varena ķēniņa meita. Vēl divas māsas esot citās
+mājiņās tepat. Bet arī tām velns esot nolicis čūskas par vaktniecēm. Muļķis to
+padzirdējis, tūlin devies pie otras māsas - tur bijusi uz galda divgalvju čūska.
+Nocirtis abas galvas ar zobinu, atsvabinājis ir to māsu un tad steidzies uz trešo
+mājiņu pie jaunākās princeses. Te bijusi uz galda trijgalvju čūska; nocirtis ir tai
+visas galvas. Bet jaunākā princese teikusi: "Ja tu gribi mūs trīs pavisam
+atsvabināt, tad tev jānošauj pats ķēniņš. Ezerā, kārklos, viņš peld. Bet šauj
+ķēniņam vienu vienīgu reizi pašā kreisajā ausī."</p>
+
+<p align="JUSTIFY">Muļķis aizgājis ezera malā, kur ķēniņš peldējis un trāpījis
+tam taisni kreisajā ausī. Ķēniņš gan iekliedzies: "Kad tāds mednieks esi,
+šauj vēl reizi!" bet šis nešāvis vis.</p>
+
+<p align="JUSTIFY">Nu muļķis paņēmis ķēniņa zelta cepuri ar divpadsmit zelta
+tornīšiem, devies uz princesēm un uzvilcis ar kurvi augšā visas trīs. Beidzot
+iesēdies arī pats kurvī un princeses vilkušas atkal šo augšā. Bet par nelaimi
+uzlicis velna ķēniņa cepuri. Tikko princeses cepuri ieraudzījušas, domājušas, ka
+velns dzīvs, un izbailēs palaidušas valgu vaļā. Krītot muļķis vēl pārrāvis
+striķi un nu nekā vairs augšā tikt. .</p>
+
+<p align="JUSTIFY">Nodomājies staigājis apakšā pa lauku. Te sacēlies pērkoņa
+negaiss [un viņš iegājis vienā mežā. Tur viņš redzējis lielu ērgļu lizdu ar
+jauniem ērglēniem. Viņš pār tiem pārsedzis savus svārkus un tā] viņus izglābis
+no negaisa. Ērgliene solījusies iznest viņu šinī pasaulē, lai tikai sašaujot
+zvirbuļus, ko ceļā ēdināt, un tā pārticis mājā pie gudriem brāļiem, kur
+izglābtās princeses jau priekšā bijušas. Nu muļķis apņēmis jaunāko princesi un
+vecākās atdevis brāļiem. Bet kad muļķa sievas tēvs (ķēniņš) nomiris, tad
+muļķis vēl ticis par ķēniņu sievas tēva vietā.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

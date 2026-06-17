@@ -1,0 +1,153 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Velna bilde.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. J. Jansons no J. Tiļļas Īles pagastā.</p>
+
+<p align="JUSTIFY">Vienam kalējam smēdē pie sienas karājusies velna bilde. Katru
+vakaru priekš gulētiešanas kalējs spļāvis tai virsū un lamājis to. Te gadījies
+pašam tās muižas kungam braukt gar smēdi. Tas bijis ziemu. Ceļš bijis slidens un
+kungam zirgi bijuši nekalti. Kungs, redzēdams. ka smēdē vēl spīd uguns, sūtījis
+kučieri, lai pasauc kalēju. Sulainis ieiet smēdē, bet no brīnumiem paliek vai mēms.
+Kalējs stāv pie laktas un ka cilvēkus: pārkaļ vecus par jauniem. Šim neesot vaļas
+zirgus kalt. Ka ne, ne.</p>
+
+<p align="JUSTIFY">Kučieris aiziet un izstāsta visu kungam. Bet kungs grib pats visu
+redzēt. Ies uz smēdi. Aiziet, ja kā tad, kalējs pašreiz beidz kalt glītu jaunkungu,
+uzdod ar āmuru pa pakaļu, un šis smiedamies ieskrien kaktā pie citiem. Kungs tūlin
+kalējam klāt: vai nevarot viņu ar' jaunu pataisīt? Kāpēc ne, lai tikai guļoties uz
+laktas. Kungs guļas ar, bet kā šis uzgulsies, tā kalējs saspiež viņu stangās un
+ieliek ēzē, lai deg: Viņš bijis pats velns, kas izlicies par kalēju.</p>
+
+<p align="JUSTIFY">Kučieris gaida, gaida. nevar kungu sagaidīt. Ies raudzīt. Redz:
+kungs guļ ēzē beigts. Kučieris brauc mājā un izstāsta, kas noticis.</p>
+
+<p align="JUSTIFY">No rīta tiesas vīri klāt un ņem kalēju ciet. Bet kalējs nevar
+vien. nobrīnīties: viņš taču vakarā uguni izdzēsis jau laikus un aizgājis gulēt.
+Gan nu šis lūdzas, gan vaimanā, nekas nedar. Viņu aizved un iesloga cietumā, un
+nospriež pēc trim dienām kārt. Kalējs izdomājas visādi, bet beigas vien ir. Te tā
+ap pusnakti velns klāt un saka: "Āre, spļauj vēl man virsū, lamā vēl mani! Vai
+esmu tev ko aunu nodarījis, ka tu man spļāvi? Ja tu apsolies man nespļaut vairs virsū
+un nelamāt, tad vēl varu tev līdzēt.'`</p>
+
+<p align="JUSTIFY">Kalējs apsolas. Labi. - Pēc trim dienām ved kalēju pie karātavām,
+bet no velna vēl ne vēsts. Kalējs domā, ka velns to piekrāpis. Bende jau taisās mest
+kalējam cilpu kaklā, kad no meža izauļo melns jātnieks un sauc: "Nekariet viņu,
+es esmu vainīgs!"</p>
+
+<p align="JUSTIFY">Tiesneši vīram notic un palaiž kalēju vaļā. Viņa vietā nu
+pakaŗ melno jātnieku. Kalējs priecīgs aiziet mājās un vairs nekad i nedomā velna
+bildei acīs spļaut. Bet pakārtā svešnieka vietā otrā rīta atraduši apses šķilu
+karājamies.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

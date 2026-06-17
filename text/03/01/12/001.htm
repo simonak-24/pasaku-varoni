@@ -1,0 +1,243 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title> </title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+</b><p align="CENTER"><b>Par zirgu pārvērstais jauneklis.</b></p>
+</font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 314 A. Lerchis-Puškaitis Džūkstē - Pienavā. LP, I, 15. </p>
+
+<p align="JUSTIFY">Kāds vīrs dzīvo savā mājiņā it pārticis un laimīgs ar savu
+mīļo sieviņu. It īpaši kādā vasaras dienā tas jūtas tik laimīgs un priecīgs, ka
+pat ne miegs dienasvidū nenāk. Kamēr sieva guļ, viņš paņem savu bisi un aiziet uz
+tuvējo mežu pamedīt. Pašā mežmalā izlec zaķis, kuŗš ļoti mīlīgā balsī
+lūdz, lai nešaujot, bet lai labāki medinieks pie viņa par puisi līgstot.</p>
+
+<p align="JUSTIFY">"Kā lai pie tevis par puisi līgstu, kad pašam jauka mājiņa un
+mīļa sieva!"</p>
+
+<p align="JUSTIFY">"Bet, ja tev mājas nodegtu un sieva nomirtu?" zaķis jautā.
+"Nuja, kad tā notiktu, tad gan cits nekas neatliktu, kā pie tevis par puisi
+līgt," vīrs tāpat jokojas.</p>
+
+<p align="JUSTIFY">Pēc dienasvidus medinieks griežas atpakaļ uz māju; bet atron, ka
+māja nodegusi un sieva nomirusi. Nu bija vīram lielas bēdas. Bet kamēr nelaimīgais
+bēdājas, zaķis jau klāt un līgst un līgst. Beidzot salīgst arī uz pusgada pa
+veselu sieku zelta naudas.</p>
+
+<p align="JUSTIFY">Vīrs aiziet pie zaķa kalpot, kur citādu darbu nedabū, kā tikai zem
+trijiem katliem uguni kurt un vienu zirgu ēdināt tādā vīzē: trīs reizes miltu
+ūdeni un vienreiz auzas. Bet otrā nedēļā viņš pārskatās un iedod trešo reizi
+miltu ūdens vietā auzas. Zirgs gan apēd auzas, bet tad paliek ļoti nemierīgs, piesauc
+kopēju pie sevis un iečukst ausī: "Brālīt! nu mums nelabi klāsies, jo esam
+pārkāpuši kunga pavēli. Ej tūdaļ pāršķiŗ savus matus uz trim nošķiem, iemērc
+tad katrā katlā vienu nošķi un sakurini labi uguni. Pēc tam apsien labi savu galvu ar
+lupatu, piesmel dzeŗamo kausiņu ar šo triju katlu ūdeni, paņem manu suku un putekļu
+rīksti un steidzies atpakaļ pie manis."</p>
+
+<p align="JUSTIFY">Vīrs to visu izdara un atron jau zirgu kūts priekšā apseglotu.
+Tikko viņa kopējs mugurā, te šis ar' iet, kā ar putna spārniem pa purvu purviem,
+ūdeņu ūdeņiem. Kājas dziļāki ūdenī negrimst, kā tikai līdz vēzīšiem. Tā
+viņi bēg līdz pašam vakaram. Ap vakaru zeme sāk nejauki dimdēt un rūkt. Jājējs
+paskatās atpakaļ un ierauga lielus kalnus aiz muguras. Kalnu galā stāv pats velns.</p>
+
+<p align="JUSTIFY">Velns, tikko jājēju ieraudzījis atpakaļ paskatāmies. draud
+briesmīgā balsī: "Nu jūs esat mani!"</p>
+
+<p align="JUSTIFY">Patlaban velns grib lēkt no kalna gala un ķert bēdzējus. Te zirgs
+vēl laikā pamāca jājēju: "Met manu suku pār plecu!"</p>
+
+<p align="JUSTIFY">Vīrs to tūdaļ izdara un velns, kā lec, tā krīt klupdams, kaklu
+lauzdams.</p>
+
+<p align="JUSTIFY">Otrā dienā pret vakaru zeme sāk tāpat dimdēt. Jājējs, nu
+atpakaļ apskatīdamies, ierauga aiz muguras tik lielu, biezu mežu, ka ne lietus pilīte
+netek cauri. Velns lauž otrpus meža kokus, ka brikst un brakst! Zirgs atkal pamāca
+jājēju, lai sviestu sev pār plecu putekļu rīksti. To darot mežs, cik nolauzts. tik
+pieaug, cik nolauzts, tik pieaug.</p>
+
+<p align="JUSTIFY">Trešā dienā zeme tāpat dimd. Jājējam atpakaļ paskatoties, liela
+jūŗa apklājusi visu apgabalu. Zirgs nu pamāca atkal dzērienu kausiņu pār plecu
+sviest. To izdarot, jūŗa tūdaļ apstājas tālāk plūst un velns, citādi pār ūdeni
+pārtikt nevarēdams, sāk tik lakt sāļo ūdeni, ko nagi nes. Lok, lok, bet cik taču
+salaksi? Beigās lacējs pārsprāgst un atkrīt ūdenī augšpēdu.</p>
+
+<p align="JUSTIFY">Zirgs, nomanīdams, ka velns nobeidzies, izsaucas: "Nu abi esam
+glābti! Es gan tūlīt nevaru par cilvēku palikt, jo esmu uz deviņiem gadiem noburts.
+Tomēr nekas, pārvētīšos tagad par lielu akmeni un tu, šo akmeni paceļot, varēsi no
+manis dabūt, ko vien vēlies."</p>
+
+<p align="JUSTIFY">Vīrs nu atšķiŗas no sava glābēja un aiziet uz pilsētu, kur
+salīgst pie ķēniņa par dārznieku. Otrā, trešā dienā jaunais dārznieks, savu
+dienas darbu pabeidzis, domā no galvas noņemt savu pie velna katliem uzsieto lakatiņu.
+Grib arī turpat dārzā galvu izsukāt. Bet galvu sukājot, dārzs paliek tik gaišs, ka
+pats sabīstas. Ķēniņa princese tai brīdī pastaigājas dārzā un nevar diezgan par
+dārznieka galvas spožumu izbrīnīties. Viņa nodomā naktī, kamēr dārznieks guļ,
+viņa galvu tuvāki aplūkot, no kā spožums rodas. Trīs naktis tā izmocas nemanot pie
+galvas pietikt, kamēr ceturtajā naktī tomēr izdodas lakatiņu atraisīt, kur nu redz,
+ka dārzniekam sudraba, zelta un dimanta mati.</p>
+
+<p align="JUSTIFY">Princese no rīta lūdz tūdaļ tēvu, lai atvēlot viņai precēties.
+Tēvs mierā, viņš saaicina citu ķēniņu dēlus. Saaicinātos saved lielajā pils
+istabā pa rindu. Princese iet visiem gaŗām un saka, ka no tiem neviena paša pa prātam
+neesot. Nu ķēniņš saaicina ģenerāļus un citus augstus kungus; bet ar šiem tāpat.
+To dzirdot, tēvs paliek dusmīgs un sasauc visus, kas tik viņa valstī neprecējies.
+Tagad nostāda tik gaŗu rindu, ka princesei trīs dienas ko meklēties. Bet arī šai
+barā princese neatron īsteno. Ko nu? jāsasauc atraikņi. Tēvs sasauc atraikņus un
+princese, bez meklēšanas, izved no bara savu pašu dārznieku. Ķēniņš, to
+redzēdams, paliek tik pikts, ka aizdzen princesi ar visu dārznieku uz mežu. Pašpāris
+aiziet smiedamies, uzceļ mežā būdiņu un dzīvo labu laiku itin laimīgi visā savā
+nabadzībā. Atnāk rudens un nu abi redz, ka ziemu tādā būdiņā jānosalst gribot
+negribot. Abi ilgi prāto.</p>
+
+<p align="JUSTIFY">"Nieki!" vīrs beidzot iesaucas, "kur tad mans
+akmens!" Abi noiet pie akmeņa pēc palīdzības. Vīrs, lielu bomi rokā, paveļ
+akmeni. Tūdaļ iznāk neapzināmi liels kaŗaspēks sudraba bruņās no akmeņa apakšas
+un sauc: "Ko pavēlat, virsniek?"</p>
+
+<p align="JUSTIFY">"Pavēlu pret savu sievas tēvu kaŗot!"</p>
+
+<p align="JUSTIFY">Vecais ķēniņš, ieraudzījis tādu kaŗaspēku, salūdz trīs
+ķēniņus sev palīgā. Bet znota kaŗaspēks tomēr sakauj visus un aiziet, kur nācis.
+Nu vecais ķēniņš saaicina piecus ķēniņus sev palīgā; bet znots, akmeni paceldams,
+dabū kaŗaspēku zelta bruņām un sakauj visus piecus. Vecais ķēniņš brīnās bez
+gala, kas gan tas par tādu svešu ķēniņu varētu būt, ko ne pieci neiespēj sakaut.
+Viņš tomēr vēl saaicina septiņus ķēniņus sev palīgā. Bet arī visi septiņi
+nekā nelīdz, jo znots, akmeni paceldams, dabū kaŗaspēku dimanta bruņām un sakauj
+šos septiņus tik briesmīgi, ka tikai viens vienīgs kaŗavīrs atliek. Šis, nelabu
+galu redzēdams, paslēpjās zem tilta.</p>
+
+<p align="JUSTIFY">Pēc pabeigtā kaŗa dimanta kaŗaspēks iet priecīgs atpakaļ, kur
+nācis. Pats virsnieks, senākais dārznieks, velkas tāpat nopakaļus lēni, lēni
+pakaļ. Te izlec no tilta apakšas atlikušais kaŗavīrs un iecērt paslepen ar zobinu
+virsniekam kājā. Kamēr ievainotais domā atgaiņāties, kaŗavīrs jau pa kalnu
+kalniem. Viņš aiztek pie vecā ķēniņa paziņot, ko izdarījis. Pa to laiku dimanta
+kaŗaspēks jau zem akmeņa un šis viens pats sasien savu brūci, kā varēdams. Te
+vecais ķēniņš arī klāt pie ievainotā un parāda pret tik slavenu un varenu kaŗa
+virsnieku tādu godbijību un cienību, ka pats ar savu kabatas lakatu sasien viņa brūci
+un godbijīgi vēl ielūdz pie sevis izveseļoties. Šis pateicas par viņa labo sirdi un
+neiet vis, jo domā: pazīstamam doties laika vēl diezgan.</p>
+
+<p align="JUSTIFY">Ķēniņš pēc tam taisa lielas viesības un, it kā no žēlastības,
+aizsūta savu kučieri uz mežu, lai pārvestu arī padzīto znotu ar princesi. Kučieris
+iejūdz vienu pašu zirgu kautkādos rateļos un aizlaiž, ka derkšķ vien. Bet
+padzītais znots sūta kučieri atpakaļ un liek ķēniņam sacīt, ka pats saviem ratiem
+un zirgiem braukšot. Kučieris pārbrauc un stāsta, ka ķēniņa znotam ģērbjoties
+pamanījis ķēniņa lakatiņu gar kāju.</p>
+
+<p align="JUSTIFY">"Tā!" ķēniņš iesaucas, "to redzēsim!"</p>
+
+<p align="JUSTIFY">Nav ilgi, te znots ar visu sievu ielaiž, dimanta karīti un 12 zirgiem
+pagalmā. Vecais, to redzot, iztek kā apstulbis znotam pretim un tūdaļ lūdz kāju
+parādīt. Šis parāda arī. Un nu vecajam atveras acis. Znots tagad bij tik mīļš, tik
+mīļš, itkā par dārznieku ne mūžam nebūtu bijis.</p>
+
+<p align="JUSTIFY">Arī akmenis pēc 9 gadiem pārvēršas par cilvēku un dzīvo it
+laimīgi pie jaunā ķēniņa.</p>
+
+
+</body></html>

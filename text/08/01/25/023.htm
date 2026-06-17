@@ -1,0 +1,167 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>23</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Stiprais Ansis.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">23. A. 650 A. A. Pumpurs Lielvārdes un Jumpravas muižas. apg. No
+"Lācplēša", eposa ievada.</p>
+
+<p align="JUSTIFY">Lāčplēsis jeb Lāčausis radies no lācenes, lāču mātes, kuru
+kāds meža iemītnieks sev pieradinājis kā sievu. Augot tas ātri attīstījies par
+lielu, staltu jaunekli. No savas mātes tas tikai mantojis lāča ausis un lielu stiprumu,
+kādēļ to nosaukuši par Lāčausi. Pirmajos jaunekļa gados tas iztīrījis tēva
+mājas apkārtni no plēsīgiem zvēriem: lāčiem, vilkiem un meža cūkām, kuŗus tas,
+parasti aiz žokļiem saķerdams, pārplēsis, kādēļ arī dabūjis to nosaukumu -
+Lāčplēsis. Vēlāki, kad vairs mājā neatradis gadījumu spēku izlietot, tas ceļojis
+apkārt pa Baltiju, darba meklēdams; bet visu, ko tas strādājis, viņš padarījis ar
+pārlieku lielu stiprumu, salauzīdams visas darba lietas.</p>
+
+<p align="JUSTIFY">Tā reizi tas bijis par pāricēlāju pie Daugavas. Kad ļaudis uz
+celtuves salasījušies, viņš sācis airēt, bet tūliņ pie pirmiem vilcieniem aires
+salūzušas un celtuve būtu ierauta straumē un sadragāta, ja Lāčplēsis nebūtu airu
+vietā izlietojis plaukstis: viņš ar plaukstim sācis tik spēcīgi airēt, ka celtuvi
+atgriezis no straumes un pārvilcis laimīgi otrpus Daugavas. Pēc tam tas saderējies pie
+kāda kunga par puisi, kuŗš tam uzdevis visādus gŗūtus darbus izdarīt, kā: ar
+lāčiem art, velna dzirnavās kviešus malt, nogrimušo pili uzcelt, milzi aizdzīt
+u.t.t., arvienu apsolīdams savu skaistuli meitu par sievu. Lāčplēsis visu izdara un
+atsvabina zemi no visādiem mošķiem un briesmoņiem. Beigās kungs vairs nevar
+aizliegties un Lāčplēsis dabūn viņa skaistuli meitu par sievu un dzīvo kādu laiku
+laimīgi.</p>
+
+<p align="JUSTIFY">Aiz septiņām jūŗām dzīvoja kāda briesmīga ragana; tai bija
+dēls ar trim galvām. Viņš katru rītu gāja pie mātes un vaicāja: "Māte, vai
+es esmu stiprākais visā zemē?"</p>
+
+<p align="JUSTIFY">Arvienu viņa atbildēja: "jā", bet pēdīgi sacīja:
+"Būtu gan stiprākais visā zemē, ja aiz septiņām jūŗām nedzīvotu
+Lāčplēsis, kas ir vēl stiprāks par tevi."</p>
+
+<p align="JUSTIFY">Nu dēls mātei mierā nelika, gan lūdza, gan draudēja, lai tā ar
+savu velna skolu izdabūjot, kā Lāčplēsi varētu pārspēt. Ragana nu skrēja pie
+visiem velniem, bet neviens nezināja padoma, kamēr tad pats Līkcepure pamācīja, ka
+Lāčplēša spēks pastāvot viņa lāča ausīs; ja tās nocirstu, tad viņš būtu kā
+cits cilvēks. Raganas dēls, to zināt dabūjis, devās uz Baltiju. Viņš skrēja tik
+ātri ka vētra sacēlās un visas straumes Daugavā briesmīgi šņāca. Lāčplēsis, to
+dzirdējis, devās briesmoņam pretim, tie sastapās pie Daugavas. Lāčplēsis cirta
+pirmais ar savu smago zobenu un nocirta raganas dēlam vienu galvu. Šis cirta atpakaļ un
+nocirta Lāčplēsim labo ausi, - tūliņ labā roka zaudēja stiprumu un nevarēja turēt
+smago zobenu. Tādēļ viņš saķēra zobenu kreisajā rokā un nocirta raganas dēlam
+otru galvu. Tas cirta atkal<b> </b>un nocirta Lāčplēsim kreiso ausi, un tūliņ kreisā
+roka zaudēja stiprumu, smagais zobens nokrita zemē. Bet arī raganas dēls bij
+pazaudējis divas galvas un tā palicis divas trešās daļas nespēcīgāks. Nu
+Lāčplēsis metās tam virsū, tie sakampās ar rokam un sāka lauzties. Viņi lauzās
+līdz pat vakaram, bet krēslai metoties tiem slīdēja kājas un abi iegāzās no krasta
+atvara dzelmē.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Pasaka ir droši vien mākslīgi pārstrādāta un
+Lāčplēša nosaukums tīšām jemts no mājas vārda. Tā nav ne īsta tautas dzeja ne
+vienkārša tautas valoda. Šis variants ir tādēļ uzjemts, lai redzētu, cik maz mums
+ir pamata uzskatīt šo pasaku par īstu latviešu tautas teiku. P. Š.</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,165 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>13</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Vienacīte, Divacīte, Trijacīte.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">13. A. 511. Skolnieks J. Bernāts no K. Jušķevicas Nīcā. K.
+Lielozola kr.</p>
+
+<p align="JUSTIFY">Vienai mātei bijušas trīs īstas meitas un viena pameita. Pameitu
+viņa nemaz neieredzējusi, viņu dikti strādinājusi un nedevusi ēst.</p>
+
+<p align="JUSTIFY">Vienu dienu viņa sajaukusi linu sēklas ar pelniem un likusi pameitai
+lasīt. Pameita nevarēja izlasīt un dikti raudāja. Te piemāca kāda vecīte un
+prasīja: "Kāpēc tu raudi?"</p>
+
+<p>"Man jālasa linu sēklas no pelniem, un es nevaru izlasīt." Tad vecīte
+iedeva viņai vienu puķīti un teica, lai ar to pamaisot pelnus. Pameita arī tā darīja
+un 'linu sēklas atšķīrās no pelniem.</p>
+
+<p align="JUSTIFY">Pamāte lika pameitai dzīt lopus ganos un deva daudz darba līdz, bet
+ēst nedeva. Viņa dikti raudājusi, jo gribējusi ēst. Tad nākusi atkal tāda vecīte,
+un prasījusi, kāpēc raudot. Pameita atteikusi, ka gribot dikti ēst, jo pamāte nedodot
+maizes. Vecīte atteica: "Neraudi, tev ir tāda balta gosniņa. Pieej pie viņas un
+teic: gosniņ, atklājies!"</p>
+
+<p align="JUSTIFY">Pameita tā izdarīja un radās visādi ēdieni, tā ka viņa dabūja
+labi paēst. Kad viņa pārdzina lopus vakarā mājās, pamāte bija izvārījusi putru,
+bet pameita jau bija paēdusi, viņai putra vairs nesmeķēja. Pamāte domāja un
+brīnījās: "Kāpēc viņa neēd?"</p>
+
+<p align="JUSTIFY">Otru dienu viņa raidījusi vaktēt savu meitu, kuŗai bija tikai viena
+acs. Pameita ganīja govis, strādāja savu darbu un dziedāja: "Čuči, guli,
+vienactiņa!" Tā aizmiga un nekā nenovaktēja.</p>
+
+<p align="JUSTIFY">Trešo dienu māte sūtīja vaktēt atkal otru meitu ar divām acim.
+Pameita ganīdama atkal dziedāja: "Čuči, guli, vienactiņa, otra līdzi
+midzējas." Meita atkal aizmiga. Vakarā īstā meita pārgāja mājās un māte
+prasīja, vai esot novaktējusi. Viņa atteica, ka nekā neesot redzējusi.</p>
+
+<p align="JUSTIFY">Ceturto dienu pamāte sūtīja trešo meitu ar trijām acim. Pameita
+ganīdama dziedāja atkal: "Čuči, guli, vienactiņa, otra līdzi midzējas."
+Tās divas acis nu gan aizmiga, bet trešā palika vaļā, kas tad visu dabūja redzēt.
+Vakarā īstā meita pārgāja mājās, un māte prasīja, vai esot ko redzējusi. Viņa
+atteica: "Tā baltā gosniņa atklājās, un tur viņa dabūja ēst."</p>
+
+<p align="JUSTIFY">Viņas sarunāja to gosniņu no rīta nokaut, bet pameita arī to
+dabūja dzirdēt. Pa nakti bija liela vētra un apgāza riju, kur gosnina bija ielikta.
+Pameita no rīta agri piecēlās, izgāja ārā, paņēma savu gosniņu un aizbēga. Kad
+pamāte ar savām meitām piecēlās, pameitas vairs nebija. Viņas izgāja un atrada, ka
+gosniņas arī vairs nav mājā. Nu pamāte ar savām meitām dzinās pameitai paka un to
+arī gandrīz jau panāca jūrmalā. Pameitai bija līdzi tas kociņš, ko tā vecīte
+bija iedevusi. Viņa piegāja pie jūras</p>
+
+<p align="JUSTIFY">un pamaisīja ar kociņu. Jūŗa izšķīrās divās daļās, un palika
+sauss taks, kur viņa gāja ar gosniņu. Pamāte nevarēja viņu noķert. Pameita ar savu
+gosniņu nu gāja pa jūŗu, es nezinu, vai pārgāja, vai nepārgāja.</p>
+
+
+</body></html>

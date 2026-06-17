@@ -1,0 +1,200 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>1003001</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Gudrā meita.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">l.<b> </b>A.875. Mātuŗu Atis Grāvendālē. LP,
+VI, 999 (151, 1). </font></p><font size="3">
+
+<p align="JUSTIFY">Reiz dzīvojis vīrs ar sievu. Tiem bijusi gudra meita. Un tā vienu
+dienu istabā audusi. Te ienācis kāds tiesas kungs, vaicādams, kur esot tēvs ar māti?</p>
+
+<p align="JUSTIFY">"Kur tēvs? - Tēvs aizgāja zaķus šaut: kuŗu nošaus, to
+atstās mežā; kuŗš paliks dzīvs, to pārnesīs mājā. Un māte atkal aizgāja tur
+raudāt, kur pērn bija dziedāt."</p>
+
+<p align="JUSTIFY">"Bet kur tad brālis?" tiesas kungs vēl vaicājis. </p>
+
+<p align="JUSTIFY">"Brālis! Brālis aizgāja uz lauka sev skādi darīt."</p>
+
+<p align="JUSTIFY">Tiesas kungs klausījies, klausījies - nevarējis saprast, ko viņa
+tur savārās, un gribējis projām iet; bet meita nelaidusi, lai vēl brītiņu
+pakavējoties, tad došot ēst augļus un neaugļus.</p>
+
+<p align="JUSTIFY">Tagad tiesas kungs vēl vairāk apmulsis. Augļus un neaugļus! Kas tie
+esot, augļi, neaugļi, lai tūliņ stāstot!</p>
+
+<p align="JUSTIFY">"Ta tad muļķis!" meita smējusies, "are, te ir maize,
+piens, nu, vai tie nav augļi? Te atkal būs gaļa - nu, vai gaļa nav neaugļi?" </p>
+
+<p>"Tā, tā!" kungs atteicis; bet lai izskaidrojot, kur tad īsteni tēvs,
+māte, brālis gājuši - viņš nesaprotot.</p>
+
+<p align="JUSTIFY">"Tēvs! Tēvs aizgāja utis kaut : kuŗu nokaus, atstās mežā ;
+kuŗa paliks dzīva, to pārnesīs atpakaļ mājā. Māte atkal aizgāja pie savas māsas,
+tai pērn bija kāzas, tad mana māte kāzās dziedāja; bet tagad tur ir bēres, nu
+aizgāja raudāt. Un brālis sēj pie lielceļa zirņus. Kad tie izaugs, gaŗāmgājēji
+raus pākstes - būs skāde."</p>
+
+<p align="JUSTIFY">To dzirdot, kungam brīnum iepatikusies tik attapīga un gudra meita.
+Viņš tūliņ aizvedis meitu uz savu pili par sievu un dzīvojis labi jo labi.</p>
+
+<p align="JUSTIFY">Bet reiz pie tiesas kunga atnākuši divi vīri, lai izspriežot tiesu
+kumeļa dēļ! Vienam līdz šim piederējuši rati, otram ķēve, bet kam nu tas
+kumeļš: vai tam, kam tie rati, jeb tam, kam tā ķēve?</p>
+
+<p align="JUSTIFY">Tiesas kungs izdomājies vienādi, otrādi - nemaz sagudrot, kuŗam
+kumeļu piespriest, kuŗam ne. Beidzot atminējies savu gudro sievu, gājis pie tās pēc
+padoma.</p>
+
+<p align="JUSTIFY">Sieva atteikusi: "Tas jau pavisam viegli izspriest. Uzvediet tos
+ratus un ķēvi kalnā! Tad iejūdziet ķēvi un laižiet ratus no kalna zemē. Ja
+kumeļš skries ratiem pakaļ, tad viņš pieder pie tiem ratiem un ne pie tās ķēves;
+bet ja viņš skries ķēvei pakaļ, tad nekā darīt - tad viņš ir ķēves kumeļš un
+pieder tam, kam tā ķēve piederējusi."</p>
+
+<p align="JUSTIFY">Labi, laiduši ratus zemē - kumeļš nemaz nepaskatās; laiduši
+ķēvi - kumeļš pēdu no pēdas līdz.</p>
+
+<p align="JUSTIFY">Nu, labi, šie paliek ar mieru. Bet - kas ir - drīzā laikā izpaužas
+ļaudīs valodas: tiesas kunga sieva esot gudrāka un labāki izspriežot, nekā viņš
+pats.</p>
+
+<p align="JUSTIFY">Ā! tas šim, lielam vīram, tā kā par kaunu: sieva gudrāka. Viņš
+gandrīz tikpat kā nekas, tas neiet. Ko nu darīs? Sadomās: vedīs labāk tik gudru
+sievu atpakaļ pie tēva, pie mātes.</p>
+
+<p>Labi, lai vedot arī! Viņai tas esot gluži viena alga.</p>
+
+<p align="JUSTIFY">Un nu vienu dienu raus karīti laukā, jūgs zirgus un sūtīs projām.</p>
+
+<p align="JUSTIFY">Bet atšķirties taču tā nu arī nevar bez neviena malka, jāiedzeŗ
+kāda lāsīte. Nu dzeŗ, dzeŗ - vienu malku, otru, trešu, bet šī vēl nemaz
+atšķirties: lai uz tām bēdām vēl uzšaujot!</p>
+
+<p align="JUSTIFY">Tā nu šauj, šauj - kas ir - šis sāks, vadzi, iereibt un nu pats
+vairs nezina, kas nu par dienu ir, kas nav.</p>
+
+<p align="JUSTIFY">Bet ko mana sieva darīs? Tā, kad nu redz šo tādu, neatstās vis
+vairs vienu, cels blakus karītē un vedīs līdz. Aizved pie tēva, tēvam, kā jau
+nabaga vīram, tikdaudz gultu nav, kur šo īpaši guldināt. Sadomā - ko citu darīs -
+klās turpat uz cieta beņķa, lai guļ, kā varēdams.</p>
+
+<p align="JUSTIFY">Šis guļ, guļ - uz vienu reizi izgulējis dzērumu un tā tūliņ:
+kā viņš te atticis, kas viņu te ņēmis līdz?</p>
+
+<p align="JUSTIFY">"Es ņēmu!" sieva atteikusi, "tu taču pats vakar
+sacīji: Ņem visu, kas tev pieder un brauc pie tēva! Es tad paņēmu arī, kas man
+pieder, vispirms tevi, tad citas lietas un braucu šurp."</p>
+
+</font><p align="JUSTIFY"><font size="3">Kungs, to dzirdēdams, sācis smieties un tā visas dusmas - kur
+palikušas, kur ne - aizbraukuši atkal abi uz pili atpakaļ un - ja nav miruši, tad,
+laikam, dzīvo vēl šodien laimīgi.</font><font size="4"></font></p><font size="4">
+</font>
+
+
+</body></html>

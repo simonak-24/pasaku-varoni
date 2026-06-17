@@ -1,0 +1,380 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>18 A</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dvēsele olā.</p>
+</b></font>
+
+<p align="JUSTIFY">18. A.552.518. 302. J. Dīcmanis Lieģos, leias Kurzemē, "Pasaku
+vācelīte" 1891, 24.</p>
+
+<p align="JUSTIFY">Reiz dzīvoja ļoti bagāts ķēniņš, viņam bija trīs meitas un
+visas trīs bija ļoti skaistas. Kad viņas nāca jau lielas, tad visas</p>
+
+<p align="JUSTIFY">trīs tapa ķēniņam nozagtas. Vienu bija nozadzis zivju ķēniņš,
+otru putnu ķēniņš ērglis un trešo pats velns.</p>
+
+<p align="JUSTIFY">Ķēniņš un ķēniņiene tapa ļoti noskumuši un ilgu laiku vēl
+žēlojās pēc savām meitām.</p>
+
+<p align="JUSTIFY">Gadījās, ka pēc kādiem trim gadiem viņiem piedzima dēls. Par to
+ķēniņš un ķēniņiene tapa varen priecīgi. Dēls nu tapa 1abi audzināts. Kad viņš
+izauga 1ielāks, tad ķēniņš sūtīja to skolā. Skolā iedams, jaunais princis, katru
+rītu prasīja tēvam kapeiku, ko nopirkties rakstāmas spalvas. Viņš nu nepirka vis
+rakstāmas spalvas, bet katru rītu pirka par šo kapeiku no maizes sievām baltu maizi.</p>
+
+<p align="JUSTIFY">Tas bija kādu rītu, kad ķēniņa dēls, baltu maizi pirkdams,
+noklausījās, ka kāda maizes sieva otrai paklusi teica: "Šis ir ķēniņa dēls,
+kam nozaga trīs māsas. Tagad ķēniņam ir tikai viens dēls, vairāk viņam bērnu
+nav."</p>
+
+<p align="JUSTIFY">To dzirdējis, ķēniņa dēls apņēmās, vakarā no skolas
+pārnācis, prasīt par to saviem vecākiem. Skolā visu dienu viņš par māsām vien
+domāja. Kad nu vakarā pārnāca no skolas, viņš tūlin steidzās prasīt vecākiem,
+vai viņam arī kāda māsa bijusi?</p>
+
+<p align="JUSTIFY">"Mans mīļais dēls! Tev ir gan bijušas trīs māsas, bet tās
+visas trīs tapa nozagtas," ķēniņš noskumis atteica ar asarām acīs. Arī
+ķēniņiene sāka šņukstēt un asaras tai ritēja pa vaigiem. Kad ķēniņa dēls
+dabūja zināt, ka viņam patiesi bijušas trīs māsas, viņš apņēmās tūlin iet un
+tās uzmeklēt.</p>
+
+<p align="JUSTIFY">Otrā rītā itin agri jaunais princis aizgāja no pils meklēt māsas.
+Pa ceļu iedams, viņš ieraudzīja meža malā divus zēnus gar sedliem raustāmies.
+Princis uzprasīja: "Kādēļ jūs tā nikni ķīvējaties?"</p>
+
+<p align="JUSTIFY">",Ja, kā neķīvēsimies? Tēvs mirdams mums abiem atstāja trīs
+mantas: sedlus, manteli un zābakus; bet mēs nevaram savā starpā izdalīt šīs mantas.
+Šīs ir visas trīs labas _lietas: kad uz sedliem uzsēd un saka: "Nonesiet mani uz
+to un to pilsētu, vai citu kādu vietu! tad viņi tūlin arī nones. Kad ar to manteli
+apsedzas, tad paliek neredzams. Kad šos zābakus uzmauc kājās, tad var iet, kas zin, pa
+kādu dziļu ūdeni un tomēr negrims un nenoslīks. Vai tu nu zini, kādēļ
+strīdamies?" zēni vaicāja princim.</p>
+
+<p align="JUSTIFY">Princis atteica: "Es saprotu! Labi, es jums izspriedīšu šo
+lietu. Noeita līdz viņam krūmam, kuŗš tad no jums ātrāki šurp atskries, tam
+piederēs visas šīs mantas."</p>
+
+<p align="JUSTIFY">Puikām šāds prinča padoms itin labi patika, un viņi tūlin tecēja
+uz norādīto krūmu. Par to laiku, kamēr puikas aiztecēja līdz labi patālam krūmam,
+princis paņēma manteli un zābakus, uzsēdās uz sedliem un sacīja: ,,Nonesiet mani pie
+manas vēcākās māsas!"</p>
+
+<p align="JUSTIFY">Sedli pacēlās gaisā un nesa princi projām. Puikas atskrējuši
+atpakaļ, neatrada ne princi, nedz arī savas labās mantas. Abi brēkdami aizgāja savās
+mājās. Sedli nesa princi pāri par dziļu jūŗu. Beidzot tie nolaidās jūŗas vidū uz
+lielu augstu kalnu. Princis nokāpa no sedliem un gāja apskatīties kalnu. Viņš atrada
+zem kalna lielu dzelzs pili. Pilī iegājis, viņš tur redzēja jaunu sievieti pie galda
+sēdam un gauži raudam. Princis to tūlin pazina par savu vecāko māsu, jo viņam bija
+mājās viņas izskats ieteikts.</p>
+
+<p align="JUSTIFY">Sieviete sacīja: "Vai, jaunais cilvēks, kur tu esi tagad
+ienācis? Kad mans kungs pārnāks, viņš tevi saplēsīs, jo viņš ir ļoti stiprs un
+dusmīgs."</p>
+
+<p align="JUSTIFY">Princis pasacīja, ka viņš ir tās brālis un ka no viņas
+briesmīgā kunga tas nebaidoties: "Man ir tāds mantelis - kad ar to apsedzos,
+neviens nevar mani redzēt. Vadzi, ko, māsiņ? Kad tavs kungs pārnāk un jūs pie galda
+ēdīsit, tad prasi viņam tā: "Kad man tēvs, vai brālis, vai cits kāds no maniem
+radiem pie mums atnāktu, vai tu to labprātīgi uzņemtu un tam nekā ļauna
+nedarītu?" - tad dzirdētu, ko viņš teiktu. Es par to brīdi gulēšu tepat
+istabas stūrī, ar savu manteli apsedzies, un viņš mani neredzēs."</p>
+
+<p align="JUSTIFY">Tikko viņi tā bija izrunājušies, tad tie arī izdzirda zivju
+ķēniņu mājās nākam. Princis tūliņ palīda apakš sava manteļa. Zivju ķēniņš
+ienāca un, pamanījis svešu smaku, sāka ošņāt pa visiem istabas kaktiem. Nekā
+neatradis, prasīja savai sievai, ķēniņa meitai: "Kas tā par svešu smaku, vai te
+kāds ir bijis?"</p>
+
+<p align="JUSTIFY">Ķēniņa meita vairīdamās atteica: "Pa svešām jūŗām
+skrienot, tev ir tāda sveša </p>
+
+<p align="JUSTIFY">smaka degunā palikusi; tev tik tā izrādās te neviens svešs nav
+bijis!</p>
+
+<p align="JUSTIFY">Nu viņš novilka savas zivs drēbes, sēdās pie galda un sāka ēst.
+Ķēniņa meita sāka pazemīgi jautāt savam kungam: "Mīļo vīriņ! - kad tagad
+kāds no maniem radiem, brālis, vai māsa, pie mums atnāktu, vai tu viņu labprātīgi
+uzņemtu un tam nekā ļauna nedarītu?"</p>
+
+<p>Zivju ķēniņš atteica: "Vai, sieviņ mīļā, kālab nē? Es viņu ar itin
+mīlīgu sirdi uzņemtu; tas man būtu ļoti liels prieks." Princis to dzirdēdams,
+izlīda no sava manteļa, gāja zivju</p>
+
+<p align="JUSTIFY">ķēniņam klāt, sniedza viņam roku un draudzīgi to apsveicināja.
+Zināms, zivju ķēniņš pacēlās no sava krēsla un tāpat laipni, draudzīgi saņēma
+prinča apsveicināšanu. Trīs dienas princis pie viņiem palika. Ceturtā dienā viņš
+taisījās no tiem aiziet. (man svainis viņu lūdza, lai pie viņiem vēl paliek, bet
+princis pasacīja; ka ilgāki nevarot. Projām ejot svainis, zivju ķēniņš, viņam
+iedeva divas no savām spalvām, sacīdams: "Mīļo svaini! Kad tev kādu</p>
+
+<p align="JUSTIFY">reiz gŗūti klājas, tad tikai sadedzini tās, un es tev tūlin būšu
+ar lielu spēku palīgā."</p>
+
+<p align="JUSTIFY">Princis atvadījās no māsas un svaiņa, uzsēdās uz sedliem un
+pavēlēja, lai tie viņu nones pie viņa vidējās māsas. Sedli nesa princi pa mežu
+mežiem, līdz pēdīgi nonesa mežā uz lielu, lielu, augstu kalnu. Kalna virsgalā
+atradās skaista akmeņu pils. Akmeņu pilī iegājis, atrada sievieti tāpat kā dzelzu
+pilī. Šī arī sēdēja pie galda un gauži raudāja. Princis to tūlin pazina par savu
+vidējo māsu. Viņa princi ieraudzījusi, sacīja tāpat kā vecākā masa: "Vai,
+kur tu esi ienācis, jaunais cilvēks! Mans kungs ir ļoti stiprs un dusmīgs, kad viņš
+tevi te atradīs, viņš tevi uz vietas saplēsīs!"</p>
+
+<p align="JUSTIFY">"Nekas nekaitēs," princis atbildēja un pateica viņai, ka
+šis ir viņas brālis. Māsa gan bija priecīga, brāli satiekoties, bet baidījās no
+sava kunga dusmības.</p>
+
+<p align="JUSTIFY">"Nebaidies neko, māsiņ! Man ir tāds mantelis, kad ar to
+apsedzas, neviens nevar redzēt. Klausies ko! Kad tavs kungs pārnāk un nosēžas pie
+galda ēst, tad prasi viņam tā: "Kā būtu, kad mans brālis, vai māsa, vai cits
+kāds rads tagad pie mums atnāktu, vai tu viņu labprātīgi uzņemtu un viņam neko
+ļauna nedarītu?" Es par to laiku palikšu apakš sava manteļa un kādā istabas
+kaktā gulēšu - mani viņš neredzēs!" princis teica māsu drošinādams.</p>
+
+<p align="JUSTIFY">Līdz viņi beidza runāt, tad tie izdzirda ērgļu ķēniņu mājās
+nākam. </p>
+
+<p align="JUSTIFY">Princis tūlin palīda apakš sava manteļa. Ērgļu ķēniņš
+ienācis prasīja savai sievai : </p>
+
+<p align="JUSTIFY">"Kas te par tādu svešu smaku? Sieva laicīdamās atbildēja:
+"Tev tik tā izrādās! Tu esi "</p>
+
+<p>daudz svešu zemju pārskraidījis un iedvašojis dažādu gaisu! Pie galda ēdot,
+ķēniņa meita viņu uzrunāja: "Mīļo vīriņ! Kā būtu, kad mans brālis vai
+cits kāds no maniem radiem tagad pie mums atnāktu, vai tu viņu labprāt uzņemtu un tam
+nekā ļauna nedarītu?"</p>
+
+<p align="JUSTIFY">"Ai, mīļā sieviņ, es nemaz nezinu, cik laipni es viņu
+uzņemtu!" ērgļu ķēniņš smaidīdams atteica.</p>
+
+<p align="JUSTIFY">Princis, to dzirdēdams, izlīda no sava manteļa, piegāja ērgļu
+Ķēniņam klāt un to mīlīgi apsveicināja. Tāpat arī ērgļu ķēniņš, no galda
+pacēlies, princim laipni sniedza roku. Ērgļu ķēniņš un prinča māsa abi bija
+priecīgi par prinča atnākšanu. Viņi lūdza princim, lai labi ilgi pie viņiem paliek,
+bet princis teica, ka ilgi nevarot un palika pie viņiem tikai trīs dienas. Princim
+aizejot svainis iedeva vienu no savām spalvām un teica princim : "Kad tev kādreiz
+grūti klājas, tad tikai aizdedzini to spalvu; mēs tev būsim tūlin ar stipru spēku
+palīgā."</p>
+
+<p align="JUSTIFY">Princis uzsēdās atkal uz saviem sedliem un sacīja: "Sedli,
+aiznesiet mani pie manas jaunākās māsas!"</p>
+
+<p align="JUSTIFY">Sedli nu nesa princi pa purvu purviem, pa mežu mežiem, līdz beidzot
+nolaidās lielā, dziļā purvā. Tanī purvā atradās liela, stalta pils ar dzelzs
+durvim. Viņš pilī iegājis, atrada savu jaunāko māsu pie galda sēdam un gauži
+raudam. Viņa princi ieraudzījusi, izbijusies tāpat sacīja, kā abas vecākās māsas:
+"Vai, jaunais cilvēks! kur tu esi ienācis! Kad mans kungs pārnāks, tad viņš
+tevi saplēsīs, jo viņš ir ļoti stiprs un nikns!"</p>
+
+<p align="JUSTIFY">"A! viņš man nekā nepadarīs," princis atteica un arī
+pateica, ka šis esot viņas brālis. Māsa krita viņam ap kaklu un abi raudāja prieka
+asaras. Pēc tam viņa teica: "Bet slikti būs, mīļo brālīt! Tu nemaz nezini, cik
+mans kungs ir nikns un briesmīgs, viņš tevi dzīvu nepamestu."</p>
+
+<p align="JUSTIFY">"Ē! nekas nekaitēs! Man ir tāds mantelis, kad ar to apsedzas,
+tad neviens nevar redzēt."</p>
+
+<p align="JUSTIFY">Viņš māsai arī pateica, ka uzgājis vecākās māsas. Tad viņš
+vēl māsai sacīja : "Kad tavs kungs, pārnāk un jūs pie galda ēdat, tad prasi
+viņam tā: "Kā būtu, kad no maniem radiem tagad kāds pie mums atnāktu, vai tu
+viņu laipni uzņemtu un tam neko jauna nedarītu?" Tad redzēs, ko viņš īsti
+teiks! Es tepat istabas stūrī tupēšu apakš sava manteļa!"</p>
+
+<p align="JUSTIFY">Tikko viņi tā bija izrunājušies, te arī izdzirda velnu nākam, ka
+viss mežs un purvs šņāca, it kā kad briesmīgs viesulis kokos plosītos. Māsa teica:
+"Nu nāk mans kungs mājās!"</p>
+
+<p align="JUSTIFY">Princis tūlin palīda apakš sava manteļa. Velns pārnācis, sāka pa
+visiem istabas kaktiem ošņāt un prasīja savai sievai: "Kas tā par svešu smaku?
+Vai tik te nav kāds svešs bijis?"</p>
+
+<p align="JUSTIFY">"Ne, ne! Te nav neviens svešs bijis, tev tas tik tā
+izrādās." Velns nosēdās pie galda un ēda. Tad ķēniņa meita viņam mīļi
+pieglauzdamās prasīja: "Kā būtu, mīļo vīriņ, kad kāds no maniem radiem,
+brālis vai māsa, tagad pie mums atnāktu, vai tu viņu labprātīgi uzņemtu un tam neko
+ļauna nedarītu?"</p>
+
+<p align="JUSTIFY">"Vai, es viņu uz vietas saplēstu," velns vientiesīgi
+atbildēja. Princis nevarēja</p>
+
+<p align="JUSTIFY">sadzirdēt šo runu, tā tad arī viņš no sava manteļa nemaz
+neizlīda. Viņš dabūja </p>
+
+<p align="JUSTIFY">visu to nakti apakš manteļa tupēt, nedrīkstēdams velnam
+rādīties.</p>
+
+<p align="JUSTIFY">Otrā dienā, kad velns bija atkal izgājis, princis izdīda no sava
+manteļa un prasīja māsai: "Ko tad tev nu tavs vīrs teica?"</p>
+
+<p>Viņš man itin strupi atteica, ka viņš to tūlin saplēstu!" "Vai zini ko,
+māsiņ? Kad tavs vīrs pārnāk, tad tu viņam mīļi pieglauzdamās prasi, kur viņa
+dzīvība stāv? Bet runā labi padikti, lai es arī varu jūsu sarunu dzirdēt; es tepat
+istabas stūrī atkal paslēpšos."</p>
+
+<p align="JUSTIFY">Vakarā, kad velns pārnāca, tad ķēniņa meita viņam nosēdās
+blakus un to mīļi apkampusi vaicāja: "Mīļo vīriņ! mēs tik labi un tik mīļi
+jau ilgu laiku kopā dzīvojām, saki jel man, kur tava dzīvība stāv?"</p>
+
+<p align="JUSTIFY">Velns kavējās viņai teikt, bet viņa nelika mierā un sacīja:
+"Nu es redzu, ka tu mani nemīli!"</p>
+
+<p align="JUSTIFY">Sievas ierunai nevarēdama atturēties, velns teica: "Mana
+dzīvība ir jūŗā apakš liela kalna. Kalna apakšā ir vērsis, vērsī ir pīle,
+pīlē ir ola un olā svecīte. Tā svecīte ir mana dzīvība. Kad svecīte izdziest, tad
+es nomirstu; ātrāki es nemirstu un neviens par manu dzīvību arī neko nezin,"
+velns piebilda.</p>
+
+<p align="JUSTIFY">Princis, to visu noklausījies, nogāja tūlin uz minēto jūŗu.
+Uzāva savus burvju zābakus un tad piebrida līdz lielajam augstajam kalnam. Augstais
+kalns bija ļoti nostiprināts un princis nekādi nevarēja kalnā ietapt. Te nu viņš
+atminējās savu svaiņu spalvas, aizdedzināja tās un tanī pašā acumirklī atskrēja
+abi viņa svaiņi ar lielu spēku: ar daudz zivim un ērgļiem. Tie nu ņēma, noplēsa
+kalnu, nokāva vērsi un pīli un izņēma olu no pīles; bet ola iekrita ūdenī. Kāda
+zivs teica: "Pag, pag man ir skroderis (vēzis), tas viņu izņems."</p>
+
+<p align="JUSTIFY">Zivs nosūtīja skroderim pakaļ. Šis izņēma olu no ūdens. Princis
+nu olu attaisīja un izņēma svecīti, velna dzīvību. Tad viņš, saviem svaiņiem un
+visiem palīgiem daudzreiz pateicies, atvadījās no tiem un aizgāja atpakaļ uz velna
+pili. Viņš iegāja pie velna un lūdza, lai laiž tā māsu viņam līdz. Bet velns
+atteica: "Ne par ko es viņu nelaižu tev līdz!"</p>
+
+<p align="JUSTIFY">Viņš saķēra prinča māsu vēl jo cietāki un nelaida. Princis
+lūdza velnu vēl reiz, un teica: ..Kad tu nelaidīsi manu māsu. tad es izpūtīšu šo
+svecīti, kas manā rokā." .</p>
+
+<p align="JUSTIFY">Velns baidījās, ka princis izpūtīs svecīti un tad viņš ir miris.
+Redzēdams, ka nu ir slikti, viņš palaida savu sievu vaļā un teica: "Manis pēc,
+tu arī vari iet viņam līdz!" Bet princis, velnam neuzticēdamies, izpūta svecīti
+un velns tūlin turpat nomira.</p>
+
+<p align="JUSTIFY">Princis nu arī izveda savu māsu no pils un par lielu brīnumu, pils
+acumirklī palika par lielu skaistu pilsētu. Prinča divi svaiņi ar māsām arī
+atradās tai pilsētā. Abi prinča svaiņi : zivju ķēniņš un ērgļu ķēniņš, bija
+par cilvēkiem palikuši. Šie abi bija bagātu un varenu ķēniņu dēli bijuši, bet
+kāda ragana bija viņus nobūrusi, vienu par zivju ķēniņu otru par ērgļu ķēniņu.</p>
+
+<p align="JUSTIFY">Princis tūlin steidzās uz mājām un pateica saviem vecākiem, ka
+visas trīs māsas atradis. Vecais ķēniņš un ķēniņiene tapa ļoti priecīgi, kad
+.dabūja zināt, ka viņu mīļās meitiņas vēl dzīvas. Tagad ķēniņš un
+ķēniņiene gāja dēlam līdz uz jauno pilsētu. Kad viņi nonāca pilsētā, tad viņu
+meitas tecēja pretim. Nu bija visiem liels prieks.</p>
+
+<p align="JUSTIFY">Tie divi prinči nu no tiesas apprecēja ķēniņa abas vecākās
+meitas. Kad kāzu dienas bija pagājušas, tad ķēniņš un ķēniņiene ar savu dēlu un
+jaunāko meitu gāja atpakaļ uz savu valsti un dzīvoja savā pilī. Princis, kas
+apprecēja ķēniņa vecāko meitu, palika tepat jaunajā pilsētā par valdnieku.
+Princis, kas apprecēja vidējo meitu, aizgāja ar savu sievu uz sava tēva valsti un
+pili. Tā viņi dzīvo vēl šodien, ja nav miruši.</p>
+
+<p align="JUSTIFY">Tā nu ķēniņa dēls caur savu attapību un drošu prātu izglāba
+nevien savas māsas no bēdām un posta, bet arī atsvabināja abus ķēniņa prinčus no
+palādētas nelaimes.</p>
+
+<p>Piezīme. <b>A. </b>Lerchis-Puškaitis ir uzņēmis šo pasaku saīsinātā veidā
+(VII, II. 23, 1 ). P. Š.</p>
+
+
+</body></html>

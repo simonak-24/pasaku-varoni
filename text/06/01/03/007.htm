@@ -1,0 +1,159 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>7</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pateicīgais mirons.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">7. A. 505. Skolnieks A. Meldus Latgalē. N. Rancāna kr. </p>
+
+<p align="JUSTIFY">Senos laikos ļaudis stingri piedzina parādus. Reiz viens cilvēks
+palika otram simtu rubļu parādā. Naudas aizdevējs nu aizgāja uz kapiem, izraka mironu
+un sāka viņu pērt ar pātagu, prasīdams: "Vai atdosi man simtu rubļu
+naudas?"</p>
+
+<p align="JUSTIFY">Atnāk pie viņa viens vecītis un saka: "Kādēļ tu viņu sit?
+Še tev simtu rubļu un paklausi manis.</p>
+
+<p align="JUSTIFY">Kad nu viņš savu parādnieku bija atkal apracis, tad vecītis tam
+deva šādu padomu: "Brauc tu nu uz tālām zemēm, sapērc tur kādas mantas un
+atved še pārdot. Tad tu pelnīsi daudz naudas un arī es tev arvien būšu
+palīdzīgs."</p>
+
+<p align="JUSTIFY">Tā puisis sāka vest mantas no siltām zemēm, pārdeva tās, bet maz
+pelnīja. Atnāk atkal pie viņa vecītis un saka: "Es redzu, ka tev maza
+pelņa." Tad tālāku viņš vēl pasaka: "Ķēniņš ir izsludinājis, kas
+nakti baznīcā ies vaktēt viņa meitu, tam viņš došot simtu rubļu. Ķēniņa meita
+gan ēd tos cilvēkus, kas tur tiek sūtīti, bet tevi viņa neapēdīs. Tikai stāvi uz
+vietas, nekusties un nekur neskaties apkārt!"</p>
+
+<p align="JUSTIFY">Lai gan puišam bija bailes iet, bet vecītis sūta - jāiet. Puisis
+aiziet uz baznīcu un pienāk nakts. Ķēniņa meita tūlin sāk trakot, jo viņa šodien
+nebija vēl neviena cilvēka apēdusi. Jau puišam sāka mati stāvu celties un asaras
+lija kā straumēm. Nu šis domāja: "Dzīvs gan nepalikšu." Bet te
+iedziedājās gaiļi un ķēniņa meita atkal izgaisa.</p>
+
+<p align="JUSTIFY">Tā puišam vairāk naktis vajadzēja stāvēt baznīcā. Bet kā nakts
+bija novaktēta, tā puisis dabūja pa simtam maksas.</p>
+
+<p align="JUSTIFY">Vēlāk ķēniņš apsolīja: kas viņa meitu izdziedēs, tam viņš
+atdos to par sievu un vēl pus valsti klāt. Atkal vecītis sūta puisi, lai iet pie
+ķēniņa un apņemas izdziedēt. Puisis arī aiziet un pēc vecīša padoma viņam arī
+izdodas atsvabināt meitu no jaunuma, tā kā tā nu paliek dzīva. Izdziedēto meitu tas
+nu pārved savā mājā. Vecītis izkurina pirti, aizved tur velna apsēsto ķēniņa
+meitu, noplēš tai visu, kas bija no velna, bet kas tai bija no cilvēka, to visu
+apmazgā un saliek kopā.</p>
+
+<p align="JUSTIFY">Tad nu puisis apņem ķēniņa meitu par sievu, un ķēniņš tam vēl
+atdeva pusi no savas valsts.</p>
+
+<p align="JUSTIFY">Piezīme. Šis variants ir mums tai ziņā interesants. ka mirušā
+dvēseles vietā še uzstājas vecītis, bet aplaimotā vieta piekrīt pašam parāda
+piedzinējam. P. Š.</p>
+
+
+</body></html>

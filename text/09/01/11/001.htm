@@ -1,0 +1,230 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>1 1</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Sēzam, atdaries !</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">1. A. 676. H. Skujiņa, Andrs Ziemelis, Bilskas
+pagastā. </font></p><font size="3">
+
+<p align="JUSTIFY">Reiz būs divi brāļi - viens bagāts, otrs nabags. Nabaga brālis
+bīš Dieva cilvēks, bagātais velna kalps. Bagātais brālis būs tirgotājs, nabagais
+dzīvos būdiņa, sēž slotas un vedis uz tirgu pārdot. Nabagam brālim būs divi
+puikas. Kad tie paaugušies, tad sākuši braukt uz mežu pēc slotas žagariem.</p>
+
+<p align="JUSTIFY">Reiz puikas braukuši ar slotām uz tirgu un tiem pretī nācis vecs
+vecītis ar mazu sunīti. Vecītis prasīs, ko viņi tur vedot. Puikas atbildēsi, ka
+vedot slotas uz tirgu, ka tiekot naudiņa, ko maizīti nopirkt. Vecītis sacīs, lai
+nopirkšot viņa sunīti. Puikas teikuši, ka tēvs kavēšot, ja nebūšot naudiņas ko
+maizīti nopirkt. Vecītis teicis, lai tik nopirkšot vien. Puikas arī nopirkuši no
+vecīša to sunīti. Kad viņi aizbraukuši uz māju, tad tēvs, māte puikas tā kavēs,
+tā kavēs, ka tie sunīti nopirkuši.</p>
+
+<p align="JUSTIFY">Puikas braukuši otrā dienā atkal uz tirgu un pretī nācis atkal tas
+pats vecītis un tam būs atkal viens sunīts. Vecītis sacīs, lai nopirka atkal otru
+sunīti. Puikas sacīs, ka nedrīkstot pirkt, jo tēvs, māte esot tos briesmīgi kavēs,
+ka vakar sunīti nopirkuši. Beigās puikas nopirkuši otru sunīti, jo vecītis tiem
+bāzies virsū.</p>
+
+<p align="JUSTIFY">Trešā dienā atkal puikas braukuši un pretī nācis vecītis atkal
+ar sunīti. Viņš sacīs, lai pirkšot sunīti. Nē, puikas nedrīkst trešo sunīti
+pirkt; bet vecītis neatlaidies un beidzot puikas nopirkuši trešo sunīti. Tad vecītis
+prasīs, vai šie ar zinot, kas tiem suņiem esot vārdā. Puikas sacīs, ka nezinot. Tad
+tas vecītis sacīs, lai aizejot mājā un tad lai sakot: "Dzelzs, Tērauds, Ņem un
+saplēs!"</p>
+
+<p align="JUSTIFY">Kad puikas mājā aizgāja un uz sunim tā sacīs, tad tie tūlīt
+izskries no istabas un meža iekšā! Viņi pienesuši tēvam putnus, zaķus, stirnas un
+briežus. Nu vairs būdiņa netrūcis gaļas un puikas braukuši uz tirgu ar putniem un
+zaķim. Jau vecīši būs piekrās tik daudz naudas, ka varēs nopirkt zirgu un ragavas.</p>
+
+<p align="JUSTIFY">Reiz tēvs braucis uz mežu pēc malkas. Viņš palicis meža vēlu,
+saulīte jau gāsi zemē. Uzreiz tēvs dzirdēs lielu troksni un tā ka zirgu pakavu
+žvadzēšanu. Tēvam palicis bailes, - viņš aizmetis krustiņu priekšā, atstās zirgu
+un uzskatīs kuplu eglīti, kur uzkāpis augšā. Pie eglītes būs liels akmens. Uz to
+eglīti nu jās divpadsmit jātnieku, pakavi klaudzēs, pieši žvadzēs. Kad pirmais
+piejās pie akmens, tad sacīs: "Pelcduris, atdarīties!"</p>
+
+<p align="JUSTIFY">Tad akmens pacēlies un visi jātnieki sajās iekšā. Tēvs, eglīte
+sēdēdams, visu to noskatīs un sadzirdēs. Kad visi būs sajājis, tad viens no apakšas
+sacīs: ,;Pelcduris, aizdarīties!"</p>
+
+<p align="JUSTIFY">Akmens tūlīt aizcēlies vecā vietā. Tēvs nokāpis no eglītes un
+braucis uz māju. Viņš nevienam neka nesacīs, ko meža redzēs un dzirdēs.</p>
+
+<p align="JUSTIFY">Otrā rītiņā viņš būs jau agri augšā, aizbraucis uz mežu un
+uzkāpis eglītē. Priekš saulītes viens no apakšas sacīs: "Pelcduris,
+atdarīties!"</p>
+
+<p align="JUSTIFY">Akmens tūlīt nocēlies, visi divpadsmit jātnieki izjājis un
+pēdīgais jātnieks sacīs: ,;Pelcduris, aizdarīties!"</p>
+
+<p align="JUSTIFY">Akmens atkal aizcēlies vecā vietā un jātnieki iejājis mežā.
+Tēvs kāpis no eglītes zemē un arī pasacīs uz akmens: "Pelcduris,
+atdarīties!"</p>
+
+<p align="JUSTIFY">Akmens atcēlies un tēvs iegājis iekšā. Tur būs skaista istaba un
+liels galds pilns ar visādiem ēdieniem. Tēvs no visa drusku pasmēķēs un gās
+tālāku. Tad nākusi atkal viena istaba un tajā būs liels, liels blāķis zelta naudas.
+Tēvs izgājis ārā pēc zirga siena maisiņa un piebēris to pilnu ar zelta naudu. Kad
+viņš nācis ārā, tad sacīs: "Pelcduris, aizdarīties!"</p>
+
+<p align="JUSTIFY">Tēvs aizbraucis mājā, bet viņam nebūs mēra, ko naudu mērīt, un
+tas aizsūtīs puiku pie bagāta brāļa pēc mēra. Bagātais brālis prasīs puikam, ko
+viņa tēvs mērīšot. Puika sacīs, ka nezinot. Pēdīgi bagātais brālis puikam arī
+iedevis mēru. Puika aiznesis mēru uz māju un tēvs ar to mērīs naudu. Kad tēvs naudu
+izmērīs, tad puika aiznesis mēru bagātam brālim; bet vienā šķirbā būs ,palicis
+iespiedies zelta gabals un nabaga brālis to neieskatīs. Bagātais brālis uzgājis zelta
+gabalu mēra šķirbā un tūlīt sapratis, ka nabaga brālis mērīs zelta naudu.
+Bagātais nu atnācis pie nabaga un prasīs, kur šis tik zelta naudas ņēmis.</p>
+
+<p align="JUSTIFY">Nabaga brālis izstāstīs un izmācīs bagāto brāli, bet tas nav
+klausīs. Tas kā gāja velnu pili, tā pie galda klāt un sācis ēst un dzert. Beigās
+viņš piebēris arī maisu pilnu ar zelta naudu, bet uz trepēm apgulies.</p>
+
+<p align="JUSTIFY">Jājis velni mājā, noņēmuši bagātam brālim naudas maisu,
+pārplēsuši brāli vidū pušu un piesituši katru pusi pie savas stenderes.</p>
+
+<p align="JUSTIFY">Gaidīs, ko gaidīs nabaga brālis bagāto mājā, bet nevarēs
+sagaidīt un ies lūkot. Viņš to atradis pārplēstu un pie stenderēm piesistu.</p>
+
+<p align="JUSTIFY">Nabaga brālis noņēmis brāli no stenderēm, aizvedis uz māju un ies
+uz pilsētu skrodeli meklēt. Pilsētā nabaga brālis uzies skrodeli, kas pa labu naudu
+apņēmies brāli sašūt un atdzīvināt. Skrodelis būs jāved uz bagāta brāļa māju
+ar aizsietām acīm un ačģārni. Skrodelis sašuvis pārplēsto brāli un tas palicis
+dzīvs.</p>
+
+<p align="JUSTIFY">Pa to starpu velni atnākuši pie bagāta brāļa mājas un to no
+ārpuses norakstījuši ar sarkanu krītu. Nabaga brālis to redzēs un novilks māju ar
+zilu krītu, lai velni nepazītu un nevarētu atrast.</p>
+
+<p>Naktī pie bagāta brāļa mājas atbraucis velns ar 12 petroles mucām un prasīs, lai
+laiž iekšā. Nabaga brālis ielaidis ar. </p>
+
+<p>Bagātam brālim būs kalpone, veca vecenīte. Vecenīte domāsi: "Ielaidīs
+peroli no jaunām mucām." Dagāsi pie vienas mucas - netek, tikai viens prasīs no
+mucas: "Vai laiks?"</p>
+
+<p align="JUSTIFY">"Nav laiks!" atbildēs vecenīte. </p>
+
+<p align="JUSTIFY">Viņa ies pie otras, trešās un citām mucām - tas pats, neviena muca
+netecēs un tikai prasīs: "Vai laiks?"</p>
+
+<p align="JUSTIFY">No divpadsmitās mucas tecēs petrole. Vecenīte manīs, ka nav labi.
+Viņa ātri novārīs ūdeni un lēs vienpadsmit mucas iekšā. Vecenīte noplaucēs
+vienpadsmit velnus un tie izmukuši no mucām. Velni nevarēs nodedzināt bagāta brāļa
+māju.</p>
+
+<p align="JUSTIFY">Nu bagātais brālis bagātīgi apdāvinās savu kalponi, veco
+vecenīti. Nu tā būs brīva un varēs darīt, ko grib. Arī nabagais brālis pāries
+dzīvot uz bagāta brāļa māju. Tie tagad dzīvojuši laimīgi un saticīgi. </p>
+
+<p align="JUSTIFY">P i e z ī m e. Šī ir "Tūkstoš un vienas nakts" pasaka
+par Ali Babu (sk. ievads 88. un 89. l. p.), kas tautas mutē tomēr stipri sagrozījusies.
+P. Š.</p>
+</font>
+
+
+</body></html>

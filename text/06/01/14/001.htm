@@ -1,0 +1,286 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>14</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Uzticamais Jānītis.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 516. H. Skujiņa, Andrs Ziemelis, Aumeisteŗos. </p>
+
+<p align="JUSTIFY">Reiz vienā valstī valdījis vecs ķēniņš. Ķēniņam bijis viens
+vienīgs dēls, liels no auguma un skaists. Ķēniņiene nomirusi un atraiknis ķēniņš
+drīz vien pēc tam saslimis. Slimais ķēniņš pasaucis savu vismīļāko sargu,
+uzticamo Jānīti, mazu, mazu vīriņu un teicis:</p>
+
+<p align="JUSTIFY">"Tur, manā lielajā dzelzs lādē ir viena bilde, uz kuŗas
+redzama brīnumskaista princese. Tā princese ir apburta. Bildi tu noliec pils torņa
+istabā un sargā, kā mans dēls to nedabūn redzēt. Ja viņš bildi redzēs, tad sāks
+princesi meklēt un viņam būs jāmirst. Princese dzīvo tai zemē, kuŗa ir aiz mūsu
+jūŗas. Tagad ej un dari, kā es tev pavēlēju."</p>
+
+<p align="JUSTIFY">Jānītis sameklējis bildi un aiznesis to uz torņa istabu. Tad viņš
+gājis pie slimā ķēniņa paziņot, ka pavēle izpildīta. Ķēniņš bijis laimīgs.
+Viņš drīz vien nomiris un mirdams Jānītim piekodinājis, lai sargā viņa dēlu un
+kalpo tam tikpat uzticami, kā kalpojis viņam.</p>
+
+<p align="JUSTIFY">Pēc ķēniņa nāves princis valdījis pa pili un zemi. viņš
+atsaucis Jānīti uti licis tam, lai izvadā viņu pa pili un izrāda visas istabas.
+Jānītis gājis ķēniņam pa priekšu un rādījis visas pils istabas. Pie torņa
+istabas durvim Jānītis apstājies un teicis: "Te nevar iet. To vecais ķēniņš
+alzliedza darīt." </p>
+
+<p align="JUSTIFY">"Es esmu tagad valdnieks un gribu redzēt, kas šai istabā
+ir." Nekādas izrunas nelīdzējušas. Jānītis bijis spiests atslēgt torņa
+istabas durvis, kur pie sienas karājusies brīnumskaistās, apburtās princeses bilde.
+Ķēniņš iegājis istabā un sācis to ap skatīt. Jānītis aizstājies bildei
+priekšā, bet ķēniņš to ieraudzījis un pārsteigts apbrīnojis. Viņš to paņēmis
+līdz uz savu istabu un stundām ilgi skatījies uz bildi. No tās dienas ķēniņam
+nebijis vairs miera. Tas neizsakāmi vēlējies redzēt skaisto princesi.</p>
+
+<p align="JUSTIFY">Ķēniņš licis atvērt savus mantas kambarus un ataicinājis
+dažādus smalkus amatniekus. Tiem viņš licis iztaisīt kuģi no tīra zelta un vēl
+citas dārgas lietas no zelta un dārgakmeņiem. Kad viss bijis gatavs, tad ķēniņš
+iekāpis savā kuģī un braucis apceļot svešas zemes un meklēt brīnumskaisto
+princesi. Bet Jānītis jau zinājis to zemi, kur brīnumskaistā princese dzīvo. Viņš
+licis kuģa kapteinim turp braukt. Arī to viņš zinājis, ka ķēniņš neatlaidīsies,
+kamēr nebūs sameklējis brīnumskaisto princesi. Tad jau labāk lai viņš to atrod
+tūliņ.</p>
+
+<p align="JUSTIFY">Viņi piebraukuši pie aizjūras ķēniņa pils. Jānītis izkāpis
+malā. Kēniņš palicis uz sava kuģa. Jānītis paņēmis līdz dažas skaistas
+lietiņas un aizgājis uz ķēniņa pili. Viņš pilī piedāvājis pārdošanai skaistās
+lietiņas. Princesei tās ļoti iepatikušās. Tad Jānītis teicis: "Man uz kuģa ir
+vēl daudz skaistu lietiņu, kuras es varu pārdot. ja jūs man atnākat uz kuģa līdz .
+. ."</p>
+
+<p align="JUSTIFY">Princese bijusi ar mieru iet uz svešo kuģi. Viņa paņēmusi sev
+līdz 5 pavadoņus un visi aizgājuši uz kuģi.</p>
+
+<p align="JUSTIFY">Kad ķēniņš ieraudzījis daiļo princesi, tad viņu ļoti
+iemīlējis un negribējis vairs no viņas šķirties. Viņš licis kapteinim tūlin
+braukt atpakaļ uz savu pili. Daiļo princesi nolaupījuši.</p>
+
+<p align="JUSTIFY">Kad ķēniņš ar daiļo princesi bijuši jau tālu jūŗā iebraukuši
+un kad bēgļu vajātāji bijuši jau sen atpakaļ atgriezušies, tad naktī, uz kuģa
+masta uzlaidušies divi kraukļi un runājušies: "Ko tas nu līdzēs? Tiklīdz
+ķēniņš izkāps malā, to nositīs skaists zirgs un daiļā ķēniņiene paliks
+atraikne."</p>
+
+<p>"Kā tad to varētu novērst?" prasījis otrs kraullis.</p>
+
+<p align="JUSTIFY">"Nu, gluži vienkārši. Tas zirgs, ko ķēniņš jūrmalā
+ieraudzīs, būs velns, par zirgu pārvērties. Seglu kreisā pusē ir ķeša un viņā ir
+revolveris. Kad kāds to zinātu, tad tas izrautu revolveri un zirgu nošautu. Tad
+ķēniņš paliktu dzīvs."</p>
+
+<p align="JUSTIFY">Kraukļi tūlin aizlaidušies. Jānītis kraukļu sarunu dzirdējis.
+Viņš palicis visu nakti nomodā un domājis, kā varētu ķēniņu izglābt. Drīz vien
+kraukļi atkal otrreiz atskrējuši un viens teicis: "Ko tas nu līdzēs? Ja ar
+ķēniņš izglābsies, tad ķēniņiene pirmā naktī nomirs."</p>
+
+<p align="JUSTIFY">"Kā tad to varētu novērst?" jautājis otrs krauklis.
+"Ķēniņiene mazgāsies. Kad viņa istabas meitai prasīs kreklu, tad tā viņai
+iedos saģiftētu kreklu un ķēniņiene, to uzvilkusi<b>, </b>nomirs. Istabas meita
+mīlē ķēniņu. Viņai gan nav vairāk ģifts, kā vienai reizei . . ."</p>
+
+<p align="JUSTIFY">Atkal abi kraukļi aizskrējuši. Jānītis viņu sarunu noklausījies.
+Drīz vien kraukļi bijuši trešo reiz klāt: "Ko tas nu viss līdzēs? Ja
+ķēniņieni kāds izglābs, viņa nomirs tad savā kāzu naktī, kad pirmo reizi
+dancos," teicis pirmais krauklis.</p>
+
+<p>"Kā to varētu novērst?" prasījis otrs.</p>
+
+<p align="JUSTIFY">"Kad ķēniņiene kāzu nakti pirmo reiz dancos, tad to apstās
+velni un nožņaugs. Bet ja kāds gadīsies un viņai no kreisās krūts izspiedīs asins
+pilienu, tad viņa atkal atdzīvosies."</p>
+
+<p>"Bet kas lai to ķēniņam pasaka?" prasījis otrs krauklis. "Kas to
+ķēniņam stāstīs, to velni pārvērtīs par akmens stabu," atbildējis pirmais
+krauklis un stāstījis otram vēl citas gudrības.</p>
+
+<p>Kraukļi atkal aizlaidušies.</p>
+
+<p align="JUSTIFY">Trešā dienā kuģis piebraucis pie ķēniņa pils. Kad ķēniņš ar
+daiļo princesi izkāpuši malā, tad uz krasta stāvējis brīnumskaists ērzelis.</p>
+
+<p align="JUSTIFY">"Es iešu drusku pajāties," teicis ķēniņš un skrējis uz
+ērzeli. "Pagaid', pagaid', es iešu pirmais," kliedzis Jānītis.</p>
+
+<p align="JUSTIFY">Viņš pieskrējis pie ērzeļa un uzlēcis tam mugurā. Jānītis
+izrāvis no seglu ķešas revolveri un izšāvis. Dūmi vien nokūpējuši un ērzelis
+uzreiz izjucis.</p>
+
+<p align="JUSTIFY">Visi brīnījušies un jautājuši Jānītim, kas tas par zirgu
+varējis būt? Jānītis klusējis.</p>
+
+<p align="JUSTIFY">Ķēniņš ar daiļo princesi gājuši uz pili. Vakarā daiļā
+princese mazgājusies un teikusi istabas meitai: "Padod man kreklu! .." Istabas
+meita iedevusi kreklu. Kad princese gribējusi to vilkt mugurā, pieskrējis Jānītis,
+izrāvis princesei kreklu no rokām un iesviedis ugunī . . Princese noskaitusies un
+apsūdzējusi Jānīti ķēniņam. Ķēniņš norājis Jānīti un tad prasījis, kādēļ
+viņš to darījis? Jānītis klusējis.</p>
+
+<p align="JUSTIFY">Pilī posušies uz kāzām. Kāzu dienā pils bijusi pilna viesiem un
+muzikanti spēlējuši pils lielajā zālē. Ķēniņš ar jauno ķēniņieni pirmie
+sākuši dancot. Pēc tam arī viss lielais viesu bars.</p>
+
+<p align="JUSTIFY">Dancojot ķēniņiene nokritusi nedzīva uz grīdas. Viesi to
+apstājuši un neviens nezinājis, ko nu lai dara. Jānītis piesteidzies</p>
+
+<p align="JUSTIFY">pie ķēniņienes, atpogājis tai uz krūtim drēbes un no kreisās
+krūts izspiedis asins lāsīti- Ķēniņiene tūlin atvērusi acis un teikusi, lai viņu
+nes uz savu istabu. Tur jaunā ķēniņiene palikusi drīz vien vesela un prasījusi
+Jānītim, kā viņš to varējis izglābt.<b> </b>Jānītis klusējis. Bet ķēniņiene
+bijusi ļoti ziņkārīga un nelikusies mierā. Jānītis ilgi nestāstījis, jo zinājis,
+ka viņš tad pārvērtīsies par akmens stabu. Bet ķēniņiene to tincinājusi tik ilgi,
+kamēr reiz Jānītis tai izstāstījis no kraukļiem dzirdētās gudrības</p>
+
+<p align="JUSTIFY">Tūliņ arī viņš pārvērties par akmens stabu. Nu ķēniņš ar
+ķēniņieni nožēlojuši savu uzticamo sargu, bet bijis jau par vēlu. Ķēniņš licis
+akmens Jānīti ienest savā istabā un piesliet pie gultas kājgaļa. Bet pa naktim
+akmens Jānītis bieži vien smējies.</p>
+
+<p align="JUSTIFY">Reiz ķēniņa nav bijis mājā. Ķēniņiene viena gulējusi
+guļamistabā. Akmens Jānītis atkal smējies. Ķēniņienei bijis bailes un viņa likusi
+iznest no istabas akmens stabu. Viņu ielikuši ķēķa kaktā.</p>
+
+<p align="JUSTIFY">Ķēniņu pārim piedzimis dēls. Ķēniņa dēlam dzēruši krustabas.
+Ap pusnakti kalpone gājusi ķēķī. Tiklīdz viņa pavērusi ķēķa durvis, ka pa
+ķēķi skrējuši, ka švīkst vien. Kalpone nobijusies un skaitījusi:</p>
+
+<p align="JUSTIFY">"Kungs, esi man žēlīgs!" un kalpone metusi sev priekšā
+krustu.</p>
+
+<p align="JUSTIFY">Bet tūlin viņa arī no bailēm sastingusi. Ķēķis bijis pilns
+velnu. Tie bijuši apstājuši akmens Jānīti un to nerrojuši. Klibs velns bijis
+uzsēdies Jānītim uz galvas un nežēlīgi tam plēsis matus. Bet klibam velnam drusku
+šubējies un tas novēlies uz grīdas, ka noblīkšķējis vien. Un tūlin arī Jānītis
+smējies. Velni Jānīti tādēļ mocījuši, ka tas izglābis ķēniņu un ķēniņieni.</p>
+
+<p align="JUSTIFY">Kalpone redzēto stāstījusi ķēniņam. Nu ķēniņš sapratis, ka
+Jānītis ir vēl dzīvs. Viņš sasaucis visus savus gudros un mācītos un licis tiem,
+lai atdzīvina Jānīti. Neviens to nav varējis. Tad ķēniņš sūtījis pēc buriem un
+raganām un jautājis tiem, vai tie ko nezin. Viena ragana atradusies, kas apņēmusies
+Jānīti atdzīvināt. Bet tur vajagot ķēniņa dēla asinu. Ķēniņa dēls jānokaunot
+un viņa asinis jāuzlejot akmens Jānītim uz galvas . . .</p>
+
+<p align="JUSTIFY">Ķēniņš visādi izdomājies: žēl bijis Jānīša, kuŗu velni
+mocījuši, bet vēl vairāk žēl bijis sava dēla . . . Beidzot ķēniņš bijis ar
+mieru laist nokaut savu dēlu un atdzīvināt Jānīti . . .</p>
+
+<p align="JUSTIFY">Kad ķēniņa dēla asinis uzlējuši akmens Jānītim uz galvas, tad
+tas tūliņ pārvērties par dzīvu cilvēku. Bet ķēniņš nevarējis aizmirst savu
+dēlu. Viņš no žēlabām vaimanājis un plēsis sev matus. Bet Jānītis bijis gudrs.
+Viņš sameklējis ķēniņa dēlu, bēris tam smiltis uz galvas un runājis. Ķēniņa
+dēls palicis atkal dzīvs. Viņi visi laimīgi dzīvojuši ķēniņa pilī un Jānītis
+kalpojis uzticīgi vēl šo baltu dienu savam ķēniņam, ja vien vēl esot dzīvs.</p>
+
+<p align="JUSTIFY">Piezīme. Še ir manāms cauri arī J Zvaigznītes tulkotās Grimmu
+pasaciņas iespaids. Skat. ievads 111. 1. p. P. Š.</p>
+
+
+</body></html>

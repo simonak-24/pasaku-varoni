@@ -1,0 +1,262 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Uzticamais Jānītis.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 516. Skolnieks J. Atteka no 48 g. veca A. Sneiba Nīcā. </p>
+
+<p align="JUSTIFY">Reiz vienam ķēniņam bijis sulainis vārdā Jānis. Ķēniņam esot
+bijis dēls, un tas ķēniņš licis Jānim zvērēt, ka viņš to dēlu varot visos
+kambaros laist iekšā, bet tik tai vienā nē. Jānis domājis, domājis, bet zvērējis
+arī. Pēc kādiem gadiem ķēniņš nomiris un Jānis palicis ar dēlu vieni paši. Kad
+dēls bijis izaudzis jau liels, viņš prasījis tam Jānim, lai laižot šo tai
+aizliegtā kambarī arī iekšā. Bet Jānis nelaidis un nelaidis dēlu tai kambarī. Bet
+kad dēls jau bijis divdesmit gadu vecs, viņš plijies atkal Jānim virsū, lai laižot
+tai kambarī. Tad tas dēls esot teicis: "Mazākais pataisi mazu šķirbu, kā es
+varu iekšā paskatīties."</p>
+
+<p align="JUSTIFY">Tad Jānis teicis: "Kad jau tu tā dikti gribi tur tikt, tad
+pateisīšu arī."</p>
+
+<p align="JUSTIFY">Bet kad Jānis drusku pavēris durvis, tad dēls atgrūdis tās pavisam
+vaļā. Tad dēls esot redzējis pie sienas lielu bildi, apakš kuŗas bijis rakstīts:
+"Princese Bradulbudara, kas dzīvo aiz trim valstim."</p>
+
+<p align="JUSTIFY">Kal dēls to izlasījis, tad viņš tūlin gribējis turp braukt un
+prasījis Jānim: "Kā mēs viņu dabūsim?"</p>
+
+<p align="JUSTIFY">Tad Jānis teicis: "Kad tu tik dikti gribi braukt, tad es tev
+teikšu savu padomu. Tev vajaga sameklēt daudz zelta un citas dārgas lietiņas, sīkas
+un lielas."</p>
+
+<p align="JUSTIFY">Dēls pagādājis tās lietiņas un nu kopā ar Jāni nonesuši tās uz
+kuģi un tad braukuši projām. Kad tur nobraukuši, tad Jānis teicis dēlam: "Es
+iešu pie ķēniņienes un aiznesīšu vienu kurvīti. Kad tā ķēniņiene gribēs tās
+lietas pirkt un uznāks uz kuģi, tamēr vajag likt kuģim tūlīt braukt."</p>
+
+<p align="JUSTIFY">"Labi!" dēls atteicis un Jānis aizgājis uz pili. Jānis
+tur parādījis dārgās lietiņas un teicis, lai viņa nākot uz kuģi, jo tur esot vēl
+daudz vairāk mantu. Ķēniņiene arī izgājusi. Kamēr viņa tirgojusies, tamēr kuģis
+esot jau aizbraucis tālu jūrā. Sapirkusies daudz dārgumu, viņa gribējusi iet atkal
+uz savu pili, bet nu redzējusi, ka visapkārt bijusi tikai liela jūŗa. Ķēniņiene par
+tādu mānīšanu sākusi gauži raudāt, bet princis viņu mierinājis. "Nerauda par
+velti! Es tevi aizvedīšu uz savu pili un tu būsi mana sieva."</p>
+
+<p align="JUSTIFY">Tad viņa vairs nekā nesacījusi un nu sākusi apmierināties. Nu
+nogājuši abi ar princi kuģa apakšējās telpās, un Jānis palicis viens pats uz kuģa
+virsas. Te uz reizi Jānis ieraudzījis trīs vārnas laižamies. Vārnas uzmetušās uz
+kuģa un Jānis domājis, ka viņas skriešot projām, bet vārnas neesot vis skrējušas
+projām un sākušas runāt skaidrā cilvēku valodā. Tad pirmā vārna teikusi:
+"Redz, kur ķēniņš ved ķēniņieni mājā."</p>
+
+<p align="JUSTIFY">Otra vārna sacījusi: "Ko tas viņam palīdzēs? Tikko viņi
+izbrauks malā, tur būs priekšā skaists melns ērzelis un ķēniņa dēls gribēs
+viņam sēsties mugurā. Tikko viņš būs mugurā, ērzelis pacelsies gaisā un aiznesīs
+ķēniņa dēlu!"</p>
+
+<p align="JUSTIFY">Tad pirmā vārna jautājusi: "Vai to nevar kaut kā glābt?"
+Trešā vārna atteikusi: "Var gan, ja kāds cits uzlec tam ērzelim mugurā. Viņam
+kreisā sedlu kabatā ir duncis, un ja ar to duni noduŗ ērzeli, tad visi paliks
+veseli."</p>
+
+<p align="JUSTIFY">Tad pirmā vārna ierunājusies: "Bet ja kāds to dzird un
+izstāsta, tad tas līdz ceļiem paliks par akmeni."</p>
+
+<p align="JUSTIFY">Otra vārna atkal teikusi: "Bet ko tas palīdz? Tiklīdz kā
+brūte vilks brūtes kreklu mugurā, viņa paģībs un būs beigta." Tad atkal
+trešā vārna prasījusi: "Vai to nevar kaut kā glābt?"</p>
+
+<p align="JUSTIFY">Pirmā vārna esot atbildējusi : "Var gan, ja kāds cits pieit ar
+ādas cimdiem, atraun to kreklu un sadedzina, tad viņa paliks vesela."</p>
+
+<p align="JUSTIFY">Otra vārna piebildusi: "Ja kāds to dzird un citam izstāsta, tad
+tas līdz jostas vietai paliks par akmeni."</p>
+
+<p align="JUSTIFY">Trešā vārna runājusi: "Ko tas palīdz? Tiklīdz viņi ies uz
+pirmo danci, tad princese paģībs un būs beigta."</p>
+
+<p align="JUSTIFY">Otra vārna teikusi: "Viņu varētu vēl glābt, ja kāds cits
+pieskrietu un izsūktu no viņas krūtim trīs asins pilienus un izspļautu, tad viņa
+paliktu vesela."</p>
+
+<p align="JUSTIFY">Trešā vārna sacījusi : "Ja kāds to dzird un ja kādam to
+izstāsta, tad tas paliks par akmeni."</p>
+
+<p align="JUSTIFY">Jānis viens pats to noklausījies, un kad viņi izbraukuši malā,
+patiesi tur tūlin gadījies viens ,skaists melns ērzelis. Princis gribējis lekt tam
+mugurā, bet Jānis aizsteidzies priekšā, izrāvis dunci un nodūris to ērzeli. Nu
+princis bijis izpestīts no pirmā ļaunuma. Tad princis gājis pie princeses un teicis:
+"Varbūt, ka tas mums nāks pa labu."</p>
+
+<p align="JUSTIFY">Kad nu viņi pārbraukuši mājā, tad viņi taisījuši kāzas un
+brūte gribējusi vilkt brūtes kreklu mugurā. Bet Jānis jau stāvējis ar ādas cimdiem
+rokā ķēniņienei priekšā; kad tā sākusi vilkt savu brūtes kreklu mugurā, tad
+Jānis viņai atrāvis to kreklu un iesviedis ugunī. Ķēniņiene gan sākusi gauži
+raudāt, bet princis viņu mierinājis un sacījis: "Varbūt, ka tas mums nāks par
+labu."</p>
+
+<p align="JUSTIFY">Kad jaunais pārs pārbraucis no baznīcas, tad mūzikanti tos esot
+sagaidījuši ar goda maršu. Tad viņi izkāpuši no karietes un gājuši dancot, bet
+princese tūlin pakritusi gar zemi un bijusi beigta. Nu visi sākuši dikti raudāt. Tad
+Jānis esot pieskrējis, atplēsis krūtis vaļām un izsūcis trīs asinu pilienus un
+nospļāvis tos zemē. Princese pēc tam atkal atdzīvojusies un palikusi vesela. Visi
+ļaudis nu saukuši, lai jemot viņu cieti, viņš esot burvis. Ķēniņš nevarējis neko
+darīt, licis sajemt Jāni cieti un ieslodzīt cietumā. Tad sagājuši apspriest, kādu
+sodu Jānim uzlikt, un nosprieduši nāves sodu. Kad Jānim bija jāiet pie karātavām,
+vēl piecas minūtes esot bijis laika. Tad ķēniņš prasījis Jānim, vai viņam esot
+kāda vēlēšanās. Jānis smagi nopūties un teicis: "Vai jūs ]ausit man ko
+runāt?"</p>
+
+<p align="JUSTIFY">Ķēniņš arī atļāvis un Jānis sācis stāstīt, ko viņš uz
+kuģa dzirdējis, un kā viņš lūkojis savu ķēniņu un ķēniņieni glābt. Stāstot
+viņš palicis vispirms līdz ceļiem par akmeni, tad līdz jostas vietai. Beidzot viņš
+vēl sacījis: "Tā es jūs abus izglābu no nāves un nu redziet, ka es jūs abus
+patiešām izglābu."</p>
+
+<p align="JUSTIFY">Ar šiem vārdiem viņš nu apvēlies un bijis pagalam. Tad ml visi
+sākuši gauži raudāt, it īpaši ķēniņš un ķēniņiene raudājusi katru dienu. Tad
+ķēniņš ienesis Jāna tēlu pilī, nolicis savā gultas galā. Ķēniņienei pēc kāda
+laika piedzimuši dvīnīši un vecāki tos audzinājuši ar lielu mīlestību.</p>
+
+<p align="JUSTIFY">Kādu svētdienu ķēniņiene aizgājusi uz baznīcu un mājā palicis
+tikai ķēniņš ar saviem maziem bērniem. Viņš sēdējis savā krēslā pie gultas,
+skatījies uz Jāņa tēlu un teicis: "Lai tas maksātu ko maksādams, kad tik es
+tevi dabūtu dzīvu!"</p>
+
+<p align="JUSTIFY">Tēls kā par brīnumu sācis runāt un teicis: "Dzīvu tu mani
+vari dabūt, bet tas nāktos dikti gŗūti."</p>
+
+<p align="JUSTIFY">Ķēniņš atbildējis: "Es visu ko darīšu, lai tik tevi dabūt
+dzīvu."</p>
+
+<p>Tad Jānis sacījis: "Tev vajag uzupurēt abi savi bērni." Ķēniņš smagi
+nopūties. nogrimis domās un tad pēc brīža esot teicis: "Tad būs trīs
+dzīvības glābtas un divas beigtas."</p>
+
+<p align="JUSTIFY">To teicis nocirtis abiem puikām galvas. Ķēniņš aptraipījis Jāni
+ar bērnu asinim, viņš tūlin palicis dzīvs un teicis ķēniņam: "Kad tu mani
+glābi, tad arī glābšu tavus bērnus. Nomazgā viņiem asinis un pieliec galvas. tad
+viņi būs veseli."</p>
+
+<p align="JUSTIFY">Abi bērni nu palikuši atkal dzīvi Ķēniņš nu bijis priecīgs,
+viņš ieslēdzis Jāni un tos bērnus glāžu skapī. Kad pārnākusi ķēniņiene, tad
+ķēniņš esot viņai teicis, ka viņi varot dabūt Jāni dzīvu, bet tad vajagot abus
+mazos nokaut. Pirmāk ķēniņiene nebijusi ar miera, bet tad ķēniņš teicis:
+"Viņš taču izglāba mums abiem dzīvību."</p>
+
+<p align="JUSTIFY">Beigu beigās ķēniņiene bijusi arī ar mieru nokaut bērnus, lai
+izglābtu Jāņa dzīvību. Cik nu ķēniņiene bija priecīga, kad ķēniņš izlaida no
+skapja Jāni ar abiem bērniem. Tā nu visi dzīvojuši<b> </b>laimīgi kopā.</p>
+
+<p align="JUSTIFY">Piezīme. Šai pasakā, kas varbūt ir cēlusies no Grimmu grāmatas
+(skat. Ievads, 111. 1. p.), ir iepīts vārds Bradulbudara no Tūkstoš un vienas nakts.
+P. Š.</p>
+
+
+</body></html>

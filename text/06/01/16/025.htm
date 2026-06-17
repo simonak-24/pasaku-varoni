@@ -1,0 +1,255 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>25</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">25. A. 530. Skolnieks J. Nidre Eglūnā. N. Rancāna kr. </p>
+
+<p align="JUSTIFY">Senejūs iaikūs dzeivuoja vīns tlvs, kam beja treis dāli: divi
+gudri, vīns muļkis. Kad tāvs beja jau uz nuoves gultas, tad viņš sacēja, kod šis
+nūmieršūt, tod lai kotrs dāis sovu nakti pēc kuortas sorgoj viņa kapu. Kod tāvs jau
+beja paglobuots kopūs, tod dālim beja juoīt pēc tāva pīsacējuma sorguot. Vacuokajam
+dālam vajadzēja īt paprīkšu, bet viņš padūmuoja, kai tī uz kopim vysu nakti byut,
+var kas sabaidēt - ..lobuok syutēšu jaunuokū bruoli, muļki."</p>
+
+<p align="JUSTIFY">Kad atguoja vokors, vacuokais bruolis soka uz muļka: "Ej, bruol,
+tu munā vītā uz tāva kopu. Es navaru, es asmu šūdīn slyms."</p>
+
+<p align="JUSTIFY">Muļkis nagrib īt, bet bruols uzklīdza, lai īt, "citaidi byus
+tev pavysam slykti."</p>
+
+<p align="JUSTIFY">Muļkis paņam sovu nazi un aizīt. Aizguojis uz kopu, tyulen pīgrīze
+reikstīšu, kurom vāluok nūasinuoja obējus golus, un pīspraude vysapleik sevis. Kod
+jau nuoce dziļa nakts, tod suoce muļkam īt mīgs, bet jis kai tikai snauzdams palīc
+golvu uz zemi, tai tyulen duruos reikstes mīsā. Tai muļkis naaizmyga leidz pat
+pusnaktei. Pošā pusnaktī sazacēla lels vējs un pīsacēlēs ari tāvs nu kopa un
+soka: "Voi te muns vacuokais dāls?"</p>
+
+<p>Muļkis atbild: "Te, tēt."</p>
+
+<p align="JUSTIFY">Tad tāvs paņēma skaistu stabulīti un kai tymā īpyuta; tyulen
+atskrēja skaists zyrgs ar zalta sadim un īmovim. "Še dāls tev šitei stabulīte,
+un kod tikai tev vajadzēs, tyulen papyut šimā, tad atskrīs šitis zyrgs un ari skaists
+apgērbs byus zyrgam uz mugoras."</p>
+
+<p align="JUSTIFY">Šitū vvsu tāvs dālam izstuostījis, pasacēja: "Ar
+Dīvu", īguoja atpakaļ kopā un zyrgs ari aizskrēja prūjom.</p>
+
+<p align="JUSTIFY">Reitā muļkis, saleicis un treisēdams, īt īkšā ustobā. Bruoļi
+vaicoj: "Nu, kū loba redzēji par nakti uz kopa?"</p>
+
+<p align="JUSTIFY">Muļkis treisūšā bolsā atbild: "Ap pašu pusnakti k ai
+saskrēja vysi jai.nni gori, kai ņēma mani pērt - cik [tikko] dzeivs palyku."
+Bruoļi pazasmējas un runoj sovā storņā: "Lai syt, navaidzēs myusim baruot
+juo."</p>
+
+<p>Ūtrā vokorā vajadzēja īt vidējam bruoļam tāva kopa sorguotu, bet viņš naīt,
+syuta otkon jaunuokū bruoļi, lai tys ītu. Bet muļkis nagrib īt, tod bruoļi pīspīž
+jū ar varu, lai īt.</p>
+
+<p align="JUSTIFY">Muļkis aizguojis uz kopu, taipat kai pirmā dīnā, pīsprauž
+reikšu, lai naaizsnaustu. Ap pošu pusnakti sasacēļas lels vējs un otkon pīsacēlīs
+tāvs vaicoj: "Voi te muns vidējs dāls?"</p>
+
+<p>"Te, tēt!" atbild muļkis.</p>
+
+<p align="JUSTIFY">Tāvs paņēme sudobra stabulīti un kai tikai papyuta jimā, tai
+tyulen atskrēja skaists sudabra zyrgs, ar sudobra īmovim un saglim. "Še tev,
+dāls, šitei stabulīte. Kai tik tu jimā papyussi, tai tyulen atskrīs šitis
+zyrgs." Tad atteica: "Ar Dīvu," un aizguoja kopā gulātu.</p>
+
+<p align="JUSTIFY">Muļkis reitā īt uz ustobu otkon saleicis, un kod bruoļi kuo vaicoj,
+viņš soka, ka viņš ešūt stypri sasysts un ari nūsalis par nakti. Lai laižūt jū
+tikai uz cepļa. Kod atguoja vokors, tod muļkis prosa bruoļim, lai viņi šūnakti par
+jū pasorguojūt, bet bruoļi nagrib i klausītīs.</p>
+
+<p align="JUSTIFY">Muļkis vokorā aizguojis uz kopim, taipat kai cytus vokorus, apspraude
+reikstes apkuort sevim un gaidēja pusnaktes. Ap pusnakti pīsace tāvs ar vēju un vaicoj
+: "Vai te muns jaunuokais dāls?"</p>
+
+<p>"Te, tēt!" muļkis atbild.</p>
+
+<p align="JUSTIFY">Tad tāvs paņēme vara stabulīti un kai tik īpyuta, tai tyulen
+atskrīn skaists vara zyrgs ar vara īmovim un saglim. Tad tāvs sacēja uz muļki:
+"Še tev, dāls, šitai stabulīte, un kai tik tu jimā papyussi, tai tyulen atskrīs
+uz tevim šis zyrgs."</p>
+
+<p align="JUSTIFY">Tāvs atteice: "Ar Dīvu!" un aizguoja atpakaļ kopā
+gulātu. Nyu muļkis dabuoja kuorkla mizeņu, nūveja nu tom saitīti. savēre uz juos
+vysas treis stabulītes un palyka zam sveitas, lai bruoļi naredz.</p>
+
+<p align="JUSTIFY">Reitā aizguoja uz muojom, izleida uz cepļa un stuosta bruojim, ka
+šū nakti ļauni gori jū cik dzeivu pamatuši.</p>
+
+<p align="JUSTIFY">Pēc nazkaida laika kēniņš apziņoj vysā sovā valstī, ka viŗram
+ešūt meita, kuru viņš gribūt apprecinuot koč ar kaidu veiru. Meita stuovēs stuova
+kolna golā un kas pījuos un pajems gradzynu nu juos piersta; ar tū dzers kuozas.</p>
+
+<p align="JUSTIFY">Ūtrā reitā oba divi vacuokī bruoļi nu reita agri sasataisa ceļā,
+apvalk lobuokus drēbes, uzlīk caunu capures, sāstās tāva kumeļim mugorā un juoj uz
+kēniņa pili.</p>
+
+<p align="JUSTIFY">Muļkis ari daudzi nadūmoj, kai tikai bruoļi nūjuoj, tai tyulen
+viņš uorā, papyuš ar vara stabulīti un te uz reizes - kur beja nabeja - vara zvrgs
+kluotu. Zyrgam uz mugoras skaistas kunra drēbes, kuras jis apvylka mugorā, tad palaide
+taišņi uz ķēniņa pili. Bruoļus muļkis apdzyna pusceļā, īsyta jīm pa reizei ar
+puotogu un aizauļekšuoja uz kēniņa pili. Bruoļi nūsabeida un dūmuoja: "Kaids
+te lels kun gs! Kai mums nabogim tykt uz kolna ar sliktim zyrgim?" Nu pusce]a jī
+laiduos uz muojom.</p>
+
+<p align="JUSTIFY">Muļkis kai juoja, tai uzjuoja leidz trešai daļai kolna. Tad grīzēs
+atpakaļ un juoja uz muojom.</p>
+
+<p align="JUSTIFY">Par nagaru laiku ari bruoļi kluot. Kad viņi īguoja ustobā, tad
+tyudeļ suoka stuostīt par tū kungu, kurs uz ceļa jūs apdzinis un arī īsyts šīm pa
+reizei. Muļkis nu cepļa uzsauc: "Var byut es tur beju!"</p>
+
+<p>"Klusi!" klīdz bruoļi, smīdamīs par muļka nagudru runu. Ūtrā dīnā
+bruoļi otkon taisuos uz kēniņa pili, muļkis arī soka, lai bruoļi paņamūt šū
+leidza, bet bruoļi uzklīdz: "Guli labuok uz cepļa! Kū tu tur darēsi, muļks
+byudams?"</p>
+
+<p align="JUSTIFY">Bruoļi apsagloj kumeļus, uzlik caunu capures, paņem peickas un
+aizjuoj.</p>
+
+<p align="JUSTIFY">Muļkis ari nu cepļa zemē, paņem sudobra stabulīti un, izguojis nu
+ustobas kai papyute, tai tyulen atskrēja sudobra zyrgs. Muļkis paņēma nu sadlu
+drēbes, apvylka sev mugorā, tad paņēmis peiku, laidās ceļā. Bruoļus muļkis
+apdzyna pusceļā, īsyta viņm ar peicku pa reizei un aizaulekšuoja uz kēniņa pili.</p>
+
+<p align="JUSTIFY">Muļkis kai lēce, tai dalēce puskolnā, tod grīzēs atpakaļ un
+aizjuoja uz muojom. Bruoļi atbraukuši stuosta, ka šūdīn ešūt bejs vēl leluoks
+kungs kai vakar. Šī raudzējuši gon juot uz kolna, bet nikuo. Zyrgi pīkusuši un tad
+viņi grīzušīs uz muojom.</p>
+
+<p align="JUSTIFY">Trešajā dīnā bruoļi otkon sasagluoja sovus kumeļus un aplykuši
+caunu capures, laidās ceļā.</p>
+
+<p align="JUSTIFY">Pēc nagara laika muļkis izguoja nu ustobas un, paņēmis zalta
+stabulīti, kai papyuta, tai tyulen atskrēja zalta zyrgs. Muļkis, paņēmis nu sadlu
+drēbes, apvylka sev mugurā, tad paņēmis puotogu, laidēs ceļā. Aizjuojis pi kolna,
+kai lēce, tai pošā augšā ar vīnu ruovīnu. Tod paņēmis nu meitas gradzynu,
+aizjuoja atpakaļ uz muojom. Bruoļi atjuojuši muojuos stuosta, ka taids kungs juojis ar
+zalta zvrgu, kurs ari paņēmis gradzynu nu kēniņa meitas piersta.</p>
+
+<p>Muļkis nu cepļa klīdza: "Varbyut es tys beju!"</p>
+
+<p align="JUSTIFY">"Klusi, muļkis!" uzklīdza bruoļi, "guli lobuok uz
+cepļa un narunoj par taidim nīkim!"</p>
+
+<p align="JUSTIFY">Par nedēļu laika vysim valdzēja saīt pi kēniņa pils, lai maklātu
+gradzynu. Ari bruoļi taisījās celā un kod jī beja izjuojuši nu muoju, tod muļkis
+juoja bruoļim pakal. Pī kēniņa pilī redzēja, ka muļkim ir kēniņa meitas gradzyns.
+Nyu sataisēja boguotas kuozas un jaunuokais bruolis dzeiuoja laimīgi ar kēniņa meitu.</p>
+
+<p align="JUSTIFY">Piezīme. Tādu pašu pasaku uzrakstījusi skolniece A. Skromaņa
+Eglūnā. P. Š.</p>
+
+
+</body></html>

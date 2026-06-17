@@ -1,0 +1,267 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Neuzticamā māsa.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">16. A.<b> </b>313. 315. Lapas Mārtiņš, Rūjienā. "Dievs un
+velns" 1904, Nr. 9.</p>
+
+<p align="JUSTIFY">Viena kunga daļā bijis kāds kalns, saukts par Velna kalnu, uz kura
+neviens neuzdrošinājies uzkāpt. Kalns bijis noaudzis ar košu mežu un kungs nodomājis
+likt nocirst šo mežu, bet neviens negribējis iet tur malku cirst.</p>
+
+<p align="JUSTIFY">Kungs nu pavēlējis kučēram aizjūgt zirgus un braukt uz Velna kalnu
+apskatīties. Kad tur nobraukuši, tad kungs licis kučēram pieturēt zirgus un pats
+dzīries pa mežu uzkāpt kalna galā.</p>
+
+<p align="JUSTIFY">Pēc ilga laika kungs iznācis no meža, runādamies ar vienu svešu
+kungu. Tad abi iesēdušies ratos un braukuši uz muižu. Braucot abi kungi jautri
+sarunājušies, bet pēdīgi kungu sarunas apklusušas. Kučērs atskatījies atpakaļ un
+ratos redzējis svešo kungu vienu pašu, kurš tam bargi uzsaucis : "Brauc, bet
+neskaties atpakaļ!"</p>
+
+<p align="JUSTIFY">Muižas pagalmā nobraucis, svešais kungs izkāpis no ratiem,
+piegājis pie kučēra un sacījis : "Tavu kungu jau braucot noēdu, tagad vēl
+apēdīšu tava kunga bērnus un pēdīgi arī tevi pašu."</p>
+
+<p align="JUSTIFY">Kučērs briesmīgi izbijies, bet tumsā viņam pienācis kāds
+vecītis un lūkojis to apmierināt sacīdams: "Ar manu palīdzību tu izglābsi savu
+un sava kunga bērnu dzīvību."</p>
+
+<p align="JUSTIFY">Vecītis, kuŗš bijis pats Dievs, iedevis kučēram kastīti ar krama
+gabalu, galvas susekli un sarkanu lakatiņu un pamācījis, kā viņam ar tiem
+jārīkojas. Visu izstāstījis, vecītis pazudis.</p>
+
+<p align="JUSTIFY">Kamēr jaunais ālējies pa kunga istabām, tikmēr kučērs izsaucis
+jaunkungu un preileni un nu visi trīs sākuši bēgt. Ļaunais drīz nopratis, ka kunga
+bērni ar kučēru aizbēguši, un steidzies milzīgā ātruma bēgļiem pakaļ.</p>
+
+<p align="JUSTIFY">Kad nu viņi izdzirduši velnu ar lielu troksni tuvojamies, tad
+kučērs teicis kunga dēlam: ,,Izmet kramu no kastītes!"</p>
+
+<p align="JUSTIFY">Kunga dēls to tūlin izdarījis un krams pārvērties par lielu,
+augstu un stāvu kalnu.</p>
+
+<p align="JUSTIFY">Velns gribējis pārkāpt kalnam pāri, bet nevarējis. Pēdīgi tas
+izracis alu pa kalna apakšu un dzinies atkal bēgļiem pakaļ.</p>
+
+<p align="JUSTIFY">Kučērs nu teicis jaunkungam: "Izmet susekli no kastītes!"
+Suseklis nu pārvērties par lielu biezu mežu. Velnam pagājis ilgs laiks, kamēr tas
+izlauzis stigu caur mežu.</p>
+
+<p align="JUSTIFY">Kad velns jau atkal sācis tuvoties, kučērs pamācījis :
+"Apsien sarkano lakatu sev ap galvu."</p>
+
+<p align="JUSTIFY">Tiklīdz tas bijis padarīts, acumirklī ap visu lielo apgabalu
+parādījies plats grāvis, pildīts ar uguns liesmām, par kuŗu velns nekā nevarējis
+tikt pāri. Bet projām viņš tomēr negājis un palicis aiz gŗāvja vaktējam.</p>
+
+<p align="JUSTIFY">Bēgļi nu nolikuši kastīti zemē, un tai vietā izcēlusies liela
+skaista muiža ar dārziem, laukiem un ļaudim. Tur nu visi trīs dzīvojuši laimīgi,
+kamēr pēdīgi vecais kučērs saslimis un nomiris.</p>
+
+<p align="JUSTIFY">Velns vienādi vēl gaidījis pie grāvja un gribējis bēgļus dabūt
+savā varā. Bet tad piepēži jaunam kungam radušies divi lieli suņi blakus, lai tas
+ietu, kur iedams.</p>
+
+<p align="JUSTIFY">Kādā dienā, kad brālis ar abiem suņiem bijis aizgājis uz mežu
+medīt, māsa nogājusi līdz ugunsgrāvim. Aiz grāvja viņa ieraudzījusi skaistu jaunu
+kungu, kuŗš dziedājis skaistu dziesmu, kas māsai ļoti patikusi.</p>
+
+<p align="JUSTIFY">Svešais jauneklis, kurš bijis pats velns, visādi centies pierunāt
+un pielabināt jaunavu, lai raugot brālim slepeni paņemt sarkano lakatiņu. Un ja viņš
+būšot grāvim pāri, tad jaunavu apprecēšot un abi būšot laimīgi</p>
+
+<p align="JUSTIFY">Kad brālis nākošā rītā gājis mazgāties, viņš sarkano
+lakatiņu atsējis no galvas un uzlicis uz gultas. Māsa to paņēmusi, steigusies uz
+ugunsgrāvi, aiz kuŗa svešais jauneklis viņu gaidījis. Viņa sarkanā lakatiņā
+ielikusi nelielu akmeni un tad to pārsviedusi pār grāvi.</p>
+
+<p align="JUSTIFY">Svešais jauneklis paķēris lakatiņu un tūlin uguns izdzisusi un
+arī pats grāvis izbeidzies. Tā velns ticis pie jaunavas un abi, rakās saķērušies,
+gājuši uz muižu. Tur velns viņai sacījis, ka vēl nevarot rādīties viņas brālim,
+lai tādēļ viņu paslēpjot. Jaunava velnu ielaidusi vienā istabā un pati izgājusi
+dārzā.</p>
+
+<p align="JUSTIFY">Jaunais kungs meklējis pa visām istabām sarkano lakatiņu un tā
+meklēdams iegājis arī tai istabā, kuŗā māsa bija ielaidusi velnu. Velns tūlin
+pārvērties par peli, kuŗu suņi sākuši gūstīt. Pele mukusi pa durvim laukā un
+ieskrējusi pagrabā, kuŗam septiņas dzelzs durvis bijušas priekšā, un suņi
+skrējuši tai pakaļ. Bet tiklīdz suņi bijuši pagrabā, velns aizslēdzis visas
+septiņas dzelzs durvis un suņi palikuši aiz tām.</p>
+
+<p align="JUSTIFY">Tad velns piegājis pie jaunā kunga un sacījis: "Tagad tu esi
+manā varā un es tevi tūlin apēdīšu."</p>
+
+<p align="JUSTIFY">Kungs gan ļoti izbijies, bet ātri apķēries un lūdzis velnu:
+"Pirms tu mani aprij, atļauj man vēl saskaldīt malku, izkurināt pirti<b> </b>un
+nopērties!"</p>
+
+<p align="JUSTIFY">Velns arī atļāvis un kungs sācis skaldīt malku, lai par to laiku
+varētu izdomāt, kas darāms.</p>
+
+<p align="JUSTIFY">Te kāda balss, kas izklausījusies kā mirušā kučēra balss, viņam
+uzsaukusi: "Skaldi, bet nesaskaldi! kurini, bet neizkurini! dari, bet nepadari! Suņi
+nāks tev palīgā."</p>
+
+<p align="JUSTIFY">Kungs nu arī sācis ar savu darbu vilcināties, bet velns nevarēdams
+to sagaidīt, pats aizskrējis pie pirts un jautājis: "Vai vēl neesi
+nopēries?"</p>
+
+<p align="JUSTIFY">"Drīz būšu gatavs!" kungs no pirts atbildējis.</p>
+
+<p align="JUSTIFY">Velns saīdzis gājis atkal prom, bet par to laiku jau suņi bijuši
+izlauzušies no pagraba, aizskrējuši pie sava kunga un paslēpušies pirtī zem lāvas.</p>
+
+<p align="JUSTIFY">Pēc kāda brītiņa velns atkal bijis pie pirts klāt un dusmīgi
+saucis: "Tagad vairs ilgāk negaidīšu!"</p>
+
+<p align="JUSTIFY">Kā nu velns ieskrējis pirtī, tā tam tūlin uzbrukuši suņi un
+pavisam saplosījuši. Sakoduši arī visus velna kaulus, tikai viens velna zobs palicis
+turpat vesels zemē.</p>
+
+<p align="JUSTIFY">Māsa to visu no dārza noskatījusies un tagad zinājusi, ka viņa
+pašu velnu bija ielaidusi muižā. Tad viņa nolūgusi brāli par savu nedarbu, bet
+ieraudzīdama tur velna zobu. iebāzusi to savā kabatā.</p>
+
+<p align="JUSTIFY">Redzēdami, ka ugunsgŗāvja vairs nav un ka niknais velns arī bijis
+nogalināts, brālis ar māsu nodomājuši griezties atpakaļ uz tēva muižu.</p>
+
+<p align="JUSTIFY">Tiklīdz viņi pārgājuši tai vietai, kur bijis ugunsgŗāvis, visa
+muiža, dārzi, tīrumi, meži un zemnieku mājas uzreiz pazuduši un to vietā bijis
+atkal tāds pats liels tukšs klajums, kāds bijis toreiz, kad viņi atnākuši.</p>
+
+<p align="JUSTIFY">Pēc ilgāka gājiena viņi apsēdušies atpūsties un brālis ala
+noguruma apsnaudies. Māsa, laiku kavēdama, izņēmusi velna zobu no kabatas un to
+aplūkojusi. Tad zobs piepēži iesācis runāt: "Ieliec mani sava brāļa ausī, tad
+tu redzēsi, kāds brīnums notiks!"</p>
+
+<p align="JUSTIFY">Māsa arī tā izdarījusi, bet nu brālis bijis uz vietas pagalam.
+Suņi gan gribējuši brāli atdzīvināt, bet velna zobs bijis ielīdis tik dziļi ausī,
+ka tikai mazs galiņš no tā bijis redzams un suņi ar saviem zobiem to nevarējuši
+sasniegt. Tad suņi gribējuši ar laizīšanu izlaizīt velna zobu. Vienam sunim arī
+pēdīgi izdevies izlaizīt zobu, bet nu tas ieskrējis pašam sunim ausī. Kungs tūlin
+tapis dzīvs, bet suns bijis pagalam. Otrs suns nu sācis šā ausi laizīt, kamēr arī
+izlaizījis, bet velna zobs nu atkal ieskrējis laizītāja ausī.</p>
+
+<p align="JUSTIFY">Nu ielikuši veselajam sunim akmentiņus. Tiklīdz zobs bijis
+izlaizīts un nosprāgušais suns atkal atdzīvojies, zobs gribējis ieskriet laizītāja
+ausī, bet atsities pret iebāzto akmentiņu, atlecis sāņus un nokritis zemē. Tagad abi
+suņi pieskrējuši velna zobam un to sagrauzuši smalkās drumstalās.</p>
+
+<p align="JUSTIFY">Tagad brālis ar māsu ar Dieva palīgu bijuši galīgi atsvabināti</p>
+
+<p align="JUSTIFY">no velna vajāšanām. Viņi drīz vien nonākuši savu vecāku muižā
+un tur dzīvojuši laimīgi.</p>
+
+<p align="JUSTIFY">Piezīme. Šī pasaka liekas būt pārstrādāta un tīšām gaŗumā
+vilkta. Tādu iemeslu dēļ viņa ir še drusku saīsināta. P. Š.</p>
+
+
+</body></html>

@@ -1,0 +1,157 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>1002401</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font face="RimTimes" size="4">
+
+</font><p align="CENTER"><font face="RimTimes" size="4"></font><font face="RimTimes" size="5">Laimīga cilvēka krekls.</font><font face="RimTimes" size="4"></font></p><font face="RimTimes" size="4">
+</font></b><font face="RimTimes" size="4">
+
+</font><p align="JUSTIFY"><font face="RimTimes" size="4"></font><font size="3">A.<b> </b>844. V. Fiļšs no V. Razgoļa
+Makašānu pag. </font></p><font size="3">
+
+<p align="JUSTIFY">Vīnam lelam un boguotam kēniņam beja meita, kura cīši saslymuoja.
+Nikas nazynuoja, kai jū izdzīdēt. Vīnu reizi kēneņš sasaucja vysaidus ļauds nu
+vysys sovys kēnestis un pasacēja: "Kas izdzīdēs munu meitu, tu es apbēršu ar
+zaltu."</p>
+
+<p align="JUSTIFY">Itūs kēneņa vuordus izdzierdēja vīns vecs un suoka runuot:
+"Vajag atrost taidu cylvāku, kas cīši labi dzeivoj pasaulī, kas ir pavysam
+nabogs, bet laimeigs. Tam cylvākam vajaga nūmaukt kraklu un apvilkt jū slymai kēneņa
+meitai. Kēneņa meita nu reizis paliks vasala."</p>
+
+<p align="JUSTIFY">Kēneņš paklausēja, kū runuoja vecs, un nūsyutēja sovus kolpus
+meklēt taidu cylvāku. Kolpi meklēja, meklēja, bet nikai navarēja atrast taidu
+laimeigu cylvāku. Kēneņš ilgi gaidēja, bet juo meita jau pavysam mierst zemī.
+Taišņi tymā pat dīnā uz vokoram vīns kolps, īdams uz vīnu vacu ustobeņu,
+izdzierdēja vīna cylvāka bolsu, kurijis runuoja: "Pastruoduoju, paēžu un īšu
+gulēt. Kuo man vairuok vajag?"</p>
+
+<p align="JUSTIFY">Kolps, dzierdādams itūs vuordus, nu reizis palyka prīceigs, ka
+atroda taidu laimeigu cylvāku. Jis tyuleņ pasaucja itū cylvāku un nūvedja jū uz pili
+pi kēņeņa. Izguoja kēneņš un runuoja uz ituo cylvāka: "Es tev īdūšu dauz
+zalta, puordūd tu man sovu kraklu."</p>
+
+<p align="JUSTIFY">Cylvāks atbild kēneņam: "Gareigs tāvs kēneņš, man nav
+krakla. Beja nazkod sen, bet es jū tai nūnosuoju, ka lupatu napalyka."</p>
+
+<p align="JUSTIFY">Sasadusmuoja kēneņš un izdzyna itū cylvāku nu pils uorā un par
+pusstundis juo meita nūmyra. Kēneņš cīši bāduojas. Tymā stracī atīt tys pat vecs
+un soka uz kēneņu: "Tu mani padzyni, ka man nabeja krakla, bet es sameklēju kaut
+muna krakla lupatys un atnežu."</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Kū man tagan, ka jau meita nūmyra?" soka kēneņš.</p>
+</blockquote>
+
+<p align="JUSTIFY">"Nikas!" atbildēja vecs, "muns kraklys jū
+atsadzeivynuos."</p>
+
+<p align="JUSTIFY">Kēneņš ar veču apvylka meitai tū vacū saplāstū kraklu. Meita nu
+reizis cēlēs un suoka staiguot un dzīsmis dzīduot. Kēneņš gribēja dūt večam
+daudz zalta, bet večs uz vītys iznyka. Tai kēneņa meita tagan dzeivoj, bet par tū
+veču vēl tagan nikas nazyna, kaids jis beja: vai pats Dīvs, vai valns.</p>
+</font>
+
+
+</body></html>

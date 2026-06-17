@@ -1,0 +1,210 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="center">Stiprinieks gaisa kuģī.</p>
+</font></b>
+
+<p>&nbsp;</p>
+
+<p>9. A. 513 B. 307. J. Henniņš Sasmakā.</p>
+
+<p align="JUSTIFY">Vienam tēvam bija trīs dēli: viens muļķis, divi gudri. Vienam
+ķēniņam bija atkal viena meita, un visi trīs brāļi precēja pēc tās. Tad
+ķēniņš teica: "Kas var man uztaisīt tādu laivu, kas iet pa sausu zemi, tas var
+dabūt manu meitu par sievu."</p>
+
+<p align="JUSTIFY">Nu gāja viens gudrais brālis taisīt to laivu. Iedams viņš sa tiek
+vienu vecu vīriņu, kas tam jautā: "Kur tu eji, mans dēliņ?" Brālis atbild:
+"Ko tu gribi, vecais nabags? Vai tu esi ceļa noprasītājs?"</p>
+
+<p>Tā tas vecais nabags teic: "Ej, ej, mans dēliņ!"</p>
+
+<p align="JUSTIFY">Tā nu vecais vīriņš aiziet. Brālis mežā noskatījies tādu līku
+priedi un nocērt to. Nu viņš strādā līdz pašam vakaram. Tumsā viņš pārnāk
+mājā un skatās, kas nu ir iznācis. Ir iztaisīts kruķis, bet bez kāta.</p>
+
+<p align="JUSTIFY">Tagad iet otrs gudrais brālis taisīt to laivu. Viņš aiziet tai
+mežā, noskatās atkal tādu līku priedi un nocērt to. Viņš taisa līdz pašam
+vakaram, un kad jau ir dikti tumšs, tad pārnāk mājā. Mājā apskatījies, viņš
+redz, ka ir kruķim kātu uztaisījis.</p>
+
+<p align="JUSTIFY">Pēdīgi aiziet arī muļķis to laivu taisīt. Viņš satiek atkal to
+pašu veco vīriņu un tas viņam prasa: "Kur tu ej, mans dēliņ?" "Es
+iemu tādu laivu taisīt, kas pa sausu zemi iet."</p>
+
+<p>Vecais vīriņš saka: "Es tev iešu līdz un palīdzēšu uztaisīt " Nu
+viņi iet abi divi uz to mežu to laivu taisīt. Mežā nonāku šiem, vecais vīriņš
+saka: "Nogulsimies zemē, gan jau būs laika diezgan laivu taisīt."</p>
+
+<p>Tā nu viņi abi nogulstas zemē. Bet kamēr tas muļķis guļ,</p>
+
+<p align="JUSTIFY">tamēr tas vecais ir jau uztaisījis to laivu. Nu viņš uzcel muļķi
+un noteic tam: "Kad tu ieraugi kādu nabagu, tad ņemi to laivā iekšā. Lai tam
+nabagam būtu utis, vai kraupis, ņem tik iekšā!"</p>
+
+<p align="JUSTIFY">Vecais vīriņš nu noiet projām un tas muļķis brauc pa zemi ar savu
+laivu. Braukdams viņš redz, ka viens vecs nabags ēd maitu, un saka tam: "Ko tu ēd
+to maitu? Nāc labāk sēdi manā laivā!"</p>
+
+<p>Vecais nabags teic: "Ka tu zinātu, kas par gardu gaļu!"</p>
+
+<p align="JUSTIFY">Tad tas vecais nabags iesēstas laivā, un nu viņi abi brauc projām.
+Muļķis atkal ierauga, ka viens vecs nabags lec ar vienu kāju, un uzprasa tam: "Cik
+tālu tad tu vari lēkt ar vienu kāju?"</p>
+
+<p align="JUSTIFY">Nabags atbild: "Es varu lēkt vesalu jūdzi ar vienu
+lēcienu." Muļķis teic: "Nāc labāk sēdi manā laivā!"</p>
+
+<p align="JUSTIFY">Nu iesēstas arī otrs nabags laivā un tagad visi trīs brauc projām.
+Tālāku braucot, muļķis ierauga, ka viens vecs nabags raugās ar vienu aci. Muļķis
+saka: "Cik tālu tad tu redzi ar vienu aci?"</p>
+
+<p align="JUSTIFY">Nabags atteic: "Es varu redzēt septiņas jūdzes." Muļķis
+teic: "Labāk sēdies še laivā!"</p>
+
+<p align="JUSTIFY">Vecais nabags atkal iesēstas laivā un visi četri nobrauc uz
+ķēniņa pili. Tur tie trīs nabagi izkāpj no laivas ārā, un trešais brālis nu
+piebrauc pie pašām ķēniņa durvim parādīt, ka viņš patiesi ir uztaisījis tādu
+laivu, kas iet pa sausu zemi.</p>
+
+<p align="JUSTIFY">Bet nu ķēniņam ir meita nomirusi, un viņš teic muļķim, ka viņam
+jāiet to meitu vāķēt. Ķēniņš domā ka viņš ies, tad tā meita viņu saplēsīs,
+un nu ieslēdz muļķi baznīcā pie mirušās meitas. Tur viņam pielaižas viens
+eņģelis klāt un pateic, lai viņš palien apakš baznīcas luktura. Viņš arī tā
+izdara un tā meita nu meklē šo pa visiem krēsliem. Ka visi krēsli ir izmeklēti, tā
+gailis dzied un tā meita ieskrej rūkdama zārkā.</p>
+
+<p align="JUSTIFY">Muļķis nu iet un nosēstas krēslā. No rīta nāk ķēniņš
+izlaiž: gan šo uz laiku ārā, bet otru nakti viņam atkal jāiet to meitu vāķēt, un
+ķēniņš viņu tāpat ieslēdz, kā pirmo nakti. Viņam pielaižas atkal tas eņģelis
+klāt un pamāca, lai viņš šoreiz ieiet baznīcas kambarī un ierokas kaulos. Viņš
+tā izdara, un tā meita nu meklē: pa krēsliem un izvanda visas malas, tad ieiet tai
+kambarī un sviež tos kaulus uz visām pusēm, bet tūliņ jau dzied gailis un tā meita
+ieskrien rūkdama zārkā.</p>
+
+<p align="JUSTIFY">Muļķis nu lien no kauliem ārā un atsēstas krēslā. No rīta nāk.
+ķēniņš un izlaiž viņu ārā, bet viņam jāiet vēl trešo nakti vāķēt. Kad viņu
+ieslēdz baznīcā, tad viņam pielaižas tas eņģelis klāt un teic, lai viņš palien
+apakš zārka, un kad tā meita iziet no zārka; lai tad viņš iegulas zārkā. Viņš
+visu tā izdara un dzird, ka šoreiz meita sviež tos kaulus uz visām pusēm. Te gailis
+sāk dziedāt un meita tūlin pie zārka klāt un lūdz: "Mīļais brālīt, laid
+mani iekšā, mans laiks jau sen ir pagalam!"</p>
+
+<p>Viņš atbild: "Ej noskaiti tēva reizi pie svētā altāra!"</p>
+
+<p align="JUSTIFY">Meita gan aizskrien, kaut ko norūc un sāk atkal lūgties, lai laiž
+šo zārkā. Muļķis tik teic: "Ej noskaiti kārtīgi tēva reizi pie svētā
+altāra!"</p>
+
+<p align="JUSTIFY">Ķēniņa meita gan atkal grib izmānīties un lūgties, bet muļķis
+pastāv pie sava: "Ej noskaiti kārtīgi tēva reizi pie svētā altāra!"</p>
+
+<p align="JUSTIFY">Nu meita arī noskaita lūgšanu un ir atpestīta no ļaunuma. Kad
+ķēniņš no rīta ienāk baznīcā un redz savu meitu sveiku un veselu, viņš ir ļoti
+priecīgs un atdod to muļķītim par sievu.</p>
+
+
+</body></html>

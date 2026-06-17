@@ -1,0 +1,187 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>15</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Velna vārds.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">15. A. 500. H. Skujiņa, Andrs Ziemelis, Aumeisteŗos.</p>
+
+<p align="JUSTIFY">Vienai mātei bijusi pameita un īstā meita. Pameita bijusi jau liela
+meita, un īstā meita seši gadi veca. Māte gan pameitu nevarējusi lāgā ieraudzīt,
+bet īstā meita atkal mīlējusi pameitu pārlieku.</p>
+
+<p align="JUSTIFY">Reiz abas gājušas uz mežu ogot. Nu viņas redz: uz sarkana gaiļa
+jāj mazs, mazs vīriņš, viņam dzenas pakaļ liela, liela čūska un taisās pundurīti
+un gaili aprīt. Bet uzreiz gailis ar visu pundurīti ielec dziļā bedrē un noslēpjas.
+Čūska izmeklējusies, nekā neatradusi un aizvilinājusi projām. Bet pundurītis ar
+gaili vairs ārā netikuši. Pameita piegājusi pie bedres tam ieskatījusies. Abi bijuši
+bedrē un ārā netikuši.</p>
+
+<p align="JUSTIFY">"Vai, mazais vīrī', jūs jau nekā ārā no bedres netiksit
+" teikusi pameita.</p>
+
+<p align="JUSTIFY">"Palīdzi man tikt ārā," teicis pundurītis, "tad es
+tevi darīšu laimīgu!"</p>
+
+<p align="JUSTIFY">Pameita sameklējusi gaŗu kārti, iebāzusi to bedrē un gaidījusi,
+kamēr šie pieķeŗas. Nu viņa vilkusi kārti ārā un izvilkusi no bedres gaili ar
+pundurīti. Pundurītis bijis ļoti laimīgs, ka izsprucis no čūskas, kas to tā kā tā
+aprītu, un ka ticis no bedres ārā. Viņš nu iedevis pameitai zelta cimdus un sacījis,
+lai šī cimdus nēsājot pie sevis, tad būšot laimīga. Pameita paņēmusi zelta cimdus
+un pundurītis ar gaili aizjājis tālāku.</p>
+
+<p align="JUSTIFY">Tai zemē bijis tāds skops un nejauks ķēniņš. Viņš licis savas
+valstības sievietēm vērpt no salmiem un sūnām dzīvis. No katras mājas gājušas
+vērpējas uz ķēniņa pili. Nu pienākusi arī ziņa, ka jāejot vienai vērpējai uz
+ķēniņa pili no tās mājas, kur pameita dzīvojusi. Mātei nebijis vaļas iet un viņa
+sūtījusi pameitu savā vietā. Pameita paņēmusi zelta cimdus un gājusi uz ķēniņa
+pili.</p>
+
+<p align="JUSTIFY">Ķēniņa<b> </b>pili bijušas daudz vērpējas un tās vērpušas
+dzīvis no salmiem un sūnām. Vērpšana bijusi gŗūta, jo salmiem un sūnām nebijis
+lāga turiena un dzīvs iznākusi rupja un kunkuļaina. Pats ķēniņš staigājis no
+vienas vērpējas pie otras un ķīvējies un rājies, ka dzīvis nebijušas lāgā
+savērptas.</p>
+
+<p align="JUSTIFY">Pameita grečījusi un griezusi un brīnējusies: saimi un sūnas vien
+jau bijušas, bet kad dzīvs tinusies spolē, tad tīrs zelts vien gājis. Pameita
+skatījusies, vai kādai vērpējai ar vēl tāda dzīvs ir. Ne, nevienai tādas nebijis.
+Tikai rupjš grezeklis vien spolēs gājis. Drīz vien nācis pats ķēniņš un
+skatījies, kādas dzīvis katrai vērpējai. Viņš ķīvējies un skaities: vienai
+bijušas rupjas un kunkuļainas dzīvis, otrai nevienādas un švakas. Kad nu ķēniņš
+pienācis pie pameitas, un redzējis, ka tai spolē iet zelts, tīrs zelts, tad no
+priekiem kliedzis: "Šitā būs mana ķēniņiene, kas zeltu vērpj!"</p>
+
+<p align="JUSTIFY">Ķēniņš nolicis kāzu dienu un pameita vīkšusies uz kāzām. To
+dienu priekš kāzām pameita aizgājusi uz mežu un nostājusies pie bedres, no kuŗas
+tā pundurīti izvilkusi. Viņa nu stiprā balsī sacījusi: "Ej, mazo vīriņ, rītu
+man būs kāzas!"</p>
+
+<p align="JUSTIFY">Tūlin arī pundurītis bijis klāt. Viņš vedinājis pameitu sev
+līdz. Pameita gājusi. Papriekšu viņi aizgājuši līdz alai, tad pa alu gājuši vien
+zemē iekšā, kamēr tikuši pie lielas pils. Tur nu pundurītis ievedis pameitu lielā
+zālē, kur uz troņa sēdējis tāds</p>
+
+<p align="JUSTIFY">pats mazs ķēniņš, un tam bijis zelta kronis galvā. Mazais
+ķēniņš bijis ļoti laimīgs un nezinājis vien, kā pameitai pateikties par
+pundurīša izglābšanu. Mazais ķēniņš iedevis pameitai daudz dārgu lietu un rotu.
+Tad pameita tos visus uzlūgusi uz savām kāzām. Nu atkal pundurītis viņu pavadījis
+no pils ārā un izvedis mežā.</p>
+
+<p align="JUSTIFY">Kāzu dienā visi pundurīši sanākuši uz kāzām. Viņi
+nostājušies un noskatījušies, kā pameitu salaulā. Ķēniņš brīnējies un
+nevarējis saprast, kur tādi mazi vīriņi nākuši. Pameita viņam stāstījusi, kā
+viss bijis un kā viņa pundurīšus uzlūgusi uz savām kāzām. Nu ķēniņš gribējis
+pundurīšus pamielot. Viņš licis nest vīnu un gardus ēdienus. Bet pundurīši pēc
+laulas ilgāki nepalikuši un tūlīt atkal aizgājuši.</p>
+
+<p align="JUSTIFY">Ķēniņš dzīvojot ar savu ķēniņieni vēl laimīgi šo baltu
+dienu, ja vien jau abi neesot no liela vecuma nomiruši.</p>
+
+
+</body></html>

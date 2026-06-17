@@ -1,0 +1,147 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Impampis.</font><font size="4"></font></p><font size="4">
+</font></b><font size="3">
+
+<p>3. A. 571. A. Vaskis Tukumā.</p>
+
+<p align="JUSTIFY">Vienā ķēniņa pilī strādājuši daudzi amatnieki. Kalējam bijusi
+ļoti smuka sieva, ko ķēniņa dēls gribējis dabūt sev par brūti. Bet sieva labi
+sadzīvojusi ar vīru, negribējusi būt par draudzeni ķēniņa dēlam un raudādama
+lūgusi to likt viņu mierā. Ķēniņa dēls nu gribējis iegūt kalēja sievu ar varu,
+kādēļ tēvam apsūdzējis kalēju, ka tas nekur nederot: esot pavisam nelāga cilvēks,
+kam sieva esot jāatņem un pats jāpadzen no pils.</p>
+
+<p align="JUSTIFY">Vecais ķēniņš licis kalējam iztaisīt rītā tādu impampu, par ko
+viņam un visiem viesiem būtu jāsmejas; bet, ja to neiztaisīšot, tad tam jāmirstot.
+Kalējs ķēniņa priekšlikumu izstāstījis arī sievai un nu abi gauži raudājuši, jo
+nevarējuši cerēt, ka tādu impampu kalējs varēs iztaisīt. Te gadījies vecs
+vīriņš un teicis kalējam: "Es tev palīdzēšu glābties. Ņem šo nūju,
+pavicini gaisā un saki: "Alt pest (halt fest)!"</p>
+
+<p align="JUSTIFY">Vakarā kalēja sieva vilkusi kreklu, kreklam mugurpuse bijusi
+saplīsusi, bet sieva to nemaz nemanījusi. Te ienācis ķēniņa dēls un sācis sievu
+čamdīt. Ieraudzījis, ka sievai krekls uz dibena pārplīsis, ķēniņa dēls paņēmis
+siena vīšķi no gultas maisa un lūkojis ar to plīsumu aizbāzt.</p>
+
+<p align="JUSTIFY">Te ienācis kalējs, pavicinājis nūju un iesaucies: "Alt
+pest!" Ķēniņš vairs nevarējis no sievas un siena kušķa atrauties. Nu kalējs
+vedis sievu ar ķēniņu uz pili. Pa ceļam pienācis beķeŗa vērsis un sācis sienu
+ēst. Izskrienot beķeŗa zellis vērsi dzīt projām, bet arī pats paliekot uz vietas.
+Izskrienot beķeŗis saukt zelli, arī tas netiekot nost. Ieraudzījis savādo skatu,
+izskrienot skatīties arī krāsnkuris ar kruķi, slaucītājs ar slotu un citi. Visi
+paliekot kā piesieti. Nu kalējs visus dzinis uz pili. No pils iznākot skatīties
+ķēniņš ar viesiem. Ķēniņš ar viesiem smejoties, pie zemes liekdamies. Tādu
+impampu gan šis neesot redzējis un nevēloties arī vairs redzēt. Ķēniņš lūdzis,
+lai laižot dēlu vaļā, bet kalējs nelaižot, lai samaksājot šim. Ķēniņš iedevis
+kalējam tik daudz naudas, ka kalējs nevarējis ne saskaitīt. Tad kalējs palaidis
+ķēniņa dēlu vaļā un pats ar sievu aizgājuši dzīvot uz citu zemi, kur dzīvojuši
+bagāti un laimīgi.</p>
+</font>
+
+
+</body></html>

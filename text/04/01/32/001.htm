@@ -1,0 +1,231 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>32</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Varde par līgavu.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 402. Skolnieks J. Mežiels 1892. g. Blomu pag., V. Maldoņa kr.</p>
+
+<p align="JUSTIFY">Vienam tēvam bija trīs dēli, kuŗiem viņš gribēja izdalīt savu
+mantu, redzēdams, ka šie ļoti strīdējās pēc mājas. Tēvs nu izsūtīja viņus
+amatā pie kalēja, piesacīdams, kuŗš nokalšot tādu ķērdi, kas mājai apiet
+riņķī, ka ne trūkst, ne paliek pāri, tam tad piederēšot viņa māja.</p>
+
+<p align="JUSTIFY">Dēli atvadījās no tēva un aizgāja. Visu dienu pa mežu gājušiem,
+tiem pienāk vakars un viņi apgulstas. Rītā pamodušies, grib iet kopā tālāku, bet
+nevar uzmodināt jaunāko brāli. Vecākais brālis nu saka vidējam : "Ja tas miega
+pūznis nokaļ ķērdi, tad viņš var māju dabūt. Iesim tik projām, lai viņš
+guļ!"</p>
+
+<p align="JUSTIFY">Vecākie brāļi nu aiziet un atstāj jaunāko guļam. Kad jaunākais
+brālis pamostas, viņš nevar saprast, kur vecākie palikuši. Vakar apgulušies visi
+kopā un nu viņš atrodas viens pats. Staigājot pa mežu, viņš uziet lielu alu, iet
+alā iekšā un tur atrod lielu zaļu vardi. Tā viņu uzrunādama saka: "Vai tu
+gribi pie manis palikt?"</p>
+
+<p>"Kāpēc ne?"</p>
+
+<p>"Nu tad tu būsi paēdis, padzēris un apģērbies, bet par to tev būs mani
+mazgāt trīs reiz dienā: no rīta pusdienā un vakarā." Jaunākais brālis bija ar
+to mierā un palika alā pie vardes</p>
+
+<p align="JUSTIFY">dzīvot. Pēc gada laika varde viņam saka: "Šodien taviem
+brāļiem dalīs māju."</p>
+
+<p align="JUSTIFY">Jaunākais brālis noskumis atbild: "Nu māna ķērde vēl nav
+kalta!"</p>
+
+<p align="JUSTIFY">Varde pielēc tam klāt, izņem no mutes zelta ķērdi un saka:
+"Ej droši uz māju, tur netrūks, ne arī paliks pāri!"</p>
+
+<p align="JUSTIFY">Kērdi saņēmis, brālis aiziet, bet varde sauc tam vēl no pakaļas:
+".Ta māju neizdala, tad nāc atkal šurpu pie manis!"</p>
+
+<p align="JUSTIFY">Pie tēva nonācis, viņš ierauga arī brāļus nākam: vecākais ved
+savu ķērdi divi zirgiem, vidējais ar trim. Nu sāk mērīt, bet vecākajam liels gals
+trūkst, vidējam atkal liels gals paliek pāri. Kā jaunākais vilka savu ķērdi
+apkārt, tā nedz trūka, ne arī pāri palika. To redzēdams, tēvs saka: "Nu, mani
+dēli, jūs paši redzat. ka jaunākais ir viscītīgāki strādājis, tādēļ viņam
+paliks māja."</p>
+
+<p align="JUSTIFY">Vecākie brāļi ar to nav mierā un saka: "Mums visiem vēl vienu
+gadu jāmācās!"</p>
+
+<p align="JUSTIFY">Tēvs atbild: "Ja jūs visi esat mierā, tad māju dabūs tas, kas
+nopelnīs visskaistākās drēbes."</p>
+
+<p align="JUSTIFY">Jaunākais nav tam pretī un visi trīs dodas atkal ceļā. Viņi
+apgulstas tai pašā mežā, bet rītā nevar uzmodināt jaunāko brāli. Vecākie aiziet
+projām, bet jaunākais, vēlāku pamodies, uzmeklē turpat vardes alu un brīnās, ka
+vardei tagad līdz pus gurniem ir cilvēka kājas. Varde, viņu ieraudzījusi, saka:
+"Līdz šim tu mani mazgāji trīs reiz dienā, bet nu tik vajadzēs divas reizes
+mazgāt : no rīta un vakarā. Par to tu atkal būsi paēdis, padzēris un
+apģērbies."</p>
+
+<p align="JUSTIFY">Jaunākais brālis paliek tai alā un dzīvā priecīgs pa vecam. Pēc
+gada varde viņam saka: "Šodien taviem brāļiem dalīs māju." Nu tik vīrs
+atceŗas, ko tēvs sacījis, un nezina, ko darīt. Varde viņam parāda skaistas oficieŗa
+drēbes, kas ir pakārtas turpat pie sienas. Viņš uzvelk jaunās drēbes mugurā, aiziet
+uz tēva māju un atrod jau brāļus priekšā. Tēvam patīk skaistās oficieŗa drēbes
+un viņš saka uz dēliem: "Mani dēli, jūs redzat, ka jaunākajam brāļam ir
+visskaistākās drēbes, māja pieder viņam."</p>
+
+<p align="JUSTIFY">Vecākie brāļi atkal nav mierā un atbild tēvam: "Mums visiem
+trim vēl vienu gadu jāstaigā pa pasauli!"</p>
+
+<p align="JUSTIFY">Tēvs arī ir ar mieru un saka: "Kas no jums apprecēs
+visskaistāko sievu, tam paliks mana māja."</p>
+
+<p align="JUSTIFY">Visi trīs brāļi ir ar mieru un dodas atkal visi kopā ceļā.
+Vecākie brāļi sarunājas savā starpā: "Nu mēs vis vairs neiesim papriekšu! Kur
+viņš ies, tur mēs arī."</p>
+
+<p align="JUSTIFY">Nonākuši tai pašā mežā, viņi visi kopā apgulstas. Vecākie
+brāļi nu neceļas augšā un gaida, kad jaunākais celsies, bet tas nemaz netaisās uz
+celšanos. Pēdīgi tie apskaistas, aiziet projām un atstāj atkal jaunāko guļam.
+Jaunākais pamodies aiziet uz alu, kur ierauga, ka varde jau līdz pusei ir palikusi par
+cilvēku. Viņa saka jaunākam brāļam: "Līdz šim tu mani mazgāji divi reizes
+dienā. bet nu tev būs jāmazgā tikai vienreiz pusdienā. Par to tu būsi pa vecam
+paēdis, padzēris un apģērbies."</p>
+
+<p align="JUSTIFY">Tā nu jaunākais brālis mazgāja vardi atkal cauru gadu katru dienu,
+kamēr tā pēdīgi pārvērtās par skaistu jaunavu un izrādījās par princesi. Nu
+jaunava sniedza tam roku sacīdama: "Tu mani esi izmazgājis no burvības un izpircis
+no elles. Izej nu ārā, paklausies un paskaties, kas tur notiek!"</p>
+
+<p align="JUSTIFY">Viņš iziet ārā, redz kājeniekus un jātniekus kustamies, dzird
+taures pūšam un urra saucam. Kad viņš atkal ienāk istabā, tad princese saka:
+"Laid ziņu savam tēvam, lai viņš gaida un sataisās, ka ķeizars ieradīsies
+māju dalīt."</p>
+
+<p align="JUSTIFY">Tas arī viss tiek izdarīts. Tēvs, dabūjis ziņu, ka pats ķeizars
+nākšot pie viņa māju dalīt nevar vien nobrīnēties, kas ķeizaram tādu ziņu devis,
+ka viņš dēliem māju dalīšot.</p>
+
+<p align="JUSTIFY">Par to laiku jaunākais brālis tiek salaulāts ar princesi un paliek
+par valdnieku. Viņš uzvelk ķeizara drēbes, iesēstas ar savu jauno sievu karītē, kur
+priekšā aizjūgti četri zirgi, un aizbrauc uz tēva māju. Karīti pavada arī 1epns
+kaŗapulks. Vecais tēvs steidzas pretī saņemt kungus un redz, ka no karītes izkāpj
+jaunais ķeizars un ķeizariene. Viņš tos ieved savā būdiņā un pasniedz viņiem
+vecus krēslus, kur apsēsties. Ķeizars prasa: "Vai tu še viens pats dzīvā?"</p>
+
+<p align="JUSTIFY">Vecais atbild ; "Neesmu vis viens pats. Līdz ar mani še dzīvā
+divi dēli un trešais dēls vēl nav mājā pārnācis."</p>
+
+<p align="JUSTIFY">Tad ķeizars izprasa tēvam, vai dēli jau esot precējušies. Kad
+tēvs izstāsta; ka Precējušies, tad ķeizars liek aicināt tos šurpu ar savām
+sievām. Kad visi atnāk, tad ķeizars nostājas saviem brāļiem blakus un saka:
+"Brāļi, spriežat nu, kuŗam ir visskaistākā sieva!"</p>
+
+<p align="JUSTIFY">Vecākie brāļi nu krīt jaunākajam pie kājām un lūdz piedošanu,
+ka esot maldījušies un neesot bijuši mierā, ka jau pirmo reizi. māja atdota viņam.
+Jaunais valdnieks atstāj vecāko brāli tēva mājā; bet vidējo brāli ar sievu un
+tēvu ar māti aizved līdz uz savu pili un nu visi dzīvā laimīgi.</p>
+
+
+</body></html>

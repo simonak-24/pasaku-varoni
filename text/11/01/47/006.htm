@@ -1,0 +1,152 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="CENTER"><font size="3"></font><font size="5"><strong>Ļaunā sieva bedrē.</strong></font></p><font size="5">
+
+</font><p align="CENTER"><font size="5"></font><font size="3">&nbsp;</font></p><font size="3">
+
+<p>6. A. 1164. M. G a r k o l n e n o T. V y l c ā n e s J ā s m u i ž a s p a g. L a t
+v j u k u l t ū r a s k r.</p>
+
+<p align="JUSTIFY">Vīnu reizi buoba guoja uz kristobom. Pīguoja jei pi upes un nivar
+tikt puori. Tad buoba soka: "Kaut valns puornastu par upi ".</p>
+
+<p>Valns tyuleņ kluot un soka: "Sēstīs viersā, es puornesšu!" Buoba sāduos
+valnam mugurā un valns puornesja jū par upi. Ūtrā upes krostā valns soka: "Kuop
+zemē!"</p>
+
+<p>Bet buoba nakuop, beidamuos, ka valns nasaplēš.</p>
+
+<p align="JUSTIFY">"Kuop zemē, cytaidi es tevi pa pusgalsu nesšu!" klīdzja
+valns.</p>
+
+<p align="JUSTIFY">Buoba nakuop, un valns suoka nest buobu pa pus gaisu. Caur tū vītu,
+pa kuru valns nesja buobu, guoja cylvāks. Buoba apsaķēŗa cylvākam ap koklu un valns
+vīns pats aizskrēja. Tai buoba tyka vaļā nu valna un aizguoja uz kristobom. Kad
+cylvāks ar buobu izašķeira, valns pīskrēja pi cylvāka un soka: "Ar kū lai es
+tev samoksuoju, ka tu nūruovi nu manis tū buobu? Naudas man nav! Tuodēļ es suokšu
+mūcīt boguotūs kungus, tu izzataisi par zuolētuoju un tai paliksi boguots, jo, kad tu
+atīsi pi slymuo, es puorstuošu jū komuot!"</p>
+
+<p align="JUSTIFY">Tai cylvāks zuolēja valna komuotūs ļaudis, un cylvāks, jūs
+zuolēdams, palyka boguots un sadūmuoja taisīt baznīcu. Valns atskrēja pi cylvāka un
+prosa: "Kū tu te taisi?"</p>
+
+<p align="JUSTIFY">" Baznīcu!" atbildēja cylvāks.</p>
+
+<p align="JUSTIFY">"Nu tagad tu redzēsi!" pīdraudēja valns un aizskrēja. Na
+par garu laiku valns suoka komuot boguota kunga meitu. Cylvāku otkon pasaucja par
+zuolētuoju, bet jis izzuolēt navar - valns vys komoj. Cylvāks sagudruoja un
+pasau&amp;127;ja tū buobu, kura juoja valnu. - Buoba atguoja un valns beidamīs, ka buoba
+nateik vēļ jam mugurā aizbāga un meita tyuleņ palyka vasala.</p>
+
+<p>Cylvāks aizguoja uz sātu un aizdadzynuoja sovu muoju, bet tad izrunuoja, ka gudrības
+gruomotas sadagušas un zuolēt vairs navars. Tad cylvāks iztaisīja baznīcu un
+dzeivuoja laimīgi.</p>
+</font>
+
+
+</body></html>

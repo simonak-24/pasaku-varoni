@@ -1,0 +1,180 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Meitene, kas savus brāļus meklē.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 451. Teicēja 76 g. veca J. Staleidzāne Atašienē. Kultūras
+balss kr.</p>
+
+<p align="JUSTIFY">Vīnam kēniņam beja vīns dāls un treis meitas. Dāls beja jau
+pavysam lels, bet meitas moziņas. Vīnu reizi dāls napaklausīja tāva, kēniņa, un
+kēniņš, sasadusmuojis uz juo soka: "Ka tevi vy si valni parautu!"</p>
+
+<p align="JUSTIFY">Vokorā vysa saime aizguoja gulātu. Kad reitā pasamūda, dāla jau
+nabeja un nivīns nazynuoja, kur jis palyka. Vīnu reizi kēniņš ar kēniniņu saslyma
+un nūmyra. Palyka meitas vīnas pašas. Sovu bruoli kēniņa meitas beja aizmiersušas.
+Vīnu reizi kēniņa meitas staiguoja par jyuras krostu un redzēja jyurā pulku boltu
+gulbīšu. Vīns gulbīts muovja drusku tuoļuok nu cytim gulbim it kai gribādams
+kēniņa meitom kū pasacīt. Kēniņa meitas pasavēŗa gulbīšus un nūguoja uz sātu.</p>
+
+<p align="JUSTIFY">Ūtrā dīnā kēniņa meitas otkon izguoja pa jyuras krostu
+pastaiguotu. Staiguoja juos pa jyuras krostu un redz, ka pa gaisu skrīn pulks gulbju.
+Vīns guļbis skrēja drusku paprīšku cytim gulbim, un pīskrējis pi kēniņa meitom,
+soka: "Es esmu jyusu bruolīts un jyus munas muosiņas!"</p>
+
+<p align="JUSTIFY">Tūlaik kēniņa meita īguoduoja, ka jūs tāvs stuostīja, ka juom
+bejis bruolīts un pazudis. Kēniņa meitas prosa: "Kai tevi, brolīt, varātu
+atgrizt par cylvāku?" Mani var atgrīzt, bet cīši gryuši, jo jyus tū raudzīsit
+darīt un naizdarīsit, tad jyusim byus tys pats, kas man," soka gutbīts.</p>
+
+<p align="JUSTIFY">Mes izdarīsim vysu, lai byutu cik gryuts byudams!" soka "</p>
+
+<p align="JUSTIFY">kēniņa meitas. .</p>
+
+<p align="JUSTIFY">Tad gulbīts soka: "Lai atgrīztu mani par cilvēku, vajag īt
+naktī uz tāva dūbi [kapu], nu dūbītes plēst pukītes un veit garu, garu vaiņagu.
+Kad tū vaiņagu izsvīss man uz kokla, es palikšu par cylvāku!"</p>
+
+<p align="JUSTIFY">Itūs vuordus pasacījis, gulbīts aizskrēja. Kēniņa meitas atguoja
+uz sātu un taisuos īt uz tāva dūbi vaiņaga veitu.</p>
+
+<p align="JUSTIFY">Pyrmā vokorā aizguoja vacuokuo muosa. Sēd muosa uz tāva dūbes un
+pyn vaiņagu. Divpadsmit stundēs nakts pīskrēja pi dūbes daudz vysvysaidu cyušku un
+kai tik muosa stīpja rūku nūraut pučīti, cyuškas izplētja mutes un nūsabeida.
+Muosa tyuleņ palyka par boltu gulbi un aizskrēja uz jyuru pi cytim gulbim un sova
+bruoļa. Reitā muosas gaidīja, gaidīja vacuakuos muosas, kad jei atīs, bet sagaidīt
+navarēja.</p>
+
+<p align="JUSTIFY">Ūtrā vokorā aizguoja vyduskuo muosa. Sēd muosa uz tāva dūbes un
+pyn vaiņagu. Divpadsmit stundēs nakts otkon pīskrēja daudz vysvysaidu cyušku un
+naļaun muosai nūraut pučīšu, bet muosa vvs nasaieist un pyn. Jau muosai moz kas
+palyka peit un jei vys raun pučītes un pyn. Vēj muosd pastīpja rūku nūraut pučīti,
+vīna cyuška apsatyna jai ap rūku, izplētja plotu, plotu muti un grib nūreit<b> </b>muosu.
+Muosa nūsabeida un tyuleņ palyka par boltu gulbīti un aizskrēja uz jyuru pi cytim
+gulbim un sova bruola ar vacuokū muosu. Reitā jaunuokuo muosa gaidīja, gaidīja sovas
+muosas uz sātu, bet nasagaidīja.</p>
+
+<p align="JUSTIFY">Trešā vokorā īt uz tāva dūbi peit vaiņagu jaunuokuo muosa. Sēd
+muosa uz dūbes un pyn vaiņagu. Divpadsmit stundēs nakts otkon saskrēja vysvysaidas
+cyuškas un naļaun muosai nūraut pučīti, bet muosā nasabeist un vys pyn. Jau muosa
+beidz peit vaiņagu, bet cyuškas kuo tik nadora jai: apsatyn jai ap rūkom, ap pašu, ap
+kuojom, ap golvu, grib nūreit, bet muosa mīrīgi beidz peit vaiņagu. Tai cyuškas
+jaunuokuos muosas nasabaidīja un jei nūpyna vaiņagu. Kad vaiņags beja gotovs,
+jaunuokuo muosa taisni nu dūbes aizguoja uz jyuras krostu. Pa jyuru muovja pulks guļbju
+un treis gulbīši muovja drusku tuoļuok nu cytim gulbim. Muosa aisvīdja vaiņagu, tai
+izsvīdja vīnam gulbjam uz kokla un tys izsvīdja cytim divējim gulbim. Gulbi suoka maut
+taisni uz jaunuokū kēniņa meitu un kad atmuovja pi krosta, palyka par cylvākim. Tī
+beja divi kēniņa meitas un dāls. Tad jī vysi atguoja uz pili un dzeivuoja laimīgi.</p>
+<font size="2">
+
+<p>&nbsp;</p>
+</font>
+
+
+</body></html>

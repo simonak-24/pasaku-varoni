@@ -1,0 +1,372 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Labie brāļi.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>&nbsp;</b></p>
+
+<p align="JUSTIFY"><b>4. A. </b>303. V. Vīdneris 1878., Skrundē. Brīvzemnieka kr. LP,
+VI, 125, 20. AŠ, II, 95a.</p>
+
+<p align="JUSTIFY">Vienreiz dzīvoja vienās mājās divi bāriņi, brālis ar māsu, pie
+saimnieka. Kad viņi paauga un sāka pasauli pazīt, tad abi norunāja savā starpā tā:
+"Īstenieku mums neviena nava, tik esam sveši še, kā citur - iesim labāk pasaulē
+laimi pameklēt."</p>
+
+<p align="JUSTIFY">Labi. Aizgāja, paši nezinādami, uz kurieni. Un tikām gāja -
+iegāja mežā un tur atrada tādu kalniņu, kur ogas papilnam, un kur patīkami
+apmesties. Nu viņi uzcēla mazu mājiņu no koku zariem, no skujām, ēda ogas un
+pārtika 1abi. Bet kad ogu laiks pārgāja, tad pietrūka padoma, ko nu ēst? Te brālis
+attapās: "Māsiņ, dod man savu rindraku! Iešu zvejot tai upītē, kas tur tek gar
+mūsu ogu kalnu."</p>
+
+<p align="JUSTIFY">Meitene klausa viņam un iedod savu rindraku. Šis nu aizsēja
+rindrakam vienu galu - zvejoja, zvejoja un sazvejoja tikdaudz, ka mazākais varēja badu
+atkaut.</p>
+
+<p align="JUSTIFY">Otrā dienā atkal zvejoja - nedabūja nekā; bet mājā nākdams
+sastapa upītes malā kuņu un pievāca to biedros. Trešā dienā atkal zvejoja -
+neķērās nekā; bet mājā nākdams sastapa ķēvi upītes malā un pievāca arī tā
+biedros. Ceturtā dienā atkal zvejoja cauru dienu, bet kā neķērās, tā neķērās.</p>
+
+<p align="JUSTIFY">Te pašā vakarā dzird un redz, ka pa upīti nāk liela zivs. Brālis
+izlec uz krasta un skatīsies, kas tur labs izjuks. Ja, zivs atpeld, izliek galvu uz malu
+un vaicā puikam, ko viņš darot? Puika izteic savas bēdas - tā un tā - zivis
+neķeroties. Zivs atsaka: "Labi būs, nebēdā nenieka! Ņem matu, pārnes mājā,
+nokasi un pāršķērd! Iekšās man būs mazs, apaļš akmentiņš, to aiznes ķēniņam.
+Bet manu gaļu sacērt četros gabalos: vienu gabalu iedod māsai, otru pataupi ciemiņam,
+trešo atdod kuņai, ceturto ķēvei; bet pats neēd, tikai četras asakas pieglabā,
+iedur katrā māju pakšķī pa vienai, tur asakas labi glabāsies."</p>
+
+<p align="JUSTIFY">Brālis tad satvēra zivi, pārnesa, nokasīja, pāršķērda, sacirta
+četros gabalos, izņēma akmentiņu un izdalīja gabalus, kā bija piesacīts. Bet ar
+apaļo akmentiņu viņš steidzās pie ķēniņa. Tomēr - ej nu sazini, kur ķēniņu
+atrast? Neko darīt - zēns uzkāpa tai visugaŗākā kokā un skatījās visapkārt, vai
+neredzēs kur pilis. Izskatījās - ieraudzīja tālu, tālu tādu vietu, kur daudz māju
+vienā vietā. Tūlīt ievēroja to pusi, nokāpa no koka un piesacīja māsai: "Es
+iešu pie ķēniņa, gaidi mani atpakaļ! Ja nebūšu šodien, tad būšu rītu."</p>
+
+<p align="JUSTIFY">Aizgāja pie ķēniņa, izvilka akmeni no kabatas - ķēniņš atveŗ
+acis un raugās uz zēnu - no kurienes šis esot?</p>
+
+<p align="JUSTIFY">"No savām mājām!" "Kur tavas mājas ir?" Meža
+vidū!"</p>
+
+<p align="JUSTIFY">"Cik gribi par to akmeni?"</p>
+
+<p align="JUSTIFY">"Nekā!" zēns atteica un tā ārā un projām. Ķēniņš
+tūdaļ pavēlēja zirgus jūgt un skrēja zēnam pakaļ, jo gribēja par varu izzināt,
+kur tādus brīnuma akmeņus apgājis. Skrēja, skrēja - panāca arī; bet nu zēns
+nogriezās no ceļa, mežā, tur nevarēja pabraukt. Tad ķēniņš atjūdza vienu ratu
+zirgu, kāpa mugurā un jāšus jāja zēnam pakaļ. Aizjāja zēna mājiņās - vai te
+viņš dzīvojot ?</p>
+
+<p align="JUSTIFY">"Ja, te es dzīvoju ar savu māsu, kuņu un ķēvi un ēst man
+vairāk nava, ka šis zivs gaļas gabals, tādēļ neapsmādē, baudi, kas man pie
+rokas!"</p>
+
+<p align="JUSTIFY">Ķēniņš paēda, apēda zivs gabalu, un gribēja atpakaļ jāt; bet
+bija jau vakars, palika par nakti turpat.</p>
+
+<p align="JUSTIFY">Bet rītā ķēniņš, pārjājis mājā, lika uzcelt mežā, mājiņas
+vietā, zēnam pili par akmentiņu un māsu, to lielā skaistuma dēļ, apņēma par
+sievu. Nu bija māsa ķēniņiene un brālis lepns vīrs skaistā pili.</p>
+
+<p align="JUSTIFY">Bet pēc kāda laika māsai no tās zivs piedzima divi skaisti. skaisti
+puisēni, kuņai atkal, arī no zivs, divi sunīši un ķēvei divi kumeliņi. Visi seši
+auga augdami, ka prieks redzēt, un katru dienu palika skaistāki, tā zēni, kā tie
+lopiņi. Un tad vēl tas - abi zēni bija tik vienādi, ka ne domāt izšķirt.</p>
+
+<p align="JUSTIFY">Tā viņi paauga un tad vienu nakti tas vecākais dvīnis sapņo, ka
+viņu kāda balss sauc pie loga: "Celies augšā! Tavs zirgs zviedz un suns rej
+-dodies pasaulē!"</p>
+
+<p align="JUSTIFY">Katram dvīnim bija dāvināts viens dvīņu kumeļs un kucens toreiz.</p>
+
+<p align="JUSTIFY">Vecākais to nakti neko neievēro savu sapni. Bet otrā naktī sauc
+atkal tā pati balss. Vēl viņš neko. Te trešā naktī pie 1oga balss itin stipri:
+"Celies augšā, ko tu guli? Tavs zirgs zviedz, tavs suns rej - dodies tūdalin
+pasaulē!"</p>
+
+<p align="JUSTIFY">Šis izlec no gultas, saģērbjas, aizskrien uz stalli - ja: zirgs
+zviedz kārpīdamies, suns rej kaukdams. Nu skrien ātri pie brāļa pateikt: "Es
+jāšu pasaulē! Ja akā balts ūdens bijis, balts paliek. tad man labi klāsies ; bet ja
+sarkans ūdens ronas, tad jāj mani meklēt, tad man nelabi klāsies!"</p>
+
+<p align="JUSTIFY">To pateicis, tas sēdās zirgam mugurā un nu suns tecēja pa priekšu,
+zirgs pakaļ, ko vien jaudāja. Saskrēja to nakti, skrēja rītu cauru dienu - pret
+vakaru suns palika rāmāks un ietecēja vienā krogā. Šis jāja pakai un apmetās
+krogā par nakti. Bet ko viņš tur redz? Par brīnumiem redz, ka krogā visas istabas ar
+melnu drānu pārvilktas. Viņš prasīja: "Kāpēc istabas ar melnu vadmalu
+pārvilktas?"</p>
+
+<p align="JUSTIFY">Krodzinieks brīnījās : "Vai tad tu tāds svešinieks te esi,
+nezinādams ne to, ka mūsu ķēniņam katru dienu vajaga jaunu sievišķi pūķam atdot
+apēst. Un nu jau ir visi jaunie sievišķi izēsti - rītu vēl vedīs ķēniņa meitu
+atdot tam velnam, un tā ir tā pēdīgā, tādēļ mēs visi bēdājamies."</p>
+
+<p align="JUSTIFY">'Tad viņš vēl prasīja krodziniekam : "Bet kur tā vieta ir,
+kur ķēniņa meitu velnam atdos?"</p>
+
+<p align="JUSTIFY">"Tā vieta? Tā ir jūŗas malā pie lielā akmiņa, tur tas
+rijējs pulksten 10. iznāk un meitas aprij."</p>
+
+<p align="JUSTIFY">Tā izrunājušies, viņi gāja gulēt. Te rītā ar pulksten deviņiem
+brāļa zirgs zviedza, suns rēja, lai nāk viņš ārā! Nu neko kavēties - teica
+krodziniekam: "Ar labu dienu!" sēdās zirgam mugurā un jāja sunim pakaļ.
+Suns tecēja, tecēja - pēc maza 1aika sasniedza to akmini, kur velns tās meitas ņēma.
+Uz šī lielā akmiņa velns katrreiz bija nosēdies un atvestās meitas pagrābis.</p>
+
+<p align="JUSTIFY">Bet šoreiz brālis pirmais nosēdās uz akmiņa, iecirzdams lielu
+krustu tam, augšgalā un apvilkdams ar zobini smiltīs robežu visapkārt. To padarījis,
+viņš mierīgi gaidīja, kas būs?</p>
+
+<p align="JUSTIFY">Tad cēlās liela auka un aukā ietinies pūķis nāca no jūŗas
+ārā, bet ieraudzījis akmenim krastu, auka piepēži rimās un ķēniņa meita tai
+pašā brīdī izkāpa no ratiem. Nu brālis sauca diktā ba1sī, lai ķēniņa meita nāk
+pie viņa, lai neiet pie velna. Bet velns atkal sauca, lai neiet pie akmiņa, lai nāk pie
+viņa! Meitens iesākumā nesaprata, kurp griezties, kurp ne; bet domāja: "Lai būtu
+kā būdams - labāk iešu pie cilvēka!" un aizgāja pie brāļa.</p>
+
+<p align="JUSTIFY">Tad pūķis, to redzēdams, brēca pilnā balsā, lai nāk, lai nāk
+pie viņa, lai neiet pie tā! Bet meitens neklausīja un nu pūķis skrēja klāt meiteni
+ar varu grābt. Pieskrēja - te tavu postu nelietim! Viņš vairs netika no akmiņa nost,
+iecirstais krusts turēja cieti kā slazdos, ne pakustēt nespēja. Un brālis, ko tas
+vairs gaidīs? Nocirta ar zobinu visas galvas - divpadsmit galvas tam bija -- izgrieza
+mēles, iebāza kabatā, sēdās zirgam mugurā un aizjāja projām, kur suns to veda.</p>
+
+<p align="JUSTIFY">Bet kučieris, meitas atvedējs, vāca nocirstās galvas ratos,
+iesēdināja meitu un, mājā braukdams, piekodināja viņai, lai nesakot tēvam, ka
+svešais no pūķa izglābis, lai sakot, ka viņš glābis; ja neteikšot tā, tad dzīva
+nepalikšot. Meita, dzīvību glābdama, apsolījusies.</p>
+
+<p align="JUSTIFY">Nu pārbrauc mājā, ķēniņš nezin, ko būtu izdarījis ar kučieri,
+tik labu, teicamu cilvēku, kas nebijies viņa vienīgo bērnu no briesmām pestīt. Un
+neko vairāk - kā atmaksu par tik brangu darbu - saderina šo ar savu meitu un piesola
+drīzi jo drīzi kāzas. Bet meita atkratās, kā varēdama - viņa saka: "Ne, tēt,
+kāzas ne - es gribu gadu notrūvēt pēc tādām bēdu dienām."</p>
+
+<p align="JUSTIFY">Labi! Lai tad arī trūvot! Pagāja gads - ķēniņš neatlaiž, nu
+vajaga kāzas. Bet kad kāzas bija sarīkotas, tad vecākā brāļa suns rēja, zirgs
+zviedza un atveda to tai pašā krogā atpakaļ, kur pērn bija gulējis. Atjājis krogā,
+viņš vaicā krodzeniekam: "Kāpēc nu kroga istabas ar sarkanu vadmalu
+pārvilktas?"</p>
+
+<p align="JUSTIFY">"Kāpēc? Pērn bija bēdu laiki, šogad kāzu laiki, rītu
+laulās ķēniņa meitu ar ķēniņa kučieri, viņas glābēju, kas izglāba pērn no
+pūķa nagiem."</p>
+
+<p align="JUSTIFY">Nu brālis saprata, ka te blēdība notikusi un tūdaļ iedeva meitas
+pusgredzenu savam sunim, lai nes uz pili. Ķēniņa meita pērn pie akmiņa savam
+glābējam bija iedevusi no sava gredzena vienu pusi, pati paturējusi otru pusi. Suns
+aiztecēja ar gredzenu, ieskrēja taisni kāzu istabā pie meitas un piedūra purnu viņai
+pie rokām. Meita paskatās, ierauga savu pusgredzenu un saka tēvam : tā un tā. Tēvs
+vēl negrib ticēt, bet šī saka, lai iet tam un tam sunim līdz un aicina gredzena
+sūtītāju šurp, tad jau redzēšot, kam taisnība. Labi! Aiziet sunim līdz - suns
+apstājas pie kroga. Nu aicina vecāko brāli uz pili un tūlīt pirmais vārds: kā
+viņš pierādīšot, ka kučieris nav kavis pūķi?</p>
+
+<p align="JUSTIFY">Vecākais brālis tad izvilka pūķa mēles no kabatas, sacīdams:
+"Apraugiet galvas, ko kučieris sazadzis, vai ir viņās mēles?" Aprauga -- nav
+vis! Are - nu izrādās, ka šis blēdis to pļāvis, ko otrs sējis, un tā vairāk neko.
+Liek šo ar zirgiem sarakstīt; bet vecāko brāli salaulāja ar ķēniņa meitu.</p>
+
+<p align="JUSTIFY">Un jaunais ķēniņš, vecākais brālis, nodzīvojis vienu gadu vīra
+kārtā, dzird vienu nakti pa sapņiem, ka sauc pie loga: "Celies, ķēniņ, jāj pie
+uguns! Tavs zirgs zviedz, tavs suns rej."</p>
+
+<p align="JUSTIFY">Tā viņš atveŗ acis, cēlās, ņēma savus ieročus, kāpa zirgam
+mugurā un jāja, kur suns pa priekšu tecēja. Jāja, jāja - te pie viena liela koka
+suns apstājās un turpat deg maza uguns; bet kokā sēdēja veca sieva un skatījās uz
+viņu dedzīgām acim. Tad ķēniņš dusmu pilns saka: "Un tad tevis pēc, tu vecā
+ragana, man bija jāskrien pa nakti šeit! Kāp zemē, tūlīt kāp!"</p>
+
+<p align="JUSTIFY">Vecā lūdzās: "Man bail kāpt?" No kam tad tev ir
+bail?"</p>
+
+<p align="JUSTIFY">" "No tava zirga un suņa. Kad tu būtu tik labs - es
+nometīšu vienu zariņu zemē -- kad tu piesistu ar to zariņu savam zirgam un sunim, tad
+es būtu droša nokāpt."</p>
+
+<p align="JUSTIFY">Ķēniņš to apsola. Tad viņa nometa vienu zariņu; ķēniņš
+pacēla to, piesita zirgam, sunim un kā piesita, tā viņš pats, zirgs un suns palika
+par akmeņiem.</p>
+
+<p align="JUSTIFY">Bet jaunākais brālis mājā arvienu lūkoja, kāds akā ūdens. Un
+tai rītā, kad ķēniņš bija palicis par akmini, ūdens akā pārvērtās par asinim,
+zirgs zviedza, suns rēja un jaunākais brālis nu jāja brāli meklēt. Jāja, jāja -
+viņa suns tecēja pa priekšu - un aizjāja pilī pie brāļa sievas. Brāļa sieva
+iznāca priecīga pretim un aicināja iekšā un tērzēja un runāja, tāpat kā ar savu
+vīru - izšķirt abus brāļus jau nevarēja. Bet kad viņi gāja gulēt, tad jaunākais
+brālis izvilka savu zobinu no makstim, ielika vidū un teica: "Ja tev viens pirksts
+būs pāri pār zobina asminu, tad nāve uz pēdām!"</p>
+
+<p align="JUSTIFY">Ķēniņiene domāja: "Kas tad nu manam vīram noticis? Viņš
+nekad tā nebija darījis," un nevarēja no tām bailēm nebūt aizmigt; bet
+jaunākais brālis gulēja maigi. Te ap pusnakti izjauca miegu. Viens, kā par sapņiem
+kā nomodā - sauc pie 1oga: "Celies, ko tu guli? Tavs zirgs zviedz, tavs suns rej -
+jāj pie uguns!"</p>
+
+<p align="JUSTIFY">Viņš uzlec no miega - ja, dzird: suns patiesi rej kaukdams, zirgs
+zviedz kārpīdamies. Nu steidz, nu kāp mugurā un jāj sunim pakaļ. Aizjāj pie lielā
+koka, tur deg trim akmeņiem blakus maza uguns un pašā kokā sēd veca sieva. Tā viņš
+sāk lamāties: "Un tevis pēc, tu, vecā ragana, man bija jāskrien pa nakti. Kāp
+zemē, tūlīt kāp!"</p>
+
+<p align="JUSTIFY">Šī gan lūdzās, esot no viņa zirga bail, no suņa bail. Būšot
+nomest zemē mazu zariņu, ar to lai piesitot savam zirgam un sunim, tad kāpšot droši
+vien; bet jaunākais brālis izrāva zobinu: ,,Es tev galvu druskās saskaldīšu, ja
+tūlīt nekāpsi zemē!"</p>
+
+<p align="JUSTIFY">Nokāpa gan šī, bet atkal lūdzās, lai atstājot dzīvību, būšot
+pateikt, kas tie par akmiņiem.</p>
+
+<p align="JUSTIFY">- Labi, lai teicot!</p>
+
+<p align="JUSTIFY">"Tie akmiņi ir tie, ko tu nāci meklēt: tavs brālis ar zirgu un
+suni. Ja taupīsi mani, tad viņus atdzīvināšu."</p>
+
+<p align="JUSTIFY">"Es gan tevi taupīšu, bet vai cits tevi taupa, to nezinu
+teikt." Un nu vecene uzsita ar</p>
+
+<p align="JUSTIFY">zaru tiem akmiņiem - tā tūlīt viņa brālis zirgs un suns
+atdzīvojās. Bet tiklīdz vecākais</p>
+
+<p align="JUSTIFY">brālis bija at dzīvojies, tūdalin ar zobinu, zirgu, suni vecenei
+mugurā un - tas nebija</p>
+
+<p align="JUSTIFY">ko apskatīties - gatava šī. Bet tiklīdz vecā pagalam, tā no zemes
+izcēlās liela, jauka pils. </p>
+
+<p align="JUSTIFY">Nu abi brāļi bija priekā apju kuši, gavilēdami jāja uz pilsētu
+atpakaļ. Jāja, iesāka runāt - </p>
+
+<p align="JUSTIFY">vecākais brālis apvaicājās: "Kur tu gulēji šurp
+jādams?"</p>
+
+<p align="JUSTIFY">"Tavā pilī, pie tavas sievas."</p>
+
+<p align="JUSTIFY">To dzirdot, vecajam brālim, iedegās dusmas un pārsteigtā āt<b>rumā
+</b>nopļāva brālim ar zobinu galvu.</p>
+
+<p align="JUSTIFY">Nu pārjāja pie sievas, sieva saņem ar lielāko godu. Bet vakarā,
+kad gāja gulēt, sieva viņam prasa: "Kas tev viņreiz bija noticis, ka tu, gulēt
+iedams, liki zobinu vidū, pieteikdams tik bargi: ja es tik vienu pirkstiņu pārlikšot
+zobinam pāri, tad man nāve uz pēdām."</p>
+
+<p align="JUSTIFY">To dzirdējis, vecais brālis noprata visu, cik nokautais brālis bijis
+nevainīgs, un raudādams un žēlodamies viņš tūdalin jāj atpakaļ brāli raudzīt.
+Aizjāj - brāļa zirgs ar suni noskumuši galvas nolaiduši dirn nokautajam blakus un
+neatkust ne soļa; bet viņa suns neapstājas, tek arvienu uz priekšu. Tek, tek - šis
+jāj paka&amp;127; - ietek jaunajā pilī, kas no zemes bija pacēlusies, un apstājas pie
+paliela zāļu trauka smilkstēdams. Nu viņš noprot, ko suns grib un, paņēmis zāļu
+trauku, jāj brāli zāļot. Sazāļoja labi - brālim saauga pārcirtums un atdzīvojās
+atkal. Nu abi brāļi bija patiesi laimīgi un no tās dienas viņi dzīvoja viens vienā
+pilī, otrs otrā.</p>
+
+
+</body></html>

@@ -1,0 +1,185 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>2</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Jauneklis ellē.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">2. A. 466. Teicējs, S. Greizdiņš Viļānu pag. Kultūras balss kr.</p>
+
+<p align="JUSTIFY">Vīnam puikai nūrnyra tāvs ar muoti. Puika palyka bez grūziņas
+maizes. Kaimiņi pasacēja jam, lai jis īt kolpuot vīnam boguotam saimnīkam par gonu.
+Puisāns paklausēja un aizguoja tur. Saimnīks tyuleņ pījēmia jū.<b> </b>Puika
+dzeivuoja tur leidz kaldam pīcpadsmytam godam, bet pēčuok saimnīca palyka tik
+dusmīga, ka vysod lomuojās un dusmuojās uz gona. Bet saimnīks beja lobs un kotru reizi
+pīrunuoja sīvu nasadusmuot uz nalaimīguo puikas. Sīva tūlaik, vēl vairuok
+dusmuodamuos, suoka sist puisānu. Tū jei darēja kotru dīnu. Jau saimnīks navarēja
+vairuok pīrunuot sovas sīvas, bet puika, kad dzyna lūpus uz sāta, kotru reizi drebēja
+nu baiļem, ka saimnīca otkon īsuoks jū sist. Tai guoja laiks. Vīnu reizi puika,
+sādādams pi upes, naīraudzēja, kai vīna vuška pazuda. Suoka vysur meklēt, bet
+nadabuoja un tai aizguoja uz sātu. Saiminīca tyuleņ pazyna, ka vīnas vuškas nav un
+suoka sist puiku. Atskrēja saimnīks un teicia sīvai: "Pag, sīviņ, nasit iuo,
+lobuok aizdzen meklēt vušku. Jo vušku dabuos, lai dzeivoj vēl, bet ja na, lai īt kur
+grib!"</p>
+
+<p align="JUSTIFY">Sīva paklausīja veiru un izdzyna puiku uorā. Puika osorom aizguoja
+turpat, kur staiguoja lūpi, un meklēja vysur, bet nikur naatroda un aizguoja tuoli
+mežā meklēt sev laimi. Guoja, guoja un satyka vecenīti. Vecenīte pavaicuoja, kur jis
+īt un kas jis ir. Puika jai vysu izstuostīja. Vecenīte īdevja jam kukuli maizes un
+teicja: "Šūdīņ tu puorgul te pat mežā, bet reitā, kad saule izlēks, ej taisni
+itū ceļu, bet tai, lai saule tev speid vysod uz muguras. Tūlaik tovs spāks byus vys
+stypruoks un stypruoks. Pēc pīcim godim tu pīīsi pi kolna, kurs byus tik Iels, kai
+leidz pašim dabasim. Tur tu dabuosi sovu laimi. Pajem ari šū pudelīti pīna, bet dzer
+tu ēd tik tad, kad jau ļūti tev vajadzēs. Simā maisiņā, pašā dybynā, ir dodza
+lopa. Juo tovā celā byus jyura vai lela upe, pakļoj dodza lopu un upes vairuok nabyus,
+bet byus mozs gruovīts, kuru tu varēsi puorlekt. Kad tu puorlēksi, īlīc otkon dodza
+lopu maisā un ej tuoļuok!"</p>
+
+<p align="JUSTIFY">Tad īdevja vecenīte puikai maisu un pazuda. Puika aizguoja gulēt.
+Reitā jis laidjās ceļā un tai guoja` ka saule vysod speidēja jam taisni nu muguras.
+Pēc pīcim godim iis pīguoja leidz upei. Tur jis izjēmja dodza lopu un pakluoja. Upes
+vairuok nabija, bet tikai mozs strautiņš. Puika puorguoja jū, īlvka maisā dodza lopu
+un guoja tuoļuok. Guoja jis, guoja - veras: stuov kolns un uz kolna aug lels ūzūls.
+Puika jau izauga par jaunekli un tik stypru, ka sadūmuoja īt leidz šuo kolna golam. Tai
+jis sadūmuoja un tikkū gribēja īt, veras: atskrēja vacs vecīts un runuoja:
+"Gribi maņ pakalpuot, tūlaik īsim īškā kolnā. Por lobu kolpošonu es tev labi
+samoksuošu, bet jo na, tūlaik tova golva byus nūglobuota zam tuo ūzūla, kurs stuov
+augstā kolnā!"</p>
+
+<p align="JUSTIFY">Jauneklis beja ar mīru un aizguoja ar vecīti uz juo muoju: Vecīts
+devja jam jūti vīglu dorbu, spolvas plyukuot, un par tū jam moksuoja ļūti labi.
+Puikai tys patyka un jis dzeivuoj,a tur labi. Bet beja vīna nalaime, ka jis naredzēja
+nivīna cylvāka, tikai šis vecīts ar jū dzeivuoja. Kad vecīts gulēja, puikai beja
+tik skumīgi uz sirds, ka viņam nasagribēja vairuok ni tuos naudas, ni vīgluo dorba.
+Kaidu reizi jis īsuoka rauduot. Vecīts tyk stypri gulēja, ka nimoz nadzierdēja. Puika
+nazynuodams kū darīt, suoka lyugt Dīvu. Te atskrēja vuorna un teicja: "Bēdz
+prūjom dreižuok nu šējīnes, koleidz vacais gul! Te tu varēsi nūsēdēt leidz
+nuovei, un cylvāku vairuok naredzēsi! Pajem lobuok muojos atslāgu un maisu zalta,
+iznuoc nu ustobas un aizslēdz durovas, bet pats ej leidz ūzūlam, kurs aug kolnā, tur
+tu sovu laimi dabuosi!"</p>
+
+<p align="JUSTIFY">Vuorna dreiži pazuda. Puika tyulen nūzoga atslāgu, pajēmja sovu
+maisiņu, īlyka tur naudas, kuru pats nūpelnīja, iznuocja uora, aizslēdzja durovas un
+pats laidjās īt kolnā.. Izdzierda vecīts un suoka klīgt tik stipri, ka puika, byudams
+jau pusceļā, vysu dzierdēja un jam beja tik gryuti īt tuoļuok un gribēja skrīt
+atpakaļ, bet īguoduoja, kū vuorna jam pasacīja, un guoja tuoļuok. Guoja jis septiņas
+dīnas, un septiņas naktis, koleidz pīguoja leidz ūzūlam. Tikkū jis pīsakēra pi
+ūzūla, ūzūls pazuda un juo vītā stuovēja smuka Pils. Nu pils izguoja princese un
+teicja: "Es tevis sen gaidīju! Labi, ka vecīts nūmyra, tagad tu byusi par
+kēniņu!"</p>
+
+<p align="JUSTIFY">Jauneklis nu juo vaicoj: "Vai tac vecīts, kurs dzeivuoja kolnā,
+beja tys pats ūzūls, kurs pazuda?"</p>
+
+<p align="JUSTIFY">"Ja," atbiļdēja princese un pījēmja jaunekli. Jis
+apsaprecēja ar princesi. Sataisīja jūti boguotas kuozas un tik daudz ols beja, ka vacuo
+vuorna pīdzāruse staiguoja m naredzēia, kai īkrita dagutā un palyka malna. Nu šuos
+dīnas vysas vuornas ir malnas, kai daguts. Jauneklis suoka dzeivuot laimīgi un bārnu
+jīm beja cīši daudz.</p>
+
+
+</body></html>

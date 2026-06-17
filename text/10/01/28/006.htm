@@ -1,0 +1,215 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>1002806</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Muļkītis aizrunā ķēniņa meitu.</font></p><font size="5">
+</font></b><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">6.<b> </b>A.853. 554. J. Bergmanis Bārtā,
+"Magazin der Lett.-Lit. Gesellschaft" XVIII, 14 l. p. LP, VII, II, 18, IV, 2.</font></p><font size="3">
+
+<p align="JUSTIFY">Diži vecos laikos bij vienam bagātam tēvam trīs dēli. Tēvs tos,
+kā tēvam kritās, vienādi neturēja. Tos divi vecākos viņš vairāk izturēja un
+lutināja; to jaunāko viņš lāga neieredzēja un visā vienādi niecināja.</p>
+
+<p align="JUSTIFY">Kad jau dēli bij paauguši, tad tie tēvam lūdze, lai tiemis vēlus
+iet pasaulē savu laimu meklēt; viņi to neveikli (Ungeratenen) arī līdza jemšoši.
+Tēvs bij ar mieru un tiem arī pārtiku un pulku naudas uz ceļu līdza deve; bet tam
+trešajam lika, lai tas no to duju, kas tam vajadzīgs, prasus un tiekus: jo viņš to par
+muļķi izturēja; un tāds viņš arī reizām izskatījās.</p>
+
+<p align="JUSTIFY">Tie visi reizā izgāja un kad jau labu gabalu bij gaiši [gājuši],
+tad tie izalka un no tās līdza iedotās maizes sāka ēst. Un kad tas muļķis arī
+gribēja līdzi ēst, tad tie dui viņam nedeve un neļāve ēst. Tas bij lielā mežā,
+un tur netālu bij liels skudŗu pūlis, Tie viņam teice: "Kad tik dikti izalcis
+esi, tad ej un ēd tās skudres!</p>
+
+<p align="JUSTIFY">Ko nu nabaģelis lai dara? Gāja pie tā skudŗu pūļa raudzīt tās
+ēst. Bet kad tas bij piegājis klāt, tad tās skudres sāka runāt un lūdzēs, lai
+viņām neko neāztiekus, viņas tam briesmu brīdī palīdzēšošas. Viņš paklausīja
+un tāmis nedarīja vis nekā, un viņam rādījās, ka tas tik visai ēst arī negribus.</p>
+
+<p align="JUSTIFY">Nu gāja akal visi trīs tāļāk. Lielu gabalu pa to mežu gaiši,
+apsasēdās akal padusēt un ēst. Bet tie dui tam mulķim akal nedeve un neļāve ēst,
+teikdami, lai ejus tās bites ēst, kas tur klātumā bij redzimas. Viņš gāja akal pie
+to bišu; bet kad bij piegājis, tad tās arī lūdzēs, lai viņas neāztiekus, viņas
+tam it lielā notē palīdzēšošas.</p>
+
+<p align="JUSTIFY">Gāja akal visi trīs tāļāk. Kādu lielu gabalu gaiši, apsasēdās
+akal padusēt un ēst, un muļķim vēl nedeve un neļāve ēst; bet raidīja pie vārnu
+lizda, kas tur atradās, lai to bērnus ēdus. Bet ir tās viņa pielūdzēs,
+apsasolīdamās tam it lielā notē palīdzēt.</p>
+
+<p align="JUSTIFY">Gāja akai lielu gabalu, un nu izgāja no tā meža ļaudīs. Zināms,
+ka nu tie dui tam trešajam nedrīkstē un nevarē tā darīt, kā tai mežā; bet mīlēt
+tie viņa jau nemīlēja. Gāja tik gāja arvienu tāļāk. Bija gan - jau ne paši
+nezināja - cik tālu nogaiši pa ļaudim, muižām un pilsātiem, kad uz vienu reizu
+dzirdēja, ka tās zemes ķēniņģim esu viens pats bērns, meita, kas jau daudz
+brūtgānu, ķēniņģu un lielkungu dēlu, esu atraidīsi. Gudrinieki tūliņ steigšus
+tur gāja, domādami, rasi laima viņus tur gaidoti; un muļķis tiemis vilkās nopakaļus
+līdza.</p>
+
+<p align="JUSTIFY">Ejot tas ierauga tapu, viņš to pajēme un iebāze kabatā, un
+priecādamies rādīja arī brāļamis; bet tie par to, kā jau par muļķi, tikai
+pasasmējās. Vēl uz priekšu ejot, muļķis ceļā ierauga nokritušu stīpu, un to
+pajēmis, akal priecādamies brāļamis rādīja; bet tie to sarāja, ka tādus niekus
+jemot līdza. Bet viņš teice, ka neesu vis nieka lieta, varoti gan sagadu (nuetzlich)
+rasties. Vēl tāļāk ejot, tas ierauga ceļā vecu strigali (Strickstueck) viņš to
+arī pajēme līdza, un brāļu nosmiets, tas viņamis atteice, ka varus it labi strigalis
+sugadu rasties. </p>
+
+<p align="JUSTIFY">Tagad tie iegāja ķēniņa pilī, un tie gudrie pirmāk pietapa pie
+princesines. Kad to pirmo princesine uzprasīja, ko tas līdz šim esu dzievis (getan),
+tad tas atteice, ka ikdienas no rīta līdz vakaram labību mērījis, un tālab tāds
+noputējis esu. Tas otrs prasīts atteice, ka ikdienas no rīta līdz vakaram naudu
+skaitījis, ka pirksti pabūguši (schmerzhaft).</p>
+
+<p align="JUSTIFY">Pēdīgi nāce muļķa reiza stāties priekšā, Tas iegājis vien
+teice: "Ui princes, tavas siltas istubas, man ir cepuri no galvas nocēle!"</p>
+
+<p align="JUSTIFY">"Kā nu ne, man ugune pakaļā!" atteice princesine to
+piesmiedama.</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Vai! kālab tad neaplēji?" atteice muļķis.</p>
+</blockquote>
+
+<p align="JUSTIFY">"Jā, ūdiņa traukam tapa nev un stīpa nokritusi," atteice
+princesine.</p>
+
+<p align="JUSTIFY">"Tādas lietas pašu laiku man ir pie rokas," atteice
+muļķis, "še ir taps un stīpa!"</p>
+
+<blockquote>
+  <p align="JUSTIFY">"Jā, bet spannim saites nav," atteice princesine.</p>
+</blockquote>
+
+<p align="JUSTIFY">"Ir tam varu izlīdzēt, man ir arī strigalis pie rokas,"
+atteice muļķis. "Īsi sakot, man ir visas labas lietas," teice tas vēl
+beidzot. </p>
+
+<p align="JUSTIFY">Prirncesine visamis trijom lika pagaidīt, līdz tā ar ķēniņģi,
+savu tēvu, būšoti pasrunaisies. Nu viņa tēvam izteice, kādi brūt gāni tai
+gadīšies. Visi tai patīkoši un rādoties labi, tad jau viņš kā tēvs, lai noteicot,
+kuru no triju lai viņa paturoti. Kēniņģis spriede tā: "Maize gadiem, nauda
+brīžiem, laba lieta mūžam! Paturi, meit, to ar tām labām lietām!"</p>
+
+<p align="JUSTIFY">Un nu muļķis palika par ķēniņģa znotu, noturēja bagātas un
+lustīgas kāzas. Ne pa ilgis gadis ķēniņģis nomira un muļķis nu palika pa
+ķēniņģi; dzievā ar to princesini, kas viņu pirmo reizi ieraugusi, taisījās
+apsmiet, mīļi un laimīgi; piedzievā lielu vecumu un bērnu bērnus. Un skudres, bites
+un vārnas palika viņam palīga parādnieces: jo tam savā mūžā ne kāda nelaime un
+briesmas neatsagadījās.</p>
+
+<p align="JUSTIFY">Bet kā tad tēvam un brāļamis nu gāja? Nu gudrinieki pārgāja
+mājās pie tēva, visu naudu iztēraiši un melava tēvam, ka muļķis tālā svešā
+zemē nomiris un tie viņu šmuki godīgi paglabaiši.</p>
+
+<p align="JUSTIFY">Gudrinieki dzievā arī vēl dažus gadus; bet vienādi ķīvē,
+nesatikšanā un nabadzībā.</p>
+</font>
+
+
+</body></html>

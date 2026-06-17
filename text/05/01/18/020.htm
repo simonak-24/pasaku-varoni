@@ -1,0 +1,190 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>20</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Spēlētājs ellē.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">20. A. 476. J. Dīcmanis Lieģos "Pasaku vācelītē" 3. LP,
+VII, I, 621. 1. p. 10.</p>
+
+<p align="JUSTIFY">Reiz bija kāds skruoderis liels mūzikants. Gandrīz katru svētdienu
+viņu uzlūdza krogā ballē spēlēt. Saprotams, ka no tam skroderim laba pelņa atleca,
+viens otrs rubulītis tādās svētdienās itin patīkami ieslīdēja skroderīša ķešā
+un kur vēl kuplas magaričas.</p>
+
+<p align="JUSTIFY">Gadījās kādu svētdienu, ka bija krogā atkal liela balle; bet
+šoreiz mūsu skroderītis nebija ielūgts tur spēlēt. Šoreiz balles izrīkotāji bija
+uzlūguši prāģeŗus spēlēt. Mundrajam skroderim tas nemaz nebija pa prātam:
+"Kad tu izputētu laukā! Vai tādi pilsētas luteklīši labāki prot spēlēt kā
+es?"</p>
+
+<p align="JUSTIFY">Ļoti sapīcis, viņš paņēma savu vijoli un devās uz krogu.
+Skroderim bija jāiet pa lielu mežu. Mežā viņš satika jaunu puisi, kas deva
+labvakaru. Skroderis, labvakaru saņēmis, prasīja puisim, uz kuŗieni viņš ejot?</p>
+
+<p align="JUSTIFY">"Uz krogu spēlēt!" puisis jautri atteica.</p>
+
+<p align="JUSTIFY">"A, bračīt, es arī eimu uz krogu spēlēt! Tad mēs abi esam
+spēlmaņi. Nu, tad lai arī vandās kā zutis pa dubļiem!" skroderis itin priecīgs
+iesaucās.</p>
+
+<p align="JUSTIFY">"Es domāju, mēs šonakt labu lomu vilksim, bet tikai sargies,
+draugs, Dievu minēt!" puisis piebilda skroderim.</p>
+
+<p align="JUSTIFY">Nu abi divi čakli steidzās uz krogu, puisis pa priekšu un skroderis
+pakaļ. Pie kroga viņi spiedās caur ļaužu pulku cauri krogā iekšā. Še viņi
+nostājās kādā istabas stūrī un sāka spēlēt. Šovakar skrodeŗa vijole desmitkārt
+jaukāki skanēja, nekā citām reizēm, bet skrodeŗa biedra vijole vēl daudz daudz jo
+mīlīgāki un jaukāki. Uz pirmo griezienu viņu mūzikas skaņas Pārspēja prāģeŗu
+mūziku. Puiši un meitas. un kas vien dancoja, nemaz vairs neklausījās uz
+prāģēŗiem. bet veikli ripoja un līksmojās tikai pēc skrodeŗa un zēna mūzikas.
+Visus ta satracināja šie spēlēdami, visi bija tik priecīgi, deja un bļaustījās, ka
+vai visu krogu apgāžtu, jeb ka būtu velna apstāti. Viņiem nemaz nevajadzēja dančus
+pastellēt, jo skroderis un puika paši arvienu uzsāķa jaunu un vēl jo jaukāku un
+jaukāku deju. Puika skroderi bija apbūris, tā ka tagad viņš varēja visus velna
+dančus izspēlēt. Puika bijis pats velns. Dancotāji viņiem maksā ja uzmaksādami, par
+naudu vairs neko nerēķinādami. Beidzot skroderis ņēmās viens pats spēlēt un puika
+tikai naudu vāca. Priecīgie dejēji piebēŗa puikam visas kabatas pilnas ar naudu.</p>
+
+<p align="JUSTIFY">Kad nāca pusnakts, puika klusi iečukstēja skroderim ausī, ka nu
+esot laiks uz mājām iet, jo dancotāji arī sāka izklīst. Skroderis un puika atstāja
+krogu un devās uz mājām ar pilnām kabatām naudas.</p>
+
+<p align="JUSTIFY">Tai pašā vietā, mežā, kur skroderis ar puiku vakar vakarā bija
+saticies, viņi nonākuši apstājās. Skroderis puiku uzrunāja vijoles mitot. Puika arī
+bija mierā, bet skroderim vajadzēja 3 rubļi pielikt. Skroderis ar prieku piedeva, lai
+tikai dabūtu puikas vijoli, jo šī par daudz jauki skanēja. Skroderis nu paņēma savu
+jauniemīto vijoli rokā un sacīja: "Dievs zin, vai es arī varēšu tāpat uz viņu
+izspēlēt kā tu?"</p>
+
+<p align="JUSTIFY">Tik ko to bija izteicis, te puika tūliu pazuda. Puikam nepatika, ka
+skroderis Dievu minējis - viņš jau bija piesacījis Dievu neminēt.</p>
+
+<p align="JUSTIFY">Skroderis, viens pats palicis, vairāk neko neattapa, kā tūlin doties
+uz mājām. Mājās pārgājis, viņš pakabināja savu jauno vijoli Pie sienas naglā.
+Vijole bija ādas kulē. Tad tūlin, diezgan visu nakti izmuldējis un piekusis, likās uz
+ausi un saldi iemiga.</p>
+
+<p align="JUSTIFY">No rīta skroderītis, pamodies jau diezgan sebu, nevar izprast un
+izbrīnīties, kur tāda nelāga un nepanesama smaka istabā radusies? Viņš tūlin lec
+no gultas un sāk šur tur apskatīties. Bet tavu brīnumu! Viņš atrod, ka viņa paša
+vijole kulē smird. Nu skroderis kuli tūlin nokabina no naglas un atrod tur nevis savu
+vakar iemīto vijoli, bet sapuvušu suni - un suņa ribu pieliktu klāt par lociņu.
+Skroderis dusmīgs iesaucās: "Ak tu sasodīts krupja puika! Bija man to zināt, es
+būtu metis vai desmit verstim līkumu, nekā ar tādu žurku ielaidies - un vēl vijoles
+mitojis! Ne nu man vijoles, ne naudas! Kad tu izputētu!"</p>
+
+<p align="JUSTIFY">Viņš tūlin skrēja uz mežu, uzmeklēja to vietu, kur pa nakti ir
+puiku vijoles bij mitojis un turpat atrada vēl savu paša vijoli, koši zemē noliktu un
+blakām arī visu to naudu, ko pagājušā naktī, ar puiku spēlēdams, bija nopelnījis.
+Nu viņam visas bēdas un bailes pagalam, viņš bija ļoti priecīgs un dziedādams
+aizgāja mājās. Skroderim bija tagad diezgan naudas, viņš nopirka sev mazu mājiņu un
+dzīvoja laimīgi.</p>
+
+
+</body></html>

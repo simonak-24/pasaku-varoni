@@ -1,0 +1,152 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Līķu ēdējs.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 363. 407. 710. J. Henniņš no K. Feldmanes 1885. g. </p>
+
+<p align="JUSTIFY">Vienai mātei bija viena meita, kuŗai bija daudz brūtgānu, bet viņa
+ne pie viena negāja, meklēdama tikai tādu, kam ir zelta bārda. Vienu vakaru arī
+patiešām atnāk vīrs ar zelta bārdu un aizved meitu sev līdz. Māte nu iedeva meitai
+kamoli dzijas un teica: "Kad tavs vīrs iet pa durvim ārā, tad tu ieduŗ to viņam
+svārkos, izrisini to dziju un tad ej pakaļ skatīties, ko viņš dara."</p>
+
+<p align="JUSTIFY">Viņš iegāja baznīcā un ēda miroņus pie zārka un tā meita
+skatījās pie durvim. Tad viņš prasīja: ,.Malvīne, ko tu redzēji, kad tu nāci man
+pakaļ?"</p>
+
+<p align="JUSTIFY">Viņa neko neatbildēja, aizgāja uz mājām un tūlīt nomira. Tā
+māte to izvilka pa druvju apakšu, aizvilka uz krustceli un apraka. Tur uzauga smuks
+puķu krūms.</p>
+
+<p align="JUSTIFY">Kādu reizi brauca tur pats ķēniņš ar savu sulaini. Tas ķēniņš
+pavēlēja sulainim, lai vienu zaru nogriež un iestāda puķu</p>
+
+<p align="JUSTIFY">podā. Kad nu tai istabā liek ēdienu uz galda, tad tas ik reiz top
+noēsts. Sulainim nu pavēlēja novaktēt, kas ēd. Bet tavu brīnumu! tā puķe, kas bija
+nolikta ēdamā istabā uz loga, katru reiz noēda to ēdienu. Tas ķēniņš nu teica,
+lai saķeŗot to ar baltu palagu. Tad tā puķe palika par čūziņu un visādiem
+kukaiņiem un pēdīgi tā palika par smuku sievišķi. Ķēniņš nu pats apprecēja to
+skaistuli.</p>
+
+<p align="JUSTIFY">Jaunai ķēniņienei piedzima meitene, un kad to aiznesa baznīcā, tad
+Zeltabārda atkal parādījās un prasīja: "Malvīne, ko tu redzēji, kad tu nāci
+man pakaļ?"</p>
+
+<p align="JUSTIFY">Viņa neko neatbildēja un nesa to bērnu tik uz mājām, bet tas
+bērns bija nomiris. Māte nu teica, lai to nomazgā un ieliek skapī. Bet Zeltabārda
+bija atkal klāt un prasīja : "Malvīne, ko tu redzēji, kad tu nāci man
+pakaļ?"</p>
+
+<p align="JUSTIFY">Tad māte teica, lai viņa sakot, ka viņš ēdis miroņus pie zārka.
+Meita nu arī to atbildēja. Tad Zeltbārdas velns tūlin pārsprāga, bet mirušais
+bērns atkal atdzīvojās.</p>
+
+
+</body></html>

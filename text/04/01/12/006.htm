@@ -1,0 +1,169 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Velns par labdari.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">6. (A..362). Eduards Kļaviņš Mālupē. LP, VII, I, 800 (20 d.). </p>
+
+<p align="JUSTIFY">Viens velns izsūtīja savus puišus, piesacīdams: ko pa dienu
+pieredzot, to lai viņam vakarā pastāstot. Puiši gāja, gāja visu dienu un ieraudzīja
+vienu zemnieku aŗam. Maize arājam bija pakārta krūmos. Viens velna puisis, to
+redzēdams, paņēma maizi, iesvieda ezerā.</p>
+
+<p align="JUSTIFY">Vakarā velns prasa: "Ko redzējāt?"</p>
+
+<p align="JUSTIFY">Maizes iemetējs sacīja: "Arājs ara, es viņa maizi iemetu
+ezerā!"</p>
+
+<p align="JUSTIFY">'Tad velns atteica: lai metējs ejot un padarot zemnieku bagātu. Velna
+puisis aiziet pie arāja: lai derot viņu par puisi! Zemnieks sacīja: "Man pašam
+nav darba."</p>
+
+<p align="JUSTIFY">Velns atteic: "Es tevi padarīšu bagātu."</p>
+
+<p align="JUSTIFY">Labi! saderēja. Nu velns saka: "Ej, saimniek, prasi kungam, lai
+dod man vienu dienu līdumu līst."</p>
+
+<p align="JUSTIFY">Aiziet - kungs brīnās: "Visiem jau apsēts - tu vēl gribi
+līdumu līst; bet ja nu tā vēlies, līd vesels!"</p>
+
+<p align="JUSTIFY">Zemnieks aiziet uz māju priecīgs un saka savam velna puisim:
+"Ej, līd līdz vakaram!"</p>
+
+<p align="JUSTIFY">Labi. Otrā dienā ies kungs apraudzīt līdējus - paliek šim bail,
+kas nolīsts. Trešā dienā, kad līdums bij uzarts, velna puisis saka savam saimniekam:
+,,Ej, lūdz kungam pieci pūri miežu sēklai."</p>
+
+<p align="JUSTIFY">Izlūdza, apsēja līdumu un pa nedēļu jau bija zaļot sazaļojis. Nu
+kungam metās žēl. Pienāca pļaujams laiks, visiem puišiem ar saimnieku bija jābrauc
+laukā. Kamēr šie laukā, kamēr atbrauca mājā, kungs nopļāva visus miežus, ko
+velna puisis iesējis.</p>
+
+<p align="JUSTIFY">Tad velns sacīja uz saimnieku: ,,Ej, lūdz kungam, lai dod vienu
+vezumu no līduma miežiem; ja negrib tikdaudz dot, tad lai dod jel vienu nastu."</p>
+
+<p align="JUSTIFY">Aiziet - kungs dos gan vienu nastu tā kauna pēc. Velna puisis aiziet
+pēc nastas, krauj, krauj - iekŗauj visu kunga šķūni nastā un stiepj saimniekam.
+Viens muižas puisis nobijies ieskrien pie kunga: lai laižot no staļļa liela ērzeli,
+tas viņus samīšot. Saimnieks pamana izlaisto ērzeli, saka savam velna puisim: "Nu
+ir kā ir - kunga lielais zirgs mūs samīs."</p>
+
+<p align="JUSTIFY">Pielēca ērzelis, velns paķēra to, uzsvieda aiz astes uz nastu.
+Kungs, to redzēdams, saka. lai laižot laukā lielo vērsi, tas viņus sabadīs.
+Saimnieks paskatās atpakaļ un saka: "Kunga lielais vērsis gan mūs sabadīs."</p>
+
+<p align="JUSTIFY">Pieskrien vērsis, uzsvieda aiz astes uz nastu. Kungs, to redzēdams,
+saka: "Laidiet lielo suni, tas viņus saplēsīs." Saimnieks paskatās atpakaļ,
+saka: "Kunga lielais suns gan mūs saplēsīs."</p>
+
+<p align="JUSTIFY">Pieskrien suns, velna puisis uzsviež uz nastu aiz astes un pārnes
+visus mājā. Nu bija saimnieks bagāts.</p>
+
+
+</body></html>

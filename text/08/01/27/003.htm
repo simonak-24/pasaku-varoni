@@ -1,0 +1,253 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Dažādi spēka vīri.</p>
+</font></b><font size="3">
+
+<p align="JUSTIFY">3. A. 650 C. 1084. 1982. 1072. 1009. 1006 L. Vadelnieks Nogalniekos.
+LP, VI, 403 (112, 18).</p>
+
+<p align="JUSTIFY">Vienam tēvam bija divi dēli: Ansis ar Mārtiņu. Bet dēli par daudz
+pulka apēda; tādēļ tēvs sakala abus dēlus par vienu dēlu un nu izgadījās tāds
+milzis, lai Dievs pasarga.</p>
+
+<p align="JUSTIFY">Reiz tēvs vēlējās redzēt, cik stiprs viņa milzis īsti būs, un
+lika sētsvidū lielu lielu akmeni atridēt no kājām. Dēls aizsvieda akmeni un nemaz
+vēl godīgi nenostenējās. Bet drīzi pēc tam viņš atstāja tēvu un labāk aizgāja
+pie ķēniņa darbā.</p>
+
+<p align="JUSTIFY">Ķēniņš milzim iedeva pāris zirgu, lai braucot mežā, malkā.
+Aizbrauca, izrāva kokus ar saknēm, sakrāva briesmīgu vezumu un sāka zirgus skubināt;
+bet zirgi nepavilka.</p>
+
+<p align="JUSTIFY">"Ak tā! jūs man nevilksit," viņš domāja un savija no
+septiņiem valgiem tādu pātagu, ka ar vienu sitienu pietika: zirgi bij pagalam. Nu
+uzsvieda nosistos vezumā, saķēra lielu pulku meža zvēru, aizjūdza tos priekšā un
+brauca lepni jo lepni mājā. Ķēniņš, logā stāvēdams, ieraudzīja tādus ērmus un
+lika visus vārtus aizslēgt. Bet milzis pie vārtiem atjūdza savus meža zvērus,
+palaida atpakaļ mežā, tad pārsvieda vezumu pār sētu ķēniņa pagalmā, izlauza
+aizslēgtos vārtus un iegāja, kā pieklājās, pilī citu darbu paprasīt.</p>
+
+<p align="JUSTIFY">Nu ķēniņš dusmās pagrāba lāpstu un uzsauca: "Roc aku!"
+Bet milzis ar tik niecīgu lāpstu nebija radis; viņš aizgāja mežā, uztaisīja no
+laba baļķa lāpstu pēc sava prātā un kad tad raka - dubļi un akmeņi kā dūmi uz
+visām pusēm šķīda.</p>
+
+<p align="JUSTIFY">Bet tiklīdz aka bija brangā dziļumā, ķēniņš pavēlēja saviem
+kalpiem no lauka akmeņus dzīt un milzim virsū gāzt, lai dibinā nosistu šo. Tomēr
+neizdevās šiem ar savu nelietību: milzis katru akmeni atsita ar roku atpakaļ, tā ka
+tie rūkdami ripeniski vien sprāga no akas laukā un pašus metējus apsita; bet milzis
+nosmējās: "Bērni, ko jūs man tās mušas uzlaidāt?"</p>
+
+<p align="JUSTIFY">Ķēniņš tagad pabrīnījās gan par tik lielu stiprinieku, bet
+mierā tomēr vēl nelikās. Pavēlēja atkal citiem kalpiem dzirnu akmeni šim virsū
+sviest. Bet milzis kā lika ar dūri dzirnu akmenim, tā aizsprāga dunēdams un iekrita
+pils jumtam cauri taisni ķēniņa istabā. Ķēniņš tagad briesmīgi pārbijās, bet
+milzis tik nosmējās: "Bērni, ko jūs, nerātņi, man to lielo dunduri
+uzlaidāt?"</p>
+
+<p align="JUSTIFY">Pa kādām dienām ķēniņš atkal citādi gudroja milzi nonāvēt:
+iedeva divdesmitčetri pūri labības, lai tais un tais sudmalās samaļot miltos. - Tur
+dzīvojis velns, kas katru malēju nolietājis. - Milzis paņēma tos divdesmitčetri
+pūri pa muguru, aizgāja sudmalās un mala. Bet drīzi izlīda velns šo ķircināt.
+Milzis sagrāba velnu, uzsēdināja uz dzirnām un būtu samalis miltos, ja pats laikā
+nebūtu aizmanījies uz mežu un izbēdzis.</p>
+
+<p align="JUSTIFY">Bet nu milzis, maļamo samalis, brīnum bija izgribējies ēst. Ko
+viņš darīja? Nodabūja katlu - lielu lielu katlu - iemīcīja visus divdesmitčetri
+pūri miltus iejavā, iekūra uguni, izvārīja biezputru un ēda un izēda. Pārgāja
+mājā, ķēniņš vaicā: "Kur maļamais?"</p>
+
+<p align="JUSTIFY">"Maļamo apēdu; dod nu citu darbu!"</p>
+
+<p align="JUSTIFY">Ķēniņš šņāca vien par tādu nepiepildāmu un lika to ezeru
+izsmelt, kuŗā tās deviņas zelta mucas esot.</p>
+
+<p align="JUSTIFY">Milzis uztaisīja lielu, lielu svirloku un sāka ezeru uz visām pusēm
+laistīt, tā ka ūdens, zivis, dubļi aizgāja pa gaisu un nomaitāja visus ķēniņa
+laukus.</p>
+
+<p align="JUSTIFY">Bet kamēr šis tur tā laistījās - izlīda no ezera velns, ar lielu
+āmaru rokā un uzaicināja milzi cīkstēties: kuŗš āmaru augstāk uzsviedīšot, tas
+stiprāks. Labi. Velns uzsvieda āmaru augstu augstu, lai nu sviežot milzis! Bet tas
+atteica: "Ja es sviedīšu, tad tev acis no pieres izkritīs, to saku droši,
+tādēļ turi pie laika plaukstis priekšā, ja negribi bezlaikā akls palikt."</p>
+
+<p align="JUSTIFY">Velns sabijās un aizlika acim plaukstis priekšā. Bet milzis nu tam
+tīšām kā cēla āmuru, tā lika velnam pierē, lai riņķī griežas. Velns, pirmo
+zvēlienu dabūjis, sauca uzsaukdams: "Nesvied vairs, nesvied, man patlaban acis
+taisās ārā krist; iesim tad labāk skrieties!"</p>
+
+<p align="JUSTIFY">Labi. Velns nu skrēja kā trakais, tik žigli; bet milzis iesaucās:
+"Ko es ar tevi, tādu nejēgu, tā skriešos? Es paņemšu ir zirgu kāju starpā un
+tad vēl tevi noskriešu."</p>
+
+<p align="JUSTIFY">Velns to negribēja ticēt; bet milzis uzlēca zirgam mugurā un viegli
+jo viegli pārspēja velnu. Nu - tas nu tas; bet ko nu darīšot? Velns atkal vedinājies.
+Sadomāja - jāapsaucot zaķis; kuŗš zaķi pašā skrējienā apturēšot, tas
+stiprāks.</p>
+
+<p align="JUSTIFY">Labi. Skrēja zaķis. Un velns tūliņ: "Janci, Janci,
+pagaidi!" bet zaķis nemož ne traks - iet, ļipu mezdams. Beidzot milzis paķers
+šaujamo - zaķis paliek uz vietas.</p>
+
+<p align="JUSTIFY">To redzēdams, velns palika rāms, atdeva deviņas mucas zelta, kas
+ezerā bija un aizgāja uz citu pusi.</p>
+
+<p align="JUSTIFY">Milzis pārgāja ar zeltu pie ķēniņa un prasīja citu darbu.
+Ķēniņš nevarēja vairs apnesties, tādēļ sacīja: "Man darba vairāk nav;
+paņem algas tiesai tikdaudz labības, cik spēj panest, un ej mājā."</p>
+
+<p align="JUSTIFY">Milzis pašuva lielu lielu maisu, sabēra visu ķēniņa labību un
+stiepa prom. Tas ķēniņam iežēlojās, tādēļ palaida lielu, stipru meža vērsi
+vaļā un trieca milzim pakaļ, ,lai nobadītu to. Bet milzis, vērsi manīdams,
+pagriezās atpakaļ, uzsita ar pirkstiem pa pieri, vērsis noķeparojās vien un bija
+beigts kā muša. Tad paņēma vērsi aiz ragiem, uzsvieda uz maisa un pārstiepa ir
+maisu, ir vērsi mājā.</p>
+
+<p align="JUSTIFY">Bet mājā tas viņam ēdās sirdī, ka ķēniņš vēršus pakaļ
+trenkājis; tādēļ atgāja atpakaļ un sacīja tā: "Ļauj man vienu pliķi
+sist!"</p>
+
+<p align="JUSTIFY">Ķēniņš atteica: "Ļaušu gan, bet tagad man nav vaļas -
+jāiet viesībās. Nokop tu labību, aizslēdz klēts durvis un atnāc tad arī viesībās
+man ar acim pamest, lai zinu, ka esi visu padarījis."</p>
+
+<p align="JUSTIFY">"Jā, jā!" milzis atsacīja un sāka kopties: Labību
+visuvisādu sabēŗa kopā vienā apcirknī, klēts durvis izgāza un uzsēja sev mugurā,
+ķēniņa bērniem izgrūda acis un tad steidzās viesībās ķēniņam pakaļ. Aizgāja
+tur, sāka mētāt ķēniņa bērnu acis ķēniņam taisni acīs. Velns traks: "Ko tu
+esi izdarījis? Es tev piesaku: pamirkšķini ar savam acim, te atnākdams, tu ņemies
+manus bērnus apskaust." </p>
+
+<p align="JUSTIFY">Bet milzis atsacīja: "To nu var katrs redzēt, ka nevaram ilgāki
+kopā saderēt; tādēļ še tev tas apsolītais pliķis un šķirsimies."</p>
+
+<p align="JUSTIFY">To sacījis, milzis cirta ķēniņam pliķi, tas aizsprāga uz lauka un
+palika par pelnu čupu. Tad viņš aizgāja pie ķēniņa sievas un vaicāja: "Pie
+kā tu gribi palikt, vai pie manis, vai pie ķēniņa?"</p>
+
+<p align="JUSTIFY">"Pie ķēniņa!" šī atbildēja.</p>
+
+<p align="JUSTIFY">Nu, ja pie ķēniņa, tad milzis cērt arī šij pliķi - šī arī
+palika par pelnu čupu.</p>
+
+<p align="JUSTIFY">Nu iegāja pie ķēniņa meitas un vaicāja tai, pie kā tā grib
+palikt, vai pie viņa, vai pie ķēniņa?</p>
+
+<p align="JUSTIFY">"Pie tevis!" meita atbildēja.</p>
+
+<p align="JUSTIFY">"Tas labi!" milzis priecājās. Tad likās ar meitu
+salaulāties, paņēma ķēniņa pili un dzīvoja laimīgi.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Raunā teikts, ka velns tirgū gājis. Vēlāk, kad
+gribējis no dēla vaļā tikt, tad aizdevis viņam naudu uz tik ilgu laiku, kamēr kokiem
+lapas birs. Rudenī velns atprasījis naudu, bet dēls rādījis egli un priedi, ka tiem
+vēl lapas neesot nobirušas. L. P.</p>
+</font>
+
+
+</body></html>

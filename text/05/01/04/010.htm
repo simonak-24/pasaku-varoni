@@ -1,0 +1,350 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Meklēšana pēc nepazīstamā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">10. A. 45. A.<b> </b>V. Potašs Latgalē. Kultūras balss kr.</p>
+
+<p align="JUSTIFY">Pie ķēniņa dzīvoja zaldāts mednieks, kas pie viņa nodienēja 25
+gadi. Viņš gribēja jau iet uz māju, bet ķēniņš viņu nelaida, un tā viņš palika
+pie ķēniņa dzīvot. Vienu reizi mednieks paēna plinti un gāja uz jūrmalu meža
+pīles šaut. Viņš skatās - kur bijis, kur ne - atskrien trīs meža pīles; divas
+saliek savus spārnus kopā, bet trešā atsevišķi. Viņas visās izrādījās par
+meitām, saskrēja jūŗā un sāka peldēt. Pa to laiku mednieks klusiņām piegāja
+trešai meža pīlei klāt un nozaga tās atstātos spārnus. Pēc maza brīža divas
+meitas iznāca no jūras, paņēma savus spārnus un aizskrēja par pīlēm projām.
+Trešā izrādījās ļoti skaista jaunava. Redzēdama, ka spārni ir nozagti, viņa
+sacīja: ,Kas nozadzis manus spārnus, lai atdod atpakaļ! Ja tas ir jauns, tad būs mans
+virs, ja vecs, tad mans tēvs, ja pusmūža cilvēks, tad mans krusttēvs."</p>
+
+<p align="JUSTIFY">To dzirdēdams mednieks atbildēja: "Es esmu jauns."</p>
+
+<p align="JUSTIFY">Tā nu viņš atdeva viņai nozagtos spārnus. Aizgājis mājā, viņš
+lūdzis ķēniņam lai atļaun viņam precēties. Ķēniņš drusku padomājis, arī
+atļāvis viņam precēt tādu meitu, kas viņam patīk.</p>
+
+<p align="JUSTIFY">Otrā dienā mednieks izgājis ārā, iesvilpies un tūlin arī tā
+jaunava bijusi klāt, kas viņam jūrmalā parādījās, un kuŗai viņš bija spārnus
+noņēmis. Mednieks apprecēja savu jaunavu un dzīvoja laimīgi.</p>
+
+<p align="JUSTIFY">Ķēniņa sulaiņi, naktīs staigādami, novēroja, ka pie mednieka no
+saules rietēšanas līdz lēkšanai vienmēr deg uguns.</p>
+
+<p align="JUSTIFY">Uguns tur gan pavisam nebija, bet istaba bija gaiša no viņa sievas
+spožajām drēbēm. Sulaiņi par to visu paziņoja pašam ķēniņam, stāstīdami, ka
+pie mednieka katru nakti no vakara līdz gaismai deg uguns.</p>
+
+<p align="JUSTIFY">Ķēniņš nogāja pie mednieka un vaicāja: "Kādēļ pie tevis
+visu nakti deg uguns?"</p>
+
+<p align="JUSTIFY">Mednieks atbildēja: "Pie manis nekad nav uguns. Mana istaba ir
+gaiša tikai no manas sievas drēbēm."</p>
+
+<p align="JUSTIFY">Ķēniņš, dzirdēdams šādus mednieka vārdus, gribēja viņa sievu
+dabūt sev un tik vien gudroja; kā mednieku nonāvēt. Viņš sasauca visus pasaules
+gudriniekus un lika viņiem izdomāt, kā mednieku varētu nogalināt. ,Ja viņu
+nenogalināsit, tad jums visiem likšu galvas nocirst."</p>
+
+<p align="JUSTIFY">Gudrinieki, nevarēdami neko izdomāt, sāka raudāt. Pēc kāda laika
+iet viņiem gaŗām ļoti vecs vecītis un brīnās, ka visi tādi lieli gudrinieki raud
+un bēdājas. Tad viņi izstāstīja vecītim visu, kas noticis.</p>
+
+<p align="JUSTIFY">Vecītis saka: "Nopērciet man spaini brandvīna, tad es
+izgudrošu, kā viņu nonāvēt."</p>
+
+<p align="JUSTIFY">Gudrinieki nopirka spaini brandvīna, vecītis to saņēmis, sacīja:
+"Jūŗas vidū ir tāda sala, kur dzīvo vērsis ar zelta ragiem, lai šis atved
+viņu līdz rītam pie ķēniņa!"</p>
+
+<p align="JUSTIFY">Kad mednieks to dzirdēja, viņš palika noskumis, galvu nokāris,
+viņš iegāja istabā un izstāstīia sievai: "Ķēniņš man pavēlēja līdz
+rītam dabūt vērsi ar zelta ragiem, kas dzīvojot jūŗas vidū. Ja nedabūšot, tad
+viņš man nocirtīšot galvu."</p>
+
+<p align="JUSTIFY">Sieva teica: "Šī bēda nav liela bēda, ja nebūs
+lielākas." Viņa tūlin aizskrēja projām un līdz pusnaktij vērsis jau bija
+atvests.</p>
+
+<p align="JUSTIFY">No rīta ķēniņš sūta savus sulaiņus, lai apskatās, ko dara
+mednieks, vai vērsi ir atvedis, vai ne. Bet viņš guļ kā kungs. Piecēlies mednieks
+atveda vērsi ķēniņam un tad kādu laiku viņam bija miers.</p>
+
+<p align="JUSTIFY">Par mēnesi ķēniņš sasauca otru reizi gudriniekus un lika izdomāt,
+kā medinieku varētu nogalināt; ja neizdomāšot, tad visiem galvas nost Gudrinieki,
+nevarēdami neko izdomāt, sāka visi raudāt. Tad viņi redz, ka iet vecs vecītis
+smiedamies, ka tādi lieli vīri raud. Viņi pastāstīja vecītim, ka viņiem ķēniņš
+licis izdomāt, kā mediniekam padarīt galu. Vecītis saka: "Nopērciet man divi
+spaiņi brandvīna; tad es izdomāšu, kā viņu nogalināt."</p>
+
+<p align="JUSTIFY">Gudrinieki nopirka brandvīnu un atdeva vecītim. Vecītis dzeŗ savu
+brandvīnu un nu stāsta: "Aiz trīsdeviņiem mežiem, aiz trīsdeviņiem kalniem,
+aiz trīsdeviņām jūŗām ir pīlīte ar divpadsmit zelta pīlēniem. Lai atved to līdz
+rītam!"</p>
+
+<p align="JUSTIFY">Šo dzirdēdams, medinieks ļoti noskuma un atkal visu izstāstīja
+savai sievai. Sieva to mierina: "Šī bēda nav liela, ja tik nebūs vēl lielākas
+bēdas."</p>
+
+<p align="JUSTIFY">Viņa aizskrēja un līdz pusnaktij pīlīte ar divpadsmit zelta
+pīlēniem jau bija mājās. No rīta ķēniņš sūta savus sulaiņus, lai apskatās, ko
+medinieks dara, un vai ir atvedis pīli ar pīlēniem.</p>
+
+<p align="JUSTIFY">Medinieks atdod pīli ar pīlēniem ķēniņam. Tad atkal kādu laiku
+viņš dzīvoja laimīgi bez bēdām.</p>
+
+<p align="JUSTIFY">Ķēniņš, redzēdams, ka medinieku nekā nevar nogalināt, ļoti
+sadusmojās un sasauca trešo reizi gudriniekus, un tagad trīs reiz vairāk kā agrāk.
+Trešo reizi atkal tāpat iet vecs vecītis un izsmej gudriniekus, ka tādi lieli cilvēki
+raud. Viņš saka: "Nopērciet man trīs spaiņus brandvīna, tad es izdomāšu, kā
+medinieku nogalināt."</p>
+
+<p align="JUSTIFY">Gudrinieki nopērk trīs spaiņus brandvīna, vecītis dzer un stāsta:
+"Pavēliet tā: ej tur. nezin kur, atnes to, nezin ko, tādu galdiņu, kas var Pāri
+iet no vienas vietas uz otru."</p>
+
+<p align="JUSTIFY">Šo visu dzirdējis, medinieks aiziet mājā un pastāsta visu savai
+sievai. Izdzirdējusi tādu pavēli, sieva ļoti noskuma un sacīja: "Ja, šī gan ir
+liela bēda, un lielākas pasaulē vairs nevar būt."</p>
+
+<p align="JUSTIFY">Tad villa sasauca visus savus pazīstamus un vaicāja viņiem
+sacīdama: "Varbūt, kāds 110 jums zinātu, kur ir tāds galdiņš, kas pats
+atdarās un kur tad ir visādi ēdieni un dzērieni. Kas pats var pāriet no vienas vietas
+uz otru."</p>
+
+<p align="JUSTIFY">Visu to dzirdējis, medinieks aiziet<b> </b>mājā un pastāsta visu
+savai sievai. Izdzirdējusi tādu Pavēli, sieva ļoti noskuma un sacīja: "Ja, šī
+gan ir liela bēda, un lielākas pasaulē vairs nevar būt."</p>
+
+<p align="JUSTIFY">Tad viņa sasauca visus savus pazīstamos un vaicāja viņiem,
+sacīdama: "Varbūt kāds no jums zinātu, kur ir tāds galdiņš, kas pats atdarās,
+un kur tad ir visādi ēdieni un dzērieni virsū, un kas pats va pāriet no vienas vietas
+uz otru."</p>
+
+<p align="JUSTIFY">Bet pazīstami visi cieta klusu un neviens neteica ne vārdu. Pēc
+kāda laika viens tomēr pastāsta, ka ir tāds liels kalns, uz kalna mežs, mežā aug
+liels un vecs ozols, apakš tā ir akmens un zem tā ir mājiņa, kur dzīvo vecs
+vecītis. Varbūt tas zinās, kur ir tāds brīnuma galdiņš.</p>
+
+<p align="JUSTIFY">Medinieks, izdzirdējis tādus vārdus, tūlin devās ceļā. Pēc
+kādiem trīs gadiem viņš nonāca pie vecīša un vaicāja: "Varbūt tu zini tādu
+galdiņu. kas pats atdarās, un kur ir visādi ēdieni un dzērieni virsū un kas pats var
+pāriet no vienas vietas uz otru."</p>
+
+<p align="JUSTIFY">Vecītis atbildēja: "Zinu gan, kur ir tāds galdiņš, bet lai
+viņu dabūtu, tad vajag būt drošam, stipram un pacietīgam. Tev ir jāiet deviņi gadi,
+kamēr tu viņu dabūsi."</p>
+
+<p align="JUSTIFY">Medinieks sirsnīgi pateicās vecītim un aizgāja uz savu māju. Sieva
+iedod viņam dvieli, un viņš dodas ceļā meklēt galdiņu. Viņš gāja caurām dienām
+un naktim. Trīs gadi noceļojis, medinieks beidzot pienāca pie mazas mājiņas, kas
+griezās uz vistas kājas. Tad viņš teica: "Griezies, griezies, mājiņa, uz manu
+pusi, es pār,gtrtēšu tik vienu nakti!"</p>
+
+<p align="JUSTIFY">Mājiņa atgriezās, viņš iegāja iekšā un pārgulēja nakti. No
+rīta viņš cēlās un gāja mazgāties. Kad medinieks nomazgājās, tad mājas saimniece
+deva viņam dvieli ko slaucīties, bet viņš atbildēja, ka viņam esot savs. Viņš
+sāka slaucīties ar savas sievas doto dvieli. Saiminiece, pamanījusi medinieka dvieli,
+vaicāja: "Kur tu ņēmi manas jaunākās māsas dvieli?"</p>
+
+<p align="JUSTIFY">Medinieks atbildēja: "Šo dvieli man iedeva mana sieva."
+Saiminiece gan pazina savas māsas dvieli, bet neticēja mediniekam, ka viņš esot viņas
+māsas vīrs. Beidzot viņai tomēr vajadzēja viņu atzīt par savu svaini. Tad saimniece
+apķērās viņam ap kaklu un raudādama vaicāja: "Kā tu te tiki?" </p>
+
+<p align="JUSTIFY">Medinieks atbildēja: "Es meklēju to, nezinu ko, eju tur, nezinu
+kur."</p>
+
+<p align="JUSTIFY">Tad saimineice iedeva viņam kamoliņu un teica: "Kur šis
+kamoliņš velsies, tur tev būs jāiet."</p>
+
+<p align="JUSTIFY">Kamoliņš izkrita saimniecei no rokas un sāka velties. Viņš
+vēlaīs pa mežiem, jūŗām un purviem, bet mediniekam bija labs ceļš. Beidzot
+kamoliņš pievēlās pie otras mājiņas, kuŗā dzīvoja viņa sievas māte. Mājiņa,
+atkal tāpat pagriezās uz medinieka pusi un viņš iegāja iekšā. Pašlaik tur
+vecenīte adīja cimdus un vārīja vakariņas. Medinieks iegājis tūlin likās gulēt.
+No rīta uzcēlies, medinieks tūlin gāja mazgāties. Kad viņš bija nomazgājies, tad
+vecenīte gribēja viņam dot dvieli, bet viņš atbildēja: "Man jau ir savs
+dvielis. Kur tu nu visiem cilvēkiem piedosi dvieļus?"</p>
+
+<p align="JUSTIFY">Vecenīte, paņēmusi medinieka dvieli, vaicāja: "Kur tu ņēmi
+manas meitas dvieli?"</p>
+
+<p align="JUSTIFY">"Es nekā nezinu; šo dvieli man iedeva mana sieva. Galu galā
+mediniekam vajadzēja atzīties par vecenītes znotu. Tad vecenīte apķērās mediniekam
+ap kaklu un raudādama vaicāja: "Kā tu te tiki, mīļais znotiņ?"</p>
+
+<p align="JUSTIFY">Bet medinieks atbildēja: "Iemu tur, nezin kur, un meklēju to,
+nezinu ko."</p>
+
+<p align="JUSTIFY">Tad viņa iedeva mediniekam otru kamoliņu un pamācīja sacīdama:
+"Kur šis kamoliņš velsies, tur tev būs jāiet. Un kad tu tur noiesi un dabūsi to
+galdiņu, tad pie viņa sēdēs kungi, un viņi gribēs tevi piedzirdīt. solīdami
+dažādus dzērienus, bet tu nedzer to dzērienu, soli viņiem savus dzērienus!"</p>
+
+<p align="JUSTIFY">Medinieks paņēma arī līdz dažādus dzērienus un devās ceļā.
+Kamoliņš vēlās pa priekšu un viņš gāja no pakaļas. Un tā viņi atrada to
+apzīmēto galdiņu, ko viņš meklēja. Viņš tur atrada visu, kā sievas māte bija
+stāstījusi. Kā tikai viņš piegāja klātu, uz reizi ļaudis sāka viņam solīt
+dažādus ēdienus un dzērienus, bet viņš atbildēja: "Kur jūs nu visus ceļa
+vīrus pieoarosit un padzirdīsit? Labāk baudiet manu ēdienu un dzērienu."</p>
+
+<p align="JUSTIFY">Galdiņa saimnieki piekrita un sāka baudīt medinieka ēdienus un
+dzērienus. Drīzi viņi piedzērās, nokrita zemē un aizmiga. Tad medinieks teica uz
+galdiņu: "Aizveries, galdiņ!"</p>
+
+<p align="JUSTIFY">Tas uz reizi aizvērās. Tagad viņš sēdās uz galdiņa un brauca
+mājā. Brauc, brauc un skatās : pretim nāk liels pūlis strādnieku no darba uz māju.
+Medinieks attaisa galdiņu un sāk šos strādniekus ēdināt ar visādiem ēdieniem un
+dzērieniem. Strādniekiem galdiņš ļoti patika un viņi to gribēja dabūt sev. Bet
+viņiem bija tāds cirvis, kad tas cirtīs, tad būs tāda pilsēta un tad atkal tāda.
+Medinieks šos strādniekus piedzirdīja un viņi drīz aizmiga. Tad viņš aiztaisīja
+galdiņu, paņēma cirvi sēdās galdiņam virsū un brauca mājā.</p>
+
+<p align="JUSTIFY">Brauc, brauc - skatās: iet atkal liels pūlis strādnieku. Medinieks
+atkal attaisīja galdiņu un sāka strādniekus ēdināt un dzirdināt ar visādiem
+ēdieniem un dzērieniem. Strādniekiem galdiņš ļoti patika un viņi to gribēja
+iemainīt ar savu brīnuma kūju. Šai kūjai bija ti liels spēks. Mediniekam šī kūja
+ļoti patika. Viņš piedzirdīja viņus visus, tie aizmiga un palika gulēt, bet
+medinieks paņēma cirvi un kūju, aiztaisīja galdiņu un brauca mājā. Jau beidzamais
+gads, bet viņam vēl ļoti tālu ko braukt, Pēc gaŗa un gŗūta brauciena viņš ar
+lielām mokām tika mājā ķēniņa pilī. Nonācis pilī viņš likās tūlin gultā un
+aizmiga.</p>
+
+<p align="JUSTIFY">No rīta ķēniņš sūta savus sulaiņus apskatīties, vai medinieks
+ir mājā; bet viņš ir dzīvs un vesels, guļ kā kungs. Ķēniņš, nevarēdams
+medinieku nonāvēt. sadusmojas un grib viņu pakārt. Sataisīja trīs karātavas: vienu
+zelta, otru sudraba, un trešo vaŗa. Viņš sasauca daudz ļaužu un sacīja rnediniekam
+: "Lien, kurās karātavās gribi: bet ja nelīdīsi, tad nocirtīšu galvu."</p>
+
+<p align="JUSTIFY">Bet medinieks atbildēja: "Kā lai es lienu, ka nezinu, kā līst?
+Parādi man, kā līst, tad es līdīšu savās karātavās."</p>
+
+<p align="JUSTIFY">Kad nu ķēniņš parādīja, kā līst, tad medinieks lūdza ķēniņu
+sacīdams: "Atļaun man ardievoties ar savu sievu un pazīstamiem, un tad kariet
+mani."</p>
+
+<p align="JUSTIFY">Ķēniņš arī viņam atļāva un viņš aizgāja uz savu istabu.
+Paņēmis savu cirvi un kūju, viņš atnāca atkal atpakaļ. Kā cirta ar cirvi, tā
+tūlin radās liela pilsēta, un kā sita ar kūju pa zemi,</p>
+
+<p align="JUSTIFY">mediniekam tūlin radās liels spēks: viņš palika ļoti stiprs.
+Apkārt stāvošie ļaudis ļoti sabaidījās un aizbēga uz visām pusēm, palika tikai
+medinieks un ķēniņš. Tagad medinieks sacīja ķēniņam: ,,Tu gribēji mani nonāvēt
+un šīs karātavas taisīji man, bet tu tagad pats viņās līdīsi."</p>
+
+<p align="JUSTIFY">Ķēniņš gan gribēja tikt vaļā, bet velti, gribot negribot viņam
+vajadzēja līst karātavās. Ka līda vaŗa karātavās, viņš ļoti sala; kā līda
+sudraba karātavās, viņam apsvila mati un drēbes; kā līda zelta karātavās, tā uz
+reizi savārījās un bija pagalam.</p>
+
+<p align="JUSTIFY">No tā laika medinieks palika par ķēniņu un valdīja visu savu
+mūžu laimīgi.</p>
+
+
+</body></html>

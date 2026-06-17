@@ -1,0 +1,218 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6l</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5">
+
+<p align="CENTER"><strong>Brālītis ar māsiņu.</strong></p>
+</font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">1. A .450. K. Treimane Talsos. T. Dzintarkalna krājumā. </p>
+
+<p align="JUSTIFY">Reiz dzīvoja brālis ar māsu, kuŗiem bija nomiruši vecāki. Pie
+svešās mātes viņiem klājās ļoti gŗūti. Vienu dienu viņi abi aizbēga un vakarā
+nonāca kādā lielā mežā, kur viņi pārgulēja par nakti.</p>
+
+<p align="JUSTIFY">Rītā uzceļoties, brālītis teica: "Ak māsiņ, kad tu zinātu,
+kā man slāpst!"</p>
+
+<p align="JUSTIFY">Kādu gabaliņu pagājuši, viņi ieraudzīja mazu upīti. Brālītis
+tūlin noliecās pie strautiņa un gribēja dzert, bet kād_a balss tur sauca:
+"Nedzeri, nedzeri! Ja dzersi, tad paliksi par lāci."</p>
+
+<p align="JUSTIFY">Brālītis gan gribēja ar varu dzert, bet māsiņa sacīja:
+"Nedzeri vis! Tu paliksi par lāci un mani nomocīsi."</p>
+
+<p align="JUSTIFY">Brālītis brīnījās, kas gan ūdenim varētu būt par vainu. Bet
+viņu svešā māte bija ragana. Viņa bija pamanījusi, ka bērni aiziet, klusiņām
+aizsteigusies viņiem priekšā un nobūrusi visus strautiņus un avotiņus.</p>
+
+<p align="JUSTIFY">Gabaliņu pagājuši, viņi uzgāja citu upīti; bet kad brālītis
+gribēja dzert, tad strautiņš atkal čaloja: "Kas no manis dzers, tas paliks par
+vilku."</p>
+
+<p align="JUSTIFY">Māsiņa lūdzās: "Ak brālīti, nedzeri, nedzeri! Tu paliksi par
+vilku un mani saplēsīsi." Brālītis arī paklausīja.</p>
+
+<p align="JUSTIFY">Pēc kāda laika viņi uzgāja trešo strautiņu. Brālītis tūlin
+liecās pie ūdens, bet atkal atskanēja kāda balss: "Kas no manis dzers, tas paliks
+par stirnu."</p>
+
+<p align="JUSTIFY">Māsiņa lūdzās: "Ak brālīti, nedzeri, nedzeri! Tu paliksi par
+stirnu un aizskriesi projām. Kur tad es viena palikšu?"</p>
+
+<p align="JUSTIFY">Bet brālītis vairs nevarēja noturēties. Kad pirmais ūdens piliens
+bija par lūpām, tūlīt viņa galva jau pārvērtās par stirnas galvu. Līdz ko norija
+pirmo malku, viņš jau viss bija palicis par stirnu.</p>
+
+<p align="JUSTIFY">Nu sāka abi žēli raudāt. Beidzot māsiņa sacīja: "Neraudi
+vis, brālīti! Es tevi nekad neatstāšu."</p>
+
+<p align="JUSTIFY">Tad viņa apsēja zelta lentīti tam ap kaklu un veda viņu tālāki.
+Pa mežu staigājat, viņi atrada vienu tukšu mājiņu, kur tad apmetās uz dzīvi.
+Māsiņa lasīja sev ogas, riekstus un saknes, un brālītim pārnesa mīkstu zāli.</p>
+
+<p align="JUSTIFY">Kad viņi tā ilgu laiku bija dzīvojuši, tad gadījās, ka ķēniņš
+tai mežā sarīkoja medības. Nu dzirdēja suņus rejam un taures pūšam. Stirna, to
+dzirdēdama, ar visu varu gribēja tikt ārā. Māsiņa gan negribēja laist, bet pēdīgi
+tomēr izlaida noteikdama: "Nāci tik vakarā atpakaļ!"</p>
+
+<p align="JUSTIFY">"Ja, jā!" stirniņa atbildēja. "Nelaidi tikai citu
+iekšā!</p>
+
+<p align="JUSTIFY">Kad es būšu pie durvim, tad sacīšu: "Māsiņ mīlā, laidi
+mani iekšā!" "</p>
+
+<p align="JUSTIFY">To sacīdama, stirniņa priecīgi ielēca mežā. Ķēniņš ar saviem
+ļaudim gan redzēja skaisto stirniņu, bet viņa mācēja tik mudīgi skriet, ka drīzi
+vien aizbēga. Vakarā atskrēja stirniņa mājā, pienāca pie durvim un pieklauvēja
+sacīdama :</p>
+
+<p align="JUSTIFY">"Māsiņa mīļā, laidi mani iekšā</p>
+
+<p align="JUSTIFY">Durvis arī tūlin atvērās un stirniņa ieskrēja iekšā.</p>
+
+<p align="JUSTIFY">Kad otrā rītā atkal iesākās medības, brālītis tūlin lūdzās:
+"Māsiņ, laid mani ārā!"</p>
+
+<p align="JUSTIFY">Māsiņa atvēra durvis un piekodināja: "Nāci tikai vakarā
+atpakaļ!"</p>
+
+<p align="JUSTIFY">Medinieki drīz ieraudzīja stirniņu un vienam pat izdevās tai
+iešaut, tikai ievainojums nebija liels. Kamēr stirniņa skrēja klibodama uz mājas
+pusi, tikmēr viens medinieks, kas jau vakar bija novērojis, kur stirniņa ieiet,
+aizsteidzās tai priekšā un sacīja: ,,Māsiņa mīļā, laidi mani iekšā!"</p>
+
+<p align="JUSTIFY">Meitene to noturēja par brālīti un atvēra durvis, bet ieraudzīdama
+svešu cilvēku, tūdaļ atkal aizvēra durvis cieti. Medinieks nu visu to izstāstīja
+ķēniņam. Pēc kāda laika atnāca arī ievainotā stirniņa, par ko māsiņa ļoti
+izbijās. Viņa nomazgāja vāti, apsēja to un rītā stirniņa jutās atkal spirgta un
+vesela.</p>
+
+<p align="JUSTIFY">Trešā rītā stirniņa atkal nevarēja istabā nociesties un
+māsiņai bija vien jālaiž ārā. Ķēniņš šoreiz licis gan dzīties stirniņai
+pakaļ, bet aizliedzis šaut. Uz vakara pusi viņš pats aizgājis uz minēto mājiņu,
+pieklauvējis pie durvim un saucis: "Māsiņa mīļā, laidi mani iekšā:</p>
+
+<p align="JUSTIFY">Ieraudzīdama ķēniņu, meitene pavisam sabījusies, bet jaunajam
+ķēniņam ļoti patikusi skaistā meitiņa. Viņš to mīļi uzrunājis: "Vai tu
+negribi tapt par manu sievu un nākt man līdz?"</p>
+
+<p align="JUSTIFY">Meitiņa jautājusi: "Bet kur tad mana stirniņa paliks?"
+ķēniņš teicis: "To tu vari turēt, cik ilgi tev patīk."</p>
+
+<p align="JUSTIFY">Nu visi gāja prom uz ķēniņa pili. Pēc neilga laika ķēniņš
+svinēja kāzas ar māsiņu. Arī stirniņu nu pārvērtās atkal par cilvēku un dzīvoja
+laimīgi pie savas māsiņas un ķēniņa.</p>
+
+<p align="JUSTIFY">Piezīme. i pasaka var būt cēlusies no Grimmu pasaku grāmatas (sal.
+Ievads, 111. 1. p.), bet oriģināla pasakas beigu izlaidums vien jau liecina, ko šis
+variants ir uzrakstīts no mutes tradīcijas. Arī es tiku vairāk reiz dzirdējis šādu
+pasaku, bet tā kā viņa neatšķiras no Grimmu pasaciņas, tad šāds variants nebūs
+vajadzīgs. Līdzīgas pasakas ir vēl uzrakstījusi H. Skujiņa Smiltenē un O.
+Romančuks Rozentovas pagastā. P. Š.</p>
+
+
+</body></html>

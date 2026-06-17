@@ -1,0 +1,170 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Velna dotā sieva.</p>
+</font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+</b><p align="JUSTIFY"><b></b>3. A. 465. D. D. Ozoliņš Jaun-Rozē. LP, V, 46. 34.</p>
+
+<p align="JUSTIFY">Kāds puisis gulējis kūts augšā. Un kas par brīnumiem? Nakti pie
+viņa pienākusi meita, bet kad gaiļi iedziedājušies, meita nospirinājusies un
+aizmukusi. No rīta saimnieks prasījis puisim:</p>
+
+<p align="JUSTIFY">Kas tev uz sirds, kā tāds nodomājies?" "</p>
+
+<p align="JUSTIFY">Tā un tā - puisis izstāstījis: "Man bija sirsniņa tikpat kā
+rokā, bet aizmuka."</p>
+
+<p align="JUSTIFY">,,Ak tu muļķis! Ja vēl tev pieronas, noturi!"</p>
+
+<p align="JUSTIFY">Otrā naktī atkal tāpat. Šī uzlien, izstaigājas puisim visapkārt,
+bet līdz ko gaiļi iedziedas, mūk projām. Tomēr puisis tagad pamanījās, aizstājās
+lūkam priekšā un nelaida. No rīta novēla zemē. Šī tik kaunīga, tik kaunīga, bet
+puisis iedrošināja, ierunāja, kamēr tad aprada gan un nedēļu vēlāk salaulājās ar
+puisi.</p>
+
+<p align="JUSTIFY">Trešā svētdienā jaunais vīrs ar savu sirsniņu gāja radus
+apsērst. Bijis jāiet pār tīrumiem un līdumiem, bet līduma malā bija ala. Līdz ko
+gar alu gājuši, sirsniņa (sieva) par varu lauzusies alā atpūsties. Šis laidis arī.
+Bet līdz sirsniņa alā ielīdusi, tā palika par salmu kūli. Virs izgaidījies,
+nevarējis sagaidīt, gājis raudzīt. Iegājis vienā alas istabā - tur velni kavušies;
+iegājis otrā - tur mātītes kavušās. Beidzot saticies krūtīs ar veci, tas
+vaicājis, ko te meklējot?</p>
+
+<p align="JUSTIFY">"Gribēju to nodarvoto salmu kūli parunāt?" "Ņem un
+ej!"</p>
+
+<p align="JUSTIFY">Vīrs paņēmis salmu kūli, pārnesis mājā un iedēstījis dārzā.
+Tur izaugusi zelta ābele ar zelta āboliem. Vīrs nu gandrīz ik pārnaktis pie ābeles
+gulējis, zelta ābolus sargādams.</p>
+
+<p align="JUSTIFY">Te vienu nakti pienācis velns un uzplijies, lai dārzu pārdodot, lai
+prasot, ko prasīdams. Bet sirsniņa (tā tā ābele) iečukstējusi: "Cita nekā
+neprasi, prasi, lai pateic, kā varētu debesīs uztikt."</p>
+
+<p align="JUSTIFY">Labi! vīrs tā prasījis; bet velns no tam ne dzirdēt - aizgājis
+projām.</p>
+
+<p align="JUSTIFY">Otrā naktī vīrs atkal sargājis zelta ābolus. Te velns klāt, lai
+prasot, ko prasīdams, bet lai pārdodot dārzu! Sirsniņa iečukstējusi: "Prasi,
+kā lai debesīs uztieku?"</p>
+
+<p align="JUSTIFY">Vīrs prasījis, bet velns ne dzirdēt, aizgājis. Trešā naktī atkal
+velns klāt: nu, kas būšot? Vai pārdošot dārzu?</p>
+
+<p align="JUSTIFY">"Ja, labprāt! bet pasaki, pa kādu ceļu mana sirsniņa debesīs
+lai uzkļūst?"</p>
+
+<p align="JUSTIFY">"Pa kādu ceļu, pa kādu ceļu? Nu, vai tad neredzi, kur trepes?
+Kāp vien, gan jau uzkāpsi!"</p>
+
+<p align="JUSTIFY">Tagad vīrs turpat pie ābeles tiešām ieraudzījis trepes. Nu
+paņēmis savu (ābeli) sirsniņu un uznesis debesīs.</p>
+
+
+</body></html>

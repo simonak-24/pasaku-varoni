@@ -1,0 +1,184 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>13</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Ķēniņa meita zārkā.</p>
+</font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+</b><p align="JUSTIFY"><b></b>13. A. 307.505. A. Bīlenšteins Jaun-Aucē. LP, VII, I, 186. L p.
+AŠ,<b> </b>III, 1k.</p>
+
+<p align="JUSTIFY">Vienam tēvam bijis viens vienīgs dēls. Un kā jau pa veciem laikiem
+tas bijis zināms, Laima nolēmusi, ka šo dēlu dev iņpadsmit gadu vecu pakāršot, lai
+būtu, kur būdams - tas viņain noce- rēts. Kad nu dēls izaudzis, viņš teicis :
+"Tēvs, izmācait mani labi skolā, es iešu uz svešu zemi. Kad mani kaŗ, tad lai
+mani ka;, kur jūs neredzat, lai nav briesmīgi jābēdājas!"</p>
+
+<p align="JUSTIFY">Labi. Kad bijis izmācīts skolā, gājis lierēt, saticis - nāk
+pretim tāds pats jauns puisis kā viņš, tas bijis eņģelis. Viņš teicis: "Mēs
+tā varam pa brāļiem iet!"</p>
+
+<p align="JUSTIFY">Otrs atbildējis: " Mums vajaga pa b r ā ļ i e m zvērēt, tad
+mēs v a r i m pa b r ā ļ i e m iet! Tev vajaga savā pirkstā iegriezt un manā
+šņupdrānā krustu ievilkt; un es savā pirkstā griezišu un tavā šņupdrānā krustu
+ievilkšu, tad būsim brāļi."</p>
+
+<p align="JUSTIFY">Labi. Un kad nu gājuši, iegājuši vienā pilsātā, tur kaupmanim
+vajadzēja bods zeiļa. Viņi, pa brāļiem zvērējuši, abi paliek viens ne. Kaupmanis
+paturējis arī abus. Nu bijusi viņiem tāda laime, tāda laime, ka mantas bijis pašiem
+un kaupmanim arī. Un gada galā kuģi pirkušies, nopirkuši arī ķeizara kroni, ka
+varētu citā zemē izdot kādam ķēniņam.</p>
+
+<p align="JUSTIFY">Braukuši pa jūŗu, uzbraukuši jūrmalā pilsātu. Nu eņģelis
+gribējis ieiet tai pilsātā un teicis šim, lai paliek pie kuģa. Šis nepalicis vis un
+sacījis, ka šis gribot papriekšu iet pilsātā. Tad eņģelis sacījis: "Ej arī,
+kad tu gribi, bet slikti tev būs!"</p>
+
+<p align="JUSTIFY">Nu šis to kroni nesis tam pilsātas ķēniņam. Ienesis, bet
+ķēniņš teicis: "Labi, mans bērns; bet tev jāstāv trīs naktis manā
+baznīcā!"</p>
+
+<p align="JUSTIFY">Neko darīt - gājis atpakaļ, teicis brālim (eņģelim), ka<b> </b>ķēniņš
+kroni paņēmis gan, bet licis izstāvēt trīs naktis savā baznīcā. Brālis
+atbildējis: "Nu, vai es tev neteicu lai neej papriekšu, ka slikti ies. Tu, muļķi,
+kam tu esi gājis? Es zinu, kas tur ir tai baznīcā."</p>
+
+<p align="JUSTIFY">Tur bijusi nomirusi ķēniņam meita, jau pusgadu stāvējusi, bet ne
+īsti nomirusi - velns bijis tai iekšā. Ik naktis pa vienam cilvēkam saēdusi, tikdaudz
+ēdusi, ka ķēniņam jau iaužu pietrūcis sācis grūst svešiniekus baznīcā.</p>
+
+<p align="JUSTIFY">Nu, ko nu? - sācis lūgt eņģeli: "Mīļais brālīti, pasaki,
+kā es varēšu glābties?"</p>
+
+<p align="JUSTIFY">Tas teicis: "Ej tur baznīcā, tur būs vidū lukturi, kur simtu
+sveces deg, un krēsli arī būs. Tad tu sakrauj tos krēslus vienu uz otru, kā vari
+luktuŗos iekāpt; bet uzkāpis, izārdi atkal krēslus, paņem savu grāmatu un lasi.
+Viņa (meita) gribēs tevi aiztikt, bet nevarēs - mans gars arī būs priekšā."</p>
+
+<p align="JUSTIFY">Tā viņš nu arī darījis. Otrā naktī ieracies kaulos, trešā
+iegulies zārkā un licis meitai tēvreizi skaitīt. Kad noskaitījusi amen! tad šī
+bijusi atpestīta no velna un sākusi vaidēt un brīnīties: "Vai Dieviņ!"</p>
+
+<p align="JUSTIFY">Tad ķēniņš saprecinājis abjus : meitu ar savu glābēju, un
+atdevis vēl znotam valdību, tāpēc ka pats bijis vecs cilvēks.</p>
+
+<p align="JUSTIFY">Bet kad nu jaunais pāris saguldīti, tad brālis (eņģelis) ņem
+brūtgānu no gultas un nes uz kārtavām kārt. Stundu turējis pakārtu, nesis atkal pie
+brūtes atpakaļ gultā un sacījis: "Brāli, es tev esmu līdzējis ķēniņa meitu
+izpestīt, un tā katram no mums pieder uz pusi!"</p>
+
+<p align="JUSTIFY">Un licis, lai cērt pušu. Nu lūdzies ķēniņš un arī laulājamais
+brālis, lai necērtot pušu, tad lai labāk ņemot veselu. Bet eņģelis nekā - cērt
+krustis pušu, izņem sirdi, pārgriež arī uz pusi un nu atron: ķēniņa meitai sirds
+pilna ledus. Ņēmis ledu izmazgājis. salicis atkal visus gabalus kopā, un tā šī
+tūlin dzīva un vēl skaistāka nekā bijusi. To padarījis, eņģelis teicis: "Nu,
+brāli, dzīvo tagad vesels! Man nevajaga ne tavas sievas, ne tavas mantas esmu Dieva
+eņģelis. Dievs mani sūtījis tevi izglābt. Ja es nebūtu bijis, tu tad būtu postā
+gājis." To teicis, eņģelis pazudis.</p>
+
+
+</body></html>

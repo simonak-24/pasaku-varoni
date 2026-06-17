@@ -1,0 +1,203 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>15</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Burvis un viņa māceklis.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">15. A. 32. Līna Čapa, Rīgā, A. Bērzkalnes krājumā.</p>
+
+<p align="JUSTIFY">Reiz dzīvojuši divi vecīši nabadzīgā būdiņā. Viņiem bijis
+dēls, Jānis vārdā. Jānis no pašas mazotnes bijis uz grāmatām tīri vai uzbruts,
+tādēļ arī vecāki to skolojuši, cik vien spējuši. Tomēr naudas pietrūcis un
+Jānis nevarējis skolu beigt.</p>
+
+<p align="JUSTIFY">Pirmās dienas Jānis domājis, domājis, bet neko darīt, sācis
+meklēt kādu darbu. Vecāki gan pabrīnējušies: sak, šis pa ganiem staigādams, darbu
+meklējot. Kādu dienu Jānis bija tā neviļus aizgājis pat līdz pilsētai. Pienāk ar'
+kāds kungs un uzaicina, lai stājoties pie viņa kalpot par sulaini. Jānis gan negrib,
+bet citas izejas nav. Darbs jau nebūšot grūts, šim esot liela istaba un tā pilna ar
+grāmatām. Tik jau ar' Jānim būšot tā darba, kā putekļus no tām noslaucīt. Bet
+šai istabā Jānim jāpaliekot ieslēgtam veselu gadu. Jānis izdzirdis, kā tiks pie
+grāmatām noslēdz līgumu un dodas tūlīt kungam līdz.</p>
+
+<p align="JUSTIFY">No sākuma ,Jānis cītīgi tīrīja visas grāmatas, bet vēlāk jau
+sāka šķirstīt pa lapai un arī izlasīt. Nu Jānim dienas skrēja kā spārniem. Nekad
+viņš nebija domājis to panākt, ko tagad varēja dabūt zināt. Jānis sāka lasīt,
+kā var palikt par dažādiem zvēriem, vai mājas lopiem. Izlasījis, kā var kļūt par
+āzi, arī viņš par to palika. Nu tik Jānis noprata, ka viņa kungs ir pats velns, bet
+apķērība viņu tomēr izglāba no nelaimes. Viņš sāka lasīt otrādi (ačgārni) un
+par laimi pārvērtās atkal par cilvēku. Vakarā pats velns nesa viņam vakariņas un
+nobrīnējās, ka Jānis vēl vesels. Arī uzpriekšu arvien vēl Jānis lasīja dažādas
+grāmatas; bet ja atrada tur ko svarīgu, tad tās lapas izplēsa un paglabāja.</p>
+
+<p align="JUSTIFY">Gads pagāja, un lai arī velns Jāni negribēja dzīvu laist ārā,
+tomēr līgums bija jāizpilda. Jānis saņēma savu gada algu, un priecīgs steidzās
+atpakaļ pie saviem vecākiem. Tā nu viņi dzīvoja kādu laiku bez rūpēm. Beidzot
+atkal pietrūka naudas un vecīši sāka atkal bēdāties, kā nu iztikšot.</p>
+
+<p align="JUSTIFY">Otrā dienā bija tirgus diena. Jānis vakarā saka tēvam: "Tēt,
+rīt pie durvim būs skaists zirgs, ved to uz tirgu un pārdod; bet pielūko, kā
+nepārdod iemauktus, lai arī tev solītu par viņiem cik solīdami."</p>
+
+<p align="JUSTIFY">Tā arī noticis. Otrā rītā dēls iziet pasteigāties, bet tēvs
+sapošas kā jau uz tirgu, un patiesi zirgs pie durvim klāt. Aizved to tirgū. Visi
+apbrīno smuko zirgu, bet vecis prasa arī labu cenu. Gadās pircējs un nopērk zirgu.
+Vecis pārmet iemauktus pār plecu un soļo uz mājām. Pārnāk mājās, dēls jau guļ.
+Otrā rītā tēvs dabon zināt, ka skaistais zirgs savam kungam tanī pašā dienā
+aizskrējis. Tēvs nu gan baidās, bet dēls šo apmierina, ka būšot viss atkal labi.
+Dzīvoja visi kādu laiku bez bēdām, kamēr beidzot atkal pietrūka naudas.</p>
+
+<p align="JUSTIFY">Dēls atkal saka tēvam, ka rītu būšot zirgs, bet vēl staltāks kā
+pirmais. Par to nu gan lai vairāk prasot, bet tikai iemauktus lai ne par kādu naudu
+nepārdodot. Tēvs aizvedis arī to zirgu un pārdevis. Gājis atkal uz māju svilpodams.
+un nu dzīvojuši, kamēr naudas bijis.</p>
+
+<p align="JUSTIFY">Kad naudas pietrūcies, dēls teicis, ka rītu atkal būšot viens
+tirgus zirgs, pat pārāks par iepriekšējiem, bet tikai lai iemauktus vien ne par ko
+nepārdodot. Tēvs arī aizvedis šo zirgu uz tirgu, bet šoreiz prasījis daudz
+dārgāki, kādēļ no iesākuma nebijis pircēju. Te - kur gadījies, kur ne - smalks
+kungs klāt un grib pirkt zirgu. Tas bijis Jāņa bijušais kungs. pats velns. Šis nu
+vēl grib, lai pārdod šim arī iemauktus. Gan zirdziņš spārdās, gan sprauslo, bet
+vecis, naudas iekārdināts, pārdod arī.</p>
+
+<p align="JUSTIFY">Nāk nu atkal priecīgs mājās, bet dēla vairs nav. Nu tik viņš
+sapratis, ka iemauktos bijis viņa dēls.</p>
+
+<p align="JUSTIFY">Velns no pirmā acu uzmetiena pazinis dārgo zirgu par Jāni. Tikko to
+nopircis, lēcis mugurā un spēris ar piešiem sānos. Aizvedis tūlin tirgus malā pie
+kalēja, un licis karstas, sarkanas pakavas piesist. Kamēr velns tur iegājis smēdē.
+Jānis visādi izmēģinājies, atsvabināties, bet vaļā neticis, velns piesējis ļoti
+cieši.</p>
+
+<p align="JUSTIFY">Gājēji iežēlojušies, atlaiduši pavadu vaļīgāki; Jānis tūlīt
+palicis par zaķi un pa tirgus laukumu prom. Velns to ieraudzījis, palicis par lapsu un
+dzinies šim pakaļ. Tā noskrējuši labu gabalu, te Jānis pārvērties par zvirbuli,
+velns par vanagu un skrējuši atkal tālāk. Jānis ieraudzījis tālumā ķēniņa pili
+un skrējis turp, tad pārvērties par zīlīti un pa logu iekšā. Tur gultā gulējusi
+ķēniņa meita slima, un nu Jānis pārvērties par gredzenu uz viņas pirksta. Velns
+atkal pieteicies par ārstu.</p>
+
+<p align="JUSTIFY">Jānis teicis ķēniņa meitai, lai viņa tā dotas zāles nedzeŗot,
+un gredzenu lai nekad nenomaucot, gan viņš pats šo pamazām izdziedēšot. Ķēniņa
+meitai viņš paticis un tā paklausījusi viņa padomam. Ķēniņa meita tomēr drīz
+palikusi vesela, un velns tagad prasa, lai šī iet pie viņa par sievu, vai lai atdod
+gredzenu. Jānis dod tai padomu, lai iztaisot grīdā peļu caurumus, tad tik redzēšot
+brīnumus. Ķēniņa meita arī visu tā izdara, nākošā rītā, kā solīts, nomauc
+gredzenu, bet dodot nomet to zemē. Gredzens nu paliek par peli un lodā pa alām, bet
+velns pārvēršās par kaķi un grib peli noķert. Visi to redz un brīnās, bet Jānis
+grib vēl ilgāki velnu pakaitināt. Viņš paliek par bezdelīgu, velns par vanagu. Kad
+jau labu laiku tā svaidījušies, Jānis paliek par zirņu lietu, velns par gaiļi.
+Gailis tik knābā zirņus un nu vairs tik kādi trīs graudi palikuši neapēsti. Tad
+Jānis paliek uz reiz par lapsu, gailim aiz sekstes un nokoš to.</p>
+
+<p align="JUSTIFY">Jānis un ķēniņa meita nu ir abi laimīgi un drīzumā norunā
+kāzas. Ataicina arī Jāņa vecākus un nu nosvin tādas kāzas, kādas vēl nekur nebija
+redzētas. Ilgi viņi dzīvo laimīgi, ja nav nomiruši, tad dzīvo varbūt vēl tagad.</p>
+
+
+</body></html>

@@ -1,0 +1,143 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Baltā un melnā līgava. A.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">8. A. 403 A. Štrauss Ērbērģniekos. LP, IV, 4, 3.</p>
+
+<p align="JUSTIFY">Vienam ķēniņam bijis ļoti smuks kučieris. Reiz ķēniņš teicis
+uz kučieri : "Ja tava māsa būtu tikpat smuka, kā tu, tad es viņu precētu."</p>
+
+<p align="JUSTIFY">Kučieris teicis, ka viņa māsa esot vēl daudz smukāka par viņu. To
+dzirdēdams, ķēniņš licis māsu atvest. Kučieris braucis ar ķēniņa karīti pakaļ.
+Bet māsa bijusi pie pamātes un šī pamāte bijusi ragana. Līdz kučieris ar māsu
+bijuši aizbraukuši, raganai palicis žēl, ka viņas pameita ietikusi zelta karītē,
+bet īstā meita ne. Tūlin ragana dzinusies ar īsto meitu pakaļ un zelta karīti
+panākušas ezera malā. Ragana bez runas izrāvusi pameitu no karītes, iesviedusi
+ezerā, lai noslīkst, un tad iesēdinājusi savu īsto meitu karītē. Bet raganas meita
+bijusi briesmīgi nesmuka. Ķēniņš, to redzēdams, sadusmojies: "Melkuli, kādēļ
+mānīji mani? Tik nesmuku māsu tu man ieteiksi par smuku!"</p>
+
+<p align="JUSTIFY">Dusmās ķēniņš licis, lai kučierim piedzen pilnu miesu ar adatām
+un tad lai iemet to cietumā.</p>
+
+<p align="JUSTIFY">Tomēr kučieŗa māsa ezerā nebija noslīkusi; viņa bija
+pārvērtusies par pīlīti un nāca katru nakti pie cietuma sarga lūgties ielaist pie
+brāļa. Tas, cilvēks, laidis arī. Pīlīte iegājusi cietumā un lasījusi adatas ārā
+no brāļa miesām. Cietuma sargs to vienreiz redzējis un pateicis ķēniņam. Ķēniņš
+licis pīlīti noķert, un nu tā pārvērtusies par kučieŗa māsu. Ķēniņam viņa
+vareni patikusi: viņš apņēmis to tūlin par sievu. Raganu par tādu blēdību licis
+saraustīt ar zirgiem gabalu gabalos, bet mirstot, ragana ātri palikusi par žagatu un
+aizskrējusi projām. Beidzot licis arī raganas meitu nonāvēt: sadedzināt; bet tā
+arī aizskrējusi par žagatu.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

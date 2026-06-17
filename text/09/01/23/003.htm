@@ -1,0 +1,293 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Sapnis</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font></b><p align="CENTER"><b><font size="4"></font><font size="5">Sapnis</font></b><font size="5">.</font><font size="4"></font></p><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">3. A.<b> </b>725. K. Ž i e m a O z o l n i e k o
+s p i e J e l g a v a s. LP, IV, 41 (8, 1).</font><font size="4"></font></p><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font>Viens ķēniņš liek katru rītu savam dēlam to sapni
+stāstīt, ko tai naktī sapņojis. Bet vienu rītu dēls nemaz negrib stāstīt sapni.
+Tēvs izrunājas ar labu, bet dēls ne un ne. Beidzot vecais paliek dusmīgs un uzsauc:
+"Vai saproti? Kad es pavēlu, tev būs stāstīt!"</p>
+
+<p align="JUSTIFY">Nekā darīt - sāk stāstīt, ka esot redzējis ērmīgas lietas:
+tēvs nesis viņam uz labā pleca dvieli un māte nesusi: zelta bļodā ūdeni. Viņš
+esot nomazgājies, noslaucījies un tad māte paņēmusi bļodu, tēvs dvieli un
+aizgājuši.</p>
+
+<p align="JUSTIFY">Ķēniņš, to dzirdēdams, paliek tīri bērns; viņš prāto, gudro
+cauru dienu, ko tāds sapnis nozīmētu. Beidzot ķēniņiene iesakās: "Ko nu citu?
+Pēcdienās dēls atņems tev valdību un mums abiem viņš būs jāapkalpo."</p>
+
+<p>"Vadzi, tu uzminēji, tā tas patiesi saprotams! Bet to ne! Lai labāk mans dēls
+tad mirst, nekā padara man tādu &amp;127;kaunu." Un no rīta ķēniņš pasauc
+sulaini, lai aizved viņa dēlu mežā</p>
+
+<p align="JUSTIFY">nomaitāt; bet lai pārnes par pierādījumu, ka patiesi nomaitāts,
+dēla acis un mazo pirkstiņu. Sulainim gan netīk tāds darbs, bet ko darīsi, kad
+ķēniņš pavēl? Mežā ķēniņa dēls gauži lūdzas sulaini nemaitāt viņu. Sulainim
+laba sirds - paliek arī žēl, tomēr bail atkal, ka dēls kādreiz nepārkuļas mājā
+un tad pašam nelabi. Beidzot iešaujas labs padoms prātā: viņš būšot nomaitāt to
+sunīti, kas līdz atskrējis, un izņemt sunītim acis; tik mazais pirkstiņš būtu
+nocērtams dēlam, vairāk nekā. Tomēr, lai dēls neiedomātos uz mājām bēgt,
+sulainis izlīdzas tā: uzdabū kaut kur vecu mucu, iebāž tur dēlu; ,nostīpo vēl labi
+cieti un tik atstāj spundu vaļam, ka nenoslāpst. Pāriet mājā: ķēniņam ne jausmas,
+ka tās sunīša acis. Tā paliek.</p>
+
+<p align="JUSTIFY">Bet mucā dēlam moku diezgan: ēst gribas, laukā nevar tikt - nekā
+iesākt, nekā līdzēties, tik atliek izraudāties. Sāks nu raudāt - troksnis mucā
+atskan pa puspasauli, pa visu mežu. Vilki, izdzirdējuši, sāks tik ap mucu kopā
+lasīties. Sanāk liels, liels bars un klausās un brīnās. Šie labi nomana, ka iekšā
+kaut kas dzīvs kušņājas, bet nevar klāt tikt: gan bāž purnu pie spunda cauruma, gan
+rauga ar mēli kacēt - ne un ne. Beidzot viens vilks grūdīs asti spunda caurumā un
+maisīs ar to pa iekšu; bet dēls noķeŗ asti abām rokām un tura atspēries. Vilks
+mana, ka labi nav, sāk, vadzi, skriet uz priekšu; muca pakaļ un dēls tik tura, lai
+zaļš ap acim metas. Citi vilki, to paredzējuši, aiziet kā putenis; bet šim,
+nabadziņam, nu vēl vairāk balles; un jo nu bailes, jo nu skrien mēli izkāris.
+Beidzot, nezin, kā, pret vienu priedi klaukt! noiet muca un šķīst gabalu gabalos.
+Dēls izlec tik vesels kā pauts un skatās, kas nu bija, kas nebija; bet par to laiku
+vilks, nabadziņš, iekampj pilnu muti sūnu un nosprāgst, tāpēc ka pārskrējies.</p>
+
+<p align="JUSTIFY">Nu dēls iet pa mežu maldīdamies, un uziet niedrīšu puduri. No tām
+izmauc stabulīti, lai īsāks laiks. Beidzot uziet mazu mājiņu, kur dzīvo divi akli
+vecīši. Dēls lūdzas pieņemt viņu maizē. Vecīšiem bērnu nav, tiem Dievs augstais,
+ka šis atnācis. No rīta vecīši saka: "Dēliņ, vai neiesi drusku bucīšus
+paganīt? Varētu gan; tik nelaid tur ābeļu dārzā, tur raganas piemīt; ja laidīsi
+raganas uzburs tevim aklību tāpat kā mums."</p>
+
+<p align="JUSTIFY">Labi - iziet ganos. Bet dēls neklausa; dzen un dzen bucīšus ābeļu
+dārzā. Necik ilgi - ragana klāt :</p>
+
+<p>"Kas tev te vēlēja ganīt?"</p>
+
+<p>"Kur nu vēlēja - drīzāk nevēlēja, nekā vēlēja, bet lai nu kā - atvēli
+tik man par to, ka te ganu vienu jandaliņu uzpūst." Dēls izrauj savu stabulīti un
+pūš ; bet raganai tūliņ, vai grib</p>
+
+<p align="JUSTIFY">vai ne, jālec kā trakai. Lec, lec labu laiku - cik ilgi lēksi
+nokrīt gar zemi elsdama, pūzdama. Bet dēls ar rungu klāt: "Maita tāda! Vai
+neteiksi, kur vecīša acis, kur vecenītes acis?"</p>
+
+<p align="JUSTIFY">"Teikšu, teikšu, nesit, nesit! Vecīša acis kambarī ar
+lūciņu pie vadža piesietas vecenes acis istabā uz loga."</p>
+
+<p align="JUSTIFY">Labi. Dēls iebāž stabulīti kabatā un dzen bucīšus mājā.
+Vecīši izlien pretim, sagaida un grābsta bucīšiem gar vēdaru, sacīdami: "Vai,
+dēliņ, tu taču esi ganījis ābeļu dārzā, ka tik pieēduši mūsu bucīši."</p>
+
+<p>Dēls neko.</p>
+
+<p align="JUSTIFY">Otrā dienā dzen atkal bucīšus ganīt. Vecīši izlien pa durvim un
+brīdina: "Dzen bucīšus tepat pavārtītē, nedzen ābeļu dārzā var nelabi
+klāties, negani arī pārāk ilgi, šodien vēl pirts jāizkurina un rītu jābrauc uz
+brīnumu dzīŗām!"</p>
+
+<p align="JUSTIFY">Bet dēls neklausa - dzen un dzen bucīšus ābeļu dārzā. Necik ilgi
+- ragana klāt: "Kas tev te vēlēja ganīt?"</p>
+
+<p align="JUSTIFY">"Kur nu vēlēja - drīzāk nevēlēja, nekā vēlēja; bet lai nu
+atvēli man tik vienu jandāliņu uzpūst."</p>
+
+<p align="JUSTIFY">Dēls knaši izrauj stabulīti un pūš; bet raganai jālec kā trakai.
+Izlecas labu laiku - cik ilgi leksi - nokrīt gar zemi elsdama pūzdama. Bet dēls ar
+rungu klāt. "Vai neteiksi, kā var vecīšus redzīgus dabūt?"</p>
+
+<p align="JUSTIFY">"Teikšu, teikšu, nesit, nesit! Tur manā istabā uz loga būs
+zāļu pudelīte ; apsmērē pirtī uz lāvas vecīšu acis, iebāz acis acu vietās -
+būs redzīgi."</p>
+
+<p align="JUSTIFY">Dēls aiztek uz raganas istabu un grib zāles ņemt. Bet tur tikdaudz
+bērnu, tik daudz bērnu - tie zāles nedod. Dēls apsit bērnus, tad pagrābj zāļu
+pudelīti un steidzas pie bucīšiem mājā dzīt.</p>
+
+<p align="JUSTIFY">Pārdzen - vecīši pretim, apbrauka bucīšiem vēderus un saka:
+"Vai, dēliņ! tu esi ganījis atkal tur!"</p>
+
+<p align="JUSTIFY">Bet dēls neko ; viņš ielaiž bucīšus un steidzas pirti kurt. Un
+līdz pirts gatava - tūliņ aicina vecīšus pērties. Papriekšu uzkāpj vecītis uz
+lāvu. Dēls mudīgi appeŗ acis garā, aplaista ar zālēm, iebāž acu vietās; vecītis
+brīnās: "Vai sieviņ! es jau varu oglītes ieraudzīt ! "</p>
+
+<p align="JUSTIFY">Vecenīte saka: "Ved mani arī uz lāvu; varbūt, ka Dievs man
+arī atdos gaismiņu atpakaļ."</p>
+
+<p align="JUSTIFY">Uzved vecenīti, appeŗ acis garā, aplaista ar zālēm, iebāž acu
+vietās, vecenīte brīnās: "Vai vīriņ! varu jau pa lodziņu zaļu zālīti
+redzēt!"</p>
+
+<p>"Es jau arī varu - nu esam veseli!"</p>
+
+<p align="JUSTIFY">No rīta. vecīši ar dēlu brauca uz dzīŗām. Uz ceļa viņi
+piesaka: "Dēliņ, tur dzīrās visur tu varēsi iet, tik neej tanī astotajā
+istabā!"</p>
+
+<p align="JUSTIFY">Bet dēls neklausa. līdz ko nobraukuši - tūliņ astotajā istabā
+iekšā. Ieiet un atron zelta zir-gu, zelta pātagu, zelta apaušus, zelta drānas un
+suni. Ko nu gaidīt - tā tūliņ apģērbjas, kāpj zirgam mugurā un jāj projām.
+Vecīši apmana, ka dēla nav vairs. Tūliņ vecais kāpj četri gadi vecam āzim mugurā
+un steidzas dēlam pakaļ. Bet līdz labi panāk, dēls atgriežas, sacīdams: "Vai
+tu, āzīti, neatmini, ka es ābolu dārzā tevi ganīju?"</p>
+
+<p align="JUSTIFY">Āzis apstājas, nospraušļojas un neiet ne no vietas. Nu vecītis
+kāpj seši gadi vecam āzim mugurā un steidzas pakal. Bet līdz labi klāt dēls
+atgriežas, sacīdams: "Vai tu, āzīti, neatmini, ka es ābeļu dārzā tevi
+ganīju?"</p>
+
+<p align="JUSTIFY">Bet āzis neklausa, dodas priekšā un notura dēla kumeļu. Tagad
+vecītis saka: "Es tev vairāk būtu iedevis, kam bēgi! Bet kas bijis, bijis, tagad
+klausies! Tur būs priekšā nabaga drānas, tās tu apvelc; tad būs lāča āda, to
+apvelc zirgam; tad būs čūskas nomauka, to apvelc pātagai ; tad gadīsies muiža. Tai
+gaŗām tek 7 asis plata, 7 asis dziļa upe. Kas tur var pārjāt, tam ķēniņš muižā
+atdos savu meitu par sievu."</p>
+
+<p align="JUSTIFY">Dēls patencina par padomu un aizjāj. Viss gadās, kā vecītis
+teicis, un viņš arī izdara visu, kā vecītis mācījis. Līdz ko upei pārjājis, te
+&amp;127;audis pretim: "Ķēniņa znots pārjājis, ķēniņa znots gadījies!"</p>
+
+<p align="JUSTIFY">Bet ieraudzījuši, ka šim tādas drānas mugurā, gavilētāji
+piepēši nolaiž acis, norūkdami: "Tāds nabags!"</p>
+
+<p align="JUSTIFY">Bet ķēniņa meita iznāk jājējam pretim, sacīdama: "Kāds man
+nolemts, tādu ņemšu, kaut arī nabaga drēbēs."</p>
+
+<p align="JUSTIFY">Un nu bija kāzas, nu sadzīvoja vareni. Pa kāzām, tad ļaudis tik
+atvēra acis, kas ķēniņa znots bija īsteni par vīru.</p>
+
+<p align="JUSTIFY">"Vai akls! kāds nu parādījās; zelta zirgs, zelta drēbes, kas
+to būtu domājis, kad viņš atjāja? Zirgs bij pēc lāča, pātaga pēc čūskas un
+pats pēc gatava nabaga."</p>
+
+<p align="JUSTIFY">Pēc kāzām jaunais ķēniņa znots saka uz sievu: "Tagad
+brauksim, manus vecākus apraudzīt!"</p>
+
+<p>"Jā, bet mēs jau nezinām ceļu."</p>
+
+<p align="JUSTIFY">"Lai, lai, man tāds suns; tas tecēs pa priekšu un mēs tik
+brauksim."</p>
+
+<p align="JUSTIFY">Tā notiek. Aizbrauc pie tēva, tēvs iztek pretim brīnīdamies, kas
+tie par augstiem viesiem: zelta zirgs, zelta drēbes, zelta apauši, zelta pātaga. Vecais
+ietek pie ķēniņienes: "Diezin, kā nu uzņemsim, ar ko nu pacienāsim? Tu redzi,
+kādi augsti, vareni ciemiņi, sabraukuši. Kur mēs? Mēs jau pazūdam viņu
+priekšā."</p>
+
+<p align="JUSTIFY">"Nekas, nekas - būs labi! Ēdināsim ar labākiem ēdieniem ,
+guldināsim labākajās gultās." Labi. No rīta ķēniņš saka: "Vadzi,
+apkalposim paši augstos viesus, tas viņiem labāki patiks; še nes tu zelta bļodā
+mutes ūdeni, es nesīšu dvieli."</p>
+
+<p align="JUSTIFY">Labi. Bet līdz ko nomazgājušies, te dēls iesakās: "Tēt,
+māmiņa, redziet kā nu viss piepildās. Viens no jums ienesa ūdeni, otrs dvieli. Es
+esmu jūsu dēls, paskataities, kur vēl mazā pirkstiņa trūkst, ko toreiz sulainis
+nocirta."</p>
+
+<p align="JUSTIFY">Tēvs, to padzirdējis, paliek kā stabs; viņš krīt dēlam ap kaklu,
+lai piedodot viņa grēkus. Dēls arī piedod un tad saka: "Vai nenotika, kā es
+sapņoju?"</p>
+
+
+</body></html>

@@ -1,0 +1,153 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Mednieks izglābj princesi.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>4. A. </b>304. G. Dandenis Gatartā, Brīvzemnieka kr. LP, VI, 125, l5.
+AŠ, II, 96b.</p>
+
+<p align="JUSTIFY">Agrākos laikos Laimas māte bērnam, tiklīdz dzimis, noteikusi tam
+likteni un arī to, kādā nāvē tas miršot.</p>
+
+<p align="JUSTIFY">Tā reiz dzimusi ķēniņa meita un Laimas māte tūlin lēmusi, ka šo
+meitu velni meklēšot aprīt. Tā palicis.</p>
+
+<p align="JUSTIFY">Bet kad ķēniņa meita pieaugusi, tad vienmēr raudājusi par savu
+likteni un lūgusies tēvam, lai gādā kādu cilvēku, kas no velniem paglābtu.
+Ķēniņš meklējis - piedāvājies viens zaldāts; bet</p>
+
+<p align="JUSTIFY">ķēniņš to atraidījis: ko tāds varēšot glābt? Zaldāts
+atteicis: "Kad nepieņem, nepieņem!" un gājis uz mājām.</p>
+
+<p align="JUSTIFY">Bet ceļā saticis lāci un, aiz tām pašām, vecām dusmām, ka
+ķēniņš nepieņēmis, gribējis <b>to </b>šaut. Tad lācis gauži lūdzies, lai
+nešaujot, viņš iešot labāk līdz palīdzēt, kur varēdams. Nešāvis arī.</p>
+
+<p align="JUSTIFY">Pagājis atkal gabalu, saticis lauvu un gribējis to šaut. Bet lauva
+lūdzies, lai nešaujot, palīdzēšot, kur varēdams. Nešāvis -gājis ar abiem zvēriem
+uz mājām.</p>
+
+<p align="JUSTIFY">Bet drīzi diena atnākusi, kad ķēniņa meitai vajadzējis dvēseli
+velniem atdot. Tad zaldāts aizsteidzies ar abiem zvēriem uz to alu, kur ķēniņa meita
+bija vedama velniem par upuri. Aizgājis te uz reizi ieraudzījis ķēniņa meitu ar
+četri melniem zirgiem braucam un pie alas pieturam.</p>
+
+<p align="JUSTIFY">Tūlin arī alas durvīs gadījies velns ar divām galvām un
+taisījies meitu rīt. Tad zaldāts pavēlējis lāčam, lai ļauno sapurina. Lācis
+klupis tad arī velnam seglos un saraustījis kā nieku.</p>
+
+<p align="JUSTIFY">Bet nu izskrējis velns ar sešām galvām. Tam laidis lauvu virsū,
+sakliegdams, lai grābjot labi. Lauva saplēsis sešgalvi kā vecu peku.</p>
+
+<p align="JUSTIFY">Pēdīgi izskrējis tāds velns ar divpadsmit galvām; to abi zvēri
+gandrīz nevarējuši veikt, kamēr pats zaldāts iekritis palīgā un tad nolietājuši.</p>
+
+<p align="JUSTIFY">Nu zaldāts pārvedis meitu sveiku ķēniņam atpakaļ un dabūjis par
+to pus ķēniņa valstību un pašu meitu par sievu.</p>
+
+
+</body></html>

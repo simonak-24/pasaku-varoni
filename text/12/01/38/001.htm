@@ -1,0 +1,160 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>38</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Dalīta alga un sods.</p>
+</font>
+
+</b><p align="JUSTIFY"><b>1. </b>A. 1610. H. Skujiņa, Andrs Ziemelis, no 47 g. vecā K.
+Ādernieka Aumeisteŗos.</p>
+
+<p align="JUSTIFY">Agrāki vienam saimniekam nebīsi māja necik tālu no ķēnīna pils.
+Reiz ķēnīc gāš uz jakti un saimnieka aplokā pametis savu goda zīmi. Nu ķēnīc
+izlaidis tādu ziņu, kas atrodot goda zīmi, lai tūlī nesot šim rokā un šis
+atradējam izmaksāšot lielu naudu.</p>
+
+<p align="JUSTIFY">Saimniekam bīš puisis, vārdā Miķēlis, un šis pusdienas laikā
+vedis zirgus uz aploku un atradis ķēnīna goda zīmi. Bet Miķēlis nekā par tādu goda
+zīmi nezināš, šo aiznesis uz māju un atdevis bērnim, lei šie spēlējas. Bet nu
+saimnieks gāš pa pagalmu un uzskatīš, ka bērnim kau kas tāds spīdīgs nagos, un
+apskatīš, kas tas ir. Bet nu akurāt ķēnīna goda zīme. Nu saimnieks prasīš
+bērnim, kur šie tādu ņēmuši. Bērni sacīši, ka šiem Miķēlis devis. Nu saimnieks
+saucis Miķēli un stellēš šo tūlī pie ķēnīna, lai nesot atrasto goda zīmi šim
+rokā. Miķēlis paņēmis goda zīmi un gāš uz ķēnīna pili.</p>
+
+<p align="JUSTIFY">Bet kā šis piegāš pie pirmām vaktim, tā zaldāti vais šā
+tālāku nelaiduši un prasīši, kā šim vaigot. Miķēlis stāstīš, ka vaigot
+ķēnīna un jāatdodot goda zīme. Nu zaldāti sacīši, ja šiem atdodot trešo daļu no
+šaņemtās algas, ta šie Miķēli cauri laidīšot; bet jā nedošot, ta cauri
+nelaidīšot. Nu labi, Miķēlis apsolīš zaldātim trešo daļu un šie šo izlaiduši
+cauri.</p>
+
+<p align="JUSTIFY">Nu Miķēlis piegāš pie otras vakts un šiem bīš atkal jāsola
+trešā daļa, citādīgi cauri nelaiduši. Nu Miķēlis piegāš pie ķēnīna pils un
+sulaiņiem akal bīš jāsola trešā daļa, citādīgi šie Miķēļa nemaz iekšā
+nelaiduši.</p>
+
+<p align="JUSTIFY">Nu Miķēlis iegāš pie ķēnīna un atdevis goda zīmi. Ķēnīc
+bīš traki priecīgs un prasīš Miķēļam, cik ta šis tās maksas gribot par goda
+zīmes atrašanu. Nu Miķēlis sacīš tā: "Nu, ar simtu piecdesmit (sitienu) jau
+pietiks!"</p>
+
+<p align="JUSTIFY">Ķēnīc brīnījies, laikam tak tas Miķēlis esot padumš savā
+prātā, ka šis naudas vietā gribot pērienu. Nu, ka jau tā tā, papriekšu
+uzskaitīšot simtu piecdesmit un ta došot naudu. Nu ķēnīc vēlēš, lai Miķēli
+stiepot uz bluķa un uzskaitot. Bet nu Miķēlis nelaidies un sacīš tā: "Pirmie
+piecdesmit (sitieni)j jāsaņem pirmai vaktei, jo viņi mani citādīgi nelaida cauri,
+kamēr solīju trešo daļu. Otri piecdesmit jāsaņem otrai vaktei, jo tā mani nelaida
+cauri, kamēr solīju otru trešo daļu. Trešie piecdesmit jāsaņem sulaiņim, jo šie
+mani citādīgi nelaida pilī iekšā, kamēr solīju pēdīgo trešo daļu. Nu, man jau
+pašam tur nekas vairs nepaliek pāri."</p>
+
+<p align="JUSTIFY">Nu ķēnīc tūlī licis vest pirmos vaktniekus un lai nu šie saņemot
+savu trešo daļu. Tā atsaucis otros vaktniekus un licis šiem uzskaitīt otru trešo
+dalu. Ta saucis sulaiņus un licis lai šiem uzdo trešo trešdaļu. Bet Miķēļam
+ķēnīc sadevis lērumu naudas un atlaidis uz māju.</p>
+
+
+</body></html>

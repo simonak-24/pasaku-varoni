@@ -1,0 +1,179 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Meitene, kas savus brāļus meklē.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 451, J. Henniņš no E. Treimaņa 1887. g. Sasmakā. </p>
+
+<p align="JUSTIFY">Kādai atraitnei bij septiņi dēli un viena meita. Labi nabadzīgi
+dzīvodama, tā gāja kopā ar kādu vecu melderzelli. Pēdīgo vistu nokāvusi, māte
+ielika gaļu rierē, bet septiņi dēli to slepeni izēda, Māte par to nolādēja visus
+bērnus, lai viņi noskrietu uz mežu un paliktu par baložiem. Tad aizskrēja visi
+septiņi brāļi uz mežu un palika par baložiem. Kad māsa bija paaugusi, māte tai
+sacīja, ka viņai bijuši septiņi brāļi.</p>
+
+<p align="JUSTIFY">Māsa paņēma maizi, sviestu un diegu, lai varētu adīt, un iegāja
+lielā mežā, uzgāja tur no žagariem uztaisītu būdu, kur vārījās septiņi mazi
+katliņi. Viņa paņēma savu sviestu un iemeta pa druskai katrā katliņā. Uzreiz
+atskrien septiņi baloži, izlien no savām ādām, paliek par cilvēkiem. Katrs ēd no
+sava katliņa un saka ka šoreiz ēdiens esot gardāks. Māsa bija palīdusi apakš
+žagariem un dzirdēja, ko tie runā. Brāļi meklēja žagaros un atrada tur savu māsu.
+Tie prasīja: "Ko tu še meklē? Ej uz mājām, tu jau mūs nevari atdabūt. Mēs
+esam nolādēti par baložiem, ka mums jāskrien par gaisiem. Ja tu vari septiņi gadi bez
+valodas dzīvot un mums katram no liepu lapām kreklu pataisīt, tad mēs pēc septiņiem
+gadiem runāsim.</p>
+
+<p align="JUSTIFY">Viņi noveda māsu pie lielas liepas, tur augšā tai būs tos
+septiņus gadus mājot un septiņus kreklus pašūt. Brāļi viņai pienesa barību. Reiz
+pats tās zemes ķēniņš turēja medības, kvekšķi pie diznās pie liepas un sāka
+dikti riet. Piķieris, uz augšu paskatījies, ierauga tur smuku meitu un sauc, lai nāk
+zemē. Tad arī ķēniņa dēls pienākdams pavēlēja, lai nāk zemē, ja neklausīs, tad
+šaušot. Tad uzkāpa piķieris liepā un noveda māsu zemē. Viņa bija jau divi kreklus
+pašuvusi. Viņa paslēpa tās liepu lapas un sasēja tās savās drānās. Tās ķēniņa
+dēls ņēma, uzsēdināja to uz sava zirga, aizveda uz savu pili un apprecējās. Bet
+viņa nearvienu nerunājās, kā brāli bija sacījuši.</p>
+
+<p align="JUSTIFY">Pēc tam ķēniņa dēlam bija jāiet kaŗā un viņa mēmā sieva
+palika mājās. Pēc kāda pusgada viņai piedzima bērniņš ar sudraba matiem. Tad
+viņas vīra māte lika to bērnu paņemt savam sulaiņam, nonest uz mežu, nošaut un
+acis pārnest mājās. Tas sulainis darīja, kā bija pavēlēts. Gribēja patlaban šaut
+to bērnu, kad viens lācis to bērnu paņēma aiznesa projām. Tad gadījās, ka kāds
+zaķis skrēja gaŗām, to nu sulainis nošāva, izņēma tam acis un iedeva
+ķēnieņienei.</p>
+
+<p align="JUSTIFY">'Tad pārnāca viņas vīrs no kaŗa, bet nelaimīgā ķēniņiene neko
+nesacīja un tik šuva savus kreklus. Atkal bija jāiet kaŗā un par to laiku piedzima
+puika ar zelta matiem. Vecā ķēniņiene lika atkal tāpat darīt, kā ar pirmo bērnu,
+un tas pats lācis nāca un aiznesa projām.</p>
+
+<p align="JUSTIFY">Par to laiku ķēniņiene bija kreklus pašuvusi. Tad tā māte to
+pavisam ienīdēja, lika daudz malkas uz lauka savest, uguni pielikt un to mēmo sievu
+sadedzināt. Tā paņēma savus kreklus līdz un pavēlēja, lai tos met uz uguni, bet tai
+pašā brīdī, līdz to gribēja mest ugunī ,kāda balss no debess sauca: "Nemet,
+vēl nav laika!"</p>
+
+<p align="JUSTIFY">Tā ķēniņiene sauca atkal: "Met viņu virsū!"</p>
+
+<p align="JUSTIFY">Bet atkal sauca ar iten stipru balsi: "Vēl nav laika!"</p>
+
+<p align="JUSTIFY">Tad iebrauca viņas vīrs muižā, un tas lācis iznāca no meža ar
+tiem bērniem, un tie septiņi brāļi atlaidās, un katram iedevusi vienu kreklu, jaunā
+ķēniņiene tūlīt sāka runāt.</p>
+
+<p align="JUSTIFY">Viņas bērni bija lieli paauguši. Tad nosprieda par ļauno ķēniņa
+māti, ka būs mucu visapkārt likt ar naglām izsist, likt to tur iekšā un aizjūgt
+traku ērzeli priekšā. Tas aizskrēja ar to mucu par lauku laukiem.</p>
+
+<p align="JUSTIFY">'Tas taisīja lielas dzīres, es arī biju uz tām. Mani apdāvināja
+ar glāžu kurpēm, papīra svārkiem un sukura cepuri. Kad es izgāju ārā, bija lietus
+un cepure izkusa; kad dancoju, tad kurpes sasitās. Tad es uzkāpu uz ķēniņa un ielīdu
+pakulās, mani ielādēja dižgabalā un atšāva te.</p>
+
+
+</body></html>

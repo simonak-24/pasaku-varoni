@@ -1,0 +1,414 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>6</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Maģiskā bēgšana ar aizliegto kastīti.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">6. A. 313 S un C. M. Ārons Bērzaunē, Brīvzemnieka kr. LP, 119, 1.
+AŠ, III, 4p.</p>
+
+<p align="JUSTIFY">Zemnieks medībās ieraudzīja lielu vanagu un šāva, bet netrāpīja;
+vanags nopurinājās vien un palika uz vietas kā bijis. Šāva otrreiz - tāpat. Šāva
+trešo reizi - vanags briesmīgi sabozies skrēja virsū, saķēra šāvēju pie galvas
+uznesa augstu gaisā un tad laida vaļā, lai krīt. Bet šis gluži līdz zemei vēl
+nebija nokritis, tad vanags saķēra par jaunu un viegli nonesa zemē, prasīdams:
+"Vai bail arī bija?"</p>
+
+<p align="JUSTIFY">"Bija gauži bail!" šis atbildēja.</p>
+
+<p align="JUSTIFY">"Ja, tāpat arī man bija bail, kad tu mani šāvi.</p>
+
+<p align="JUSTIFY">Nu vanags ķēra zemnieku otrreiz pie galvas, uznesa līdz pat
+padebešiem un palaida vaļā, Bet pirms tas atsniedza zemi, vanags saķēra un viegli
+nonesa zemē, prasīdams: "Vai bail arī bija ?"</p>
+
+<p align="JUSTIFY">"Neizsakāmi bija bail!"</p>
+
+<p align="JUSTIFY">"Ja, tāpat arī man bija bail, kad tu mani šāvi."</p>
+
+<p align="JUSTIFY">Nu vanags ķēra zemnieku trešreiz pie galvas, uznesa pāri pa
+padebešiem un palaida vaļā. Bet pirms kritējs atsniedza zemi, vanags saķēra un
+viegli nonesa zemē, prasīdams: "Vai nu arī vēl bija bail?"</p>
+
+<p align="JUSTIFY">"Nekad man nav tik bail bijis tā tagad!" zemnieks
+trīcēdams atbildēja. "Ja, tāpat arī man bija bail, kad mani trešo reizi šāvi.
+Bet es zinu, ka mediniekam ir jāšauj, tāpēc tev piedodu. Un ja tu gribi bagāts tapt,
+tad baŗo mani trīs gadi: pirmo ar olām un vistām otru ar aitu gaļu, trešo ar teļu
+un vēršu gaļu."</p>
+
+<p align="JUSTIFY">Labi. Zemnieks ar to bija mierā un izbaŗoja vanagu trīs gadi.</p>
+
+<p align="JUSTIFY">Nu vanags ņēma baŗotāju uz spārniem un nesa projām. Nesa, nesa
+pusdienu, vai vairāk, te uz reizi iesaucās: "Skaties, mans barotāj, tur tālumā!
+Vai redzi tur to spožumu?"</p>
+
+<p align="JUSTIFY">"Ja, redzu gan. " "Tas labi, ka redzi; un vai tev
+negribas ēst?" "Gribas gan!"</p>
+
+<p align="JUSTIFY">"Tas labi, ka gribas!" vanags atteica un tūdaļ arī
+nolaidās zemē pie tā spožuma, sacīdams: "Tās ir manas māsas mājas; ej
+iekšā, prasi ēst un prasi raičuku!"</p>
+
+<p align="JUSTIFY">Zemnieks iegāja iekšā, prasīja vanaga māsai ēst -- ēst deva;
+prasīja raičuku - raičuka nedeva, atbildēja: "Brālis gan ir labs, bet raičuks
+vēl labāks!"</p>
+
+<p align="JUSTIFY">Vanags, par tādu atbildi nekā nesacīja, nu pavēlēja zemniekam
+atkal virsū sēsties un tālāk jāt. Jāja, jāja, pusdienu, vai vairāk, te vanags itin
+piepēži otrreiz iesaucas: "Skaties, vai redzi tur to spožumu?"</p>
+
+<p align="JUSTIFY">"Ja, redzu gan!"</p>
+
+<p align="JUSTIFY">"Tas labi, ka redzi; vai tev negribas ēst?" Gribas
+gan!"</p>
+
+<p align="JUSTIFY">"Tas labi, ka gribas!" vanags atteica un nolaidās zemē pie
+spožuma, sacīdams: "Tās ir manas vidējās māsas mājas; ej iekšā, prasi ēst
+un prasi raičuku!"</p>
+
+<p align="JUSTIFY">Zemnieks iegāja iekšā, prasīja vanaga māsai ēst - ēst deva; tad
+prasīja raičuku - raičuka nedeva, atbildēja: "Brālis gan ir labs, bet raičuks
+vēl labāks!"</p>
+
+<p align="JUSTIFY">Vanags, nekā nesacījis, nu pavēlēja zemniekam atkal virsū sēsties
+un tālāk jāt. Jāja, jāja, pusdienu, vai vairāk, te gadījās uguns upe, līdz
+debesim uguns pat gāja. Tad vanags ar zemnieku apviļāiās dubļos slapji jo slapji un
+vēja ātrumā izcirtās ugunij cauri, drusku, drusku tikai apsvildami. Izskrēja cauri -
+tur bija vanaga jaunākās māsas māja. Zemnieks iegāja, prasīja ēst, prasīja
+raičuku - jaunākā māsa atbildēja: "Raičuks gan ir labs, bet brālis vēl
+labāks!" un iedeva tādu lietu kā olu.</p>
+
+<p align="JUSTIFY">Nu vanags ar zemnieku atkal apviļājās dubļos un skrēja atpakaļ -
+ugunij cauri. Skrēja, skrēja - piepēži vanags ievaicājās, vai negribot ēst?</p>
+
+<p align="JUSTIFY">Gribot gan!</p>
+
+<p align="JUSTIFY">Tagad vanags lika raičuku vaļā taisīt. Un kā attaisīja - tūdaļ
+tur gadījās pilsēta ar ēdieniem, dzērieniem, ar visu, kas pilsētā atrodams ; tikai
+cilvēku vien nebija pilsētā.</p>
+
+<p align="JUSTIFY">Nu paēda, padzēra abi, aiztaisīja atkal raičuku un devās tālāk.
+Pusdienu mazākais skrējuši - vanags prasīja, vai nu zināšot savu pusi ?</p>
+
+<p align="JUSTIFY">"Pa druskai!" zemnieks atbildēja.</p>
+
+<p align="JUSTIFY">Tad vanags vēl skrēja pusdienu mazākais un prasīja atkal. vai nu
+zināšot savu pusi?</p>
+
+<p align="JUSTIFY">,,It labi!" zemnieks atbildēja.</p>
+
+<p align="JUSTIFY">Tad vanags vēl skrēja pusdienu mazākais un prasīja atkal, vai nu
+zināšot savu pusi?</p>
+
+<p align="JUSTIFY">Nu vairs nemaz nevaru maldīties!" zemnieks atbildēja. "</p>
+
+<p align="JUSTIFY">Tagad vanags palaida zemnieku un atdāvināja raičuku, piesacīdams,
+lai ātrāk vaļā netaisot, kamēr mājā.</p>
+
+<p align="JUSTIFY">Labi. Zemnieks paņēma raičuku un gāja uz māju pusi. Gāja, gāja,
+tikām gāja, kamēr meža vidū apmaldījās tomēr. Maldījās vienu dienu, otru, trešu
+- iegribējās ēst un kāre piespieda raičuku attaisīt. Attaisīja raičuku, tūdaļ
+koki vien nobrikšķēja gadījās pilsēta ar ēdieniem, dzērieniem, ar visu, kas
+pilsētā atrodams; tikai cilvēku vien nebija neviena. Nu paēda, padzēra un gribēja
+raičuku aizdabūt cieti, bet velti - dari, ko redzējis pilsēta bijusi, pilsēta palika.
+Ko nu? Nu apmanīja, ka nelabi un iesāka žēloties, pat raudāt.</p>
+
+<p align="JUSTIFY">Pēdīgi piegadījās vecīta, sacīdams: "Ja tu man to dosi, kas
+tev mājā jauns, tad raičuku saņemšu un ceļu parādīšu." Gribošam,
+negribošam bija jāapsolās.</p>
+
+<p align="JUSTIFY">Tad vecītis (tas bijis velns) saņēma raičuku un aizveda zemnieku uz
+māju. Bet mājā par to laiku jauns dēls zemnieka sievai bija piedzimis. Nu būtu
+raičuks, nu būtu viss, kaut dēlu vien nebūtu apsolījis velnam.</p>
+
+<p align="JUSTIFY">Ja, un tad nu zemnieks māju tuvumā izplēta raičuku un dzīvoja ar
+sievu un dēlu dažu gadu lielākā pilnībā.</p>
+
+<p align="JUSTIFY">Bet, kad dēls labi bij paaudzis. tas sacīja uz tēvu : "Man
+jāiet pie velna, esmu viņam apsolīts!"</p>
+
+<p align="JUSTIFY">Tēvs neko - kad jāiet, tad jāiet. Pats atminas, ko solījis. Dēls
+aizgāja; bet uz pirmā pakalna satika vecīti; tas vaicāja, kur iešot?</p>
+
+<p align="JUSTIFY">"Tev nevajaga zināt!" dēls lepni atteica, aiziedams
+tālāk. Bet vecītis gāja ar riņķi, aizgāja atkal citādā izskatā dēlam priekšā
+un prasīja: "Kur tu, dēliņ, iesi?"</p>
+
+<p align="JUSTIFY">"Tev nevajaga zināt!" dēls atraidīja, aiziedams tālāk.</p>
+
+<p align="JUSTIFY">Tad vecītis trešo reizi gāja ar riņķi un atkal citādā izskatā
+aizgāja dēlam priekšā, prasīdams mīlīgi jo mīlīgi : "Kur tu, labais dēliņ,
+iesi?"</p>
+
+<p align="JUSTIFY">Nu dēls izstāstīja visu, no kurienes nākdams, uz kurieni iedams.
+Vecītis sacīja: "Labi, ka man neslēpi! Nākošā mežā tu atradīsi ezeru;
+paslēpies pie tā, jo tur nāks septiņas pīles peldēties; kad tās būs
+izpeldējušās un aizgājušas, tad nāks vēl viena, tai mēģini drēbes nozagt.
+Nozadzis drēbes, gaidi, lai pīle nāk atprasīt; bet nu ievēro, ja pīle saka:
+"Mīļais tēvs!" tad neatdodi: ja saka: "Mīļais brāli!" tad
+atdodi."</p>
+
+<p align="JUSTIFY">Labi. Dēls aizgāja uz ezeru un paslēpās. Drīzi nāca septiņas
+pīles, izpeldējās, apģērbās, aizgāja. Tad nāca viena pati, noģērbās, iegāja
+ezerā. Dēls pielīda klusām un paņēma drēbes. Pīle iznāca no ezera, apskatījās
+bēdīga un sacīja: "Mīļais brāli, atdodi manas drēbes!"</p>
+
+<p align="JUSTIFY">Dēls tūdaļ atdeva. Nu viņa apģērbās, palika par cilvēku un
+gāja uz savu būdiņu, bet dēls gāja līdz un palika līdz vakaram meitenes būdiņā.
+Netālu no būdiņas bija arī velna mājoklis un vakarā dēlam - vai grib, vai negrib --
+bija jāpošas pie velna. Aizgāja pie velna - velns lieliskām sadeva darbus, kas pa
+vienu nakti bija veicami. Jāizrokot dobē, jāiestādot ābele, jāizaudzinot āboli
+līdz rītam un jāienesot velnam, kad celšoties no miega.</p>
+
+<p align="JUSTIFY">Dēls ļoti satrūcies aizgāja pie meitenes un sūdzēja tai savas
+bēdas. Meitene atteica: "Nebēdā neko, liecies gulēt, padarīšu visu!" Labi.</p>
+
+<p align="JUSTIFY">Un tā arī bija. Rītā meita ienesa gatavus ābolus dēlam un dēls
+aiznesa velnam.</p>
+
+<p align="JUSTIFY">Bet nākošā vakarā velns sacīja: "Šonakt iesēj kviešus,
+izaudzē, samal un izcep man rītu brokastim plāceni!"</p>
+
+<p align="JUSTIFY">Atkal dēls satrūcies aizgāja pie meitenes bēdas sūdzēt; bet tā
+atteica: "Liecies gulēt, padarīšu visu!" Labi.</p>
+
+<p align="JUSTIFY">Un patiesi rītā meita ienesa dēlam izceptu jaunu kviešu plāceni,
+un dēls aiznesa velnam.</p>
+
+<p align="JUSTIFY">Bet nākošā vakarā velns sacīja: "Manā stallī ir ērzelis;
+ņem to un apjāj šonakt ap visu manu zemi!"</p>
+
+<p align="JUSTIFY">To dzirdēdams, dēls palika priecīgs, jo domāja, tas esot viegls
+darbs - jāt ; bet meita apgalvoja, lai nepriecājoties priekšlaiku -tas esot pats
+gŗūtākais darbs. Ērzelis esot pats velns. Bet lai jājiens tomēr sekmētos, tad
+iedeva dēlam vienu sudraba slotiņu, vienu zelta slotiņu un lielu āmuru, sacīdama:
+"Kad ērzelis, stalli ieejot, tev virsū skrien, sit ar āmuru tam pa galvu, lai
+saprot, gan paliks rāmais. Un kad nu sāc jāt un tu jāj pa sausu zemi, tad sit ar šo
+zelta slotiņu ērzelim; bet kad jāj pa ūdeni, tad sit ar sudraba slotiņu."</p>
+
+<p align="JUSTIFY">Dēls paņēma āmuru, slotas un steidzās pie darba. Iegāja stallī -
+ērzelis kā nezvērs ar kājām un zobiem rēkdams šim virsū; bet kā lika ar lielo
+āmuru pa galvu, palika tik prātīgs, lai jāj, kur grib. Nu jāja pa sausu zemi un
+vienādi sita ērzelim ar zelta slotu - gāja labi kā vajaga, neklizmējās ne mazākā
+mērā. Bet tad gadījās ezers un ūdeņa malā aizmirsa tūdalin uzsist ērzelim ar
+sudraba slotu; ērzelis ieskrēja ūdenī un grima. Nu atcerējās, ka jāsit ar sudraba
+slotu. Uzsita ar sudraba slotu - negrima vairs, pārtika kā vējš ezeram pāri.</p>
+
+<p align="JUSTIFY">Tā tas nu gāja pa ezeriem, upēm, pa jūŗām, pa sausu zemi, ka
+vējš vien gar ausim nošalca un līdz rītam tiešām apjāja visu zemi. Pārjājis
+mājā, ielaida putās sajāto ērzeli stallī un gāja pie velna iekšā. Iegāja - redz:
+velnam pārsista galva un visi locekļi stīvi. (Ērzelis tas pats velns bijis.) Ūja! kā
+tas nu dusmās uzbļāva dēlam: "Pagaidi, es tev, pakaŗamam gudreniekam, rādīšu!</p>
+
+<p align="JUSTIFY">To labi redzu, jūs esat sametušies divi un gribat mani vai nobeigt,
+bet es drīzāk jūs nobeigšu. Vakarā atnāciet abi te pie manis, likšu jūs
+sadedzināt!"</p>
+
+<p align="JUSTIFY">Neko darīt - vakarā dēlam ar meitu bija jāiet pie velna. Nogāja --
+velns pavēlēja saviem kalpiem dzelža mucai dibinu izņemt, dēlu ar meitu tur
+iesprostīt, dibenu atkal ielikt, sastīpot un tad atstāt līdz rītam; rītā --
+tiklīdz celšoties - kuršot mucai uguni apakšā un maitāšot abus nost.</p>
+
+<p align="JUSTIFY">Un līdz pusnaktij mazākais abi iesprostītie tur nu sasmaka --mucā;
+bet tad meita sacīja uz dēlu: "Pūties tu uz iekšu, es uz āru!"</p>
+
+<p align="JUSTIFY">Labi. Viens pūtās uz iekšu, otrs uz āru. Pūtās, pūtās, te abi
+palika par mušām un tā pa spundes caurumu ārā un nu bēgt, un nu bēgt, ko varēdami.
+(Spundes caurums par laimi bija atstāts vaļā, ka nenoslāpst.)</p>
+
+<p align="JUSTIFY">Otrā rītā agri jo agri velns lika vienam kalpam uguni zem mucas kurt
+un karsēt abus. Kad jau labā karstumā bija, velns prasīja: "Vai vēl
+nekliedz?"</p>
+
+<p align="JUSTIFY">"Nē! vēl ne!" </p>
+
+<p align="JUSTIFY">"Bet tak vajadzēja jau kliegt - kurini vēl</p>
+
+<p align="JUSTIFY">Kurināja, kurināja - jau velnam gandrīz pus malkas sadedzis un muca
+sarkana kā uguns - vēl nedzird ne balsa. Velns atskrēja vienreiz, otrreiz pie kūrēja
+- vai vēl nekliedzot?</p>
+
+<p align="JUSTIFY">Nekliedz ne traki!" kūrējs atbildēja. "</p>
+
+<p align="JUSTIFY">Nu, kad nav klieguši, lai tad taisot mucu vaļā -- jāredzot, kas tur
+par nelaimi!</p>
+
+<p align="JUSTIFY">Attaisa mucu -- nav ne circeņa iekšā.</p>
+
+<p align="JUSTIFY">Tagad velns saprata, kas noticis, un tūlin pavēlēja vienam kalpam
+bēgļiem paka[ skriet, lai saleŗot un vedot atpakaļ].</p>
+
+<p align="JUSTIFY">Kalps skrēja kā viesulis, šņākdams, krākdams. Bet meita to jau no
+tālienes sadzirdēja un tūdaļ pati palika par aitām, dēls par ganu ar novilktu
+kreklu, utis kaudams. Velna kalps ātrā skrējienā paskrēja ganam gaŗām un par labu
+laiku skrēja tukšā atpakaļ pie velna.</p>
+
+<p align="JUSTIFY">Bet nu avis ar ganu pārvērtās par cilvēkiem un bēga tālāk.
+Pārskrējis mājā, velns prasīja kalpam, vai esot redzējis tos? Nē! citu neko
+neredzēju, kā tikai ganu ar aitu pulku."</p>
+
+<p align="JUSTIFY">"Kāpēc tu neķēri? Tie paši bija tie bēgļi!" velns
+iesaucās un pavēlēja otram kalpam skriet.</p>
+
+<p align="JUSTIFY">Tas skrēja vēl ātrāki un trokšņoja vēl stiprāki. Meita to
+sadzirdēja lielā tālumā un pārvērtās pati par baznīcu, dēls par mācītāju
+kancelē. Velna kalpam ne prātā ka baznīca ar mācītāju meklējamie bēgļi. Tas
+aizskrēja atkal tukšā pie velna atpakaļ un elzdams, pūzdams stāstīja, ka baznīcu
+ar mācītāju vien redzējis.</p>
+
+<p align="JUSTIFY">Nu velns gan pukojās ne tiesas, kāpēc mācītāju neesot līdz
+ņēmis un baznīcu nojaucis. Un pukodamies, spārdīdamies, pats skrēja bēgļiem
+pakaļ.</p>
+
+<p align="JUSTIFY">Skrēja, skrēja, kā jau velns, un cerēja vai dzīvus šos aprīt;
+bet meita pasteidzās par zivtiņu palikt un dēls par ezeru. Ezeram zivtiņa vēl iedeva
+sudraba slotiņu, noteikdama, lai maisa ūdeni, kad velns atskrējis pie ezera. Labi.</p>
+
+<p align="JUSTIFY">Drīzi arī velns bija klāt un lūkoja par varu zivtiņu noķert; bet
+ezers maisīja ūdeni ar iedoto sudraba slotiņu tik sparīgi, ka ūdens pat sakarsa un
+velnu vēl tā appludināja, ka nejaudāja ne apgriezties, ne izbēgt; tikai tā vien
+kliedza: "Eita uz elli jeb kur nebūt, bet laidiet mani no ezera ārā!"</p>
+
+<p align="JUSTIFY">Tomēr ezers nelaida vis tūlin: - vēl aršāki maisīja ūdeni un
+nobeidza velnu, ka tik tik ko ķeparājās. Pēdīgi tie palaida gan piebeigto un tad tas
+pusdzīvs aizskrēja uz elli.</p>
+
+<p align="JUSTIFY">Nu abi gāja droši un priecīgi, kamēr nonāca pie dēla mājas. Bet
+tur meita negribēja iekšā iet, lai dēls vispirms parunājot no tēva atļauju - tad.
+Labi. Dēls palika mierā un gāja tēvam atauju runāt. Bet nu meita vēl pieteica dēlam
+: "Kad ieej iekšā, ar jauno māsu nesveicinies, citādi mani aizmirsīsi!"</p>
+
+<p align="JUSTIFY">Dēls iegāja; bet lielā priekā, ka nu atkal tēva mājā, tas
+aizmirsa, ko meita noteikusi, un sveicināja jaunāko māsu. - Un lūk, kas nu notika!
+Dēls tūdalin gluži aizmirsa, ka meita viņu ārā gaida un nebildēja ne vārda tēvam.</p>
+
+<p align="JUSTIFY">Meita, manīdama, ka aizmirsta, piegāja pie akas un uzlīda vītolā.</p>
+
+<p align="JUSTIFY">Dēls no gaŗa ceļa piekusis, prasīja savējiem ūdeni dzert. Tūdaļ
+vecākā māsa paķēra krūzi un steidzās uz aku. Nogāja pie akas, ieraudzīja ūdenī
+tās meitas (kas vītolā) daiļo jo daiļo seju atspīdam un domāja: "Ai, cik
+skaista es esmu, kaut agrāk to būtu zinājusi!"</p>
+
+<p align="JUSTIFY">Un nu viņa skatījās, skatījās ūdenī - krūze izšļuka no rokām
+- un kad bija atskatījusies - aizgāja, domās nogrimusi, bez dzeŗamā ūdeņa uz istabu
+atpakaļ.</p>
+
+<p align="JUSTIFY">Nu nāca otra māsa ūdeni smelt; bet tai tāpat vedās. Tikām
+skatījās, tikām brīnījās par savu daiļumu ūdenī, kamēr krūze izšļuka, un
+domās nogrimusi aizgāja uz istabu atpakaļ.</p>
+
+<p align="JUSTIFY">Pēdīgi gāja māte ūdeni smelt. Tā arī gan ieraudzīja daiļumu
+ūdenī; bet tā neticēja, ka varot vēl tai vecumā tik daiļa būt, un tādēļ drīzi
+skatījās apkārt, drīzi uz augšu: kā tas var celties? Un kā paskatījās uz augšu,
+ieraudzīja daiļo meitu vītolā. Nu gāja uz istabu pavēstīt visiem. Dēls tādu
+vēsti dzirdēdams, tūlin atminējās, ka meita ārā gaida un skrēja uz aku.</p>
+
+<p align="JUSTIFY">Aizskrēja, apkampa meitu un - abi nomira.</p>
+
+
+</body></html>

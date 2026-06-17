@@ -1,0 +1,132 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5"><strong>Dažāda atmaksa.</strong></font></p><font size="5">
+
+</font><p align="JUSTIFY"><font size="5"></font><font size="3">5. A. 750. V. F i ļ š s&nbsp; n o A. S a v i c
+k a D a u g a v p i l ī. L a t v j u k u l t ū r a s k r.</font><font size="4"></font></p><font size="4">
+</font>
+
+<p align="JUSTIFY">Vīnu reizi guoja pa ceļu vīns ubogs, īguoja patmaļūs un suoka
+prasēt nu patmaļnīka kaidu griudu maizis. Patmaļnīks sazadusmuojās un pascēja uz
+uboga: "Ej tu ar Dīvu tuoļuok! Taidu daudz ubogu volkuojas pa pasauļi, vysus
+napībaruosi."</p>
+
+<p align="JUSTIFY">Tai nikuo patmaļnīks ubogam nadevja. Taišņi ap tū laiku uz
+patmaļim atbraucja malt vīns zemnīks, jam beja na cīši lels maiss rudzu. Zemnīks
+īraudzēja ubogu, kam patmalnīks nikuo nadevja. Jam tyka žāl ituo ubodzeņa, pasaucja
+tū pi sevis un pībēra ubogam kulī kāidu garču rudzu. Ubogs vys vēl prosa un
+zemnīks ībēra vēl ūtru un trešu garču, tai ka zemnīkam pašam palyka pavysam moz.
+Patmalnīks vysu redzēja un smīdamīs suoka runuot uz zemnīku: "Kū tu, muļķs,
+cik rudzu ubogam atdevi! Kas tev paliks? Vēl es ar pajimšu par molšonu."</p>
+
+<p align="JUSTIFY">"Labi!" pascēja zemnīks un pajāmja tū druponu rudzu un
+ībēra malt. Suoka patmalnīks malt rudzus, vairuok stundis maļ, a myltys vys beras da
+beras. Rudzu beja kaids garčs, a myltu jau treis maisi pībēra. Zemnīks nazynuoja, kur
+likt myltu. Itys ubogs beja varbyut pats Dīvs, kurijis par lobumu atleidzēja ar lobumu.</p>
+
+
+</body></html>

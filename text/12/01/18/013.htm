@@ -1,0 +1,197 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Vilt?ba un l?ttic?ba</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Viltība un lētticība.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>13. </strong>A. 1539. No N. Rancāna krājuma Kapiņu pag. </p>
+<font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font>Sen - senējūs laikūs dzeivuoja mežā treis saiminīki:
+Pleucs,</p>
+
+<p align="JUSTIFY">Gulbs un Truktyns. Gulbs un Truktvns beja tureigi saiminīki un vysod
+skaitējuos par lēlim gudrinīkim. Pleucs dzeivuoja bēdeigi, un vysi viņu skaitēja par
+muļķi. Tureigī sābri dzeivuoja storp sevim draudzeigi, bet bēdeigū Pleuci vysod
+steidzēs apmuoneit!</p>
+
+<p align="JUSTIFY">Paguoja naaugleigs gods un šim saiminīkim izauga moz maizes. Gulbam
+un Truktynam beja pylni orūdi vacu-vacuos maizes, tad tī par naaugleigu godu
+nanūsapyute, bet nabadzeigais Pleucs pavysam gaisa uorā. Atguoja pavasars un ar viņu
+beja taidas dīnas, ka Pleucs naturēja kū mutē īlikt. Radzādams, ka nuok bods kluot,
+sasalasēja puordūt pādējū gūvi. Sābri, izzynuojuši, ka Pleucs reitā vess gūvi
+puordūt, aizīt jam prīškā. Sasatykuši ar Pleuci suoc vaicuot: "Kur," saka,
+"vessi šitū kozu?" Pleucs atbild, ka tei nav koza, bet gūvs. Tad Gulbis un
+Truktyns suoc jam pīsasmīt, ka taidu gūvi nav vērte saukt por gūvi. Pleučam nu jū
+izmīšonas sasagrīž golva un jis par pasūlītim pīcim rubļim atdūd gūvi.</p>
+
+<p align="JUSTIFY">Gulbs un Truktyns, izmuonējuši gūvi, aizvad uz sātu, a Pleucs
+nūbrauc uz pilsātu maizes pierktu. Pilsātā jis nūpierk pūdu myltu un kotlu kai
+azari, tad brauc uz muojom. Sīva, īraudzējuse vysu manteibu par gūvs naudu, suoc
+buortīs, bet kas reizi padareits, tuo vairs naatgrīzt. Pleucs pīvuorej pylnu kotlu
+myltu putras un dzeivoj tam laikam mīreigi. Bet te vēl sasatleik ar sovim sābrim. Ti ar
+izsmīkli vaicoj: "Kū tad, sābreit; nūpierki par sajemtū naudu?" Pleucs,
+pacēlis golvu, atbild: "Nūpierku kotlu, kurā kū gribi, tys vard, un nikod
+nasamaitoj un vysod gords. Gulbi un Truktynu sajam skaudeiba, un viņi nūpierk nū Pleuca
+par l00 rubļim breineigū kotlu. Puordevis kotlu, Pleucs īlīk kotlā treis akmiņus,
+pavuorneicu, un pasoka sābrim, ka suoks vuoreit, Iai padūmoj, kū grib, un pamaisa
+akmiņus, tam laikam vyss byus gotovs.</p>
+
+<p align="JUSTIFY">Gulbis un Truktyns, atvaduši kotlu uz imuojom, aizdūmoj gordas
+pusdīnas un suoc maiseit akmiņus, bet nikas navard. Tai jī maisēja vīns par ūtru
+lelu laiku un puorstuoja tik tūlaik, kad izsyta kotlam dybynu, bet pusdīņu tai i
+naizvuorēja. Īraudzējuši tagad, ka jūs Pleucis apmuonēja, ļūti aizzadusmuoja un
+sauce Pleuci pi tīsas. Braucūt uz tīsu, Pleučam īskrīn golvā lobs padūms. Jis
+nūkaun jāru un nu uodas sašyun capuri, līk golvā un laižas uz tīsni. Braukdams uz
+tīsu, Pleucs īt krūgā, pīsoka krūdzinīkam pīgatavēt ēdīņu un dzērīņu,
+samaksoj saceidams, ka atpakaļ braucūt jis ībrauks ar draugim, un ka vyss byutu gotovs.
+Atpakaļ braucūt aicynoj Pleucs sovus sābrus krūgā, un tī labpruot ir ar mīru -
+saīt vvsi krūgā. Pleucs tik pakrota ar golvu pierktū capuri, un krūdzinīks jau vysu
+tyuleņ padūd. Pleucs labi vīn padzierda un pabaroj sovus draugus, tik kas par
+naradzātu lītu, ka namoksoj naudas, tik pakustynoj sovu capuri un pavaicoj: "Vai
+kvite, saiminīks?" Radzādami šitū, Gulbs ar Truktynu suoc dūmuot par naradzātu
+capuri, caur kuras pakustinuošonu var dabuot paēst un padziert. Tad jī sasarunoj un
+nūpierk par 200 rubļim nu Pleuča capuri.</p>
+
+<p align="JUSTIFY">Pleucs, pajēms naudu, mudri skrīn uz muojom, a juo lepneigī sābri
+palīk krūgā un suoc dzieršonu bez moksas. Labi vīn īdzāruši, ceļas braukt uz
+sātu. Gulbs pakustynoj pierktū capuri un vaicoj: "Voi kvite, saiminīks?"
+Saiminīks atbild: "Aizmoksoj, tad byus kvite." Truktyns ar dusmem izraun nu
+Gulba capuri un suoc jū krateit, cik vīn var, bet nikuo naleidz, saiminīks nalaiž
+vaļē, cikam myusu gudrī veiri jam nasamoksoj. Un tai vēl reizi Pleucs apmuonēja savus
+sābrus.</p>
+
+<p align="JUSTIFY">Bet tagad jau Gulbs ar Truktynu beja troki dusmeigi un nūsprīde
+Pleuci nūsist. Pleucs jau zynuoja gon, ka sābri tuo jam napīdūs un kai navīn (kaut
+kā) atrībs, tuodēļ beja uzmaneigs. Vīnu vokoru Pleucs izdzierda trūksni kluot pi
+sovas ustobas un pa runai pazyna sovus sābrus. Tad laika nakaveidams, zynuodams, ka na ar
+lobu atīt, krita uz luovas un guļ par nūmvrušu. Sīvai lyka sēdēt pi golda un
+rauduot. Sābri īīt ustobā un redz sovu īnaidnīku nūmyrušu. Gulbs nu dusmem pagyun
+vāzu, kura stuovēja kaktā, un syt Pleuci ar šīm vuordim: "Ka natyka dzeivam, tad
+sisšu myrūņam."</p>
+
+<p align="JUSTIFY">Pleucs napacītis suopes trvukstās un suoc sumynuot sābrus
+pateikdams, ka viņu pīcēle nū myrūņim: "Meiļi sābreiši, nalaime nūtyka
+tuodēļ, ka es mierdams aizmiersu pasaceit sīvai, lai man īsyt ar šitū rungu, bet te
+jyus mani izgluobēt nu nuoves. Runga tur breineigu spāku, ar jū kotru cylvāku var
+pacelt nu myrūņim." Gulbs ar Truktynu otkon patic Pleučam un aizmiersuši, ka jis
+jau jūs cikšu reižu apmuonēja, nalaiž vāzas nu rūku, bet moksoj 200 rubļu un
+laižas uz muojom.</p>
+
+<p align="JUSTIFY">Tamā laikā nūmierst ķēniņam vīnīguo meita. Ķēniņš ļūti
+nūskumst un paziņoj vysā kēnestī, ka kas juo meitai atgrīzs dzeiveibu, tad tam
+atdūs jū par sīvu un vēl pusi sovas valdeibas. Gulbs un Truktyns, tureidami breineigū
+rungu, teik pi ķēniņa un apsyulej eisā laikā izzuolēt ķēniņa meitu. Ķēniņš ar
+prīcu atļaun jīm vysu, ka tik meita palyktu dzeiva. Nūgaidējis laiku, kaidu beja
+lykuši breineigī doktori, ķēniņš īt siovas meitas kambarī dūmuodams jū satikt
+dzeivu, bet te nagaidāma līta - meita vysa sasysta un breineiguo runga nūsvīsta zemē.
+Ķēniņš īraudzējis taidu šausmeigu izsmīkli, tyuleņ lyka šīm veirim nūcierst
+golvas. Tai beidze dzeivi myusu boguotī un skaudeigī veiri, Gulbs un Truktyns; a
+bēdeigais Pleucs mīreigi un laimeigi nūdzeivuoja sovu myužu, jo nabeja vairs kam jū
+traucēt.</p>
+
+
+</body></html>

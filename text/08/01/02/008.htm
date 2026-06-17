@@ -1,0 +1,179 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>8</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Brīnuma lampa.</font></p><font size="5">
+</font></b><font size="4">
+
+</font><p align="JUSTIFY"><font size="4"></font><font size="3">8. A. 561. 566. N. Cierbaševsklis no
+Andrieva Tuntuļa, Rēzeknes apr., Unguru pag.</font></p><font size="3">
+
+<p align="JUSTIFY">Priekš daudz daudz gadiem, kad pasaulē vēl bija burvji, pie
+jūŗas atradās viena pilsēta, burvju miteklis. Šinī pilsētā dzīvoja arī viens
+jauneklis, kas bija ļoti nabags.</p>
+
+<p align="JUSTIFY">Reiz viņš salīdzis pie kāda bagāta kunga par kalpu. Darbs
+bijis viegls un jauneklis tur labi atspirdzis. Reiz naktī viņš noklausījies, ka
+kungs viņu sūtīšot uz kādām pils drupām pēc vecas lampiņas un pēc tam to
+nogādāšot visdziļākā ellē.</p>
+
+<p align="JUSTIFY">Otrā dienā kungs pieiet pie kalpa un saka: "Ej tu uz vecajām
+drupām. Tur tu atradīsi saknīti un ar to atvērsi durvis. Ieej pa durvim iekšā.
+Tur sitabās būs visādi dārgumi un ķēmi, bet</p>
+
+<p align="JUSTIFY">nebīsties un nekā neņem, tad viss būs labi. Turpat tu dabūsi vienu
+vecu lampiņu un to man atnes."</p>
+
+<p align="JUSTIFY">Nu jauneklis aizgāja uz to pili un nonāca še vakarā. Dabūjis
+saknīti, viņš atvēra durvis. Abās durvju pusēs stāvēja lauvas ar uguns
+rīklēm. Zēnam jau sāka mesties bail, tomēr viņš gājis vien uz priekšu.
+Pirmā istabā bija sudraba nauda, otrā istabā zelta nauda un trešā dimanti.
+Ceturtā istabā atradušies visādi riebīgi ķēmi, bet jauneklis nekā
+nebaidījies. Piektā istabā nebija nekā, ka tikai maza, nosūbējusi lampiņa. Kalps to
+iebāza kabatā un nāca ārā. Līdz ko viņš tika pa vārtiem ārā, tie ar troksni
+aizsitās cieti. Nu viņš gribēja iet uz kungu, bet viņam bija no kunga bailes,
+tāpēc viņš gāja pavisam uz otru pusi. Tam saka gribēties ēst, bet nekā nebija
+ko ēst. Ceļā viņš piedāvāja gaŗāmgājējiem savu lampiņu pirkt, bet neviens
+to nepirka. No dusmām kalps spēra lampu pret koku. Te uzreiz parādās gars un saka:
+"Nesvaidi tā šo lampu, tā ir tava laime, ko tu vēlēsies, tas
+izpildīsies."</p>
+
+<p align="JUSTIFY">To teicis gars pazuda. Nu jauneklis vēlējās paēst labu pusdienu. Uz
+reizi viņa priekšā parādījās galds ar visādiem ēdieniem. Kalps paēda un gāja
+tālāk. Viņš nonāca pie vienas valdnieka pils. Šim valdniekam bija skaista
+meita, kas katru dienu staigāja pa pils dārzu. Jauneklis pie sētas sāka ēst tādus
+ēdienus, kādu nebija pašam valdniekam. Valdnieks lika atsaukt jaunekli un
+izprašņāja viņu par visu, bet tas nekā neteica.</p>
+
+<p align="JUSTIFY">Jauneklim iepatikās princese un viņš lūdza tēvam viņas roku.
+Tēvs teica, ja šis spēšot uzcelt zelta pili ar mežu un zvēriem, tad
+došot tam savu meitu. Jauneklis to arī izpilda. Nu nodzeŗ lepnas kāzas. Bet pēc
+kāzām princese grib zināt, ka šis visu to spēj, un jauneklis arī izstāsta. Nu
+princese nozog lampu, un ar tās palīdzību aizraida savu vīru tālu, tālu prom. Nu
+jauneklim klājas slikti. Naktī viņš redz sapni: pie viņa pieiet vecs
+vīriņš un saka: "Pie krastā dienās piestas liela zivs. To tu paēdini ar
+tām vecajām zivim, kas krastā. Tāpat dari ar otru un trešu dienu. Trešā
+dienā viņa tevi aiznesīs uz kādu salu, no kurienes nav tālu tavas sievas pils."</p>
+
+<p align="JUSTIFY">Tā arī kalps izdara un tiek uz jaunas salas. Tur viņš atrod
+divas ābeles ar baltiem un sarkaniem āboliem. Bet ka nu viņš grib tos sasniegt,
+tā ābeles paceļas gaisā. Naktī atkal parādās vecais vīriņš un saka:
+"Noplūc augļus no abiem kokiem, ej uz pili un pārdod tos. Princese tos ēdīs un
+viņai izaugs gaŗš deguns. Viņa gribēs ar lampiņu no tā atsvabināties, bet tā
+pateiks: "Tas ir tava vīra spēks." Princese metīs lampu pret sienu, un tā
+pazudīs."</p>
+
+<p align="JUSTIFY">Tā arī notika. Princesei izaug gaŗš deguns un lampa pazūd. Nu
+sasauc visādus ārstus, bet tie nevar nekā palīdzēt. Tad ķē-</p>
+
+<p align="JUSTIFY">niņš atrod savu znotu un tas atsvabina princesi no gaŗā deguna.
+Pēc tam nu viņi visi dzīvo laimīgi.</p>
+</font><font size="1">
+
+<p>&nbsp;</p>
+</font>
+
+
+</body></html>

@@ -1,0 +1,154 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>72</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Mācītājs tiek nests uz debesim.</p>
+</font></b>
+
+<p align="JUSTIFY"><strong>1. </strong>A. 1737. J. Sedols no 50 g. v. L. Olseika Bārtā.
+Latvju t. anekdotes, II, 333, 2106.</p>
+
+<p align="JUSTIFY">Reiz viens mācītājs gribēja dzīvs tikt debesīs. Tam atbraucis
+viesis. Mācītājs izstāstījis viesim savus nodomus, ka viņš maksātu pulku naudas,
+ja viņš varētu dzīvs tikt debesīs. Visu to noklausījies mācītāja kučieris. Tas
+nu teicis mācītājam, ja viņš viņam maksāšot labi daudz naudas, tad viņš to
+dzīvu aizvedīšot uz debesim. Mācītājs bijis ar mieru maksāt, cik tik kučieris
+prasīšot. Tad kučieris teicis; mācītājam: "To un to nakti, pulksten
+divpadsmitos atnāc baznīcā, tur es tevi novedīšu debesīs."</p>
+
+<p align="JUSTIFY">Norunātā naktī kučieris paņēmis maisu un trīs sveces. Aizgājis
+pirmais baznīcā, aizdedzis sveces un gaidījis, kad atnāks mācītājs. Pulkstens
+divpadsmitos atnācis mācītājs baznīcā, līdzi nesdams daudz zelta un sudraba lietas.
+Kučieris teicis, ka zelta un sudraba lietas nevarot debesīs ņemt līdzi, bet vajagot
+plikam izģērbties un ielīst maisā, tad viņš viņu nonesīšot debesīs. Mācītājs
+paklausījis kučieri, izģērbies un ielīdis maisā. Kučieris maisu ar mācītāju
+vilcis vairākas reizes apkārt baznīcai un tad pa laukiem prom. Mācītājs sācis
+prasīt: vai tālu vēl debesis?</p>
+
+<p align="JUSTIFY">"Vēl labu gabalu," atbildējis kučieris. Ceļā gadījies
+dīķis. Kučieris vilcis mācītāju vairākas reizes apkārt dīķim tā, ka mācītājs
+pa ūdeni šļūcis, kučieris gājis gar ūdens malu. Nevarēdams paciest slapjumu,
+mācītājs prasījis kučieram, kas nu esot, viņš jau šitā drīzi noslīkšot.</p>
+
+<p align="JUSTIFY">"Pacieties, pacieties, bez ciešanām debesīs nevar tikt. Tā ir
+Jordanas upe, un tā jau ir plata."</p>
+
+<p align="JUSTIFY">Kučieris novilcis mācītāju pie vienām mājām. Mācītājs
+izdzirdis, ka aitas brēc un prasījis: "Kas tas par troksni?"</p>
+
+<p>Kučieris teicis: "Tie ir debesu eņģelīši."</p>
+
+<p align="JUSTIFY">Kučieris mācītāju ievilcis govju stallī un piekabinājis ar visu
+maisu uz vadzi, kas ietaisīts, kur meitām, naktī lopus kopjot, uzkārt lukturi, un
+pateicis mācītājam, lai paciešoties, drīz atnākšot debesu Pēteris, tad viņu
+ienesīšot debesīs. To teicis, kučieris pamucis. No rīta gājušas meitas govis
+slaukt. Ieraudzīdamas maisu vadzī karājoties un ka tas vēl iekustējies, meitas
+sākušas saukt pēc citiem cilvēkiem. Sanākuši vairāki cilvēki, nokabinājuši maisu
+no vadža un atraduši maisā pliku mācītāju. Palaiduši mācītāju, lai iet mājās.
+Bet kučieris kļuvis bagāts no dabūtās naudas, zelta un sudraba lietām un dzīvojis
+laimīgi.</p>
+
+
+</body></html>

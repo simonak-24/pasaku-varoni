@@ -1,0 +1,174 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Neuzticamā māsa.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 315. A. Lerchis-Puškaitis Džūkstē -Pienavā. LP, I, 79. AŠ,
+II, 97c.</p>
+
+<p align="JUSTIFY">Kāda māsa nevarējusi savu vienīgo brāli ieredzēt. Māsai bijis
+dzeltens vilks un tas bijis velns. Kādu dienu brālis aizgājis uz medībām. Viņš
+saticis svešu suni, kuŗu gribējis nošaut. Bet suns lūdzies: "Nešauj vis,
+brālīt, varu tev ļoti derēt un palīdzēt."</p>
+
+<p align="JUSTIFY">Nešāvis arī. Otrā dienā saticis atkal otru suni, kuŗu gribējis
+šaut. Bet šis tāpat lūdzies: "Nešauj vis, varu tev ļoti derēt un
+palīdzēt."</p>
+
+<p align="JUSTIFY">Nešāvis arī. Trešā dienā saticis atkal suni, kuŗš tāpat
+lūdzies un kuŗu atkal nešāvis. Suņi no tā laika brālim paka vien staigājuši.</p>
+
+<p align="JUSTIFY">Reiz brālis atkal taisījies uz medībām ar visiem saviem suņiem.
+Māsa tupretim lūgusies, lai jau šoreiz suņus atstājot mājā; brālis tos neatstājis
+vis. Nu māsa sadomājusi citādus niķus, kā brāli nonāvēt. Viņa uztaisījusi
+pagrabam trīs liekas gaļas durvis, lai suņus tur iekrāptu. Tā arī noticis. Suņi, no
+medībām pārnākuši, bijuši ļoti izsalkuši un tūdaļ brāc! pie gaļas klāt un
+pagrabā iekšā. Māsa aizcirtusi trijas durvis, un nu suņi ne pakustēt. Dzeltenais
+vilks, to redzēdams, tūdaļ uzsaucis brālim: "Nu, knaši, knaši, kurini pirti,
+nomazgājies labi baits, jo melnu tevi jau neēdīšu!"</p>
+
+<p align="JUSTIFY">Brālis tūlīt gājis pirti kurināt. Vienreiz jau atskrējis
+dzeltenais vilks, prasīdams: "Vai esi jau balts?"</p>
+
+<p align="JUSTIFY">"Ne, cienīgs kungs, malka zaļa, nevaru tik ātri
+izkurināt."</p>
+
+<p align="JUSTIFY">Te, pa brītiņam atskrien vārna un saka: "Tavi suņi jau vienas
+durvis izēduši!"</p>
+
+<p align="JUSTIFY">Jau otrreiz atskrējis dzeltenais vilks, prasīdams: "Vai esi jau
+balts?"</p>
+
+<p align="JUSTIFY">"Ne, cienīgs kungs, malka zaļa, neiet tik ātri, kā
+domājat."</p>
+
+<p align="JUSTIFY">Te, pa brītiņam atskrien žagata un saka: "Tavi suņi jau divas
+durvis izēduši!"</p>
+
+<p align="JUSTIFY">Trešo reizi jau atskrējis dzeltēnais vilks, prasīdams: "Vai
+esi gatavs jeb ne?"</p>
+
+<p align="JUSTIFY">"Ne, cienīgs kungs, malka zaļa, neiet tik drīzi; bet tūlīt
+arī būs."</p>
+
+<p align="JUSTIFY">Te, pa brītiņu atskrien balodis un saka: "Tavi suņi jau visas
+trīs durvis izēduši, būs tūlīt klāt."</p>
+
+<p align="JUSTIFY">Pa brītiņam atskrien suņi. Brālis nu nolicis Kampēju priekšā,
+Vieglo vidū, Smago beigās un pats atkal sācis pērties. Vilks arī tūlīt klāt,
+uzsaukdams: "Nu vajaga gatavam būt!"</p>
+
+<p align="JUSTIFY">"Esmu gatavs, nāc tik iekšā!"</p>
+
+<p align="JUSTIFY">Tikko vilks nācis, te Kampējs pie rīkles, Vieglais pie astes un
+Smagais uz muguras. Nebijis ilgi, kur no vilka ne smakas. Arī pirts caur lielo kautiņa
+karstumu aizdegusies un nodegusi.</p>
+
+
+</body></html>

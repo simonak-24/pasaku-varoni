@@ -1,0 +1,216 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>11</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Dažādi spēka vīri.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">11. A. 650 C. Lapas Mārtiņš, Gudrais Ansis un velns, III, 1902, 104
+(26).</p>
+
+<p align="JUSTIFY">Reiz velns nodomājis savu dēlu likt uzaudzināt pie cilvēkiem.
+Viņš to nēsājis apkārt, visiem piedāvādams par audžu bērnu, bet neviens to
+nepieņēmis. Tad viņš pēdīgi vienā naktī to nolicis pie viena saimnieka durvim, kam
+pašam nebija neviena bērna. Saimnieks to nu arī paturējis pie sevis. Pie bērna
+svārciņiem bijis piesprausts papīra gabaliņš, kur bijis kaut kas uzrakstīts; bet
+saimnieks nepratis lasīt un aizgājis ar to pie muižkunga aptaujāties. Muižkungs
+viņam pastāstījis, ka uz papīra esot rakstīts, ka bērna vārds esot Spēks.
+Saimnieks gan pabrīnījies par tādu vārdu, bet tomēr domājis: "Kad jau bērnam
+tāds vārds ir kristībā dots, tad lai ar’ paliek!"</p>
+
+<p align="JUSTIFY">Kad puisēns paaudzis, tad drīz vien izrādījies, ka ir sava vārda
+cienīgs. Jau puikas gados viņš bijis stiprāks nekā pieauguši spēka vīri.</p>
+
+<p align="JUSTIFY">Reiz ziemā no muižas atsūtīta saimniekam ziņa, ka jāiet kungam
+malku cirst un ka par vienu klaušu dienu jāsacērt vesela ass malkas. Saimnieks
+jautājis savam audžudēlam, kas jau bijis gadu sešpadsmit vecs, vai šis neiešot viņu
+vietā malku cirst.</p>
+
+<p align="JUSTIFY">Spēks atbildējis: "Labprāt, bet tad gādā man arī tādu
+cirvi, kas man pa spēkam!"</p>
+
+<p align="JUSTIFY">Tēvs gājis pie kalēja un licis uzkalt savam dēlam divi pudi smagu
+cirvi. Spēks apģērbies; aizbāzis smago cirvi aiz jostas un aizgājis uz kunga mežu.
+Mežā aizgājis, viņš nolicies pie ugunskura gulēt un sācis tik dikti krākt, ka viss
+mežs trīcējis. Citi malkas cirtēji, redzēdami gulētāju ar lielo cirvi aiz jostas,
+tikai aizmetuši krustu no bailēm.</p>
+
+<p align="JUSTIFY">Spēks nogulējis līdz sestdienas pusdienai, kad citi malkas cirtēji
+jau taisījušies beigt savu nedēļas darbu. Atnācis arī kungs ar vagāru pierakstīt
+sacirsto malku. Nu arī gulētājs pamodies, uzlēcis kājās un redzējis, ka darbs
+tūliņ jau būs jānodod. Viņš sagrābis savu cirvi un sācis cirst kokus, ka viss
+mežs skanējis. Pāra stundās arī viņš sacirtis savas sešas asis un sakrāvis visu
+ielās, kā pienākas.</p>
+
+<p align="JUSTIFY">Kungs brīnīdamies pārdomājis pie sevis: "Tāds strādnieks man
+muižā derētu."</p>
+
+<p align="JUSTIFY">Viņš piegājis pie Spēka un prasījis: "Vai tu negribētu nākt
+pie manis uz muižu par kalpu?"</p>
+
+<p align="JUSTIFY">"Labprāt, ja mans audžu tēvs atļauj," Spēks atbildējis.</p>
+
+<p align="JUSTIFY">Kungs atlaidis Spēka tēvam visus klaušu darbus, un tas nu arī
+atvēlējis savu audžu dēlu kungam. Kungs prasa atkal Spēkam: "Kādu algu tu
+prasi?"</p>
+
+<p align="JUSTIFY">Spēks atteicis: "Ko nu par algu runāt, kad tēvam tiek atlaisti
+klaušu darbi? Tikai ēst prasu, cik man gribas."</p>
+
+<p align="JUSTIFY">"Ēst tu dabūsi, cik vien jaudāsi apēst," kungs
+priecādamies atbildējis.</p>
+
+<p align="JUSTIFY">Kad Spēks aizgājis uz muižu, kungs tam iedevis divus zirgus ar
+lielām ragavām, lai pārvedot sienu no pļavas. Spēks arī aizbraucis uz pļavu,
+nocirtis pļavmalā četras krietnas egles uzsējis tās uz ragavām un uzvēlis uz tām
+eglēm divas lielas siena kaudzes. Zirgi nu nevarējuši ragavu ne pakustināt. Spēks no
+dusmām nositis zirgus, uzsviedis tos uz vezuma, un pārvilcis lielo vezumu pats mājā.
+Mājā pārnācis, Spēks apēdis visas ēdamas lietas, kādas tik dabūjis rokā. Pēc
+ēšanas viņš nolicies gulēt un krācis tik dikti, ka sienas trīcējušas.</p>
+
+<p align="JUSTIFY">Muižas ļaudis steigušies pastāstīt arī kungam visu, kas noticies,
+un prātojuši, ka Spēks nevarot būt cilvēks, bet laikam gan pats velns cilvēku
+izskatā. Kungs arī sabijies un nezinājis, ko ar viņu darīt un kā pieēdināt.
+Kaimiņos dzīvojis kāds burvis, ko saukuši par gudro Ansi, un kungs sadomājis šo Ansi
+aicināt palīgā. Spēkam viņš uzdevis izrakt lielu dīķi un ierādījis tam dīķa
+ietu. Šis nu licis kalējam uzkalt divi pudi smagu lāpstu un sācis ar to strādāt.
+Drīz vien dīķa malā pacēlušies veseli kalni no izraktām zemēm.</p>
+
+<p align="JUSTIFY">Atnācis Ansis un sācis domāt, kā Spēkam gādāt vakariņas.
+Lielajā podā, kur muižas lopiem dzēriens vārīts, viņš licis saliet kādus desmit
+spaiņus ūdens un tad piebērt pilnu podu ar zirgu mēsliem. Tā tad nu vārījuši
+lielajam ēdējam putru. Vakarā Spēks jau bijis dīķi izracis, sēdies pie Anša
+sagādātām vakariņām un bijis ar tām gluži mierā.</p>
+
+<p align="JUSTIFY">Nākošā rītā Ansis pasacījis Spēkam, ka kungs gribot vienā
+tukšā smiltājā taisīt zvēru dārzu. Lai šis nu tur sastādot labi lielus kokus no
+meža un lai aptaisot labi augstu sētu visapkārt. Triju dienu laikā koki jau bijuši
+sastādīti un arī sēta aptaisīta apkārt.</p>
+
+<p align="JUSTIFY">Nu Ansis licis Spēkam, lai sameklējot mežā arī zvērus pa pāriem
+un lai pārvedot tos dārzā. Divus lielus briežus Spēks viegli vien pārvedis no meža.
+Nu bijuši jāpārved divi lāči, bet ar tiem viņam klājies daudz grūtāki. Pēdīgi
+viņš tomēr nešus pārnesis divus lāčus, kuriem ķepas un purni bijuši sasieti ar
+valgiem.</p>
+
+<p align="JUSTIFY">Kad lāči bijuši atnesti, tad Ansis licis, lai sameklējot arī divus
+vilkus. Spēks gan strīdējies pretī, ka vilku nevajagot, bet Ansis pastāvējis, ka
+kungs tā esot vēlējis un kunga pavēle esot jāizpilda. Spēks par to bijis ļoti
+saīdzis un aizgājis gulēt.</p>
+
+<p align="JUSTIFY">Nākošā rītā Spēks aizgājis uz mežu, bet nu vairs nepārnācis
+mājā. Vai nu vilki viņu mežā saplosījuši, jeb viņš aizgājis uz elli pie citiem
+velniem.</p>
+
+<p align="JUSTIFY">P i e z ī m e. Šī pasaka ir še stipri saīsināta, atmetot liekos
+apraksta sīkumus. "Gudrais Ansis" gan še drusku atgādina Piebalgā un
+apkārtnē daudzināto burvi Kurmi, bet savu nosaukumu viņš gan ir dabūjis no vācu
+pasakas "Stiprā Anša". Nevar tomēr droši zināt, vai šī pārmaiņa jau
+notikusi tautas mutē, jeb Lapas Mārtiņš še ir palīdzējis arī no savas puses. P.
+Š.</p>
+</font>
+
+
+</body></html>

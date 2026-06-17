@@ -1,0 +1,184 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>4</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="3">
+
+</font><p align="center"><font size="3"></font><strong><font size="5"> Zvēru valoda.</font></strong><font size="3"></font></p><font size="3">
+
+<p>4. A. 670. J. Opyncāns, Latgalē.</p>
+
+<p align="JUSTIFY">Cytu reiz, aba ītū reiz, dzeivoj medinīks. Raiz jis nūīt medība.
+Redz: uz stymbyna sēd kaids putns. Jis pasamērēja - grib saut, bet putns īsuoc runuot:
+"Nasaun, pīej tyvuok!"</p>
+
+<p>Medinīks pīīt pi putna. Putns soka: "Spļaun man mutē." </p>
+
+<p>Medinīks spļaun, tyulīt jis īsuoc saprast, kū zvēri, putni runoj. Putns tad soka:
+"Verīs, tikai nikam cytam nastuosti; jo izstuostīsi, tad tu nūmiersi."</p>
+
+<p align="JUSTIFY">Medinīks kot i dzierd, kū zvēri putni runoj, bet visam paar tū
+nastuosta.</p>
+
+<p align="JUSTIFY">Reiz medinīks aizīt uz mežu medībā. Aizzamolda. Staguoja,
+staiguoja - aizpēj nakts. Sakur gunskuri - dzierd: divi irbītes sarunoj - jis pajem un
+nūsaun. Koleidz jis vuorej irbītes, dzierd: suņi runoj sovā storpā: "Šūnakt
+saimnīks te, bet jū zagļi gribēs apzagt, vajadzīgs skrīt uz muojom, kot
+vīnam."</p>
+
+<p align="JUSTIFY">Cikam midinīks izvuorej irbītes, skatuos: vīna suņa jau nav. Pajem
+vīnu irbīti, atdūd divējim suņim un ūtru pats saād. Puorguļ</p>
+
+<p align="JUSTIFY">mežā. Reitā cēlīs, skotuos: otkon vysi treis suņi. Dzierd: suņi
+sasarunoj:</p>
+
+<p align="JUSTIFY">"Nu,kai , voi zagļi beja pi saiminīka?</p>
+
+<p align="JUSTIFY">"Beja, tikai es suoku rīt, vēl pīsaslējīs pi lūga,
+paskrabynuoju. Tad saimnīca izbuozja golvu, paklīdzja: kusy, kusy, i nūbeidzja. Tikai
+nelabi, ka myusu saimnīca natikla. Man ēst atnesja kvīšu myltu. Ta jai pi rūkom
+nasagadījās yudiya, jei jēmja pīmeiza uz myltim un atdevja man ēst. Un jyusim kū
+devja ēst?"</p>
+
+<p align="JUSTIFY">"Myusu saimnīks atdevja vīnu irbīti; bet ūtru pats
+apēdja." "Jums moz arī beja, bet gorda gaļa."</p>
+
+<p align="JUSTIFY">Medinīks cēlās, sadaboj ceļu un atīt uz sātu. Jis vaicoj sīvai :
+"Voi šūnakt nikuo nabeja?"</p>
+
+<p align="JUSTIFY">"Nabeja." </p>
+
+<p align="JUSTIFY">"Bet zagļu arī nabeja?"</p>
+
+<p align="JUSTIFY">"Nazynu, suns nazkū suocja rīt, es atvāruse lūgu, paklīdzu un
+vyss nūklusa."</p>
+
+<p align="JUSTIFY">"Bet kū tu devi vokor suņam ēst?" vaicoj mediniks.
+"Kvīšu myltus atjaušu ar yudeni un īdevu."</p>
+
+<p align="JUSTIFY">"Maloj ! " </p>
+
+<p align="JUSTIFY">,Namaluoju."</p>
+
+<p align="JUSTIFY">"Nā, maloj, tu pīlmeizi uz myltim un devi suņam ." </p>
+
+<p align="JUSTIFY">"Kas tev stuostīja?"</p>
+
+<p>"Es zynu, bet es nevaru stuostīt, kas, jo es tad nūmieršu." </p>
+
+<p>Sīva nalīk vairs mīra - stuosti, da stuosti! Medinīks navar nikur liktīs. Aizkur
+sveci rūkā un grib stuostīt. Tymā breidī gailis, staiguodams pa sātu, runoj:
+"Ak, kaids ļels muļķis myusu saimnīks! Man ir septeņas sīvas un vysas klausa, i
+kad es aplaižu spuornus drebin dreb. Bet jam vīna un tuos navar nūmīrinuot. Voi tys
+nav lels kauns? Tak ir lobi grūži - pajēmis, salūcējis, vēl pamērcējis, lai lobuok
+pīleip, satvēris aiz motu, sovu sīvu labi atkulstītu, tad jei myužam klausītu."</p>
+
+<p align="JUSTIFY">Izdzierdis šū, medinīks nūsvīdja sveci, izskrēja uorā un,
+patvēris grūžus un sagyuvis sīvai aiz motu, tai atkuļstīja, ka sīva apsajēma nikod
+vairs naprasīt, nu kuo jis tū izzynuojis.</p>
+
+<p>Tai gailis izgluobja medinīku nu nuoves.</p>
+</font>
+
+
+</body></html>

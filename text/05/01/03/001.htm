@@ -1,0 +1,253 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Trīs zelta mati no velna galvas.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. A. 461. Skolniece E. Mila 1892. g. Smiltenes Blomu pag. V. Maldoņa
+kr.</p>
+
+<p align="JUSTIFY">Reiz viens ķēniņš, uz medībām iedams, satika mežā vienu puiku,
+kas tur bija apmaldījies. Viņš nu paņēma nabaga puiku līdza uz savu pili. Dzīvodams
+pie ķēniņa, puika izauga par skaistu jaunekli.</p>
+
+<p align="JUSTIFY">Reiz ķēniņam parādījies savāds sapnis, kur viens vecītis viņam
+stāstījis, ka tas jauneklis būšot pēc viņa nākamais valdnieks. Ķēniņš par tādu
+sapni sabijās un gribēja jaunekli nokaut. Tomēr viņam sirds vēl iežēlojās un
+viņš sacīja uz jaunekli: "Ja tu aizej uz elli pie velna un atnes man no velna
+galvas trīs zelta matus, tad tu vari palikt dzīvs."</p>
+
+<p align="JUSTIFY">Jauneklis droši atbildēja, ka to izdarīšot, un aizgāja. Iedams
+viņš nonāca kādā muižā, kur audis tam prasīja, kur viņš gribot iet. Jauneklis
+atbildēja: "Eimu uz elli pie velna pēc trim zelta matiem."</p>
+
+<p align="JUSTIFY">,,Ja tu uz elli ej, vai tu nevarētu velnam kādu padomu paprasīt?
+Mūsu akā vienmēr ir bijis gards ūdens, bet kādi gadi atpakaļ ūdens izsīka. Kas tur
+būtu jādara, lai atkal ūdens rastos akā?"</p>
+
+<p align="JUSTIFY">Jauneklis apsolījās visu izprasīt un aizgāja. Iedams viņš nonāca
+kādā pilsētā, kur atkal ļaudis tam prasīja: "Kur iedams?"</p>
+
+<p align="JUSTIFY">"Eimu uz elli pie velna pēc trim zelta matiem."</p>
+
+<p align="JUSTIFY">"Ja tu uz elli ej, vai tad nevarētu velnam kādu padomu
+paprasīt? Mums bija viena ābele, kas arvien ziedēja un nesa zelta ābolus. Bet kādi
+gadi atpakaļ nav vairs ne ziedu, ne ābolu. Paprasi nu velnam padomu par mūsu
+ābeli."</p>
+
+<p align="JUSTIFY">Jauneklis apsolījās visu izdarīt un aizgāja. Netālu no velna pils
+viņam bija jāiet par vienu upi, kur ar rāmi cēla pāri. Rāmnieks atkal prasīja
+jauneklim: "Kur iedams?"</p>
+
+<p align="JUSTIFY">"Eimu uz elli pie velna pēc trim zelta matiem."</p>
+
+<p align="JUSTIFY">"Ja tu uz elli ej, tad paprasi velnam arī par mani padomu. Man
+jau tik ilgi ir uz rāmja jākalpo, kā nu es varētu no tā rāmja vaļā tikt?"</p>
+
+<p align="JUSTIFY">Jauneklis apsolījās velnam paprasīt un aizgāja. Pēdīgi viņš
+nonāca velna mājā, bet velna paša mājā nebija, tikai viņa sieva to saņēma un
+sacīja: "Mans vīrs ir ļoti negants un saplosa katru cilvēku, kas tik še ienāk.
+Drīz viņš arī pārnāks."</p>
+
+<p align="JUSTIFY">Jauneklis izstāstīja, kādēļ viņš nācis pie velna. Velna sievai
+bija jaunekļa žēl, viņa apsolījās tam palīdzēt un tūlin paslēpa to pagultē aiz
+viena bluķa. Velns pārnācis, tūlin uzsauca sievai: "Kas te par kristīta cilvēka
+smaku? Vai nav kāds atnācis?"</p>
+
+<p align="JUSTIFY">"Te neviena nav," sieva noliedza.</p>
+
+<p align="JUSTIFY">Sievai neticēdams, velns izmeklēja visus kaktus, paskatījās arī
+pagultē, bet neko neatradis, aizgāja gulēt. Bet šoreiz viņam nenāca miegs, viņš
+Cēlās atkal augšā un deva sievai galvu ieskāt. Ieskādama sieva izrāva tam vienu
+zelta matu no galvas, par ko vīrs saskaitās un sabāra to: "Kas tā par tik stipru
+ieskāšanu!"</p>
+
+<p align="JUSTIFY">Sieva lūdzās: "Mīļais vīriņ, piedod šoreiz! Es biju
+aizmigusi un redzēju ērmotu sapni. Vienā muižā bijusi aka ar ļoti gardu ūdeni, bet
+kādi gadi atpakaļ, ūdens esot izsīcis."</p>
+
+<p align="JUSTIFY">Vīrs saka: "Tas tā arī ir. Bet būtu tie Cilvēki tik gudri
+bijuši, iztīrījuši to aku un nosituši to lielo vardi, kas uztupusies uz ūdens
+āderes, tad tai akā būtu atkal tāds pats gards ūdēns kā agrāki."</p>
+
+<p align="JUSTIFY">Sieva atbild: "Kas to viņiem dos zināt?"</p>
+
+<p align="JUSTIFY">Nu viņa tikai ieskā vīram galvu un izraun otru matu, par ko tas
+atkal baŗas. Bet sieva lūdzas: "Mīļais vīriņ, piedod! atkal biju apsnaudusies
+un sapņoju. Vienā pilsētā bijusi ābele, kas vienmēr ziedējusi un nesusi zelta
+ābolus, bet kādi gadi atpakaļ vairs nebijis ne ziedu, ne ābolu."</p>
+
+<p align="JUSTIFY">Vīrs saka: "Tas tā arī ir. Bet būtu tie cilvēki tik gudri
+bijuši, atrakuši ābelei saknes un nosituši to lielo žurku, kas apgrauzusi ābelei
+saknes, tad ābele atkal sāktu ziedēt un nest zelta ābolus."</p>
+
+<p align="JUSTIFY">Sieva atbild: "Kas to viņiem dos zināt?"</p>
+
+<p align="JUSTIFY">Ieskādama viņa izraun velnam atkal trešo matu, un ka tas sāk
+bārties, tad saka atvainodamās: "Es atkal biju apsnaudusies un redzēju
+brīnišķīgu sapni. Viens rāmnieks cēla mani ar rāmi par upi. Viņš žēlojās, ka
+viņš jau ilgu laiku esot bijis par rāmnieku un nu jau esot vecs palicis, bet nezinot,
+kā varētu no rāmja vaļā tikt."</p>
+
+<p align="JUSTIFY">Vīrs saka: "lr viens tāds rāmnieks. Būtu tas cilvēks tik
+gudrs bijis, nolēcis pats papriekšu no rāmja un atstājis pārceļamo cilvēku savā
+vietā, tad viņš tiktu no rāmja vaļā."</p>
+
+<p align="JUSTIFY">Sieva piebilst: ,,Kas to viņam dos zināt?"</p>
+
+<p align="JUSTIFY">Velns saskaitās par tādu galvas ieskāšanu, piecēlās un
+aizskrēja, ka vējš vien norūca. Nu arī jauneklis iznāca no pagultes, un velna sieva
+tam iedeva prasītos velna matus. Jauneklis pateicās, aizgāja un nonāca vispirms pie
+rāmnieka. Tas prasa: "Kādu padomu tad velns man deva?"</p>
+
+<p align="JUSTIFY">Jauneklis atbild: "Pārcel mani papriekšu par upi, tad
+stāstīšu.</p>
+
+<p align="JUSTIFY">Rāmnieks viņu pārcēla un nu jauneklis arī izstāstīja, ko velns
+par viņu sacījis.</p>
+
+<p align="JUSTIFY">Nonācis pie tās pilsētas, kur bijusi ābele ar zelta āboliem,
+jauneklis arī še izstāstīja velna doto padomu. Ļaudis tūlin atraka ābelei saknes,
+nosita žurku un ābele drīz vien atspirga. Par to nu kungi iedāvināja jauneklim daudz
+zelta naudas.</p>
+
+<p align="JUSTIFY">Tā viņš nu nonāca atkal pirmā muižā un izstāstīja, kas ar aku
+darāms. Ļaudis iztīrīja aku, nosita vardi un aka tūlin pienāca pilna ar gardu
+ūdeni. Muižnieki par to iedāvināja jauneklim skaistu karīti ar diviem zirgiem un vēl
+lielu krūzi gardā ūdens klāt. </p>
+
+<p align="JUSTIFY">Pārbraucis laimīgi mājā, jaunek lis gāja pie ķēniņa, iedeva tam
+tos zelta matus un parādīja arī visas savas dāvanas, stāstīdams, ka velns tās esot
+šim dāvinājis. Ķēniņam ļoti patika tādas lietas un viņš tūlin izprasīja
+jauneklim ceļu uz elli, lai arī pats varētu tur noiet un dabūt dāvanas. Jauneklis
+visu izstāstīja, kur jāiet, un vēl piebilda: "Uz elli ir jāiet tikai kājām, ne
+braukšis, jo braucēju velns noturēs par bagātu un dāvanu nedos."</p>
+
+<p align="JUSTIFY">Ķēniņš arī nemaz vairs nekavējas un dodas tūlin kājām ceļā.
+Kad viņš nonāk pie pirmās muižas, tad audis dod tam krūzi gardā ūdens velnam par
+dāvanu. Pilsētā viņš dabū zelta ābolus, lai aiznesot velnam par pateicību.
+Tālāku iedams, ķēniņš nonāk pie tās upes. kur rāmnieks cel gājējus pāri. Bet
+šoreiz rāmnieks nolēca papriekšu no rāmja un tika vaļā no sava ilgā un gŗūtā
+darba. Ķēniņam nu gribot negribot bija jāpaliek par rāmnieku pie upes.</p>
+
+<p align="JUSTIFY">Ilgu laiku gaida ķēniņu mājā, bet nav no viņa nekādu ziņu. Visi
+ļaudis runāja, ka velns to esot saplosījis. Jauneklis nu apprecēja ķēniņa<b> </b>vienīgo
+meitu, dzēra lieliskas kāzas un palika pats par valdnieku vecā ķēniņa vietā.</p>
+
+<p align="JUSTIFY">Es arī biju tais kāzās, kur man deva sukura zirgu un maizes vāģus.
+Es biju ģērbusies papīra kleitē, vasku cepurē un glāzes kurpēs. Nodzēru kāzas,
+braucu uz māju, bet par nelaimi sāka līt lietus, izkusa mans zirgs un bērni apēda
+manus vāģus. Skrodelis, garām iedams, noķēra manu cepuri, es lecu par grāvi un
+saplīsa man kurpes un kleite. Es iegāju vienā pakulu šķūnī un apgulos, bet atnāca
+zaldāti, ielika mani lielgabalā par prapi un tā mani atšāva še.</p>
+
+<p align="JUSTIFY">Piezīme. Līdzīgu pasaku tiku senāk arī Raunā dzirdējis. P. Š<b>.</b></p><b>
+</b>
+
+
+</body></html>

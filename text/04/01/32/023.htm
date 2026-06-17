@@ -1,0 +1,167 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>23</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Varde par līgavu.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">23. A. 402. .I. Henniņš no J. Zeidenberga. 1879. g. Sasmakā. </p>
+
+<p align="JUSTIFY">Kādam tēvam bija trīs dēli: divi gudri, trešais muļķis. Tas
+tēvs nezināja, kuŗam dot to māju. Reiz tēvs sacīja: "Kuŗš no jums man nopirks
+smukāko tabakas dozi, tas dabūs manu māju."</p>
+
+<p align="JUSTIFY">Abi gudrie brāļi gāja savu ceļu, bet muļķis izlūdzās no tēva
+baltu zirgu un jāja ar to par kādu meža ceļu. Šis meža ceļš iznāca uz kādu
+kalnu, kur bija smuks āboliņš, un tur nu muļķis sapina savu zirgu. To izdarījis,
+viņš nogāja lejā, kur bija visapkārt liela sēta un lieli vārti, pie kuŗiem gulēja
+liela odze, kas saņēma viņa labdienu. Par vārtiem iegājis, viņš nevarēja tai
+mājai nekur durvis atrast, tik pēdīgi ierauga caurumu, pa kuŗu tikko varēja ielīst.
+Tur istabā nebija neviena cilvēka, kā tik viena galva bez rumpja, gultā ielikta.
+Viņš deva labdienu, tā galva saņēma to labdienu un prasīja, ko viņš gribot un
+meklējot? Šis visu izteica, un tad tā galva atbildēja: "Tev vajaga še tik ilgi
+palikt, kamēr es tev teikšu. Kad tavi brāļi būs mājā, tad es tev došu to dozi un
+tu varēsi iet."</p>
+
+<p align="JUSTIFY">Citu darbu tā galva nedeva, kā tikai krāsni kurināt. Kad gads bija
+pagalam, tad galva teica, lai nu iet projām un paņem to dozi, kas kumodē, jo viņa
+brāļi drīz nākšot mājā.</p>
+
+<p align="JUSTIFY">Aizgājis atkal kalnā. viņš kāpa savam zirgam mugurā, kas par to
+laiku it apaļš bija palicis, un drīz bija mājā. Viņa brāļi patlaban bija
+pārnākuši un, redzēdami viņu jājam, izsmēja, ka muļķis arī nesot savu tāss
+dozi. Kad nu viņš zirgu bija ielicis stallī, tēvs sauca visus trīs, lai ŗādot tās
+dozes. Tie gudrie rādīja savas dozes, kas bija ļoti smukas, bet muļķim bija aiz
+visiem skaistākā. Tēvs par to sacīja uz muļķi: "Tev pieder mana māja."</p>
+
+<p align="JUSTIFY">Gudrie brāļi nebija ar to mierā un ļoti dusmojās. Tēvs nu atkal
+uzdeva: "Kurš vissmukāko mutslauci atnesīs, tam būs mana māja."</p>
+
+<p align="JUSTIFY">Abi gudrie gāja savu ceļu, bet muļķis atkal aizgāja pie savas
+galvas, kas to tāpat mīļi izturēja. Kad viņš tur savu laiku bija nokalpojis, galva
+sacīja muļķim: "Ej pie kumodes, paņem to mutslauci un steidzies mājā."</p>
+
+<p align="JUSTIFY">Abiem gudrajiem par lielu dusmu, muļķim bija skaistākais mutslaucis.</p>
+
+<p align="JUSTIFY">Nu tēvs vēl pēdīgo reiz sacīja, lai atved katrs sev sievu, kam
+būs skaistākā, tam piederēs tā māja, Gudrie brāļi pielūdza tēvu, lai muļķi
+vairs nelaiž laukā, un tēvs to ielika dārza būdā. Kad tie divi bija projām,
+muļķis gauži lūdzās un tēvs to arī izlaida laukā. Muļķis aizgāja atkal pie
+savas galvas un galva tam sacīja: "Šogad tev jāsacērt 25 asis malkas un jāsasien
+300 slotas."</p>
+
+<p>Kad muļķis to visu bija padarījis, galva lika tam septiņas nedēļas vienu krāsni
+kurināt un visām slotām ielikt kātus. Kad krāsns bija izkurināta, tad galva lika,
+lai muļķis to iemet krāsnī. Tad nāca visādi kukaiņi un odzes ārā, tā ka visas
+slotas noslaucīja un nevarēja vien savaldīt. Kad viņš savu darbu bija izdarījis, tad
+ielaidās gultā atpūsties un pēc tam gāja krāsni vaļā taisīt. Nu viss lāsts no
+tās pils bija beidzies un viņš ieraudzīja trīs princeses savā priekšā. Tās
+princeses viņam iedeva skaistu sievu, kas atkal bija skaistākā par brāļu sievām. Tā
+nu muļķis dabūja tēva māju, bet gudrie brāļi no dusmām pakārās.</p>
+
+
+</body></html>

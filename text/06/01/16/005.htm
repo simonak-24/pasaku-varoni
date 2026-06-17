@@ -1,0 +1,220 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>5</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Ķēniņa meita glāžu kalnā.</p>
+</b></font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+<p align="JUSTIFY">5. A. 530. Kurzemes Jaunpilī. A. Bīlenšteina kr. LP, VI, 680 (124,
+23).</p>
+
+<p align="JUSTIFY">Kādam tēvam bijuši trīs dēli: divi gudri, trešais muļķis. Kad
+nu tēvs nomiris un klētī ielikts, tad dēliem bijis katram savu nakti jāiet vāķēt,
+bet pēc karatas: vecākajam papriekšu, tad viduvējam, beidzot jaunākajam,
+muļķīgajam. Kad nu vakars atnācis, vecākajam brālim neticis iet, lūdzis muļķīgo,
+lai tas viņa vietā ietu. Labi. Muļķīgais iegājis klētī, attaisījis zaragu vaļā
+un vāķē. Uz vienreiz ceļas mirons augšā un prasa : "Kur vecākais brālis?
+Kāpēc viņš nav nācis?"</p>
+
+<p align="JUSTIFY">Šis nu sabijies; neko neatbild; bet tēvs saka: "Nebi(ī)ksties!
+Še tev ir sudraba stabulīte: kad tu ko no sudraba gribi, tad pastabulē, tūdaļ viss
+tev gadīsies!" To teicis, mirons atkal apgulies.</p>
+
+<p align="JUSTIFY">Otrā naktī bijis otram brālim jāiet; tas atkal lūdzis muļķīgo
+vietā. Labi. Un mirons atkal uzcēlies un šoreiz iedevis zelta stabulīti, sacīdams:
+"Kad tu ko no zelta lietām iegribies, pastabulē - tūlīt viss tas gadīsies."</p>
+
+<p align="JUSTIFY">Trešo nakti viņš akal vāķē un dabū dimanta stabulīti: lai to
+pastabulējot tad viss būšot no dimanta, ko vien vēlēšoties.</p>
+
+<p>Pēc kāda laika muļķis dabū zināt, ka ķēniņš izlaidis tādu pavēli: "Kas
+jāšus trešā pils tāžā jeb bēliņģī uzjās, tas viņa meitu un valsti
+dabūs!"</p>
+
+<p align="JUSTIFY">Sagājuši ļaudis no malu malām: muižnieki kā arī zemnieki. Arī
+šie trīs brāļi taisījušies iet, bet abi gudrie muļķīti izsmējuši un
+izsunījuši, sacīdami: "Ko tu tur tāds pelnu ruskis domā darīt?"</p>
+
+<p align="JUSTIFY">Šie divi nu āziet, muļķītis it mierīgs paliek mājās. Bet
+tikdrīz, kā šie aizgājuši, šis ņem savu sudraba stabulīti un stabulē. Te arī
+tūlīt gadās sudraba zirags ar visiem segliem, tik vien vajadzīgs mugurā kāpt un
+jāt. Nojāj uz pili, tur jau tikdaudz citu sajājuši un viens pēc otra rauga un
+pūdējas noteiktā vietā uztikt, bet neviens nevar. Nu jās šis ar sudraba ziragu -
+riktīgi - uz reizi pirmajā tāžū augšā. Pēc tam ikkatrs akal iet uz savām mājām
+un muļķītis ar sudraba ziragu pārskrej kā vējš uz mājām un pie akmiņa zirags
+akal pazūd; bet viņš pats akal sēd pelnos noruskējies. Pa kādam laikam pārnāk
+gudrie brāļi un priecājas, sacīdami: "Kas tev to dos redzēt, ko mēs redzējām?
+Sudraba ziragu ar visu jājēju!"</p>
+
+<p align="JUSTIFY">Otrā dienā nu ir akal jāiet. Gudrie aiziet, muļķītis paliek
+mājās. Bet pēc kāda laika viņš ņem savu zelta stabulīti un stabulē. Te zelta
+zirags ar visiem segliem klāt. Nojāj uz pili, atrod tāpat, kā pirmo reizu tur
+pūlējamies; bet nevienam neizdodas augšā tikt. Bet šis kā nu jāj, tā uzjāj otrā
+tāžū, Visi par tam izbrīnās un iet katrs uz mājām. Trešā dienā akal visiem
+jāsanāk. Un kad gudrie āzgājuši, muļķītis akal ņem savu dimanta stabulīti un
+stabulē. Te tūlīt tāds dimanta zirags klāt, ka spīguļo vien un arī viņam pašam
+dimanta drānas. Nu viņš āzjāj uz pili -- citi visi sen sajājuši, bet mereķi nevar
+neviens āzsniegt; bet šis kā jāj, tā trešajā tāžū augšā un ķēniņa meita
+iespiež šim zelta zīmi pierē. Šis griež tad ziragu apkārt un jāj uz mājām pie
+akmiņa, kur dimanta zirags pazūd.</p>
+
+<p align="JUSTIFY">Pēc kāda laika visus sasauca pilī un meklē, kam tā zīme pierē.
+Izmeklē - ne pie viena neatrod. Beidzot sauc muļķīti uz pili un atrod šim to zīmi.
+Nu vajadzēja kāzas svinēt muļķītim ar ķēniņa meitu pēc labas taisnības; bet
+ķēniņš vēl nedod vis meitu, lai sudraba zaķi atnesot, tad!</p>
+
+<p align="JUSTIFY">Un nu muļķītis un gudrie brāļi, visi, dodas ceļā zaķi meklēt:
+gudrie āziet pa citu ceļu kopā, muļķītis paliek viens pats. Iet, iet - te pastabulē
+sudraba stabulīti - sudraba zirags klā un nu jāj jāšus. Jāj, jāj -- nojāj uz
+lielu, lielu mežu un tur, !tanī mežā, atrod lielu aploku. Šinī aplokā pastabulē
+akal sudraba stabuli, tūlīt sudraba zaķis klāt. Muļķītis šo noķer un jāj
+apakaļ. Bet uz vienām ceļa jūtim viņš sadomā atdusēties. Tā tūlīt pastabulē
+stabulīti un vēlas gultu, gulta gadās- Nu guļ, izguļas, atnāk viņa brāļi ar(ī)
+tur (bet viņi viņu nepazīst) un kaulējas: cik gribot par to sudraba zaķi? Šis
+atbild: "Negribu daudz, izgrieziet tikai sev vienu sleju no muguras!"</p>
+
+<p align="JUSTIFY">Labi, šie izgriež, paņem zaķi un aiziet. Pāriet nu muļķītis pie
+ķēniņa - zaķa nekā - nu jāiet pēc zelta auna. Aiziet visi brāļi pēc aunav gudrie
+kopā pa citu ceļu, šis viens pats. Iet, iet pastabulē zelta stabulīti - zelta zirags
+klāt un nu jāj jāšus. Jāj, jāj - nojāj uz lielu, lielu mežu, tur atrod aploku.
+Aplokā pastabulē akal zelta stabulīti un vēlās zelta aunu - zelta auns klāt.
+Muļķītis noķeŗ šo un jāj apakaļ. Bet ceļa jūtīs jūtas nokusis. sadomā
+atdusēties. Tā tūlīt pastabulē stabulīti un vēlās gultu gulta klāt. Nu guļ,
+izguļas, atnāk viņa brāļi ar(ī) tur (bet viņi viņu nepazīst) un kaulējas: cik
+gribat par zelta aunu? Šis atbild: "Ja jūs katrs vienu pirakstu nogriežat, ta(d)
+es jums viņu ar(:) atdomu."</p>
+
+<p align="JUSTIFY">Šie to darīja un tad āzgāja ar zelta aunu. Muļķītis pāriet pie
+ķēniņa - zelta auns nekā - un nu jāiet pēc dimamta veraša. Visi trīs brāļi
+āziet pēc veraša: gudrie pa citu ceļu kopā, muļķītis viens pats. Iet, iet
+pastabulē dimanta stabulīti un vēlās dimanta ziragu - zirags klāt un nu jāj jāšus.
+Jāj, jāj - nojāj uz lielu, lielu mežu, tur atrod aploku. Aplokā pastaibulē akal
+dimanta stabulīti un vēlās dimanta verasi - verasis klāt un nu šis itin mudīgi
+steidzas uz tām ceļa jūtim. Azjāj tur, pastabulē, vēlās dimanta gultu - gulta
+klāt. Nu guļ, izguļas, atnāk viņa brāļi ar(ī) tur (bet viņi viņu npazīst) un
+kaulējas: cik gribot par tādu dimanta verasi? Šis atbild: "Vēl vienu
+pirakstu!"</p>
+
+<p align="JUSTIFY">Šie nogriež katrs otru pirakstu, lai tikai varētu ķēniņa meitu un
+valsti dabūt. Muļķītis pāriet pie ķēniņa - dimanta verasis nekā; bet gudrajiem
+brāļiem ir dimanta verasis, zelta auns un sudraba zaķis - šiem ķēniņš vienam nu
+atdos pili, otram meitu. Un nu drīzi grib kāzas svinēt; bet pa kāzām ķēniņš
+brīnās, kāpēc šiem abiem cimdi rokās. Muļķītis atbildējs: viņiem divi piraksti
+nesot! Piraksti esot pie viņa. Ķēniņš nesapratis: kā tad piraksti var viņam būt?
+Tad muļķītis izstāstījs patiesību, ka nevis viņi zaķi, aunu un verasi atraduši,
+bet viņš un ka brāļiem tos pā(r)devis vienreiz par muguras slejām, otru un trešu
+reizi par pirakstiem. Nu ķēniņš atjēdzies un nedevis vairs ne meitu, ne pili šiem
+abiem - atdevis muļķītim un šos abus iemetis cietumā.</p>
+
+<p align="JUSTIFY">Piezīme. Jaunpili un Lestenē burtu ,,r" ļoti cieti izsauc un ik
+pēc šā burta skan "a" burts līdzās, piemēram te saka: sacerast, sadorat,
+ziŗags, doravis ciravis, zirani, berrass, arraglis Bet "ra" izsauc tādā
+veiklā ātrumā. ka viņi (abi burti) drīzāk sakūst, nekā ausim pārāk
+nepieņēmīgi skan. L. P.</p>
+
+
+</body></html>

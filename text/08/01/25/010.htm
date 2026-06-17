@@ -1,0 +1,168 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>10</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Stiprais Ansis.</p>
+</b></font><font size="3">
+
+<p align="JUSTIFY">10. A. 650 A. K. P. Laucē. Zin Kom. kr. LP, VII, I, 787, 19.</p>
+
+<p align="JUSTIFY">Vienam tēvam bija viens vienīgs dēls. To viņš gribēja izaudzināt
+par ļoti stipru vīru un tādēļ nelika nemaz strādāt, baŗoja vien. Baŗoja, baŗoja
+līdz astoņpadsmitam gadam; tad veda pie lielā ozola un lika to izraut ar visu sakni.
+Dēls saķēra ozolam aiz virsunes pielieca pie zemes un raudzīja izraut, bet nekā:
+saknes gan pakustināja, gluži izraut nespēja. Tēvs, to redzēdams, baŗoja vēl divi
+gadi dēlu un tad dēls izrāva ozolu ar visām saknēm kā nieku. Lieli prieki bija
+tēvam un viņš sacīja tā: "Dēls, ej tagad pasaulē pats maizi pelnīt, stiprs
+diezgan esi!"</p>
+
+<p align="JUSTIFY">Labi. Un tā viņš nu iet un satiek vienu saimnieku, tam tūliņ
+pirmais vārds: cik algas gribot? Dēls atbildēja, ka šis vēl esot jauns, mācāms,
+tādēļ vairāk neprasot, lai atļaujot tikai gada galā vienu knipi sist saimniekam pa
+pieri. Saimnieks mierā, salīgst. Bet drīzi jo drīzi - dažas dienas padzīvojis -
+līdzējs apmanīja dēla spēkus un skaidri noprata: viens knipis pa pieri ir paredzama
+nāve; tādēļ vajadzēja dēlu pie laika nomākt. Otrā dienā saimnieks pasaka
+stiprajam dēlam tā: "Šodien izkul visu manu labību, izvējo arī - tas padarāms
+steidzami!"</p>
+
+<p align="JUSTIFY">Stiprais tēva dēls vispirms tad ņēmās žigli uztaisīt spriguli,
+krietnu spriguli. Par kātu tak izmeklēja baļķi un par vāli iesēja kula slieksni. Ar
+šo spriguli viņš turpat tīrumā visu labību izkūla, izvējoja un katru labības
+šķiru atšķīra sevišķi. Saimnieks noplātīja rokas vien, nekā nevarēja darīt
+dēlam.</p>
+
+<p align="JUSTIFY">Bet drīzi jo drīzi viņš sagudroja vēl gŗūtāku darbu dēlam. Tur
+mežā bija augsts kalns un zem kalna dzīvoja pats velnu ķēniņš ar saviem velnēniem.
+Velna apakšzemes pilī varēja tikai pa vienu pašu alu kalna kājgalā ietikt. Bet
+kalnam visapkārt bij muklājs un tam pārbrist bija gandrīz neiespējams, un ja arī
+pārbrida, tad velnēni ikkatru sagrāba un noslīcināja dūņās. Uz šo pili saimnieks
+pavēlēja stiprajam dēlam iet un izpostīt velnu mitekli. Labi, aizgāja pie kalna,
+pārbrida muklāju, velnēni šim mugurā, sāk uzbrukt. Bet stiprais tēva dēls ķēra
+vienu velnēnu, otru velnēnu un kā laida dūņās, visi nogrima tik dziļi, lai nemaz
+nedomā vairs ārā līst. Tā velnēnus iznīcinājis, viņš steidzās pa alu kalna
+iekšienē, velnu ķēniņa pilī. Iegāja tur, velns pretim ar trim galvām
+(nogremdētiem velnēniem bija tikai pa vienai galvai). Bet stiprais tēva dēls pakampa
+velnu ķēniņu, lika pa muguru un pārnesa savam saimniekam. Saimnieks tā nobijās, tā
+nobijās no velnu ķēniņa, ka to vien atjēdzās iesaukties: lai nesot velnu pirtī
+iespostīt, bet te lai vaļā nelaižot! Tēva dēls iespostīja velnu ķēniņu pirtī un
+domāja: "Nu būs visi darbi padarīti!"</p>
+
+<p align="JUSTIFY">Bet nekā - saimniekam atkal kas prāta. Lai tēva dēls iejūdzot
+veco, strādājamo ķēvi un lai braucot uz kaŗa lauku pārvest viņam no kaŗa kunga
+divi sieki naudas. To piesacīdams, viņš pilnīgi ticēja, ka nu tēva dēls visādā
+ziņā, sīvā kaŗā kaŗodams, nobeigsies. Bet lika drusku pagaidīt! Tēva dēla
+nejūdza vis nodzīto, strādājamo ķēvi, bet mežā saķēra divi lāčus; iejūdza tos
+lielos ratos, izveda velnu ķēniņu no pirts, sēdināja to uz buku par braucēju un
+iedeva tam lielo spriguli pātagas vietā, ar ko lāčus ievadīt un iebraukt. Aizbrauca
+uz kaŗa lauku - visi bijībā pagrieza ceļu un pats kaŗa kungs apbrīnoja braucējus,
+pazemīgi vaicādams: ko laba vēloties? Tā un tā - saimnieks sūtījis pēc tik un tik
+naudas, pielikdams vēl piedraudi: tūliņ to izpildīt! Kaŗa kungs ne vārda pīkstēt,
+acumirklī iemērīja naudu, lai brauc! Pārbrauc - saimnieks nagos: pašu laiku gada gals
+un nu stiprais tēva dēls cirtīs knipi. Cirta arī - patiesi cirta - un saimnieks
+pagalam kā nieks. Palika visa nauda tēva dēlam un vēl saimnieka iedzīve ar māju.</p>
+</font>
+
+
+</body></html>

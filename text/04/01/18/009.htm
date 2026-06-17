@@ -1,0 +1,141 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>9</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Velna līgava.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">9. A. Bertolds Dundagā. LP. VII, I, 862 (14).</p>
+
+<p align="JUSTIFY">Senāk meitām bija paradums saiet kādā kaimiņu pirtī rokas darbu
+strādāt, pūrus pielocīt, dziesmas dziedāt. Reiz Dižirves ciemā sestdienas vakarā
+salasījušās divpadsmit pieaugušas meitas un viena pusaudze. Visas trīspadsmit
+apsēdušās lāvā, ēdušas līdzatnestās ciema maizes un dažādi nievājušās kā
+jau meitas savdabām.</p>
+
+<p align="JUSTIFY">Pienākusi pusnakts. Te pusaudze ieraudzījusi divpadsmit puišus
+ienākam. Katram bijis bērna stāvamais sols rokā (stāvamais sols ir pazems galdiņš
+ar caurumu vidū, kur liek nestaigātāju bērnu, lai mācās stāvēt). Šos solus puiši
+nolikuši meitām iepretim, paši apsēdušies. Tās divpadsmit dižmeitas puišus
+nesaredzējušas, bet pusaudze gan redzējusi; vēl to saredzējusi, ka tam puisim, kas
+viņas māsai iepretim sēdējis, bijusi suņa aste. Tas asti, pa sola caurumu izbāzis,
+luncinājis apakš sava sēdekļa to kā suns, nolūkodamies uz māsu. Pusaudzei meties
+bail, tā pačukstējusi māsai, lai iznākot viņai līdz ārā. Gājusi. Ārā jaunā
+māšele pastāstījusi redzējumu, lūgšus lūgdamās pirtī atpakaļ neiet, lai nākot
+uz mājām. Bet kamēr tur vēl locījušās - dzird: pirtī citas meitas nejauki bļauj,
+nežēlīgi brēc. Šīs no tam tā sabijušās, ka tūliņ lobušas prom.</p>
+
+<p align="JUSTIFY">Rītā atraduši pirtī tikai drēbju gabalus un kaulu drumstaliņas.
+Divpadsmit vilkači bija meitas apēduši. No tā laika meitas ne . gājušas nekad vairs
+pirtī pūrus darināt, jeb jūkstēties.</p>
+
+<p align="JUSTIFY">Piezīme. Sal. iepriekšējo variantu. P. Š.</p>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+
+</body></html>

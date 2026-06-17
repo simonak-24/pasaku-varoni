@@ -1,0 +1,348 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Dieva dotā sieva.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">3. A. 465. C. 513. B. Skolnieks S. Keiss no A. Keiša Baltinovas pa. N.
+Rancāna kr.</p>
+
+<p align="JUSTIFY">Agrākos laikos dzīvoja divi brāļi: viens bija nabags, otrs ļoti
+bagāts un turklāt vēl voits. Abiem brāļiem bija pa vienam dēlam. Bagātā brāļa
+dēlam bija vārds Pēteris un nabaga dēlam Jānis. Abu brāļu dēli auga kopā un bija
+labi draugi.</p>
+
+<p align="JUSTIFY">Vienu dienu Pēteris ar Jāni sadomāja iet kopā uz mežu medībās.
+Staigādami pa mežu, viņi abi norunāja precēties un kāzas taisīt vienā svētdienā.
+Diena pagāja, bet nošaut viņiem nekas neizdevās, vakarā viņi pārnāca mājā gluži
+tukšā. Bagātā dēls lūdza, lai tēvs ietu viņa vietā precībās, un pats tūlin
+aizgāja paziņot par to nabaga dēlam. "Tev arī vajaga sūtīt tēvu jeb pašam
+iet!"</p>
+
+<p align="JUSTIFY">Jānis atbild: "Mīļais brāli, ar ko lai es taisu kāzas? Man
+nav nekā ko vilkt mugurā."</p>
+
+<p align="JUSTIFY">Pēteris saka: "Vai zini ko? Manam tēvam ir vadmalas gabals, es
+tev no tā nogriezīšu svārkiem. Nebēdā neko un taisi tik kāzas!"</p>
+
+<p align="JUSTIFY">Nu labi!" atbild Jānis. "</p>
+
+<p align="JUSTIFY">Pēteris nogriež Jānim svārku tiesu, lai tik taisa kāzas vienā
+svētdienā. Jānis uztraukts aiziet uz mežu pastaigāties un domā: "Kā lai es
+braucu precībās, kas tad pie manis nāks?"</p>
+
+<p align="JUSTIFY">Paiet vēl tālāk un redz: druvā guļ daudz zvēru: brieži, Lauvas
+un visu visādi citi zvēri un putni. Putnu un zvēru vidū uz</p>
+
+<p align="JUSTIFY">akmeņa sēd jaunava, sukādama galvu. Jānis ļoti nobīstas. Jaunava
+redzēdama, ka Jānis nobīstas, uzsauc: "Lūdzu, nāc šurp pie manis, mani suņi
+tevi neaiztiks!"</p>
+
+<p align="JUSTIFY">Jānis pieiet jaunavai klāt un dod labu dienu. Jaunava jautā:
+"Jāni, saki ko tu tā domā?"</p>
+
+<p align="JUSTIFY">"Es domāju precēties, bet nezinu kur braukt precībās, kas pie
+manis nabaga gribēs iet"</p>
+
+<p align="JUSTIFY">"Nu tad ņem mani, es iešu pie tevis!"</p>
+
+<p align="JUSTIFY">Es esmu ļoti priecīgs, ka tu nāksi pie manis! Bet man nav "
+?" naudas, ko kāzas taisīt. Un kā es tevi atradīšu</p>
+
+<p align="JUSTIFY">"Še tev stabulīte. Kad bagātais dēls brauks laulāties, tad tu
+papūt ar stabulīti. es būšu klāt. Tagad ej tikai pie baznīckunga, lai viņš
+pieraksta meža Madalu. Tai pļavā, kur tu ar Pēteri ganīji zirgus un kurināji uguni,
+tur izauga viens miezis ar trijām vārpām, no tā taisi alu. Nošaun arī vienu briedi,
+tad gaļas pietiks kāzām."</p>
+
+<p align="JUSTIFY">Uz māju ejot, viņš ieraudzīja to miezi ar trijām vārpām, norāva
+un aiznesa mājā. Tad aizjūdza zirgu, aizbrauca uz mežu, nošāva briedi un atveda arī
+to. Nu viņš iet arī pie baznīckunga pierakstīt Madalu.</p>
+
+<p align="JUSTIFY">Visi ļaudis brīnās, kas tā par meža Madalu. Atnāk viņiem
+divpadsmit strādnieki un sāk tik būvēt jaunu māju. Visi brīnās, kur Jānis naudu
+ņēmis, ko maksāt strādniekiem.</p>
+
+<p align="JUSTIFY">Pienāca svētdiena, kad vajadzēja braukt laulāties. Bagātajam
+dēlam piebrauca daudz viesu, bet nabaga dēlam nebija neviena cilvēka. Kad Pēteris
+brauca laulāties, tad Jānis gāja viņu pavadīt. Pēteŗa viesi sāka smieties, un
+prasīja, kad tad šis braukšot laulāties un kur esot viņa meža Madala. Jānis atbild:
+Braukšu.</p>
+
+<p align="JUSTIFY">"Drīzi pēc jums mēs arī brauksim!" </p>
+
+<p align="JUSTIFY">Jānis aiziet uz mājas ganībām un pasvilpj ar stabulīti. Tanī
+acumirklī piebrauc Madala ar sešiem zirgiem, skaistām drēbēm, un daudz viesiem, kādu
+Jānis nebija nemaz redzējis. Viesi iesēdināja Jāni ratos, tad tūlin brauca projām
+un muižā panāca arī bagāto dēlu. Kungs ar voitu noskatījās, ka Jānim ir daudz
+skaistāki zirgi. Kungam izliekas, ka tie viesi būtu atbraukuši no svešām zemēm.</p>
+
+<p align="JUSTIFY">Jānis salaulājās ar Madalu un brauca atkal uz māju. Tur nu visi
+sāka ēst, dzert un dancot, spēlējot ļoti skaistai mūzikai. Tad visi viesi no
+Pēteŗa pāriet uz Jāņa kāzām, kur bija gardāki ēdieni un dzērieni.</p>
+
+<p align="JUSTIFY">Voits sadusmojas uz Jāni, aiziet pie kunga un sastāsta melus, ka
+Jānim esot tādi suņi, kas protot rakstīt, staigājot ar atslēgām un mākot arī
+rēķināt. Kungs saka voitam: "Tu esi muļķis! Tādu suņu pasaulē nemaz nav. Es,
+grāmatas lasīdams, tādu neesmu atradis."</p>
+
+<p align="JUSTIFY">"Ja, kungs, viņam ir gudra sieva. Jūs viņam tik pasakait, lai
+viņš tādus suņus gādā."</p>
+
+<p align="JUSTIFY">"Labi!" kungs pasaka voitam, "lai Jānis rītu
+atnāk!"</p>
+
+<p align="JUSTIFY">Voits aiziet pie Jāņa un saka: "Jāni, tev kungs lika aiziet uz
+muižu."</p>
+
+<p align="JUSTIFY">Jānis aiziet pie kunga un jautā: "Nu, kungs, ko labu man<b> </b>teiksi?"</p>
+
+<p align="JUSTIFY">"Klausies Jāni, tu esot sacījis, ka zinot tādus suņus, kas
+mākot rakstīt un rēķināt. Tādi suņi tev jādabū."</p>
+
+<p align="JUSTIFY">Jānis sāk raudāt un lūgties, bet kungs tik saka: "Ja nedabūsi
+tādus suņus, tad tev galvu nocirtīšu!"</p>
+
+<p align="JUSTIFY">Jānis iet mājā raudādams, un domā, ko nu darīt. Madala ierauga
+Jāni raudam un prasa: "Jāni, kāpēc tu raudi?"</p>
+
+<p align="JUSTIFY">Jānis izstāsta Madalai, ko kungs viņam pavēlējis. Madala atbild:
+"Tā vēl nav nekāda bēda. Neraudi neko, vēl būs daudz lielākas bēdas
+priekšā. Manai vecākai māsai tādu suņu ir ļoti daudz."</p>
+
+<p align="JUSTIFY">Madala iedod Jānim pus siera, mazu kamoliņu un saka: "Kur šis
+kamoliņš velsies, tur tu ej!"</p>
+
+<p align="JUSTIFY">Jānis dodas ceļā, noiet pie Madalas māsas, kas viņu ieraudzījusi,
+tūlin arī pazīst. "Vai manu mīļo svainīti, kur Dievs tevi tik tālu atnesis?
+Vai labas jeb sliktas ziņas?"</p>
+
+<p align="JUSTIFY">Jānis nu visu izstāsta. Svainene iesaucas: "Svainīti, man ir
+daudz tādu suņu, es tev labprāt kādus došu."</p>
+
+<p align="JUSTIFY">Jānis sēstas suņiem virsū un jāj mājā. Voits redz, ka Jānis jau
+mājā, paziņo tūlin kungam. Kungs, suņus dabūjis, dod viņiem atslēgas, tie nu
+skraida un dara visu, ko viņiem liek. Kungs nu redz; ka voitam taisnība. Voitam atkal
+lielas dusmas, ka Jānis visu izdarījis. Viņš nu sadomā iet vēl pie kunga: "Vai
+zini ko, kungs? Jānis uzņemas dabūt tādu laivu, ar kuŗu var braukt pa gaisu un pa
+zem;. Mums tāda būtu ļoti vajadzīga!"</p>
+
+<p align="JUSTIFY">Kungs liek tūlin voitam pasaukt Jāni.</p>
+
+<p align="JUSTIFY">Jānis otrā rītā aiziet, un kungs tam tūlin saka: "Man
+stāsta, ka tu varot tādu laivu dabūt, kas iet pa gaisu un zemi."</p>
+
+<p align="JUSTIFY">Jānis sāk raudāt un lūgties, ka viņš pavisam tādas laivas
+nezinot. Kungs no dusmām sakliedz: "Ja nedabūsi, tad tev galvu nocirtīs."</p>
+
+<p align="JUSTIFY">Jānis iet mājā raudādams. Madala jau no tālienes redz, ka šis ir
+ļoti bēdīgs. Viņa aiziet pretī un prasa: "Ko nu kungs sacīja?"</p>
+
+<p align="JUSTIFY">Jānis izstāstīja visu Madalai, kas to lūkoja mierināt:
+"Neraudi vis! Manai vidējai māsai ir tāda laiva. Tā vēl nav īstā bēda, bet uz
+priekšu nāks daudz lielāka."</p>
+
+<p align="JUSTIFY">Madaļa iedod pus siera, mazu kamoliņu un saka: "Kur šis
+kamoliņš velsies. tur tev jāiet!"</p>
+
+<p align="JUSTIFY">Nu viņš nonāk pie vidējās māsas, kas nāk viņam pretī jau par
+gabalu. "Vai, mans mīļais svainīt, kāds Dievs tevi še atnesa? Vai ar labām jeb
+sliktām ziņām?"</p>
+
+<p align="JUSTIFY">Viņš nu sāka stāstīt savu nelaimi. "Labi svainīt, man ir
+tāda laiva, es tev došu!" sievas māsa atteic.</p>
+
+<p align="JUSTIFY">No rīta Jānis sēstas laivā un brauc mājā. Voits viņu tūlin
+ierauga un paziņo kungam. Laiviņa tiek aizvesta un kungs nu ļoti pateicas Jānim. Viņi
+dzīvo ar Madalu kādu laiku atkal mierīgi. Voits arvien vēl domā, kā tik varētu
+nepatīkamo Jāni nogalināt. Viņš aiziet pie kunga un stāsta, ka Jānis varot viņa
+mirušo tēvu sameklēt. Bet kungs saka: "To nu gan viņš nevar dabūt!"</p>
+
+<p align="JUSTIFY">"Es tik tev, kungs, saku, ka dabūs!"</p>
+
+<p align="JUSTIFY">Kungs tūlin atsauc Jāni un saka: "Es dzirdēju, ka tu varot manu
+mirušo tēvu uzmeklēt."</p>
+
+<p align="JUSTIFY">"Kungs, kā tad lai es pie viņa klāt tieku?"</p>
+
+<p align="JUSTIFY">"Tev jau gudra sieva! Ja nedabūsi, tad tevi pērs un pēdīgi tu
+uz sārta tiksi sadedzināts!"</p>
+
+<p align="JUSTIFY">Jānis, mājā iedams, domā: "Tagad gan būs nāve. Ak, žēlīgs
+Dievs, kur es esmu tik nelaimīgs, ka man kungs tik grūtus darbus uzliek."</p>
+
+<p align="JUSTIFY">Madala viņu ierauga un prasa: "Ko tu, mīļais Jānīti, tā
+raudi?"</p>
+
+<p align="JUSTIFY">Viņš nu visu izstāsta, ko dzirdējis no kunga. Madala saka: "Nu
+tik ej pie kunga un saki, lai kungs dod voitu līdz, tādēļ ka kunga tēvu tu viens
+nevarēsi atvest. Ja tu ko ar tēvu runāsi, tad kungs tev var neticēt."</p>
+
+<p align="JUSTIFY">Jānis aiziet pie kunga un saka: "Lūdzu, dod man voitu līdz, jo
+viens pats es tēvu še līdz atvest nevaru. Ko viņš man sacīs. tu vari neticēt, vai
+arī es to varu aizmirst."</p>
+
+<p align="JUSTIFY">Kungs pasauc voitu un saka: "Tev, voit, būs jāiet Jānim
+līdz!"</p>
+
+<p align="JUSTIFY">Voits tūlin aiziet pie Jāņa un prasa, cik garš ceļš būšot.
+Jānis saka: "Būs jāiet kādu pusgadu, vai vairāk."</p>
+
+<p align="JUSTIFY">Voits griežas pie kunga, lai viņš liek viņam sataisīt vizes un
+izcept maizi. Vajagot vēl četru šķūtnieku, kas vedīšot voitam pārtiku. Tad Jāņa
+sieva saka: "Tu varētu iet pa sausumu, bet voita dēļ ej pa purvu, lai viņš vairs
+audis nemocītu. Kad pienāksi pie kalna netālu no uguns upes, tur tad brauks kunga tēvs
+pie ozola piekalts. Tas kalns būs no skutuvjiem, īleniem, iskaptim un citām asām
+lietām, kādēļ tur ir ļoti grūti uzkāpt. Bet</p>
+
+<p align="JUSTIFY">kalna malā ir viena sieksta, kur ir paslēpti mani zābaki. Ar tiem es
+agrāki gāju putnus ganīt, un tos apāvis, tu arī varēsi uzkāpt tai kalnā."</p>
+
+<p align="JUSTIFY">Jānis ar voitu dodas ceļā. Pēc četrām verstim viņi laiž
+šķūtniekus atpakaļ. Jānis iegriežas purvā, kur vairs nav ceļa. Voits apkaŗas ar
+maizi un vīzēm un dodas Jānim pakaļ. Jānis aiziet labi tālu un atpūšas, kamēr
+voits pienāk, un tad atkal iet uz priekšu. Voits vaicā, vai vēl tālu ko iet. Jānis
+atbild, ka ļoti tālu. Pēdīgi Jānis pienāk pie kalna, kas bija no skutuvjiem,
+īleniem, iskaptim un citiem asumiem. Voita vēl neredz, bet šis jau dabūn kurpes, apaun
+kājas un aiziet līdz uguns upei. Tur nu ir divpadsmit kungi piekaiti pie ozola ar dzelzs
+kāšiem. Kāši samesti sānkaulos un otri gali piestiprināti pie ozola virsotnes. Ozols
+ar visām saknēm ir izrauts un kungiem ir tas jāvelk. Sātāns sēd virsū un tik brauc.
+Jānis vaicā: "Vai te nav mūsu kunga tēvs!"</p>
+
+<p align="JUSTIFY">Sātāns atbild: "Viņš brauc no pakaļas trešā jūgā."</p>
+
+<p align="JUSTIFY">Jānis aiziet apskatīt, varbūt voits būs jau atnācis, bet tā vēl
+neredz. Iet nu atkal atpakaļ un redz: pār upi vēl brauc divpadsmit kungi, kas arī
+piekalti pie ozola ar dzelzs kāšiem. Jānis prasa: "Vai te nav mūsu kunga
+tēvs?"</p>
+
+<p align="JUSTIFY">"Viņš brauc pakaļā", Sātāns atbild.</p>
+
+<p align="JUSTIFY">Jānis iet atkal uz kalnu un skatās, vai voits jau atnācis. Voits nu
+arī jau sēd kalna malā. Jānis viņu sabaŗ, lai pasteidzas drīzāk, jo kunga tēvs
+būšot tūlin klāt. Jānis nolaiž virvi zemē, voits pieķeŗas klāt un Jānis uzvelk
+to augšā. Kunga tēvs nu jau arī ir atbraucis. Jānis prasa: ,,Vai šeit ir mūsu kunga
+tēvs?"</p>
+
+<p align="JUSTIFY">Kunga tēvs atbild: "Vai te ir mūsu voits?" Jānis atbild:
+"Ja."</p>
+
+<p align="JUSTIFY">Sātāns nu noņem kunga tēvam kāsi, iesviež voitu upē un tad
+piemet tam kāsi pie sānkaula. Voits aizbrauc ar ozolu pa uguns upi. Jānis atsēstas ar
+kunga tēvu krastmalā. Kunga tēvs noraksta savam dēlam vienu rakstu un izstāsta visu
+Jānim. "Ja dēls grib tikt debesīs, tad lai atdod visu muižu nabagiem."</p>
+
+<p align="JUSTIFY">Nu kunga tēvs aiziet uz debesim, bet voits paliek kunga vietā pie
+Sātāna. Tad Jānis iet uz māju, un nodod kungam tēva rakstu. Kungs izlasa to rakstu,
+paņem knīpstangas un lūdz Jāni, lai izraun viņam acis no pieres, par ko viņš Jānim
+apsola savu muižu. Kad Jānis to negrib darīt, tad kungs sasauc visus strādniekus,
+izdala tiem savu mantu, izrauj sev acis un aiziet pasaulē, dāvanas lūgdams. Jānis nu
+aiziet uz savu māju un dzīvo ar savu Madalu mierā un laimē.</p>
+
+
+</body></html>

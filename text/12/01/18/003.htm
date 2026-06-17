@@ -1,0 +1,223 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Viltība un lētticība</p>
+</font>
+
+</b><p align="JUSTIFY"><b>3. </b>A. 1539. A. Lerchs - Puškaitis Džūkstē - Pienavā. L. P. II,
+73, 38.</p>
+
+<p align="JUSTIFY">Vienai atraktnei bija dēls, ko ļaudis bija iesaukuši par muļķīti,
+Reiz atraikne sūta savu dēlu, izdaudzināto muļķīti, uz tirgu un piesaka tā:
+"Dēliņ, aizej uz tirgu un nopērc govi; tik apskaties labi, ka nenopērc kautkādu
+telīti, jo citādi ļaudis atkal apsmies tevi, teikdami: govi ,pirka, telīti pārveda
+"</p>
+
+<p>Labi dēls, aiziet. Tirgū tas sastop vīru, kam govtene pie ratiem piesieta.</p>
+
+<p>Dēls vaicā: "Saki, vīriņ, vai tā govs jeb telīte?" "Tā telīte,
+mans dēls."</p>
+
+<p>"Nu, tad nevaru pirkt; citādi ļaudis apsmies mani, ka govi pirkdama telīti
+nopircis. Māte arī pukosies un tas man nepatīk."</p>
+
+<p>Viņš aiziet pie citiem ratiem un atkal prasa: "Vai tā govs jeb telīte?"</p>
+
+<p align="JUSTIFY">Bet šinīs ratos nesēdēja vis godīgi ļaudis. Tie bija trīs
+laupītāji, kas pārdodamo telīti bija nospēruši. Līdz ko nu dēls tā vaicā, tie
+itin nevainīgi atbild: "Tā pieaugusi govs! Pērc vien dēls, ne tevi ļaudis
+izsmies, ne māte pukosies!"</p>
+
+<p align="JUSTIFY">Viņš nopērk. Bet māte, telīti ieraudzīdama, nikna: "Vai tev
+neteicu, lai telīti</p>
+
+<p align="JUSTIFY">nepērc. Ko nu ļaudis teiks, kur nu pienu dabūšu!" </p>
+
+<p align="JUSTIFY">Nekas, māmiņa, tie blēži mani piekrāpuši. Tā jau man uz ceļa
+izstāstīja, ka tie nekādi godīgi ļaudis neesot bijuši. Lai, lai, gan viņiem
+atmaksāšu. Rītu izvāri pusdienu četriem un gaidi tik mājā ! "</p>
+
+<p align="JUSTIFY">No rīta dēls paņem mazus bērnu rateļus, iejūdz divus jērus un
+aizbrauc uz tirgu, ka nograb vien. Tirgū tas nopērk pusmārciņu gaļas, ieliek rateļos
+un brauc uz māju. Trīs laupītāji, tādus brīnumus redzēdami, uzprasa dēlam:
+"Kas tie par brīnumu auneļiem?"</p>
+
+<p align="JUSTIFY">"Jā, ciemiņi, tie auneļi daudz brīnišķīgāki nekā jūsu
+vakarējā govs. Redziet, te man pusmārciņa gaļas; bet kad palaidīšu jērus vaļā,
+tie pāries kā vēji mājā un acumirklī izvārīs no pusmārciņas gaļas četriem ko
+ēst."</p>
+
+<p align="JUSTIFY">"Vai patiesi? Mēs iesim līdz, lai savām acim to redzam." </p>
+
+<p align="JUSTIFY">"Labi, labi, varat nākt."</p>
+
+<p align="JUSTIFY">Jērus nu palaiž vaļā; tie pārskrien, kūleņus mezdami mājā, un
+dēls ar laupītājiem seko pakaļ. Pāriet mājā - mātei pusdiena jau gatava.</p>
+
+<p align="JUSTIFY">"Nu, vai neteicu, kā jēri acumirklī pusdienu izvārīs?
+Sēdīsimies tik nu klāt, lai baudam, un redzaun, ko tādi no pusmārciņas spēj
+izvārīt - četriem un vēl atliksies."</p>
+
+<p align="JUSTIFY">Jā, paēd visi četri un vēl atliek lielais pods, To redzēdami,
+laupītāji vējā; lal pārdodot jērus, lai pārdodot!"</p>
+
+<p align="JUSTIFY">"Kādēļ ne? Maksājiet man to naudu, ko vakar jums samaksāju
+par govi, tad tūlīt."</p>
+
+<p>Labi, laupītāji ar mieru. Tie paņem jērus un aiziet.</p>
+
+<p align="JUSTIFY">"Vai neteicu, māmiņa, ka to laupītājiem, blēžiem,
+atmaksāšu. Nu, redzi, tagad govtene tikpat, kā par velti. Bet nu tikai viena lieta. Ja
+laupītāji atradīs, ka jēri nejēdz pusdienu vārīt, tie steigsies atpakaļ un sāks
+mūs pīnēt. Tomēr nekas. Tu ielej pūslī asinis un pasieni apakš krekla. Ja viņi
+atnāktu atpakaļ, tad griezīšu vainu uz tevi, ka negribēji viņiem jērus novēlēt,
+neļāvi man jēra vārdus teikt, ne arī pamācīt, kas jēriem jāsaka, lai pusdienu
+vārītu. Es izlikšos pikts un sitīšu tev par pūsli. Tu nokrīti gar zemi un izliecies
+par nosistu. To darot, paķeršu savu nūjiņu, pačukstēšu kādus vārdus un
+iestāstīšu, ka ar nūjiņas spēku spēju asinis apturēt un mirušus uzmodināt. Viņi
+tam ticēs un tad būs labi."</p>
+
+<p align="JUSTIFY">Dēlam bija taisnība. Laupītāji no rīta klāt, asas lietas rokā un
+dēlam virsū: kādēļ tik esot viņus piekrāpis? Ne jēri rateļu lāga velkot, ne
+pusdienas vārot.</p>
+
+<p align="JUSTIFY">"Ne, ciemiņi, tur māte vainīga. Par ko viņa man neļāva tos
+vārdus pamācīt, kas jēriem jāsaka. Ak tu tāda vecene! Gāzīšu, lai uz vietu
+paliek!"</p>
+
+<p align="JUSTIFY">To sakot, dēls pieskrien mātei klāt un gāž par pūsli. Asinis verd
+auma]ām, māte gar zemi. Laupītāji nu vairs nedusmojas, viņi tik smejas, sacīdami:
+"Nieku jēru dēļ nosita māti. Tikpat, kas tad mums nu vajadzīgos vārdus
+pamācīs?"</p>
+
+<p align="JUSTIFY">"Tā ir gan, es arī tos vārdus īsti nemāku. Ko nu? Bet ja
+apsolaties mums nekā nedarīt, tad atkal atdzīvināšu māti. Man ir tāda nūja, ar
+kuŗu atdzīvina katru mironi."</p>
+
+<p align="JUSTIFY">Laupītāji apsolās. Dēls paņem nūju, pabiksta māti, un re, māte
+dzīva. To redzēdami, laupītāji par varu, lai atdodot jēru vietā labāk nūju. Dēls
+arī atdod.</p>
+
+<p align="JUSTIFY">Laupītāji nu pāriet mājā, nokauj savas sievas un grib nūjas
+spēku izmēģināt. Bet sievas neceļas vairs. Tagad laupītāji zili melni pie dēļa
+atpakaļ: kādēļ esot piekrāpis? Esot nokāvuši sievas, raudzījuši atdzīvināt, bet
+nekā.</p>
+
+<p align="JUSTIFY">"Ciemiņi! es nu jūs krāptu! Vai tad vārdus arī mākat, kas
+nūjai jāsaka, lai miroņi atdzīvinātos?"</p>
+
+<p>"Ne, kas tad mums būtu tos mācījis?"</p>
+
+<p>"Nu, tebe, tad nesakait, ka jūs esmu piekrāpis! Nākait pagrabā, lai nūjas
+vārdus izmācu. Te augšā nevar iemācīt." </p>
+
+<p>Dēls ieved laupītājus pagrabā. Bet līdz ko šie pagrabā, tad dēls klaukt!
+aizcērt pagraba durvis un ieslēdz blēžus kā spostā. Māte aizskrien uz kaimiņiem un
+sasauc palīgus. Tagad laupītāji reiz bija rokā un dabūja to, ko gadiem bija
+pelnījuši. Bet no tās dienas ļaudis nekad nesauca vairs atraiknes dēlu par muļķi.</p>
+
+
+</body></html>

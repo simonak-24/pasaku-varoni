@@ -1,0 +1,139 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>Piev?lies tiesnesis</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<font size="5"><b>
+
+<p align="CENTER">Pievīlies tiesnesis.</p>
+</b></font>
+
+<p align="JUSTIFY"><strong>2. </strong>A. 1660. E. Sinats no J. Leitēna Rīgā. P.
+Birkerts, Latvju t. anekdotes. I, 408, 836.</p>
+
+<p align="JUSTIFY">Vienam zemniekam ievajadzējies zirga. Viņš aizgājis uz kaimiņu un
+lūdzis zirgu, ko žagarus ievest no meža. Kaimiņš iedevis arī. Šis aizbraucis
+mežā, sakŗāvis labi lielu vezumu un sācis braukt. Bet viņš nemācējis iejūgt un
+bijis piesējis ragavas zirgam pie astes. Zirgs vilcis, vilcis, līdz notrūkusi aste.
+Šis nu licies pats ilksīs. Pārvilcis vezumu mājā un aizvedis zirgu pie kaimiņa. Bet
+kaimiņš teicis, lai gādājot jaunu zirgu, un sūdzējis šo pie tiesas. Tiesas nams
+bijis no turienes diezgan tālu, tāpēc pa nakti viņi apmetušies vienā krogū Krogū
+pie krāsnis gulējis kāds jauns pārītis ar mazu bērnu. Šis uzkāpis uz krāsns pa
+nakti pārgulēt. Naktī viņam bijis sevis pēc jāiet ārā un kā kāpis no krāsns
+lejā, tā bērnam taisni virsū un nominis bērnu. Tie arī šo ņēmuši uz grauda un
+gājuši visi uz tiesu. Šis paņēmis paprāvu akmeni, kuŗu palicis zem svārkiem
+padusē. Tā viņi nonākuši pie tiesas. Abi, kam bijusi nodarīta skāde, šo
+sūdzējuši. Tiesnesis iesācis tiesāt, bet šis teicis: "Tu, tiesnesi, taisni
+spried un neaizmirsti man zem paduses paskatīties!"</p>
+
+<p align="JUSTIFY">Tiesnesis izspriedis tā, lai tikmēr dod zemniekam zirgu braukt,
+kamēr ataug aste, un lai otrs sūdzētājs dod šim savu jauno sievu tik ilgi, kamēr
+sieva dabū jaunu bērnu. Šie abi ar spriedumu neapmierināti, taisījušies ātri vien
+prom, baidīdamies, ka neatņem sievu un zirgu. Tiesnesis piegājis pie zemnieka,
+domādams, ka šis dos naudu. Bet šis izvilcis no paduses akmeni un teicis :
+"Taisies, kā tu tiec ātrāk prom, savādi dabūsi ar šo akmeni!"</p>
+
+<p align="JUSTIFY">Tiesnesis nobijies un aizbēdzis. Šis par tik labu izdošanos
+priecīgs gājis mājās.</p>
+
+
+</body></html>

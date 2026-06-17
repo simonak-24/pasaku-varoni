@@ -1,0 +1,153 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>16</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="4">
+
+</font><p align="CENTER"><font size="4"></font><font size="5">Zaķu gans.</font><font size="4"></font></p><font size="4">
+</font></b><font size="3">
+
+<p align="JUSTIFY">16. A. 570. V. Zacharska no G. Vrubļevska Kapeņu pag. Latvju
+kultūras kr.</p>
+
+<p align="JUSTIFY">Vīnam zemnīkam beja dāls un cīši smuks. Saucja jū par gudrū
+Juoni: jis nū mozu dīnu taisīja visaidus breinumus. Tāvs juo navarēja turēt sātā,
+par tū ka beja cīši nabogs un atdevja sovu dālu gonūs dzonuot gūvis.</p>
+
+<p align="JUSTIFY">Vīnu reizu, pavasara laikā, Juonis izdzyna gūvis teirumā. Jam jau
+tūlaik beja divdesmit godu. Juonis dzonoj pa mežu gūvis, svilpoj un veras, ka preti jam
+stuov lela pils. Īguoja Juonis tymā pilī un īraudzēja tī jaunu un smuku meitu.
+Juonis suoka vaicuot nu ituos meitas, kū jei vīna paša tymā pilī dora, un kai
+dzeivoj. Smukuo meita izstuostīja Juoņam sovu nalaimi, ka jū senejūs laikus, kad beja
+leli vaidi, nūzoga nu juos tāva, kurs beja kēniņš. Jū nūzoga valns un tai jei tagad
+dzeivoj. Vaicoj meitai Juonis: "Tu tagad vari nu šenis, kur gribi īt, tevi nikas
+nasargoj?"</p>
+
+<p align="JUSTIFY">"Na, navaru, jo es aizīšu, valns mani panuoks, tūlaik jis manis
+dzeivas napamess!" - soka meita: "Es varu īt tūlaik, jo kas atrass natuoli nu
+šenis upē nūsleicynuotu stabuli. Kas itū stabuli atrass yudenī un treis raizes
+svilpuos, tūlaik es varēšu īt, kur gribēšu!" - soka meita. Pasacīdama meita
+itūs vuordus ar vysu pili pazuda.</p>
+
+<p align="JUSTIFY">Juonis, kai stuovēja mežā, tai stuovēja. Sadūmuoja Juonis meklēt
+upē tuos stabules um izgluabt itū smukū meitu.</p>
+
+<p align="JUSTIFY">Suocjās vosoras dīnas. Beja korsts. Juonis dzonuoja gūvis pi upes,
+bet pats vysu dīnu staiguoja pa upi un meklēja tuos stabulītes. Tai jis meklēja daudz
+dīnu un golu golā atroda tū stabulīti. Tad aizguoja uz mežu, uz tū pat vītu, kur
+jis redzēja tū pili ar smukū meitu. Suocja Juonis stabulītē svilpuot. Pyrmū reizi
+īzasvilp - vyss mežs suocja rauduot un vysi putni puorstuoja dzīduot. Ūtru reizi
+īzasvilpa - vysa zeme suocja treisēt un rauduošana jau tyka klusuoka. Trešū reizi
+īzasvilpa - saule suocja speidēt un prīcīgi dzīduoja vysi putniņi. Juomis veras, ka
+pi juo īt tei paša smukuo meita un, pajēmuse jū aiz rūkas, soka: "Tu izgluobi
+mani nu valna, tagad es asmu vysa tova!"</p>
+
+<p align="JUSTIFY">Juonis beja cīši prīcīgs un jī abi aizguoja pi juos tāva, kurs
+beja tymā kēnestī par kēniņu. Kad īraudzēja kēniņš sovu meitu, jis nu prīcas
+nazynuoja, kū darīt. Meita izstuostēja sovam tāvam, ka jū izgluobja itys ganiņš,
+kura vuords ir Juonis. Kēniņš tyuleiņ saprecynuoja sovu meitu ar itū Juoni. Suoka
+kēniņa meita dzeivuot ar Juoni cīši labi un laimīgi.</p>
+</font>
+
+
+</body></html>

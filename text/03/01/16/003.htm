@@ -1,0 +1,211 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>3</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Burvis un viņa māceklis.</p>
+</font>
+
+<p align="JUSTIFY">&nbsp;</p>
+
+</b><p align="JUSTIFY"><b></b>3. A. 325. 301. K. Tarzieris, Druvienā, Brīvzemnieka kr. 47. LP,
+VII, II, 22, 3, 4.</p>
+
+<p align="JUSTIFY">Zēns reiz iet pa mežu, satiek vienu kungu, tas vaicā: "Vai
+māki lasīt?"</p>
+
+<p align="JUSTIFY">Zēns atteic: "Māku gan!"</p>
+
+<p align="JUSTIFY">Kungs kautko pa degunu noņurd un vaicās tālāk : "Vai pa
+vāciski arī proti?"</p>
+
+<p align="JUSTIFY">"Nē!" </p>
+
+<p align="JUSTIFY">"Nu, pa krieviski?"</p>
+
+<p align="JUSTIFY">"Pa krieviski gan," atbild zēns. </p>
+
+<p align="JUSTIFY">"Ai, tad tu arī esi no svētuļiem!" atsaka kungs, kas bijis
+pats velns, un aiziet.</p>
+
+<p align="JUSTIFY">Zēns nodomā; ko tas lai nozīmē?" un liek ar riņķi pa mežu
+šam priekšā. Šis atkal vaicā: "Vai māki lasīt?"</p>
+
+<p align="JUSTIFY">"Nē, nekā nemāku!"</p>
+
+<p align="JUSTIFY">" Kādas valodas proti?" "Latviešu valodu vien, citas
+nevienas."</p>
+
+<p align="JUSTIFY">"Vai negribi pie manis par strādnieku nākt? Viss tavs darbs būs
+vienīgi grāmatas tīrīt un sargāt."</p>
+
+<p align="JUSTIFY">Zēns mierā, iet kungam līdza un tīra tur grāmatas. Bet viņam
+iegribējās izdibināt, kas jele grāmatās rakstīts. Sāka šķirstīt un nu tik
+atskārta, kas kungs par putnu tāds ir. Grāmatās bija visvisādi burvju vārdi,
+rakstīti vācu valodā. Zēns kaut cik, pa vāciski prazdams, ņēmās grāmatas
+mācīties un palika par lielu burvi.</p>
+
+<p align="JUSTIFY">Katru vasaru tur mēdza atbraukt viens balts kungs visu iedzīvi
+pārlūkot, runādams tikai krieviski. Tas sacīja zēnam: "Mūc tikai projām no
+šejienes, citādi tev nāve!"</p>
+
+<p align="JUSTIFY">Reiz zēns noklausījās, ka velns (viņa kungs) pa vāciski saka
+citiem velniem: "Rītvakar sanāksit visi, tad mizosim manu strādnieku, kamēr par
+suni paliks. Man tikai bailēs, ka viņš nemāk pa krieviski, un ka labais gars nav viņu
+pamācījis, lai mūk projām."</p>
+
+<p align="JUSTIFY">Zēns to noklausās, pārvēršas ar burvības vārdiem par stirnu un
+projām. Drīzi pēc tam velns, to zināt dabūjis, palika par kvekšķi, dzinās paka un
+gandrīz, gandrīz viņu jau noķēra. Tad zēns palika par bezdelīgu, velns par vanagu.
+Bezdelīga nolaidās zemē, palika par peli - iespruka počās, bet velns par čūsku šim
+pakaļ. Zēns izmuka no počām, palika par svēteli, aprija čūsku.</p>
+
+<p align="JUSTIFY">Nu zēns palika par cilvēku un nogāja pie ķēniņa. Sargs nemaz
+negribēja pilī ielaist. Bet šis tādam tikai piduku parādīja, tūlin sargs palika par
+akmeni. Iegāja pilī - pie ķēniņa patlaban sērš svešs ķēniņš un tas sāks par
+šo zoboties. Bet zēns galvu vien pakratīja, tūdaļ visi mati palikuši par čūskām.
+Svešais ķēniņš bailēs paslēpās aiz sava lielā tvaroga. Beidzot ķēniņš
+aicināja zēnu pie sevis un lika uzmeklēt savas trīs velna zagtās meitas, sacīdams:
+"Ja atradīsi, dabūsi jaunāko par sievu!"</p>
+
+<p align="JUSTIFY">Zēns izdibināja, kur viņas ir, kā tās meklējamas. tad izlēja no
+svina lielu vāli un aizgāja. (Viņš sev piebūra lielu spēku). Gāja, gāja - nogāja
+pie vecākās māsas. Ieiet pilī, šī ēd azaidu ar savu vīru, trejgalvi. Tas tūlin
+pieceļas, noved zēnu pie karsta poda un saka: "Lec te iekšā!"</p>
+
+<p align="JUSTIFY">Zēns atbild: "Rādi jele, kā te ielēkt!"</p>
+
+<p align="JUSTIFY">Velns nostājas podam pie pašas malas, pacēla vienu kāju, sacīja:
+"Lūk tā!"</p>
+
+<p align="JUSTIFY">Bet zēns, kā dos ar savu vāli pa muguru, velns šļaukš! podā
+iekšā.</p>
+
+<p align="JUSTIFY">Zēns iet tālāk, noiet uz vidējās māsas pili. Ieiet tur, viņas
+vīrs, piecgalvju velns, guļ: Zēnam netīkās aizmigušu nosist, pamodināja to. Šis
+uzlēca, paķēra dunci un metās zēnam virsū; bet zēns iztrieca dūci velnam no rokām
+un sadeva tā pa sāniem, ka piecas ribas bija pušu.</p>
+
+<p align="JUSTIFY">Nu zēns steidzas pie jaunākās māsas. Tā bija pati mājā un
+sacīja: "Kam tu te nāci? Pārkulsies deviņgalvju velns, tas tevi zemē
+ietrieks."</p>
+
+<p align="JUSTIFY">Zēns paslēpās aizkrāsnī, pārnāk deviņgalvis, ierūkdamies:
+"Kas te par svešu smaku?" un ies aizkrāsnī. Bet zēns šim pretim.
+Palaimējās zēnam pirmajam iesist, velns līdz ceļiem iegāja zemē. Nu viņš sita
+zēnam - tas pāri par ceļiem iegrima. Zēns sita otrreiz, velns iegrima līdz vēderam;
+sita velns otrreiz, zēns līdz nabai zemē. Tagad zēns saņēma beidzamos spēkus un kā
+deva velnam, tas iegrima pāri par krūtim. Nevarēja velns vairs zēnam iesist. Šis nu
+mudīgi izrāpās no zemes, sita vēlreiz velnam un ietrieca to gluži zemē.</p>
+
+<p align="JUSTIFY">Tad zēns aizveda visas trīs ķēniņa meitas pie ķēniņa,
+apprecēja jaunāko, uzcēla skaistu pili un dzīvoja mierā. Tikai šad tad viņš
+izpriecādamies pārbrauc, izvizināties.</p>
+
+<p align="JUSTIFY">Piezīme. Šī pasaka ir drusku izpuškota, ar tīši pieliktiem
+sīkumiem par krievu valodu un par svešo ķēniņu, kas slēpjas aiz "tvaroga".
+P. Š.</p>
+
+
+</body></html>

@@ -1,0 +1,161 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>35</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Divējādas līgavas. </p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">1. Štrauss Ērbērģniekos. LP, III, 34.</p>
+
+<p align="JUSTIFY">Kādai mātei bija tik daiļa meita kā saule. Pats valdnieks daiļo
+meitu bija ieskatījis un apņēmies precēt. Drīzi kāzas stāvēja aiz durvim. Meita
+tādēļ gāja vienu dienu aicināt uz kāzām arī savu brāli, kas dzīvoja tālumā.
+Ceļa malā meita ieraudzīja mazu mājiņu. Tur iznāca pretim veca sieviņa un mīlīgi
+lūdza, lai ienākot pie viņas kājas atpūtināt. Meita iegāja. Bet laipnā sieviņa
+bija ragana. No rīta meita taisījās aiziet, bet ragana nu vairs nelaida. Viņa sagrāba
+meitu, ieslodzīja to tumšā istabā un pavēlēja caur šķirbu tikmēr spļaut, kamēr
+nevienas siekalas negadītos. Bet raganas meita, kuŗa bija tik nesmuka kā pats velns,
+stāvēja otrpus šķirbas ar atplēstu muti un norija visas siekalas. Caur to raganas
+meita dabūja visu meitas daiļumu, un meita atkal raganas meitas nedaiļumu. Raganas
+meita, tik daiļa kā saulīte, tūliņ aizsteidzās pie brāļa un izlikās par viņa
+māsu sacīdama, lai tik nu taisoties uz kāzām, jo pats valdnieks būšot viņu precēt.<b>
+</b>Bet otrā dienā īstā māsa laimīgi paspruka no raganas nagiem un arī atnāca pie
+brāļa. Raganas meita, to redzēdama, iestāstīja brālim: "Redz, kur nesmukā
+pelnrušķe lien, redz, kur pelnrušķe lien; liec viņai zirgus ganīt."</p>
+
+<p align="JUSTIFY">Brālis ticēja un izsūtīja to pie zirgiem. Pirmo dienu nekas; otru
+dienu arī tāpat, bet trešo dienu māsa bēdīgi dziedāja pie zirgiem :</p>
+
+<p align="JUSTIFY">"Ēda tautas, dzēra tautas </p>
+
+<p align="JUSTIFY">Mana brāļa gald' galā ;</p>
+
+<p align="JUSTIFY">Tava paša mīļa māsa</p>
+
+<p align="JUSTIFY">Zirgus gana vecainē."</p>
+
+<p align="JUSTIFY">Brālis, tas vārdus izdzirdējis, sāka uzprasīt, ko dziesmas vārdi
+nozīmējot? Māsa nu izstāstīja smalki, kā viņai noticies un kas blēdīgā meita
+īsti esot par māsu. Brālis nu vairs nekavējās: viņš lika raganas meitai, tāpat kā
+tur raganas mājiņā, atspļaut siekalas atpakaļ, un atdot īstai māsai viņas
+daiļumu. Un re, cik nu raganas meita palika nesmuka, bet īstā māsa tāda pati kā
+senāk. Nesmuko raganas meitu brālis izrīdīja ar suņiem no mājas un to aizdzina, kur
+nākusi.</p>
+
+<p align="JUSTIFY">Bet lai māsai atkal nenotiktu uz ceļa kāda klizma, tad brālis
+iedeva kucīti līdz un nosacīja tā: "Neej tu vairs gar raganas mājiņu gaŗām,
+bet skaties, kur kucīte tek, tur kāp pakaļ! Gan tad pārtiksi bez bēdām."</p>
+
+<p align="JUSTIFY">Māsa nu pārkļuva laimīgi un drīz nosvinēja ar jauno valdenieku
+priecīgas kāzas.</p>
+
+<p align="JUSTIFY">Piezīme. Šī pasaka līdz ar sekošiem variantiem gan nesastāda
+vienu noteiktu pasaku tipu, bet kā abu iepriekšējo numuru tālāk novirzījušies
+varianti. šīs<b> </b>pasakas ir tomēr apvienojamas vienā<b> </b>grupā. P. Š.</p>
+
+
+</body></html>

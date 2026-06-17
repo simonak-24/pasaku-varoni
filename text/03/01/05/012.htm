@@ -1,0 +1,147 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
+<title>12</title>
+<script type="text/javascript"> 
+/* 
+ * Chrome token signing extension 
+ * 
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public 
+ * License as published by the Free Software Foundation; either 
+ * version 2.1 of the License, or (at your option) any later version. 
+ * 
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public 
+ * License along with this library; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ */ 
+ 
+// Promises 
+var _eid_promises = {}; 
+// Turn the incoming message from extension 
+// into pending Promise resolving 
+window.addEventListener("message", function(event) { 
+    if(event.source !== window) return; 
+    if(event.data.src && (event.data.src === "eparaksts-background.js")) { 
+        console.log("Page received: "); 
+        console.log(event.data); 
+        // Get the promise 
+        if(event.data.nonce) { 
+            var p = _eid_promises[event.data.nonce]; 
+            // resolve 
+            if(p !== undefined) { 
+                if(event.data.result === "ok") { 
+                    if(event.data.signature !== undefined) { 
+                        p.resolve({hex: event.data.signature}); 
+                    } else if(event.data.version !== undefined && event.data.extension !== undefined) { 
+                        p.resolve(event.data.version + "/js" + event.data.extension); 
+                    } else if(event.data.cert !== undefined) { 
+                        p.resolve({hex: event.data.cert}); 
+                    } else { 
+                        console.log("No idea how to handle message"); 
+                        console.log(event.data); 
+                    } 
+                } else { 
+                    // reject 
+                    p.reject(new Error(event.data.result)); 
+                } 
+            } else { 
+            	console.log("Undefined promise"); 
+            } 
+            delete _eid_promises[event.data.nonce]; 
+        } else { 
+            console.log("No nonce in event msg"); 
+        } 
+    } 
+}, false); 
+ 
+ 
+function eParakstsTokenSigning() { 
+    function nonce() { 
+        var val = ""; 
+        var hex = "abcdefghijklmnopqrstuvwxyz0123456789"; 
+        for(var i = 0; i < 16; i++) val += hex.charAt(Math.floor(Math.random() * hex.length)); 
+        return val; 
+    } 
+ 
+    function messagePromise(msg) { 
+        return new Promise(function(resolve, reject) { 
+            // amend with necessary metadata 
+            msg["nonce"] = nonce(); 
+            msg["src"] = "eparaksts-page.js"; 
+            // send message 
+            window.postMessage(msg, "*"); 
+            // and store promise callbacks 
+            _eid_promises[msg.nonce] = { 
+                resolve: resolve, 
+                reject: reject 
+            }; 
+        }); 
+    } 
+    this.getCertificate = function(options) { 
+        var msg = {type: "CERT", lang: options.lang, operation: options.operation}; 
+        console.log("getCertificate()"); 
+        return messagePromise(msg); 
+    }; 
+    this.sign = function(cert, hash, options) { 
+        var msg = {type: "SIGN", cert: cert.hex, hash: hash.hex, hashtype: hash.type, lang: options.lang, operation: options.operation}; 
+        console.log("sign()"); 
+        return messagePromise(msg); 
+    }; 
+    this.getVersion = function() { 
+        console.log("getVersion()"); 
+        return messagePromise({ 
+            type: "VERSION" 
+        }); 
+    }; 
+} 
+</script></head>
+
+<body>
+<b><font size="5">
+
+<p align="CENTER">Velns zārkā.</p>
+</font>
+
+</b><p align="JUSTIFY"><b></b>&nbsp;</p>
+
+<p align="JUSTIFY">12. H. Skujiņa, Andrs Ziemelis, Bilskā.</p>
+
+<p align="JUSTIFY">Dzīvojuši vienā mājā tēvs un dēls. Tēvs bijis buris. Kad tēvs
+nomiris, tad to ielikuši zārkā un aiznesuši uz klēti. Kad vakars nācis, tad dēlam
+ienākušas prātā nelabas domas tā vien licies, ka kas ar nomirušo tēvu pa naktim
+notiks. Dēls nolēmis pa nakti iet uz klēti mironu vaktēt. Dēls vakarā iegājis
+klētī, ielīdis apcirknī un palicis tur visu nakti.</p>
+
+<p align="JUSTIFY">Ap pusnakti sākusi zeme dimdēt un zirgu pakavi klaudzēt. Pie klēts
+piebraukusi karīte. Drīz vien klētī ienākuši trīs savādi tādi kā cilvēki, bet
+kājas tiem bijušas zirgu kājas un katram pakaļā pa gaŗai astei. Tie bijuši velni.
+Savādie ienācēji piegājuši pie zārka, kur gulējis nomirušais saimnieks, un viens
+ienācējs teicis: "Te nu guļ tas vecais maita."</p>
+
+<p align="JUSTIFY">Bet tad velni sākuši ostīties un viens sacījis: "Te ir tāda
+kā dzīva cilvēka smaka."</p>
+
+<p align="JUSTIFY">Velni sākuši staigāt pa klēti un meklēt: Bet saimnieka dēlu
+tomēr neatraduši. Beidzot viņi apmierinājušies. Divi velni izcēluši no zārka
+nomirušo saimnieku un trešais iegūlies zārkā. Tad tas velns, kas zārkā gulējis,
+teicis: "Apskatat nu, vai es tāds pats izskatos, kā tas maita?"</p>
+
+<p align="JUSTIFY">Abi velni apgalvojuši, ka tāds pats vien esot. Abi velni iznesuši
+nomirušo saimnieku un ielikuši karītē. Pakavi vien noklaudzējuši, kad tie
+aizbraukuši. Trešais velns palicis klētī, zārkā guļot mirona vietā. Dēls visu to
+redzējis un dzirdējis. Viņš palicis klētī līdz rīta gaismai.</p>
+
+<p align="JUSTIFY">Gaismai austot dēls iznācis no klēts un licis meitai ūdeni vārīt.
+Kad ūdens vārījies, dēls ielējis to spainī un aizgājis uz klēti. Verdošu ūdeni
+viņš uzlējis zārkā gulošam velnam. Bet velns vēl nekustējies. Dēls gājis vēl
+reiz pēc ūdens un atkal to uzlējis velnam - nekā! Kad dēls trešo spaini uzlējis
+velnam, tad tas lēcis no zārka ārā un aizskrējis ar visu klēts jumtu. Zārks palicis
+tukšs.</p>
+
+
+</body></html>
